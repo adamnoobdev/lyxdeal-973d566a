@@ -43,6 +43,29 @@ const formSchema = z.object({
   featured: z.boolean().default(false),
 });
 
+const categories = [
+  "Laserhårborttagning",
+  "Fillers",
+  "Rynkbehandlingar",
+  "Hudvård",
+  "Hårvård",
+  "Naglar",
+  "Massage",
+];
+
+const cities = [
+  "Stockholm",
+  "Göteborg",
+  "Malmö",
+  "Uppsala",
+  "Västerås",
+  "Örebro",
+  "Linköping",
+  "Helsingborg",
+  "Jönköping",
+  "Norrköping",
+];
+
 interface DealFormProps {
   onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>;
 }
@@ -155,11 +178,11 @@ export const DealForm = ({ onSubmit }: DealFormProps) => {
                     {...field}
                   >
                     <option value="">Välj kategori...</option>
-                    <option value="Skönhet & Spa">Skönhet & Spa</option>
-                    <option value="Restauranger">Restauranger</option>
-                    <option value="Aktiviteter">Aktiviteter</option>
-                    <option value="Resor">Resor</option>
-                    <option value="Shopping">Shopping</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
                   </select>
                 </FormControl>
                 <FormMessage />
@@ -179,16 +202,11 @@ export const DealForm = ({ onSubmit }: DealFormProps) => {
                     {...field}
                   >
                     <option value="">Välj stad...</option>
-                    <option value="Stockholm">Stockholm</option>
-                    <option value="Göteborg">Göteborg</option>
-                    <option value="Malmö">Malmö</option>
-                    <option value="Uppsala">Uppsala</option>
-                    <option value="Västerås">Västerås</option>
-                    <option value="Örebro">Örebro</option>
-                    <option value="Linköping">Linköping</option>
-                    <option value="Helsingborg">Helsingborg</option>
-                    <option value="Jönköping">Jönköping</option>
-                    <option value="Norrköping">Norrköping</option>
+                    {cities.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
                   </select>
                 </FormControl>
                 <FormMessage />
