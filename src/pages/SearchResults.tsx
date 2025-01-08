@@ -99,11 +99,7 @@ const SearchResults = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="container py-6">
-          <NavigationBar />
-        </div>
-      </header>
+      <NavigationBar />
 
       <main className="container py-8">
         <div className="mb-8">
