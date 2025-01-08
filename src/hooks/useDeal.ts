@@ -2,14 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const useDeal = (id: string) => {
+export const useDeal = (id: string | undefined) => {
   return useQuery({
     queryKey: ["deal", id],
     queryFn: async () => {
+      if (!id) throw new Error("No deal ID provided");
+      
       const { data, error } = await supabase
         .from("deals")
         .select("*")
-        .eq("id", id)
+        .eq("id", parseInt(id))
         .maybeSingle();
 
       if (error) {

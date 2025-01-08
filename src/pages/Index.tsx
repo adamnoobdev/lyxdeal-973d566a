@@ -19,12 +19,12 @@ const Index = () => {
   );
   const { data: featuredDeals = [], isLoading: isFeaturedLoading } = useFeaturedDeals();
 
-  const handleSearch = (query: string) => {
+  const handleDealClick = (dealId: number) => {
     try {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
+      navigate(`/product/${dealId}`);
     } catch (error) {
-      console.error("Sökfel:", error);
-      toast.error("Ett fel uppstod vid sökningen. Försök igen.");
+      console.error("Navigeringsfel:", error);
+      toast.error("Ett fel uppstod. Försök igen.");
     }
   };
 
@@ -47,15 +47,6 @@ const Index = () => {
     setSelectedCity(city);
   };
 
-  const handleDealClick = (dealId: number) => {
-    try {
-      navigate(`/product/${dealId}`);
-    } catch (error) {
-      console.error("Navigeringsfel:", error);
-      toast.error("Ett fel uppstod. Försök igen.");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-4 md:py-8">
@@ -76,7 +67,10 @@ const Index = () => {
         />
 
         {!isDealsLoading && (
-          <DealsGrid deals={deals} onDealClick={handleDealClick} />
+          <DealsGrid 
+            deals={deals} 
+            onDealClick={handleDealClick}
+          />
         )}
       </div>
     </div>
