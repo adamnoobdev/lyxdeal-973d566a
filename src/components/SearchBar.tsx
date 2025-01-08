@@ -24,6 +24,8 @@ export const SearchBar = ({
           className="w-full pl-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
+          autoComplete="off"
+          autoFocus={false}
         />
       </div>
     </form>
