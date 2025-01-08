@@ -2,11 +2,13 @@ import { Button } from "@/components/ui/button";
 
 const categories = [
   "Alla Erbjudanden",
-  "Skönhet & Spa",
-  "Restauranger",
-  "Aktiviteter",
-  "Resor",
-  "Shopping",
+  "Laserhårborttagning",
+  "Fillers",
+  "Rynkbehandlingar",
+  "Hudvård",
+  "Hårvård",
+  "Naglar",
+  "Massage",
 ];
 
 interface CategoriesProps {

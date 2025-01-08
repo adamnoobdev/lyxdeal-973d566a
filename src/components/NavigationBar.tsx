@@ -57,28 +57,38 @@ export const NavigationBar = () => {
                 <NavigationMenuContent>
                   <div className="grid gap-3 p-4 w-[200px]">
                     <NavigationMenuLink asChild>
-                      <Link to="/search?category=Skönhet%20%26%20Spa" className="block p-2 hover:bg-accent rounded-md">
-                        Skönhet & Spa
+                      <Link to="/search?category=Laserhårborttagning" className="block p-2 hover:bg-accent rounded-md">
+                        Laserhårborttagning
                       </Link>
                     </NavigationMenuLink>
                     <NavigationMenuLink asChild>
-                      <Link to="/search?category=Restauranger" className="block p-2 hover:bg-accent rounded-md">
-                        Restauranger
+                      <Link to="/search?category=Fillers" className="block p-2 hover:bg-accent rounded-md">
+                        Fillers
                       </Link>
                     </NavigationMenuLink>
                     <NavigationMenuLink asChild>
-                      <Link to="/search?category=Aktiviteter" className="block p-2 hover:bg-accent rounded-md">
-                        Aktiviteter
+                      <Link to="/search?category=Rynkbehandlingar" className="block p-2 hover:bg-accent rounded-md">
+                        Rynkbehandlingar
                       </Link>
                     </NavigationMenuLink>
                     <NavigationMenuLink asChild>
-                      <Link to="/search?category=Resor" className="block p-2 hover:bg-accent rounded-md">
-                        Resor
+                      <Link to="/search?category=Hudvård" className="block p-2 hover:bg-accent rounded-md">
+                        Hudvård
                       </Link>
                     </NavigationMenuLink>
                     <NavigationMenuLink asChild>
-                      <Link to="/search?category=Shopping" className="block p-2 hover:bg-accent rounded-md">
-                        Shopping
+                      <Link to="/search?category=Hårvård" className="block p-2 hover:bg-accent rounded-md">
+                        Hårvård
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/search?category=Naglar" className="block p-2 hover:bg-accent rounded-md">
+                        Naglar
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/search?category=Massage" className="block p-2 hover:bg-accent rounded-md">
+                        Massage
                       </Link>
                     </NavigationMenuLink>
                   </div>
