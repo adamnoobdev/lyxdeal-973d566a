@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DealCard } from "@/components/DealCard";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
+import { Categories } from "@/components/Categories";
+import { toast } from "sonner";
 
 const featuredDeals = [
   {
@@ -82,25 +84,58 @@ const deals = [
 const Index = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("Alla Erbjudanden");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSearch = (query: string) => {
-    navigate(`/search?q=${encodeURIComponent(query)}`);
+    try {
+      navigate(`/search?q=${encodeURIComponent(query)}`);
+    } catch (error) {
+      console.error("Sökfel:", error);
+      toast.error("Ett fel uppstod vid sökningen. Försök igen.");
+    }
   };
 
   const handleCategorySelect = (category: string) => {
-    navigate(`/search?category=${encodeURIComponent(category)}`);
+    try {
+      setIsLoading(true);
+      setSelectedCategory(category);
+      if (category !== "Alla Erbjudanden") {
+        navigate(`/search?category=${encodeURIComponent(category)}`);
+      }
+    } catch (error) {
+      console.error("Kategorifel:", error);
+      toast.error("Ett fel uppstod vid val av kategori. Försök igen.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDealClick = (dealId: number) => {
+    try {
+      navigate(`/product/${dealId}`);
+    } catch (error) {
+      console.error("Navigeringsfel:", error);
+      toast.error("Ett fel uppstod. Försök igen.");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="container py-8">
         <div className="relative mb-8">
           <FeaturedDeals deals={featuredDeals} />
         </div>
 
+        <Categories 
+          selectedCategory={selectedCategory} 
+          onSelectCategory={handleCategorySelect} 
+        />
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {deals.map((deal) => (
-            <DealCard key={deal.id} {...deal} />
+            <div key={deal.id} onClick={() => handleDealClick(deal.id)}>
+              <DealCard {...deal} />
+            </div>
           ))}
         </div>
       </div>
