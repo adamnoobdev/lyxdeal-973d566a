@@ -56,7 +56,7 @@ export function DealCard({
       case 'hårvård':
         return '💇‍♀️';
       default:
-        return '🎁';
+        return '✨';
     }
   };
 
@@ -77,7 +77,7 @@ export function DealCard({
                     {getCategoryEmoji(category)} {category}
                   </Badge>
                   <Badge className="bg-primary text-primary-foreground font-semibold text-sm py-1.5">
-                    🏷️ {discountPercentage}% RABATT
+                    {discountPercentage}% RABATT
                   </Badge>
                 </div>
                 <h3 className="mb-3 text-3xl font-bold tracking-tight">{title}</h3>
@@ -86,7 +86,7 @@ export function DealCard({
                 </p>
                 <div className="mb-4 flex items-center gap-3">
                   <Clock className="h-5 w-5 text-primary" />
-                  <span className="text-lg text-white/90 font-medium">⏳ {timeRemaining}</span>
+                  <span className="text-lg text-white/90 font-medium">{timeRemaining}</span>
                 </div>
                 <div className="mb-6 flex items-center gap-3">
                   <Tag className="h-5 w-5 text-primary" />
@@ -98,7 +98,7 @@ export function DealCard({
                   </span>
                 </div>
                 <Button className="w-full bg-primary hover:bg-primary/90 text-lg font-semibold py-6">
-                  Köp Nu 🛍️
+                  Köp Nu
                 </Button>
               </div>
             </div>
@@ -118,7 +118,7 @@ export function DealCard({
             className="h-52 w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <Badge className="absolute right-3 top-3 bg-primary text-primary-foreground font-semibold">
-            🏷️ {discountPercentage}% RABATT
+            {discountPercentage}% RABATT
           </Badge>
         </div>
         <div className="p-6">
@@ -132,7 +132,7 @@ export function DealCard({
             </p>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">⏳ {timeRemaining}</span>
+              <span className="text-sm font-medium">{timeRemaining}</span>
             </div>
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-primary" />
@@ -144,7 +144,7 @@ export function DealCard({
               </span>
             </div>
             <Button className="w-full bg-primary hover:bg-primary/90 font-semibold py-5">
-              Köp Nu 🛍️
+              Köp Nu
             </Button>
           </div>
         </div>
