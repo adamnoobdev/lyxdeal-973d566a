@@ -21,7 +21,7 @@ export function Categories({ selectedCategory, onSelectCategory }: CategoriesPro
   return (
     <div className="relative mb-6 -mx-4 md:mx-0">
       <ScrollArea className="w-full whitespace-nowrap pb-4">
-        <div className="flex gap-2 px-4">
+        <div className="flex gap-2 px-4 justify-center">
           {categories.map((category) => (
             <Button
               key={category}
