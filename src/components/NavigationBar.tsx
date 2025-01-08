@@ -27,6 +27,45 @@ export const NavigationBar = () => {
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Kategorier</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid gap-3 p-4 w-[200px]">
+                    <NavigationMenuLink asChild>
+                      <Link to="/search?category=Skönhet%20%26%20Spa" className="block p-2 hover:bg-accent rounded-md">
+                        Skönhet & Spa
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/search?category=Restauranger" className="block p-2 hover:bg-accent rounded-md">
+                        Restauranger
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/search?category=Aktiviteter" className="block p-2 hover:bg-accent rounded-md">
+                        Aktiviteter
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/search?category=Resor" className="block p-2 hover:bg-accent rounded-md">
+                        Resor
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link to="/search?category=Shopping" className="block p-2 hover:bg-accent rounded-md">
+                        Shopping
+                      </Link>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+
         <Link 
           to="/" 
           className="flex items-center gap-2 text-xl font-bold hover:text-primary transition-colors"
@@ -35,43 +74,6 @@ export const NavigationBar = () => {
           <Home className="h-6 w-6" />
           <span>Deals</span>
         </Link>
-
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Kategorier</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="grid gap-3 p-4 w-[200px]">
-                  <NavigationMenuLink asChild>
-                    <Link to="/search?category=Skönhet%20%26%20Spa" className="block p-2 hover:bg-accent rounded-md">
-                      Skönhet & Spa
-                    </Link>
-                  </NavigationMenuLink>
-                  <NavigationMenuLink asChild>
-                    <Link to="/search?category=Restauranger" className="block p-2 hover:bg-accent rounded-md">
-                      Restauranger
-                    </Link>
-                  </NavigationMenuLink>
-                  <NavigationMenuLink asChild>
-                    <Link to="/search?category=Aktiviteter" className="block p-2 hover:bg-accent rounded-md">
-                      Aktiviteter
-                    </Link>
-                  </NavigationMenuLink>
-                  <NavigationMenuLink asChild>
-                    <Link to="/search?category=Resor" className="block p-2 hover:bg-accent rounded-md">
-                      Resor
-                    </Link>
-                  </NavigationMenuLink>
-                  <NavigationMenuLink asChild>
-                    <Link to="/search?category=Shopping" className="block p-2 hover:bg-accent rounded-md">
-                      Shopping
-                    </Link>
-                  </NavigationMenuLink>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
 
         <form onSubmit={handleSearch} className="flex-1 max-w-xl">
           <div className="relative">
