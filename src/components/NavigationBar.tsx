@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Menu, ChevronDown, MapPin } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,40 +12,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "./ui/scroll-area";
-
-const categories = [
-  { name: "Laserhårborttagning", icon: "✨" },
-  { name: "Fillers", icon: "💉" },
-  { name: "Rynkbehandlingar", icon: "🔄" },
-  { name: "Hudvård", icon: "🧴" },
-  { name: "Hårvård", icon: "💇‍♀️" },
-  { name: "Naglar", icon: "💅" },
-  { name: "Massage", icon: "💆‍♀️" },
-];
-
-const cities = [
-  "Alla Städer",
-  "Stockholm",
-  "Göteborg",
-  "Malmö",
-  "Uppsala",
-  "Linköping"
-];
+import { CategorySelector } from "./CategorySelector";
+import { CitySelector } from "./CitySelector";
 
 export const NavigationBar = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const isMobile = useIsMobile();
 
   const currentCity = searchParams.get("city") || "Alla Städer";
 
@@ -110,62 +85,14 @@ export const NavigationBar = () => {
         </form>
 
         {/* Desktop Navigation - Right aligned */}
-        <div className="hidden md:flex items-center gap-2">
-          {/* Cities Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className="text-sm font-medium hover:bg-accent flex items-center gap-2"
-              >
-                <MapPin className="h-4 w-4" />
-                {currentCity}
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              align="end" 
-              className="w-56 p-2"
-            >
-              {cities.map((city) => (
-                <DropdownMenuItem
-                  key={city}
-                  onClick={() => handleCityClick(city)}
-                  className="flex items-center gap-3 py-2 px-3 cursor-pointer rounded-md"
-                >
-                  <MapPin className="h-4 w-4" />
-                  <span className="font-medium">{city}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Categories Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className="text-sm font-medium hover:bg-accent"
-              >
-                Kategorier <ChevronDown className="ml-1 h-4 w-4 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              align="end" 
-              className="w-56 p-2"
-            >
-              {categories.map((category) => (
-                <DropdownMenuItem
-                  key={category.name}
-                  onClick={() => handleCategoryClick(category.name)}
-                  className="flex items-center gap-3 py-2 px-3 cursor-pointer rounded-md"
-                >
-                  <span className="text-lg">{category.icon}</span>
-                  <span className="font-medium">{category.name}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="hidden md:flex items-center gap-4">
+          <CitySelector 
+            currentCity={currentCity}
+            onCitySelect={handleCityClick}
+          />
+          <CategorySelector 
+            onCategorySelect={handleCategoryClick}
+          />
         </div>
 
         {/* Mobile Menu */}
@@ -205,35 +132,31 @@ export const NavigationBar = () => {
                 <div className="flex-1 p-4">
                   <div className="mb-6">
                     <h3 className="font-medium mb-3 text-sm text-muted-foreground">Städer</h3>
-                    <div className="space-y-1">
-                      {cities.map((city) => (
-                        <Button
-                          key={city}
-                          variant="ghost"
-                          className="w-full justify-start gap-3 h-10 font-medium"
-                          onClick={() => handleCityClick(city)}
-                        >
-                          <MapPin className="h-4 w-4" />
-                          <span>{city}</span>
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <h3 className="font-medium mb-3 text-sm text-muted-foreground">Kategorier</h3>
-                  <div className="space-y-1">
-                    {categories.map((category) => (
+                    {cities.map((city) => (
                       <Button
-                        key={category.name}
+                        key={city}
                         variant="ghost"
                         className="w-full justify-start gap-3 h-10 font-medium"
-                        onClick={() => handleCategoryClick(category.name)}
+                        onClick={() => handleCityClick(city)}
                       >
-                        <span className="text-lg">{category.icon}</span>
-                        <span>{category.name}</span>
+                        <MapPin className="h-4 w-4" />
+                        <span>{city}</span>
                       </Button>
                     ))}
                   </div>
+
+                  <h3 className="font-medium mb-3 text-sm text-muted-foreground">Kategorier</h3>
+                  {categories.map((category) => (
+                    <Button
+                      key={category.name}
+                      variant="ghost"
+                      className="w-full justify-start gap-3 h-10 font-medium"
+                      onClick={() => handleCategoryClick(category.name)}
+                    >
+                      <span className="text-lg">{category.icon}</span>
+                      <span>{category.name}</span>
+                    </Button>
+                  ))}
                 </div>
               </div>
             </ScrollArea>
