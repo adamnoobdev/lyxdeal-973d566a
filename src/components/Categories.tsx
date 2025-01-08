@@ -21,7 +21,7 @@ export function Categories({ selectedCategory, onSelectCategory }: CategoriesPro
   return (
     <div className="relative mb-6 -mx-4 md:mx-0">
       <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex w-full gap-2 px-4 pb-2 justify-start md:justify-center">
+        <div className="flex w-full gap-3 px-4 pb-2 justify-start md:justify-center">
           {categories.map((category) => (
             <Button
               key={category}
@@ -29,7 +29,7 @@ export function Categories({ selectedCategory, onSelectCategory }: CategoriesPro
               onClick={() => onSelectCategory(category)}
               className={`${
                 selectedCategory === category ? "bg-primary" : ""
-              } flex-shrink-0 text-xs py-1.5 px-3 h-7`}
+              } flex-shrink-0 text-xs py-1.5 px-4 h-8`}
             >
               {category}
             </Button>
