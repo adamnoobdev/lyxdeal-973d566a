@@ -66,7 +66,7 @@ export const NavigationBar = () => {
           <img 
             src={publicUrl} 
             alt="Lyxdeal Logo" 
-            className="h-12 w-auto"
+            className="h-8 w-auto"
           />
         </Link>
 
@@ -105,7 +105,7 @@ export const NavigationBar = () => {
             <ScrollArea className="h-full">
               <div className="flex flex-col h-full">
                 <SheetHeader className="p-4 border-b">
-                  <SheetTitle>Meny</SheetTitle>
+                  <SheetTitle className="text-lg">Meny</SheetTitle>
                 </SheetHeader>
                 
                 <div className="p-4 border-b">
@@ -117,8 +117,8 @@ export const NavigationBar = () => {
                   />
                 </div>
 
-                <div className="flex-1 p-4">
-                  <div className="mb-6">
+                <div className="flex-1 p-4 space-y-6">
+                  <div>
                     <h3 className="font-medium mb-3 text-sm text-muted-foreground">Städer</h3>
                     <CitySelector 
                       currentCity={currentCity}
@@ -127,11 +127,13 @@ export const NavigationBar = () => {
                     />
                   </div>
 
-                  <h3 className="font-medium mb-3 text-sm text-muted-foreground">Kategorier</h3>
-                  <CategorySelector 
-                    onCategorySelect={handleCategoryClick}
-                    variant="mobile"
-                  />
+                  <div>
+                    <h3 className="font-medium mb-3 text-sm text-muted-foreground">Kategorier</h3>
+                    <CategorySelector 
+                      onCategorySelect={handleCategoryClick}
+                      variant="mobile"
+                    />
+                  </div>
                 </div>
               </div>
             </ScrollArea>
