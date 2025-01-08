@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { DealCard } from "@/components/DealCard";
 import { Categories } from "@/components/Categories";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import {
   Carousel,
   CarouselContent,
@@ -44,7 +50,6 @@ const featuredDeals = [
   }
 ];
 
-// Keep existing deals array
 const deals = [
   {
     id: 1,
@@ -88,38 +93,75 @@ const deals = [
   },
 ];
 
+const navigationItems = [
+  {
+    title: "Kategorier",
+    items: [
+      { title: "Skönhet & Spa", href: "#" },
+      { title: "Restauranger", href: "#" },
+      { title: "Aktiviteter", href: "#" },
+      { title: "Resor", href: "#" },
+    ],
+  },
+  {
+    title: "Populära",
+    items: [
+      { title: "Veckans Deals", href: "#" },
+      { title: "Mest Sålda", href: "#" },
+      { title: "Nya Erbjudanden", href: "#" },
+    ],
+  },
+  {
+    title: "Om Oss",
+    items: [
+      { title: "Kontakta Oss", href: "#" },
+      { title: "Kundservice", href: "#" },
+      { title: "Villkor", href: "#" },
+    ],
+  },
+];
+
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("Alla Erbjudanden");
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredDeals = deals.filter(deal => {
-    const matchesCategory = selectedCategory === "Alla Erbjudanden" || deal.category === selectedCategory;
-    const matchesSearch = 
-      deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      deal.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      deal.category.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    return matchesCategory && matchesSearch;
-  });
+  const filteredDeals = selectedCategory === "Alla Erbjudanden"
+    ? deals
+    : deals.filter(deal => deal.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="container py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Hetaste Erbjudandena</h1>
-          <p className="mt-2 mb-4 text-gray-600">Missa inte våra mest populära deals!</p>
-          
-          <div className="relative mb-6">
-            <div className="flex w-full max-w-sm items-center space-x-2">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Sök efter erbjudanden..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Hetaste Erbjudandena</h1>
+              <p className="mt-2 text-gray-600">Missa inte våra mest populära deals!</p>
             </div>
+            <NavigationMenu>
+              <NavigationMenuList>
+                {navigationItems.map((section) => (
+                  <NavigationMenuItem key={section.title}>
+                    <NavigationMenuTrigger>{section.title}</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                        {section.items.map((item) => (
+                          <li key={item.title}>
+                            <NavigationMenuLink asChild>
+                              <a
+                                href={item.href}
+                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              >
+                                <div className="text-sm font-medium leading-none">{item.title}</div>
+                              </a>
+                            </NavigationMenuLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
           
           <div className="relative">
