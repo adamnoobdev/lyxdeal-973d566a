@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DealInfo } from "@/components/DealInfo";
+import { CategoryBadge } from "@/components/CategoryBadge";
 import { useEffect } from "react";
 
 const ProductDetails = () => {
@@ -17,6 +18,14 @@ const ProductDetails = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const isNew = (created_at: string) => {
+    const createdDate = new Date(created_at);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 3;
+  };
 
   if (isError) {
     return (
@@ -77,11 +86,20 @@ const ProductDetails = () => {
                 alt={deal.title}
                 className="aspect-[4/3] w-full rounded-lg object-cover shadow-lg"
               />
-              <Badge 
-                className="absolute right-3 top-3 bg-primary text-white font-semibold"
-              >
-                {discountPercentage}% RABATT
-              </Badge>
+              <div className="absolute right-3 top-3 flex gap-2">
+                <CategoryBadge 
+                  category={`${discountPercentage}% RABATT`} 
+                  variant="default"
+                  className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10"
+                />
+                {isNew(deal.created_at) && (
+                  <CategoryBadge
+                    category="NYTT"
+                    variant="default"
+                    className="bg-yellow-500/90 text-yellow-950 font-semibold shadow-sm backdrop-blur-md"
+                  />
+                )}
+              </div>
             </div>
           </div>
           

@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import { Star, MapPin, Clock, Tag } from "lucide-react";
+import { CategoryBadge } from "./CategoryBadge";
 
 interface DealInfoProps {
   title: string;
@@ -42,9 +43,7 @@ export const DealInfo = ({
 
   return (
     <div className="space-y-6">
-      <Badge variant="outline" className="mb-2">
-        {category}
-      </Badge>
+      <CategoryBadge category={category} className="shadow-sm" />
       
       <h1 className="text-3xl font-bold">{title}</h1>
       
@@ -76,8 +75,14 @@ export const DealInfo = ({
       </div>
       
       <div className="space-y-2 text-sm text-gray-600">
-        <p>✓ Plats: {city}</p>
-        <p>✓ Tid kvar: {timeRemaining}</p>
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-primary" />
+          <span>{city}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-primary" />
+          <span>{timeRemaining}</span>
+        </div>
       </div>
     </div>
   );
