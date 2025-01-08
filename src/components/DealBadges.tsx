@@ -30,7 +30,7 @@ export function DealBadges({
       {showDiscountBadge && discountPercentage && (
         <Badge 
           variant={variant} 
-          className="bg-gradient-to-r from-pink-500 to-purple-500 text-white border-0"
+          className="bg-secondary text-secondary-foreground hover:bg-secondary/90 border-0"
         >
           {discountPercentage}% RABATT
         </Badge>
@@ -38,7 +38,7 @@ export function DealBadges({
       {showNewBadge && isNew && (
         <Badge 
           variant={variant} 
-          className="bg-emerald-500/90 text-white border-0"
+          className="bg-muted text-muted-foreground hover:bg-muted/90 border-0"
         >
           NYTT
         </Badge>
