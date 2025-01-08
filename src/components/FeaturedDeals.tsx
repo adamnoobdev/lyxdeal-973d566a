@@ -15,6 +15,7 @@ interface Deal {
   discountedPrice: number;
   timeRemaining: string;
   category: string;
+  city: string;  // Added city property to match DealCardProps
 }
 
 interface FeaturedDealsProps {
