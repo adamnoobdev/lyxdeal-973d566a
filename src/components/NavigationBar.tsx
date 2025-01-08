@@ -27,6 +27,28 @@ export const NavigationBar = () => {
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 text-xl font-bold hover:text-primary transition-colors"
+          aria-label="Gå till startsidan"
+        >
+          <Home className="h-6 w-6" />
+          <span>Deals</span>
+        </Link>
+
+        <form onSubmit={handleSearch} className="flex-1 max-w-xl">
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-5 w-5 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Sök erbjudanden..."
+              className="w-full pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </form>
+
         <div className="flex items-center gap-4">
           <NavigationMenu>
             <NavigationMenuList>
@@ -65,28 +87,6 @@ export const NavigationBar = () => {
             </NavigationMenuList>
           </NavigationMenu>
         </div>
-
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 text-xl font-bold hover:text-primary transition-colors"
-          aria-label="Gå till startsidan"
-        >
-          <Home className="h-6 w-6" />
-          <span>Deals</span>
-        </Link>
-
-        <form onSubmit={handleSearch} className="flex-1 max-w-xl">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Sök erbjudanden..."
-              className="w-full pl-9"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </form>
       </div>
     </nav>
   );
