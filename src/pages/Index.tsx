@@ -1,8 +1,49 @@
 import { useState } from "react";
 import { DealCard } from "@/components/DealCard";
 import { Categories } from "@/components/Categories";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
-// Mock data for initial development
+// Featured deals for the carousel
+const featuredDeals = [
+  {
+    id: 5,
+    title: "Lyxig Spahelg för Två",
+    description: "Romantisk spaupplevelse med övernattning och behandlingar",
+    imageUrl: "https://images.unsplash.com/photo-1531256379416-9f000e90aacc?w=800",
+    originalPrice: 4990,
+    discountedPrice: 2495,
+    timeRemaining: "48 timmar kvar",
+    category: "Skönhet & Spa",
+  },
+  {
+    id: 6,
+    title: "Michelin-stjärnig Matupplevelse",
+    description: "7-rätters avsmakningsmeny med vinpaket",
+    imageUrl: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800",
+    originalPrice: 3990,
+    discountedPrice: 2790,
+    timeRemaining: "24 timmar kvar",
+    category: "Restauranger",
+  },
+  {
+    id: 7,
+    title: "Exklusiv Golfhelg",
+    description: "2 dagars golfpaket med boende och greenfee",
+    imageUrl: "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800",
+    originalPrice: 5990,
+    discountedPrice: 3995,
+    timeRemaining: "72 timmar kvar",
+    category: "Sport & Fritid",
+  }
+];
+
+// Keep existing deals array
 const deals = [
   {
     id: 1,
@@ -57,8 +98,28 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="container py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Heta Erbjudanden</h1>
-          <p className="mt-2 text-gray-600">Upptäck fantastiska erbjudanden och spara pengar!</p>
+          <h1 className="text-3xl font-bold text-gray-900">Hetaste Erbjudandena</h1>
+          <p className="mt-2 mb-6 text-gray-600">Missa inte våra mest populära deals!</p>
+          
+          <div className="relative">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent>
+                {featuredDeals.map((deal) => (
+                  <CarouselItem key={deal.id} className="md:basis-1/2 lg:basis-1/3">
+                    <DealCard {...deal} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-0" />
+              <CarouselNext className="right-0" />
+            </Carousel>
+          </div>
         </div>
       </header>
 
