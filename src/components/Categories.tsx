@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 
 const categories = [
-  "All Deals",
-  "Restaurants",
-  "Beauty & Spa",
-  "Activities",
-  "Travel",
+  "Alla Erbjudanden",
+  "Skönhet & Spa",
+  "Restauranger",
+  "Aktiviteter",
+  "Resor",
   "Shopping",
 ];
 
