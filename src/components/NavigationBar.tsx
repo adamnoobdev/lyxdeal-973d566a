@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Menu, ChevronDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Search, Menu, ChevronDown, MapPin } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -31,11 +31,23 @@ const categories = [
   { name: "Massage", icon: "💆‍♀️" },
 ];
 
+const cities = [
+  "Alla Städer",
+  "Stockholm",
+  "Göteborg",
+  "Malmö",
+  "Uppsala",
+  "Linköping"
+];
+
 export const NavigationBar = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  const currentCity = searchParams.get("city") || "Alla Städer";
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +58,20 @@ export const NavigationBar = () => {
   };
 
   const handleCategoryClick = (category: string) => {
-    navigate(`/search?category=${encodeURIComponent(category)}`);
+    const params = new URLSearchParams(searchParams);
+    params.set("category", category);
+    navigate(`/search?${params.toString()}`);
+    setIsOpen(false);
+  };
+
+  const handleCityClick = (city: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (city === "Alla Städer") {
+      params.delete("city");
+    } else {
+      params.set("city", city);
+    }
+    navigate(`/search?${params.toString()}`);
     setIsOpen(false);
   };
 
@@ -84,8 +109,38 @@ export const NavigationBar = () => {
           </div>
         </form>
 
-        {/* Desktop Categories Dropdown - Right aligned */}
-        <div className="hidden md:flex items-center">
+        {/* Desktop Navigation - Right aligned */}
+        <div className="hidden md:flex items-center gap-2">
+          {/* Cities Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className="text-sm font-medium hover:bg-accent flex items-center gap-2"
+              >
+                <MapPin className="h-4 w-4" />
+                {currentCity}
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align="end" 
+              className="w-56 p-2"
+            >
+              {cities.map((city) => (
+                <DropdownMenuItem
+                  key={city}
+                  onClick={() => handleCityClick(city)}
+                  className="flex items-center gap-3 py-2 px-3 cursor-pointer rounded-md"
+                >
+                  <MapPin className="h-4 w-4" />
+                  <span className="font-medium">{city}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Categories Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
@@ -148,6 +203,23 @@ export const NavigationBar = () => {
                 </div>
 
                 <div className="flex-1 p-4">
+                  <div className="mb-6">
+                    <h3 className="font-medium mb-3 text-sm text-muted-foreground">Städer</h3>
+                    <div className="space-y-1">
+                      {cities.map((city) => (
+                        <Button
+                          key={city}
+                          variant="ghost"
+                          className="w-full justify-start gap-3 h-10 font-medium"
+                          onClick={() => handleCityClick(city)}
+                        >
+                          <MapPin className="h-4 w-4" />
+                          <span>{city}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
                   <h3 className="font-medium mb-3 text-sm text-muted-foreground">Kategorier</h3>
                   <div className="space-y-1">
                     {categories.map((category) => (
