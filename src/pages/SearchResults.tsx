@@ -6,83 +6,95 @@ import { Categories } from "@/components/Categories";
 const deals = [
   {
     id: 1,
-    title: "Lyxig Spa-dag",
-    description: "Heldags spa-tillgång med 60 minuters massage och ansiktsbehandling",
-    imageUrl: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
-    originalPrice: 2000,
-    discountedPrice: 990,
-    timeRemaining: "2 dagar kvar",
-    category: "Skönhet & Spa",
+    title: "Premium Botox-behandling",
+    description: "Omfattande behandling för panna, kråksparkar och glabellan med marknadsledande Botox",
+    imageUrl: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800",
+    originalPrice: 4990,
+    discountedPrice: 2995,
+    timeRemaining: "24 timmar kvar",
+    category: "Rynkbehandlingar",
   },
   {
     id: 2,
-    title: "3-rätters Gourmetmiddag",
-    description: "Exklusiv matupplevelse på prisbelönt restaurang",
-    imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
-    originalPrice: 1500,
-    discountedPrice: 750,
-    timeRemaining: "3 dagar kvar",
-    category: "Restauranger",
+    title: "Helkropps Laserhårborttagning",
+    description: "Komplett paket med 6 behandlingar för hela kroppen med senaste Soprano-teknologin",
+    imageUrl: "https://images.unsplash.com/photo-1598524374912-6b0b0bdd5e4e?w=800",
+    originalPrice: 12990,
+    discountedPrice: 6495,
+    timeRemaining: "48 timmar kvar",
+    category: "Laserhårborttagning",
   },
   {
     id: 3,
-    title: "Äventyrspark Heldagsbiljett",
-    description: "Tillgång till alla attraktioner under en hel dag",
-    imageUrl: "https://images.unsplash.com/photo-1536768139911-e290a59011e4?w=800",
-    originalPrice: 800,
-    discountedPrice: 450,
-    timeRemaining: "5 dagar kvar",
-    category: "Aktiviteter",
+    title: "Lyxig Hårtransformation",
+    description: "Komplett makeover med klippning, balayage och Olaplex-behandling",
+    imageUrl: "https://images.unsplash.com/photo-1560869713-da86bd4f31b7?w=800",
+    originalPrice: 3990,
+    discountedPrice: 1995,
+    timeRemaining: "72 timmar kvar",
+    category: "Hårvård",
   },
   {
     id: 4,
-    title: "Weekendpaket",
-    description: "2 nätter på lyxhotell med frukost",
-    imageUrl: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800",
-    originalPrice: 4000,
-    discountedPrice: 2490,
-    timeRemaining: "7 dagar kvar",
-    category: "Resor",
-  },
-];
-
-const navigationItems = [
-  {
-    title: "Kategorier",
-    items: [
-      { title: "Skönhet & Spa", href: "#" },
-      { title: "Restauranger", href: "#" },
-      { title: "Aktiviteter", href: "#" },
-      { title: "Resor", href: "#" },
-    ],
+    title: "Läppförstoring Premium",
+    description: "Naturlig volym med Juvederm Volbella XC, inkl. konsultation och återbesök",
+    imageUrl: "https://images.unsplash.com/photo-1588528402605-1f9d0eb7a6d6?w=800",
+    originalPrice: 4990,
+    discountedPrice: 2995,
+    timeRemaining: "5 dagar kvar",
+    category: "Fillers",
   },
   {
-    title: "Populära",
-    items: [
-      { title: "Veckans Deals", href: "#" },
-      { title: "Mest Sålda", href: "#" },
-      { title: "Nya Erbjudanden", href: "#" },
-    ],
+    id: 5,
+    title: "Kindförstoring med Filler",
+    description: "Definiera ansiktskonturer med premium Restylane Lyft, inkl. bedövning",
+    imageUrl: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800",
+    originalPrice: 5990,
+    discountedPrice: 3495,
+    timeRemaining: "3 dagar kvar",
+    category: "Fillers",
   },
   {
-    title: "Om Oss",
-    items: [
-      { title: "Kontakta Oss", href: "#" },
-      { title: "Kundservice", href: "#" },
-      { title: "Villkor", href: "#" },
-    ],
+    id: 6,
+    title: "Lyxig Spa-manikyr",
+    description: "2 timmars behandling med handmassage, paraffinbad och gel-lack",
+    imageUrl: "https://images.unsplash.com/photo-1610992015732-2449b0dd2b8f?w=800",
+    originalPrice: 1290,
+    discountedPrice: 795,
+    timeRemaining: "4 dagar kvar",
+    category: "Naglar",
   },
+  {
+    id: 7,
+    title: "Hot Stone Massage Deluxe",
+    description: "90 minuters avkopplande massage med varma lavastenar och aromaterapi",
+    imageUrl: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800",
+    originalPrice: 1590,
+    discountedPrice: 895,
+    timeRemaining: "6 dagar kvar",
+    category: "Massage",
+  },
+  {
+    id: 8,
+    title: "Medicinsk Hudvårdsbehandling",
+    description: "Djupgående behandling med AHA/BHA-syror och LED-ljusterapi",
+    imageUrl: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800",
+    originalPrice: 1990,
+    discountedPrice: 995,
+    timeRemaining: "4 dagar kvar",
+    category: "Hudvård",
+  }
 ];
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("q") || "";
-  const category = searchParams.get("category") || "Alla Erbjudanden";
-  const [selectedCategory, setSelectedCategory] = useState(category);
+  const categoryParam = searchParams.get("category") || "Alla Erbjudanden";
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
 
   useEffect(() => {
-    setSelectedCategory(category);
-  }, [category]);
+    setSelectedCategory(categoryParam);
+  }, [categoryParam]);
 
   const filteredDeals = deals.filter((deal) => {
     const matchesCategory =
@@ -96,14 +108,25 @@ const SearchResults = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const handleCategorySelect = (category: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (category !== "Alla Erbjudanden") {
+      params.set("category", category);
+    } else {
+      params.delete("category");
+    }
+    window.history.pushState({}, "", `?${params.toString()}`);
+    setSelectedCategory(category);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <main className="container py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {searchQuery
               ? `Sökresultat för "${searchQuery}"`
-              : `${selectedCategory}`}
+              : selectedCategory}
           </h1>
           <p className="text-gray-600">
             {filteredDeals.length} erbjudanden hittades
@@ -112,12 +135,7 @@ const SearchResults = () => {
 
         <Categories
           selectedCategory={selectedCategory}
-          onSelectCategory={(category) => {
-            const params = new URLSearchParams(searchParams);
-            params.set("category", category);
-            window.history.pushState({}, "", `?${params.toString()}`);
-            setSelectedCategory(category);
-          }}
+          onSelectCategory={handleCategorySelect}
         />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
