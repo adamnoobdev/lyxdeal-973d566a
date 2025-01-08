@@ -1,10 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MessageSquare, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useDeal } from "@/hooks/useDeal";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// Mock data for initial development
+// Mock data for reviews (we can implement real reviews later)
 const reviews = [
   {
     id: 1,
@@ -24,26 +26,8 @@ const reviews = [
 
 const ProductDetails = () => {
   const { id } = useParams();
-  // Mock product data (in a real app, this would be fetched based on the id)
-  const product = {
-    id: 1,
-    title: "Lyxig Spa-dag",
-    description: "Heldags spa-tillgång med 60 minuters massage och ansiktsbehandling",
-    longDescription: "Unna dig en hel dag av avkoppling på vårt lyxiga spa. I paketet ingår:\n\n" +
-      "• Tillgång till alla spa-faciliteter\n" +
-      "• 60 minuters klassisk massage\n" +
-      "• Ansiktsbehandling\n" +
-      "• Lunch med ett glas mousserande vin\n" +
-      "• Lån av badrock, tofflor och handduk",
-    imageUrl: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
-    originalPrice: 2000,
-    discountedPrice: 990,
-    timeRemaining: "2 dagar kvar",
-    category: "Skönhet & Spa",
-    location: "Stockholm Spa & Wellness",
-    validUntil: "2024-12-31",
-    averageRating: 4.5
-  };
+  const navigate = useNavigate();
+  const { data: deal, isLoading, isError } = useDeal(id || "");
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('sv-SE', {
@@ -64,6 +48,49 @@ const ProductDetails = () => {
     ));
   };
 
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Erbjudandet kunde inte hittas
+            </h2>
+            <Button
+              onClick={() => navigate("/")}
+              className="mt-4"
+            >
+              Gå tillbaka till startsidan
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading || !deal) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-8 md:grid-cols-2">
+            <Skeleton className="h-[400px] w-full rounded-lg" />
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-48 w-full rounded-lg" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const discountPercentage = Math.round(
+    ((deal.originalPrice - deal.discountedPrice) / deal.originalPrice) * 100
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <div className="container mx-auto px-4">
@@ -74,48 +101,57 @@ const ProductDetails = () => {
         
         <div className="grid gap-8 md:grid-cols-2">
           <div>
-            <img
-              src={product.imageUrl}
-              alt={product.title}
-              className="rounded-lg object-cover shadow-lg"
-            />
+            <div className="relative">
+              <img
+                src={deal.imageUrl}
+                alt={deal.title}
+                className="aspect-[4/3] w-full rounded-lg object-cover shadow-lg"
+              />
+              <Badge 
+                className="absolute right-3 top-3 bg-primary text-white font-semibold"
+              >
+                {discountPercentage}% RABATT
+              </Badge>
+            </div>
           </div>
           
           <div className="space-y-6">
             <Badge variant="outline" className="mb-2">
-              {product.category}
+              {deal.category}
             </Badge>
             
-            <h1 className="text-3xl font-bold">{product.title}</h1>
+            <h1 className="text-3xl font-bold">{deal.title}</h1>
             
             <div className="flex items-center gap-2">
-              {renderStars(product.averageRating)}
+              {renderStars(4.5)}
               <span className="text-sm text-gray-600">
-                ({product.averageRating} / 5)
+                (4.5 / 5)
               </span>
             </div>
             
             <div className="space-y-2">
-              <p className="text-lg text-gray-600">{product.description}</p>
-              <p className="whitespace-pre-line text-gray-700">{product.longDescription}</p>
+              <p className="text-lg text-gray-600">{deal.description}</p>
             </div>
             
-            <div className="rounded-lg bg-white p-4 shadow">
+            <div className="rounded-lg bg-white p-6 shadow-lg">
               <div className="mb-4">
                 <p className="text-sm text-gray-600">Ordinarie pris</p>
-                <p className="text-lg line-through">{formatPrice(product.originalPrice)}</p>
+                <p className="text-lg line-through">{formatPrice(deal.originalPrice)}</p>
               </div>
               <div className="mb-4">
                 <p className="text-sm text-gray-600">Ditt pris</p>
-                <p className="text-3xl font-bold text-success">{formatPrice(product.discountedPrice)}</p>
+                <p className="text-3xl font-bold text-primary">
+                  {formatPrice(deal.discountedPrice)}
+                </p>
               </div>
-              <Button className="w-full">Köp Nu</Button>
+              <Button className="w-full bg-primary hover:bg-primary/90 text-white">
+                Köp Nu
+              </Button>
             </div>
             
             <div className="space-y-2 text-sm text-gray-600">
-              <p>✓ Gäller till: {product.validUntil}</p>
-              <p>✓ Plats: {product.location}</p>
-              <p>✓ Tid kvar: {product.timeRemaining}</p>
+              <p>✓ Plats: {deal.city}</p>
+              <p>✓ Tid kvar: {deal.timeRemaining}</p>
             </div>
           </div>
         </div>
