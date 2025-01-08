@@ -64,16 +64,16 @@ export function DealCard({
 
   if (featured) {
     return (
-      <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl rounded-xl">
+      <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl rounded-none sm:rounded-xl">
         <Link to={`/product/${id}`}>
           <div className="relative">
             <img
               src={imageUrl}
               alt={title}
-              className="h-[400px] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-[300px] sm:h-[400px] w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
-              <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 text-white">
                 <div className="flex items-center justify-between mb-4">
                   <Badge variant="outline" className="border-white text-white backdrop-blur-sm bg-white/10 text-sm py-1.5">
                     {getCategoryEmoji(category)} {category}
@@ -82,28 +82,28 @@ export function DealCard({
                     {discountPercentage}% RABATT
                   </Badge>
                 </div>
-                <h3 className="mb-3 text-3xl font-bold tracking-tight text-white">{title}</h3>
-                <p className="mb-6 text-lg line-clamp-2 text-white/90 font-medium">
+                <h3 className="mb-3 text-2xl sm:text-3xl font-bold tracking-tight text-white">{title}</h3>
+                <p className="mb-6 text-base sm:text-lg line-clamp-2 text-white/90 font-medium">
                   {description}
                 </p>
                 <div className="flex items-center gap-3 mb-4">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <span className="text-lg text-white/90 font-medium">{city}</span>
+                  <MapPin className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
+                  <span className="text-base sm:text-lg text-white/90 font-medium">{city}</span>
                 </div>
                 <div className="mb-4 flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-primary" />
-                  <span className="text-lg text-white/90 font-medium">{timeRemaining}</span>
+                  <Clock className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
+                  <span className="text-base sm:text-lg text-white/90 font-medium">{timeRemaining}</span>
                 </div>
                 <div className="mb-6 flex items-center gap-3">
-                  <Tag className="h-5 w-5 text-primary" />
-                  <span className="text-lg line-through text-white/70">
+                  <Tag className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
+                  <span className="text-base sm:text-lg line-through text-white/70">
                     {formatPrice(originalPrice)}
                   </span>
-                  <span className="text-2xl font-bold text-white">
+                  <span className="text-xl sm:text-2xl font-bold text-white">
                     {formatPrice(discountedPrice)}
                   </span>
                 </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white text-lg font-semibold py-6">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white text-base sm:text-lg font-semibold py-5 sm:py-6">
                   Köp Nu
                 </Button>
               </div>

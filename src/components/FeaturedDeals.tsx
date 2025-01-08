@@ -15,7 +15,7 @@ interface Deal {
   discountedPrice: number;
   timeRemaining: string;
   category: string;
-  city: string;  // Added city property to match DealCardProps
+  city: string;
 }
 
 interface FeaturedDealsProps {
@@ -44,21 +44,23 @@ export const FeaturedDeals = ({ deals }: FeaturedDealsProps) => {
   }, [api]);
 
   return (
-    <Carousel
-      opts={{
-        align: "start",
-        loop: true,
-      }}
-      setApi={setApi}
-      className="w-full"
-    >
-      <CarouselContent>
-        {deals.map((deal) => (
-          <CarouselItem key={deal.id} className="basis-full">
-            <DealCard {...deal} featured={true} />
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-    </Carousel>
+    <div className="-mx-4 sm:mx-0">
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+        setApi={setApi}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-0 sm:-ml-4">
+          {deals.map((deal) => (
+            <CarouselItem key={deal.id} className="pl-0 sm:pl-4 basis-full">
+              <DealCard {...deal} featured={true} />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+    </div>
   );
 };
