@@ -3,7 +3,7 @@ import { DealBadges } from "./DealBadges";
 import { PriceDisplay } from "./PriceDisplay";
 import { differenceInDays } from "date-fns";
 import { Button } from "./ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, MapPin, Clock } from "lucide-react";
 
 interface DealCardProps {
   id: number;
@@ -26,7 +26,9 @@ export const DealCard = ({
   imageUrl, 
   originalPrice, 
   discountedPrice,
+  timeRemaining,
   category,
+  city,
   featured = false,
   created_at,
 }: DealCardProps) => {
@@ -40,7 +42,7 @@ export const DealCard = ({
 
   return (
     <Link to={`/product/${id}`}>
-      <div className="group relative overflow-hidden rounded-xl bg-white transition-all hover:shadow-lg">
+      <div className="group relative h-full overflow-hidden rounded-xl bg-white transition-all hover:shadow-lg">
         <div className="relative aspect-[4/3] overflow-hidden">
           <img
             src={imageUrl || "/placeholder.svg"}
@@ -56,7 +58,7 @@ export const DealCard = ({
           </div>
         </div>
 
-        <div className="p-4">
+        <div className="flex h-[calc(100%-75%)] flex-col p-4">
           <DealBadges
             category={category}
             showDiscountBadge={false}
@@ -72,18 +74,30 @@ export const DealCard = ({
             {description}
           </p>
 
-          <div className="flex items-center justify-between gap-4">
-            <PriceDisplay
-              originalPrice={originalPrice}
-              discountedPrice={discountedPrice}
-            />
-            <Button 
-              size="sm" 
-              className="bg-primary hover:bg-primary/90"
-            >
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Köp
-            </Button>
+          <div className="mt-auto space-y-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 text-primary" />
+              <span>{city}</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4 text-primary" />
+              <span>{timeRemaining}</span>
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <PriceDisplay
+                originalPrice={originalPrice}
+                discountedPrice={discountedPrice}
+              />
+              <Button 
+                size="sm" 
+                className="bg-primary hover:bg-primary/90"
+              >
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Köp
+              </Button>
+            </div>
           </div>
         </div>
       </div>
