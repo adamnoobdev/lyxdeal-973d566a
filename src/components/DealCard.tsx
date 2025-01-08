@@ -50,7 +50,7 @@ export function DealCard({
             {discountPercentage}% RABATT
           </Badge>
         </div>
-        <div className="p-4">
+        <div className="p-4 text-left">
           <Badge variant="outline" className="mb-2">
             {category}
           </Badge>

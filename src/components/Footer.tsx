@@ -7,7 +7,7 @@ export const Footer = () => {
       <div className="container">
         <Separator className="mb-8" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
+          <div className="text-left">
             <h3 className="font-semibold text-lg mb-4">Om oss</h3>
             <ul className="space-y-2">
               <li>
@@ -28,7 +28,7 @@ export const Footer = () => {
             </ul>
           </div>
           
-          <div>
+          <div className="text-left">
             <h3 className="font-semibold text-lg mb-4">Kundservice</h3>
             <ul className="space-y-2">
               <li>
@@ -49,7 +49,7 @@ export const Footer = () => {
             </ul>
           </div>
           
-          <div>
+          <div className="text-left">
             <h3 className="font-semibold text-lg mb-4">Följ oss</h3>
             <ul className="space-y-2">
               <li>
@@ -73,7 +73,7 @@ export const Footer = () => {
         
         <Separator className="my-8" />
         
-        <div className="text-center text-gray-600">
+        <div className="text-left text-gray-600">
           <p>&copy; {new Date().getFullYear()} DealSite. Alla rättigheter förbehållna.</p>
         </div>
       </div>
