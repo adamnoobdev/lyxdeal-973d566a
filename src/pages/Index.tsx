@@ -80,34 +80,6 @@ const deals = [
   },
 ];
 
-const navigationItems = [
-  {
-    title: "Kategorier",
-    items: [
-      { title: "Skönhet & Spa", href: "#" },
-      { title: "Restauranger", href: "#" },
-      { title: "Aktiviteter", href: "#" },
-      { title: "Resor", href: "#" },
-    ],
-  },
-  {
-    title: "Populära",
-    items: [
-      { title: "Veckans Deals", href: "#" },
-      { title: "Mest Sålda", href: "#" },
-      { title: "Nya Erbjudanden", href: "#" },
-    ],
-  },
-  {
-    title: "Om Oss",
-    items: [
-      { title: "Kontakta Oss", href: "#" },
-      { title: "Kundservice", href: "#" },
-      { title: "Villkor", href: "#" },
-    ],
-  },
-];
-
 const Index = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("Alla Erbjudanden");
@@ -122,26 +94,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="container py-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Hetaste Erbjudandena
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Missa inte våra mest populära deals!
-              </p>
-            </div>
-          </div>
-
-          <div className="relative">
-            <FeaturedDeals deals={featuredDeals} />
-          </div>
+      <div className="container py-8">
+        <div className="relative mb-8">
+          <FeaturedDeals deals={featuredDeals} />
         </div>
-      </header>
 
-      <main className="container py-8">
         <Categories
           selectedCategory={selectedCategory}
           onSelectCategory={handleCategorySelect}
@@ -152,7 +109,7 @@ const Index = () => {
             <DealCard key={deal.id} {...deal} />
           ))}
         </div>
-      </main>
+      </div>
     </div>
   );
 };
