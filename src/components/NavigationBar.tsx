@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Menu, MapPin, ChevronDown } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,25 +14,7 @@ import {
 import { ScrollArea } from "./ui/scroll-area";
 import { CategorySelector } from "./CategorySelector";
 import { CitySelector } from "./CitySelector";
-
-const cities = [
-  "Alla Städer",
-  "Stockholm",
-  "Göteborg",
-  "Malmö",
-  "Uppsala",
-  "Linköping"
-];
-
-const categories = [
-  { name: "Laserhårborttagning", icon: "✨" },
-  { name: "Fillers", icon: "💉" },
-  { name: "Rynkbehandlingar", icon: "🔄" },
-  { name: "Hudvård", icon: "🧴" },
-  { name: "Hårvård", icon: "💇‍♀️" },
-  { name: "Naglar", icon: "💅" },
-  { name: "Massage", icon: "💆‍♀️" },
-];
+import { SearchBar } from "./SearchBar";
 
 export const NavigationBar = () => {
   const navigate = useNavigate();
@@ -90,18 +71,12 @@ export const NavigationBar = () => {
         </Link>
 
         {/* Desktop Search Bar - Centered */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-auto hidden md:block">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Sök erbjudanden..."
-              className="w-full pl-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </form>
+        <SearchBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onSubmit={handleSearch}
+          className="flex-1 max-w-xl mx-auto hidden md:block"
+        />
 
         {/* Desktop Navigation - Right aligned */}
         <div className="hidden md:flex items-center gap-4">
@@ -134,48 +109,29 @@ export const NavigationBar = () => {
                 </SheetHeader>
                 
                 <div className="p-4 border-b">
-                  <form onSubmit={handleSearch} className="w-full">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="search"
-                        placeholder="Sök erbjudanden..."
-                        className="w-full pl-9 bg-muted/50 border-0"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                  </form>
+                  <SearchBar
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onSubmit={handleSearch}
+                    className="w-full"
+                  />
                 </div>
 
                 <div className="flex-1 p-4">
                   <div className="mb-6">
                     <h3 className="font-medium mb-3 text-sm text-muted-foreground">Städer</h3>
-                    {cities.map((city) => (
-                      <Button
-                        key={city}
-                        variant="ghost"
-                        className="w-full justify-start gap-3 h-10 font-medium"
-                        onClick={() => handleCityClick(city)}
-                      >
-                        <MapPin className="h-4 w-4" />
-                        <span>{city}</span>
-                      </Button>
-                    ))}
+                    <CitySelector 
+                      currentCity={currentCity}
+                      onCitySelect={handleCityClick}
+                      variant="mobile"
+                    />
                   </div>
 
                   <h3 className="font-medium mb-3 text-sm text-muted-foreground">Kategorier</h3>
-                  {categories.map((category) => (
-                    <Button
-                      key={category.name}
-                      variant="ghost"
-                      className="w-full justify-start gap-3 h-10 font-medium"
-                      onClick={() => handleCategoryClick(category.name)}
-                    >
-                      <span className="text-lg">{category.icon}</span>
-                      <span>{category.name}</span>
-                    </Button>
-                  ))}
+                  <CategorySelector 
+                    onCategorySelect={handleCategoryClick}
+                    variant="mobile"
+                  />
                 </div>
               </div>
             </ScrollArea>

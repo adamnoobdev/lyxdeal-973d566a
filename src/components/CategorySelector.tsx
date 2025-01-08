@@ -19,9 +19,31 @@ const categories = [
 
 interface CategorySelectorProps {
   onCategorySelect: (category: string) => void;
+  variant?: "desktop" | "mobile";
 }
 
-export const CategorySelector = ({ onCategorySelect }: CategorySelectorProps) => {
+export const CategorySelector = ({ 
+  onCategorySelect,
+  variant = "desktop"
+}: CategorySelectorProps) => {
+  if (variant === "mobile") {
+    return (
+      <div className="flex flex-col gap-1">
+        {categories.map((category) => (
+          <Button
+            key={category.name}
+            variant="ghost"
+            className="w-full justify-start gap-3 h-10 font-medium"
+            onClick={() => onCategorySelect(category.name)}
+          >
+            <span className="text-lg">{category.icon}</span>
+            <span>{category.name}</span>
+          </Button>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

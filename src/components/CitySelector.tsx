@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, MapPin } from "lucide-react";
+import { MapPin, ChevronDown } from "lucide-react";
 
 const cities = [
   "Alla Städer",
@@ -19,9 +19,32 @@ const cities = [
 interface CitySelectorProps {
   currentCity: string;
   onCitySelect: (city: string) => void;
+  variant?: "desktop" | "mobile";
 }
 
-export const CitySelector = ({ currentCity, onCitySelect }: CitySelectorProps) => {
+export const CitySelector = ({ 
+  currentCity, 
+  onCitySelect,
+  variant = "desktop" 
+}: CitySelectorProps) => {
+  if (variant === "mobile") {
+    return (
+      <div className="flex flex-col gap-1">
+        {cities.map((city) => (
+          <Button
+            key={city}
+            variant="ghost"
+            className="w-full justify-start gap-3 h-10 font-medium"
+            onClick={() => onCitySelect(city)}
+          >
+            <MapPin className="h-4 w-4" />
+            <span>{city}</span>
+          </Button>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
