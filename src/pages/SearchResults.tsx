@@ -1,43 +1,10 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { DealCard } from "@/components/DealCard";
-import { Categories } from "@/components/Categories";
 import { NavigationBar } from "@/components/NavigationBar";
-import { FeaturedDeals } from "@/components/FeaturedDeals";
+import { Categories } from "@/components/Categories";
 
-const featuredDeals = [
-  {
-    id: 5,
-    title: "Lyxig Spahelg för Två",
-    description: "Romantisk spaupplevelse med övernattning och behandlingar",
-    imageUrl: "https://images.unsplash.com/photo-1531256379416-9f000e90aacc?w=800",
-    originalPrice: 4990,
-    discountedPrice: 2495,
-    timeRemaining: "48 timmar kvar",
-    category: "Skönhet & Spa",
-  },
-  {
-    id: 6,
-    title: "Michelin-stjärnig Matupplevelse",
-    description: "7-rätters avsmakningsmeny med vinpaket",
-    imageUrl: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800",
-    originalPrice: 3990,
-    discountedPrice: 2790,
-    timeRemaining: "24 timmar kvar",
-    category: "Restauranger",
-  },
-  {
-    id: 7,
-    title: "Exklusiv Golfhelg",
-    description: "2 dagars golfpaket med boende och greenfee",
-    imageUrl: "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800",
-    originalPrice: 5990,
-    discountedPrice: 3995,
-    timeRemaining: "72 timmar kvar",
-    category: "Sport & Fritid",
-  }
-];
-
+// Använd samma deals data som på Index-sidan
 const deals = [
   {
     id: 1,
@@ -109,51 +76,67 @@ const navigationItems = [
   },
 ];
 
-const Index = () => {
-  const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState("Alla Erbjudanden");
+const SearchResults = () => {
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q") || "";
+  const category = searchParams.get("category") || "Alla Erbjudanden";
+  const [selectedCategory, setSelectedCategory] = useState(category);
 
-  const handleSearch = (query: string) => {
-    navigate(`/search?q=${encodeURIComponent(query)}`);
-  };
+  useEffect(() => {
+    setSelectedCategory(category);
+  }, [category]);
 
-  const handleCategorySelect = (category: string) => {
-    navigate(`/search?category=${encodeURIComponent(category)}`);
-  };
+  const filteredDeals = deals.filter((deal) => {
+    const matchesCategory =
+      selectedCategory === "Alla Erbjudanden" || deal.category === selectedCategory;
+    const matchesSearch = searchQuery
+      ? deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.category.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="container py-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Hetaste Erbjudandena
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Missa inte våra mest populära deals!
-              </p>
-            </div>
-            <NavigationBar
-              navigationItems={navigationItems}
-              onSearch={handleSearch}
-            />
-          </div>
-
-          <div className="relative">
-            <FeaturedDeals deals={featuredDeals} />
-          </div>
+          <NavigationBar
+            navigationItems={navigationItems}
+            onSearch={(query) => {
+              const params = new URLSearchParams(searchParams);
+              params.set("q", query);
+              window.history.pushState({}, "", `?${params.toString()}`);
+            }}
+          />
         </div>
       </header>
 
       <main className="container py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {searchQuery
+              ? `Sökresultat för "${searchQuery}"`
+              : `${selectedCategory}`}
+          </h1>
+          <p className="text-gray-600">
+            {filteredDeals.length} erbjudanden hittades
+          </p>
+        </div>
+
         <Categories
           selectedCategory={selectedCategory}
-          onSelectCategory={handleCategorySelect}
+          onSelectCategory={(category) => {
+            const params = new URLSearchParams(searchParams);
+            params.set("category", category);
+            window.history.pushState({}, "", `?${params.toString()}`);
+            setSelectedCategory(category);
+          }}
         />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {deals.map((deal) => (
+          {filteredDeals.map((deal) => (
             <DealCard key={deal.id} {...deal} />
           ))}
         </div>
@@ -162,4 +145,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default SearchResults;
