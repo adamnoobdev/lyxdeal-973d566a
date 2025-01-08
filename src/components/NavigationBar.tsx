@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Home } from "lucide-react";
+import { Search, Home, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -12,10 +12,13 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const NavigationBar = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const isMobile = useIsMobile();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +26,46 @@ export const NavigationBar = () => {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
+
+  const NavigationLinks = () => (
+    <div className="grid gap-3 p-4 w-full">
+      <NavigationMenuLink asChild>
+        <Link to="/search?category=Laserhårborttagning" className="block p-2 hover:bg-accent rounded-md">
+          Laserhårborttagning
+        </Link>
+      </NavigationMenuLink>
+      <NavigationMenuLink asChild>
+        <Link to="/search?category=Fillers" className="block p-2 hover:bg-accent rounded-md">
+          Fillers
+        </Link>
+      </NavigationMenuLink>
+      <NavigationMenuLink asChild>
+        <Link to="/search?category=Rynkbehandlingar" className="block p-2 hover:bg-accent rounded-md">
+          Rynkbehandlingar
+        </Link>
+      </NavigationMenuLink>
+      <NavigationMenuLink asChild>
+        <Link to="/search?category=Hudvård" className="block p-2 hover:bg-accent rounded-md">
+          Hudvård
+        </Link>
+      </NavigationMenuLink>
+      <NavigationMenuLink asChild>
+        <Link to="/search?category=Hårvård" className="block p-2 hover:bg-accent rounded-md">
+          Hårvård
+        </Link>
+      </NavigationMenuLink>
+      <NavigationMenuLink asChild>
+        <Link to="/search?category=Naglar" className="block p-2 hover:bg-accent rounded-md">
+          Naglar
+        </Link>
+      </NavigationMenuLink>
+      <NavigationMenuLink asChild>
+        <Link to="/search?category=Massage" className="block p-2 hover:bg-accent rounded-md">
+          Massage
+        </Link>
+      </NavigationMenuLink>
+    </div>
+  );
 
   return (
     <nav className="border-b">
@@ -33,10 +76,10 @@ export const NavigationBar = () => {
           aria-label="Gå till startsidan"
         >
           <Home className="h-6 w-6" />
-          <span>Deals</span>
+          <span className="hidden sm:inline">Deals</span>
         </Link>
 
-        <form onSubmit={handleSearch} className="flex-1 max-w-xl">
+        <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4">
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-5 w-5 text-muted-foreground" />
             <Input
@@ -49,55 +92,30 @@ export const NavigationBar = () => {
           </div>
         </form>
 
-        <div className="flex items-center gap-4">
+        {isMobile ? (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <NavigationLinks />
+            </SheetContent>
+          </Sheet>
+        ) : (
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger>Kategorier</NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="grid gap-3 p-4 w-[200px]">
-                    <NavigationMenuLink asChild>
-                      <Link to="/search?category=Laserhårborttagning" className="block p-2 hover:bg-accent rounded-md">
-                        Laserhårborttagning
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/search?category=Fillers" className="block p-2 hover:bg-accent rounded-md">
-                        Fillers
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/search?category=Rynkbehandlingar" className="block p-2 hover:bg-accent rounded-md">
-                        Rynkbehandlingar
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/search?category=Hudvård" className="block p-2 hover:bg-accent rounded-md">
-                        Hudvård
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/search?category=Hårvård" className="block p-2 hover:bg-accent rounded-md">
-                        Hårvård
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/search?category=Naglar" className="block p-2 hover:bg-accent rounded-md">
-                        Naglar
-                      </Link>
-                    </NavigationMenuLink>
-                    <NavigationMenuLink asChild>
-                      <Link to="/search?category=Massage" className="block p-2 hover:bg-accent rounded-md">
-                        Massage
-                      </Link>
-                    </NavigationMenuLink>
-                  </div>
+                  <NavigationLinks />
                 </NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
-        </div>
+        )}
       </div>
     </nav>
   );
-}
+};

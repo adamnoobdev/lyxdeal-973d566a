@@ -58,8 +58,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
-        <div className="relative mb-8">
+      <div className="container py-4 md:py-8">
+        <div className="relative mb-4 md:mb-8">
           {!isFeaturedLoading && featuredDeals.length > 0 && (
             <FeaturedDeals deals={featuredDeals} />
           )}
