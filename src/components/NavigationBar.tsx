@@ -65,7 +65,6 @@ export const NavigationBar = () => {
             className="h-8 w-auto"
             onError={(e) => console.error('Error loading image:', e)}
           />
-          <span className="hidden sm:inline">Deals</span>
         </Link>
 
         <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4 hidden md:block">
