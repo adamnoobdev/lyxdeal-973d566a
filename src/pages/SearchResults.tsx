@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DealCard } from "@/components/DealCard";
-import { NavigationBar } from "@/components/NavigationBar";
 import { Categories } from "@/components/Categories";
 
 const deals = [
@@ -99,8 +98,6 @@ const SearchResults = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationBar />
-
       <main className="container py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
