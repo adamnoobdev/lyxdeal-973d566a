@@ -5,8 +5,8 @@ import Index from "@/pages/Index";
 import Admin from "@/pages/Admin";
 import ProductDetails from "@/pages/ProductDetails";
 import SearchResults from "@/pages/SearchResults";
-import NavigationBar from "@/components/NavigationBar";
-import Footer from "@/components/Footer";
+import { NavigationBar } from "@/components/NavigationBar";
+import { Footer } from "@/components/Footer";
 import "./App.css";
 
 // Skapa en ny QueryClient instans
