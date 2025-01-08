@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DealCard } from "@/components/DealCard";
 import { Categories } from "@/components/Categories";
-import { NavigationBar } from "@/components/NavigationBar";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 
 const featuredDeals = [
@@ -134,7 +133,6 @@ const Index = () => {
                 Missa inte våra mest populära deals!
               </p>
             </div>
-            <NavigationBar />
           </div>
 
           <div className="relative">
