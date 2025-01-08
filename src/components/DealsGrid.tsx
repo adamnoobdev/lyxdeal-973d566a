@@ -24,14 +24,14 @@ const DealsGridComponent = ({ deals, onDealClick }: DealsGridProps) => {
   return (
     <>
       {/* Mobile Layout - Horizontal Scroll */}
-      <div className="block sm:hidden px-4">
+      <div className="block sm:hidden">
         <ScrollArea className="w-full whitespace-nowrap">
-          <div className="flex space-x-4 pb-4">
+          <div className="flex space-x-4 pb-4 px-4">
             {deals.map((deal) => (
               <div 
                 key={deal.id} 
                 onClick={() => onDealClick?.(deal.id)}
-                className="w-[280px] shrink-0"
+                className="w-[280px] shrink-0 first:ml-4"
               >
                 <DealCard {...deal} />
               </div>
