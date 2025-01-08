@@ -101,7 +101,11 @@ export const NavigationBar = () => {
               <span className="sr-only">Öppna meny</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-full sm:w-[300px] p-0">
+          <SheetContent 
+            side="right" 
+            className="w-full sm:w-[300px] p-0"
+            onOpenAutoFocus={(e) => e.preventDefault()} // Prevent autofocus when sheet opens
+          >
             <ScrollArea className="h-full">
               <div className="flex flex-col h-full">
                 <SheetHeader className="p-4 border-b">
