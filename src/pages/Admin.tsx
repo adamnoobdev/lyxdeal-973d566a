@@ -6,6 +6,7 @@ import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 // I praktiken skulle detta hanteras säkrare, t.ex. genom en backend
 const ADMIN_PASSWORD = "admin123";
@@ -16,14 +17,37 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (values: z.AnyZodObject) => {
+  const handleSubmit = async (values: z.infer<typeof z.object({
+    title: z.string(),
+    description: z.string(),
+    imageUrl: z.string(),
+    originalPrice: z.string(),
+    discountedPrice: z.string(),
+    category: z.string(),
+    city: z.string(),
+    timeRemaining: z.string(),
+    featured: z.boolean(),
+  })>) => {
     setIsSubmitting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Nytt erbjudande:", values);
+      const { error } = await supabase.from('deals').insert({
+        title: values.title,
+        description: values.description,
+        image_url: values.imageUrl,
+        original_price: parseInt(values.originalPrice),
+        discounted_price: parseInt(values.discountedPrice),
+        category: values.category,
+        city: values.city,
+        time_remaining: values.timeRemaining,
+        featured: values.featured,
+      });
+
+      if (error) throw error;
+
       toast.success("Erbjudandet har skapats!");
       navigate("/");
     } catch (error) {
+      console.error('Error:', error);
       toast.error("Något gick fel när erbjudandet skulle skapas.");
     } finally {
       setIsSubmitting(false);

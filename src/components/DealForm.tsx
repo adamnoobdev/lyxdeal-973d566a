@@ -4,6 +4,7 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -13,7 +14,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ImageUpload } from "./ImageUpload";
-import { toast } from "sonner";
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -34,9 +34,13 @@ const formSchema = z.object({
   category: z.string().min(1, {
     message: "Vänligen välj en kategori.",
   }),
+  city: z.string().min(1, {
+    message: "Vänligen ange en stad.",
+  }),
   timeRemaining: z.string().min(1, {
     message: "Vänligen ange hur länge erbjudandet gäller.",
   }),
+  featured: z.boolean().default(false),
 });
 
 interface DealFormProps {
@@ -53,7 +57,9 @@ export const DealForm = ({ onSubmit }: DealFormProps) => {
       originalPrice: "",
       discountedPrice: "",
       category: "",
+      city: "",
       timeRemaining: "",
+      featured: false,
     },
   });
 
@@ -136,29 +142,60 @@ export const DealForm = ({ onSubmit }: DealFormProps) => {
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kategori</FormLabel>
-              <FormControl>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  {...field}
-                >
-                  <option value="">Välj kategori...</option>
-                  <option value="Skönhet & Spa">Skönhet & Spa</option>
-                  <option value="Restauranger">Restauranger</option>
-                  <option value="Aktiviteter">Aktiviteter</option>
-                  <option value="Resor">Resor</option>
-                  <option value="Shopping">Shopping</option>
-                </select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kategori</FormLabel>
+                <FormControl>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    {...field}
+                  >
+                    <option value="">Välj kategori...</option>
+                    <option value="Skönhet & Spa">Skönhet & Spa</option>
+                    <option value="Restauranger">Restauranger</option>
+                    <option value="Aktiviteter">Aktiviteter</option>
+                    <option value="Resor">Resor</option>
+                    <option value="Shopping">Shopping</option>
+                  </select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stad</FormLabel>
+                <FormControl>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    {...field}
+                  >
+                    <option value="">Välj stad...</option>
+                    <option value="Stockholm">Stockholm</option>
+                    <option value="Göteborg">Göteborg</option>
+                    <option value="Malmö">Malmö</option>
+                    <option value="Uppsala">Uppsala</option>
+                    <option value="Västerås">Västerås</option>
+                    <option value="Örebro">Örebro</option>
+                    <option value="Linköping">Linköping</option>
+                    <option value="Helsingborg">Helsingborg</option>
+                    <option value="Jönköping">Jönköping</option>
+                    <option value="Norrköping">Norrköping</option>
+                  </select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
@@ -170,6 +207,27 @@ export const DealForm = ({ onSubmit }: DealFormProps) => {
                 <Input placeholder="t.ex. 2 dagar kvar" {...field} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="featured"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Utvalt erbjudande</FormLabel>
+                <p className="text-sm text-muted-foreground">
+                  Detta erbjudande kommer att visas i sektionen för utvalda erbjudanden
+                </p>
+              </div>
             </FormItem>
           )}
         />
