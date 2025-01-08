@@ -1,16 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Home, Menu, X } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetClose,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "./ui/scroll-area";
@@ -44,6 +44,11 @@ export const NavigationBar = () => {
     setIsOpen(false);
   };
 
+  const { data: { publicUrl } } = supabase
+    .storage
+    .from('assets')
+    .getPublicUrl('Lyxdeal-logo');
+
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -52,7 +57,11 @@ export const NavigationBar = () => {
           className="flex items-center gap-2 text-xl font-bold hover:text-primary transition-colors"
           aria-label="Gå till startsidan"
         >
-          <Home className="h-6 w-6" />
+          <img 
+            src={publicUrl} 
+            alt="Lyxdeal Logo" 
+            className="h-8 w-auto"
+          />
           <span className="hidden sm:inline">Deals</span>
         </Link>
 
