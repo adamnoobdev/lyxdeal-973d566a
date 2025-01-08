@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { NavigationBar } from "./components/NavigationBar";
+import { Footer } from "./components/Footer";
 import Index from "./pages/Index";
 import ProductDetails from "./pages/ProductDetails";
 import SearchResults from "./pages/SearchResults";
@@ -18,6 +19,7 @@ function App() {
         <Route path="/search" element={<SearchResults />} />
         <Route path="/admin" element={<AdminPage />} />
       </Routes>
+      <Footer />
     </Router>
   );
 }
