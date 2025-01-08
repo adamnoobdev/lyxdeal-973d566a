@@ -110,7 +110,9 @@ export const DealCard = memo(({
         </div>
         <div className="p-4">
           <div className="flex flex-col gap-3">
-            <CategoryBadge category={category} className="shadow-sm" />
+            <div className="flex">
+              <CategoryBadge category={category} className="shadow-sm" />
+            </div>
             <h3 className="text-lg font-bold tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
               {title}
             </h3>
