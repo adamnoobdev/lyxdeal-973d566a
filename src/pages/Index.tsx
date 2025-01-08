@@ -9,7 +9,7 @@ const featuredDeals = [
   {
     id: 5,
     title: "Komplett Ansiktsbehandling",
-    description: "Lyxig ansiktsbehandling med djuprengöring, peeling och mask",
+    description: "Lyxig ansiktsbehandling med djuprengöring, peeling och mask för strålande hy",
     imageUrl: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800",
     originalPrice: 1990,
     discountedPrice: 990,
@@ -19,7 +19,7 @@ const featuredDeals = [
   {
     id: 6,
     title: "Permanent Hårborttagning",
-    description: "6 behandlingar med senaste laserteknologin",
+    description: "6 behandlingar med senaste laserteknologin för långvarigt resultat",
     imageUrl: "https://images.unsplash.com/photo-1598524374912-6b0b0bdd5e4e?w=800",
     originalPrice: 9990,
     discountedPrice: 4990,
@@ -29,7 +29,7 @@ const featuredDeals = [
   {
     id: 7,
     title: "Lyxigt Hårvårdspaket",
-    description: "Klippning, färgning och keratinbehandling",
+    description: "Klippning, färgning och keratinbehandling för glänsande resultat",
     imageUrl: "https://images.unsplash.com/photo-1560869713-da86bd4f31b7?w=800",
     originalPrice: 2990,
     discountedPrice: 1495,
@@ -41,8 +41,8 @@ const featuredDeals = [
 const deals = [
   {
     id: 1,
-    title: "Fillers Läppar",
-    description: "Naturlig volym med premium hyaluronsyra",
+    title: "Läppförstoring med Filler",
+    description: "Naturlig volym med premium hyaluronsyra från marknadsledande märke",
     imageUrl: "https://images.unsplash.com/photo-1588528402605-1f9d0eb7a6d6?w=800",
     originalPrice: 4000,
     discountedPrice: 2490,
@@ -51,8 +51,8 @@ const deals = [
   },
   {
     id: 2,
-    title: "Anti-age Behandling",
-    description: "Botox för reducering av rynkor",
+    title: "Anti-age Behandlingspaket",
+    description: "Botox för reducering av rynkor i panna och kring ögon",
     imageUrl: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800",
     originalPrice: 3500,
     discountedPrice: 1990,
@@ -62,7 +62,7 @@ const deals = [
   {
     id: 3,
     title: "Lyxig Manikyr",
-    description: "Omfattande nagelvård med gellack",
+    description: "Omfattande nagelvård med gellack och handmassage",
     imageUrl: "https://images.unsplash.com/photo-1610992015732-2449b0dd2b8f?w=800",
     originalPrice: 800,
     discountedPrice: 450,
@@ -72,13 +72,33 @@ const deals = [
   {
     id: 4,
     title: "Avkopplande Massage",
-    description: "90 minuters helkroppsmassage",
+    description: "90 minuters helkroppsmassage med aromaterapi",
     imageUrl: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800",
     originalPrice: 1200,
     discountedPrice: 790,
     timeRemaining: "7 dagar kvar",
     category: "Massage",
   },
+  {
+    id: 8,
+    title: "Ansiktsbehandling med AHA",
+    description: "Kemisk peeling för förnyad och fräsch hy",
+    imageUrl: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800",
+    originalPrice: 1500,
+    discountedPrice: 899,
+    timeRemaining: "4 dagar kvar",
+    category: "Hudvård",
+  },
+  {
+    id: 9,
+    title: "Laserhårborttagning Ben",
+    description: "Helben behandling med modern diodlaser",
+    imageUrl: "https://images.unsplash.com/photo-1598524374912-6b0b0bdd5e4e?w=800",
+    originalPrice: 3990,
+    discountedPrice: 2490,
+    timeRemaining: "6 dagar kvar",
+    category: "Laserhårborttagning",
+  }
 ];
 
 const Index = () => {
