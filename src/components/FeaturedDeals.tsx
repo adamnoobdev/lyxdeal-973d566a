@@ -4,6 +4,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { DealCard } from "@/components/DealCard";
+import { useEffect, useState } from "react";
 
 interface Deal {
   id: number;
@@ -21,12 +22,33 @@ interface FeaturedDealsProps {
 }
 
 export const FeaturedDeals = ({ deals }: FeaturedDealsProps) => {
+  const [api, setApi] = useState<any>();
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 4000);
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+
+    return () => {
+      clearInterval(interval);
+      api.destroy();
+    };
+  }, [api]);
+
   return (
     <Carousel
       opts={{
         align: "start",
         loop: true,
       }}
+      setApi={setApi}
       className="w-full"
     >
       <CarouselContent>
