@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { DealCard } from "@/components/DealCard";
 import { Categories } from "@/components/Categories";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
   Carousel,
   CarouselContent,
@@ -9,7 +11,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-// Featured deals for the carousel
 const featuredDeals = [
   {
     id: 5,
@@ -89,17 +90,37 @@ const deals = [
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("Alla Erbjudanden");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredDeals = selectedCategory === "Alla Erbjudanden"
-    ? deals
-    : deals.filter(deal => deal.category === selectedCategory);
+  const filteredDeals = deals.filter(deal => {
+    const matchesCategory = selectedCategory === "Alla Erbjudanden" || deal.category === selectedCategory;
+    const matchesSearch = 
+      deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      deal.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      deal.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="container py-6">
           <h1 className="text-3xl font-bold text-gray-900">Hetaste Erbjudandena</h1>
-          <p className="mt-2 mb-6 text-gray-600">Missa inte våra mest populära deals!</p>
+          <p className="mt-2 mb-4 text-gray-600">Missa inte våra mest populära deals!</p>
+          
+          <div className="relative mb-6">
+            <div className="flex w-full max-w-sm items-center space-x-2">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Sök efter erbjudanden..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
           
           <div className="relative">
             <Carousel
