@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 import { Categories } from "@/components/Categories";
@@ -7,6 +7,7 @@ import { DealsGrid } from "@/components/DealsGrid";
 import { useDeals, useFeaturedDeals } from "@/hooks/useDeals";
 import { toast } from "sonner";
 import { type Category, type City } from "@/constants/app-constants";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -42,11 +43,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container py-4 md:py-8">
-        <div className="relative mb-4 md:mb-8">
-          {!isFeaturedLoading && featuredDeals.length > 0 && (
-            <FeaturedDeals deals={featuredDeals} />
-          )}
-        </div>
+        <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
+          <div className="relative mb-4 md:mb-8">
+            {!isFeaturedLoading && featuredDeals.length > 0 && (
+              <FeaturedDeals deals={featuredDeals} />
+            )}
+          </div>
+        </Suspense>
 
         <Categories 
           selectedCategory={selectedCategory} 
@@ -58,12 +61,14 @@ const Index = () => {
           onSelectCity={handleCitySelect}
         />
 
-        {!isDealsLoading && (
-          <DealsGrid 
-            deals={deals} 
-            onDealClick={handleDealClick}
-          />
-        )}
+        <Suspense fallback={<Skeleton className="h-[200px] w-full rounded-lg" />}>
+          {!isDealsLoading && (
+            <DealsGrid 
+              deals={deals} 
+              onDealClick={handleDealClick}
+            />
+          )}
+        </Suspense>
       </div>
     </div>
   );
