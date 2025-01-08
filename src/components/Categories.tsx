@@ -29,7 +29,7 @@ export function Categories({ selectedCategory, onSelectCategory }: CategoriesPro
               onClick={() => onSelectCategory(category)}
               className={`${
                 selectedCategory === category ? "bg-primary" : ""
-              } flex-shrink-0 text-sm py-6`}
+              } flex-shrink-0 text-xs py-2 px-4 h-8`}
             >
               {category}
             </Button>

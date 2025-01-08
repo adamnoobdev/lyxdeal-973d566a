@@ -27,7 +27,7 @@ export function Cities({ selectedCity, onSelectCity }: CitiesProps) {
               onClick={() => onSelectCity(city)}
               className={`${
                 selectedCity === city ? "bg-primary" : ""
-              } flex-shrink-0 text-sm py-6`}
+              } flex-shrink-0 text-xs py-2 px-4 h-8`}
             >
               {city}
             </Button>
