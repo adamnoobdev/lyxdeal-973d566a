@@ -6,50 +6,50 @@ import { Categories } from "@/components/Categories";
 const deals = [
   {
     id: 1,
-    title: "Luxury Spa Day Experience",
-    description: "Full day spa access with 60-minute massage and facial treatment",
+    title: "Lyxig Spa-dag",
+    description: "Heldags spa-tillgång med 60 minuters massage och ansiktsbehandling",
     imageUrl: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
-    originalPrice: 200,
-    discountedPrice: 99,
-    timeRemaining: "2 days left",
-    category: "Beauty & Spa",
+    originalPrice: 2000,
+    discountedPrice: 990,
+    timeRemaining: "2 dagar kvar",
+    category: "Skönhet & Spa",
   },
   {
     id: 2,
-    title: "Gourmet 3-Course Dinner",
-    description: "Fine dining experience at award-winning restaurant",
+    title: "3-rätters Gourmetmiddag",
+    description: "Exklusiv matupplevelse på prisbelönt restaurang",
     imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
-    originalPrice: 150,
-    discountedPrice: 75,
-    timeRemaining: "3 days left",
-    category: "Restaurants",
+    originalPrice: 1500,
+    discountedPrice: 750,
+    timeRemaining: "3 dagar kvar",
+    category: "Restauranger",
   },
   {
     id: 3,
-    title: "Adventure Park Full Day Pass",
-    description: "Access to all rides and attractions for one full day",
+    title: "Äventyrspark Heldagsbiljett",
+    description: "Tillgång till alla attraktioner under en hel dag",
     imageUrl: "https://images.unsplash.com/photo-1536768139911-e290a59011e4?w=800",
-    originalPrice: 80,
-    discountedPrice: 45,
-    timeRemaining: "5 days left",
-    category: "Activities",
+    originalPrice: 800,
+    discountedPrice: 450,
+    timeRemaining: "5 dagar kvar",
+    category: "Aktiviteter",
   },
   {
     id: 4,
-    title: "Weekend Getaway Package",
-    description: "2 nights stay at luxury resort with breakfast included",
+    title: "Weekendpaket",
+    description: "2 nätter på lyxhotell med frukost",
     imageUrl: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800",
-    originalPrice: 400,
-    discountedPrice: 249,
-    timeRemaining: "7 days left",
-    category: "Travel",
+    originalPrice: 4000,
+    discountedPrice: 2490,
+    timeRemaining: "7 dagar kvar",
+    category: "Resor",
   },
 ];
 
 const Index = () => {
-  const [selectedCategory, setSelectedCategory] = useState("All Deals");
+  const [selectedCategory, setSelectedCategory] = useState("Alla Erbjudanden");
 
-  const filteredDeals = selectedCategory === "All Deals"
+  const filteredDeals = selectedCategory === "Alla Erbjudanden"
     ? deals
     : deals.filter(deal => deal.category === selectedCategory);
 
@@ -57,8 +57,8 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="container py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Hot Deals</h1>
-          <p className="mt-2 text-gray-600">Discover amazing offers and save big!</p>
+          <h1 className="text-3xl font-bold text-gray-900">Heta Erbjudanden</h1>
+          <p className="mt-2 text-gray-600">Upptäck fantastiska erbjudanden och spara pengar!</p>
         </div>
       </header>
 

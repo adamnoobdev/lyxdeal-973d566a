@@ -26,6 +26,14 @@ export function DealCard({
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('sv-SE', {
+      style: 'currency',
+      currency: 'SEK',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg">
       <div className="relative">
@@ -35,7 +43,7 @@ export function DealCard({
           className="h-48 w-full object-cover"
         />
         <Badge className="absolute right-2 top-2 bg-secondary">
-          {discountPercentage}% OFF
+          {discountPercentage}% RABATT
         </Badge>
       </div>
       <div className="p-4">
@@ -50,11 +58,11 @@ export function DealCard({
         </div>
         <div className="mb-4 flex items-center gap-2">
           <Tag className="h-4 w-4 text-success" />
-          <span className="text-sm line-through">${originalPrice}</span>
-          <span className="text-lg font-bold text-success">${discountedPrice}</span>
+          <span className="text-sm line-through">{formatPrice(originalPrice)}</span>
+          <span className="text-lg font-bold text-success">{formatPrice(discountedPrice)}</span>
         </div>
         <Button className="w-full bg-primary hover:bg-primary/90">
-          Get Deal
+          Köp Nu
         </Button>
       </div>
     </Card>
