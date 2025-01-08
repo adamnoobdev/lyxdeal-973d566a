@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { DealBadges } from "./DealBadges";
 import { PriceDisplay } from "./PriceDisplay";
 import { differenceInDays } from "date-fns";
+import { Button } from "./ui/button";
+import { ShoppingCart } from "lucide-react";
 
 interface DealCardProps {
   id: number;
@@ -70,10 +72,19 @@ export const DealCard = ({
             {description}
           </p>
 
-          <PriceDisplay
-            originalPrice={originalPrice}
-            discountedPrice={discountedPrice}
-          />
+          <div className="flex items-center justify-between gap-4">
+            <PriceDisplay
+              originalPrice={originalPrice}
+              discountedPrice={discountedPrice}
+            />
+            <Button 
+              size="sm" 
+              className="bg-primary hover:bg-primary/90"
+            >
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Köp
+            </Button>
+          </div>
         </div>
       </div>
     </Link>
