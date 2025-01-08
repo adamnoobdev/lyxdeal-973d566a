@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { DealCard } from "@/components/DealCard";
 import { Categories } from "@/components/Categories";
+import { Cities } from "@/components/Cities";
 
 const deals = [
   {
@@ -13,6 +14,7 @@ const deals = [
     discountedPrice: 2995,
     timeRemaining: "24 timmar kvar",
     category: "Rynkbehandlingar",
+    city: "Stockholm",
   },
   {
     id: 2,
@@ -23,6 +25,7 @@ const deals = [
     discountedPrice: 6495,
     timeRemaining: "48 timmar kvar",
     category: "Laserhårborttagning",
+    city: "Göteborg",
   },
   {
     id: 3,
@@ -33,6 +36,7 @@ const deals = [
     discountedPrice: 1995,
     timeRemaining: "72 timmar kvar",
     category: "Hårvård",
+    city: "Malmö",
   },
   {
     id: 4,
@@ -43,6 +47,7 @@ const deals = [
     discountedPrice: 2995,
     timeRemaining: "5 dagar kvar",
     category: "Fillers",
+    city: "Stockholm",
   },
   {
     id: 5,
@@ -53,6 +58,7 @@ const deals = [
     discountedPrice: 3495,
     timeRemaining: "3 dagar kvar",
     category: "Fillers",
+    city: "Göteborg",
   },
   {
     id: 6,
@@ -63,6 +69,7 @@ const deals = [
     discountedPrice: 795,
     timeRemaining: "4 dagar kvar",
     category: "Naglar",
+    city: "Uppsala",
   },
   {
     id: 7,
@@ -73,6 +80,7 @@ const deals = [
     discountedPrice: 895,
     timeRemaining: "6 dagar kvar",
     category: "Massage",
+    city: "Linköping",
   },
   {
     id: 8,
@@ -83,6 +91,7 @@ const deals = [
     discountedPrice: 995,
     timeRemaining: "4 dagar kvar",
     category: "Hudvård",
+    city: "Stockholm",
   }
 ];
 
@@ -90,22 +99,28 @@ const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("q") || "";
   const categoryParam = searchParams.get("category") || "Alla Erbjudanden";
+  const cityParam = searchParams.get("city") || "Alla Städer";
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [selectedCity, setSelectedCity] = useState(cityParam);
 
   useEffect(() => {
     setSelectedCategory(categoryParam);
-  }, [categoryParam]);
+    setSelectedCity(cityParam);
+  }, [categoryParam, cityParam]);
 
   const filteredDeals = deals.filter((deal) => {
     const matchesCategory =
       selectedCategory === "Alla Erbjudanden" || deal.category === selectedCategory;
+    const matchesCity =
+      selectedCity === "Alla Städer" || deal.city === selectedCity;
     const matchesSearch = searchQuery
       ? deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         deal.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deal.category.toLowerCase().includes(searchQuery.toLowerCase())
+        deal.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.city.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
 
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesCity && matchesSearch;
   });
 
   const handleCategorySelect = (category: string) => {
@@ -117,6 +132,17 @@ const SearchResults = () => {
     }
     window.history.pushState({}, "", `?${params.toString()}`);
     setSelectedCategory(category);
+  };
+
+  const handleCitySelect = (city: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (city !== "Alla Städer") {
+      params.set("city", city);
+    } else {
+      params.delete("city");
+    }
+    window.history.pushState({}, "", `?${params.toString()}`);
+    setSelectedCity(city);
   };
 
   return (
@@ -136,6 +162,11 @@ const SearchResults = () => {
         <Categories
           selectedCategory={selectedCategory}
           onSelectCategory={handleCategorySelect}
+        />
+
+        <Cities
+          selectedCity={selectedCity}
+          onSelectCity={handleCitySelect}
         />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

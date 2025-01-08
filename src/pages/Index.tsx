@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DealCard } from "@/components/DealCard";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 import { Categories } from "@/components/Categories";
+import { Cities } from "@/components/Cities";
 import { toast } from "sonner";
 
 const featuredDeals = [
@@ -15,6 +16,7 @@ const featuredDeals = [
     discountedPrice: 2995,
     timeRemaining: "24 timmar kvar",
     category: "Rynkbehandlingar",
+    city: "Stockholm",
   },
   {
     id: 2,
@@ -25,6 +27,7 @@ const featuredDeals = [
     discountedPrice: 6495,
     timeRemaining: "48 timmar kvar",
     category: "Laserhårborttagning",
+    city: "Göteborg",
   },
   {
     id: 3,
@@ -35,6 +38,7 @@ const featuredDeals = [
     discountedPrice: 1995,
     timeRemaining: "72 timmar kvar",
     category: "Hårvård",
+    city: "Malmö",
   }
 ];
 
@@ -48,6 +52,7 @@ const deals = [
     discountedPrice: 2995,
     timeRemaining: "5 dagar kvar",
     category: "Fillers",
+    city: "Stockholm",
   },
   {
     id: 5,
@@ -58,6 +63,7 @@ const deals = [
     discountedPrice: 3495,
     timeRemaining: "3 dagar kvar",
     category: "Fillers",
+    city: "Göteborg",
   },
   {
     id: 6,
@@ -68,6 +74,7 @@ const deals = [
     discountedPrice: 795,
     timeRemaining: "4 dagar kvar",
     category: "Naglar",
+    city: "Uppsala",
   },
   {
     id: 7,
@@ -78,6 +85,7 @@ const deals = [
     discountedPrice: 895,
     timeRemaining: "6 dagar kvar",
     category: "Massage",
+    city: "Linköping",
   },
   {
     id: 8,
@@ -88,6 +96,7 @@ const deals = [
     discountedPrice: 995,
     timeRemaining: "4 dagar kvar",
     category: "Hudvård",
+    city: "Stockholm",
   },
   {
     id: 9,
@@ -98,6 +107,7 @@ const deals = [
     discountedPrice: 1495,
     timeRemaining: "7 dagar kvar",
     category: "Laserhårborttagning",
+    city: "Malmö",
   },
   {
     id: 10,
@@ -108,6 +118,7 @@ const deals = [
     discountedPrice: 4995,
     timeRemaining: "3 dagar kvar",
     category: "Rynkbehandlingar",
+    city: "Uppsala",
   },
   {
     id: 11,
@@ -118,6 +129,7 @@ const deals = [
     discountedPrice: 1795,
     timeRemaining: "5 dagar kvar",
     category: "Hårvård",
+    city: "Göteborg",
   },
   {
     id: 12,
@@ -128,12 +140,14 @@ const deals = [
     discountedPrice: 1245,
     timeRemaining: "4 dagar kvar",
     category: "Hudvård",
+    city: "Linköping",
   }
 ];
 
 const Index = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("Alla Erbjudanden");
+  const [selectedCity, setSelectedCity] = useState("Alla Städer");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSearch = (query: string) => {
@@ -160,6 +174,10 @@ const Index = () => {
     }
   };
 
+  const handleCitySelect = (city: string) => {
+    setSelectedCity(city);
+  };
+
   const handleDealClick = (dealId: number) => {
     try {
       navigate(`/product/${dealId}`);
@@ -168,6 +186,12 @@ const Index = () => {
       toast.error("Ett fel uppstod. Försök igen.");
     }
   };
+
+  const filteredDeals = deals.filter((deal) => {
+    const matchesCategory = selectedCategory === "Alla Erbjudanden" || deal.category === selectedCategory;
+    const matchesCity = selectedCity === "Alla Städer" || deal.city === selectedCity;
+    return matchesCategory && matchesCity;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -181,8 +205,13 @@ const Index = () => {
           onSelectCategory={handleCategorySelect} 
         />
 
+        <Cities
+          selectedCity={selectedCity}
+          onSelectCity={handleCitySelect}
+        />
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {deals.map((deal) => (
+          {filteredDeals.map((deal) => (
             <div key={deal.id} onClick={() => handleDealClick(deal.id)}>
               <DealCard {...deal} />
             </div>

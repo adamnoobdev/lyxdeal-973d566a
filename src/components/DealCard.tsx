@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Tag } from "lucide-react";
+import { Clock, Tag, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface DealCardProps {
@@ -13,6 +13,7 @@ interface DealCardProps {
   discountedPrice: number;
   timeRemaining: string;
   category: string;
+  city: string;
   featured?: boolean;
 }
 
@@ -25,6 +26,7 @@ export function DealCard({
   discountedPrice,
   timeRemaining,
   category,
+  city,
   featured = false,
 }: DealCardProps) {
   const discountPercentage = Math.round(
@@ -84,6 +86,10 @@ export function DealCard({
                 <p className="mb-6 text-lg line-clamp-2 text-white/90 font-medium">
                   {description}
                 </p>
+                <div className="flex items-center gap-3 mb-4">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <span className="text-lg text-white/90 font-medium">{city}</span>
+                </div>
                 <div className="mb-4 flex items-center gap-3">
                   <Clock className="h-5 w-5 text-primary" />
                   <span className="text-lg text-white/90 font-medium">{timeRemaining}</span>
@@ -130,6 +136,10 @@ export function DealCard({
             <p className="text-sm text-muted-foreground line-clamp-2 font-medium">
               {description}
             </p>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">{city}</span>
+            </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium">{timeRemaining}</span>
