@@ -1,73 +1,47 @@
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-interface NavigationItem {
-  title: string;
-  items: {
-    title: string;
-    href: string;
-  }[];
-}
+export default function NavigationBar() {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
-interface NavigationBarProps {
-  navigationItems: NavigationItem[];
-  onSearch: (query: string) => void;
-}
-
-export const NavigationBar = ({ navigationItems, onSearch }: NavigationBarProps) => {
-  const [open, setOpen] = useState(false);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
-    <div className="flex items-center justify-between w-full">
-      <NavigationMenu className="flex-1">
-        <NavigationMenuList>
-          {navigationItems.map((section) => (
-            <NavigationMenuItem key={section.title}>
-              <NavigationMenuTrigger>{section.title}</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                  {section.items.map((item) => (
-                    <li key={item.title}>
-                      <NavigationMenuLink asChild>
-                        <a
-                          href={item.href}
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                        >
-                          <div className="text-sm font-medium leading-none">{item.title}</div>
-                        </a>
-                      </NavigationMenuLink>
-                    </li>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          ))}
-        </NavigationMenuList>
-      </NavigationMenu>
+    <nav className="border-b">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <Link to="/" className="text-xl font-bold">
+          Deals
+        </Link>
 
-      <div className="flex-1 flex justify-center">
-        <Command className="rounded-lg border shadow-md w-[300px]">
-          <CommandInput placeholder="Sök erbjudanden..." onValueChange={onSearch} />
-        </Command>
+        <form onSubmit={handleSearch} className="flex-1 max-w-xl">
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-5 w-5 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Sök erbjudanden..."
+              className="w-full pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </form>
+
+        <div className="flex items-center gap-4">
+          <Link to="/admin">
+            <Button variant="outline">Admin</Button>
+          </Link>
+        </div>
       </div>
-
-      <div className="flex-1" /> {/* Spacer för att centrera sökfältet */}
-    </div>
+    </nav>
   );
-};
+}
