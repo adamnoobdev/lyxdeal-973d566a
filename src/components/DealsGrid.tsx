@@ -25,19 +25,19 @@ const DealsGridComponent = ({ deals, onDealClick }: DealsGridProps) => {
     <>
       {/* Mobile Layout - Horizontal Scroll */}
       <div className="block sm:hidden">
-        <ScrollArea className="w-full whitespace-nowrap">
+        <ScrollArea className="w-full whitespace-nowrap rounded-lg">
           <div className="flex space-x-4 pb-4 px-4">
             {deals.map((deal) => (
               <div 
                 key={deal.id} 
                 onClick={() => onDealClick?.(deal.id)}
-                className="w-[280px] shrink-0 first:ml-4"
+                className="w-[280px] shrink-0 first:ml-4 transition-transform duration-300 hover:scale-[0.98]"
               >
                 <DealCard {...deal} />
               </div>
             ))}
           </div>
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar orientation="horizontal" className="opacity-0 sm:opacity-100" />
         </ScrollArea>
       </div>
 
