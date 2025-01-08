@@ -55,21 +55,18 @@ export const NavigationBar = () => {
     .from('assets')
     .getPublicUrl('Lyxdeal-logo.svg');
 
-  console.log('Logo URL:', publicUrl);
-
   return (
-    <nav className="border-b">
+    <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <Link 
           to="/" 
-          className="flex items-center gap-2 text-xl font-bold hover:text-primary transition-colors"
+          className="flex items-center gap-2 text-xl font-bold hover:opacity-80 transition-opacity"
           aria-label="Gå till startsidan"
         >
           <img 
             src={publicUrl} 
             alt="Lyxdeal Logo" 
             className="h-12 w-auto"
-            onError={(e) => console.error('Error loading image:', e)}
           />
         </Link>
 
@@ -77,19 +74,25 @@ export const NavigationBar = () => {
         <div className="hidden md:flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="text-sm">
-                Kategorier <ChevronDown className="ml-1 h-4 w-4" />
+              <Button 
+                variant="ghost" 
+                className="text-sm font-medium hover:bg-accent"
+              >
+                Kategorier <ChevronDown className="ml-1 h-4 w-4 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuContent 
+              align="start" 
+              className="w-56 p-2"
+            >
               {categories.map((category) => (
                 <DropdownMenuItem
                   key={category.name}
                   onClick={() => handleCategoryClick(category.name)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-3 py-2 px-3 cursor-pointer rounded-md"
                 >
-                  <span>{category.icon}</span>
-                  <span>{category.name}</span>
+                  <span className="text-lg">{category.icon}</span>
+                  <span className="font-medium">{category.name}</span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -98,11 +101,11 @@ export const NavigationBar = () => {
 
         <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4 hidden md:block">
           <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-5 w-5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Sök erbjudanden..."
-              className="w-full pl-9"
+              className="w-full pl-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -111,8 +114,12 @@ export const NavigationBar = () => {
 
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-6 w-6" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden hover:bg-accent"
+            >
+              <Menu className="h-5 w-5" />
               <span className="sr-only">Öppna meny</span>
             </Button>
           </SheetTrigger>
@@ -126,11 +133,11 @@ export const NavigationBar = () => {
                 <div className="p-4 border-b">
                   <form onSubmit={handleSearch} className="w-full">
                     <div className="relative">
-                      <Search className="absolute left-2 top-2.5 h-5 w-5 text-muted-foreground" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         type="search"
                         placeholder="Sök erbjudanden..."
-                        className="w-full pl-9"
+                        className="w-full pl-9 bg-muted/50 border-0"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
@@ -139,16 +146,16 @@ export const NavigationBar = () => {
                 </div>
 
                 <div className="flex-1 p-4">
-                  <h3 className="font-medium mb-2">Kategorier</h3>
+                  <h3 className="font-medium mb-3 text-sm text-muted-foreground">Kategorier</h3>
                   <div className="space-y-1">
                     {categories.map((category) => (
                       <Button
                         key={category.name}
                         variant="ghost"
-                        className="w-full justify-start gap-2 h-10"
+                        className="w-full justify-start gap-3 h-10 font-medium"
                         onClick={() => handleCategoryClick(category.name)}
                       >
-                        <span>{category.icon}</span>
+                        <span className="text-lg">{category.icon}</span>
                         <span>{category.name}</span>
                       </Button>
                     ))}
