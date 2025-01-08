@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -32,7 +32,7 @@ export const NavigationBar = () => {
           className="flex items-center gap-2 text-xl font-bold hover:text-primary transition-colors"
           aria-label="Gå till startsidan"
         >
-          <img src="/logo.svg" alt="Deals Logo" className="h-8 w-auto" />
+          <Home className="h-6 w-6" />
           <span>Deals</span>
         </Link>
 
