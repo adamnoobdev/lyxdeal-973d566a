@@ -19,20 +19,16 @@ interface DealsGridProps {
   onDealClick?: (dealId: number) => void;
 }
 
-const DealGridItem = memo(({ deal, onClick }: { deal: Deal; onClick?: (id: number) => void }) => (
-  <div onClick={() => onClick?.(deal.id)}>
-    <DealCard {...deal} />
-  </div>
-));
-
-DealGridItem.displayName = "DealGridItem";
-
-export const DealsGrid = ({ deals, onDealClick }: DealsGridProps) => {
+const DealsGridComponent = ({ deals, onDealClick }: DealsGridProps) => {
   return (
     <div className="grid gap-4 px-4 sm:px-0 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {deals.map((deal) => (
-        <DealGridItem key={deal.id} deal={deal} onClick={onDealClick} />
+        <div key={deal.id} onClick={() => onDealClick?.(deal.id)}>
+          <DealCard {...deal} />
+        </div>
       ))}
     </div>
   );
 };
+
+export const DealsGrid = memo(DealsGridComponent);

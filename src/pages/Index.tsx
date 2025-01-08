@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 import { Categories } from "@/components/Categories";
@@ -6,12 +6,12 @@ import { Cities } from "@/components/Cities";
 import { DealsGrid } from "@/components/DealsGrid";
 import { useDeals, useFeaturedDeals } from "@/hooks/useDeals";
 import { toast } from "sonner";
+import { type Category, type City } from "@/constants/app-constants";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState("Alla Erbjudanden");
-  const [selectedCity, setSelectedCity] = useState("Alla Städer");
-  const [isLoading, setIsLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category>("Alla Erbjudanden");
+  const [selectedCity, setSelectedCity] = useState<City>("Alla Städer");
 
   const { data: deals = [], isLoading: isDealsLoading } = useDeals(
     selectedCategory,
@@ -19,33 +19,25 @@ const Index = () => {
   );
   const { data: featuredDeals = [], isLoading: isFeaturedLoading } = useFeaturedDeals();
 
-  const handleDealClick = (dealId: number) => {
+  const handleDealClick = useCallback((dealId: number) => {
     try {
       navigate(`/product/${dealId}`);
     } catch (error) {
       console.error("Navigeringsfel:", error);
       toast.error("Ett fel uppstod. Försök igen.");
     }
-  };
+  }, [navigate]);
 
-  const handleCategorySelect = (category: string) => {
-    try {
-      setIsLoading(true);
-      setSelectedCategory(category);
-      if (category !== "Alla Erbjudanden") {
-        navigate(`/search?category=${encodeURIComponent(category)}`);
-      }
-    } catch (error) {
-      console.error("Kategorifel:", error);
-      toast.error("Ett fel uppstod vid val av kategori. Försök igen.");
-    } finally {
-      setIsLoading(false);
+  const handleCategorySelect = useCallback((category: Category) => {
+    setSelectedCategory(category);
+    if (category !== "Alla Erbjudanden") {
+      navigate(`/search?category=${encodeURIComponent(category)}`);
     }
-  };
+  }, [navigate]);
 
-  const handleCitySelect = (city: string) => {
+  const handleCitySelect = useCallback((city: City) => {
     setSelectedCity(city);
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">

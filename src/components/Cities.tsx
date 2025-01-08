@@ -1,26 +1,19 @@
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
-const cities = [
-  "Alla Städer",
-  "Stockholm",
-  "Göteborg",
-  "Malmö",
-  "Uppsala",
-  "Linköping",
-];
+import { CITIES } from "@/constants/app-constants";
 
 interface CitiesProps {
   selectedCity: string;
   onSelectCity: (city: string) => void;
 }
 
-export function Cities({ selectedCity, onSelectCity }: CitiesProps) {
+const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
   return (
     <div className="relative mb-6 -mx-4 md:mx-0">
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="flex w-full gap-3 px-4 pb-2 justify-start md:justify-center">
-          {cities.map((city) => (
+          {CITIES.map((city) => (
             <Button
               key={city}
               variant={selectedCity === city ? "default" : "outline"}
@@ -39,4 +32,6 @@ export function Cities({ selectedCity, onSelectCity }: CitiesProps) {
       </ScrollArea>
     </div>
   );
-}
+};
+
+export const Cities = memo(CitiesComponent);

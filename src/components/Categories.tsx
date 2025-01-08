@@ -1,28 +1,19 @@
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
-const categories = [
-  "Alla Erbjudanden",
-  "Laserhårborttagning",
-  "Fillers",
-  "Rynkbehandlingar",
-  "Hudvård",
-  "Hårvård",
-  "Naglar",
-  "Massage",
-];
+import { CATEGORIES } from "@/constants/app-constants";
 
 interface CategoriesProps {
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
 }
 
-export function Categories({ selectedCategory, onSelectCategory }: CategoriesProps) {
+const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesProps) => {
   return (
     <div className="relative mb-6 -mx-4 md:mx-0">
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="flex w-full gap-3 px-4 pb-2 justify-start md:justify-center">
-          {categories.map((category) => (
+          {CATEGORIES.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
@@ -41,4 +32,6 @@ export function Categories({ selectedCategory, onSelectCategory }: CategoriesPro
       </ScrollArea>
     </div>
   );
-}
+};
+
+export const Categories = memo(CategoriesComponent);

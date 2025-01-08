@@ -1,10 +1,10 @@
+import { memo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CategoryBadge } from "./CategoryBadge";
 import { PriceDisplay } from "./PriceDisplay";
-import { memo } from "react";
 
 interface DealCardProps {
   id: number;
@@ -20,7 +20,7 @@ interface DealCardProps {
   created_at: string;
 }
 
-export const DealCard = memo(({
+const DealCardComponent = ({
   id,
   title,
   description,
@@ -55,6 +55,7 @@ export const DealCard = memo(({
               alt={title}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
               <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
@@ -118,6 +119,7 @@ export const DealCard = memo(({
             alt={title}
             className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
+            decoding="async"
           />
           <div className="absolute right-3 top-3 flex gap-2">
             <CategoryBadge 
@@ -165,6 +167,6 @@ export const DealCard = memo(({
       </Link>
     </Card>
   );
-});
+};
 
-DealCard.displayName = "DealCard";
+export const DealCard = memo(DealCardComponent);
