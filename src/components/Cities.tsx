@@ -25,9 +25,11 @@ export function Cities({ selectedCity, onSelectCity }: CitiesProps) {
               key={city}
               variant={selectedCity === city ? "default" : "outline"}
               onClick={() => onSelectCity(city)}
-              className={`${
-                selectedCity === city ? "bg-primary" : ""
-              } flex-shrink-0 text-xs py-1.5 px-4 h-8`}
+              className={`
+                ${selectedCity === city ? "bg-primary shadow-md" : "hover:bg-accent"}
+                flex-shrink-0 text-xs py-1.5 px-4 h-8 transition-all duration-300
+                hover:shadow-md active:scale-95
+              `}
             >
               {city}
             </Button>

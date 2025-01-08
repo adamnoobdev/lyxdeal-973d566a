@@ -43,7 +43,7 @@ export const DealCard = memo(({
             <img
               src={imageUrl}
               alt={title}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
@@ -52,12 +52,12 @@ export const DealCard = memo(({
                   <CategoryBadge 
                     category={category} 
                     variant="outline" 
-                    className="border-white text-white backdrop-blur-sm bg-white/10" 
+                    className="border-white text-white backdrop-blur-sm bg-white/10 shadow-sm" 
                   />
                   <CategoryBadge 
                     category={`${discountPercentage}% RABATT`} 
                     variant="default" 
-                    className="bg-primary text-white" 
+                    className="bg-primary text-white shadow-sm" 
                   />
                 </div>
                 <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white line-clamp-2">
@@ -81,7 +81,7 @@ export const DealCard = memo(({
                     className="text-white"
                   />
                 </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 hover:shadow-xl">
                   Köp Nu
                 </Button>
               </div>
@@ -93,25 +93,27 @@ export const DealCard = memo(({
   }
 
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <Link to={`/product/${id}`}>
         <div className="relative">
           <img
             src={imageUrl}
             alt={title}
-            className="h-52 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
           <CategoryBadge 
             category={`${discountPercentage}% RABATT`} 
             variant="default"
-            className="absolute right-3 top-3 bg-primary text-white"
+            className="absolute right-3 top-3 bg-primary text-white shadow-sm"
           />
         </div>
         <div className="p-4">
           <div className="flex flex-col gap-3">
-            <CategoryBadge category={category} />
-            <h3 className="text-lg font-bold tracking-tight line-clamp-1">{title}</h3>
+            <CategoryBadge category={category} className="shadow-sm" />
+            <h3 className="text-lg font-bold tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
+              {title}
+            </h3>
             <p className="text-sm text-muted-foreground line-clamp-2">
               {description}
             </p>
@@ -127,7 +129,7 @@ export const DealCard = memo(({
               originalPrice={originalPrice}
               discountedPrice={discountedPrice}
             />
-            <Button className="w-full bg-primary hover:bg-primary/90 text-white">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-md transition-all duration-300 hover:shadow-lg">
               Köp Nu
             </Button>
           </div>

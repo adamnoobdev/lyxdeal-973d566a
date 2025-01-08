@@ -27,9 +27,11 @@ export function Categories({ selectedCategory, onSelectCategory }: CategoriesPro
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
               onClick={() => onSelectCategory(category)}
-              className={`${
-                selectedCategory === category ? "bg-primary" : ""
-              } flex-shrink-0 text-xs py-1.5 px-4 h-8`}
+              className={`
+                ${selectedCategory === category ? "bg-primary shadow-md" : "hover:bg-accent"}
+                flex-shrink-0 text-xs py-1.5 px-4 h-8 transition-all duration-300
+                hover:shadow-md active:scale-95
+              `}
             >
               {category}
             </Button>
