@@ -57,7 +57,7 @@ export const DealCard = memo(({
                   <CategoryBadge 
                     category={`${discountPercentage}% RABATT`} 
                     variant="default" 
-                    className="bg-gradient-to-r from-[#D946EF] to-[#9b87f5] text-white font-semibold shadow-sm" 
+                    className="bg-gradient-to-r from-[#D946EF]/80 to-[#9b87f5]/80 text-white font-semibold shadow-sm backdrop-blur-sm" 
                   />
                 </div>
                 <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white line-clamp-2">
@@ -105,7 +105,7 @@ export const DealCard = memo(({
           <CategoryBadge 
             category={`${discountPercentage}% RABATT`} 
             variant="default"
-            className="absolute right-3 top-3 bg-gradient-to-r from-[#D946EF] to-[#9b87f5] text-white font-semibold shadow-sm"
+            className="absolute right-3 top-3 bg-gradient-to-r from-[#D946EF]/80 to-[#9b87f5]/80 text-white font-semibold shadow-sm backdrop-blur-sm"
           />
         </div>
         <div className="p-4">
