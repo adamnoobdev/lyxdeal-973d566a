@@ -39,6 +39,27 @@ export function DealCard({
     }).format(price);
   };
 
+  const getCategoryEmoji = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'hudvård':
+        return '✨';
+      case 'laserhårborttagning':
+        return '⚡';
+      case 'fillers':
+        return '💉';
+      case 'rynkbehandlingar':
+        return '🔄';
+      case 'naglar':
+        return '💅';
+      case 'massage':
+        return '💆‍♀️';
+      case 'hårvård':
+        return '💇‍♀️';
+      default:
+        return '🎁';
+    }
+  };
+
   if (featured) {
     return (
       <Card className="overflow-hidden transition-all hover:shadow-lg">
@@ -53,10 +74,10 @@ export function DealCard({
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                 <div className="flex items-center justify-between mb-2">
                   <Badge variant="outline" className="border-white text-white">
-                    {category}
+                    {getCategoryEmoji(category)} {category}
                   </Badge>
                   <Badge className="bg-secondary">
-                    {discountPercentage}% RABATT
+                    🏷️ {discountPercentage}% RABATT
                   </Badge>
                 </div>
                 <h3 className="mb-2 text-2xl font-semibold">{title}</h3>
@@ -65,7 +86,7 @@ export function DealCard({
                 </p>
                 <div className="mb-4 flex items-center gap-2">
                   <Clock className="h-5 w-5 text-white/90" />
-                  <span className="text-lg text-white/90">{timeRemaining}</span>
+                  <span className="text-lg text-white/90">⏳ {timeRemaining}</span>
                 </div>
                 <div className="mb-4 flex items-center gap-2">
                   <Tag className="h-5 w-5 text-success" />
@@ -77,7 +98,7 @@ export function DealCard({
                   </span>
                 </div>
                 <Button className="w-full bg-primary hover:bg-primary/90">
-                  Köp Nu
+                  Köp Nu 🛍️
                 </Button>
               </div>
             </div>
@@ -97,13 +118,13 @@ export function DealCard({
             className="h-48 w-full object-cover"
           />
           <Badge className="absolute right-2 top-2 bg-secondary">
-            {discountPercentage}% RABATT
+            🏷️ {discountPercentage}% RABATT
           </Badge>
         </div>
         <div className="p-6">
           <div className="flex flex-col gap-2">
             <Badge variant="outline" className="w-fit">
-              {category}
+              {getCategoryEmoji(category)} {category}
             </Badge>
             <h3 className="text-lg font-semibold line-clamp-1">{title}</h3>
             <p className="text-sm text-muted-foreground line-clamp-2">
@@ -111,7 +132,7 @@ export function DealCard({
             </p>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4" />
-              <span className="text-sm">{timeRemaining}</span>
+              <span className="text-sm">⏳ {timeRemaining}</span>
             </div>
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-success" />
@@ -123,7 +144,7 @@ export function DealCard({
               </span>
             </div>
             <Button className="w-full bg-primary hover:bg-primary/90">
-              Köp Nu
+              Köp Nu 🛍️
             </Button>
           </div>
         </div>
