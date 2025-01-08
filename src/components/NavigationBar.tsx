@@ -49,7 +49,7 @@ export const NavigationBar = () => {
     .from('assets')
     .getPublicUrl('Lyxdeal-logo.svg');
 
-  console.log('Logo URL:', publicUrl); // För att debugga URL:en
+  console.log('Logo URL:', publicUrl);
 
   return (
     <nav className="border-b">
@@ -66,6 +66,21 @@ export const NavigationBar = () => {
             onError={(e) => console.error('Error loading image:', e)}
           />
         </Link>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-4 flex-1">
+          {categories.map((category) => (
+            <Button
+              key={category.name}
+              variant="ghost"
+              className="text-sm"
+              onClick={() => handleCategoryClick(category.name)}
+            >
+              <span className="mr-1">{category.icon}</span>
+              {category.name}
+            </Button>
+          ))}
+        </div>
 
         <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4 hidden md:block">
           <div className="relative">
