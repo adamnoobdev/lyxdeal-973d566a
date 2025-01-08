@@ -17,8 +17,8 @@ interface CitiesProps {
 
 export function Cities({ selectedCity, onSelectCity }: CitiesProps) {
   return (
-    <ScrollArea className="w-full pb-4">
-      <div className="mb-8 flex gap-2 px-4 md:px-0">
+    <ScrollArea className="w-full pb-4 -mx-4 md:mx-0">
+      <div className="mb-8 flex gap-2 px-4">
         {cities.map((city) => (
           <Button
             key={city}
@@ -26,7 +26,7 @@ export function Cities({ selectedCity, onSelectCity }: CitiesProps) {
             onClick={() => onSelectCity(city)}
             className={`${
               selectedCity === city ? "bg-primary" : ""
-            } whitespace-nowrap`}
+            } whitespace-nowrap py-6`}
           >
             {city}
           </Button>

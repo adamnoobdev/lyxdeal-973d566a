@@ -44,7 +44,7 @@ export const FeaturedDeals = ({ deals }: FeaturedDealsProps) => {
   }, [api]);
 
   return (
-    <div className="-mx-4 sm:mx-0">
+    <div className="-mx-4">
       <Carousel
         opts={{
           align: "start",
@@ -53,9 +53,9 @@ export const FeaturedDeals = ({ deals }: FeaturedDealsProps) => {
         setApi={setApi}
         className="w-full"
       >
-        <CarouselContent className="-ml-0 sm:-ml-4">
+        <CarouselContent className="-ml-0">
           {deals.map((deal) => (
-            <CarouselItem key={deal.id} className="pl-0 sm:pl-4 basis-full">
+            <CarouselItem key={deal.id} className="pl-0 basis-full">
               <DealCard {...deal} featured={true} />
             </CarouselItem>
           ))}
