@@ -57,7 +57,7 @@ export const DealCard = memo(({
                   <CategoryBadge 
                     category={`${discountPercentage}% RABATT`} 
                     variant="default" 
-                    className="bg-primary text-white shadow-sm" 
+                    className="bg-[#D946EF] text-white font-semibold shadow-sm" 
                   />
                 </div>
                 <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white line-clamp-2">
@@ -105,7 +105,7 @@ export const DealCard = memo(({
           <CategoryBadge 
             category={`${discountPercentage}% RABATT`} 
             variant="default"
-            className="absolute right-3 top-3 bg-primary text-white shadow-sm"
+            className="absolute right-3 top-3 bg-[#D946EF] text-white font-semibold shadow-sm"
           />
         </div>
         <div className="p-4">
