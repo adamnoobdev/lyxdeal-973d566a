@@ -62,7 +62,7 @@ export const NavigationBar = () => {
           <img 
             src={publicUrl} 
             alt="Lyxdeal Logo" 
-            className="h-8 w-auto"
+            className="h-12 w-auto"
             onError={(e) => console.error('Error loading image:', e)}
           />
         </Link>
