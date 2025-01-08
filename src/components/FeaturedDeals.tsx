@@ -4,7 +4,7 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { DealCard } from "@/components/DealCard";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 interface Deal {
   id: number;
@@ -26,22 +26,25 @@ export const FeaturedDeals = ({ deals }: FeaturedDealsProps) => {
   const [api, setApi] = useState<any>();
   const [current, setCurrent] = useState(0);
 
+  const handleSelect = useCallback(() => {
+    if (!api) return;
+    setCurrent(api.selectedScrollSnap());
+  }, [api]);
+
   useEffect(() => {
     if (!api) return;
 
+    api.on("select", handleSelect);
+    
     const interval = setInterval(() => {
       api.scrollNext();
     }, 4000);
 
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-
     return () => {
       clearInterval(interval);
-      api.destroy();
+      api.off("select", handleSelect);
     };
-  }, [api]);
+  }, [api, handleSelect]);
 
   return (
     <div className="-mx-4">
