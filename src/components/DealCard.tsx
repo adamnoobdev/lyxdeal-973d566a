@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin, BadgeNew } from "lucide-react";
+import { Clock, MapPin, BadgePlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CategoryBadge } from "./CategoryBadge";
 import { PriceDisplay } from "./PriceDisplay";
@@ -66,13 +66,10 @@ export const DealCard = memo(({
                     className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10" 
                   />
                   {isNew && (
-                    <CategoryBadge
-                      category="NYTT"
-                      variant="default"
-                      className="bg-emerald-500/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10 flex items-center gap-1"
-                    >
-                      <BadgeNew className="w-3 h-3" /> NYTT
-                    </CategoryBadge>
+                    <div className="flex items-center gap-1 bg-emerald-500/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10 px-2.5 py-0.5 rounded-full">
+                      <BadgePlus className="w-3 h-3" />
+                      <span>NYTT</span>
+                    </div>
                   )}
                 </div>
                 <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white line-clamp-2">
@@ -124,13 +121,10 @@ export const DealCard = memo(({
               className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10"
             />
             {isNew && (
-              <CategoryBadge
-                category="NYTT"
-                variant="default"
-                className="bg-emerald-500/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10 flex items-center gap-1"
-              >
-                <BadgeNew className="w-3 h-3" /> NYTT
-              </CategoryBadge>
+              <div className="flex items-center gap-1 bg-emerald-500/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10 px-2.5 py-0.5 rounded-full">
+                <BadgePlus className="w-3 h-3" />
+                <span>NYTT</span>
+              </div>
             )}
           </div>
         </div>
