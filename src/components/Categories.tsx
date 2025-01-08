@@ -20,8 +20,8 @@ interface CategoriesProps {
 export function Categories({ selectedCategory, onSelectCategory }: CategoriesProps) {
   return (
     <div className="relative mb-6 -mx-4 md:mx-0">
-      <ScrollArea className="w-full whitespace-nowrap pb-4">
-        <div className="flex gap-2 px-4 justify-center">
+      <ScrollArea className="w-full whitespace-nowrap">
+        <div className="flex w-full gap-2 px-4 pb-2 justify-start md:justify-center">
           {categories.map((category) => (
             <Button
               key={category}
@@ -29,7 +29,7 @@ export function Categories({ selectedCategory, onSelectCategory }: CategoriesPro
               onClick={() => onSelectCategory(category)}
               className={`${
                 selectedCategory === category ? "bg-primary" : ""
-              } flex-shrink-0 text-xs py-2 px-4 h-8`}
+              } flex-shrink-0 text-xs py-1.5 px-3 h-7`}
             >
               {category}
             </Button>
