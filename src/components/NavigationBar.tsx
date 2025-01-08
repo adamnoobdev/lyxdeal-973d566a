@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Menu } from "lucide-react";
+import { Search, Menu, MapPin, ChevronDown } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,25 @@ import {
 import { ScrollArea } from "./ui/scroll-area";
 import { CategorySelector } from "./CategorySelector";
 import { CitySelector } from "./CitySelector";
+
+const cities = [
+  "Alla Städer",
+  "Stockholm",
+  "Göteborg",
+  "Malmö",
+  "Uppsala",
+  "Linköping"
+];
+
+const categories = [
+  { name: "Laserhårborttagning", icon: "✨" },
+  { name: "Fillers", icon: "💉" },
+  { name: "Rynkbehandlingar", icon: "🔄" },
+  { name: "Hudvård", icon: "🧴" },
+  { name: "Hårvård", icon: "💇‍♀️" },
+  { name: "Naglar", icon: "💅" },
+  { name: "Massage", icon: "💆‍♀️" },
+];
 
 export const NavigationBar = () => {
   const navigate = useNavigate();
