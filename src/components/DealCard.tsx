@@ -41,44 +41,40 @@ export const DealCard = ({
       <div className={`group relative overflow-hidden rounded-lg bg-white transition-all hover:shadow-lg ${
         featured ? 'aspect-[16/9]' : 'aspect-[3/4]'
       }`}>
-        <div className="absolute inset-0">
+        <div className="relative h-3/5">
           <img
             src={imageUrl || "/placeholder.svg"}
             alt={title}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute right-3 top-3">
+            <DealBadges
+              discountPercentage={discountPercentage}
+              isNew={isNew}
+              showCategoryBadge={false}
+            />
+          </div>
         </div>
 
-        <div className="absolute right-3 top-3">
-          <DealBadges
-            discountPercentage={discountPercentage}
-            isNew={isNew}
-            showCategoryBadge={false}
-          />
-        </div>
-
-        <div className="absolute inset-x-0 bottom-0 p-4">
+        <div className="p-4">
           <DealBadges
             category={category}
             showDiscountBadge={false}
             showNewBadge={false}
-            variant="outline"
             className="mb-2"
           />
           
-          <h3 className="mb-1 text-lg font-semibold text-white line-clamp-2">
+          <h3 className="mb-1 text-lg font-semibold text-gray-900 line-clamp-2">
             {title}
           </h3>
           
-          <p className="mb-2 text-sm text-gray-200 line-clamp-2">
+          <p className="mb-2 text-sm text-gray-600 line-clamp-2">
             {description}
           </p>
 
           <PriceDisplay
             originalPrice={originalPrice}
             discountedPrice={discountedPrice}
-            className="text-white"
           />
         </div>
       </div>
