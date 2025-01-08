@@ -21,7 +21,10 @@ export function CategoryBadge({ category, variant = "outline", className = "" }:
   };
 
   return (
-    <Badge variant={variant} className={className}>
+    <Badge 
+      variant={variant} 
+      className={`inline-flex w-auto ${className}`}
+    >
       {getCategoryEmoji(category)} {category}
     </Badge>
   );
