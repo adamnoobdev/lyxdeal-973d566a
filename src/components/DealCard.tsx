@@ -74,7 +74,7 @@ const DealCardComponent = ({
                     <CategoryBadge
                       category="NYTT"
                       variant="default"
-                      className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-yellow-950 font-semibold shadow-sm backdrop-blur-md"
+                      className="bg-gradient-to-r from-yellow-300/70 via-yellow-400/70 to-yellow-500/70 text-yellow-950 font-semibold shadow-sm backdrop-blur-md"
                     />
                   )}
                 </div>
@@ -131,7 +131,7 @@ const DealCardComponent = ({
               <CategoryBadge
                 category="NYTT"
                 variant="default"
-                className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-yellow-950 font-semibold shadow-sm backdrop-blur-md"
+                className="bg-gradient-to-r from-yellow-300/70 via-yellow-400/70 to-yellow-500/70 text-yellow-950 font-semibold shadow-sm backdrop-blur-md"
               />
             )}
           </div>
