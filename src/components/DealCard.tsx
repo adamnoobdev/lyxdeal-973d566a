@@ -38,16 +38,14 @@ export const DealCard = ({
 
   return (
     <Link to={`/product/${id}`}>
-      <div className={`group relative overflow-hidden rounded-lg bg-white transition-all hover:shadow-lg ${
-        featured ? 'aspect-[16/9]' : 'aspect-[3/4]'
-      }`}>
-        <div className="relative h-3/5">
+      <div className="group relative overflow-hidden rounded-xl bg-white transition-all hover:shadow-lg">
+        <div className="relative aspect-[4/3] overflow-hidden">
           <img
             src={imageUrl || "/placeholder.svg"}
             alt={title}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          <div className="absolute right-3 top-3">
+          <div className="absolute right-3 top-3 z-10">
             <DealBadges
               discountPercentage={discountPercentage}
               isNew={isNew}
@@ -64,11 +62,11 @@ export const DealCard = ({
             className="mb-2"
           />
           
-          <h3 className="mb-1 text-lg font-semibold text-gray-900 line-clamp-2">
+          <h3 className="mb-2 text-lg font-semibold text-foreground line-clamp-2">
             {title}
           </h3>
           
-          <p className="mb-2 text-sm text-gray-600 line-clamp-2">
+          <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
             {description}
           </p>
 

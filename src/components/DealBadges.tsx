@@ -30,7 +30,7 @@ export function DealBadges({
       {showDiscountBadge && discountPercentage && (
         <Badge 
           variant={variant} 
-          className="bg-secondary text-secondary-foreground hover:bg-secondary/90 border-0"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 border-0"
         >
           {discountPercentage}% RABATT
         </Badge>
