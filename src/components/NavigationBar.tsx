@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-export default function NavigationBar() {
+export const NavigationBar = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 

@@ -4,7 +4,6 @@ import { DealCard } from "@/components/DealCard";
 import { NavigationBar } from "@/components/NavigationBar";
 import { Categories } from "@/components/Categories";
 
-// Använd samma deals data som på Index-sidan
 const deals = [
   {
     id: 1,
@@ -102,14 +101,7 @@ const SearchResults = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="container py-6">
-          <NavigationBar
-            navigationItems={navigationItems}
-            onSearch={(query) => {
-              const params = new URLSearchParams(searchParams);
-              params.set("q", query);
-              window.history.pushState({}, "", `?${params.toString()}`);
-            }}
-          />
+          <NavigationBar />
         </div>
       </header>
 

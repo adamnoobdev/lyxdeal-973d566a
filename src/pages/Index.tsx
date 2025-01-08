@@ -134,10 +134,7 @@ const Index = () => {
                 Missa inte våra mest populära deals!
               </p>
             </div>
-            <NavigationBar
-              navigationItems={navigationItems}
-              onSearch={handleSearch}
-            />
+            <NavigationBar />
           </div>
 
           <div className="relative">
