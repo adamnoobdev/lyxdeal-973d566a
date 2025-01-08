@@ -1,21 +1,8 @@
 import { useState } from "react";
 import { DealCard } from "@/components/DealCard";
 import { Categories } from "@/components/Categories";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { NavigationBar } from "@/components/NavigationBar";
+import { FeaturedDeals } from "@/components/FeaturedDeals";
 
 const featuredDeals = [
   {
@@ -123,10 +110,18 @@ const navigationItems = [
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("Alla Erbjudanden");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredDeals = selectedCategory === "Alla Erbjudanden"
-    ? deals
-    : deals.filter(deal => deal.category === selectedCategory);
+  const filteredDeals = deals.filter(deal => {
+    const matchesCategory = selectedCategory === "Alla Erbjudanden" || deal.category === selectedCategory;
+    const matchesSearch = searchQuery
+      ? deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        deal.category.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+    
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -137,51 +132,14 @@ const Index = () => {
               <h1 className="text-3xl font-bold text-gray-900">Hetaste Erbjudandena</h1>
               <p className="mt-2 text-gray-600">Missa inte våra mest populära deals!</p>
             </div>
-            <NavigationMenu>
-              <NavigationMenuList>
-                {navigationItems.map((section) => (
-                  <NavigationMenuItem key={section.title}>
-                    <NavigationMenuTrigger>{section.title}</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                        {section.items.map((item) => (
-                          <li key={item.title}>
-                            <NavigationMenuLink asChild>
-                              <a
-                                href={item.href}
-                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                              >
-                                <div className="text-sm font-medium leading-none">{item.title}</div>
-                              </a>
-                            </NavigationMenuLink>
-                          </li>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
+            <NavigationBar 
+              navigationItems={navigationItems}
+              onSearch={setSearchQuery}
+            />
           </div>
           
           <div className="relative">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent>
-                {featuredDeals.map((deal) => (
-                  <CarouselItem key={deal.id} className="md:basis-1/2 lg:basis-1/3">
-                    <DealCard {...deal} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-0" />
-              <CarouselNext className="right-0" />
-            </Carousel>
+            <FeaturedDeals deals={featuredDeals} />
           </div>
         </div>
       </header>
