@@ -78,11 +78,11 @@ export function DealCard({
                   <Badge variant="outline" className="border-white text-white backdrop-blur-sm bg-white/10 text-sm py-1.5">
                     {getCategoryEmoji(category)} {category}
                   </Badge>
-                  <Badge className="bg-primary text-primary-foreground font-semibold text-sm py-1.5">
+                  <Badge className="bg-primary text-white font-semibold text-sm py-1.5">
                     {discountPercentage}% RABATT
                   </Badge>
                 </div>
-                <h3 className="mb-3 text-3xl font-bold tracking-tight">{title}</h3>
+                <h3 className="mb-3 text-3xl font-bold tracking-tight text-white">{title}</h3>
                 <p className="mb-6 text-lg line-clamp-2 text-white/90 font-medium">
                   {description}
                 </p>
@@ -99,11 +99,11 @@ export function DealCard({
                   <span className="text-lg line-through text-white/70">
                     {formatPrice(originalPrice)}
                   </span>
-                  <span className="text-2xl font-bold text-primary">
+                  <span className="text-2xl font-bold text-white">
                     {formatPrice(discountedPrice)}
                   </span>
                 </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-lg font-semibold py-6">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white text-lg font-semibold py-6">
                   Köp Nu
                 </Button>
               </div>
@@ -123,7 +123,7 @@ export function DealCard({
             alt={title}
             className="h-52 w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          <Badge className="absolute right-3 top-3 bg-primary text-primary-foreground font-semibold">
+          <Badge className="absolute right-3 top-3 bg-primary text-white font-semibold">
             {discountPercentage}% RABATT
           </Badge>
         </div>
@@ -149,11 +149,11 @@ export function DealCard({
               <span className="text-sm line-through text-muted-foreground">
                 {formatPrice(originalPrice)}
               </span>
-              <span className="text-lg font-bold text-primary">
+              <span className="text-lg font-bold text-primary-foreground">
                 {formatPrice(discountedPrice)}
               </span>
             </div>
-            <Button className="w-full bg-primary hover:bg-primary/90 font-semibold py-5">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-5">
               Köp Nu
             </Button>
           </div>
