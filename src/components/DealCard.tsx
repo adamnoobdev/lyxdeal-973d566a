@@ -95,17 +95,15 @@ export const DealCard = memo(({
             className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
-          <div className="absolute right-3 top-3 flex gap-2">
+        </div>
+        <div className="p-4">
+          <div className="flex flex-col gap-3">
             <DealBadges 
               category={category}
               discountPercentage={discountPercentage}
               isNew={isNew}
               variant="default"
             />
-          </div>
-        </div>
-        <div className="p-4">
-          <div className="flex flex-col gap-3">
             <h3 className="text-lg font-bold tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
               {title}
             </h3>
