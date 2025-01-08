@@ -16,6 +16,7 @@ interface Deal {
   timeRemaining: string;
   category: string;
   city: string;
+  created_at: string;
 }
 
 interface FeaturedDealsProps {
