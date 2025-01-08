@@ -17,6 +17,7 @@ interface DealCardProps {
   category: string;
   city: string;
   featured?: boolean;
+  created_at: string;
 }
 
 export const DealCard = memo(({
@@ -30,10 +31,19 @@ export const DealCard = memo(({
   category,
   city,
   featured = false,
+  created_at,
 }: DealCardProps) => {
   const discountPercentage = Math.round(
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
+
+  const isNew = () => {
+    const createdDate = new Date(created_at);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 3;
+  };
 
   if (featured) {
     return (
@@ -59,6 +69,13 @@ export const DealCard = memo(({
                     variant="default" 
                     className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10" 
                   />
+                  {isNew() && (
+                    <CategoryBadge
+                      category="NYTT"
+                      variant="default"
+                      className="bg-yellow-500/90 text-yellow-950 font-semibold shadow-sm backdrop-blur-md"
+                    />
+                  )}
                 </div>
                 <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white line-clamp-2">
                   {title}
@@ -102,11 +119,20 @@ export const DealCard = memo(({
             className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
-          <CategoryBadge 
-            category={`${discountPercentage}% RABATT`} 
-            variant="default"
-            className="absolute right-3 top-3 bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10"
-          />
+          <div className="absolute right-3 top-3 flex gap-2">
+            <CategoryBadge 
+              category={`${discountPercentage}% RABATT`} 
+              variant="default"
+              className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10"
+            />
+            {isNew() && (
+              <CategoryBadge
+                category="NYTT"
+                variant="default"
+                className="bg-yellow-500/90 text-yellow-950 font-semibold shadow-sm backdrop-blur-md"
+              />
+            )}
+          </div>
         </div>
         <div className="p-4">
           <div className="flex flex-col gap-3">
