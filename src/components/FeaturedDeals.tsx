@@ -33,8 +33,8 @@ export const FeaturedDeals = ({ deals }: FeaturedDealsProps) => {
     >
       <CarouselContent>
         {deals.map((deal) => (
-          <CarouselItem key={deal.id} className="md:basis-1/2 lg:basis-1/3">
-            <DealCard {...deal} />
+          <CarouselItem key={deal.id} className="basis-full">
+            <DealCard {...deal} featured={true} />
           </CarouselItem>
         ))}
       </CarouselContent>
