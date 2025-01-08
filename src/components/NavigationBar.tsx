@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Menu } from "lucide-react";
+import { Search, Menu, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "./ui/scroll-area";
 
@@ -68,18 +74,26 @@ export const NavigationBar = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-4 flex-1">
-          {categories.map((category) => (
-            <Button
-              key={category.name}
-              variant="ghost"
-              className="text-sm"
-              onClick={() => handleCategoryClick(category.name)}
-            >
-              <span className="mr-1">{category.icon}</span>
-              {category.name}
-            </Button>
-          ))}
+        <div className="hidden md:flex items-center gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="text-sm">
+                Kategorier <ChevronDown className="ml-1 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48">
+              {categories.map((category) => (
+                <DropdownMenuItem
+                  key={category.name}
+                  onClick={() => handleCategoryClick(category.name)}
+                  className="flex items-center gap-2"
+                >
+                  <span>{category.icon}</span>
+                  <span>{category.name}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4 hidden md:block">
