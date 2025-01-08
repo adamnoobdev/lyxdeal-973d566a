@@ -47,7 +47,9 @@ export const NavigationBar = () => {
   const { data: { publicUrl } } = supabase
     .storage
     .from('assets')
-    .getPublicUrl('Lyxdeal-logo');
+    .getPublicUrl('Lyxdeal-logo.svg');
+
+  console.log('Logo URL:', publicUrl); // För att debugga URL:en
 
   return (
     <nav className="border-b">
@@ -61,6 +63,7 @@ export const NavigationBar = () => {
             src={publicUrl} 
             alt="Lyxdeal Logo" 
             className="h-8 w-auto"
+            onError={(e) => console.error('Error loading image:', e)}
           />
           <span className="hidden sm:inline">Deals</span>
         </Link>
