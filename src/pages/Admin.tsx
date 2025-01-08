@@ -11,23 +11,27 @@ import { supabase } from "@/integrations/supabase/client";
 // I praktiken skulle detta hanteras säkrare, t.ex. genom en backend
 const ADMIN_PASSWORD = "admin123";
 
+const formSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  imageUrl: z.string(),
+  originalPrice: z.string(),
+  discountedPrice: z.string(),
+  category: z.string(),
+  city: z.string(),
+  timeRemaining: z.string(),
+  featured: z.boolean(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 export default function AdminPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (values: z.infer<typeof z.object({
-    title: z.string(),
-    description: z.string(),
-    imageUrl: z.string(),
-    originalPrice: z.string(),
-    discountedPrice: z.string(),
-    category: z.string(),
-    city: z.string(),
-    timeRemaining: z.string(),
-    featured: z.boolean(),
-  })>) => {
+  const handleSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
       const { error } = await supabase.from('deals').insert({
