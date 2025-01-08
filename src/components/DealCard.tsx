@@ -64,46 +64,48 @@ export function DealCard({
 
   if (featured) {
     return (
-      <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl rounded-none sm:rounded-xl">
-        <Link to={`/product/${id}`}>
-          <div className="relative">
+      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl">
+        <Link to={`/product/${id}`} className="block">
+          <div className="relative h-[300px] sm:h-[400px]">
             <img
               src={imageUrl}
               alt={title}
-              className="h-[300px] sm:h-[400px] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 text-white">
-                <div className="flex items-center justify-between mb-4">
-                  <Badge variant="outline" className="border-white text-white backdrop-blur-sm bg-white/10 text-sm py-1.5">
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <Badge variant="outline" className="border-white text-white backdrop-blur-sm bg-white/10">
                     {getCategoryEmoji(category)} {category}
                   </Badge>
-                  <Badge className="bg-primary text-white font-semibold text-sm py-1.5">
+                  <Badge className="bg-primary text-white">
                     {discountPercentage}% RABATT
                   </Badge>
                 </div>
-                <h3 className="mb-3 text-2xl sm:text-3xl font-bold tracking-tight text-white">{title}</h3>
-                <p className="mb-6 text-base sm:text-lg line-clamp-2 text-white/90 font-medium">
+                <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white line-clamp-2">{title}</h3>
+                <p className="mb-4 text-sm sm:text-base line-clamp-2 text-white/90">
                   {description}
                 </p>
-                <div className="flex items-center gap-3 mb-4">
-                  <MapPin className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
-                  <span className="text-base sm:text-lg text-white/90 font-medium">{city}</span>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="text-sm sm:text-base text-white/90">{city}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="text-sm sm:text-base text-white/90">{timeRemaining}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-primary" />
+                    <span className="text-sm sm:text-base line-through text-white/70">
+                      {formatPrice(originalPrice)}
+                    </span>
+                    <span className="text-base sm:text-lg font-bold text-white">
+                      {formatPrice(discountedPrice)}
+                    </span>
+                  </div>
                 </div>
-                <div className="mb-4 flex items-center gap-3">
-                  <Clock className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
-                  <span className="text-base sm:text-lg text-white/90 font-medium">{timeRemaining}</span>
-                </div>
-                <div className="mb-6 flex items-center gap-3">
-                  <Tag className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
-                  <span className="text-base sm:text-lg line-through text-white/70">
-                    {formatPrice(originalPrice)}
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold text-white">
-                    {formatPrice(discountedPrice)}
-                  </span>
-                </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white text-base sm:text-lg font-semibold py-5 sm:py-6">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white">
                   Köp Nu
                 </Button>
               </div>
@@ -115,7 +117,7 @@ export function DealCard({
   }
 
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl rounded-xl">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl">
       <Link to={`/product/${id}`}>
         <div className="relative">
           <img
@@ -123,37 +125,37 @@ export function DealCard({
             alt={title}
             className="h-52 w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          <Badge className="absolute right-3 top-3 bg-primary text-white font-semibold">
+          <Badge className="absolute right-3 top-3 bg-primary text-white">
             {discountPercentage}% RABATT
           </Badge>
         </div>
-        <div className="p-6">
+        <div className="p-4">
           <div className="flex flex-col gap-3">
-            <Badge variant="outline" className="w-fit text-sm py-1">
+            <Badge variant="outline" className="w-fit">
               {getCategoryEmoji(category)} {category}
             </Badge>
-            <h3 className="text-xl font-bold tracking-tight line-clamp-1">{title}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2 font-medium">
+            <h3 className="text-lg font-bold tracking-tight line-clamp-1">{title}</h3>
+            <p className="text-sm text-muted-foreground line-clamp-2">
               {description}
             </p>
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">{city}</span>
+              <span className="text-sm">{city}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">{timeRemaining}</span>
+              <span className="text-sm">{timeRemaining}</span>
             </div>
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-primary" />
               <span className="text-sm line-through text-muted-foreground">
                 {formatPrice(originalPrice)}
               </span>
-              <span className="text-lg font-bold text-primary-foreground">
+              <span className="text-base font-bold">
                 {formatPrice(discountedPrice)}
               </span>
             </div>
-            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-5">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white">
               Köp Nu
             </Button>
           </div>
