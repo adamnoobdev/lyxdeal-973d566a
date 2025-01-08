@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DealCard } from "@/components/DealCard";
-import { Categories } from "@/components/Categories";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 
 const featuredDeals = [
@@ -98,11 +97,6 @@ const Index = () => {
         <div className="relative mb-8">
           <FeaturedDeals deals={featuredDeals} />
         </div>
-
-        <Categories
-          selectedCategory={selectedCategory}
-          onSelectCategory={handleCategorySelect}
-        />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {deals.map((deal) => (
