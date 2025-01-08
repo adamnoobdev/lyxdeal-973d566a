@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin } from "lucide-react";
+import { Clock, MapPin, BadgeNew } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CategoryBadge } from "./CategoryBadge";
 import { PriceDisplay } from "./PriceDisplay";
@@ -17,6 +17,7 @@ interface DealCardProps {
   category: string;
   city: string;
   featured?: boolean;
+  createdAt?: string;
 }
 
 export const DealCard = memo(({
@@ -30,10 +31,15 @@ export const DealCard = memo(({
   category,
   city,
   featured = false,
+  createdAt,
 }: DealCardProps) => {
   const discountPercentage = Math.round(
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
+
+  const isNew = createdAt ? 
+    (new Date().getTime() - new Date(createdAt).getTime()) < 24 * 60 * 60 * 1000 
+    : false;
 
   if (featured) {
     return (
@@ -59,6 +65,15 @@ export const DealCard = memo(({
                     variant="default" 
                     className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10" 
                   />
+                  {isNew && (
+                    <CategoryBadge
+                      category="NYTT"
+                      variant="default"
+                      className="bg-emerald-500/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10 flex items-center gap-1"
+                    >
+                      <BadgeNew className="w-3 h-3" /> NYTT
+                    </CategoryBadge>
+                  )}
                 </div>
                 <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white line-clamp-2">
                   {title}
@@ -102,11 +117,22 @@ export const DealCard = memo(({
             className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
-          <CategoryBadge 
-            category={`${discountPercentage}% RABATT`} 
-            variant="default"
-            className="absolute right-3 top-3 bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10"
-          />
+          <div className="absolute right-3 top-3 flex gap-2">
+            <CategoryBadge 
+              category={`${discountPercentage}% RABATT`} 
+              variant="default"
+              className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10"
+            />
+            {isNew && (
+              <CategoryBadge
+                category="NYTT"
+                variant="default"
+                className="bg-emerald-500/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10 flex items-center gap-1"
+              >
+                <BadgeNew className="w-3 h-3" /> NYTT
+              </CategoryBadge>
+            )}
+          </div>
         </div>
         <div className="p-4">
           <div className="flex flex-col gap-3">
