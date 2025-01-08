@@ -38,7 +38,7 @@ export function DealBadges({
       {showNewBadge && isNew && (
         <Badge 
           variant={variant} 
-          className="bg-muted text-muted-foreground hover:bg-muted/90 border-0"
+          className="bg-[#FEF7CD] text-[#946800] hover:bg-[#FEF7CD]/90 border-0"
         >
           NYTT
         </Badge>
