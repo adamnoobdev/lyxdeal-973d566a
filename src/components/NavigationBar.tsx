@@ -70,8 +70,22 @@ export const NavigationBar = () => {
           />
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Desktop Search Bar - Centered */}
+        <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-auto hidden md:block">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Sök erbjudanden..."
+              className="w-full pl-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </form>
+
+        {/* Desktop Categories Dropdown - Right aligned */}
+        <div className="hidden md:flex items-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
@@ -82,7 +96,7 @@ export const NavigationBar = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
-              align="start" 
+              align="end" 
               className="w-56 p-2"
             >
               {categories.map((category) => (
@@ -99,19 +113,7 @@ export const NavigationBar = () => {
           </DropdownMenu>
         </div>
 
-        <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4 hidden md:block">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Sök erbjudanden..."
-              className="w-full pl-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </form>
-
+        {/* Mobile Menu */}
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button 
