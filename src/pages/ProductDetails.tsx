@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react"; // Added Star import here
 import { Link } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeal";
 import { useReviews } from "@/hooks/useReviews";
