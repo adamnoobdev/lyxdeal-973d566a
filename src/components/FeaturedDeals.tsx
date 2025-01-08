@@ -2,8 +2,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { DealCard } from "@/components/DealCard";
 
@@ -38,8 +36,6 @@ export const FeaturedDeals = ({ deals }: FeaturedDealsProps) => {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="left-0" />
-      <CarouselNext className="right-0" />
     </Carousel>
   );
 };
