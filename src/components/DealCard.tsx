@@ -1,9 +1,10 @@
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Clock, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
-import { DealBadges } from "./DealBadges";
+import { CategoryBadge } from "./CategoryBadge";
 import { PriceDisplay } from "./PriceDisplay";
-import { differenceInDays } from "date-fns";
-import { Button } from "./ui/button";
-import { ShoppingCart, MapPin, Clock } from "lucide-react";
+import { memo } from "react";
 
 interface DealCardProps {
   id: number;
@@ -16,91 +17,128 @@ interface DealCardProps {
   category: string;
   city: string;
   featured?: boolean;
-  created_at?: string;
 }
 
-export const DealCard = ({ 
+export const DealCard = memo(({
   id,
-  title, 
-  description, 
-  imageUrl, 
-  originalPrice, 
+  title,
+  description,
+  imageUrl,
+  originalPrice,
   discountedPrice,
   timeRemaining,
   category,
   city,
   featured = false,
-  created_at,
 }: DealCardProps) => {
   const discountPercentage = Math.round(
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
 
-  const isNew = created_at ? 
-    differenceInDays(new Date(), new Date(created_at)) <= 3 : 
-    false;
+  if (featured) {
+    return (
+      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl">
+        <Link to={`/product/${id}`} className="block">
+          <div className="relative h-[300px] sm:h-[400px]">
+            <img
+              src={imageUrl}
+              alt={title}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <CategoryBadge 
+                    category={category} 
+                    variant="outline" 
+                    className="border-white text-white backdrop-blur-sm bg-white/10 shadow-sm" 
+                  />
+                  <CategoryBadge 
+                    category={`${discountPercentage}% RABATT`} 
+                    variant="default" 
+                    className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10" 
+                  />
+                </div>
+                <h3 className="mb-2 text-xl sm:text-2xl font-bold tracking-tight text-white line-clamp-2">
+                  {title}
+                </h3>
+                <p className="mb-4 text-sm sm:text-base line-clamp-2 text-white/90">
+                  {description}
+                </p>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="text-sm sm:text-base text-white/90">{city}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="text-sm sm:text-base text-white/90">{timeRemaining}</span>
+                  </div>
+                  <PriceDisplay 
+                    originalPrice={originalPrice}
+                    discountedPrice={discountedPrice}
+                    className="text-white"
+                  />
+                </div>
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 hover:shadow-xl">
+                  Köp Nu
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </Card>
+    );
+  }
 
   return (
-    <Link to={`/product/${id}`}>
-      <div className="group relative h-full overflow-hidden rounded-xl bg-white transition-all hover:shadow-lg">
-        <div className="relative aspect-[4/3] overflow-hidden">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      <Link to={`/product/${id}`}>
+        <div className="relative">
           <img
-            src={imageUrl || "/placeholder.svg"}
+            src={imageUrl}
             alt={title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
           />
-          <div className="absolute right-3 top-3 z-10">
-            <DealBadges
-              discountPercentage={discountPercentage}
-              isNew={isNew}
-              showCategoryBadge={false}
-            />
-          </div>
+          <CategoryBadge 
+            category={`${discountPercentage}% RABATT`} 
+            variant="default"
+            className="absolute right-3 top-3 bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10"
+          />
         </div>
-
-        <div className="flex h-[calc(100%-75%)] flex-col p-4">
-          <DealBadges
-            category={category}
-            showDiscountBadge={false}
-            showNewBadge={false}
-            className="mb-2"
-          />
-          
-          <h3 className="mb-2 text-lg font-semibold text-foreground line-clamp-2">
-            {title}
-          </h3>
-          
-          <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-            {description}
-          </p>
-
-          <div className="mt-auto space-y-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="p-4">
+          <div className="flex flex-col gap-3">
+            <div className="flex">
+              <CategoryBadge category={category} className="shadow-sm" />
+            </div>
+            <h3 className="text-lg font-bold tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
+              {title}
+            </h3>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {description}
+            </p>
+            <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4 text-primary" />
-              <span>{city}</span>
+              <span className="text-sm">{city}</span>
             </div>
-
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4 text-primary" />
-              <span>{timeRemaining}</span>
+              <span className="text-sm">{timeRemaining}</span>
             </div>
-
-            <div className="flex items-center justify-between gap-4">
-              <PriceDisplay
-                originalPrice={originalPrice}
-                discountedPrice={discountedPrice}
-              />
-              <Button 
-                size="sm" 
-                className="bg-primary hover:bg-primary/90"
-              >
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Köp
-              </Button>
-            </div>
+            <PriceDisplay 
+              originalPrice={originalPrice}
+              discountedPrice={discountedPrice}
+            />
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-md transition-all duration-300 hover:shadow-lg">
+              Köp Nu
+            </Button>
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </Card>
   );
-};
+});
+
+DealCard.displayName = "DealCard";

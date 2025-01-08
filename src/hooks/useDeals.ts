@@ -37,7 +37,6 @@ export const useDeals = (category?: string, city?: string) => {
         timeRemaining: deal.time_remaining,
         category: deal.category,
         city: deal.city,
-        created_at: deal.created_at,
       }));
     },
   });
@@ -69,7 +68,6 @@ export const useFeaturedDeals = () => {
         timeRemaining: deal.time_remaining,
         category: deal.category,
         city: deal.city,
-        created_at: deal.created_at,
       }));
     },
   });

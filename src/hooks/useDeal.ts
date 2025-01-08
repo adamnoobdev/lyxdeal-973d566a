@@ -35,7 +35,6 @@ export const useDeal = (id: string | undefined) => {
         timeRemaining: data.time_remaining,
         category: data.category,
         city: data.city,
-        created_at: data.created_at,
       };
     },
   });

@@ -23,7 +23,7 @@ export function CategoryBadge({ category, variant = "outline", className = "" }:
   return (
     <Badge 
       variant={variant} 
-      className={`inline-flex w-auto bg-accent text-accent-foreground hover:bg-accent/90 ${className}`}
+      className={`inline-flex w-auto ${className}`}
     >
       {getCategoryEmoji(category)} {category}
     </Badge>
