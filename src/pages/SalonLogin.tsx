@@ -18,6 +18,11 @@ const getErrorMessage = (error: AuthError) => {
       code: error.code
     });
     
+    // Check for specific error codes first
+    if (error.status === 400) {
+      return "Kontrollera dina inloggningsuppgifter och försök igen";
+    }
+    
     switch (error.message) {
       case 'Invalid login credentials':
         return "Felaktigt användarnamn eller lösenord";
@@ -53,6 +58,9 @@ export default function SalonLogin() {
     setLoading(true);
 
     try {
+      // Clear any existing session first
+      await supabase.auth.signOut();
+      
       console.log('Attempting to sign in with:', { email }); // Don't log password
       
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -64,7 +72,8 @@ export default function SalonLogin() {
         console.error('Sign in error details:', {
           message: signInError.message,
           status: signInError.status,
-          name: signInError.name
+          name: signInError.name,
+          code: signInError.code
         });
         toast.error(getErrorMessage(signInError));
         return;
