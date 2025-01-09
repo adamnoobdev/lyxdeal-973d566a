@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Lock, LogOut, Plus, List } from "lucide-react";
+import { SalonsList } from "@/components/admin/salons/SalonsList";
 
 const ADMIN_PASSWORD = "admin123";
 
@@ -130,22 +131,39 @@ export default function AdminPage() {
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <Tabs defaultValue="list" className="space-y-4">
+          <Tabs defaultValue="deals" className="space-y-4">
             <TabsList>
-              <TabsTrigger value="list" className="flex items-center gap-2">
+              <TabsTrigger value="deals" className="flex items-center gap-2">
                 <List className="h-4 w-4" />
-                Lista erbjudanden
+                Erbjudanden
               </TabsTrigger>
-              <TabsTrigger value="create" className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Skapa erbjudande
+              <TabsTrigger value="salons" className="flex items-center gap-2">
+                <List className="h-4 w-4" />
+                Salonger
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="list">
-              <DealsList />
+            <TabsContent value="deals">
+              <Tabs defaultValue="list" className="space-y-4">
+                <TabsList>
+                  <TabsTrigger value="list" className="flex items-center gap-2">
+                    <List className="h-4 w-4" />
+                    Lista erbjudanden
+                  </TabsTrigger>
+                  <TabsTrigger value="create" className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Skapa erbjudande
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="list">
+                  <DealsList />
+                </TabsContent>
+                <TabsContent value="create">
+                  <DealForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+                </TabsContent>
+              </Tabs>
             </TabsContent>
-            <TabsContent value="create">
-              <DealForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+            <TabsContent value="salons">
+              <SalonsList />
             </TabsContent>
           </Tabs>
         </CardContent>
