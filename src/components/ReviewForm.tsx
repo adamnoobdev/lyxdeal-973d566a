@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { Session } from "@supabase/supabase-js";
+import { StarRating } from "./review/StarRating";
+import { AuthCheck } from "./review/AuthCheck";
+import { useSession } from "@/hooks/useSession";
 
 interface ReviewFormProps {
   dealId: number;
@@ -16,24 +17,8 @@ export const ReviewForm = ({ dealId }: ReviewFormProps) => {
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
+  const session = useSession();
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,44 +60,17 @@ export const ReviewForm = ({ dealId }: ReviewFormProps) => {
   };
 
   if (!session) {
-    return (
-      <div className="text-center p-4 bg-gray-50 rounded-lg">
-        <p className="text-gray-600">Du måste vara inloggad för att lämna en recension</p>
-        <Button 
-          onClick={() => window.location.href = '/login'} 
-          className="mt-2"
-        >
-          Logga in
-        </Button>
-      </div>
-    );
+    return <AuthCheck />;
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">Betyg</label>
-        <div className="flex gap-1">
-          {[1, 2, 3, 4, 5].map((value) => (
-            <button
-              key={value}
-              type="button"
-              className="p-1 hover:scale-110 transition-transform"
-              onMouseEnter={() => setHoverRating(value)}
-              onMouseLeave={() => setHoverRating(0)}
-              onClick={() => setRating(value)}
-            >
-              <Star
-                className={`h-6 w-6 ${
-                  value <= (hoverRating || rating)
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-gray-300"
-                }`}
-              />
-            </button>
-          ))}
-        </div>
-      </div>
+      <StarRating
+        rating={rating}
+        hoverRating={hoverRating}
+        onHover={setHoverRating}
+        onRate={setRating}
+      />
       
       <div>
         <label htmlFor="comment" className="block text-sm font-medium mb-2">
