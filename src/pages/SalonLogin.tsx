@@ -12,42 +12,6 @@ export default function SalonLogin() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      
-      // 1. Create the user account
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (signUpError) throw signUpError;
-
-      if (authData.user) {
-        // 2. Create the salon record
-        const { error: salonError } = await supabase
-          .from("salons")
-          .insert([
-            {
-              name: "Test Salong",
-              email: email,
-              user_id: authData.user.id
-            }
-          ]);
-
-        if (salonError) throw salonError;
-
-        toast.success("Konto skapat! Du kan nu logga in.");
-      }
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -73,11 +37,11 @@ export default function SalonLogin() {
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold">Salongsportal</h1>
           <p className="text-muted-foreground">
-            Logga in eller skapa ett konto för att hantera din salong
+            Logga in för att hantera din salong
           </p>
         </div>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSignIn}>
           <div className="space-y-2">
             <Input
               type="email"
@@ -97,25 +61,13 @@ export default function SalonLogin() {
             />
           </div>
           
-          <div className="space-y-4">
-            <Button
-              className="w-full"
-              onClick={handleSignIn}
-              disabled={loading}
-            >
-              {loading ? "Laddar..." : "Logga in"}
-            </Button>
-            
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={handleSignUp}
-              disabled={loading}
-            >
-              Skapa konto
-            </Button>
-          </div>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading}
+          >
+            {loading ? "Laddar..." : "Logga in"}
+          </Button>
         </form>
       </Card>
     </div>
