@@ -6,10 +6,9 @@ import { Cities } from "@/components/Cities";
 import { DealsGrid } from "@/components/DealsGrid";
 import { useDeals, useFeaturedDeals } from "@/hooks/useDeals";
 import { toast } from "sonner";
-import { type Category, type City, CATEGORIES } from "@/constants/app-constants";
+import { type Category, type City } from "@/constants/app-constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { CategoryBadge } from "@/components/CategoryBadge";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -17,9 +16,10 @@ const Index = () => {
   const [selectedCity, setSelectedCity] = useState<City>("Alla Städer");
 
   const { data: deals = [], isLoading: isDealsLoading, error: dealsError } = useDeals(
-    selectedCategory,
-    selectedCity
+    selectedCategory === "Alla Erbjudanden" ? undefined : selectedCategory,
+    selectedCity === "Alla Städer" ? undefined : selectedCity
   );
+  
   const { 
     data: featuredDeals = [], 
     isLoading: isFeaturedLoading, 
@@ -84,36 +84,11 @@ const Index = () => {
             <p className="text-lg md:text-2xl text-white/90 max-w-2xl mb-6 animate-fade-in">
               Upptäck exklusiva erbjudanden på professionella behandlingar hos Sveriges mest utvalda salonger.
             </p>
-            <div className="flex flex-wrap justify-center gap-2 max-w-3xl">
-              {CATEGORIES.filter(category => category !== "Alla Erbjudanden").map((category) => (
-                <button
-                  key={category}
-                  onClick={() => handleCategorySelect(category)}
-                  className="transition-transform hover:scale-105 active:scale-95"
-                >
-                  <CategoryBadge 
-                    category={category} 
-                    variant="default"
-                    className="cursor-pointer hover:bg-primary/90 transition-colors"
-                  />
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>
 
-      <div className="container content-padding py-4 md:py-8">
-        <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
-          <div className="relative mb-4 md:mb-8">
-            {isFeaturedLoading ? (
-              <Skeleton className="h-[400px] w-full rounded-lg" />
-            ) : featuredDeals.length > 0 ? (
-              <FeaturedDeals deals={featuredDeals} />
-            ) : null}
-          </div>
-        </Suspense>
-
+      <div className="container mx-auto px-4 py-4 md:py-8">
         <Categories 
           selectedCategory={selectedCategory} 
           onSelectCategory={handleCategorySelect} 
@@ -124,26 +99,32 @@ const Index = () => {
           onSelectCity={handleCitySelect}
         />
 
-        <Suspense fallback={<Skeleton className="h-[200px] w-full rounded-lg" />}>
-          {isDealsLoading ? (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {[...Array(8)].map((_, i) => (
-                <Skeleton key={i} className="h-[350px] w-full rounded-lg" />
-              ))}
-            </div>
-          ) : deals.length > 0 ? (
-            <DealsGrid 
-              deals={deals} 
-              onDealClick={handleDealClick}
-            />
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-lg text-gray-600">
-                Inga erbjudanden hittades för de valda filtren.
-              </p>
-            </div>
-          )}
-        </Suspense>
+        {isFeaturedLoading ? (
+          <Skeleton className="h-[400px] w-full rounded-lg mb-8" />
+        ) : featuredDeals.length > 0 ? (
+          <div className="mb-8">
+            <FeaturedDeals deals={featuredDeals} />
+          </div>
+        ) : null}
+
+        {isDealsLoading ? (
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...Array(8)].map((_, i) => (
+              <Skeleton key={i} className="h-[350px] w-full rounded-lg" />
+            ))}
+          </div>
+        ) : deals.length > 0 ? (
+          <DealsGrid 
+            deals={deals} 
+            onDealClick={handleDealClick}
+          />
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-lg text-gray-600">
+              Inga erbjudanden hittades för de valda filtren.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
