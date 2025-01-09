@@ -1,84 +1,123 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export default function SalonLogin() {
-  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Lyssna på auth-statusändringar
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === "SIGNED_IN") {
-      // Kontrollera om användaren är kopplad till en salong
-      const { data: salon } = await supabase
-        .from("salons")
-        .select("*")
-        .eq("user_id", session?.user.id)
-        .single();
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      
+      // 1. Create the user account
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-      if (salon) {
-        navigate("/salon/dashboard");
-      } else {
-        setError("Ditt konto är inte kopplat till någon salong. Kontakta administratören.");
-        await supabase.auth.signOut();
+      if (signUpError) throw signUpError;
+
+      if (authData.user) {
+        // 2. Create the salon record
+        const { error: salonError } = await supabase
+          .from("salons")
+          .insert([
+            {
+              name: "Test Salong",
+              email: email,
+              user_id: authData.user.id
+            }
+          ]);
+
+        if (salonError) throw salonError;
+
+        toast.success("Konto skapat! Du kan nu logga in.");
       }
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
-  });
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      navigate("/salon/dashboard");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Salongsportal
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Logga in för att hantera dina erbjudanden
-        </p>
-      </div>
+    <div className="container flex items-center justify-center min-h-screen py-12">
+      <Card className="w-full max-w-md p-6 space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold">Salongsportal</h1>
+          <p className="text-muted-foreground">
+            Logga in eller skapa ett konto för att hantera din salong
+          </p>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <Card className="py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+        <form className="space-y-4">
+          <div className="space-y-2">
+            <Input
+              type="email"
+              placeholder="E-post"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+          <div className="space-y-2">
+            <Input
+              type="password"
+              placeholder="Lösenord"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
+          </div>
           
-          <Auth
-            supabaseClient={supabase}
-            appearance={{ 
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#000000',
-                    brandAccent: '#666666',
-                  },
-                },
-              },
-            }}
-            localization={{
-              variables: {
-                sign_in: {
-                  email_label: 'E-postadress',
-                  password_label: 'Lösenord',
-                  button_label: 'Logga in',
-                },
-                sign_up: {
-                  email_label: 'E-postadress',
-                  password_label: 'Lösenord',
-                  button_label: 'Skapa konto',
-                },
-              },
-            }}
-            providers={[]}
-          />
-        </Card>
-      </div>
+          <div className="space-y-4">
+            <Button
+              className="w-full"
+              onClick={handleSignIn}
+              disabled={loading}
+            >
+              {loading ? "Laddar..." : "Logga in"}
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleSignUp}
+              disabled={loading}
+            >
+              Skapa konto
+            </Button>
+          </div>
+        </form>
+      </Card>
     </div>
   );
 }
