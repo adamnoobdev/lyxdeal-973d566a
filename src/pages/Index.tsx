@@ -60,7 +60,7 @@ const Index = () => {
           <div className="absolute inset-0 bg-black/40" />
           <div className="relative h-full flex flex-col justify-center items-center text-center px-4">
             <h1 className="text-3xl md:text-6xl font-bold text-white mb-3 md:mb-6 animate-fade-in">
-              Sveriges Lyxigaste Skönhetsupplevelser
+              Sveriges Hetaste Lyxdeals
             </h1>
             <p className="text-lg md:text-2xl text-white/90 max-w-2xl mb-6 animate-fade-in">
               Upptäck exklusiva erbjudanden på professionella behandlingar hos Sveriges mest utvalda salonger.
