@@ -16,19 +16,20 @@ export default function SalonLogin() {
     e.preventDefault();
     try {
       setLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const authResponse = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
-      
-      if (data?.user) {
-        // Check if user has an associated salon
+      if (authResponse.error) {
+        throw authResponse.error;
+      }
+
+      if (authResponse.data?.user) {
         const { data: salonData, error: salonError } = await supabase
           .from('salons')
           .select('*')
-          .eq('user_id', data.user.id)
+          .eq('user_id', authResponse.data.user.id)
           .single();
 
         if (salonError) {
