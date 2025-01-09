@@ -14,22 +14,6 @@ serve(async (req) => {
   }
 
   try {
-    // Validate environment variables
-    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY');
-
-    if (!stripeKey || !supabaseUrl || !supabaseKey) {
-      console.error('Missing required environment variables');
-      return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
     // Parse request body
     const { dealId } = await req.json();
     console.log('Processing checkout for deal:', dealId);
@@ -44,7 +28,21 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client with service role key
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY');
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase configuration');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
     // Get deal information
@@ -99,6 +97,18 @@ serve(async (req) => {
     }
 
     // Initialize Stripe
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
+    if (!stripeKey) {
+      console.error('Missing Stripe configuration');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const stripe = new Stripe(stripeKey, {
       apiVersion: '2023-10-16',
       httpClient: Stripe.createFetchHttpClient(),
@@ -129,7 +139,6 @@ serve(async (req) => {
     }
 
     console.log('Checkout session created successfully:', session.id);
-
     return new Response(
       JSON.stringify({ url: session.url }),
       { 
@@ -140,7 +149,6 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in checkout process:', error);
-    
     return new Response(
       JSON.stringify({ 
         error: error instanceof Error ? error.message : 'An unknown error occurred'
