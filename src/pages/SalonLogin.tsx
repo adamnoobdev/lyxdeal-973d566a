@@ -78,18 +78,16 @@ export default function SalonLogin() {
   const createTestAccount = async () => {
     setCreatingTestAccount(true);
     try {
-      const response = await fetch('https://gmqeqhlhqhyrjquzhuzg.supabase.co/functions/v1/create-test-salon', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create test account');
+      const { data, error } = await supabase.functions.invoke('create-test-salon');
+      
+      if (error) {
+        throw error;
       }
 
-      const data = await response.json();
+      if (!data) {
+        throw new Error('No data returned from function');
+      }
+
       setEmail(data.email);
       setPassword(data.password);
       toast.success("Testkonto skapat! Använd de ifyllda uppgifterna för att logga in.");
