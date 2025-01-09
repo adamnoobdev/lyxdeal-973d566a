@@ -37,11 +37,6 @@ export const FeaturedDealContent = ({
             variant="outline" 
             className="border-white/80 text-white backdrop-blur-sm bg-white/10 shadow-sm text-[10px] sm:text-sm py-0.5 px-2 sm:px-3 transition-all duration-300 hover:bg-white/20" 
           />
-          <CategoryBadge 
-            category={`${discountPercentage}% RABATT`} 
-            variant="default" 
-            className="bg-gradient-to-r from-[#D946EF]/60 to-[#9b87f5]/60 text-white font-semibold shadow-sm backdrop-blur-md text-[10px] sm:text-sm py-0.5 px-2 sm:px-3 transition-all duration-300 hover:shadow-lg" 
-          />
           {isNew && (
             <CategoryBadge
               category="NYTT"
@@ -71,11 +66,16 @@ export const FeaturedDealContent = ({
           </div>
           
           <div className="flex items-center justify-between">
-            <PriceDisplay 
-              originalPrice={originalPrice}
-              discountedPrice={discountedPrice}
-              className="text-white text-sm sm:text-lg md:text-xl"
-            />
+            <div className="flex items-center gap-2">
+              <PriceDisplay 
+                originalPrice={originalPrice}
+                discountedPrice={discountedPrice}
+                className="text-white text-sm sm:text-lg md:text-xl"
+              />
+              <span className="bg-[#ea384c] text-white text-[10px] sm:text-sm px-2 py-0.5 rounded-full font-semibold">
+                -{discountPercentage}%
+              </span>
+            </div>
             {quantityLeft > 0 && (
               <span className="text-xs sm:text-sm text-emerald-400 transition-all duration-300 hover:scale-105">
                 {quantityLeft} kvar
