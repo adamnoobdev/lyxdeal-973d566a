@@ -1,101 +1,36 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { useState } from "react";
 import { Deal } from "./types";
 import { DealsTable } from "./deals/DealsTable";
 import { EditDealDialog } from "./deals/EditDealDialog";
 import { DeleteDealDialog } from "./deals/DeleteDealDialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DealsLoadingSkeleton } from "./deals/DealsLoadingSkeleton";
+import { useDealsAdmin } from "@/hooks/useDealsAdmin";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
-  const queryClient = useQueryClient();
+  const { deals, isLoading, error, handleDelete, handleUpdate } = useDealsAdmin();
 
-  const { data: deals, isLoading, error } = useQuery({
-    queryKey: ["admin-deals"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("deals")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        toast.error("Kunde inte hämta erbjudanden");
-        throw error;
+  const onDelete = async () => {
+    if (deletingDeal) {
+      const success = await handleDelete(deletingDeal.id);
+      if (success) {
+        setDeletingDeal(null);
       }
-
-      return data.map((deal) => ({
-        id: deal.id,
-        title: deal.title,
-        description: deal.description,
-        originalPrice: deal.original_price,
-        discountedPrice: deal.discounted_price,
-        category: deal.category,
-        city: deal.city,
-        timeRemaining: deal.time_remaining,
-        imageUrl: deal.image_url,
-        featured: deal.featured,
-      }));
-    },
-  });
-
-  const handleDelete = async (id: number) => {
-    try {
-      const { error } = await supabase.from("deals").delete().eq("id", id);
-      if (error) throw error;
-      queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
-      toast.success("Erbjudandet har tagits bort");
-      setDeletingDeal(null);
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Kunde inte ta bort erbjudandet");
     }
   };
 
-  const handleUpdate = async (values: any) => {
-    try {
-      const { error } = await supabase
-        .from("deals")
-        .update({
-          title: values.title,
-          description: values.description,
-          image_url: values.imageUrl,
-          original_price: parseInt(values.originalPrice),
-          discounted_price: parseInt(values.discountedPrice),
-          category: values.category,
-          city: values.city,
-          time_remaining: values.timeRemaining,
-          featured: values.featured,
-        })
-        .eq("id", editingDeal?.id);
-
-      if (error) throw error;
-
-      queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
-      setEditingDeal(null);
-      toast.success("Erbjudandet har uppdaterats");
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Kunde inte uppdatera erbjudandet");
+  const onUpdate = async (values: any) => {
+    if (editingDeal) {
+      const success = await handleUpdate(values, editingDeal.id);
+      if (success) {
+        setEditingDeal(null);
+      }
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex items-center space-x-4">
-            <Skeleton className="h-12 w-[250px]" />
-            <Skeleton className="h-12 w-[150px]" />
-            <Skeleton className="h-12 w-[150px]" />
-            <Skeleton className="h-12 w-[100px]" />
-            <Skeleton className="h-12 w-[100px]" />
-          </div>
-        ))}
-      </div>
-    );
+    return <DealsLoadingSkeleton />;
   }
 
   if (error) return (
@@ -115,7 +50,7 @@ export const DealsList = () => {
       <EditDealDialog
         isOpen={!!editingDeal}
         onClose={() => setEditingDeal(null)}
-        onSubmit={handleUpdate}
+        onSubmit={onUpdate}
         initialValues={
           editingDeal
             ? {
@@ -136,7 +71,7 @@ export const DealsList = () => {
       <DeleteDealDialog
         isOpen={!!deletingDeal}
         onClose={() => setDeletingDeal(null)}
-        onConfirm={() => deletingDeal && handleDelete(deletingDeal.id)}
+        onConfirm={onDelete}
         dealTitle={deletingDeal?.title}
       />
     </>
