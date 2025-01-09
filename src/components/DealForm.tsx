@@ -18,34 +18,12 @@ import { formSchema, FormValues } from "./deal-form/schema";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const categories = [
-  "Laserhårborttagning",
-  "Fillers",
-  "Rynkbehandlingar",
-  "Hudvård",
-  "Hårvård",
-  "Naglar",
-  "Massage",
-];
-
-const cities = [
-  "Stockholm",
-  "Göteborg",
-  "Malmö",
-  "Uppsala",
-  "Västerås",
-  "Örebro",
-  "Linköping",
-  "Helsingborg",
-  "Jönköping",
-  "Norrköping",
-];
-
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
+  isSubmitting?: boolean;  // Lade till isSubmitting som en optional prop
 }
 
-export const DealForm = ({ onSubmit }: DealFormProps) => {
+export const DealForm = ({ onSubmit, isSubmitting = false }: DealFormProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -151,8 +129,8 @@ export const DealForm = ({ onSubmit }: DealFormProps) => {
           )}
         />
 
-        <Button type="submit" className="w-full">
-          {form.formState.isSubmitting ? "Skapar erbjudande..." : "Skapa erbjudande"}
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Skapar erbjudande..." : "Skapa erbjudande"}
         </Button>
       </form>
     </Form>
