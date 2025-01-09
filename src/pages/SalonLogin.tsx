@@ -18,11 +18,6 @@ const getErrorMessage = (error: AuthError) => {
       code: error.code
     });
     
-    // Check for specific error codes first
-    if (error.code === 'invalid_credentials') {
-      return "Felaktigt användarnamn eller lösenord. För testkontot, använd admin@example.com och password";
-    }
-    
     if (error.status === 400) {
       return "Kontrollera dina inloggningsuppgifter och försök igen";
     }
@@ -34,8 +29,6 @@ const getErrorMessage = (error: AuthError) => {
         return "Vänligen bekräfta din e-postadress först";
       case 'Invalid email or password':
         return "Ogiltig e-postadress eller lösenord";
-      case 'Email rate limit exceeded':
-        return "För många inloggningsförsök. Vänligen försök igen senare";
       default:
         return `Ett fel uppstod: ${error.message}`;
     }
@@ -62,11 +55,24 @@ export default function SalonLogin() {
     setLoading(true);
 
     try {
-      // Clear any existing session first
-      await supabase.auth.signOut();
+      // Log attempt
+      console.log('Attempting to sign in with:', { email });
       
-      console.log('Attempting to sign in with:', { email }); // Don't log password
+      // Get current session if any
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
       
+      // If there's an existing session, log it
+      if (currentSession) {
+        console.log('Found existing session:', {
+          user: currentSession.user.email,
+          expires: currentSession.expires_at
+        });
+        // Sign out first
+        await supabase.auth.signOut();
+        console.log('Signed out existing session');
+      }
+
+      // Attempt sign in
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -84,12 +90,14 @@ export default function SalonLogin() {
       }
 
       if (!authData.user) {
+        console.error('No user data returned');
         toast.error("Ingen användare hittades");
         return;
       }
 
       console.log('Successfully signed in as:', authData.user.email);
 
+      // Check salon data
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
         .select('*')
@@ -103,10 +111,12 @@ export default function SalonLogin() {
       }
 
       if (!salonData) {
+        console.error('No salon data found for user:', authData.user.id);
         toast.error('Ingen salongsdata hittades för denna användare');
         return;
       }
 
+      console.log('Successfully retrieved salon data:', salonData);
       navigate("/salon/dashboard");
     } catch (error) {
       console.error('Login error:', error);
