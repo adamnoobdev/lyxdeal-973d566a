@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PriceDisplay } from "@/components/PriceDisplay";
-import { edit, trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 
 interface Deal {
@@ -96,14 +96,14 @@ export const DealsList = () => {
                     size="icon"
                     onClick={() => console.log("Edit:", deal.id)}
                   >
-                    <edit className="h-4 w-4" />
+                    <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={() => handleDelete(deal.id)}
                   >
-                    <trash className="h-4 w-4" />
+                    <Trash className="h-4 w-4" />
                   </Button>
                 </div>
               </TableCell>
