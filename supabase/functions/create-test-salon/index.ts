@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,58 +12,79 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Create Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    
-    if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Missing environment variables')
-    }
+    // Create Supabase admin client
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
 
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    console.log('Creating test user...')
 
-    // Create the user
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email: 'testsalong@example.com',
-      password: 'password123',
+    // Generate a random email to avoid conflicts
+    const randomId = Math.random().toString(36).substring(7)
+    const email = `testsalong${randomId}@example.com`
+    const password = 'password123'
+
+    // Create the user with auto-confirm
+    const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
       email_confirm: true
     })
 
-    if (authError) {
-      throw authError
+    if (userError) {
+      console.error('Error creating user:', userError)
+      throw userError
     }
 
-    if (!authData.user) {
+    if (!userData.user) {
       throw new Error('No user was created')
     }
 
-    // Call the create_test_salon function to create the salon
-    const { error: salonError } = await supabase.rpc('create_test_salon', {
-      user_id: authData.user.id
-    })
+    console.log('User created successfully:', userData.user.id)
+
+    // Create the salon
+    const { error: salonError } = await supabaseAdmin
+      .from('salons')
+      .insert([
+        {
+          name: 'Test Salong',
+          email: email,
+          user_id: userData.user.id
+        }
+      ])
 
     if (salonError) {
+      console.error('Error creating salon:', salonError)
       throw salonError
     }
 
+    console.log('Salon created successfully')
+
     return new Response(
-      JSON.stringify({ 
-        message: 'Test salon created successfully',
-        email: 'testsalong@example.com',
-        password: 'password123'
+      JSON.stringify({
+        email,
+        password
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
-      },
+      }
     )
   } catch (error) {
+    console.error('Complete error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
-      },
+      }
     )
   }
 })

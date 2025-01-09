@@ -81,11 +81,13 @@ export default function SalonLogin() {
       const { data, error } = await supabase.functions.invoke('create-test-salon');
       
       if (error) {
-        throw error;
+        console.error('Error creating test account:', error);
+        toast.error("Kunde inte skapa testkonto: " + error.message);
+        return;
       }
 
-      if (!data) {
-        throw new Error('No data returned from function');
+      if (!data || !data.email || !data.password) {
+        throw new Error('Invalid response from function');
       }
 
       setEmail(data.email);
@@ -93,7 +95,7 @@ export default function SalonLogin() {
       toast.success("Testkonto skapat! Använd de ifyllda uppgifterna för att logga in.");
     } catch (error) {
       console.error('Error creating test account:', error);
-      toast.error("Kunde inte skapa testkonto");
+      toast.error("Kunde inte skapa testkonto: " + (error instanceof Error ? error.message : 'Okänt fel'));
     } finally {
       setCreatingTestAccount(false);
     }
