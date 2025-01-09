@@ -7,10 +7,10 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
+import { getUserRole } from "@/utils/auth";
 
 const getErrorMessage = (error: AuthError) => {
   if (error instanceof AuthApiError) {
-    // Log the complete error for debugging
     console.error('Complete auth error:', {
       message: error.message,
       status: error.status,
@@ -55,36 +55,26 @@ export default function SalonLogin() {
     setLoading(true);
 
     try {
-      // Log attempt
       console.log('Attempting to sign in with:', { email });
       
-      // Get current session if any
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       
-      // If there's an existing session, log it
       if (currentSession) {
         console.log('Found existing session:', {
           user: currentSession.user.email,
           expires: currentSession.expires_at
         });
-        // Sign out first
         await supabase.auth.signOut();
         console.log('Signed out existing session');
       }
 
-      // Attempt sign in
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        console.error('Sign in error details:', {
-          message: signInError.message,
-          status: signInError.status,
-          name: signInError.name,
-          code: signInError.code
-        });
+        console.error('Sign in error details:', signInError);
         toast.error(getErrorMessage(signInError));
         return;
       }
@@ -97,7 +87,24 @@ export default function SalonLogin() {
 
       console.log('Successfully signed in as:', authData.user.email);
 
-      // Check salon data
+      // Check user role
+      const userRole = await getUserRole();
+      console.log('User role:', userRole);
+
+      if (!userRole) {
+        console.error('No role found for user');
+        toast.error("Ingen behörighet hittades för användaren");
+        await supabase.auth.signOut();
+        return;
+      }
+
+      if (userRole === 'admin') {
+        console.log('Admin user detected, proceeding to dashboard');
+        navigate("/salon/dashboard");
+        return;
+      }
+
+      // For salon users, check salon data
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
         .select('*')
@@ -110,7 +117,7 @@ export default function SalonLogin() {
         return;
       }
 
-      if (!salonData) {
+      if (!salonData && userRole === 'salon') {
         console.error('No salon data found for user:', authData.user.id);
         toast.error('Ingen salongsdata hittades för denna användare');
         return;
@@ -161,7 +168,7 @@ export default function SalonLogin() {
             Logga in för att hantera din salong
           </p>
           <p className="text-sm text-muted-foreground">
-            Använd admin@example.com och password för att logga in som testanvändare
+            Använd admin@example.com och password för att logga in som admin
           </p>
         </div>
 
