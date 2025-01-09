@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { BadgeCheck } from "lucide-react";
+import { Star } from "lucide-react";
 
 interface CategoryBadgeProps {
   category: string;
@@ -31,7 +31,7 @@ export function CategoryBadge({ category, variant = "outline", className = "" }:
       } ${className}`}
     >
       {category === "NYTT" ? (
-        <BadgeCheck className="h-3 w-3" />
+        <Star className="h-3 w-3" />
       ) : (
         getCategoryEmoji(category)
       )} 
