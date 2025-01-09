@@ -78,7 +78,7 @@ const DealCardComponent = ({
   }
 
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <Link to={`/deal/${id}`}>
         <DealImage
           imageUrl={imageUrl}
