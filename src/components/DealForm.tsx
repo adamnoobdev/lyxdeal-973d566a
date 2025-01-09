@@ -17,6 +17,7 @@ import { LocationFields } from "./deal-form/LocationFields";
 import { formSchema, FormValues } from "./deal-form/schema";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { CATEGORIES, CITIES } from "@/constants/app-constants";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
@@ -92,7 +93,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false }: DealFormProps) => {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormFields form={form} handleImageSelected={handleImageSelected} />
         <PriceFields form={form} />
-        <LocationFields form={form} categories={categories} cities={cities} />
+        <LocationFields form={form} categories={CATEGORIES} cities={CITIES} />
 
         <FormField
           control={form.control}
