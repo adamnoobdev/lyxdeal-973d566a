@@ -4,6 +4,7 @@ import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { Logo } from "./navigation/Logo";
 import { MobileSearchBar } from "./navigation/MobileSearchBar";
+import { SearchBar } from "./SearchBar";
 import { useScroll } from "@/hooks/useScroll";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,6 +52,12 @@ export const NavigationBar = () => {
         <Logo />
 
         <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSubmit={handleSearch}
+            className="mx-4 w-full max-w-md"
+          />
           <DesktopNav
             currentCity={currentCity}
             onCitySelect={handleCitySelect}
