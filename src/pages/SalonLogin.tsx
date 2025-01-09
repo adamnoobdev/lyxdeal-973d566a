@@ -10,6 +10,14 @@ import { Loader2 } from "lucide-react";
 
 const getErrorMessage = (error: AuthError) => {
   if (error instanceof AuthApiError) {
+    // Log the complete error for debugging
+    console.error('Complete auth error:', {
+      message: error.message,
+      status: error.status,
+      name: error.name,
+      code: error.code
+    });
+    
     switch (error.message) {
       case 'Invalid login credentials':
         return "Felaktigt användarnamn eller lösenord";
@@ -20,7 +28,6 @@ const getErrorMessage = (error: AuthError) => {
       case 'Email rate limit exceeded':
         return "För många inloggningsförsök. Vänligen försök igen senare";
       default:
-        console.error('Auth error:', error);
         return `Ett fel uppstod: ${error.message}`;
     }
   }
@@ -46,8 +53,7 @@ export default function SalonLogin() {
     setLoading(true);
 
     try {
-      // First, get the current session to ensure we're starting fresh
-      await supabase.auth.signOut();
+      console.log('Attempting to sign in with:', { email }); // Don't log password
       
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
@@ -55,7 +61,11 @@ export default function SalonLogin() {
       });
 
       if (signInError) {
-        console.error('Sign in error:', signInError);
+        console.error('Sign in error details:', {
+          message: signInError.message,
+          status: signInError.status,
+          name: signInError.name
+        });
         toast.error(getErrorMessage(signInError));
         return;
       }
