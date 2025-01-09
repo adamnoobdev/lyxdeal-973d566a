@@ -22,8 +22,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'No deal ID provided' }),
         { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
         }
       );
     }
@@ -37,8 +37,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Server configuration error' }),
         { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
         }
       );
     }
@@ -57,8 +57,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Failed to fetch deal information' }),
         { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
         }
       );
     }
@@ -68,8 +68,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Deal not found' }),
         { 
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 404
         }
       );
     }
@@ -79,8 +79,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'No Stripe price ID found for this deal' }),
         { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
         }
       );
     }
@@ -90,8 +90,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'This deal is sold out' }),
         { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
         }
       );
     }
@@ -103,8 +103,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Server configuration error' }),
         { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
         }
       );
     }
@@ -132,8 +132,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Failed to create checkout session URL' }),
         { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
         }
       );
     }
