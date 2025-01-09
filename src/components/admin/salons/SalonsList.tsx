@@ -24,7 +24,7 @@ export const SalonsList = () => {
     }
   };
 
-  const onUpdate = async (values: Partial<Salon>) => {
+  const onUpdate = async (values: { name: string; email: string; phone?: string; address?: string }) => {
     if (editingSalon) {
       const success = await handleUpdate(values, editingSalon.id);
       if (success) {
