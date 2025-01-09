@@ -42,6 +42,27 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="relative h-[400px] md:h-[500px] w-full mb-8">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url('/placeholder.svg')",
+            backgroundPosition: "center 30%"
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 to-purple-900/90" />
+          <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 animate-fade-in">
+              Upptäck Lokala Erbjudanden
+            </h1>
+            <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in">
+              Hitta de bästa rabatterna och erbjudandena i din stad. Spara pengar på restauranger, 
+              upplevelser och mycket mer med våra exklusiva deals.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="container py-4 md:py-8">
         <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
           <div className="relative mb-4 md:mb-8">
