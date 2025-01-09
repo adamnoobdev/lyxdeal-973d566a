@@ -1,62 +1,17 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { DealForm } from "@/components/DealForm";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
-import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
 
 // I praktiken skulle detta hanteras säkrare, t.ex. genom en backend
 const ADMIN_PASSWORD = "admin123";
 
-const formSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  imageUrl: z.string(),
-  originalPrice: z.string(),
-  discountedPrice: z.string(),
-  category: z.string(),
-  city: z.string(),
-  timeRemaining: z.string(),
-  featured: z.boolean(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
 export default function AdminPage() {
   const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
-
-  const handleSubmit = async (values: FormValues) => {
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase.from('deals').insert({
-        title: values.title,
-        description: values.description,
-        image_url: values.imageUrl,
-        original_price: parseInt(values.originalPrice),
-        discounted_price: parseInt(values.discountedPrice),
-        category: values.category,
-        city: values.city,
-        time_remaining: values.timeRemaining,
-        featured: values.featured,
-      });
-
-      if (error) throw error;
-
-      toast.success("Erbjudandet har skapats!");
-      navigate("/");
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error("Något gick fel när erbjudandet skulle skapas.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,7 +54,7 @@ export default function AdminPage() {
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Lägg till nytt erbjudande</h1>
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         <Button 
           variant="outline"
           onClick={() => {
@@ -110,7 +65,34 @@ export default function AdminPage() {
           Logga ut 🚪
         </Button>
       </div>
-      <DealForm onSubmit={handleSubmit} />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Link to="/admin/manage-deals">
+          <Card className="hover:bg-accent transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle>Hantera Erbjudanden</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Skapa, redigera och ta bort erbjudanden
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+        
+        <Link to="/admin/new-deal">
+          <Card className="hover:bg-accent transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle>Skapa Nytt Erbjudande</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Lägg till ett nytt erbjudande i systemet
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
     </div>
   );
 }
