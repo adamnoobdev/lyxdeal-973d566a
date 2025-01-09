@@ -3,6 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Salon } from "@/components/admin/types";
 import { toast } from "sonner";
 
+type UpdateSalonData = {
+  name: string;
+  email: string;
+  phone?: string | null;
+  address?: string | null;
+};
+
 export const useSalonsAdmin = () => {
   const [salons, setSalons] = useState<Salon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,7 +51,7 @@ export const useSalonsAdmin = () => {
     return true;
   };
 
-  const handleCreate = async (values: Omit<Salon, "id" | "created_at" | "user_id">) => {
+  const handleCreate = async (values: UpdateSalonData) => {
     const { error } = await supabase
       .from("salons")
       .insert([values]);
@@ -60,7 +67,7 @@ export const useSalonsAdmin = () => {
     return true;
   };
 
-  const handleUpdate = async (values: Omit<Salon, "id" | "created_at" | "user_id">, id: number) => {
+  const handleUpdate = async (values: UpdateSalonData, id: number) => {
     const { error } = await supabase
       .from("salons")
       .update(values)
