@@ -98,6 +98,36 @@ export type Database = {
           },
         ]
       }
+      salons: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string
+          id: number
+          name: string
+          phone: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email: string
+          id?: number
+          name: string
+          phone?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string
+          id?: number
+          name?: string
+          phone?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
