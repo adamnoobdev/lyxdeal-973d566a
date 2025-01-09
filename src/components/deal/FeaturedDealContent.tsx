@@ -46,7 +46,7 @@ export const FeaturedDealContent = ({
             <CategoryBadge
               category="NYTT"
               variant="default"
-              className="bg-gradient-to-r from-yellow-300/60 via-yellow-400/60 to-yellow-500/60 text-yellow-950 font-semibold shadow-sm backdrop-blur-md text-[10px] sm:text-sm py-0.5 px-2 sm:px-3 transition-all duration-300 hover:shadow-lg"
+              className="bg-yellow-400 text-yellow-950 hover:bg-yellow-500 border-transparent text-[10px] sm:text-sm py-0.5 px-2 sm:px-3 transition-all duration-300 hover:shadow-lg"
             />
           )}
         </div>
