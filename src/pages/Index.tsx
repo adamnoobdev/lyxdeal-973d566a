@@ -41,20 +41,16 @@ const Index = () => {
   }, [navigate]);
 
   const handleCategorySelect = useCallback((category: Category) => {
-    console.log("Selected category:", category);
     setSelectedCategory(category);
   }, []);
 
   const handleCitySelect = useCallback((city: City) => {
-    console.log("Selected city:", city);
     setSelectedCity(city);
   }, []);
 
   if (dealsError || featuredError) {
-    console.error('Deals error:', dealsError);
-    console.error('Featured deals error:', featuredError);
     return (
-      <div className="container py-8 text-center">
+      <div className="container mx-auto px-4 py-8 text-center">
         <h2 className="text-2xl font-bold text-red-600 mb-4">
           Ett fel uppstod när erbjudandena skulle hämtas
         </h2>
@@ -65,36 +61,29 @@ const Index = () => {
     );
   }
 
-  console.log("Rendering Index with:", {
-    deals: deals.length,
-    featuredDeals: featuredDeals.length,
-    isDealsLoading,
-    isFeaturedLoading
-  });
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="relative h-[200px] md:h-[400px] w-full mb-8">
+    <main className="min-h-screen bg-background">
+      <section className="relative h-[300px] md:h-[400px] w-full mb-8">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url(${publicUrl})`,
-            backgroundPosition: "center"
+            backgroundPosition: "center 30%"
           }}
         >
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-black/50" />
           <div className="relative h-full flex flex-col justify-center items-center text-center px-4">
-            <h1 className="text-3xl md:text-6xl font-bold text-white mb-3 md:mb-6 animate-fade-in">
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 md:mb-6 animate-fade-in">
               Sveriges Hetaste Lyxdeals
             </h1>
-            <p className="text-lg md:text-2xl text-white/90 max-w-2xl mb-6 animate-fade-in">
+            <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in">
               Upptäck exklusiva erbjudanden på professionella behandlingar hos Sveriges mest utvalda salonger.
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4 py-4 md:py-8">
+      <div className="container mx-auto px-4">
         <Categories 
           selectedCategory={selectedCategory} 
           onSelectCategory={handleCategorySelect} 
@@ -106,7 +95,9 @@ const Index = () => {
         />
 
         {isFeaturedLoading ? (
-          <Skeleton className="h-[400px] w-full rounded-lg mb-8" />
+          <div className="mb-8">
+            <Skeleton className="h-[400px] w-full rounded-lg" />
+          </div>
         ) : featuredDeals.length > 0 ? (
           <div className="mb-8">
             <FeaturedDeals deals={featuredDeals} />
@@ -115,7 +106,7 @@ const Index = () => {
 
         {isDealsLoading ? (
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[...Array(8)].map((_, i) => (
+            {Array.from({ length: 8 }).map((_, i) => (
               <Skeleton key={i} className="h-[350px] w-full rounded-lg" />
             ))}
           </div>
@@ -132,7 +123,7 @@ const Index = () => {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 };
 
