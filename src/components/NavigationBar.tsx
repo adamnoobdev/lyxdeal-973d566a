@@ -49,36 +49,44 @@ export const NavigationBar = () => {
 
   return (
     <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <Logo />
+      <div className="container mx-auto px-4">
+        <div className="h-16 flex items-center justify-between gap-4">
+          <Logo />
 
-        <SearchBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onSubmit={handleSearch}
-          className="flex-1 max-w-xl mx-auto hidden md:block"
-        />
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSubmit={handleSearch}
+            className="flex-1 max-w-xl mx-auto hidden md:block"
+          />
 
-        <DesktopNav 
-          currentCity={currentCity}
-          onCitySelect={handleCityClick}
-          onCategorySelect={handleCategoryClick}
-          session={session}
-          onLogout={handleLogout}
-        />
+          <DesktopNav 
+            currentCity={currentCity}
+            onCitySelect={handleCityClick}
+            onCategorySelect={handleCategoryClick}
+            session={session}
+            onLogout={handleLogout}
+          />
 
-        <MobileNav 
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          handleSearch={handleSearch}
-          currentCity={currentCity}
-          onCitySelect={handleCityClick}
-          onCategorySelect={handleCategoryClick}
-          session={session}
-          onLogout={handleLogout}
-        />
+          <MobileNav 
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            currentCity={currentCity}
+            onCitySelect={handleCityClick}
+            onCategorySelect={handleCategoryClick}
+            session={session}
+            onLogout={handleLogout}
+          />
+        </div>
+        
+        <div className="pb-3 md:hidden">
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSubmit={handleSearch}
+            className="w-full"
+          />
+        </div>
       </div>
     </nav>
   );

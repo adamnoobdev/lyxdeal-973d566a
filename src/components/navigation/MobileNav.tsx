@@ -12,14 +12,10 @@ import {
 import { ScrollArea } from "../ui/scroll-area";
 import { CategorySelector } from "../CategorySelector";
 import { CitySelector } from "../CitySelector";
-import { SearchBar } from "../SearchBar";
 
 interface MobileNavProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  handleSearch: (e: React.FormEvent) => void;
   currentCity: string;
   onCitySelect: (city: string) => void;
   onCategorySelect: (category: string) => void;
@@ -30,9 +26,6 @@ interface MobileNavProps {
 export const MobileNav = ({
   isOpen,
   setIsOpen,
-  searchQuery,
-  setSearchQuery,
-  handleSearch,
   currentCity,
   onCitySelect,
   onCategorySelect,
@@ -63,15 +56,6 @@ export const MobileNav = ({
             <SheetHeader className="p-4 border-b">
               <SheetTitle className="text-lg">Meny</SheetTitle>
             </SheetHeader>
-            
-            <div className="p-4 border-b">
-              <SearchBar
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                onSubmit={handleSearch}
-                className="w-full"
-              />
-            </div>
 
             <div className="flex-1 p-4 space-y-6">
               <div>
