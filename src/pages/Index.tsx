@@ -48,7 +48,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative h-[600px] w-full mb-8">
+      <div className="relative h-[600px] w-full mb-8 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -57,28 +57,34 @@ const Index = () => {
           }}
         />
         
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-800/95 via-primary/90 to-pink-600/95">
-          <div className="absolute inset-0 opacity-30 bg-[linear-gradient(60deg,_transparent_25%,_rgba(255,255,255,0.2)_50%,_transparent_75%)]" />
+        <div className="absolute inset-0 bg-[#E87CE8]/90">
+          <div className="absolute inset-0" 
+               style={{
+                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                 backgroundSize: '30px 30px'
+               }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/40" />
         </div>
 
         <div className="relative container h-full">
-          <div className="h-full flex flex-col justify-center max-w-2xl">
-            <div className="space-y-6">
+          <div className="h-full flex flex-col justify-center items-center text-center">
+            <div className="space-y-8 max-w-3xl mx-auto px-4">
               <div className="space-y-2">
                 <h2 className="text-white/90 text-xl md:text-2xl font-light tracking-wide animate-fade-in">
                   Välkommen till din oas
                 </h2>
-                <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-pink-100 animate-fade-in">
+                <h1 className="text-5xl md:text-7xl font-bold text-white animate-fade-in">
                   Skäm Bort 
                   <span className="block">Dig Själv</span>
                 </h1>
               </div>
               
               <div className="relative">
-                <div className="h-px w-24 bg-gradient-to-r from-white/40 to-transparent mb-6" />
-                <p className="text-xl md:text-2xl text-white/80 leading-relaxed font-light animate-fade-in">
+                <div className="h-px w-24 bg-gradient-to-r from-white/40 to-transparent mb-6 mx-auto" />
+                <p className="text-xl md:text-2xl text-white/90 leading-relaxed font-light animate-fade-in">
                   Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård
-                  <span className="block mt-2 text-lg md:text-xl text-white/70">
+                  <span className="block mt-2 text-lg md:text-xl text-white/80">
                     hos våra utvalda salonger
                   </span>
                 </p>
