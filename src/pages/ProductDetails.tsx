@@ -9,32 +9,12 @@ import { DealInfo } from "@/components/DealInfo";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { ReviewForm } from "@/components/ReviewForm";
 import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: deal, isLoading, isError } = useDeal(id);
   const { data: reviews, isLoading: isLoadingReviews } = useReviews(id);
-
-  const handleCreateStripeProducts = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('create-stripe-products');
-      
-      if (error) {
-        console.error('Error creating Stripe products:', error);
-        toast.error('Ett fel uppstod när Stripe-produkterna skulle skapas');
-        return;
-      }
-
-      toast.success('Stripe-produkter har skapats');
-      console.log('Created Stripe products:', data);
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Ett fel uppstod');
-    }
-  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -102,18 +82,10 @@ const ProductDetails = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
-          <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
-            <ArrowLeft className="h-4 w-4" />
-            Tillbaka till erbjudanden
-          </Link>
-          <Button 
-            onClick={handleCreateStripeProducts}
-            variant="outline"
-          >
-            Skapa Stripe-produkter
-          </Button>
-        </div>
+        <Link to="/" className="inline-flex items-center gap-2 py-4 text-gray-600 hover:text-gray-900">
+          <ArrowLeft className="h-4 w-4" />
+          Tillbaka till erbjudanden
+        </Link>
         
         <div className="grid gap-8 md:grid-cols-2">
           <div>
