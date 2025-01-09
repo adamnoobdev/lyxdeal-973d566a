@@ -15,11 +15,17 @@ const getErrorMessage = (error: AuthError) => {
         return "Felaktigt användarnamn eller lösenord";
       case 'Email not confirmed':
         return "Vänligen bekräfta din e-postadress först";
+      case 'Invalid email or password':
+        return "Ogiltig e-postadress eller lösenord";
+      case 'Email rate limit exceeded':
+        return "För många inloggningsförsök. Vänligen försök igen senare";
       default:
-        return "Ett fel uppstod vid inloggning";
+        console.error('Auth error:', error);
+        return `Ett fel uppstod: ${error.message}`;
     }
   }
-  return "Ett oväntat fel inträffade";
+  console.error('Unexpected error:', error);
+  return "Ett oväntat fel inträffade. Vänligen försök igen";
 };
 
 export default function SalonLogin() {
@@ -46,6 +52,7 @@ export default function SalonLogin() {
       });
 
       if (signInError) {
+        console.error('Sign in error:', signInError);
         toast.error(getErrorMessage(signInError));
         return;
       }
@@ -62,7 +69,8 @@ export default function SalonLogin() {
         .maybeSingle();
 
       if (salonError) {
-        toast.error('Kunde inte hämta salongsdata');
+        console.error('Salon data error:', salonError);
+        toast.error('Kunde inte hämta salongsdata: ' + salonError.message);
         return;
       }
 
@@ -74,7 +82,7 @@ export default function SalonLogin() {
       navigate("/salon/dashboard");
     } catch (error) {
       console.error('Login error:', error);
-      toast.error("Ett oväntat fel inträffade vid inloggning");
+      toast.error(error instanceof Error ? error.message : "Ett oväntat fel inträffade vid inloggning");
     } finally {
       setLoading(false);
     }
