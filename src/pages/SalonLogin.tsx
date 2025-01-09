@@ -14,31 +14,45 @@ export default function SalonLogin() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password) {
+      toast.error("Vänligen fyll i både e-post och lösenord");
+      return;
+    }
+
     try {
       setLoading(true);
-      const authResponse = await supabase.auth.signInWithPassword({
+      
+      // Gör auth-anropet och spara resultatet
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (authResponse.error) {
-        throw authResponse.error;
+      if (authError) {
+        throw authError;
       }
 
-      if (authResponse.data?.user) {
-        const { data: salonData, error: salonError } = await supabase
-          .from('salons')
-          .select('*')
-          .eq('user_id', authResponse.data.user.id)
-          .single();
-
-        if (salonError) {
-          throw new Error('Ingen salongsdata hittades för denna användare');
-        }
-
-        navigate("/salon/dashboard");
+      if (!authData.user) {
+        throw new Error("Ingen användare hittades");
       }
+
+      // Separerat anrop för att hämta salongsdata
+      const { data: salonData, error: salonError } = await supabase
+        .from('salons')
+        .select('*')
+        .eq('user_id', authData.user.id)
+        .single();
+
+      if (salonError) {
+        throw new Error('Ingen salongsdata hittades för denna användare');
+      }
+
+      // Om allt går bra, navigera till dashboard
+      navigate("/salon/dashboard");
+      
     } catch (error: any) {
+      console.error('Login error:', error);
       toast.error(error.message);
     } finally {
       setLoading(false);
@@ -63,6 +77,7 @@ export default function SalonLogin() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
+              required
             />
           </div>
           <div className="space-y-2">
@@ -72,6 +87,7 @@ export default function SalonLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
+              required
             />
           </div>
           
