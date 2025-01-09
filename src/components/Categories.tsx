@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CATEGORIES } from "@/constants/app-constants";
+import { useNavigate } from "react-router-dom";
 
 interface CategoriesProps {
   selectedCategory: string;
@@ -9,6 +10,17 @@ interface CategoriesProps {
 }
 
 const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesProps) => {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (category: string) => {
+    onSelectCategory(category);
+    if (category !== "Alla Erbjudanden") {
+      navigate(`/search?category=${encodeURIComponent(category)}`);
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <div className="relative mb-6 -mx-4 md:mx-0">
       <ScrollArea className="w-full whitespace-nowrap">
@@ -17,7 +29,7 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
-              onClick={() => onSelectCategory(category)}
+              onClick={() => handleCategoryClick(category)}
               className={`
                 ${selectedCategory === category ? "bg-primary shadow-md" : "hover:bg-accent"}
                 flex-shrink-0 text-xs py-1.5 px-4 h-8 transition-all duration-300

@@ -23,12 +23,12 @@ interface DealsGridProps {
 
 const MobileDealsView = memo(({ deals, onDealClick }: DealsGridProps) => (
   <ScrollArea className="w-full whitespace-nowrap rounded-lg">
-    <div className="flex space-x-4 pb-4 px-4">
+    <div className="flex space-x-4 pb-4">
       {deals.map((deal, index) => (
         <div 
           key={deal.id} 
           onClick={() => onDealClick?.(deal.id)}
-          className="w-[280px] shrink-0 first:ml-4 animate-fade-in"
+          className="w-[280px] shrink-0 first:ml-4"
           style={{ 
             animationDelay: `${index * 50}ms`,
           }}
@@ -44,7 +44,7 @@ const MobileDealsView = memo(({ deals, onDealClick }: DealsGridProps) => (
 MobileDealsView.displayName = 'MobileDealsView';
 
 const DesktopDealsView = memo(({ deals, onDealClick }: DealsGridProps) => (
-  <div className="grid gap-4 px-4 sm:px-0 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+  <div className="grid gap-6 px-4 sm:px-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
     {deals.map((deal, index) => (
       <div 
         key={deal.id} 
