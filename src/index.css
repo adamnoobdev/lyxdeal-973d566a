@@ -4,103 +4,78 @@
 
 @layer base {
   :root {
-    --background: 300 100% 99%;
-    --foreground: 300 80% 20%;
-
-    --card: 300 100% 99%;
-    --card-foreground: 300 80% 20%;
-
-    --popover: 300 100% 99%;
-    --popover-foreground: 300 80% 20%;
-
-    --primary: 300 100% 85%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 300 100% 92%;
-    --secondary-foreground: 300 80% 20%;
-
-    --muted: 300 100% 97%;
-    --muted-foreground: 300 70% 40%;
-
-    --accent: 300 100% 95%;
-    --accent-foreground: 300 80% 20%;
-
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 300 100% 90%;
-    --input: 300 100% 90%;
-    --ring: 300 100% 85%;
-
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 262.1 83.3% 57.8%;
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 300 30% 10%;
-    --foreground: 300 100% 95%;
-
-    --card: 300 30% 10%;
-    --card-foreground: 300 100% 95%;
-
-    --popover: 300 30% 10%;
-    --popover-foreground: 300 100% 95%;
-
-    --primary: 300 100% 85%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 300 100% 92%;
-    --secondary-foreground: 300 80% 20%;
-
-    --muted: 300 30% 20%;
-    --muted-foreground: 300 100% 85%;
-
-    --accent: 300 30% 20%;
-    --accent-foreground: 300 100% 95%;
-
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 300 30% 20%;
-    --input: 300 30% 20%;
-    --ring: 300 100% 85%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 262.1 83.3% 57.8%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground antialiased min-h-screen;
+    @apply bg-background text-foreground;
   }
 
-  /* Smooth scrolling for the entire page */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* Custom scrollbar styling */
+  /* Custom scrollbar styles */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    @apply w-2;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-accent;
-    border-radius: 4px;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary/60;
-    border-radius: 4px;
+    @apply bg-gray-300 rounded-full transition-colors;
   }
 
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-primary;
   }
+}
 
-  /* Force show overlay content on touch devices */
+@layer utilities {
+  /* Touch device optimizations */
   @media (hover: none) {
     .group:active .group-hover\:scale-105,
     .group .group-hover\:scale-105 {
