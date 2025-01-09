@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { AuthError } from "@supabase/supabase-js";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 export default function SalonLogin() {
   const navigate = useNavigate();
@@ -24,34 +24,33 @@ export default function SalonLogin() {
     setLoading(true);
 
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        console.error("Sign in error:", signInError);
-        if (signInError.message.includes('Invalid login credentials')) {
+        if (signInError instanceof AuthApiError && signInError.message === 'Invalid login credentials') {
           toast.error("Felaktigt användarnamn eller lösenord");
         } else {
-          toast.error(`Inloggningen misslyckades: ${signInError.message}`);
+          console.error("Sign in error:", signInError);
+          toast.error("Ett fel uppstod vid inloggning. Kontrollera dina uppgifter och försök igen.");
         }
         setLoading(false);
         return;
       }
 
-      if (!data.user) {
+      if (!authData.user) {
         toast.error("Ingen användare hittades");
         setLoading(false);
         return;
       }
 
-      // Separate query for salon data
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
         .select('*')
-        .eq('user_id', data.user.id)
-        .single();
+        .eq('user_id', authData.user.id)
+        .maybeSingle();
 
       if (salonError) {
         console.error("Salon fetch error:", salonError);
