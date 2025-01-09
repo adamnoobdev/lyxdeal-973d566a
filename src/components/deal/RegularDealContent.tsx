@@ -46,18 +46,20 @@ export const RegularDealContent = ({
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-primary" />
             <span>{timeRemaining}</span>
-            {quantityLeft > 0 && (
-              <span className="text-emerald-600 text-xs ml-auto">
-                {quantityLeft} kvar
-              </span>
-            )}
           </div>
         </div>
         
-        <PriceDisplay 
-          originalPrice={originalPrice}
-          discountedPrice={discountedPrice}
-        />
+        <div className="flex items-center justify-between">
+          <PriceDisplay 
+            originalPrice={originalPrice}
+            discountedPrice={discountedPrice}
+          />
+          {quantityLeft > 0 && (
+            <span className="text-xs text-emerald-600">
+              {quantityLeft} kvar
+            </span>
+          )}
+        </div>
         
         <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-md transition-all duration-300 hover:shadow-lg">
           Köp Nu
