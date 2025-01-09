@@ -12,6 +12,7 @@ export default function SalonLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [creatingTestAccount, setCreatingTestAccount] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +75,32 @@ export default function SalonLogin() {
     }
   };
 
+  const createTestAccount = async () => {
+    setCreatingTestAccount(true);
+    try {
+      const response = await fetch('https://gmqeqhlhqhyrjquzhuzg.supabase.co/functions/v1/create-test-salon', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create test account');
+      }
+
+      const data = await response.json();
+      setEmail(data.email);
+      setPassword(data.password);
+      toast.success("Testkonto skapat! Använd de ifyllda uppgifterna för att logga in.");
+    } catch (error) {
+      console.error('Error creating test account:', error);
+      toast.error("Kunde inte skapa testkonto");
+    } finally {
+      setCreatingTestAccount(false);
+    }
+  };
+
   return (
     <div className="container flex items-center justify-center min-h-screen py-12">
       <Card className="w-full max-w-md p-6 space-y-6">
@@ -114,6 +141,25 @@ export default function SalonLogin() {
             {loading ? "Laddar..." : "Logga in"}
           </Button>
         </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">Eller</span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={createTestAccount}
+          disabled={creatingTestAccount}
+        >
+          {creatingTestAccount ? "Skapar testkonto..." : "Skapa testkonto"}
+        </Button>
       </Card>
     </div>
   );
