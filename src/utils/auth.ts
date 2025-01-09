@@ -2,9 +2,17 @@ import { supabase } from "@/integrations/supabase/client";
 
 export async function getUserRole() {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.error('No authenticated user found');
+      return null;
+    }
+
     const { data: roleData, error: roleError } = await supabase
       .from('user_roles')
       .select('role')
+      .eq('user_id', user.id)
       .single();
     
     if (roleError) {
