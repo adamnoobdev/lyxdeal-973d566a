@@ -30,7 +30,9 @@ export const useDealsAdmin = () => {
         timeRemaining: deal.time_remaining,
         imageUrl: deal.image_url,
         featured: deal.featured,
-      }));
+        created_at: deal.created_at,
+        updated_at: deal.updated_at
+      })) as Deal[];
     },
   });
 
