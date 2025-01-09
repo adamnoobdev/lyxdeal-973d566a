@@ -15,11 +15,12 @@ serve(async (req) => {
 
   try {
     const { dealId } = await req.json();
+    console.log('Processing checkout for deal:', dealId);
 
     // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     // Get deal information
@@ -30,14 +31,17 @@ serve(async (req) => {
       .single();
 
     if (dealError || !deal) {
+      console.error('Deal not found:', dealError);
       throw new Error('Deal not found');
     }
 
     if (!deal.stripe_price_id) {
+      console.error('No Stripe price ID found for deal:', dealId);
       throw new Error('No Stripe price ID found for this deal');
     }
 
     if (deal.quantity_left <= 0) {
+      console.error('Deal is sold out:', dealId);
       throw new Error('This deal is sold out');
     }
 
@@ -45,6 +49,8 @@ serve(async (req) => {
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
       apiVersion: '2023-10-16',
     });
+
+    console.log('Creating checkout session for price:', deal.stripe_price_id);
 
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
@@ -59,6 +65,8 @@ serve(async (req) => {
       cancel_url: `${req.headers.get('origin')}/product/${dealId}`,
     });
 
+    console.log('Checkout session created:', session.id);
+
     return new Response(
       JSON.stringify({ url: session.url }),
       { 
@@ -72,7 +80,7 @@ serve(async (req) => {
       JSON.stringify({ error: error.message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
+        status: 400,
       }
     );
   }
