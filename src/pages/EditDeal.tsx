@@ -11,8 +11,6 @@ export default function EditDeal() {
   const { data: deal, isLoading } = useDeal(id);
 
   const handleSubmit = async (values: FormValues) => {
-    if (!id) return;
-    
     try {
       const { error } = await supabase
         .from('deals')
@@ -27,7 +25,7 @@ export default function EditDeal() {
           time_remaining: values.timeRemaining,
           featured: values.featured,
         })
-        .eq('id', parseInt(id));
+        .eq('id', id);
 
       if (error) throw error;
 
@@ -51,7 +49,7 @@ export default function EditDeal() {
     category: deal.category,
     city: deal.city,
     timeRemaining: deal.timeRemaining,
-    featured: deal.featured,
+    featured: deal.featured || false,
   };
 
   return (

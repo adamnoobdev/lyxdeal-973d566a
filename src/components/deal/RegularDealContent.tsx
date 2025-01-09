@@ -25,7 +25,7 @@ export const RegularDealContent = ({
   quantityLeft,
 }: RegularDealContentProps) => {
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4 animate-fade-in">
       <div className="space-y-2">
         <CategoryBadge 
           category={category} 
@@ -43,12 +43,12 @@ export const RegularDealContent = ({
       <div className="space-y-3">
         <div className="flex items-center gap-2 transition-transform duration-300 hover:translate-x-1">
           <MapPin className="h-4 w-4 text-primary" />
-          <span className="text-sm">{city}</span>
+          <span>{city}</span>
         </div>
         
         <div className="flex items-center gap-2 transition-transform duration-300 hover:translate-x-1">
           <Clock className="h-4 w-4 text-primary" />
-          <span className="text-sm">{timeRemaining}</span>
+          <span>{timeRemaining}</span>
         </div>
         
         <div className="flex items-center justify-between">

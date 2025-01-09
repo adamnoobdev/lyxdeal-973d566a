@@ -6,8 +6,6 @@ export const useDeals = (category?: string, city?: string) => {
   return useQuery({
     queryKey: ["deals", category, city],
     queryFn: async () => {
-      console.log("Fetching deals with filters:", { category, city });
-      
       let query = supabase
         .from("deals")
         .select("*")
@@ -29,13 +27,7 @@ export const useDeals = (category?: string, city?: string) => {
         throw error;
       }
 
-      console.log("Fetched deals:", data);
-
-      if (!data || data.length === 0) {
-        console.log("No deals found with current filters");
-      }
-
-      return data?.map((deal) => ({
+      return data.map((deal) => ({
         id: deal.id,
         title: deal.title,
         description: deal.description,
@@ -47,8 +39,7 @@ export const useDeals = (category?: string, city?: string) => {
         city: deal.city,
         created_at: deal.created_at,
         quantityLeft: deal.quantity_left,
-        featured: deal.featured,
-      })) ?? [];
+      }));
     },
   });
 };
@@ -57,8 +48,6 @@ export const useFeaturedDeals = () => {
   return useQuery({
     queryKey: ["featuredDeals"],
     queryFn: async () => {
-      console.log("Fetching featured deals");
-      
       const { data, error } = await supabase
         .from("deals")
         .select("*")
@@ -71,9 +60,7 @@ export const useFeaturedDeals = () => {
         throw error;
       }
 
-      console.log("Fetched featured deals:", data);
-
-      return data?.map((deal) => ({
+      return data.map((deal) => ({
         id: deal.id,
         title: deal.title,
         description: deal.description,
@@ -85,8 +72,7 @@ export const useFeaturedDeals = () => {
         city: deal.city,
         created_at: deal.created_at,
         quantityLeft: deal.quantity_left,
-        featured: deal.featured,
-      })) ?? [];
+      }));
     },
   });
 };
