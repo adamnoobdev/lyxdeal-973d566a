@@ -24,54 +24,47 @@ export default function SalonLogin() {
     try {
       setLoading(true);
 
-      // Använd en separat variabel för auth-svaret
-      let authResponse;
-      try {
-        authResponse = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-      } catch (authError) {
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
         console.error("Auth error:", authError);
         throw authError;
       }
 
-      // Kontrollera auth-fel först
-      if (authResponse.error) {
-        throw authResponse.error;
-      }
-
-      // Verifiera att vi har en användare
-      if (!authResponse.data?.user) {
+      if (!authData.user) {
         throw new Error("Ingen användare hittades");
       }
 
-      // Hämta salongsdata i ett separat try-block
-      try {
-        const { data: salonData, error: salonError } = await supabase
-          .from('salons')
-          .select('*')
-          .eq('user_id', authResponse.data.user.id)
-          .single();
+      // Hämta salongsdata
+      const { data: salonData, error: salonError } = await supabase
+        .from('salons')
+        .select('*')
+        .eq('user_id', authData.user.id)
+        .single();
 
-        if (salonError) {
-          throw new Error('Ingen salongsdata hittades för denna användare');
-        }
-
-        if (!salonData) {
-          throw new Error('Ingen salongsdata hittades');
-        }
-
-        // Om allt går bra, navigera till dashboard
-        navigate("/salon/dashboard");
-      } catch (salonError) {
+      if (salonError) {
         console.error("Salon data error:", salonError);
-        throw salonError;
+        throw new Error('Kunde inte hitta salongsdata för denna användare');
       }
+
+      if (!salonData) {
+        throw new Error('Ingen salongsdata hittades');
+      }
+
+      // Om allt går bra, navigera till dashboard
+      navigate("/salon/dashboard");
+      
     } catch (error) {
       console.error('Complete login error:', error);
       if (error instanceof AuthError) {
-        toast.error("Inloggningen misslyckades: Felaktiga inloggningsuppgifter");
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error("Felaktigt användarnamn eller lösenord");
+        } else {
+          toast.error(`Inloggningen misslyckades: ${error.message}`);
+        }
       } else if (error instanceof Error) {
         toast.error(error.message);
       } else {
