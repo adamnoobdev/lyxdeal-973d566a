@@ -14,6 +14,17 @@ serve(async (req) => {
   }
 
   try {
+    // Validate environment variables
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!stripeKey || !supabaseUrl || !supabaseKey) {
+      console.error('Missing required environment variables');
+      throw new Error('Server configuration error');
+    }
+
+    // Parse request body
     const { dealId } = await req.json();
     console.log('Processing checkout for deal:', dealId);
 
@@ -21,14 +32,11 @@ serve(async (req) => {
       throw new Error('No deal ID provided');
     }
 
-    // Initialize Supabase client with service role key for admin access
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    // Initialize Supabase client with service role key
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
     // Get deal information
-    const { data: deal, error: dealError } = await supabaseClient
+    const { data: deal, error: dealError } = await supabaseAdmin
       .from('deals')
       .select('*')
       .eq('id', dealId)
@@ -55,12 +63,7 @@ serve(async (req) => {
     }
 
     // Initialize Stripe
-    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeSecretKey) {
-      throw new Error('Stripe secret key not configured');
-    }
-
-    const stripe = new Stripe(stripeSecretKey, {
+    const stripe = new Stripe(stripeKey, {
       apiVersion: '2023-10-16',
       httpClient: Stripe.createFetchHttpClient(),
     });
@@ -85,21 +88,31 @@ serve(async (req) => {
       throw new Error('Failed to create checkout session URL');
     }
 
-    console.log('Checkout session created:', session.id);
+    console.log('Checkout session created successfully:', session.id);
 
     return new Response(
       JSON.stringify({ url: session.url }),
       { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
         status: 200,
       }
     );
+
   } catch (error) {
     console.error('Error in checkout process:', error);
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : 'An unknown error occurred' 
+      }),
       { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
         status: 400,
       }
     );
