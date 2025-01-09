@@ -48,45 +48,51 @@ export const NavigationBar = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center px-4 md:container md:px-6">
-        <Logo />
+      <div className="flex flex-col">
+        <div className="flex h-16 items-center px-4 md:container md:px-6">
+          <Logo />
 
-        <div className="hidden md:flex md:flex-1 md:items-center md:justify-between md:space-x-4">
-          <SearchBar
+          <div className="hidden md:flex md:flex-1 md:items-center md:justify-between md:space-x-4">
+            <SearchBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onSubmit={handleSearch}
+              className="w-full max-w-md"
+            />
+            <DesktopNav
+              currentCity={currentCity}
+              onCitySelect={handleCitySelect}
+              onCategorySelect={handleCategorySelect}
+              session={session}
+              onLogout={handleLogout}
+            />
+          </div>
+
+          <div className="flex flex-1 items-center justify-end md:hidden">
+            <MobileNav
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+              currentCity={currentCity}
+              onCitySelect={handleCitySelect}
+              onCategorySelect={handleCategorySelect}
+              session={session}
+              onLogout={handleLogout}
+            />
+          </div>
+        </div>
+
+        <div 
+          className={`md:hidden overflow-hidden transition-[height] duration-300 ease-in-out ${
+            showMobileSearch ? 'h-14' : 'h-0'
+          }`}
+        >
+          <MobileSearchBar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onSubmit={handleSearch}
-            className="w-full max-w-md"
-          />
-          <DesktopNav
-            currentCity={currentCity}
-            onCitySelect={handleCitySelect}
-            onCategorySelect={handleCategorySelect}
-            session={session}
-            onLogout={handleLogout}
+            showMobileSearch={showMobileSearch}
           />
         </div>
-
-        <div className="flex flex-1 items-center justify-end md:hidden">
-          <MobileNav
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            currentCity={currentCity}
-            onCitySelect={handleCitySelect}
-            onCategorySelect={handleCategorySelect}
-            session={session}
-            onLogout={handleLogout}
-          />
-        </div>
-      </div>
-
-      <div className={`md:hidden ${showMobileSearch ? 'h-12' : 'h-0 overflow-hidden'} transition-all duration-300`}>
-        <MobileSearchBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onSubmit={handleSearch}
-          showMobileSearch={showMobileSearch}
-        />
       </div>
     </nav>
   );

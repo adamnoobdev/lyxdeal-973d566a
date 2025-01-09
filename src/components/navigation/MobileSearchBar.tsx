@@ -1,4 +1,4 @@
-import { SearchContainer } from "../navigation/SearchContainer";
+import { SearchBar } from "../SearchBar";
 
 interface MobileSearchBarProps {
   searchQuery: string;
@@ -15,11 +15,11 @@ export const MobileSearchBar = ({
 }: MobileSearchBarProps) => {
   return (
     <div className="px-4 py-2">
-      <SearchContainer
+      <SearchBar
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
         onSubmit={onSubmit}
-        isScrolled={false}
+        className="w-full"
       />
     </div>
   );
