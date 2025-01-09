@@ -16,11 +16,15 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category>("Alla Erbjudanden");
   const [selectedCity, setSelectedCity] = useState<City>("Alla Städer");
 
-  const { data: deals = [], isLoading: isDealsLoading } = useDeals(
+  const { data: deals = [], isLoading: isDealsLoading, error: dealsError } = useDeals(
     selectedCategory,
     selectedCity
   );
-  const { data: featuredDeals = [], isLoading: isFeaturedLoading } = useFeaturedDeals();
+  const { 
+    data: featuredDeals = [], 
+    isLoading: isFeaturedLoading, 
+    error: featuredError 
+  } = useFeaturedDeals();
 
   const { data: { publicUrl } } = supabase
     .storage
@@ -29,7 +33,7 @@ const Index = () => {
 
   const handleDealClick = useCallback((dealId: number) => {
     try {
-      navigate(`/product/${dealId}`);
+      navigate(`/deal/${dealId}`);
     } catch (error) {
       console.error("Navigeringsfel:", error);
       toast.error("Ett fel uppstod. Försök igen.");
@@ -46,6 +50,21 @@ const Index = () => {
   const handleCitySelect = useCallback((city: City) => {
     setSelectedCity(city);
   }, []);
+
+  if (dealsError || featuredError) {
+    console.error('Deals error:', dealsError);
+    console.error('Featured deals error:', featuredError);
+    return (
+      <div className="container py-8 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">
+          Ett fel uppstod när erbjudandena skulle hämtas
+        </h2>
+        <p className="text-gray-600">
+          Försök att ladda om sidan eller kom tillbaka senare.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,9 +106,11 @@ const Index = () => {
       <div className="container content-padding py-4 md:py-8">
         <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
           <div className="relative mb-4 md:mb-8">
-            {!isFeaturedLoading && featuredDeals.length > 0 && (
+            {isFeaturedLoading ? (
+              <Skeleton className="h-[400px] w-full rounded-lg" />
+            ) : featuredDeals.length > 0 ? (
               <FeaturedDeals deals={featuredDeals} />
-            )}
+            ) : null}
           </div>
         </Suspense>
 
@@ -104,11 +125,23 @@ const Index = () => {
         />
 
         <Suspense fallback={<Skeleton className="h-[200px] w-full rounded-lg" />}>
-          {!isDealsLoading && (
+          {isDealsLoading ? (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[...Array(8)].map((_, i) => (
+                <Skeleton key={i} className="h-[350px] w-full rounded-lg" />
+              ))}
+            </div>
+          ) : deals.length > 0 ? (
             <DealsGrid 
               deals={deals} 
               onDealClick={handleDealClick}
             />
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-lg text-gray-600">
+                Inga erbjudanden hittades för de valda filtren.
+              </p>
+            </div>
           )}
         </Suspense>
       </div>
