@@ -6,6 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { Loader2 } from "lucide-react";
+
+const getErrorMessage = (error: AuthError) => {
+  if (error instanceof AuthApiError) {
+    switch (error.message) {
+      case 'Invalid login credentials':
+        return "Felaktigt användarnamn eller lösenord";
+      case 'Email not confirmed':
+        return "Vänligen bekräfta din e-postadress först";
+      default:
+        return "Ett fel uppstod vid inloggning";
+    }
+  }
+  return "Ett oväntat fel inträffade";
+};
 
 export default function SalonLogin() {
   const navigate = useNavigate();
@@ -31,19 +46,12 @@ export default function SalonLogin() {
       });
 
       if (signInError) {
-        if (signInError instanceof AuthApiError && signInError.message === 'Invalid login credentials') {
-          toast.error("Felaktigt användarnamn eller lösenord");
-        } else {
-          console.error("Sign in error:", signInError);
-          toast.error("Ett fel uppstod vid inloggning. Kontrollera dina uppgifter och försök igen.");
-        }
-        setLoading(false);
+        toast.error(getErrorMessage(signInError));
         return;
       }
 
       if (!authData.user) {
         toast.error("Ingen användare hittades");
-        setLoading(false);
         return;
       }
 
@@ -54,21 +62,18 @@ export default function SalonLogin() {
         .maybeSingle();
 
       if (salonError) {
-        console.error("Salon fetch error:", salonError);
         toast.error('Kunde inte hämta salongsdata');
-        setLoading(false);
         return;
       }
 
       if (!salonData) {
         toast.error('Ingen salongsdata hittades för denna användare');
-        setLoading(false);
         return;
       }
 
       navigate("/salon/dashboard");
     } catch (error) {
-      console.error('Complete login error:', error);
+      console.error('Login error:', error);
       toast.error("Ett oväntat fel inträffade vid inloggning");
     } finally {
       setLoading(false);
@@ -87,7 +92,7 @@ export default function SalonLogin() {
       }
 
       if (!data || !data.email || !data.password) {
-        throw new Error('Invalid response from function');
+        throw new Error('Ogiltig respons från servern');
       }
 
       setEmail(data.email);
@@ -118,7 +123,7 @@ export default function SalonLogin() {
               placeholder="E-post"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
+              disabled={loading || creatingTestAccount}
               required
             />
           </div>
@@ -128,7 +133,7 @@ export default function SalonLogin() {
               placeholder="Lösenord"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
+              disabled={loading || creatingTestAccount}
               required
             />
           </div>
@@ -136,9 +141,16 @@ export default function SalonLogin() {
           <Button
             type="submit"
             className="w-full"
-            disabled={loading}
+            disabled={loading || creatingTestAccount}
           >
-            {loading ? "Laddar..." : "Logga in"}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loggar in...
+              </>
+            ) : (
+              "Logga in"
+            )}
           </Button>
         </form>
 
@@ -156,9 +168,16 @@ export default function SalonLogin() {
           variant="outline"
           className="w-full"
           onClick={createTestAccount}
-          disabled={creatingTestAccount}
+          disabled={loading || creatingTestAccount}
         >
-          {creatingTestAccount ? "Skapar testkonto..." : "Skapa testkonto"}
+          {creatingTestAccount ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Skapar testkonto...
+            </>
+          ) : (
+            "Skapa testkonto"
+          )}
         </Button>
       </Card>
     </div>
