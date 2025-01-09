@@ -8,6 +8,8 @@ import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { MobileSearchBar } from "./navigation/MobileSearchBar";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "./ui/button";
+import { LogOut, UserRound } from "lucide-react";
 
 export const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,6 +43,11 @@ export const NavigationBar = () => {
     }
   };
 
+  const handleLogin = () => {
+    navigate("/login");
+    setIsOpen(false);
+  };
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex flex-col">
@@ -58,15 +65,39 @@ export const NavigationBar = () => {
             onLogout={handleLogout}
           />
 
-          <MobileNavigation 
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            currentCity={currentCity}
-            onCitySelect={handleCitySelect}
-            onCategorySelect={handleCategorySelect}
-            session={session}
-            onLogout={handleLogout}
-          />
+          <div className="flex flex-1 items-center justify-end gap-2 md:hidden">
+            {session ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="sr-only">Logga ut</span>
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={handleLogin}
+              >
+                <UserRound className="h-4 w-4" />
+                <span className="hidden xs:inline">Logga in</span>
+              </Button>
+            )}
+
+            <MobileNavigation 
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+              currentCity={currentCity}
+              onCitySelect={handleCitySelect}
+              onCategorySelect={handleCategorySelect}
+              session={session}
+              onLogout={handleLogout}
+            />
+          </div>
         </div>
 
         <MobileSearchBarContainer 
@@ -80,7 +111,6 @@ export const NavigationBar = () => {
   );
 };
 
-// Desktop Navigation Component
 const DesktopNavigation = ({
   searchQuery,
   onSearchChange,
@@ -135,20 +165,17 @@ const MobileNavigation = ({
   session: any;
   onLogout: () => Promise<void>;
 }) => (
-  <div className="flex flex-1 items-center justify-end md:hidden">
-    <MobileNav
-      isOpen={isOpen}
-      setIsOpen={setIsOpen}
-      currentCity={currentCity}
-      onCitySelect={onCitySelect}
-      onCategorySelect={onCategorySelect}
-      session={session}
-      onLogout={onLogout}
-    />
-  </div>
+  <MobileNav
+    isOpen={isOpen}
+    setIsOpen={setIsOpen}
+    currentCity={currentCity}
+    onCitySelect={onCitySelect}
+    onCategorySelect={onCategorySelect}
+    session={session}
+    onLogout={onLogout}
+  />
 );
 
-// Mobile Search Bar Container Component
 const MobileSearchBarContainer = ({
   showMobileSearch,
   searchQuery,

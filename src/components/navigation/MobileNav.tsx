@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, UserRound } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Menu } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 import {
   Sheet,
@@ -29,11 +28,7 @@ export const MobileNav = ({
   currentCity,
   onCitySelect,
   onCategorySelect,
-  session,
-  onLogout
 }: MobileNavProps) => {
-  const navigate = useNavigate();
-
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -73,31 +68,6 @@ export const MobileNav = ({
                   onCategorySelect={onCategorySelect}
                   variant="mobile"
                 />
-              </div>
-
-              <div className="pt-4 border-t">
-                {session ? (
-                  <Button
-                    variant="default"
-                    className="w-full gap-2"
-                    onClick={onLogout}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logga ut
-                  </Button>
-                ) : (
-                  <Button
-                    variant="default"
-                    className="w-full gap-2"
-                    onClick={() => {
-                      navigate("/login");
-                      setIsOpen(false);
-                    }}
-                  >
-                    <UserRound className="h-4 w-4" />
-                    Logga in
-                  </Button>
-                )}
               </div>
             </div>
           </div>
