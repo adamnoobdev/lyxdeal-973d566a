@@ -48,7 +48,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative h-[350px] md:h-[600px] w-full mb-8">
+      <div className="relative h-[300px] md:h-[600px] w-full mb-8">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -58,12 +58,11 @@ const Index = () => {
         >
           <div className="absolute inset-0 bg-black/40" />
           <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
-            <h1 className="text-3xl md:text-6xl font-bold text-white mb-4 md:mb-6 animate-fade-in">
+            <h1 className="text-3xl md:text-6xl font-bold text-white mb-3 md:mb-6 animate-fade-in">
               Sveriges Lyxigaste Skönhetsupplevelser
             </h1>
             <p className="text-lg md:text-2xl text-white/90 max-w-2xl animate-fade-in">
-              Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård 
-              hos Sveriges mest utvalda salonger. Unna dig lyxig kvalitetsvård till oslagbara priser.
+              Upptäck exklusiva erbjudanden på professionella behandlingar hos Sveriges mest utvalda salonger.
             </p>
           </div>
         </div>
