@@ -48,24 +48,36 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative h-[400px] md:h-[500px] w-full mb-8 overflow-hidden">
+      <div className="relative h-[500px] md:h-[600px] w-full mb-8 overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center transform scale-105 transition-transform duration-[20s] hover:scale-110"
+          className="absolute inset-0 bg-cover bg-center transform scale-105"
           style={{
             backgroundImage: `url(${publicUrl})`,
             backgroundPosition: "center 30%"
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-primary/70 to-purple-900/90" />
-          <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
-            <div className="space-y-6 max-w-3xl mx-auto">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-in drop-shadow-lg">
-                Skäm Bort Dig Själv!
-              </h1>
-              <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in leading-relaxed drop-shadow-md backdrop-blur-sm bg-black/10 p-4 rounded-lg">
-                Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård. 
-                Unna dig lyxig kvalitetsvård till oslagbara priser hos våra utvalda salonger.
-              </p>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-400 via-primary to-purple-800 opacity-90" />
+          
+          <div className="absolute inset-0">
+            <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
+              <div className="relative space-y-8 max-w-3xl mx-auto">
+                <div className="relative">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-primary rounded-lg blur opacity-30 group-hover:opacity-40 transition duration-1000"></div>
+                  <h1 className="relative text-5xl md:text-7xl font-bold text-white mb-4 animate-fade-in">
+                    Skäm Bort Dig Själv!
+                  </h1>
+                </div>
+                
+                <div className="relative px-6 py-8 backdrop-blur-md bg-white/10 rounded-2xl border border-white/20 shadow-xl">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-primary rounded-2xl opacity-20 blur-lg"></div>
+                  <p className="relative text-xl md:text-2xl text-white leading-relaxed">
+                    Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård. 
+                    <span className="block mt-2 font-light">
+                      Unna dig lyxig kvalitetsvård till oslagbara priser hos våra utvalda salonger.
+                    </span>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
