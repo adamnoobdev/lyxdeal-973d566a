@@ -6,6 +6,7 @@ import { Deal } from "./types";
 import { DealsTable } from "./deals/DealsTable";
 import { EditDealDialog } from "./deals/EditDealDialog";
 import { DeleteDealDialog } from "./deals/DeleteDealDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
@@ -81,8 +82,27 @@ export const DealsList = () => {
     }
   };
 
-  if (isLoading) return <div>Laddar...</div>;
-  if (error) return <div>Ett fel uppstod</div>;
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center space-x-4">
+            <Skeleton className="h-12 w-[250px]" />
+            <Skeleton className="h-12 w-[150px]" />
+            <Skeleton className="h-12 w-[150px]" />
+            <Skeleton className="h-12 w-[100px]" />
+            <Skeleton className="h-12 w-[100px]" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) return (
+    <div className="text-center py-8 text-red-500">
+      Ett fel uppstod när erbjudanden skulle hämtas
+    </div>
+  );
 
   return (
     <>
