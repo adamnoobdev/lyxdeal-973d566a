@@ -24,7 +24,11 @@ export function CategoryBadge({ category, variant = "outline", className = "" }:
   return (
     <Badge 
       variant={variant} 
-      className={`inline-flex items-center gap-1 w-auto ${className}`}
+      className={`inline-flex items-center gap-1 w-auto ${
+        category === "NYTT" 
+          ? "bg-yellow-400 text-yellow-950 hover:bg-yellow-500 border-transparent" 
+          : ""
+      } ${className}`}
     >
       {category === "NYTT" ? (
         <BadgeCheck className="h-3 w-3" />
