@@ -61,13 +61,13 @@ export const DealInfo = ({
 
       if (error) {
         console.error('Purchase error:', error);
-        toast.error('Ett fel uppstod vid köpet. Vänligen försök igen.');
+        toast.error(`Ett fel uppstod: ${error.message}`);
         return;
       }
 
       if (!data?.url) {
         console.error('No checkout URL received');
-        toast.error('Kunde inte starta köpet. Vänligen försök igen senare.');
+        toast.error('Kunde inte starta köpet. Kontrollera att erbjudandet fortfarande är tillgängligt.');
         return;
       }
 
@@ -75,7 +75,8 @@ export const DealInfo = ({
       window.location.href = data.url;
     } catch (error) {
       console.error('Purchase error:', error);
-      toast.error('Ett fel uppstod. Vänligen försök igen senare.');
+      const errorMessage = error instanceof Error ? error.message : 'Ett okänt fel uppstod';
+      toast.error(`Ett fel uppstod: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
