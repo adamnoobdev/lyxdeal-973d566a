@@ -5,8 +5,8 @@ import { formSchema } from "./schema";
 
 interface LocationFieldsProps {
   form: UseFormReturn<z.infer<typeof formSchema>>;
-  categories: string[];
-  cities: string[];
+  categories: readonly string[];
+  cities: readonly string[];
 }
 
 export const LocationFields = ({ form, categories, cities }: LocationFieldsProps) => {
