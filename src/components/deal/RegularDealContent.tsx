@@ -46,13 +46,12 @@ export const RegularDealContent = ({
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-primary" />
             <span>{timeRemaining}</span>
+            {quantityLeft > 0 && (
+              <span className="text-emerald-600 text-xs ml-auto">
+                {quantityLeft} kvar
+              </span>
+            )}
           </div>
-          
-          {quantityLeft > 0 && (
-            <div className="flex items-center gap-2 text-emerald-600 font-medium">
-              <span>{quantityLeft} kvar</span>
-            </div>
-          )}
         </div>
         
         <PriceDisplay 

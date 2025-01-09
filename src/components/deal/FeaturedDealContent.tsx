@@ -65,18 +65,17 @@ export const FeaturedDealContent = ({
             <span className="text-xs sm:text-base md:text-lg text-white/90">{city}</span>
           </div>
           
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <Clock className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-primary" />
-            <span className="text-xs sm:text-base md:text-lg text-white/90">{timeRemaining}</span>
-          </div>
-          
-          {quantityLeft > 0 && (
+          <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="text-xs sm:text-base md:text-lg text-emerald-400">
+              <Clock className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-primary" />
+              <span className="text-xs sm:text-base md:text-lg text-white/90">{timeRemaining}</span>
+            </div>
+            {quantityLeft > 0 && (
+              <span className="text-xs sm:text-sm text-emerald-400">
                 {quantityLeft} kvar
               </span>
-            </div>
-          )}
+            )}
+          </div>
           
           <PriceDisplay 
             originalPrice={originalPrice}
