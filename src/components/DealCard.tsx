@@ -46,8 +46,8 @@ const DealCardComponent = ({
 
   if (featured) {
     return (
-      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl will-change-transform">
-        <Link to={`/product/${id}`} className="block">
+      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl">
+        <Link to={`/product/${id}`} className="block relative">
           <div className="relative h-[300px] sm:h-[400px]">
             <img
               src={imageUrl}
@@ -75,7 +75,7 @@ const DealCardComponent = ({
   }
 
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 will-change-transform">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <Link to={`/product/${id}`}>
         <DealImage
           imageUrl={imageUrl}

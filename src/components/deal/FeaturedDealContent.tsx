@@ -27,7 +27,7 @@ export const FeaturedDealContent = ({
   discountedPrice,
 }: FeaturedDealContentProps) => {
   return (
-    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pointer-events-none">
       <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <CategoryBadge 
@@ -69,7 +69,7 @@ export const FeaturedDealContent = ({
             className="text-white"
           />
         </div>
-        <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 hover:shadow-xl">
+        <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 hover:shadow-xl pointer-events-auto">
           Köp Nu
         </Button>
       </div>
