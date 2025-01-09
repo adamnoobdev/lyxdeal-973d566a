@@ -28,14 +28,14 @@ export const DeleteDealDialog = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Är du säker?</AlertDialogTitle>
           <AlertDialogDescription>
-            Detta kommer permanent ta bort erbjudandet "{dealTitle}". Denna åtgärd kan inte ångras.
+            Detta kommer permanent ta bort erbjudandet{" "}
+            {dealTitle && <strong>"{dealTitle}"</strong>}. Denna åtgärd kan inte
+            ångras.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Avbryt</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>
-            Ta bort
-          </AlertDialogAction>
+          <AlertDialogAction onClick={onConfirm}>Ta bort</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
