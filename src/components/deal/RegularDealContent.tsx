@@ -63,7 +63,7 @@ export const RegularDealContent = ({
           )}
         </div>
         
-        <Button className="w-full bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-md transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
+        <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-md transition-all duration-300 ease-in-out hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
           Köp Nu
         </Button>
       </div>

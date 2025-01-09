@@ -84,7 +84,7 @@ export const FeaturedDealContent = ({
           </div>
         </div>
         
-        <Button className="w-full bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-lg transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] text-xs sm:text-base md:text-lg py-2 sm:py-4 md:py-6">
+        <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] text-xs sm:text-base md:text-lg py-2 sm:py-4 md:py-6">
           Köp Nu
         </Button>
       </div>
