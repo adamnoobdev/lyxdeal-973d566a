@@ -18,30 +18,14 @@ const NavigationBarComponent = () => {
   const currentCity = searchParams.get("city") || "Alla Städer";
 
   useEffect(() => {
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-    let rafId: number;
-
     const handleScroll = () => {
-      if (!ticking) {
-        rafId = window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          setIsScrolled(currentScrollY > 50);
-          lastScrollY = currentScrollY;
-          ticking = false;
-        });
-        ticking = true;
-      }
+      requestAnimationFrame(() => {
+        setIsScrolled(window.scrollY > 50);
+      });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId) {
-        window.cancelAnimationFrame(rafId);
-      }
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleSearch = useCallback((e: React.FormEvent) => {
@@ -77,12 +61,12 @@ const NavigationBarComponent = () => {
 
   return (
     <nav 
-      className={`border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 will-change-transform ${
+      className={`border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 transform-gpu will-change-transform ${
         isScrolled ? 'shadow-sm' : ''
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex h-full items-center justify-between gap-4">
+        <div className="flex h-16 items-center justify-between gap-4">
           <Logo />
 
           <div className="hidden md:flex flex-1 max-w-3xl mx-8">
@@ -94,7 +78,7 @@ const NavigationBarComponent = () => {
             />
           </div>
 
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-2">
             <DesktopNav 
               currentCity={currentCity}
               onCitySelect={handleCityClick}
@@ -115,15 +99,15 @@ const NavigationBarComponent = () => {
               onLogout={handleLogout}
             />
           </div>
+        </div>
 
-          <div className="md:hidden w-full mt-2">
-            <SearchContainer
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              onSubmit={handleSearch}
-              isScrolled={isScrolled}
-            />
-          </div>
+        <div className="md:hidden pb-3">
+          <SearchContainer
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSubmit={handleSearch}
+            isScrolled={isScrolled}
+          />
         </div>
       </div>
     </nav>

@@ -14,7 +14,7 @@ export const SearchContainer = ({
   isScrolled,
 }: SearchContainerProps) => {
   return (
-    <>
+    <div className="w-full transform-gpu">
       <SearchBar
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
@@ -23,25 +23,6 @@ export const SearchContainer = ({
           isScrolled ? 'py-1.5' : 'py-2.5'
         }`}
       />
-      
-      <div className="md:hidden">
-        <div 
-          className={`transition-all duration-200 ease-in-out overflow-hidden ${
-            isScrolled ? 'h-0 opacity-0' : 'h-12 opacity-100 pb-3'
-          }`}
-          style={{
-            transform: isScrolled ? 'translateY(-100%)' : 'translateY(0)',
-            willChange: 'transform, height, opacity'
-          }}
-        >
-          <SearchBar
-            searchQuery={searchQuery}
-            onSearchChange={onSearchChange}
-            onSubmit={onSubmit}
-            className="w-full"
-          />
-        </div>
-      </div>
-    </>
+    </div>
   );
 };
