@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut } from "lucide-react";
+import { Menu, LogOut, UserRound } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -106,11 +106,12 @@ export const NavigationBar = () => {
             </Button>
           ) : (
             <Button
-              variant="default"
-              size="sm"
+              variant="ghost"
+              size="icon"
               onClick={() => navigate("/login")}
+              aria-label="Logga in"
             >
-              Logga in
+              <UserRound className="h-5 w-5" />
             </Button>
           )}
         </div>
@@ -178,12 +179,13 @@ export const NavigationBar = () => {
                     ) : (
                       <Button
                         variant="default"
-                        className="w-full"
+                        className="w-full gap-2"
                         onClick={() => {
                           navigate("/login");
                           setIsOpen(false);
                         }}
                       >
+                        <UserRound className="h-4 w-4" />
                         Logga in
                       </Button>
                     )}
