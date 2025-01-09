@@ -21,13 +21,14 @@ import { CATEGORIES, CITIES } from "@/constants/app-constants";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
-  isSubmitting?: boolean;  // Lade till isSubmitting som en optional prop
+  isSubmitting?: boolean;
+  initialValues?: FormValues;
 }
 
-export const DealForm = ({ onSubmit, isSubmitting = false }: DealFormProps) => {
+export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: initialValues || {
       title: "",
       description: "",
       imageUrl: "",
@@ -46,45 +47,10 @@ export const DealForm = ({ onSubmit, isSubmitting = false }: DealFormProps) => {
 
   const handleSubmit = async (values: FormValues) => {
     try {
-      // Först skapa erbjudandet i databasen
-      const { data: deal, error: dealError } = await supabase
-        .from('deals')
-        .insert({
-          title: values.title,
-          description: values.description,
-          image_url: values.imageUrl,
-          original_price: parseInt(values.originalPrice),
-          discounted_price: parseInt(values.discountedPrice),
-          category: values.category,
-          city: values.city,
-          time_remaining: values.timeRemaining,
-          featured: values.featured,
-        })
-        .select()
-        .single();
-
-      if (dealError) throw dealError;
-
-      // Skapa Stripe-produkt och uppdatera erbjudandet med Stripe price ID
-      const { error: stripeError } = await supabase.functions.invoke('create-stripe-product', {
-        body: {
-          title: values.title,
-          description: values.description,
-          discountedPrice: parseInt(values.discountedPrice),
-          dealId: deal.id,
-        },
-      });
-
-      if (stripeError) {
-        toast.error("Kunde inte skapa Stripe-produkt");
-        throw stripeError;
-      }
-
       await onSubmit(values);
-      toast.success("Erbjudandet har skapats!");
     } catch (error) {
       console.error('Error:', error);
-      toast.error("Något gick fel när erbjudandet skulle skapas.");
+      toast.error("Något gick fel när erbjudandet skulle sparas.");
     }
   };
 
@@ -131,7 +97,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false }: DealFormProps) => {
         />
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Skapar erbjudande..." : "Skapa erbjudande"}
+          {isSubmitting ? "Sparar..." : "Spara erbjudande"}
         </Button>
       </form>
     </Form>
