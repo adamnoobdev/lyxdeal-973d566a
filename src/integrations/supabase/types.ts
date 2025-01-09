@@ -62,6 +62,7 @@ export type Database = {
           id: number
           rating: number
           updated_at: string
+          user_id: string
         }
         Insert: {
           comment?: string | null
@@ -70,6 +71,7 @@ export type Database = {
           id?: never
           rating: number
           updated_at?: string
+          user_id?: string
         }
         Update: {
           comment?: string | null
@@ -78,6 +80,7 @@ export type Database = {
           id?: never
           rating?: number
           updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {

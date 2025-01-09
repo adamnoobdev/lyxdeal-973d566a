@@ -42,6 +42,7 @@ export const ReviewForm = ({ dealId }: ReviewFormProps) => {
             deal_id: dealId,
             rating,
             comment: comment.trim() || null,
+            user_id: session.user.id // Add the user_id here
           },
         ]);
 
