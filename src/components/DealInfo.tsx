@@ -4,6 +4,7 @@ import { Star, MapPin, Clock, Tag } from "lucide-react";
 import { CategoryBadge } from "./CategoryBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useState } from "react";
 
 interface DealInfoProps {
   id: number;
@@ -28,6 +29,8 @@ export const DealInfo = ({
   city,
   quantityLeft,
 }: DealInfoProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
@@ -49,18 +52,32 @@ export const DealInfo = ({
 
   const handlePurchase = async () => {
     try {
+      setIsLoading(true);
+      console.log('Starting purchase process for deal:', id);
+
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: { dealId: id }
       });
 
-      if (error) throw error;
-      if (!data.url) throw new Error('No checkout URL received');
+      if (error) {
+        console.error('Purchase error:', error);
+        toast.error('Ett fel uppstod vid köpet. Vänligen försök igen.');
+        return;
+      }
 
-      // Redirect to Stripe Checkout
+      if (!data?.url) {
+        console.error('No checkout URL received');
+        toast.error('Kunde inte starta köpet. Vänligen försök igen senare.');
+        return;
+      }
+
+      console.log('Redirecting to checkout URL:', data.url);
       window.location.href = data.url;
     } catch (error) {
       console.error('Purchase error:', error);
-      toast.error('Kunde inte starta köpet. Försök igen senare.');
+      toast.error('Ett fel uppstod. Vänligen försök igen senare.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -97,9 +114,9 @@ export const DealInfo = ({
         <Button 
           className="w-full bg-primary hover:bg-primary/90 text-white"
           onClick={handlePurchase}
-          disabled={quantityLeft <= 0}
+          disabled={quantityLeft <= 0 || isLoading}
         >
-          {quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
+          {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
         </Button>
       </div>
       
