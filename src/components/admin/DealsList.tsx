@@ -1,48 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { PriceDisplay } from "@/components/PriceDisplay";
-import { Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
-import { DealForm } from "../DealForm";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
-interface Deal {
-  id: number;
-  title: string;
-  description: string;
-  originalPrice: number;
-  discountedPrice: number;
-  category: string;
-  city: string;
-  timeRemaining: string;
-  imageUrl: string;
-  featured: boolean;
-}
+import { Deal } from "./types";
+import { DealsTable } from "./deals/DealsTable";
+import { EditDealDialog } from "./deals/EditDealDialog";
+import { DeleteDealDialog } from "./deals/DeleteDealDialog";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
@@ -90,10 +53,6 @@ export const DealsList = () => {
     }
   };
 
-  const handleEdit = (deal: Deal) => {
-    setEditingDeal(deal);
-  };
-
   const handleUpdate = async (values: any) => {
     try {
       const { error } = await supabase
@@ -127,62 +86,19 @@ export const DealsList = () => {
 
   return (
     <>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Titel</TableHead>
-              <TableHead>Kategori</TableHead>
-              <TableHead>Stad</TableHead>
-              <TableHead>Pris</TableHead>
-              <TableHead>Åtgärder</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {deals?.map((deal) => (
-              <TableRow key={deal.id}>
-                <TableCell>{deal.title}</TableCell>
-                <TableCell>{deal.category}</TableCell>
-                <TableCell>{deal.city}</TableCell>
-                <TableCell>
-                  <PriceDisplay
-                    originalPrice={deal.originalPrice}
-                    discountedPrice={deal.discountedPrice}
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleEdit(deal)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setDeletingDeal(deal)}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <DealsTable
+        deals={deals || []}
+        onEdit={setEditingDeal}
+        onDelete={setDeletingDeal}
+      />
 
-      <Dialog open={!!editingDeal} onOpenChange={() => setEditingDeal(null)}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Redigera erbjudande</DialogTitle>
-          </DialogHeader>
-          {editingDeal && (
-            <DealForm
-              onSubmit={handleUpdate}
-              initialValues={{
+      <EditDealDialog
+        isOpen={!!editingDeal}
+        onClose={() => setEditingDeal(null)}
+        onSubmit={handleUpdate}
+        initialValues={
+          editingDeal
+            ? {
                 title: editingDeal.title,
                 description: editingDeal.description,
                 imageUrl: editingDeal.imageUrl,
@@ -192,30 +108,17 @@ export const DealsList = () => {
                 city: editingDeal.city,
                 timeRemaining: editingDeal.timeRemaining,
                 featured: editingDeal.featured,
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+              }
+            : undefined
+        }
+      />
 
-      <AlertDialog open={!!deletingDeal} onOpenChange={() => setDeletingDeal(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Är du säker?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Detta kommer permanent ta bort erbjudandet "{deletingDeal?.title}". Denna åtgärd kan inte ångras.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Avbryt</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deletingDeal && handleDelete(deletingDeal.id)}
-            >
-              Ta bort
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteDealDialog
+        isOpen={!!deletingDeal}
+        onClose={() => setDeletingDeal(null)}
+        onConfirm={() => deletingDeal && handleDelete(deletingDeal.id)}
+        dealTitle={deletingDeal?.title}
+      />
     </>
   );
 };
