@@ -82,36 +82,41 @@ const NavigationBarComponent = () => {
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-center md:gap-8">
-          <div className={`flex items-center justify-between transition-[height] duration-200 ease-in-out ${
-            isScrolled ? 'h-12' : 'h-16'
-          }`}>
-            <Logo />
+        <div className="flex h-full items-center justify-between gap-4">
+          <Logo />
 
-            <div className="hidden md:flex flex-1 justify-end">
-              <DesktopNav 
-                currentCity={currentCity}
-                onCitySelect={handleCityClick}
-                onCategorySelect={handleCategoryClick}
-                session={session}
-                onLogout={handleLogout}
-              />
-            </div>
-
-            <div className="md:hidden">
-              <MobileNav 
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
-                currentCity={currentCity}
-                onCitySelect={handleCityClick}
-                onCategorySelect={handleCategoryClick}
-                session={session}
-                onLogout={handleLogout}
-              />
-            </div>
+          <div className="hidden md:flex flex-1 max-w-3xl mx-8">
+            <SearchContainer
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onSubmit={handleSearch}
+              isScrolled={isScrolled}
+            />
           </div>
 
-          <div className="flex-1 max-w-3xl mx-auto w-full">
+          <div className="hidden md:flex items-center">
+            <DesktopNav 
+              currentCity={currentCity}
+              onCitySelect={handleCityClick}
+              onCategorySelect={handleCategoryClick}
+              session={session}
+              onLogout={handleLogout}
+            />
+          </div>
+
+          <div className="md:hidden">
+            <MobileNav 
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+              currentCity={currentCity}
+              onCitySelect={handleCityClick}
+              onCategorySelect={handleCategoryClick}
+              session={session}
+              onLogout={handleLogout}
+            />
+          </div>
+
+          <div className="md:hidden w-full mt-2">
             <SearchContainer
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}

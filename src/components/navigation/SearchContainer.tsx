@@ -19,12 +19,10 @@ export const SearchContainer = ({
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
         onSubmit={onSubmit}
-        className="flex-1 max-w-xl mx-auto hidden md:flex"
+        className="w-full"
       />
       
-      <div 
-        className="w-full md:hidden"
-      >
+      <div className="md:hidden">
         <div 
           className={`transition-all duration-200 ease-in-out overflow-hidden ${
             isScrolled ? 'h-0 opacity-0' : 'h-12 opacity-100 pb-3'
