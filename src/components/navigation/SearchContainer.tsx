@@ -19,7 +19,9 @@ export const SearchContainer = ({
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
         onSubmit={onSubmit}
-        className="w-full"
+        className={`w-full transition-all duration-200 ease-in-out ${
+          isScrolled ? 'py-1.5' : 'py-2.5'
+        }`}
       />
       
       <div className="md:hidden">
