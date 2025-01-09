@@ -18,11 +18,9 @@ export const DealImage = ({ imageUrl, title, discountPercentage, isNew }: DealIm
         decoding="async"
       />
       <div className="absolute right-3 top-3 flex gap-2 animate-fade-in">
-        <CategoryBadge 
-          category={`${discountPercentage}% RABATT`} 
-          variant="default"
-          className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10 transition-all duration-300 hover:shadow-lg"
-        />
+        <span className="bg-[#ea384c] text-white text-xs px-2 py-0.5 rounded-full font-semibold shadow-sm backdrop-blur-sm">
+          -{discountPercentage}%
+        </span>
         {isNew && (
           <CategoryBadge
             category="NYTT"
