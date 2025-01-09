@@ -18,6 +18,10 @@ export default function ManageDeals() {
   const { data: deals, isLoading, error } = useDeals();
 
   const handleDelete = async (id: number) => {
+    if (!window.confirm("Är du säker på att du vill ta bort detta erbjudande?")) {
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('deals')
@@ -32,8 +36,8 @@ export default function ManageDeals() {
     }
   };
 
-  if (isLoading) return <div>Laddar...</div>;
-  if (error) return <div>Ett fel uppstod: {error.message}</div>;
+  if (isLoading) return <div className="container mx-auto p-6">Laddar...</div>;
+  if (error) return <div className="container mx-auto p-6">Ett fel uppstod: {error.message}</div>;
 
   return (
     <div className="container mx-auto p-6">
