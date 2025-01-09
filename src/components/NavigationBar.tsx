@@ -47,8 +47,8 @@ export const NavigationBar = () => {
   }, [navigate]);
 
   return (
-    <nav className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${showMobileSearch ? 'h-[104px] md:h-16' : 'h-16'}`}>
-      <div className="container flex h-16 items-center px-4 md:px-6">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 items-center px-4 md:container md:px-6">
         <Logo />
 
         <div className="hidden md:flex md:flex-1 md:items-center md:justify-between md:space-x-4">
@@ -80,7 +80,7 @@ export const NavigationBar = () => {
         </div>
       </div>
 
-      <div className="px-4">
+      <div className={`md:hidden ${showMobileSearch ? 'h-12' : 'h-0 overflow-hidden'} transition-all duration-300`}>
         <MobileSearchBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}

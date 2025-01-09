@@ -14,11 +14,7 @@ export const MobileSearchBar = ({
   showMobileSearch,
 }: MobileSearchBarProps) => {
   return (
-    <div 
-      className={`md:hidden pb-3 transition-all duration-300 transform ${
-        showMobileSearch ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'
-      }`}
-    >
+    <div className="px-4 py-2">
       <SearchContainer
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
