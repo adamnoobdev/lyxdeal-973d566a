@@ -49,7 +49,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative h-[300px] md:h-[600px] w-full mb-8">
+      <div className="relative h-[200px] md:h-[400px] w-full mb-8">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
