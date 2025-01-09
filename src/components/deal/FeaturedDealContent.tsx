@@ -13,6 +13,7 @@ interface FeaturedDealContentProps {
   timeRemaining: string;
   originalPrice: number;
   discountedPrice: number;
+  quantityLeft: number;
 }
 
 export const FeaturedDealContent = ({
@@ -25,6 +26,7 @@ export const FeaturedDealContent = ({
   timeRemaining,
   originalPrice,
   discountedPrice,
+  quantityLeft,
 }: FeaturedDealContentProps) => {
   return (
     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
@@ -45,6 +47,13 @@ export const FeaturedDealContent = ({
               category="NYTT"
               variant="default"
               className="bg-gradient-to-r from-yellow-300/60 via-yellow-400/60 to-yellow-500/60 text-yellow-950 font-semibold shadow-sm backdrop-blur-md text-[10px] sm:text-sm py-0.5 px-2 sm:px-3"
+            />
+          )}
+          {quantityLeft > 0 && (
+            <CategoryBadge
+              category={`${quantityLeft} KVAR`}
+              variant="default"
+              className="bg-gradient-to-r from-green-400/60 to-emerald-500/60 text-white font-semibold shadow-sm backdrop-blur-md text-[10px] sm:text-sm py-0.5 px-2 sm:px-3"
             />
           )}
         </div>

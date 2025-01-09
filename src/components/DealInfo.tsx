@@ -11,6 +11,7 @@ interface DealInfoProps {
   discountedPrice: number;
   timeRemaining: string;
   city: string;
+  quantityLeft: number;
 }
 
 export const DealInfo = ({
@@ -21,6 +22,7 @@ export const DealInfo = ({
   discountedPrice,
   timeRemaining,
   city,
+  quantityLeft,
 }: DealInfoProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('sv-SE', {
@@ -43,7 +45,16 @@ export const DealInfo = ({
 
   return (
     <div className="space-y-6">
-      <CategoryBadge category={category} className="shadow-sm" />
+      <div className="flex flex-wrap gap-2">
+        <CategoryBadge category={category} className="shadow-sm" />
+        {quantityLeft > 0 && (
+          <CategoryBadge
+            category={`${quantityLeft} KVAR`}
+            variant="default"
+            className="bg-gradient-to-r from-green-400 to-emerald-500 text-white font-semibold shadow-sm"
+          />
+        )}
+      </div>
       
       <h1 className="text-3xl font-bold">{title}</h1>
       

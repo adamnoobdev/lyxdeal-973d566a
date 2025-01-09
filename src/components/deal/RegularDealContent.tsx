@@ -11,6 +11,7 @@ interface RegularDealContentProps {
   timeRemaining: string;
   originalPrice: number;
   discountedPrice: number;
+  quantityLeft: number;
 }
 
 export const RegularDealContent = ({
@@ -21,12 +22,20 @@ export const RegularDealContent = ({
   timeRemaining,
   originalPrice,
   discountedPrice,
+  quantityLeft,
 }: RegularDealContentProps) => {
   return (
     <div className="p-4">
       <div className="flex flex-col gap-3">
-        <div className="flex">
+        <div className="flex flex-wrap gap-2">
           <CategoryBadge category={category} className="shadow-sm" />
+          {quantityLeft > 0 && (
+            <CategoryBadge
+              category={`${quantityLeft} KVAR`}
+              variant="default"
+              className="bg-gradient-to-r from-green-400 to-emerald-500 text-white font-semibold shadow-sm"
+            />
+          )}
         </div>
         <h3 className="text-lg font-bold tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
           {title}

@@ -20,6 +20,7 @@ export type Database = {
           id: number
           image_url: string
           original_price: number
+          quantity_left: number
           time_remaining: string
           title: string
           updated_at: string
@@ -34,6 +35,7 @@ export type Database = {
           id?: never
           image_url: string
           original_price: number
+          quantity_left?: number
           time_remaining: string
           title: string
           updated_at?: string
@@ -48,6 +50,7 @@ export type Database = {
           id?: never
           image_url?: string
           original_price?: number
+          quantity_left?: number
           time_remaining?: string
           title?: string
           updated_at?: string

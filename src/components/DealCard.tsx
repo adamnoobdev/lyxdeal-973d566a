@@ -17,6 +17,7 @@ interface DealCardProps {
   city: string;
   featured?: boolean;
   created_at: string;
+  quantityLeft: number;
 }
 
 const DealCardComponent = ({
@@ -31,6 +32,7 @@ const DealCardComponent = ({
   city,
   featured = false,
   created_at,
+  quantityLeft,
 }: DealCardProps) => {
   const discountPercentage = Math.round(
     ((originalPrice - discountedPrice) / originalPrice) * 100
@@ -67,6 +69,7 @@ const DealCardComponent = ({
               timeRemaining={timeRemaining}
               originalPrice={originalPrice}
               discountedPrice={discountedPrice}
+              quantityLeft={quantityLeft}
             />
           </div>
         </Link>
@@ -91,6 +94,7 @@ const DealCardComponent = ({
           timeRemaining={timeRemaining}
           originalPrice={originalPrice}
           discountedPrice={discountedPrice}
+          quantityLeft={quantityLeft}
         />
       </Link>
     </Card>
