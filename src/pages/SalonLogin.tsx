@@ -46,6 +46,9 @@ export default function SalonLogin() {
     setLoading(true);
 
     try {
+      // First, get the current session to ensure we're starting fresh
+      await supabase.auth.signOut();
+      
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -61,6 +64,8 @@ export default function SalonLogin() {
         toast.error("Ingen användare hittades");
         return;
       }
+
+      console.log('Successfully signed in as:', authData.user.email);
 
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
