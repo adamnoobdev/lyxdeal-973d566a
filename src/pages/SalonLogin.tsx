@@ -19,6 +19,10 @@ const getErrorMessage = (error: AuthError) => {
     });
     
     // Check for specific error codes first
+    if (error.code === 'invalid_credentials') {
+      return "Felaktigt användarnamn eller lösenord. För testkontot, använd admin@example.com och password";
+    }
+    
     if (error.status === 400) {
       return "Kontrollera dina inloggningsuppgifter och försök igen";
     }
@@ -145,6 +149,9 @@ export default function SalonLogin() {
           <h1 className="text-3xl font-bold">Salongsportal</h1>
           <p className="text-muted-foreground">
             Logga in för att hantera din salong
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Använd admin@example.com och password för att logga in som testanvändare
           </p>
         </div>
 
