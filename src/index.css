@@ -54,9 +54,12 @@
 
   body {
     @apply bg-background text-foreground;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* Custom scrollbar styles */
+  /* Optimized scrollbar styles */
   ::-webkit-scrollbar {
     @apply w-2;
   }
@@ -66,7 +69,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full transition-colors;
+    @apply bg-gray-300 rounded-full transition-colors duration-300 ease-in-out;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -75,11 +78,35 @@
 }
 
 @layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   /* Touch device optimizations */
   @media (hover: none) {
-    .group:active .group-hover\:scale-105,
-    .group .group-hover\:scale-105 {
-      transform: scale(1.05);
+    .touch-scale {
+      @apply active:scale-95 transition-transform duration-200;
+    }
+  }
+
+  /* Optimized animations */
+  .animate-fade-up {
+    animation: fade-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 }

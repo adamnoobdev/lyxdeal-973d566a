@@ -14,7 +14,7 @@
   height: 6em;
   padding: 1.5em;
   will-change: filter;
-  transition: filter 300ms;
+  transition: filter 300ms ease-in-out;
 }
 
 .logo:hover {
@@ -42,12 +42,13 @@
 
 .card {
   padding: 2em;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  will-change: transform;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
 }
 
 .card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
 }
 
 .read-the-docs {
@@ -59,13 +60,50 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
 }
 
+/* Optimized animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  
+  .animate-fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+  .card:hover {
+    transform: none;
+  }
+  
+  .group:active .group-hover\:scale-105,
+  .group .group-hover\:scale-105 {
+    transform: scale(1.05);
   }
 }
