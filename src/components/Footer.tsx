@@ -1,80 +1,39 @@
 import { Link } from "react-router-dom";
-import { Separator } from "./ui/separator";
 
 export const Footer = () => {
   return (
-    <footer className="mt-16 bg-gray-50 py-8">
-      <div className="container px-4 md:px-8">
-        <Separator className="mb-8" />
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
-          <div className="text-center">
-            <h3 className="font-semibold text-lg mb-4">Om oss</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/about" className="text-gray-600 hover:text-gray-900">
-                  Om företaget
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-gray-600 hover:text-gray-900">
-                  Kontakta oss
-                </Link>
-              </li>
-              <li>
-                <Link to="/admin" className="text-gray-600 hover:text-gray-900">
-                  Adminsida
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div className="text-center">
-            <h3 className="font-semibold text-lg mb-4">Kundservice</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/faq" className="text-gray-600 hover:text-gray-900">
-                  Vanliga frågor
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="text-gray-600 hover:text-gray-900">
-                  Villkor
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="text-gray-600 hover:text-gray-900">
-                  Integritetspolicy
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div className="text-center">
-            <h3 className="font-semibold text-lg mb-4">Följ oss</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="https://facebook.com" className="text-gray-600 hover:text-gray-900" target="_blank" rel="noopener noreferrer">
-                  Facebook
-                </a>
-              </li>
-              <li>
-                <a href="https://instagram.com" className="text-gray-600 hover:text-gray-900" target="_blank" rel="noopener noreferrer">
-                  Instagram
-                </a>
-              </li>
-              <li>
-                <a href="https://linkedin.com" className="text-gray-600 hover:text-gray-900" target="_blank" rel="noopener noreferrer">
-                  LinkedIn
-                </a>
-              </li>
-            </ul>
-          </div>
+    <footer className="border-t bg-background">
+      <div className="container flex flex-col items-center gap-4 py-10 md:h-24 md:flex-row md:justify-between md:py-0">
+        <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
+          <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+            Built by{" "}
+            <a
+              href="https://lovable.dev"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium underline underline-offset-4"
+            >
+              Lovable
+            </a>
+            . The source code is available on{" "}
+            <a
+              href="https://github.com/lovable-labs/demo"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium underline underline-offset-4"
+            >
+              GitHub
+            </a>
+            .
+          </p>
         </div>
-        
-        <Separator className="my-8" />
-        
-        <div className="text-center text-gray-600">
-          <p>&copy; {new Date().getFullYear()} DealSite. Alla rättigheter förbehållna.</p>
+        <div className="flex items-center">
+          <Link 
+            to="/salon/login" 
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Salongsportal
+          </Link>
         </div>
       </div>
     </footer>
