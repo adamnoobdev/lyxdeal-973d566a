@@ -48,23 +48,25 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative h-[400px] md:h-[500px] w-full mb-8">
+      <div className="relative h-[400px] md:h-[500px] w-full mb-8 overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center transform scale-105 transition-transform duration-[20s] hover:scale-110"
           style={{
             backgroundImage: `url(${publicUrl})`,
             backgroundPosition: "center 30%"
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 to-purple-900/90" />
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-primary/70 to-purple-900/90" />
           <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
-            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 animate-fade-in">
-              Skäm Bort Dig Själv!
-            </h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in">
-              Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård. 
-              Unna dig lyxig kvalitetsvård till oslagbara priser hos våra utvalda salonger.
-            </p>
+            <div className="space-y-6 max-w-3xl mx-auto">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-in drop-shadow-lg">
+                Skäm Bort Dig Själv!
+              </h1>
+              <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in leading-relaxed drop-shadow-md backdrop-blur-sm bg-black/10 p-4 rounded-lg">
+                Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård. 
+                Unna dig lyxig kvalitetsvård till oslagbara priser hos våra utvalda salonger.
+              </p>
+            </div>
           </div>
         </div>
       </div>
