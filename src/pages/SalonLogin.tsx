@@ -24,34 +24,43 @@ export default function SalonLogin() {
     try {
       setLoading(true);
 
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      // Först, försök logga in användaren
+      const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (authError) {
         console.error("Auth error:", authError);
-        throw authError;
+        if (authError.message.includes('Invalid login credentials')) {
+          toast.error("Felaktigt användarnamn eller lösenord");
+        } else {
+          toast.error(`Inloggningen misslyckades: ${authError.message}`);
+        }
+        return;
       }
 
-      if (!authData.user) {
-        throw new Error("Ingen användare hittades");
+      if (!user) {
+        toast.error("Ingen användare hittades");
+        return;
       }
 
-      // Hämta salongsdata
+      // När inloggningen lyckats, hämta salongsdata
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
         .select('*')
-        .eq('user_id', authData.user.id)
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
 
       if (salonError) {
         console.error("Salon data error:", salonError);
-        throw new Error('Kunde inte hitta salongsdata för denna användare');
+        toast.error('Kunde inte hämta salongsdata');
+        return;
       }
 
       if (!salonData) {
-        throw new Error('Ingen salongsdata hittades');
+        toast.error('Ingen salongsdata hittades för denna användare');
+        return;
       }
 
       // Om allt går bra, navigera till dashboard
@@ -59,17 +68,7 @@ export default function SalonLogin() {
       
     } catch (error) {
       console.error('Complete login error:', error);
-      if (error instanceof AuthError) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error("Felaktigt användarnamn eller lösenord");
-        } else {
-          toast.error(`Inloggningen misslyckades: ${error.message}`);
-        }
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Ett oväntat fel inträffade vid inloggning");
-      }
+      toast.error("Ett oväntat fel inträffade vid inloggning");
     } finally {
       setLoading(false);
     }
