@@ -61,6 +61,9 @@ const Index = () => {
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 animate-fade-in">
               Lyxdeal
             </h1>
+            <h2 className="text-xl md:text-2xl font-medium text-white/90 mb-6 animate-fade-in">
+              Unna dig en lyxig deal idag
+            </h2>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in">
               Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård. 
               Unna dig lyxig kvalitetsvård till oslagbara priser hos våra utvalda salonger.
