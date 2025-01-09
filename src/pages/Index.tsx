@@ -24,7 +24,7 @@ const Index = () => {
   const { data: { publicUrl } } = supabase
     .storage
     .from('assets')
-    .getPublicUrl('beauty-header.jpg');
+    .getPublicUrl('luxury-spa-treatment.jpg');
 
   const handleDealClick = useCallback((dealId: number) => {
     try {
@@ -48,20 +48,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative h-[400px] md:h-[500px] w-full mb-8">
+      <div className="relative h-[500px] md:h-[600px] w-full mb-8">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url(${publicUrl})`,
-            backgroundPosition: "center 30%"
+            backgroundPosition: "center"
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 to-purple-900/90" />
+          <div className="absolute inset-0 bg-black/40" />
           <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
-            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 animate-fade-in">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
               Skäm Bort Dig Själv!
             </h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in">
+            <p className="text-xl md:text-2xl text-white/90 max-w-2xl animate-fade-in">
               Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård. 
               Unna dig lyxig kvalitetsvård till oslagbara priser hos våra utvalda salonger.
             </p>
