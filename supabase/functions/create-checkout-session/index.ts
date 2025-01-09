@@ -21,7 +21,13 @@ serve(async (req) => {
 
     if (!stripeKey || !supabaseUrl || !supabaseKey) {
       console.error('Missing required environment variables');
-      throw new Error('Server configuration error');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     // Parse request body
@@ -29,7 +35,13 @@ serve(async (req) => {
     console.log('Processing checkout for deal:', dealId);
 
     if (!dealId) {
-      throw new Error('No deal ID provided');
+      return new Response(
+        JSON.stringify({ error: 'No deal ID provided' }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     // Initialize Supabase client with service role key
@@ -44,22 +56,46 @@ serve(async (req) => {
 
     if (dealError) {
       console.error('Error fetching deal:', dealError);
-      throw new Error('Failed to fetch deal information');
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch deal information' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     if (!deal) {
       console.error('Deal not found:', dealId);
-      throw new Error('Deal not found');
+      return new Response(
+        JSON.stringify({ error: 'Deal not found' }),
+        { 
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     if (!deal.stripe_price_id) {
       console.error('No Stripe price ID found for deal:', dealId);
-      throw new Error('No Stripe price ID found for this deal');
+      return new Response(
+        JSON.stringify({ error: 'No Stripe price ID found for this deal' }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     if (deal.quantity_left <= 0) {
       console.error('Deal is sold out:', dealId);
-      throw new Error('This deal is sold out');
+      return new Response(
+        JSON.stringify({ error: 'This deal is sold out' }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     // Initialize Stripe
@@ -85,7 +121,13 @@ serve(async (req) => {
     });
 
     if (!session.url) {
-      throw new Error('Failed to create checkout session URL');
+      return new Response(
+        JSON.stringify({ error: 'Failed to create checkout session URL' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     console.log('Checkout session created successfully:', session.id);
@@ -93,11 +135,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ url: session.url }),
       { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        },
         status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
@@ -106,15 +145,11 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'An unknown error occurred',
-        details: error instanceof Error ? error.stack : undefined
+        error: error instanceof Error ? error.message : 'An unknown error occurred'
       }),
       { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        },
-        status: 400,
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
