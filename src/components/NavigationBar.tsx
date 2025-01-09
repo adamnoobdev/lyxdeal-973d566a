@@ -13,20 +13,26 @@ const NavigationBarComponent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const session = useSession();
 
   const currentCity = searchParams.get("city") || "Alla Städer";
 
   useEffect(() => {
     const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
       requestAnimationFrame(() => {
-        setIsScrolled(window.scrollY > 50);
+        setIsScrolled(currentScrollY > 50);
+        setShowMobileSearch(currentScrollY <= lastScrollY || currentScrollY < 50);
+        setLastScrollY(currentScrollY);
       });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +107,11 @@ const NavigationBarComponent = () => {
           </div>
         </div>
 
-        <div className="md:hidden pb-3">
+        <div 
+          className={`md:hidden pb-3 transition-all duration-300 transform ${
+            showMobileSearch ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'
+          }`}
+        >
           <SearchContainer
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
