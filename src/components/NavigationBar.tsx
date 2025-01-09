@@ -6,9 +6,10 @@ import { Logo } from "./navigation/Logo";
 import { MobileSearchBar } from "./navigation/MobileSearchBar";
 import { useScroll } from "@/hooks/useScroll";
 import { useSession } from "@/hooks/useSession";
+import { supabase } from "@/integrations/supabase/client";
 
 export const NavigationBar = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +25,26 @@ export const NavigationBar = () => {
     }
   }, [searchQuery, navigate]);
 
+  const handleCitySelect = useCallback((city: string) => {
+    setSearchParams(prev => {
+      if (city === "Alla Städer") {
+        prev.delete("city");
+      } else {
+        prev.set("city", city);
+      }
+      return prev;
+    });
+  }, [setSearchParams]);
+
+  const handleCategorySelect = useCallback((category: string) => {
+    navigate(`/search?category=${encodeURIComponent(category)}`);
+  }, [navigate]);
+
+  const handleLogout = useCallback(async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  }, [navigate]);
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
@@ -32,10 +53,10 @@ export const NavigationBar = () => {
         <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
           <DesktopNav
             currentCity={currentCity}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            onSubmit={handleSearch}
-            isScrolled={isScrolled}
+            onCitySelect={handleCitySelect}
+            onCategorySelect={handleCategorySelect}
+            session={session}
+            onLogout={handleLogout}
           />
         </div>
 
@@ -43,8 +64,11 @@ export const NavigationBar = () => {
           <MobileNav
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            session={session}
             currentCity={currentCity}
+            onCitySelect={handleCitySelect}
+            onCategorySelect={handleCategorySelect}
+            session={session}
+            onLogout={handleLogout}
           />
         </div>
       </div>
