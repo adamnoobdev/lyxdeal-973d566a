@@ -21,36 +21,37 @@ export default function SalonLogin() {
       return;
     }
 
-    try {
-      setLoading(true);
+    setLoading(true);
 
-      // Först, försök logga in användaren
-      const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({
+    try {
+      // Steg 1: Autentisering
+      const authResponse = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (authError) {
-        console.error("Auth error:", authError);
-        if (authError.message.includes('Invalid login credentials')) {
+      if (authResponse.error) {
+        console.error("Auth error:", authResponse.error);
+        if (authResponse.error.message.includes('Invalid login credentials')) {
           toast.error("Felaktigt användarnamn eller lösenord");
         } else {
-          toast.error(`Inloggningen misslyckades: ${authError.message}`);
+          toast.error(`Inloggningen misslyckades: ${authResponse.error.message}`);
         }
         return;
       }
 
+      const user = authResponse.data.user;
       if (!user) {
         toast.error("Ingen användare hittades");
         return;
       }
 
-      // När inloggningen lyckats, hämta salongsdata
-      const { data: salonData, error: salonError } = await supabase
+      // Steg 2: Hämta salongsdata
+      const { data: salon, error: salonError } = await supabase
         .from('salons')
-        .select('*')
+        .select()
         .eq('user_id', user.id)
-        .maybeSingle();
+        .single();
 
       if (salonError) {
         console.error("Salon data error:", salonError);
@@ -58,12 +59,12 @@ export default function SalonLogin() {
         return;
       }
 
-      if (!salonData) {
+      if (!salon) {
         toast.error('Ingen salongsdata hittades för denna användare');
         return;
       }
 
-      // Om allt går bra, navigera till dashboard
+      // Steg 3: Navigera till dashboard
       navigate("/salon/dashboard");
       
     } catch (error) {
