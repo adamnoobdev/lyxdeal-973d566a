@@ -13,6 +13,7 @@ interface Deal {
   category: string;
   city: string;
   created_at: string;
+  quantityLeft: number;
 }
 
 interface DealsGridProps {

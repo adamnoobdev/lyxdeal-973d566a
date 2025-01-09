@@ -38,6 +38,7 @@ export const useDeals = (category?: string, city?: string) => {
         category: deal.category,
         city: deal.city,
         created_at: deal.created_at,
+        quantityLeft: deal.quantity_left,
       }));
     },
   });
@@ -70,6 +71,7 @@ export const useFeaturedDeals = () => {
         category: deal.category,
         city: deal.city,
         created_at: deal.created_at,
+        quantityLeft: deal.quantity_left,
       }));
     },
   });

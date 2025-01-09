@@ -36,6 +36,7 @@ export const useDeal = (id: string | undefined) => {
         category: data.category,
         city: data.city,
         created_at: data.created_at,
+        quantityLeft: data.quantity_left,
       };
     },
   });
