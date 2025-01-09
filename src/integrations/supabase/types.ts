@@ -21,6 +21,7 @@ export type Database = {
           image_url: string
           original_price: number
           quantity_left: number
+          stripe_price_id: string | null
           time_remaining: string
           title: string
           updated_at: string
@@ -36,6 +37,7 @@ export type Database = {
           image_url: string
           original_price: number
           quantity_left?: number
+          stripe_price_id?: string | null
           time_remaining: string
           title: string
           updated_at?: string
@@ -51,6 +53,7 @@ export type Database = {
           image_url?: string
           original_price?: number
           quantity_left?: number
+          stripe_price_id?: string | null
           time_remaining?: string
           title?: string
           updated_at?: string
