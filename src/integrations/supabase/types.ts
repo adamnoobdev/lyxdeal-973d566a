@@ -133,6 +133,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_test_salon: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
       decrease_quantity: {
         Args: {
           price_id: string
