@@ -37,6 +37,7 @@ export const useDeal = (id: string | undefined) => {
         city: data.city,
         created_at: data.created_at,
         quantityLeft: data.quantity_left,
+        featured: data.featured || false,
       };
     },
   });
