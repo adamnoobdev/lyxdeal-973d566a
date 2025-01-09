@@ -48,48 +48,23 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative h-[600px] w-full mb-8 overflow-hidden">
+      <div className="relative h-[400px] md:h-[500px] w-full mb-8">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url(${publicUrl})`,
             backgroundPosition: "center 30%"
           }}
-        />
-        
-        <div className="absolute inset-0 bg-[#E87CE8]/90">
-          <div className="absolute inset-0" 
-               style={{
-                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                 backgroundSize: '30px 30px'
-               }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/30 to-accent/40" />
-        </div>
-
-        <div className="relative container h-full">
-          <div className="h-full flex flex-col justify-center items-center text-center">
-            <div className="space-y-8 max-w-3xl mx-auto px-4">
-              <div className="space-y-2">
-                <h2 className="text-white/90 text-xl md:text-2xl font-light tracking-wide animate-fade-in">
-                  Välkommen till din oas
-                </h2>
-                <h1 className="text-5xl md:text-7xl font-bold text-white animate-fade-in">
-                  Skäm Bort 
-                  <span className="block">Dig Själv</span>
-                </h1>
-              </div>
-              
-              <div className="relative">
-                <div className="h-px w-24 bg-gradient-to-r from-white/40 to-transparent mb-6 mx-auto" />
-                <p className="text-xl md:text-2xl text-white/90 leading-relaxed font-light animate-fade-in">
-                  Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård
-                  <span className="block mt-2 text-lg md:text-xl text-white/80">
-                    hos våra utvalda salonger
-                  </span>
-                </p>
-              </div>
-            </div>
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 to-purple-900/90" />
+          <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 animate-fade-in">
+              Skäm Bort Dig Själv!
+            </h1>
+            <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in">
+              Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård. 
+              Unna dig lyxig kvalitetsvård till oslagbara priser hos våra utvalda salonger.
+            </p>
           </div>
         </div>
       </div>
