@@ -2,8 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, Clock, Tag } from "lucide-react";
 import { CategoryBadge } from "./CategoryBadge";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface DealInfoProps {
+  id: number;
   title: string;
   description: string;
   category: string;
@@ -15,6 +18,7 @@ interface DealInfoProps {
 }
 
 export const DealInfo = ({
+  id,
   title,
   description,
   category,
@@ -41,6 +45,23 @@ export const DealInfo = ({
         }`}
       />
     ));
+  };
+
+  const handlePurchase = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { dealId: id }
+      });
+
+      if (error) throw error;
+      if (!data.url) throw new Error('No checkout URL received');
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (error) {
+      console.error('Purchase error:', error);
+      toast.error('Kunde inte starta köpet. Försök igen senare.');
+    }
   };
 
   return (
@@ -73,8 +94,12 @@ export const DealInfo = ({
             {formatPrice(discountedPrice)}
           </p>
         </div>
-        <Button className="w-full bg-primary hover:bg-primary/90 text-white">
-          Köp Nu
+        <Button 
+          className="w-full bg-primary hover:bg-primary/90 text-white"
+          onClick={handlePurchase}
+          disabled={quantityLeft <= 0}
+        >
+          {quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
         </Button>
       </div>
       
