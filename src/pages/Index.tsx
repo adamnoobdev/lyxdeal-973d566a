@@ -8,6 +8,7 @@ import { useDeals, useFeaturedDeals } from "@/hooks/useDeals";
 import { toast } from "sonner";
 import { type Category, type City } from "@/constants/app-constants";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -19,6 +20,11 @@ const Index = () => {
     selectedCity
   );
   const { data: featuredDeals = [], isLoading: isFeaturedLoading } = useFeaturedDeals();
+
+  const { data: { publicUrl } } = supabase
+    .storage
+    .from('assets')
+    .getPublicUrl('beauty-header.jpg');
 
   const handleDealClick = useCallback((dealId: number) => {
     try {
@@ -46,18 +52,18 @@ const Index = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url('/placeholder.svg')",
+            backgroundImage: `url(${publicUrl})`,
             backgroundPosition: "center 30%"
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 to-purple-900/90" />
           <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 animate-fade-in">
-              Upptäck Lokala Erbjudanden
+              Din Skönhet, Vårt Fokus
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in">
-              Hitta de bästa rabatterna och erbjudandena i din stad. Spara pengar på restauranger, 
-              upplevelser och mycket mer med våra exklusiva deals.
+              Upptäck fantastiska erbjudanden på skönhetsbehandlingar och hårvård i din stad. 
+              Unna dig professionell behandling till bästa pris hos våra certifierade partners.
             </p>
           </div>
         </div>
