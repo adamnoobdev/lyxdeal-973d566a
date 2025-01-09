@@ -6,9 +6,10 @@ import { Cities } from "@/components/Cities";
 import { DealsGrid } from "@/components/DealsGrid";
 import { useDeals, useFeaturedDeals } from "@/hooks/useDeals";
 import { toast } from "sonner";
-import { type Category, type City } from "@/constants/app-constants";
+import { type Category, type City, CATEGORIES } from "@/constants/app-constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { CategoryBadge } from "@/components/CategoryBadge";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -61,9 +62,24 @@ const Index = () => {
             <h1 className="text-3xl md:text-6xl font-bold text-white mb-3 md:mb-6 animate-fade-in">
               Sveriges Lyxigaste Skönhetsupplevelser
             </h1>
-            <p className="text-lg md:text-2xl text-white/90 max-w-2xl animate-fade-in">
+            <p className="text-lg md:text-2xl text-white/90 max-w-2xl mb-6 animate-fade-in">
               Upptäck exklusiva erbjudanden på professionella behandlingar hos Sveriges mest utvalda salonger.
             </p>
+            <div className="flex flex-wrap justify-center gap-2 max-w-3xl">
+              {CATEGORIES.filter(category => category !== "Alla Erbjudanden").map((category) => (
+                <button
+                  key={category}
+                  onClick={() => handleCategorySelect(category)}
+                  className="transition-transform hover:scale-105 active:scale-95"
+                >
+                  <CategoryBadge 
+                    category={category} 
+                    variant="default"
+                    className="cursor-pointer hover:bg-primary/90 transition-colors"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
