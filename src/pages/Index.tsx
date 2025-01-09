@@ -58,7 +58,7 @@ const Index = () => {
           }}
         >
           <div className="absolute inset-0 bg-black/40" />
-          <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
+          <div className="relative h-full flex flex-col justify-center items-center text-center px-4">
             <h1 className="text-3xl md:text-6xl font-bold text-white mb-3 md:mb-6 animate-fade-in">
               Sveriges Lyxigaste Skönhetsupplevelser
             </h1>
@@ -84,7 +84,7 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="container py-4 md:py-8">
+      <div className="container content-padding py-4 md:py-8">
         <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
           <div className="relative mb-4 md:mb-8">
             {!isFeaturedLoading && featuredDeals.length > 0 && (

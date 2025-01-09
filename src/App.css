@@ -1,11 +1,17 @@
 #root {
-  max-width: 1280px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0;
 }
 
+/* Ta bort padding i desktop-läge för hero-sektionen */
 @media (min-width: 768px) {
   #root {
+    padding: 0;
+  }
+  
+  /* Lägg till padding för innehåll som inte är hero */
+  #root .content-padding {
     padding: 2rem;
   }
 }
