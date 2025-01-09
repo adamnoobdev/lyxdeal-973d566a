@@ -8,6 +8,7 @@ import SearchResults from "@/pages/SearchResults";
 import Auth from "@/pages/Auth";
 import Admin from "@/pages/Admin";
 import SalonLogin from "@/pages/SalonLogin";
+import SalonDashboard from "@/pages/SalonDashboard";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/login" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/salon/login" element={<SalonLogin />} />
+            <Route path="/salon/dashboard" element={<SalonDashboard />} />
           </Routes>
         </main>
         <Footer />
