@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { NavigationBar } from "@/components/NavigationBar";
 import { Footer } from "@/components/Footer";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import Index from "@/pages/Index";
 import ProductDetails from "@/pages/ProductDetails";
 import SearchResults from "@/pages/SearchResults";
@@ -21,7 +22,14 @@ function App() {
             <Route path="/search" element={<SearchResults />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/salon/login" element={<SalonLogin />} />
-            <Route path="/salon/dashboard/*" element={<SalonDashboard />} />
+            <Route 
+              path="/salon/dashboard/*" 
+              element={
+                <AuthGuard>
+                  <SalonDashboard />
+                </AuthGuard>
+              } 
+            />
           </Routes>
         </main>
         <Footer />

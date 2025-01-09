@@ -8,6 +8,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { TestAccountButton } from "@/components/auth/TestAccountButton";
 import { getErrorMessage } from "@/utils/auth/errorHandling";
 import { getUserRole } from "@/utils/auth";
+import { getRedirectPath } from "@/utils/auth/redirects";
 
 export default function SalonLogin() {
   const navigate = useNavigate();
@@ -60,11 +61,13 @@ export default function SalonLogin() {
         return;
       }
 
-      // Kontrollera behörighet
-      if (userRole === 'admin') {
+      // Kontrollera behörighet och redirect baserat på roll
+      const redirectPath = getRedirectPath(userRole);
+      
+      if (userRole === "admin") {
         console.log("Admin-användare identifierad");
-        navigate("/salon/dashboard");
         toast.success("Välkommen admin!");
+        navigate(redirectPath);
         return;
       }
 
@@ -87,7 +90,7 @@ export default function SalonLogin() {
         return;
       }
 
-      navigate("/salon/dashboard");
+      navigate(redirectPath);
       toast.success("Välkommen tillbaka!");
     } catch (error) {
       console.error("Oväntat fel:", error);
