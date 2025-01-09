@@ -17,7 +17,11 @@ serve(async (req) => {
     const { dealId } = await req.json();
     console.log('Processing checkout for deal:', dealId);
 
-    // Initialize Supabase client
+    if (!dealId) {
+      throw new Error('No deal ID provided');
+    }
+
+    // Initialize Supabase client with service role key for admin access
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -30,8 +34,13 @@ serve(async (req) => {
       .eq('id', dealId)
       .single();
 
-    if (dealError || !deal) {
-      console.error('Deal not found:', dealError);
+    if (dealError) {
+      console.error('Error fetching deal:', dealError);
+      throw new Error('Failed to fetch deal information');
+    }
+
+    if (!deal) {
+      console.error('Deal not found:', dealId);
       throw new Error('Deal not found');
     }
 
@@ -46,8 +55,14 @@ serve(async (req) => {
     }
 
     // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
+    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
+    if (!stripeSecretKey) {
+      throw new Error('Stripe secret key not configured');
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
+      httpClient: Stripe.createFetchHttpClient(),
     });
 
     console.log('Creating checkout session for price:', deal.stripe_price_id);
@@ -63,7 +78,12 @@ serve(async (req) => {
       mode: 'payment',
       success_url: `${req.headers.get('origin')}/success?deal_id=${dealId}`,
       cancel_url: `${req.headers.get('origin')}/product/${dealId}`,
+      client_reference_id: dealId.toString(),
     });
+
+    if (!session.url) {
+      throw new Error('Failed to create checkout session URL');
+    }
 
     console.log('Checkout session created:', session.id);
 
@@ -75,7 +95,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error creating checkout session:', error);
+    console.error('Error in checkout process:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
