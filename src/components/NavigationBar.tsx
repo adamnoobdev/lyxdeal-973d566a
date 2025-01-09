@@ -18,9 +18,12 @@ export const NavigationBar = () => {
   const currentCity = searchParams.get("city") || "Alla Städer";
 
   useEffect(() => {
+    let lastScrollY = window.scrollY;
+    
     const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setIsScrolled(scrollPosition > 50);
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 50);
+      lastScrollY = currentScrollY;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -62,9 +65,11 @@ export const NavigationBar = () => {
   };
 
   return (
-    <nav className={`border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'shadow-sm' : ''
-    }`}>
+    <nav 
+      className={`border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled ? 'shadow-sm' : ''
+      }`}
+    >
       <div className="container mx-auto px-4">
         <div className={`flex items-center justify-between gap-4 transition-all duration-300 ${
           isScrolled ? 'h-12' : 'h-16'
@@ -75,9 +80,7 @@ export const NavigationBar = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onSubmit={handleSearch}
-            className={`flex-1 max-w-xl mx-auto ${
-              isScrolled ? 'hidden md:flex' : 'hidden md:flex'
-            }`}
+            className="flex-1 max-w-xl mx-auto hidden md:flex"
           />
 
           <DesktopNav 
@@ -99,8 +102,8 @@ export const NavigationBar = () => {
           />
         </div>
         
-        <div className={`transform transition-all duration-300 pb-3 md:hidden ${
-          isScrolled ? 'hidden' : 'block'
+        <div className={`md:hidden transition-all duration-300 overflow-hidden ${
+          isScrolled ? 'h-0 opacity-0' : 'h-12 opacity-100 pb-3'
         }`}>
           <SearchBar
             searchQuery={searchQuery}
