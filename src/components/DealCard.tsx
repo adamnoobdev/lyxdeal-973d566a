@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { DealImage } from "./deal/DealImage";
@@ -36,13 +36,13 @@ const DealCardComponent = ({
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
 
-  const isNew = () => {
+  const isNew = useCallback(() => {
     const createdDate = new Date(created_at);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - createdDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays <= 3;
-  };
+  }, [created_at]);
 
   if (featured) {
     return (

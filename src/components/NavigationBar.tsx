@@ -1,13 +1,13 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
-import { SearchBar } from "./SearchBar";
 import { Logo } from "./navigation/Logo";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
+import { SearchContainer } from "./navigation/SearchContainer";
 
-export const NavigationBar = () => {
+const NavigationBarComponent = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,10 +20,11 @@ export const NavigationBar = () => {
   useEffect(() => {
     let lastScrollY = window.scrollY;
     let ticking = false;
+    let rafId: number;
 
     const handleScroll = () => {
       if (!ticking) {
-        window.requestAnimationFrame(() => {
+        rafId = window.requestAnimationFrame(() => {
           const currentScrollY = window.scrollY;
           setIsScrolled(currentScrollY > 50);
           lastScrollY = currentScrollY;
@@ -37,25 +38,28 @@ export const NavigationBar = () => {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
     };
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setIsOpen(false);
     }
-  };
+  }, [searchQuery, navigate]);
 
-  const handleCategoryClick = (category: string) => {
+  const handleCategoryClick = useCallback((category: string) => {
     const params = new URLSearchParams(searchParams);
     params.set("category", category);
     navigate(`/search?${params.toString()}`);
     setIsOpen(false);
-  };
+  }, [searchParams, navigate]);
 
-  const handleCityClick = (city: string) => {
+  const handleCityClick = useCallback((city: string) => {
     const params = new URLSearchParams(searchParams);
     if (city === "Alla Städer") {
       params.delete("city");
@@ -64,12 +68,12 @@ export const NavigationBar = () => {
     }
     navigate(`/search?${params.toString()}`);
     setIsOpen(false);
-  };
+  }, [searchParams, navigate]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await supabase.auth.signOut();
     navigate("/");
-  };
+  }, [navigate]);
 
   return (
     <nav 
@@ -83,11 +87,11 @@ export const NavigationBar = () => {
         }`}>
           <Logo />
 
-          <SearchBar
+          <SearchContainer
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onSubmit={handleSearch}
-            className="flex-1 max-w-xl mx-auto hidden md:flex"
+            isScrolled={isScrolled}
           />
 
           <DesktopNav 
@@ -108,24 +112,9 @@ export const NavigationBar = () => {
             onLogout={handleLogout}
           />
         </div>
-        
-        <div 
-          className={`md:hidden transition-all duration-200 ease-in-out overflow-hidden ${
-            isScrolled ? 'h-0 opacity-0' : 'h-12 opacity-100 pb-3'
-          }`}
-          style={{
-            transform: isScrolled ? 'translateY(-100%)' : 'translateY(0)',
-            willChange: 'transform, height, opacity'
-          }}
-        >
-          <SearchBar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            onSubmit={handleSearch}
-            className="w-full"
-          />
-        </div>
       </div>
     </nav>
   );
 };
+
+export const NavigationBar = memo(NavigationBarComponent);
