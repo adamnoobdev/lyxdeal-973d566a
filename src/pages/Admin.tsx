@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DealForm } from "@/components/DealForm";
+import { DealsList } from "@/components/admin/DealsList";
 import { toast } from "sonner";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, LogOut, Plus } from "lucide-react";
+import { Lock, LogOut, Plus, List } from "lucide-react";
 
-// I praktiken skulle detta hanteras säkrare, t.ex. genom en backend
 const ADMIN_PASSWORD = "admin123";
 
 const formSchema = z.object({
@@ -109,12 +110,9 @@ export default function AdminPage() {
         <CardHeader className="border-b">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <Plus className="h-6 w-6" />
-                Lägg till nytt erbjudande
-              </CardTitle>
+              <CardTitle className="text-2xl">Admin Dashboard</CardTitle>
               <CardDescription>
-                Skapa ett nytt erbjudande som kommer att visas på hemsidan
+                Hantera erbjudanden och salonger
               </CardDescription>
             </div>
             <Button 
@@ -132,7 +130,24 @@ export default function AdminPage() {
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <DealForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+          <Tabs defaultValue="list" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="list" className="flex items-center gap-2">
+                <List className="h-4 w-4" />
+                Lista erbjudanden
+              </TabsTrigger>
+              <TabsTrigger value="create" className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Skapa erbjudande
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="list">
+              <DealsList />
+            </TabsContent>
+            <TabsContent value="create">
+              <DealForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
