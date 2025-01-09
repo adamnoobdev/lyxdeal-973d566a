@@ -5,6 +5,7 @@ import Index from "@/pages/Index";
 import Admin from "@/pages/Admin";
 import ProductDetails from "@/pages/ProductDetails";
 import SearchResults from "@/pages/SearchResults";
+import Auth from "@/pages/Auth";
 import { NavigationBar } from "@/components/NavigationBar";
 import { Footer } from "@/components/Footer";
 import "./App.css";
@@ -30,6 +31,7 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/search" element={<SearchResults />} />
+              <Route path="/login" element={<Auth />} />
             </Routes>
           </main>
           <Footer />

@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/hooks/useSession";
 import {
   Sheet,
   SheetContent,
@@ -21,6 +22,7 @@ export const NavigationBar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const session = useSession();
 
   const currentCity = searchParams.get("city") || "Alla Städer";
 
@@ -48,6 +50,11 @@ export const NavigationBar = () => {
     }
     navigate(`/search?${params.toString()}`);
     setIsOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
   };
 
   const { data: { publicUrl } } = supabase
@@ -87,6 +94,25 @@ export const NavigationBar = () => {
           <CategorySelector 
             onCategorySelect={handleCategoryClick}
           />
+          {session ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Logga ut
+            </Button>
+          ) : (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => navigate("/login")}
+            >
+              Logga in
+            </Button>
+          )}
         </div>
 
         {/* Mobile Menu */}
@@ -137,6 +163,30 @@ export const NavigationBar = () => {
                       onCategorySelect={handleCategoryClick}
                       variant="mobile"
                     />
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    {session ? (
+                      <Button
+                        variant="default"
+                        className="w-full gap-2"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logga ut
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="default"
+                        className="w-full"
+                        onClick={() => {
+                          navigate("/login");
+                          setIsOpen(false);
+                        }}
+                      >
+                        Logga in
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
