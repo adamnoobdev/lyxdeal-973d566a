@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { AuthError } from "@supabase/supabase-js";
 
 export default function SalonLogin() {
   const navigate = useNavigate();
@@ -22,38 +23,60 @@ export default function SalonLogin() {
 
     try {
       setLoading(true);
-      
-      // Gör auth-anropet och spara resultatet
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
 
-      if (authError) {
+      // Använd en separat variabel för auth-svaret
+      let authResponse;
+      try {
+        authResponse = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+      } catch (authError) {
+        console.error("Auth error:", authError);
         throw authError;
       }
 
-      if (!authData.user) {
+      // Kontrollera auth-fel först
+      if (authResponse.error) {
+        throw authResponse.error;
+      }
+
+      // Verifiera att vi har en användare
+      if (!authResponse.data?.user) {
         throw new Error("Ingen användare hittades");
       }
 
-      // Separerat anrop för att hämta salongsdata
-      const { data: salonData, error: salonError } = await supabase
-        .from('salons')
-        .select('*')
-        .eq('user_id', authData.user.id)
-        .single();
+      // Hämta salongsdata i ett separat try-block
+      try {
+        const { data: salonData, error: salonError } = await supabase
+          .from('salons')
+          .select('*')
+          .eq('user_id', authResponse.data.user.id)
+          .single();
 
-      if (salonError) {
-        throw new Error('Ingen salongsdata hittades för denna användare');
+        if (salonError) {
+          throw new Error('Ingen salongsdata hittades för denna användare');
+        }
+
+        if (!salonData) {
+          throw new Error('Ingen salongsdata hittades');
+        }
+
+        // Om allt går bra, navigera till dashboard
+        navigate("/salon/dashboard");
+      } catch (salonError) {
+        console.error("Salon data error:", salonError);
+        throw salonError;
       }
-
-      // Om allt går bra, navigera till dashboard
-      navigate("/salon/dashboard");
-      
-    } catch (error: any) {
-      console.error('Login error:', error);
-      toast.error(error.message);
+    } catch (error) {
+      console.error('Complete login error:', error);
+      if (error instanceof AuthError) {
+        toast.error("Inloggningen misslyckades: Felaktiga inloggningsuppgifter");
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Ett oväntat fel inträffade vid inloggning");
+      }
     } finally {
       setLoading(false);
     }
