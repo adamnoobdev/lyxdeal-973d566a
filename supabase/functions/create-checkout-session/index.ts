@@ -142,8 +142,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ url: session.url }),
       { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
@@ -154,8 +154,8 @@ serve(async (req) => {
         error: error instanceof Error ? error.message : 'An unknown error occurred'
       }),
       { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
