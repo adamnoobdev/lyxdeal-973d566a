@@ -20,6 +20,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Deal {
   id: number;
@@ -36,6 +46,7 @@ interface Deal {
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
+  const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   const queryClient = useQueryClient();
 
   const { data: deals, isLoading, error } = useQuery({
@@ -72,6 +83,7 @@ export const DealsList = () => {
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast.success("Erbjudandet har tagits bort");
+      setDeletingDeal(null);
     } catch (error) {
       console.error("Error:", error);
       toast.error("Kunde inte ta bort erbjudandet");
@@ -150,7 +162,7 @@ export const DealsList = () => {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => handleDelete(deal.id)}
+                      onClick={() => setDeletingDeal(deal)}
                     >
                       <Trash className="h-4 w-4" />
                     </Button>
@@ -185,6 +197,25 @@ export const DealsList = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deletingDeal} onOpenChange={() => setDeletingDeal(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Är du säker?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Detta kommer permanent ta bort erbjudandet "{deletingDeal?.title}". Denna åtgärd kan inte ångras.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deletingDeal && handleDelete(deletingDeal.id)}
+            >
+              Ta bort
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
