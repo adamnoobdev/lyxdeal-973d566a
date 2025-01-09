@@ -24,49 +24,49 @@ export default function SalonLogin() {
     setLoading(true);
 
     try {
-      // Steg 1: Autentisering
-      const authResponse = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (authResponse.error) {
-        console.error("Auth error:", authResponse.error);
-        if (authResponse.error.message.includes('Invalid login credentials')) {
+      if (signInError) {
+        console.error("Sign in error:", signInError);
+        if (signInError.message.includes('Invalid login credentials')) {
           toast.error("Felaktigt användarnamn eller lösenord");
         } else {
-          toast.error(`Inloggningen misslyckades: ${authResponse.error.message}`);
+          toast.error(`Inloggningen misslyckades: ${signInError.message}`);
         }
+        setLoading(false);
         return;
       }
 
-      const user = authResponse.data.user;
-      if (!user) {
+      if (!data.user) {
         toast.error("Ingen användare hittades");
+        setLoading(false);
         return;
       }
 
-      // Steg 2: Hämta salongsdata
-      const { data: salon, error: salonError } = await supabase
+      // Separate query for salon data
+      const { data: salonData, error: salonError } = await supabase
         .from('salons')
-        .select()
-        .eq('user_id', user.id)
+        .select('*')
+        .eq('user_id', data.user.id)
         .single();
 
       if (salonError) {
-        console.error("Salon data error:", salonError);
+        console.error("Salon fetch error:", salonError);
         toast.error('Kunde inte hämta salongsdata');
+        setLoading(false);
         return;
       }
 
-      if (!salon) {
+      if (!salonData) {
         toast.error('Ingen salongsdata hittades för denna användare');
+        setLoading(false);
         return;
       }
 
-      // Steg 3: Navigera till dashboard
       navigate("/salon/dashboard");
-      
     } catch (error) {
       console.error('Complete login error:', error);
       toast.error("Ett oväntat fel inträffade vid inloggning");
