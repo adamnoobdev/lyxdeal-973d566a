@@ -36,11 +36,9 @@ const DealsGridComponent = ({ deals, onDealClick }: DealsGridProps) => {
               <div 
                 key={deal.id} 
                 onClick={() => handleDealClick(deal.id)}
-                className="w-[280px] shrink-0 first:ml-4 transform-gpu transition-all duration-500 ease-in-out hover:scale-[0.98] animate-fade-in"
+                className="w-[280px] shrink-0 first:ml-4"
                 style={{ 
                   animationDelay: `${index * 100}ms`,
-                  opacity: 0,
-                  animation: `fade-in 0.5s ease-out ${index * 100}ms forwards`
                 }}
               >
                 <DealCard {...deal} />
@@ -57,11 +55,8 @@ const DealsGridComponent = ({ deals, onDealClick }: DealsGridProps) => {
           <div 
             key={deal.id} 
             onClick={() => handleDealClick(deal.id)}
-            className="transform-gpu animate-fade-in"
             style={{ 
               animationDelay: `${index * 100}ms`,
-              opacity: 0,
-              animation: `fade-in 0.5s ease-out ${index * 100}ms forwards`
             }}
           >
             <DealCard {...deal} />
