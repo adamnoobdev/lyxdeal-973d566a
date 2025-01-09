@@ -5,8 +5,9 @@ import { toast } from "sonner";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { Lock, LogOut, Plus } from "lucide-react";
 
 // I praktiken skulle detta hanteras säkrare, t.ex. genom en backend
 const ADMIN_PASSWORD = "admin123";
@@ -48,11 +49,11 @@ export default function AdminPage() {
 
       if (error) throw error;
 
-      toast.success("Erbjudandet har skapats!");
+      toast.success("Erbjudandet har skapats! 🎉");
       navigate("/");
     } catch (error) {
       console.error('Error:', error);
-      toast.error("Något gick fel när erbjudandet skulle skapas.");
+      toast.error("Något gick fel när erbjudandet skulle skapas 😔");
     } finally {
       setIsSubmitting(false);
     }
@@ -62,7 +63,7 @@ export default function AdminPage() {
     e.preventDefault();
     if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
-      toast.success("Inloggningen lyckades! 🔓");
+      toast.success("Välkommen tillbaka! 👋");
     } else {
       toast.error("Fel lösenord! 🔒");
     }
@@ -72,12 +73,18 @@ export default function AdminPage() {
     return (
       <div className="container mx-auto p-6 flex items-center justify-center min-h-[80vh]">
         <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center">🔐 Admin-inloggning</CardTitle>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center flex items-center justify-center gap-2">
+              <Lock className="h-6 w-6" />
+              Admin Login
+            </CardTitle>
+            <CardDescription className="text-center">
+              Ange lösenord för att få tillgång till admin-panelen
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <div>
+              <div className="space-y-2">
                 <Input
                   type="password"
                   placeholder="Ange lösenord"
@@ -97,20 +104,37 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Lägg till nytt erbjudande</h1>
-        <Button 
-          variant="outline"
-          onClick={() => {
-            setIsAuthenticated(false);
-            setPassword("");
-          }}
-        >
-          Logga ut 🚪
-        </Button>
-      </div>
-      <DealForm onSubmit={handleSubmit} />
+    <div className="container mx-auto p-6 animate-fade-up">
+      <Card>
+        <CardHeader className="border-b">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Plus className="h-6 w-6" />
+                Lägg till nytt erbjudande
+              </CardTitle>
+              <CardDescription>
+                Skapa ett nytt erbjudande som kommer att visas på hemsidan
+              </CardDescription>
+            </div>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setIsAuthenticated(false);
+                setPassword("");
+                toast.success("Du har loggats ut! 👋");
+              }}
+              className="flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Logga ut
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <DealForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
