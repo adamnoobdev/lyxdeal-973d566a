@@ -59,11 +59,11 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 to-purple-900/90" />
           <div className="container relative h-full flex flex-col justify-center items-center text-center px-4">
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 animate-fade-in">
-              Din Skönhet, Vårt Fokus
+              Lyxiga Skönhetsbehandlingar Till Fantastiska Priser
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in">
-              Upptäck fantastiska erbjudanden på skönhetsbehandlingar och hårvård i din stad. 
-              Unna dig professionell behandling till bästa pris hos våra certifierade partners.
+              Upptäck exklusiva erbjudanden på professionella skönhetsbehandlingar och hårvård. 
+              Unna dig lyxig kvalitetsvård till oslagbara priser hos våra utvalda salonger.
             </p>
           </div>
         </div>
