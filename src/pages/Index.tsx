@@ -35,7 +35,6 @@ const Index = () => {
     try {
       navigate(`/deal/${dealId}`);
     } catch (error) {
-      console.error("Navigeringsfel:", error);
       toast.error("Ett fel uppstod. Försök igen.");
     }
   }, [navigate]);
@@ -62,8 +61,9 @@ const Index = () => {
   }
 
   return (
-    <main className="min-h-screen bg-background">
-      <section className="relative h-[300px] md:h-[400px] w-full mb-8">
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section className="relative h-[400px] w-full">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -71,59 +71,64 @@ const Index = () => {
             backgroundPosition: "center 30%"
           }}
         >
-          <div className="absolute inset-0 bg-black/50" />
-          <div className="relative h-full flex flex-col justify-center items-center text-center px-4">
-            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 md:mb-6 animate-fade-in">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
+          <div className="relative h-full flex flex-col justify-center items-center text-center px-4 max-w-6xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
               Sveriges Hetaste Lyxdeals
             </h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-2xl animate-fade-in">
+            <p className="text-xl md:text-2xl text-white/90 max-w-3xl animate-fade-in delay-100">
               Upptäck exklusiva erbjudanden på professionella behandlingar hos Sveriges mest utvalda salonger.
             </p>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4">
-        <Categories 
-          selectedCategory={selectedCategory} 
-          onSelectCategory={handleCategorySelect} 
-        />
-
-        <Cities
-          selectedCity={selectedCity}
-          onSelectCity={handleCitySelect}
-        />
-
-        {isFeaturedLoading ? (
-          <div className="mb-8">
-            <Skeleton className="h-[400px] w-full rounded-lg" />
-          </div>
-        ) : featuredDeals.length > 0 ? (
-          <div className="mb-8">
-            <FeaturedDeals deals={featuredDeals} />
-          </div>
-        ) : null}
-
-        {isDealsLoading ? (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-[350px] w-full rounded-lg" />
-            ))}
-          </div>
-        ) : deals.length > 0 ? (
-          <DealsGrid 
-            deals={deals} 
-            onDealClick={handleDealClick}
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-12 space-y-12">
+        {/* Filters */}
+        <div className="space-y-6">
+          <Categories 
+            selectedCategory={selectedCategory} 
+            onSelectCategory={handleCategorySelect} 
           />
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-lg text-gray-600">
-              Inga erbjudanden hittades för de valda filtren.
-            </p>
-          </div>
-        )}
-      </div>
-    </main>
+          <Cities
+            selectedCity={selectedCity}
+            onSelectCity={handleCitySelect}
+          />
+        </div>
+
+        {/* Featured Deals */}
+        <section>
+          {isFeaturedLoading ? (
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          ) : featuredDeals.length > 0 ? (
+            <FeaturedDeals deals={featuredDeals} />
+          ) : null}
+        </section>
+
+        {/* All Deals */}
+        <section>
+          {isDealsLoading ? (
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-[350px] w-full rounded-xl" />
+              ))}
+            </div>
+          ) : deals.length > 0 ? (
+            <DealsGrid 
+              deals={deals} 
+              onDealClick={handleDealClick}
+            />
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-600">
+                Inga erbjudanden hittades för de valda filtren.
+              </p>
+            </div>
+          )}
+        </section>
+      </main>
+    </div>
   );
 };
 
