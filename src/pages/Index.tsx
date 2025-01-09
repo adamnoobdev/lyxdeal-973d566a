@@ -1,4 +1,4 @@
-import { useState, useCallback, Suspense } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 import { Categories } from "@/components/Categories";
@@ -41,13 +41,12 @@ const Index = () => {
   }, [navigate]);
 
   const handleCategorySelect = useCallback((category: Category) => {
+    console.log("Selected category:", category);
     setSelectedCategory(category);
-    if (category !== "Alla Erbjudanden") {
-      navigate(`/search?category=${encodeURIComponent(category)}`);
-    }
-  }, [navigate]);
+  }, []);
 
   const handleCitySelect = useCallback((city: City) => {
+    console.log("Selected city:", city);
     setSelectedCity(city);
   }, []);
 
@@ -65,6 +64,13 @@ const Index = () => {
       </div>
     );
   }
+
+  console.log("Rendering Index with:", {
+    deals: deals.length,
+    featuredDeals: featuredDeals.length,
+    isDealsLoading,
+    isFeaturedLoading
+  });
 
   return (
     <div className="min-h-screen bg-background">
