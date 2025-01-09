@@ -19,11 +19,18 @@ export const NavigationBar = () => {
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
-    
+    let ticking = false;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 50);
-      lastScrollY = currentScrollY;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          setIsScrolled(currentScrollY > 50);
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -66,12 +73,12 @@ export const NavigationBar = () => {
 
   return (
     <nav 
-      className={`border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 transition-all duration-300 ${
+      className={`border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 will-change-transform ${
         isScrolled ? 'shadow-sm' : ''
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className={`flex items-center justify-between gap-4 transition-all duration-300 ${
+        <div className={`flex items-center justify-between gap-4 transition-[height] duration-200 ease-in-out ${
           isScrolled ? 'h-12' : 'h-16'
         }`}>
           <Logo />
@@ -102,9 +109,15 @@ export const NavigationBar = () => {
           />
         </div>
         
-        <div className={`md:hidden transition-all duration-300 overflow-hidden ${
-          isScrolled ? 'h-0 opacity-0' : 'h-12 opacity-100 pb-3'
-        }`}>
+        <div 
+          className={`md:hidden transition-all duration-200 ease-in-out overflow-hidden ${
+            isScrolled ? 'h-0 opacity-0' : 'h-12 opacity-100 pb-3'
+          }`}
+          style={{
+            transform: isScrolled ? 'translateY(-100%)' : 'translateY(0)',
+            willChange: 'transform, height, opacity'
+          }}
+        >
           <SearchBar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
