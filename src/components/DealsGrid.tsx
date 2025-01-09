@@ -32,11 +32,16 @@ const DealsGridComponent = ({ deals, onDealClick }: DealsGridProps) => {
       <div className="block sm:hidden">
         <ScrollArea className="w-full whitespace-nowrap rounded-lg">
           <div className="flex space-x-4 pb-4 px-4">
-            {deals.map((deal) => (
+            {deals.map((deal, index) => (
               <div 
                 key={deal.id} 
                 onClick={() => handleDealClick(deal.id)}
-                className="w-[280px] shrink-0 first:ml-4 transform-gpu transition-transform duration-300 hover:scale-[0.98]"
+                className="w-[280px] shrink-0 first:ml-4 transform-gpu transition-all duration-500 ease-in-out hover:scale-[0.98] animate-fade-in"
+                style={{ 
+                  animationDelay: `${index * 100}ms`,
+                  opacity: 0,
+                  animation: `fade-in 0.5s ease-out ${index * 100}ms forwards`
+                }}
               >
                 <DealCard {...deal} />
               </div>
@@ -48,11 +53,16 @@ const DealsGridComponent = ({ deals, onDealClick }: DealsGridProps) => {
 
       {/* Desktop Layout - Grid */}
       <div className="hidden sm:grid gap-4 px-4 sm:px-0 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {deals.map((deal) => (
+        {deals.map((deal, index) => (
           <div 
             key={deal.id} 
             onClick={() => handleDealClick(deal.id)}
-            className="transform-gpu"
+            className="transform-gpu animate-fade-in"
+            style={{ 
+              animationDelay: `${index * 100}ms`,
+              opacity: 0,
+              animation: `fade-in 0.5s ease-out ${index * 100}ms forwards`
+            }}
           >
             <DealCard {...deal} />
           </div>
