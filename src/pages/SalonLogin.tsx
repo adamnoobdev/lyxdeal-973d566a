@@ -1,113 +1,84 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { Card } from "@/components/ui/card";
 
 export default function SalonLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (authError) throw authError;
-
-      // Check if the logged-in user is associated with a salon
-      const { data: salonData, error: salonError } = await supabase
-        .from('salons')
-        .select('*')
-        .eq('user_id', authData.user.id)
+  // Lyssna på auth-statusändringar
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === "SIGNED_IN") {
+      // Kontrollera om användaren är kopplad till en salong
+      const { data: salon } = await supabase
+        .from("salons")
+        .select("*")
+        .eq("user_id", session?.user.id)
         .single();
 
-      if (salonError || !salonData) {
-        // If no salon is found, sign out the user
+      if (salon) {
+        navigate("/salon/dashboard");
+      } else {
+        setError("Ditt konto är inte kopplat till någon salong. Kontakta administratören.");
         await supabase.auth.signOut();
-        throw new Error("Detta konto har inte åtkomst till salongsportalen.");
       }
-
-      toast.success("Inloggningen lyckades!");
-      navigate("/salon/dashboard");
-    } catch (error: any) {
-      setError(error.message || "Ett fel uppstod vid inloggningen");
-      toast.error(error.message || "Ett fel uppstod vid inloggningen");
-    } finally {
-      setIsLoading(false);
     }
-  };
+  });
 
   return (
-    <div className="container mx-auto p-6 flex items-center justify-center min-h-[80vh]">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">Salongsportal</CardTitle>
-          <CardDescription className="text-center">
-            Logga in för att hantera dina erbjudanden
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Salongsportal
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Logga in för att hantera dina erbjudanden
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <Card className="py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">E-post</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="din@epost.se"
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Lösenord</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <Button 
-              type="submit" 
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loggar in...
-                </>
-              ) : (
-                "Logga in"
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          
+          <Auth
+            supabaseClient={supabase}
+            appearance={{ 
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#000000',
+                    brandAccent: '#666666',
+                  },
+                },
+              },
+            }}
+            localization={{
+              variables: {
+                sign_in: {
+                  email_label: 'E-postadress',
+                  password_label: 'Lösenord',
+                  button_label: 'Logga in',
+                },
+                sign_up: {
+                  email_label: 'E-postadress',
+                  password_label: 'Lösenord',
+                  button_label: 'Skapa konto',
+                },
+              },
+            }}
+            providers={[]}
+          />
+        </Card>
+      </div>
     </div>
   );
 }
