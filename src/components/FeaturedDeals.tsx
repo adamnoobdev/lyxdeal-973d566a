@@ -48,7 +48,7 @@ export const FeaturedDeals = ({ deals }: FeaturedDealsProps) => {
   }, [api, handleSelect]);
 
   return (
-    <div className="-mx-4">
+    <div className="-mx-0 md:-mx-4">
       <Carousel
         opts={{
           align: "start",
