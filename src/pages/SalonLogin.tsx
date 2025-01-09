@@ -16,14 +16,27 @@ export default function SalonLogin() {
     e.preventDefault();
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+      
+      if (data?.user) {
+        // Check if user has an associated salon
+        const { data: salonData, error: salonError } = await supabase
+          .from('salons')
+          .select('*')
+          .eq('user_id', data.user.id)
+          .single();
 
-      navigate("/salon/dashboard");
+        if (salonError) {
+          throw new Error('Ingen salongsdata hittades för denna användare');
+        }
+
+        navigate("/salon/dashboard");
+      }
     } catch (error: any) {
       toast.error(error.message);
     } finally {
