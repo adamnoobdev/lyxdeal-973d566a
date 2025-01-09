@@ -1,127 +1,60 @@
+import { useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useState, useEffect, useCallback, memo } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/hooks/useSession";
-import { Logo } from "./navigation/Logo";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
-import { SearchContainer } from "./navigation/SearchContainer";
+import { Logo } from "./navigation/Logo";
+import { MobileSearchBar } from "./navigation/MobileSearchBar";
+import { useScroll } from "@/hooks/useScroll";
+import { useSession } from "@/hooks/useSession";
 
-const NavigationBarComponent = () => {
+export const NavigationBar = () => {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [showMobileSearch, setShowMobileSearch] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const { isScrolled, showMobileSearch } = useScroll(50);
   const session = useSession();
 
   const currentCity = searchParams.get("city") || "Alla Städer";
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      requestAnimationFrame(() => {
-        setIsScrolled(currentScrollY > 50);
-        setShowMobileSearch(currentScrollY <= lastScrollY || currentScrollY < 50);
-        setLastScrollY(currentScrollY);
-      });
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setIsOpen(false);
     }
   }, [searchQuery, navigate]);
 
-  const handleCategoryClick = useCallback((category: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("category", category);
-    navigate(`/search?${params.toString()}`);
-    setIsOpen(false);
-  }, [searchParams, navigate]);
-
-  const handleCityClick = useCallback((city: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (city === "Alla Städer") {
-      params.delete("city");
-    } else {
-      params.set("city", city);
-    }
-    navigate(`/search?${params.toString()}`);
-    setIsOpen(false);
-  }, [searchParams, navigate]);
-
-  const handleLogout = useCallback(async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  }, [navigate]);
-
   return (
-    <nav 
-      className={`border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 transform-gpu will-change-transform ${
-        isScrolled ? 'shadow-sm' : ''
-      }`}
-    >
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between gap-4">
-          <Logo />
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center">
+        <Logo />
 
-          <div className="hidden md:flex flex-1 max-w-3xl mx-8">
-            <SearchContainer
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              onSubmit={handleSearch}
-              isScrolled={isScrolled}
-            />
-          </div>
-
-          <div className="hidden md:flex items-center gap-2">
-            <DesktopNav 
-              currentCity={currentCity}
-              onCitySelect={handleCityClick}
-              onCategorySelect={handleCategoryClick}
-              session={session}
-              onLogout={handleLogout}
-            />
-          </div>
-
-          <div className="md:hidden">
-            <MobileNav 
-              isOpen={isOpen}
-              setIsOpen={setIsOpen}
-              currentCity={currentCity}
-              onCitySelect={handleCityClick}
-              onCategorySelect={handleCategoryClick}
-              session={session}
-              onLogout={handleLogout}
-            />
-          </div>
-        </div>
-
-        <div 
-          className={`md:hidden pb-3 transition-all duration-300 transform ${
-            showMobileSearch ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'
-          }`}
-        >
-          <SearchContainer
+        <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
+          <DesktopNav
+            currentCity={currentCity}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onSubmit={handleSearch}
             isScrolled={isScrolled}
           />
         </div>
+
+        <div className="flex flex-1 items-center justify-end md:hidden">
+          <MobileNav
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            session={session}
+            currentCity={currentCity}
+          />
+        </div>
       </div>
+
+      <MobileSearchBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onSubmit={handleSearch}
+        showMobileSearch={showMobileSearch}
+      />
     </nav>
   );
 };
-
-export const NavigationBar = memo(NavigationBarComponent);
