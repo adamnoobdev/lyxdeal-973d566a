@@ -17,7 +17,7 @@ serve(async (req) => {
     // Validate environment variables
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY');
 
     if (!stripeKey || !supabaseUrl || !supabaseKey) {
       console.error('Missing required environment variables');
@@ -104,9 +104,7 @@ serve(async (req) => {
       httpClient: Stripe.createFetchHttpClient(),
     });
 
-    console.log('Creating checkout session for price:', deal.stripe_price_id);
-
-    // Create Checkout Session
+    console.log('Creating checkout session...');
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
