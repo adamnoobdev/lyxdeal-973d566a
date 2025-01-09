@@ -7,6 +7,7 @@ import { SearchBar } from "./SearchBar";
 import { DesktopNav } from "./navigation/DesktopNav";
 import { MobileNav } from "./navigation/MobileNav";
 import { MobileSearchBar } from "./navigation/MobileSearchBar";
+import { supabase } from "@/integrations/supabase/client";
 
 export const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,8 +36,7 @@ export const NavigationBar = () => {
 
   const handleLogout = async () => {
     if (session) {
-      // Logout logic
-      await session.logout();
+      await supabase.auth.signOut();
       navigate("/");
     }
   };
@@ -98,7 +98,7 @@ const DesktopNavigation = ({
   onCitySelect: (city: string) => void;
   onCategorySelect: (category: string) => void;
   session: any;
-  onLogout: () => void;
+  onLogout: () => Promise<void>;
 }) => (
   <div className="hidden md:flex md:flex-1 md:items-center md:justify-between md:space-x-4">
     <SearchBar
@@ -133,7 +133,7 @@ const MobileNavigation = ({
   onCitySelect: (city: string) => void;
   onCategorySelect: (category: string) => void;
   session: any;
-  onLogout: () => void;
+  onLogout: () => Promise<void>;
 }) => (
   <div className="flex flex-1 items-center justify-end md:hidden">
     <MobileNav
