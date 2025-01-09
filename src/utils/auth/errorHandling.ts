@@ -2,7 +2,7 @@ import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 export const getErrorMessage = (error: AuthError) => {
   if (error instanceof AuthApiError) {
-    console.error('Complete auth error:', {
+    console.error('Autentiseringsfel:', {
       message: error.message,
       status: error.status,
       name: error.name,
@@ -20,10 +20,15 @@ export const getErrorMessage = (error: AuthError) => {
         return "Vänligen bekräfta din e-postadress först";
       case 'Invalid email or password':
         return "Ogiltig e-postadress eller lösenord";
+      case 'Email rate limit exceeded':
+        return "För många försök. Vänligen försök igen senare";
+      case 'User not found':
+        return "Användaren hittades inte";
       default:
         return `Ett fel uppstod: ${error.message}`;
     }
   }
-  console.error('Unexpected error:', error);
+  
+  console.error('Oväntat fel:', error);
   return "Ett oväntat fel inträffade. Vänligen försök igen";
 };

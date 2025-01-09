@@ -27,18 +27,20 @@ export default function SalonLogin() {
     setLoading(true);
 
     try {
+      // Logga ut eventuell tidigare session
       const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
       if (currentSession) {
         await supabase.auth.signOut();
       }
 
+      // Försök logga in
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
+        console.error("Inloggningsfel:", signInError);
         toast.error(getErrorMessage(signInError));
         return;
       }
@@ -48,7 +50,9 @@ export default function SalonLogin() {
         return;
       }
 
+      // Hämta användarroll
       const userRole = await getUserRole();
+      console.log("Användarroll:", userRole);
 
       if (!userRole) {
         toast.error("Ingen behörighet hittades för användaren");
@@ -56,11 +60,15 @@ export default function SalonLogin() {
         return;
       }
 
+      // Kontrollera behörighet
       if (userRole === 'admin') {
+        console.log("Admin-användare identifierad");
         navigate("/salon/dashboard");
+        toast.success("Välkommen admin!");
         return;
       }
 
+      // För salongsanvändare, verifiera att salongsdata finns
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
         .select('*')
@@ -68,17 +76,21 @@ export default function SalonLogin() {
         .maybeSingle();
 
       if (salonError) {
+        console.error("Fel vid hämtning av salongsdata:", salonError);
         toast.error('Kunde inte hämta salongsdata: ' + salonError.message);
         return;
       }
 
       if (!salonData && userRole === 'salon') {
+        console.error("Ingen salongsdata hittades");
         toast.error('Ingen salongsdata hittades för denna användare');
         return;
       }
 
       navigate("/salon/dashboard");
+      toast.success("Välkommen tillbaka!");
     } catch (error) {
+      console.error("Oväntat fel:", error);
       toast.error(error instanceof Error ? error.message : "Ett oväntat fel inträffade vid inloggning");
     } finally {
       setLoading(false);
@@ -91,6 +103,7 @@ export default function SalonLogin() {
       const { data, error } = await supabase.functions.invoke('create-test-salon');
       
       if (error) {
+        console.error("Fel vid skapande av testkonto:", error);
         toast.error("Kunde inte skapa testkonto: " + error.message);
         return;
       }
@@ -103,6 +116,7 @@ export default function SalonLogin() {
       setPassword(data.password);
       toast.success("Testkonto skapat! Använd de ifyllda uppgifterna för att logga in.");
     } catch (error) {
+      console.error("Fel vid skapande av testkonto:", error);
       toast.error("Kunde inte skapa testkonto: " + (error instanceof Error ? error.message : 'Okänt fel'));
     } finally {
       setCreatingTestAccount(false);
