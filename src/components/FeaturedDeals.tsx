@@ -49,7 +49,6 @@ export function FeaturedDeals() {
         <DealCard
           key={deal.id}
           {...deal}
-          quantityLeft={deal.quantity_left}
         />
       ))}
     </div>
