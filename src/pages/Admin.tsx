@@ -2,18 +2,27 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DealForm } from "@/components/DealForm";
 import { DealsList } from "@/components/admin/DealsList";
+import { SalonsList } from "@/components/admin/salons/SalonsList";
 import { toast } from "sonner";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, LogOut, Plus, List, LayoutDashboard, Store, Tag } from "lucide-react";
-import { SalonsList } from "@/components/admin/salons/SalonsList";
+import { Lock, LogOut, Store, Tag, LayoutDashboard } from "lucide-react";
 import { useSession } from "@/hooks/useSession";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
 const ADMIN_PASSWORD = "admin123";
 
@@ -39,6 +48,7 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [currentSalon, setCurrentSalon] = useState<{ id: number } | null>(null);
+  const [activeView, setActiveView] = useState<'deals' | 'salons'>('deals');
 
   useEffect(() => {
     if (!session) {
@@ -153,83 +163,67 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 animate-fade-up">
-      <Card className="border-none shadow-none bg-transparent">
-        <CardHeader className="px-0">
-          <div className="flex justify-between items-center">
-            <div className="space-y-1">
-              <CardTitle className="text-3xl font-bold flex items-center gap-2">
-                <LayoutDashboard className="h-8 w-8 text-primary" />
-                Admin Dashboard
-              </CardTitle>
-              <CardDescription className="text-lg">
-                Hantera erbjudanden och salonger
-              </CardDescription>
+    <div className="flex h-screen">
+      <Sidebar>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Admin Panel</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={() => setActiveView('deals')} className={activeView === 'deals' ? 'bg-accent' : ''}>
+                    <Tag className="h-4 w-4" />
+                    <span>Erbjudanden</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={() => setActiveView('salons')} className={activeView === 'salons' ? 'bg-accent' : ''}>
+                    <Store className="h-4 w-4" />
+                    <span>Salonger</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+
+      <div className="flex-1 p-6">
+        <Card className="border-none shadow-none bg-transparent">
+          <CardHeader className="px-0">
+            <div className="flex justify-between items-center">
+              <div className="space-y-1">
+                <CardTitle className="text-3xl font-bold flex items-center gap-2">
+                  <LayoutDashboard className="h-8 w-8 text-primary" />
+                  {activeView === 'deals' ? 'Erbjudanden' : 'Salonger'}
+                </CardTitle>
+                <CardDescription className="text-lg">
+                  {activeView === 'deals' ? 'Hantera erbjudanden' : 'Hantera salonger'}
+                </CardDescription>
+              </div>
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setIsAuthenticated(false);
+                  setPassword("");
+                  toast.success("Du har loggats ut! 👋");
+                }}
+                className="flex items-center gap-2 hover:bg-destructive hover:text-white transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                Logga ut
+              </Button>
             </div>
-            <Button 
-              variant="outline"
-              onClick={() => {
-                setIsAuthenticated(false);
-                setPassword("");
-                toast.success("Du har loggats ut! 👋");
-              }}
-              className="flex items-center gap-2 hover:bg-destructive hover:text-white transition-colors"
-            >
-              <LogOut className="h-4 w-4" />
-              Logga ut
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="px-0 pt-6">
-          <Tabs defaultValue="deals" className="space-y-6">
-            <TabsList className="w-full justify-start bg-muted/50 p-1">
-              <TabsTrigger value="deals" className="flex items-center gap-2 data-[state=active]:bg-white">
-                <Tag className="h-4 w-4" />
-                Erbjudanden
-              </TabsTrigger>
-              <TabsTrigger value="salons" className="flex items-center gap-2 data-[state=active]:bg-white">
-                <Store className="h-4 w-4" />
-                Salonger
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="deals" className="space-y-6">
-              <Tabs defaultValue="list" className="space-y-6">
-                <TabsList className="w-full justify-start bg-muted/50 p-1">
-                  <TabsTrigger value="list" className="flex items-center gap-2 data-[state=active]:bg-white">
-                    <List className="h-4 w-4" />
-                    Lista erbjudanden
-                  </TabsTrigger>
-                  <TabsTrigger value="create" className="flex items-center gap-2 data-[state=active]:bg-white">
-                    <Plus className="h-4 w-4" />
-                    Skapa erbjudande
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="list">
-                  <Card>
-                    <CardContent className="p-6">
-                      <DealsList />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                <TabsContent value="create">
-                  <Card>
-                    <CardContent className="p-6">
-                      <DealForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-            <TabsContent value="salons">
-              <Card>
-                <CardContent className="p-6">
-                  <SalonsList />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="px-0 pt-6">
+            {activeView === 'deals' ? (
+              <DealsList />
+            ) : (
+              <SalonsList />
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-};
+}
