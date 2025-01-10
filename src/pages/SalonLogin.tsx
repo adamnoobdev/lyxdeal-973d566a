@@ -1,14 +1,26 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { LoginHeader } from "@/components/auth/LoginHeader";
-import { LoginForm } from "@/components/auth/LoginForm";
-import { TestAccountButton } from "@/components/auth/TestAccountButton";
-import { getErrorMessage } from "@/utils/auth/errorHandling";
-import { getUserRole } from "@/utils/auth";
-import { getRedirectPath } from "@/utils/auth/redirects";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { Loader2 } from "lucide-react";
+
+const getErrorMessage = (error: AuthError) => {
+  if (error instanceof AuthApiError) {
+    switch (error.message) {
+      case 'Invalid login credentials':
+        return "Felaktigt användarnamn eller lösenord";
+      case 'Email not confirmed':
+        return "Vänligen bekräfta din e-postadress först";
+      default:
+        return "Ett fel uppstod vid inloggning";
+    }
+  }
+  return "Ett oväntat fel inträffade";
+};
 
 export default function SalonLogin() {
   const navigate = useNavigate();
@@ -28,20 +40,12 @@ export default function SalonLogin() {
     setLoading(true);
 
     try {
-      // Logga ut eventuell tidigare session
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (currentSession) {
-        await supabase.auth.signOut();
-      }
-
-      // Försök logga in
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        console.error("Inloggningsfel:", signInError);
         toast.error(getErrorMessage(signInError));
         return;
       }
@@ -51,27 +55,6 @@ export default function SalonLogin() {
         return;
       }
 
-      // Hämta användarroll
-      const userRole = await getUserRole();
-      console.log("Användarroll:", userRole);
-
-      if (!userRole) {
-        toast.error("Ingen behörighet hittades för användaren");
-        await supabase.auth.signOut();
-        return;
-      }
-
-      // Kontrollera behörighet och redirect baserat på roll
-      const redirectPath = getRedirectPath(userRole);
-      
-      if (userRole === "admin") {
-        console.log("Admin-användare identifierad");
-        toast.success("Välkommen admin!");
-        navigate(redirectPath);
-        return;
-      }
-
-      // För salongsanvändare, verifiera att salongsdata finns
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
         .select('*')
@@ -79,22 +62,19 @@ export default function SalonLogin() {
         .maybeSingle();
 
       if (salonError) {
-        console.error("Fel vid hämtning av salongsdata:", salonError);
-        toast.error('Kunde inte hämta salongsdata: ' + salonError.message);
+        toast.error('Kunde inte hämta salongsdata');
         return;
       }
 
-      if (!salonData && userRole === 'salon') {
-        console.error("Ingen salongsdata hittades");
+      if (!salonData) {
         toast.error('Ingen salongsdata hittades för denna användare');
         return;
       }
 
-      navigate(redirectPath);
-      toast.success("Välkommen tillbaka!");
+      navigate("/salon/dashboard");
     } catch (error) {
-      console.error("Oväntat fel:", error);
-      toast.error(error instanceof Error ? error.message : "Ett oväntat fel inträffade vid inloggning");
+      console.error('Login error:', error);
+      toast.error("Ett oväntat fel inträffade vid inloggning");
     } finally {
       setLoading(false);
     }
@@ -106,7 +86,7 @@ export default function SalonLogin() {
       const { data, error } = await supabase.functions.invoke('create-test-salon');
       
       if (error) {
-        console.error("Fel vid skapande av testkonto:", error);
+        console.error('Error creating test account:', error);
         toast.error("Kunde inte skapa testkonto: " + error.message);
         return;
       }
@@ -119,7 +99,7 @@ export default function SalonLogin() {
       setPassword(data.password);
       toast.success("Testkonto skapat! Använd de ifyllda uppgifterna för att logga in.");
     } catch (error) {
-      console.error("Fel vid skapande av testkonto:", error);
+      console.error('Error creating test account:', error);
       toast.error("Kunde inte skapa testkonto: " + (error instanceof Error ? error.message : 'Okänt fel'));
     } finally {
       setCreatingTestAccount(false);
@@ -129,21 +109,76 @@ export default function SalonLogin() {
   return (
     <div className="container flex items-center justify-center min-h-screen py-12">
       <Card className="w-full max-w-md p-6 space-y-6">
-        <LoginHeader />
-        <LoginForm 
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          loading={loading}
-          creatingTestAccount={creatingTestAccount}
-          onSubmit={handleSignIn}
-        />
-        <TestAccountButton 
-          loading={loading}
-          creatingTestAccount={creatingTestAccount}
-          onCreateTestAccount={createTestAccount}
-        />
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold">Salongsportal</h1>
+          <p className="text-muted-foreground">
+            Logga in för att hantera din salong
+          </p>
+        </div>
+
+        <form className="space-y-4" onSubmit={handleSignIn}>
+          <div className="space-y-2">
+            <Input
+              type="email"
+              placeholder="E-post"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading || creatingTestAccount}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Input
+              type="password"
+              placeholder="Lösenord"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading || creatingTestAccount}
+              required
+            />
+          </div>
+          
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading || creatingTestAccount}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loggar in...
+              </>
+            ) : (
+              "Logga in"
+            )}
+          </Button>
+        </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">Eller</span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={createTestAccount}
+          disabled={loading || creatingTestAccount}
+        >
+          {creatingTestAccount ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Skapar testkonto...
+            </>
+          ) : (
+            "Skapa testkonto"
+          )}
+        </Button>
       </Card>
     </div>
   );

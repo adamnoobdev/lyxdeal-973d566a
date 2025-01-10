@@ -20,6 +20,11 @@ export const Footer = () => {
                   Kontakta oss
                 </Link>
               </li>
+              <li>
+                <Link to="/admin" className="text-gray-600 hover:text-gray-900">
+                  Adminsida
+                </Link>
+              </li>
             </ul>
           </div>
           
