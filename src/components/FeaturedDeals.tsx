@@ -9,7 +9,7 @@ export function FeaturedDeals() {
   const { data: deals, isLoading, error } = useQuery({
     queryKey: ['featuredDeals'],
     queryFn: async () => {
-      console.log('Fetching featured deals...');
+      console.log('Starting featured deals fetch...');
       const { data, error } = await supabase
         .from('deals')
         .select('*')
@@ -21,7 +21,10 @@ export function FeaturedDeals() {
         throw error;
       }
 
-      console.log('Featured deals data:', data);
+      console.log('Featured deals fetch successful. Number of deals:', data?.length);
+      console.log('First featured deal:', data?.[0]);
+      console.log('All featured deals:', data);
+      
       return data as Deal[];
     },
   });

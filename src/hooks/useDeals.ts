@@ -15,10 +15,12 @@ export const useDeals = (category?: string, city?: string) => {
           .order("created_at", { ascending: false });
 
         if (category && category !== "Alla Erbjudanden") {
+          console.log('Applying category filter:', category);
           query = query.eq("category", category);
         }
 
         if (city && city !== "Alla Städer") {
+          console.log('Applying city filter:', city);
           query = query.eq("city", city);
         }
 
@@ -30,15 +32,13 @@ export const useDeals = (category?: string, city?: string) => {
           throw error;
         }
 
-        console.log('Deals fetch successful:', {
-          totalDeals: data?.length || 0,
-          firstDeal: data?.[0],
-          filters: { category, city }
-        });
+        console.log('Deals fetch successful. Number of deals:', data?.length);
+        console.log('First deal:', data?.[0]);
+        console.log('All deals:', data);
 
         return data as Deal[];
       } catch (error) {
-        console.error("Unexpected error:", error);
+        console.error("Unexpected error in useDeals:", error);
         toast.error("Ett oväntat fel uppstod. Försök igen senare.");
         throw error;
       }
