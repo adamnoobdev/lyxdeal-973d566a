@@ -8,14 +8,13 @@ interface DealImageProps {
 }
 
 export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
-  // Fallback image if the provided URL is invalid or image fails to load
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = "/placeholder.svg";
   };
 
   return (
     <div className="relative overflow-hidden rounded-t-lg">
-      <div className="aspect-[4/3] overflow-hidden bg-accent/10">
+      <div className="aspect-[3/2] overflow-hidden bg-accent/10">
         <img
           src={imageUrl}
           alt={title}
@@ -25,14 +24,14 @@ export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
           onError={handleImageError}
         />
       </div>
-      <div className="absolute right-3 top-3 flex gap-2">
+      <div className="absolute right-2 top-2 flex gap-1.5">
         {isNew && (
           <CategoryBadge
             category="NYTT"
             variant="default"
-            className="bg-gradient-to-r from-yellow-400/90 to-amber-500/90 text-yellow-950 hover:from-yellow-400 hover:to-amber-500 border-transparent shadow-lg backdrop-blur-sm ring-1 ring-white/10"
+            className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-950 hover:from-yellow-500 hover:to-yellow-600 border-transparent shadow-lg backdrop-blur-sm ring-1 ring-white/10 text-xs"
           >
-            <Star className="h-3 w-3" />
+            <Star className="h-2.5 w-2.5" />
             NYTT
           </CategoryBadge>
         )}
