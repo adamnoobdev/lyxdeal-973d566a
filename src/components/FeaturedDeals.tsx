@@ -9,20 +9,38 @@ export function FeaturedDeals() {
   const { data: deals, isLoading, error } = useQuery({
     queryKey: ['featuredDeals'],
     queryFn: async () => {
-      console.log('Fetching featured deals...');
-      const { data, error } = await supabase
-        .from('deals')
-        .select('*')
-        .eq('featured', true)
-        .order('created_at', { ascending: false });
+      console.log('Starting featured deals fetch...');
+      try {
+        console.log('Executing featured deals query...');
+        const { data, error } = await supabase
+          .from('deals')
+          .select('*')
+          .eq('featured', true)
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Featured deals error:', error);
+        if (error) {
+          console.error('Error fetching featured deals:', error);
+          console.error('Error details:', error.message, error.details, error.hint);
+          throw error;
+        }
+
+        console.log('Raw featured deals response:', data);
+        console.log('Featured deals fetch successful. Number of deals:', data?.length);
+        if (data && data.length > 0) {
+          console.log('First featured deal:', data[0]);
+          console.log('All featured deals:', data);
+        } else {
+          console.log('No featured deals found in database');
+        }
+        
+        return data as Deal[];
+      } catch (error) {
+        console.error('Unexpected error in featured deals:', error);
+        if (error instanceof Error) {
+          console.error('Error details:', error.message, error.stack);
+        }
         throw error;
       }
-
-      console.log('Featured deals fetched:', data);
-      return data as Deal[];
     },
   });
 
@@ -37,8 +55,9 @@ export function FeaturedDeals() {
   }
 
   if (error) {
+    console.error('Featured deals error:', error);
     return (
-      <Alert variant="destructive">
+      <Alert variant="destructive" className="my-4">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
           Det gick inte att hämta utvalda erbjudanden. Försök igen senare.
@@ -52,6 +71,7 @@ export function FeaturedDeals() {
     return null;
   }
 
+  console.log('Rendering featured deals:', deals);
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {deals.map((deal) => (
