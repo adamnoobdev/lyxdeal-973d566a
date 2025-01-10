@@ -6,6 +6,7 @@ import { FiltersSection } from "@/components/home/FiltersSection";
 import { DealsSection } from "@/components/home/DealsSection";
 
 export default function IndexPage() {
+  console.log('Rendering IndexPage');
   const [selectedCategory, setSelectedCategory] = useState<string>("Alla Erbjudanden");
   const [selectedCity, setSelectedCity] = useState<string>("Alla Städer");
 
@@ -13,6 +14,14 @@ export default function IndexPage() {
     selectedCategory === "Alla Erbjudanden" ? undefined : selectedCategory,
     selectedCity === "Alla Städer" ? undefined : selectedCity
   );
+
+  console.log('IndexPage state:', {
+    selectedCategory,
+    selectedCity,
+    dealsCount: deals?.length,
+    isLoading,
+    error
+  });
 
   return (
     <div className="flex flex-col min-h-screen">

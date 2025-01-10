@@ -12,6 +12,12 @@ interface DealsSectionProps {
 }
 
 export const DealsSection = ({ deals, isLoading, error }: DealsSectionProps) => {
+  console.log('DealsSection props:', {
+    dealsCount: deals?.length,
+    isLoading,
+    hasError: !!error
+  });
+
   return (
     <div className="space-y-12">
       <section className="space-y-8">
@@ -33,6 +39,7 @@ export const DealsSection = ({ deals, isLoading, error }: DealsSectionProps) => 
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Det gick inte att hämta erbjudanden. Försök igen senare.
+              {error.message && ` Fel: ${error.message}`}
             </AlertDescription>
           </Alert>
         )}
@@ -55,4 +62,4 @@ export const DealsSection = ({ deals, isLoading, error }: DealsSectionProps) => 
       </section>
     </div>
   );
-};
+}

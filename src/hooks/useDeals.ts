@@ -13,14 +13,14 @@ export const useDeals = (category?: string, city?: string) => {
         .select("*")
         .order("created_at", { ascending: false });
 
-      // Only apply category filter if it's not "Alla Erbjudanden"
-      if (category && category !== "Alla Erbjudanden") {
+      // Only apply category filter if it's not undefined
+      if (category) {
         console.log('Applying category filter:', category);
         query = query.eq("category", category);
       }
 
-      // Only apply city filter if it's not "Alla Städer"
-      if (city && city !== "Alla Städer") {
+      // Only apply city filter if it's not undefined
+      if (city) {
         console.log('Applying city filter:', city);
         query = query.eq("city", city);
       }
@@ -32,7 +32,11 @@ export const useDeals = (category?: string, city?: string) => {
         throw error;
       }
 
-      console.log('Deals fetched successfully:', data?.length || 0, 'results');
+      console.log('Deals fetched successfully:', {
+        totalDeals: data?.length || 0,
+        deals: data
+      });
+      
       return data as Deal[];
     },
     retry: 1,
@@ -56,7 +60,11 @@ export const useFeaturedDeals = () => {
         throw error;
       }
 
-      console.log('Featured deals fetched:', data?.length || 0, 'results');
+      console.log('Featured deals fetched:', {
+        totalDeals: data?.length || 0,
+        deals: data
+      });
+      
       return data as Deal[];
     },
     retry: 1,
