@@ -31,7 +31,8 @@ export const useDeals = (category?: string, city?: string) => {
         // Build the query
         let query = supabase
           .from("deals")
-          .select("*");
+          .select("*")
+          .order('created_at', { ascending: false });
 
         if (category && category !== "Alla Erbjudanden") {
           console.log('Applying category filter:', category);
@@ -43,9 +44,15 @@ export const useDeals = (category?: string, city?: string) => {
           query = query.eq("city", city);
         }
 
-        // Execute the query
-        const { data, error, status, statusText } = await query
-          .order("created_at", { ascending: false });
+        // Execute the query and log the raw response
+        const { data, error, status, statusText } = await query;
+
+        console.log('Raw Supabase response:', {
+          data,
+          error,
+          status,
+          statusText
+        });
 
         if (error) {
           console.error("Error fetching deals:", {
