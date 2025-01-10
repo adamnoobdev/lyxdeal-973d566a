@@ -13,6 +13,7 @@ export function DealsGrid({ deals, className = "" }: DealsGridProps) {
         <DealCard
           key={deal.id}
           {...deal}
+          quantityLeft={deal.quantity_left}
         />
       ))}
     </div>

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Categories } from "@/components/Categories";
 import { Cities } from "@/components/Cities";
@@ -8,6 +9,10 @@ import { SearchBar } from "@/components/SearchBar";
 import { Deal } from "@/types/deal";
 
 export default function IndexPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+
   const { data: deals, isLoading } = useQuery({
     queryKey: ['deals'],
     queryFn: async () => {
@@ -21,6 +26,11 @@ export default function IndexPage() {
     },
   });
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Implement search logic here
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="space-y-4">
@@ -30,11 +40,21 @@ export default function IndexPage() {
         </p>
       </div>
 
-      <SearchBar />
+      <SearchBar 
+        searchQuery={searchQuery}
+        onSearchChange={(e) => setSearchQuery(e.target.value)}
+        onSubmit={handleSearch}
+      />
 
       <div className="space-y-8">
-        <Categories />
-        <Cities />
+        <Categories 
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
+        <Cities 
+          selectedCity={selectedCity}
+          onSelectCity={setSelectedCity}
+        />
       </div>
 
       <FeaturedDeals />

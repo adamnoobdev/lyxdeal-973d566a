@@ -65,7 +65,11 @@ export default function SearchResults() {
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {deals.map((deal) => (
-          <DealCard key={deal.id} {...deal} />
+          <DealCard
+            key={deal.id}
+            {...deal}
+            quantityLeft={deal.quantity_left}
+          />
         ))}
       </div>
     </div>
