@@ -1,5 +1,6 @@
 import { Clock, MapPin, Tag, Award } from "lucide-react";
 import { CategoryBadge } from "../CategoryBadge";
+import { Button } from "../ui/button";
 
 interface RegularDealContentProps {
   title: string;
@@ -76,6 +77,12 @@ export const RegularDealContent = ({
             </span>
           )}
         </div>
+
+        <Button 
+          className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+        >
+          Köp Nu
+        </Button>
       </div>
     </div>
   );
