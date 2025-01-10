@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { DealsGrid } from "@/components/DealsGrid";
 import { Categories } from "@/components/Categories";
 import { Cities } from "@/components/Cities";
 import { Deal } from "@/types/deal";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -73,6 +75,13 @@ export default function SearchResults() {
   return (
     <div className="container mx-auto p-6">
       <div className="space-y-6">
+        <Link to="/">
+          <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Tillbaka till startsidan
+          </Button>
+        </Link>
+
         <Categories 
           selectedCategory={selectedCategory} 
           onSelectCategory={handleCategorySelect} 
