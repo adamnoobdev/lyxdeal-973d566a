@@ -1,5 +1,5 @@
-import { Clock, MapPin, Tag } from "lucide-react";
-import { CategoryBadge } from "../CategoryBadge";
+import { CategoryBadge } from "@/components/CategoryBadge";
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 interface RegularDealContentProps {
   title: string;
@@ -22,59 +22,42 @@ export const RegularDealContent = ({
   discountedPrice,
   quantityLeft,
 }: RegularDealContentProps) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
   return (
-    <div className="p-5 space-y-4">
-      <div>
+    <div className="flex h-full flex-col gap-3 p-4">
+      <div className="flex items-start justify-between gap-2">
         <CategoryBadge 
           category={category}
-          variant="outline"
-          className="mb-2.5 bg-white/50 backdrop-blur-sm border-accent/20 text-primary hover:bg-accent/5 transition-colors duration-300"
-        >
-          {category}
-        </CategoryBadge>
-        <h3 className="font-semibold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-300">
+          variant="default"
+          className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md"
+        />
+        <span className="text-sm text-muted-foreground">
+          {timeRemaining}
+        </span>
+      </div>
+
+      <div className="space-y-1.5">
+        <h3 className="font-semibold leading-tight text-foreground line-clamp-2">
           {title}
         </h3>
-        <p className="text-sm text-muted-foreground/80 line-clamp-2 mt-1.5 leading-relaxed">
+        <p className="text-sm text-muted-foreground line-clamp-2">
           {description}
         </p>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground/90 transition-colors duration-300 hover:text-muted-foreground">
-          <MapPin className="h-4 w-4 text-primary" />
-          <span>{city}</span>
-        </div>
-        
-        <div className="flex items-center gap-2 text-sm text-muted-foreground/90 transition-colors duration-300 hover:text-muted-foreground">
-          <Clock className="h-4 w-4 text-primary" />
-          <span>{timeRemaining}</span>
+      <div className="mt-auto space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            {city}
+          </span>
+          <span className="text-sm font-medium text-muted-foreground">
+            {quantityLeft} kvar
+          </span>
         </div>
 
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2">
-            <Tag className="h-4 w-4 text-primary" />
-            <span className="text-sm line-through text-muted-foreground/60">
-              {formatPrice(originalPrice)}
-            </span>
-            <span className="text-base font-bold text-foreground">
-              {formatPrice(discountedPrice)}
-            </span>
-          </div>
-          {quantityLeft > 0 && (
-            <span className="text-xs px-2.5 py-1 rounded-full bg-success/10 text-success ring-1 ring-success/20">
-              {quantityLeft} kvar
-            </span>
-          )}
-        </div>
+        <PriceDisplay
+          originalPrice={originalPrice}
+          discountedPrice={discountedPrice}
+        />
       </div>
     </div>
   );
