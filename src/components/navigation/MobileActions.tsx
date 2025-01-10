@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { LogOut, UserRound } from "lucide-react";
+import { LogOut, UserRound, LayoutDashboard } from "lucide-react";
 import { MobileNav } from "./MobileNav";
 
 interface MobileActionsProps {
@@ -11,7 +11,7 @@ interface MobileActionsProps {
   session: any;
   onLogout: () => Promise<void>;
   onLogin: () => void;
-  hasSalon: boolean;
+  userRole: 'customer' | 'salon_owner' | 'admin' | null;
   onDashboard: () => void;
 }
 
@@ -24,20 +24,23 @@ export const MobileActions = ({
   session,
   onLogout,
   onLogin,
-  hasSalon,
+  userRole,
   onDashboard
 }: MobileActionsProps) => (
   <div className="flex flex-1 items-center justify-end gap-2 md:hidden">
     {session ? (
       <>
-        {hasSalon && (
+        {(userRole === 'salon_owner' || userRole === 'admin') && (
           <Button
             variant="ghost"
             size="sm"
             className="gap-2"
             onClick={onDashboard}
           >
-            Portal
+            <LayoutDashboard className="h-4 w-4" />
+            <span className="sr-only">
+              {userRole === 'admin' ? 'Admin' : 'Portal'}
+            </span>
           </Button>
         )}
         <Button

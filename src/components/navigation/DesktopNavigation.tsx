@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CategorySelector } from "@/components/CategorySelector";
 import { CitySelector } from "@/components/CitySelector";
 import { SearchBar } from "@/components/SearchBar";
-import { LogOut, UserRound } from "lucide-react";
+import { LogOut, UserRound, LayoutDashboard } from "lucide-react";
 
 interface DesktopNavigationProps {
   searchQuery: string;
@@ -13,7 +13,7 @@ interface DesktopNavigationProps {
   onCategorySelect: (category: string) => void;
   session: any;
   onLogout: () => Promise<void>;
-  hasSalon: boolean;
+  userRole: 'customer' | 'salon_owner' | 'admin' | null;
   onDashboard: () => void;
 }
 
@@ -26,7 +26,7 @@ export const DesktopNavigation = ({
   onCategorySelect,
   session,
   onLogout,
-  hasSalon,
+  userRole,
   onDashboard
 }: DesktopNavigationProps) => (
   <div className="hidden md:flex md:flex-1 md:items-center md:justify-between md:space-x-4">
@@ -41,14 +41,15 @@ export const DesktopNavigation = ({
       <CategorySelector onCategorySelect={onCategorySelect} />
       {session ? (
         <>
-          {hasSalon && (
+          {(userRole === 'salon_owner' || userRole === 'admin') && (
             <Button
               variant="ghost"
               size="sm"
               className="gap-2"
               onClick={onDashboard}
             >
-              Portal
+              <LayoutDashboard className="h-4 w-4" />
+              {userRole === 'admin' ? 'Admin' : 'Portal'}
             </Button>
           )}
           <Button

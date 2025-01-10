@@ -13,27 +13,32 @@ export const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentCity, setCurrentCity] = useState("Alla Städer");
-  const [hasSalon, setHasSalon] = useState(false);
+  const [userRole, setUserRole] = useState<'customer' | 'salon_owner' | 'admin' | null>(null);
   const { showMobileSearch } = useScroll();
   const session = useSession();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSalon = async () => {
+    const checkUserRole = async () => {
       if (session?.user) {
+        // Kolla först om användaren är en salongsägare
         const { data: salon } = await supabase
           .from('salons')
-          .select('id')
+          .select('role')
           .eq('user_id', session.user.id)
           .single();
         
-        setHasSalon(!!salon);
+        if (salon) {
+          setUserRole(salon.role as 'salon_owner' | 'admin');
+        } else {
+          setUserRole('customer');
+        }
       } else {
-        setHasSalon(false);
+        setUserRole(null);
       }
     };
 
-    checkSalon();
+    checkUserRole();
   }, [session]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -67,10 +72,12 @@ export const NavigationBar = () => {
   };
 
   const handleDashboard = () => {
-    if (hasSalon) {
+    if (userRole === 'salon_owner') {
       navigate("/salon/dashboard");
+    } else if (userRole === 'admin') {
+      navigate("/admin");
     } else {
-      toast.error("Du har inte tillgång till en salongsportal");
+      toast.error("Du har inte tillgång till denna sida");
     }
     setIsOpen(false);
   };
@@ -90,7 +97,7 @@ export const NavigationBar = () => {
             onCategorySelect={handleCategorySelect}
             session={session}
             onLogout={handleLogout}
-            hasSalon={hasSalon}
+            userRole={userRole}
             onDashboard={handleDashboard}
           />
 
@@ -103,7 +110,7 @@ export const NavigationBar = () => {
             session={session}
             onLogout={handleLogout}
             onLogin={handleLogin}
-            hasSalon={hasSalon}
+            userRole={userRole}
             onDashboard={handleDashboard}
           />
         </div>
