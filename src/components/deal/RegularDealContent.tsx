@@ -1,7 +1,7 @@
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { Button } from "@/components/ui/button";
-import { MapPin, ShoppingBag } from "lucide-react";
+import { MapPin, ShoppingBag, Clock } from "lucide-react";
 
 interface RegularDealContentProps {
   title: string;
@@ -25,16 +25,17 @@ export const RegularDealContent = ({
   quantityLeft,
 }: RegularDealContentProps) => {
   return (
-    <div className="flex h-full flex-col gap-4 p-5">
+    <div className="flex h-full flex-col gap-4 p-6">
       <div className="flex items-start justify-between gap-3">
         <CategoryBadge 
           category={category}
           variant="default"
-          className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md"
+          className="bg-gradient-to-r from-[#D946EF]/90 to-[#9b87f5]/90 text-white font-semibold shadow-sm backdrop-blur-md"
         />
-        <span className="text-sm font-medium px-3 py-1 rounded-full bg-accent/40 text-accent-foreground backdrop-blur-sm">
+        <div className="flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full bg-accent text-accent-foreground">
+          <Clock className="h-3.5 w-3.5" />
           {timeRemaining}
-        </span>
+        </div>
       </div>
 
       <div className="space-y-2.5">
@@ -63,7 +64,10 @@ export const RegularDealContent = ({
             discountedPrice={discountedPrice}
             className="pt-1"
           />
-          <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" size="lg">
+          <Button 
+            className="w-full bg-gradient-to-r from-primary to-success hover:from-primary/90 hover:to-success/90 text-white font-semibold shadow-md" 
+            size="lg"
+          >
             <ShoppingBag className="mr-2 h-4 w-4" />
             Köp nu
           </Button>
