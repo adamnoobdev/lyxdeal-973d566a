@@ -30,3 +30,23 @@ export const updateDeal = async (values: any, id: number) => {
   if (error) throw error;
   return true;
 };
+
+export const createDeal = async (values: any, salon_id: number) => {
+  const { error } = await supabase
+    .from("deals")
+    .insert([{
+      title: values.title,
+      description: values.description,
+      image_url: values.imageUrl,
+      original_price: parseInt(values.originalPrice),
+      discounted_price: parseInt(values.discountedPrice),
+      category: values.category,
+      city: values.city,
+      time_remaining: values.timeRemaining,
+      featured: values.featured,
+      salon_id: salon_id,
+    }]);
+
+  if (error) throw error;
+  return true;
+};
