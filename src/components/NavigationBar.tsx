@@ -21,21 +21,28 @@ export const NavigationBar = () => {
   useEffect(() => {
     const checkUserRole = async () => {
       if (session?.user) {
-        const { data: salon, error } = await supabase
-          .from('salons')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-        
-        if (error) {
-          console.error('Error checking user role:', error);
-          setUserRole('customer');
-          return;
-        }
-        
-        if (salon) {
-          setUserRole(salon.role as 'salon_owner' | 'admin');
-        } else {
+        try {
+          const { data: salon, error } = await supabase
+            .from('salons')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          if (error) {
+            console.error('Error checking user role:', error);
+            setUserRole('customer');
+            return;
+          }
+          
+          if (salon) {
+            console.log('Found salon role:', salon.role); // Debug log
+            setUserRole(salon.role as 'salon_owner' | 'admin');
+          } else {
+            console.log('No salon found, setting as customer'); // Debug log
+            setUserRole('customer');
+          }
+        } catch (error) {
+          console.error('Error in checkUserRole:', error);
           setUserRole('customer');
         }
       } else {
@@ -90,6 +97,7 @@ export const NavigationBar = () => {
   };
 
   const handleDashboard = () => {
+    console.log('Current user role:', userRole); // Debug log
     if (userRole === 'salon_owner') {
       navigate("/salon/dashboard");
     } else if (userRole === 'admin') {
