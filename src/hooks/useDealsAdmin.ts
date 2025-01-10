@@ -21,13 +21,13 @@ export const useDealsAdmin = () => {
         .from('user_roles')
         .select('role')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
 
       const { data: salon } = await supabase
         .from('salons')
         .select('id')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
 
       let query = supabase
         .from('deals')
@@ -76,7 +76,7 @@ export const useDealsAdmin = () => {
         .from('salons')
         .select('id')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
 
       await updateDeal({ ...values, salon_id: salon?.id }, id);
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
