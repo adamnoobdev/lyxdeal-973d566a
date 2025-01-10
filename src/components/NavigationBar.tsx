@@ -65,25 +65,26 @@ export const NavigationBar = () => {
 
   const handleLogout = async () => {
     try {
-      // First try to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
+      // Clear local state first
+      setUserRole(null);
       
+      // Remove any stored session data
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.removeItem('supabase.auth.token');
+      
+      // Attempt to sign out from Supabase
+      const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('Logout error:', error);
-        // Even if server logout fails, we'll clear local state
       }
-
-      // Clear local storage and state regardless of server response
-      localStorage.removeItem('supabase.auth.token');
-      setUserRole(null);
       
-      // Always navigate and show success message
+      // Always navigate and show success message, regardless of server response
       navigate("/");
       toast.success("Du har loggat ut");
+      
     } catch (error) {
       console.error('Error during logout:', error);
-      // Still clear local state and redirect even if there's an error
-      setUserRole(null);
+      // Ensure we still navigate and show success even if there's an error
       navigate("/");
       toast.success("Du har loggat ut");
     }
