@@ -1,20 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
-import { ReactNode } from "react";
 
 interface CategoryBadgeProps {
   category: string;
   variant?: "default" | "outline";
   className?: string;
-  children?: ReactNode;
 }
 
-export function CategoryBadge({ 
-  category, 
-  variant = "outline", 
-  className = "",
-  children 
-}: CategoryBadgeProps) {
+export function CategoryBadge({ category, variant = "outline", className = "" }: CategoryBadgeProps) {
   const getCategoryEmoji = (category: string) => {
     switch (category.toLowerCase()) {
       case 'hudvård': return '✨';
@@ -37,16 +30,12 @@ export function CategoryBadge({
           : ""
       } ${className}`}
     >
-      {children || (
-        <>
-          {category === "NYTT" ? (
-            <Star className="h-3 w-3" />
-          ) : (
-            getCategoryEmoji(category)
-          )} 
-          {category}
-        </>
-      )}
+      {category === "NYTT" ? (
+        <Star className="h-3 w-3" />
+      ) : (
+        getCategoryEmoji(category)
+      )} 
+      {category}
     </Badge>
   );
 }
