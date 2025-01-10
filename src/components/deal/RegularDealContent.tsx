@@ -1,5 +1,7 @@
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { PriceDisplay } from "@/components/PriceDisplay";
+import { Button } from "@/components/ui/button";
+import { ShoppingBag } from "lucide-react";
 
 interface RegularDealContentProps {
   title: string;
@@ -54,11 +56,21 @@ export const RegularDealContent = ({
           </span>
         </div>
 
-        <PriceDisplay
-          originalPrice={originalPrice}
-          discountedPrice={discountedPrice}
-          className="pt-1"
-        />
+        <div className="space-y-3">
+          <PriceDisplay
+            originalPrice={originalPrice}
+            discountedPrice={discountedPrice}
+            className="pt-1"
+          />
+          
+          <Button 
+            className="w-full bg-primary hover:bg-primary/90 text-white font-medium shadow-sm"
+            size="lg"
+          >
+            <ShoppingBag className="mr-2 h-4 w-4" />
+            Köp nu
+          </Button>
+        </div>
       </div>
     </div>
   );

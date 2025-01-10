@@ -45,7 +45,7 @@ const DealCardComponent = ({
 
   return (
     <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 bg-gradient-to-br from-white via-accent/5 to-accent/10 border border-accent/20 will-change-transform">
-      <Link to={`/deal/${id}`} className="block">
+      <Link to={`/deal/${id}`} className="block h-full">
         <DealImage
           imageUrl={image_url}
           title={title}
