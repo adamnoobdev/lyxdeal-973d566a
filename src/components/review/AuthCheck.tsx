@@ -11,7 +11,7 @@ export const AuthCheck = ({ children }: AuthCheckProps) => {
         {children || "Du måste vara inloggad för att lämna en recension"}
       </p>
       <Button 
-        onClick={() => window.location.href = '/login'} 
+        onClick={() => window.location.href = '/auth'} 
         className="mt-2"
       >
         Logga in

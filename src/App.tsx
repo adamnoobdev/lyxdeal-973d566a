@@ -20,7 +20,7 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/deal/:id" element={<ProductDetails />} />
             <Route path="/search" element={<SearchResults />} />
-            <Route path="/login" element={<Auth />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/salon/login" element={<SalonLogin />} />
             <Route path="/salon/dashboard" element={<SalonDashboard />} />
