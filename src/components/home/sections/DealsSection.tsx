@@ -1,7 +1,7 @@
 import { Star, Sparkles, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FeaturedDeals } from "@/components/home/featured/FeaturedDeals";
-import { DealsGrid } from "@/components/deals/DealsGrid";
+import { DealsGrid } from "@/components/DealsGrid";
 import { useDeals } from "@/hooks/useDeals";
 
 interface DealsSectionProps {
