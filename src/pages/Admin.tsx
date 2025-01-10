@@ -11,6 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { Lock, LogOut, Plus, List, LayoutDashboard, Store, Tag } from "lucide-react";
 import { SalonsList } from "@/components/admin/salons/SalonsList";
+import { useSession } from "@/hooks/useSession";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const ADMIN_PASSWORD = "admin123";
 
@@ -31,31 +34,40 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function AdminPage() {
   const navigate = useNavigate();
+  const session = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [currentSalon, setCurrentSalon] = useState<{ id: number } | null>(null);
 
   useEffect(() => {
+    if (!session) {
+      navigate("/auth");
+      toast.error("Du måste vara inloggad för att komma åt admin-sidan");
+      return;
+    }
+
     const checkCurrentUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data: salon } = await supabase
-          .from('salons')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (salon) {
-          setCurrentSalon(salon);
-        }
+      const { data: salon } = await supabase
+        .from('salons')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+      
+      if (salon) {
+        setCurrentSalon(salon);
       }
     };
 
     checkCurrentUser();
-  }, []);
+  }, [session, navigate]);
 
   const handleSubmit = async (values: FormValues) => {
+    if (!session) {
+      toast.error("Du måste vara inloggad för att skapa erbjudanden");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { error } = await supabase.from('deals').insert({
@@ -92,6 +104,19 @@ export default function AdminPage() {
       toast.error("Fel lösenord! 🔒");
     }
   };
+
+  if (!session) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Du måste vara inloggad för att komma åt admin-sidan
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -207,4 +232,4 @@ export default function AdminPage() {
       </Card>
     </div>
   );
-}
+};

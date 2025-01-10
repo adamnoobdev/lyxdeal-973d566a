@@ -54,7 +54,7 @@ export const useDealsAdmin = () => {
       console.log("Fetched deals:", data);
       return data;
     },
-    retry: false,
+    enabled: !!session?.user?.id, // Kör bara queryn om användaren är inloggad
   });
 
   const handleDelete = async (id: number) => {
