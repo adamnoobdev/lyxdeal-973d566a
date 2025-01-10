@@ -8,10 +8,16 @@ export const useDeal = (id: string | undefined) => {
     queryFn: async () => {
       if (!id) throw new Error("No deal ID provided");
       
+      const dealId = parseInt(id);
+      if (isNaN(dealId)) {
+        toast.error("Ogiltigt erbjudande-ID");
+        throw new Error("Invalid deal ID");
+      }
+
       const { data, error } = await supabase
         .from("deals")
         .select("*")
-        .eq("id", parseInt(id))
+        .eq("id", dealId)
         .maybeSingle();
 
       if (error) {
@@ -39,5 +45,6 @@ export const useDeal = (id: string | undefined) => {
         quantityLeft: data.quantity_left,
       };
     },
+    retry: false,
   });
 };
