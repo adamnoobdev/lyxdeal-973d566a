@@ -1,40 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Categories } from "@/components/Categories";
 import { Cities } from "@/components/Cities";
 import { DealsGrid } from "@/components/DealsGrid";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 import { CategoryBadge } from "@/components/CategoryBadge";
-import { Deal } from "@/types/deal";
 import { Sparkles, Star, QrCode, Percent } from "lucide-react";
 import { CATEGORIES } from "@/constants/app-constants";
+import { useDeals } from "@/hooks/useDeals";
 
 export default function IndexPage() {
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Alla Erbjudanden");
+  const [selectedCity, setSelectedCity] = useState<string>("Alla Städer");
 
-  const { data: deals, isLoading } = useQuery({
-    queryKey: ['deals', selectedCategory, selectedCity],
-    queryFn: async () => {
-      let query = supabase
-        .from('deals')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (selectedCategory && selectedCategory !== "Alla Erbjudanden") {
-        query = query.eq('category', selectedCategory);
-      }
-
-      if (selectedCity && selectedCity !== "Alla Städer") {
-        query = query.eq('city', selectedCity);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as Deal[];
-    },
-  });
+  const { data: deals, isLoading } = useDeals(selectedCategory, selectedCity);
 
   return (
     <div className="flex flex-col min-h-screen">
