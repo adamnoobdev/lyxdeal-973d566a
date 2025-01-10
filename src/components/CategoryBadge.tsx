@@ -22,12 +22,14 @@ export function CategoryBadge({ category, variant = "outline", className = "", c
     }
   };
 
-  const baseClassName = "bg-gradient-to-r from-primary via-success to-secondary text-white font-semibold shadow-sm";
-
   return (
     <Badge 
       variant={variant} 
-      className={`inline-flex items-center gap-1 ${baseClassName} ${className}`}
+      className={`inline-flex items-center gap-1 w-auto ${
+        category === "NYTT" 
+          ? "bg-yellow-400 text-yellow-950 hover:bg-yellow-500 border-transparent" 
+          : ""
+      } ${className}`}
     >
       {children || (
         <>
