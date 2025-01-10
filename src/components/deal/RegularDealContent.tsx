@@ -1,4 +1,4 @@
-import { Clock, MapPin, Tag, Award } from "lucide-react";
+import { Clock, MapPin, Tag } from "lucide-react";
 import { CategoryBadge } from "../CategoryBadge";
 
 interface RegularDealContentProps {
@@ -38,7 +38,6 @@ export const RegularDealContent = ({
           variant="outline"
           className="mb-2.5 bg-white/50 backdrop-blur-sm border-accent/20 text-primary hover:bg-accent/5 transition-colors duration-300"
         >
-          <Award className="h-3.5 w-3.5" />
           {category}
         </CategoryBadge>
         <h3 className="font-semibold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-300">
@@ -50,12 +49,12 @@ export const RegularDealContent = ({
       </div>
 
       <div className="space-y-3">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground/90 group-hover:text-muted-foreground/80 transition-colors duration-300">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground/90 transition-colors duration-300 hover:text-muted-foreground">
           <MapPin className="h-4 w-4 text-primary" />
           <span>{city}</span>
         </div>
         
-        <div className="flex items-center gap-2 text-sm text-muted-foreground/90 group-hover:text-muted-foreground/80 transition-colors duration-300">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground/90 transition-colors duration-300 hover:text-muted-foreground">
           <Clock className="h-4 w-4 text-primary" />
           <span>{timeRemaining}</span>
         </div>

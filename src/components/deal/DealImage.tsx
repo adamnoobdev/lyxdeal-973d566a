@@ -10,7 +10,7 @@ interface DealImageProps {
 
 export const DealImage = ({ imageUrl, title, discountPercentage, isNew }: DealImageProps) => {
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden rounded-t-lg">
       <div className="aspect-[4/3] overflow-hidden">
         <img
           src={imageUrl}
