@@ -2,15 +2,16 @@ export interface Deal {
   id: number;
   title: string;
   description: string;
-  imageUrl: string;
-  originalPrice: number;
-  discountedPrice: number;
+  image_url: string;
+  original_price: number;
+  discounted_price: number;
   category: string;
   city: string;
-  timeRemaining: string;
+  time_remaining: string;
   featured: boolean;
   created_at: string;
   updated_at: string;
+  salon_id?: number;
 }
 
 export interface Salon {

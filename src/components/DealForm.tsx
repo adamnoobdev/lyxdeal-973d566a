@@ -38,6 +38,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       city: "",
       timeRemaining: "",
       featured: false,
+      salon_id: undefined,
     },
   });
 

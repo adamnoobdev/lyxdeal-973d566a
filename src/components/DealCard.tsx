@@ -9,10 +9,10 @@ interface DealCardProps {
   id: number;
   title: string;
   description: string;
-  imageUrl: string;
-  originalPrice: number;
-  discountedPrice: number;
-  timeRemaining: string;
+  image_url: string;
+  original_price: number;
+  discounted_price: number;
+  time_remaining: string;
   category: string;
   city: string;
   featured?: boolean;
@@ -24,10 +24,10 @@ const DealCardComponent = ({
   id,
   title,
   description,
-  imageUrl,
-  originalPrice,
-  discountedPrice,
-  timeRemaining,
+  image_url,
+  original_price,
+  discounted_price,
+  time_remaining,
   category,
   city,
   featured = false,
@@ -35,7 +35,7 @@ const DealCardComponent = ({
   quantityLeft,
 }: DealCardProps) => {
   const discountPercentage = Math.round(
-    ((originalPrice - discountedPrice) / originalPrice) * 100
+    ((original_price - discounted_price) / original_price) * 100
   );
 
   const isNew = useCallback(() => {
@@ -52,7 +52,7 @@ const DealCardComponent = ({
         <Link to={`/product/${id}`} className="block relative">
           <div className="relative h-[350px] sm:h-[400px] md:h-[450px]">
             <img
-              src={imageUrl}
+              src={image_url}
               alt={title}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
@@ -66,9 +66,9 @@ const DealCardComponent = ({
               discountPercentage={discountPercentage}
               isNew={isNew()}
               city={city}
-              timeRemaining={timeRemaining}
-              originalPrice={originalPrice}
-              discountedPrice={discountedPrice}
+              timeRemaining={time_remaining}
+              originalPrice={original_price}
+              discountedPrice={discounted_price}
               quantityLeft={quantityLeft}
             />
           </div>
@@ -81,7 +81,7 @@ const DealCardComponent = ({
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <Link to={`/product/${id}`}>
         <DealImage
-          imageUrl={imageUrl}
+          imageUrl={image_url}
           title={title}
           discountPercentage={discountPercentage}
           isNew={isNew()}
@@ -91,9 +91,9 @@ const DealCardComponent = ({
           description={description}
           category={category}
           city={city}
-          timeRemaining={timeRemaining}
-          originalPrice={originalPrice}
-          discountedPrice={discountedPrice}
+          timeRemaining={time_remaining}
+          originalPrice={original_price}
+          discountedPrice={discounted_price}
           quantityLeft={quantityLeft}
         />
       </Link>
