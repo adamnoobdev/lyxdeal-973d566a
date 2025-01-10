@@ -11,6 +11,8 @@ interface MobileActionsProps {
   session: any;
   onLogout: () => Promise<void>;
   onLogin: () => void;
+  hasSalon: boolean;
+  onDashboard: () => void;
 }
 
 export const MobileActions = ({
@@ -21,19 +23,33 @@ export const MobileActions = ({
   onCategorySelect,
   session,
   onLogout,
-  onLogin
+  onLogin,
+  hasSalon,
+  onDashboard
 }: MobileActionsProps) => (
   <div className="flex flex-1 items-center justify-end gap-2 md:hidden">
     {session ? (
-      <Button
-        variant="ghost"
-        size="sm"
-        className="gap-2"
-        onClick={onLogout}
-      >
-        <LogOut className="h-4 w-4" />
-        <span className="sr-only">Logga ut</span>
-      </Button>
+      <>
+        {hasSalon && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+            onClick={onDashboard}
+          >
+            Portal
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2"
+          onClick={onLogout}
+        >
+          <LogOut className="h-4 w-4" />
+          <span className="sr-only">Logga ut</span>
+        </Button>
+      </>
     ) : (
       <Button
         variant="ghost"

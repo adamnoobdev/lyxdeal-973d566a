@@ -13,6 +13,8 @@ interface DesktopNavigationProps {
   onCategorySelect: (category: string) => void;
   session: any;
   onLogout: () => Promise<void>;
+  hasSalon: boolean;
+  onDashboard: () => void;
 }
 
 export const DesktopNavigation = ({
@@ -23,7 +25,9 @@ export const DesktopNavigation = ({
   onCitySelect,
   onCategorySelect,
   session,
-  onLogout
+  onLogout,
+  hasSalon,
+  onDashboard
 }: DesktopNavigationProps) => (
   <div className="hidden md:flex md:flex-1 md:items-center md:justify-between md:space-x-4">
     <SearchBar
@@ -36,21 +40,33 @@ export const DesktopNavigation = ({
       <CitySelector currentCity={currentCity} onCitySelect={onCitySelect} />
       <CategorySelector onCategorySelect={onCategorySelect} />
       {session ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-2"
-          onClick={onLogout}
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Logga ut</span>
-        </Button>
+        <>
+          {hasSalon && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2"
+              onClick={onDashboard}
+            >
+              Portal
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+            onClick={onLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Logga ut</span>
+          </Button>
+        </>
       ) : (
         <Button
           variant="ghost"
           size="sm"
           className="gap-2"
-          onClick={() => window.location.href = '/login'}
+          onClick={() => window.location.href = '/auth'}
         >
           <UserRound className="h-4 w-4" />
           <span>Logga in</span>
