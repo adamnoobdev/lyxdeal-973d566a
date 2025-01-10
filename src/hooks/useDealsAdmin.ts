@@ -12,29 +12,46 @@ export const useDealsAdmin = () => {
   const { data: deals, isLoading, error } = useQuery({
     queryKey: ["admin-deals"],
     queryFn: async () => {
+      console.log("Starting to fetch deals...");
+      console.log("Session:", session);
+
       if (!session?.user?.id) {
+        console.error("No session found");
         throw new Error("Du måste vara inloggad för att hantera erbjudanden");
       }
 
       // Först hämta salongen kopplad till användaren
-      const { data: salon } = await supabase
+      const { data: salon, error: salonError } = await supabase
         .from('salons')
         .select('id')
         .eq('user_id', session.user.id)
         .maybeSingle();
 
+      if (salonError) {
+        console.error("Error fetching salon:", salonError);
+        throw new Error("Kunde inte hämta salonginformation");
+      }
+
+      console.log("Salon data:", salon);
+
       if (!salon) {
+        console.error("No salon found for user");
         throw new Error("Ingen salong hittades kopplad till ditt konto");
       }
 
       // Hämta erbjudanden för den specifika salongen
-      const { data, error } = await supabase
+      const { data, error: dealsError } = await supabase
         .from('deals')
         .select('*')
         .eq('salon_id', salon.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (dealsError) {
+        console.error("Error fetching deals:", dealsError);
+        throw dealsError;
+      }
+
+      console.log("Fetched deals:", data);
       return data;
     },
     retry: false,
@@ -52,7 +69,7 @@ export const useDealsAdmin = () => {
       toast.success("Erbjudandet har tagits bort");
       return true;
     } catch (error: any) {
-      console.error("Error:", error);
+      console.error("Delete error:", error);
       toast.error(error.message || "Kunde inte ta bort erbjudandet");
       return false;
     }
@@ -81,7 +98,7 @@ export const useDealsAdmin = () => {
       toast.success("Erbjudandet har uppdaterats");
       return true;
     } catch (error: any) {
-      console.error("Error:", error);
+      console.error("Update error:", error);
       toast.error(error.message || "Kunde inte uppdatera erbjudandet");
       return false;
     }

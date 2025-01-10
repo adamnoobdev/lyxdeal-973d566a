@@ -5,6 +5,8 @@ import { EditDealDialog } from "./deals/EditDealDialog";
 import { DeleteDealDialog } from "./deals/DeleteDealDialog";
 import { DealsLoadingSkeleton } from "./deals/DealsLoadingSkeleton";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
@@ -34,15 +36,28 @@ export const DealsList = () => {
   }
 
   if (error) return (
-    <div className="text-center py-8 text-red-500">
-      Ett fel uppstod när erbjudanden skulle hämtas
-    </div>
+    <Alert variant="destructive">
+      <AlertCircle className="h-4 w-4" />
+      <AlertDescription>
+        {error instanceof Error ? error.message : "Ett fel uppstod när erbjudanden skulle hämtas"}
+      </AlertDescription>
+    </Alert>
   );
+
+  if (!deals?.length) {
+    return (
+      <Alert>
+        <AlertDescription>
+          Inga erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <>
       <DealsTable
-        deals={deals || []}
+        deals={deals}
         onEdit={setEditingDeal}
         onDelete={setDeletingDeal}
       />
