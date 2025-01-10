@@ -21,7 +21,6 @@ export const NavigationBar = () => {
   useEffect(() => {
     const checkUserRole = async () => {
       if (session?.user) {
-        // Kolla först om användaren är en salongsägare eller admin
         const { data: salon, error } = await supabase
           .from('salons')
           .select('role')
@@ -65,10 +64,28 @@ export const NavigationBar = () => {
   };
 
   const handleLogout = async () => {
-    if (session) {
-      await supabase.auth.signOut();
-      toast.success("Du har loggat ut");
+    try {
+      // First try to sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Logout error:', error);
+        // Even if server logout fails, we'll clear local state
+      }
+
+      // Clear local storage and state regardless of server response
+      localStorage.removeItem('supabase.auth.token');
+      setUserRole(null);
+      
+      // Always navigate and show success message
       navigate("/");
+      toast.success("Du har loggat ut");
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still clear local state and redirect even if there's an error
+      setUserRole(null);
+      navigate("/");
+      toast.success("Du har loggat ut");
     }
   };
 
