@@ -9,13 +9,19 @@ export function FeaturedDeals() {
   const { data: deals, isLoading, error } = useQuery({
     queryKey: ['featuredDeals'],
     queryFn: async () => {
+      console.log('Fetching featured deals...');
       const { data, error } = await supabase
         .from('deals')
         .select('*')
         .eq('featured', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching featured deals:', error);
+        throw error;
+      }
+
+      console.log('Featured deals fetched:', data);
       return data as Deal[];
     },
   });
@@ -41,7 +47,10 @@ export function FeaturedDeals() {
     );
   }
 
-  if (!deals?.length) return null;
+  if (!deals?.length) {
+    console.log('No featured deals found');
+    return null;
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
