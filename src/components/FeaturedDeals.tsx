@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DealCard } from "./DealCard";
 import { Deal } from "@/types/deal";
 import { Alert, AlertDescription } from "./ui/alert";
-import { ExclamationTriangleIcon } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 export function FeaturedDeals() {
   const { data: deals, isLoading, error } = useQuery({
@@ -36,7 +36,7 @@ export function FeaturedDeals() {
   if (error) {
     return (
       <Alert variant="destructive" className="my-4">
-        <ExclamationTriangleIcon className="h-4 w-4" />
+        <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
           Det gick inte att hämta utvalda erbjudanden. Försök igen senare.
         </AlertDescription>
