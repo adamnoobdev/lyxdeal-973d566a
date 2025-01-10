@@ -68,17 +68,20 @@ export const NavigationBar = () => {
       // Clear local state first
       setUserRole(null);
       
-      // Remove any stored session data
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.removeItem('supabase.auth.token');
+      // Clear all Supabase session data from storage
+      const allKeys = Object.keys(localStorage);
+      const supabaseKeys = allKeys.filter(key => key.startsWith('sb-'));
+      supabaseKeys.forEach(key => localStorage.removeItem(key));
+      
+      // Also clear from sessionStorage
+      const sessionKeys = Object.keys(sessionStorage);
+      const supabaseSessionKeys = sessionKeys.filter(key => key.startsWith('sb-'));
+      supabaseSessionKeys.forEach(key => sessionStorage.removeItem(key));
       
       // Attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Logout error:', error);
-      }
+      await supabase.auth.signOut();
       
-      // Always navigate and show success message, regardless of server response
+      // Navigate and show success message
       navigate("/");
       toast.success("Du har loggat ut");
       
