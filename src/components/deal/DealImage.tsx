@@ -28,7 +28,7 @@ export const DealImage = ({ imageUrl, title, discountPercentage, isNew }: DealIm
           <CategoryBadge
             category="NYTT"
             variant="default"
-            className="bg-gradient-to-r from-yellow-400/90 to-amber-500/90 text-yellow-950 hover:from-yellow-400 hover:to-amber-500 border-transparent shadow-lg backdrop-blur-sm ring-1 ring-white/10 flex items-center gap-1"
+            className="bg-gradient-to-r from-yellow-400/90 to-amber-500/90 text-yellow-950 hover:from-yellow-400 hover:to-amber-500 border-transparent shadow-lg backdrop-blur-sm ring-1 ring-white/10"
           >
             <Star className="h-3 w-3" />
             NYTT

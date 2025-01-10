@@ -36,7 +36,7 @@ export const RegularDealContent = ({
         <CategoryBadge 
           category={category}
           variant="outline"
-          className="mb-2.5 bg-white/50 backdrop-blur-sm border-accent/20 text-primary hover:bg-accent/5 transition-colors duration-300 flex items-center gap-1.5"
+          className="mb-2.5 bg-white/50 backdrop-blur-sm border-accent/20 text-primary hover:bg-accent/5 transition-colors duration-300"
         >
           <Award className="h-3.5 w-3.5" />
           {category}
