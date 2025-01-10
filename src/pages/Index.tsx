@@ -15,13 +15,22 @@ export default function IndexPage() {
   const [selectedCity, setSelectedCity] = useState("");
 
   const { data: deals, isLoading } = useQuery({
-    queryKey: ['deals'],
+    queryKey: ['deals', selectedCategory, selectedCity],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('deals')
         .select('*')
         .order('created_at', { ascending: false });
 
+      if (selectedCategory && selectedCategory !== "Alla Erbjudanden") {
+        query = query.eq('category', selectedCategory);
+      }
+
+      if (selectedCity && selectedCity !== "Alla Städer") {
+        query = query.eq('city', selectedCity);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data as Deal[];
     },
