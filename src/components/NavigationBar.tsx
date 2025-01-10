@@ -35,6 +35,10 @@ export const NavigationBar = () => {
         
         if (salon) {
           setUserRole(salon.role as 'salon_owner' | 'admin');
+          // Automatically redirect admin users to the admin dashboard
+          if (salon.role === 'admin' && window.location.pathname === '/') {
+            navigate('/admin');
+          }
         } else {
           setUserRole('customer');
         }
@@ -44,7 +48,7 @@ export const NavigationBar = () => {
     };
 
     checkUserRole();
-  }, [session]);
+  }, [session, navigate]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,29 +69,20 @@ export const NavigationBar = () => {
 
   const handleLogout = async () => {
     try {
-      // Clear local state first
       setUserRole(null);
-      
-      // Clear all Supabase session data from storage
       const allKeys = Object.keys(localStorage);
       const supabaseKeys = allKeys.filter(key => key.startsWith('sb-'));
       supabaseKeys.forEach(key => localStorage.removeItem(key));
       
-      // Also clear from sessionStorage
       const sessionKeys = Object.keys(sessionStorage);
       const supabaseSessionKeys = sessionKeys.filter(key => key.startsWith('sb-'));
       supabaseSessionKeys.forEach(key => sessionStorage.removeItem(key));
       
-      // Attempt to sign out from Supabase
       await supabase.auth.signOut();
-      
-      // Navigate and show success message
       navigate("/");
       toast.success("Du har loggat ut");
-      
     } catch (error) {
       console.error('Error during logout:', error);
-      // Ensure we still navigate and show success even if there's an error
       navigate("/");
       toast.success("Du har loggat ut");
     }
