@@ -2,7 +2,6 @@ import { memo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { DealImage } from "./deal/DealImage";
-import { FeaturedDealContent } from "./deal/FeaturedDealContent";
 import { RegularDealContent } from "./deal/RegularDealContent";
 
 interface DealCardProps {
@@ -15,7 +14,6 @@ interface DealCardProps {
   time_remaining: string;
   category: string;
   city: string;
-  featured?: boolean;
   created_at: string;
   quantityLeft: number;
 }
@@ -30,7 +28,6 @@ const DealCardComponent = ({
   time_remaining,
   category,
   city,
-  featured = false,
   created_at,
   quantityLeft,
 }: DealCardProps) => {
@@ -45,36 +42,6 @@ const DealCardComponent = ({
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays <= 3;
   }, [created_at]);
-
-  if (featured) {
-    return (
-      <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-xl hover:shadow-primary/10">
-        <Link to={`/deal/${id}`} className="block relative">
-          <div className="relative h-[400px] sm:h-[450px] md:h-[500px]">
-            <img
-              src={image_url}
-              alt={title}
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              loading="lazy"
-              decoding="async"
-            />
-            <FeaturedDealContent
-              title={title}
-              description={description}
-              category={category}
-              discountPercentage={discountPercentage}
-              isNew={isNew()}
-              city={city}
-              timeRemaining={time_remaining}
-              originalPrice={original_price}
-              discountedPrice={discounted_price}
-              quantityLeft={quantityLeft}
-            />
-          </div>
-        </Link>
-      </Card>
-    );
-  }
 
   return (
     <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
