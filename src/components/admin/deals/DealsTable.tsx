@@ -34,7 +34,7 @@ export const DealsTable = ({ deals, onEdit, onDelete }: DealsTableProps) => {
             <TableCell>{deal.title}</TableCell>
             <TableCell>{deal.category}</TableCell>
             <TableCell>{deal.city}</TableCell>
-            <TableCell>{deal.discountedPrice} kr</TableCell>
+            <TableCell>{deal.discounted_price} kr</TableCell>
             <TableCell>
               <DealActions
                 onEdit={() => onEdit(deal)}

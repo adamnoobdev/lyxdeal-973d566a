@@ -6,10 +6,10 @@ interface Deal {
   id: number;
   title: string;
   description: string;
-  imageUrl: string;
-  originalPrice: number;
-  discountedPrice: number;
-  timeRemaining: string;
+  image_url: string;
+  original_price: number;
+  discounted_price: number;
+  time_remaining: string;
   category: string;
   city: string;
   created_at: string;

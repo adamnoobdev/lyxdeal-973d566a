@@ -56,12 +56,12 @@ export const DealsList = () => {
             ? {
                 title: editingDeal.title,
                 description: editingDeal.description,
-                imageUrl: editingDeal.imageUrl,
-                originalPrice: editingDeal.originalPrice.toString(),
-                discountedPrice: editingDeal.discountedPrice.toString(),
+                imageUrl: editingDeal.image_url,
+                originalPrice: editingDeal.original_price.toString(),
+                discountedPrice: editingDeal.discounted_price.toString(),
                 category: editingDeal.category,
                 city: editingDeal.city,
-                timeRemaining: editingDeal.timeRemaining,
+                timeRemaining: editingDeal.time_remaining,
                 featured: editingDeal.featured,
               }
             : undefined
