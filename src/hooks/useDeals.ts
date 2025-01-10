@@ -1,13 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Deal } from "@/types/deal";
+import { toast } from "sonner";
+import type { Deal } from "@/types/deal";
 
 export const useDeals = (category?: string, city?: string) => {
   return useQuery({
     queryKey: ["deals", category, city],
     queryFn: async () => {
-      console.log('Starting deals fetch with filters:', { category, city });
-      
+      // Log authentication state
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current session:', session);
+      console.log('Access token:', session?.access_token);
+
       let query = supabase
         .from("deals")
         .select("*");
@@ -26,14 +30,16 @@ export const useDeals = (category?: string, city?: string) => {
 
       if (error) {
         console.error("Error fetching deals:", error);
+        toast.error("Kunde inte hämta erbjudanden");
         throw error;
       }
 
-      console.log('Deals fetched successfully:', {
-        totalDeals: data?.length || 0,
-        deals: data
-      });
-      
+      if (!data) {
+        console.log('No deals found');
+        return [];
+      }
+
+      console.log('Fetched deals:', data);
       return data as Deal[];
     },
   });
@@ -41,10 +47,12 @@ export const useDeals = (category?: string, city?: string) => {
 
 export const useFeaturedDeals = () => {
   return useQuery({
-    queryKey: ["featuredDeals"],
+    queryKey: ["featured-deals"],
     queryFn: async () => {
-      console.log('Fetching featured deals');
-      
+      // Log authentication state for featured deals as well
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current session (featured deals):', session);
+
       const { data, error } = await supabase
         .from("deals")
         .select("*")
@@ -53,14 +61,15 @@ export const useFeaturedDeals = () => {
 
       if (error) {
         console.error("Error fetching featured deals:", error);
+        toast.error("Kunde inte hämta utvalda erbjudanden");
         throw error;
       }
 
-      console.log('Featured deals fetched:', {
-        totalDeals: data?.length || 0,
-        deals: data
-      });
-      
+      if (!data) {
+        return [];
+      }
+
+      console.log('Fetched featured deals:', data);
       return data as Deal[];
     },
   });
