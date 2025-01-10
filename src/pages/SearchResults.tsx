@@ -1,101 +1,73 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { DealCard } from "@/components/DealCard";
-import { Categories } from "@/components/Categories";
-import { Cities } from "@/components/Cities";
-import { useDeals } from "@/hooks/useDeals";
+import { Deal } from "@/types/deal";
 
-const SearchResults = () => {
+export default function SearchResults() {
   const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get("q") || "";
-  const categoryParam = searchParams.get("category") || "Alla Erbjudanden";
-  const cityParam = searchParams.get("city") || "Alla Städer";
-  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-  const [selectedCity, setSelectedCity] = useState(cityParam);
-
-  const { data: deals = [], isLoading } = useDeals(
-    selectedCategory === "Alla Erbjudanden" ? undefined : selectedCategory,
-    selectedCity === "Alla Städer" ? undefined : selectedCity
-  );
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setSelectedCategory(categoryParam);
-    setSelectedCity(cityParam);
-  }, [categoryParam, cityParam]);
+    const fetchDeals = async () => {
+      setIsLoading(true);
+      const query = searchParams.get("q")?.toLowerCase() || "";
+      const category = searchParams.get("category");
+      const city = searchParams.get("city");
 
-  const filteredDeals = deals.filter((deal) => {
-    const matchesSearch = searchQuery
-      ? deal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deal.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deal.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deal.city.toLowerCase().includes(searchQuery.toLowerCase())
-      : true;
+      let supabaseQuery = supabase
+        .from("deals")
+        .select("*");
 
-    return matchesSearch;
-  });
+      if (query) {
+        supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+      }
 
-  const handleCategorySelect = (category: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (category !== "Alla Erbjudanden") {
-      params.set("category", category);
-    } else {
-      params.delete("category");
-    }
-    window.history.pushState({}, "", `?${params.toString()}`);
-    setSelectedCategory(category);
-  };
+      if (category) {
+        supabaseQuery = supabaseQuery.eq("category", category);
+      }
 
-  const handleCitySelect = (city: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (city !== "Alla Städer") {
-      params.set("city", city);
-    } else {
-      params.delete("city");
-    }
-    window.history.pushState({}, "", `?${params.toString()}`);
-    setSelectedCity(city);
-  };
+      if (city) {
+        supabaseQuery = supabaseQuery.eq("city", city);
+      }
+
+      const { data, error } = await supabaseQuery;
+
+      if (error) {
+        console.error("Error fetching deals:", error);
+        return;
+      }
+
+      setDeals(data as Deal[]);
+      setIsLoading(false);
+    };
+
+    fetchDeals();
+  }, [searchParams]);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-64 bg-gray-200 rounded animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {searchQuery
-              ? `Sökresultat för "${searchQuery}"`
-              : selectedCategory}
-          </h1>
-          <p className="text-gray-600">
-            {filteredDeals.length} erbjudanden hittades
-          </p>
-        </div>
-
-        <Categories
-          selectedCategory={selectedCategory}
-          onSelectCategory={handleCategorySelect}
-        />
-
-        <Cities
-          selectedCity={selectedCity}
-          onSelectCity={handleCitySelect}
-        />
-
-        {isLoading ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-[400px] bg-gray-100 animate-pulse rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredDeals.map((deal) => (
-              <DealCard key={deal.id} {...deal} />
-            ))}
-          </div>
-        )}
-      </main>
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">
+        {deals.length} erbjudanden hittades
+      </h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {deals.map((deal) => (
+          <DealCard key={deal.id} {...deal} />
+        ))}
+      </div>
     </div>
   );
-};
-
-export default SearchResults;
+}

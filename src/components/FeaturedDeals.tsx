@@ -1,71 +1,49 @@
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import { DealCard } from "@/components/DealCard";
-import { useEffect, useState, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { DealCard } from "./DealCard";
+import { Deal } from "@/types/deal";
 
-interface Deal {
-  id: number;
-  title: string;
-  description: string;
-  image_url: string;
-  original_price: number;
-  discounted_price: number;
-  time_remaining: string;
-  category: string;
-  city: string;
-  created_at: string;
-  quantityLeft: number;
-}
+export function FeaturedDeals() {
+  const { data: deals, isLoading } = useQuery({
+    queryKey: ['featuredDeals'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('deals')
+        .select('*')
+        .eq('featured', true)
+        .order('created_at', { ascending: false });
 
-interface FeaturedDealsProps {
-  deals: Deal[];
-}
+      if (error) throw error;
+      return data as Deal[];
+    },
+  });
 
-export const FeaturedDeals = ({ deals }: FeaturedDealsProps) => {
-  const [api, setApi] = useState<any>();
-  const [current, setCurrent] = useState(0);
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-64 bg-gray-200 rounded animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-  const handleSelect = useCallback(() => {
-    if (!api) return;
-    setCurrent(api.selectedScrollSnap());
-  }, [api]);
-
-  useEffect(() => {
-    if (!api) return;
-
-    api.on("select", handleSelect);
-    
-    const interval = setInterval(() => {
-      api.scrollNext();
-    }, 4000);
-
-    return () => {
-      clearInterval(interval);
-      api.off("select", handleSelect);
-    };
-  }, [api, handleSelect]);
+  if (!deals?.length) return null;
 
   return (
-    <div className="-mx-4 md:mx-0">
-      <Carousel
-        opts={{
-          align: "start",
-          loop: true,
-        }}
-        setApi={setApi}
-        className="w-full"
-      >
-        <CarouselContent className="-ml-0">
-          {deals.map((deal) => (
-            <CarouselItem key={deal.id} className="pl-0 basis-full">
-              <DealCard {...deal} featured={true} />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold">Utvalda erbjudanden</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {deals.map((deal) => (
+          <DealCard
+            key={deal.id}
+            {...deal}
+          />
+        ))}
+      </div>
     </div>
   );
-};
+}

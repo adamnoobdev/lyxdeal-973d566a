@@ -1,119 +1,53 @@
-import { useState, useCallback, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
-import { FeaturedDeals } from "@/components/FeaturedDeals";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Categories } from "@/components/Categories";
 import { Cities } from "@/components/Cities";
 import { DealsGrid } from "@/components/DealsGrid";
-import { useDeals, useFeaturedDeals } from "@/hooks/useDeals";
-import { toast } from "sonner";
-import { type Category, type City, CATEGORIES } from "@/constants/app-constants";
-import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
-import { CategoryBadge } from "@/components/CategoryBadge";
+import { FeaturedDeals } from "@/components/FeaturedDeals";
+import { SearchBar } from "@/components/SearchBar";
+import { Deal } from "@/types/deal";
 
-const Index = () => {
-  const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState<Category>("Alla Erbjudanden");
-  const [selectedCity, setSelectedCity] = useState<City>("Alla Städer");
+export default function IndexPage() {
+  const { data: deals, isLoading } = useQuery({
+    queryKey: ['deals'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('deals')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  const { data: deals = [], isLoading: isDealsLoading } = useDeals(
-    selectedCategory,
-    selectedCity
-  );
-  const { data: featuredDeals = [], isLoading: isFeaturedLoading } = useFeaturedDeals();
-
-  const { data: { publicUrl } } = supabase
-    .storage
-    .from('assets')
-    .getPublicUrl('luxury-spa-treatment.jpg');
-
-  const handleDealClick = useCallback((dealId: number) => {
-    try {
-      navigate(`/product/${dealId}`);
-    } catch (error) {
-      console.error("Navigeringsfel:", error);
-      toast.error("Ett fel uppstod. Försök igen.");
-    }
-  }, [navigate]);
-
-  const handleCategorySelect = useCallback((category: Category) => {
-    setSelectedCategory(category);
-    if (category !== "Alla Erbjudanden") {
-      navigate(`/search?category=${encodeURIComponent(category)}`);
-    }
-  }, [navigate]);
-
-  const handleCitySelect = useCallback((city: City) => {
-    setSelectedCity(city);
-  }, []);
+      if (error) throw error;
+      return data as Deal[];
+    },
+  });
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="relative h-[200px] md:h-[400px] w-full mb-8">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${publicUrl})`,
-            backgroundPosition: "center"
-          }}
-        >
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="relative h-full flex flex-col justify-center items-center text-center px-4">
-            <h1 className="text-3xl md:text-6xl font-bold text-white mb-3 md:mb-6 animate-fade-in">
-              Sveriges Hetaste Lyxdeals
-            </h1>
-            <p className="text-lg md:text-2xl text-white/90 max-w-2xl mb-6 animate-fade-in">
-              Upptäck exklusiva erbjudanden på professionella behandlingar hos Sveriges mest utvalda salonger.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 max-w-3xl">
-              {CATEGORIES.filter(category => category !== "Alla Erbjudanden").map((category) => (
-                <button
-                  key={category}
-                  onClick={() => handleCategorySelect(category)}
-                  className="transition-transform hover:scale-105 active:scale-95"
-                >
-                  <CategoryBadge 
-                    category={category} 
-                    variant="default"
-                    className="cursor-pointer hover:bg-primary/90 transition-colors"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
+    <div className="container mx-auto p-6 space-y-8">
+      <div className="space-y-4">
+        <h1 className="text-4xl font-bold">Hitta ditt nästa erbjudande</h1>
+        <p className="text-lg text-muted-foreground">
+          Upptäck de bästa skönhetserbjudandena i din stad
+        </p>
+      </div>
+
+      <SearchBar />
+
+      <div className="space-y-8">
+        <Categories />
+        <Cities />
+      </div>
+
+      <FeaturedDeals />
+
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-64 bg-gray-200 rounded animate-pulse" />
+          ))}
         </div>
-      </div>
-
-      <div className="container content-padding py-4 md:py-8">
-        <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
-          <div className="relative mb-4 md:mb-8">
-            {!isFeaturedLoading && featuredDeals.length > 0 && (
-              <FeaturedDeals deals={featuredDeals} />
-            )}
-          </div>
-        </Suspense>
-
-        <Categories 
-          selectedCategory={selectedCategory} 
-          onSelectCategory={handleCategorySelect} 
-        />
-
-        <Cities
-          selectedCity={selectedCity}
-          onSelectCity={handleCitySelect}
-        />
-
-        <Suspense fallback={<Skeleton className="h-[200px] w-full rounded-lg" />}>
-          {!isDealsLoading && (
-            <DealsGrid 
-              deals={deals} 
-              onDealClick={handleDealClick}
-            />
-          )}
-        </Suspense>
-      </div>
+      ) : (
+        deals && <DealsGrid deals={deals} />
+      )}
     </div>
   );
-};
-
-export default Index;
+}
