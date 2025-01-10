@@ -31,7 +31,6 @@ export default function IndexPage() {
     // Implement search logic here
   };
 
-  // Updated to match SearchBarProps type
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
   };
