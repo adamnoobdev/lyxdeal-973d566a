@@ -10,22 +10,37 @@ export function FeaturedDeals() {
     queryKey: ['featuredDeals'],
     queryFn: async () => {
       console.log('Starting featured deals fetch...');
-      const { data, error } = await supabase
-        .from('deals')
-        .select('*')
-        .eq('featured', true)
-        .order('created_at', { ascending: false });
+      try {
+        console.log('Executing featured deals query...');
+        const { data, error } = await supabase
+          .from('deals')
+          .select('*')
+          .eq('featured', true)
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching featured deals:', error);
+        if (error) {
+          console.error('Error fetching featured deals:', error);
+          console.error('Error details:', error.message, error.details, error.hint);
+          throw error;
+        }
+
+        console.log('Raw featured deals response:', data);
+        console.log('Featured deals fetch successful. Number of deals:', data?.length);
+        if (data && data.length > 0) {
+          console.log('First featured deal:', data[0]);
+          console.log('All featured deals:', data);
+        } else {
+          console.log('No featured deals found in database');
+        }
+        
+        return data as Deal[];
+      } catch (error) {
+        console.error('Unexpected error in featured deals:', error);
+        if (error instanceof Error) {
+          console.error('Error details:', error.message, error.stack);
+        }
         throw error;
       }
-
-      console.log('Featured deals fetch successful. Number of deals:', data?.length);
-      console.log('First featured deal:', data?.[0]);
-      console.log('All featured deals:', data);
-      
-      return data as Deal[];
     },
   });
 
