@@ -30,7 +30,7 @@ export const RegularDealContent = ({
         <CategoryBadge 
           category={category}
           variant="default"
-          className="bg-gradient-to-br from-primary via-secondary to-accent text-white font-semibold shadow-sm"
+          className="bg-gradient-to-r from-primary via-success to-secondary text-white font-semibold shadow-sm"
         />
         <div className="flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full bg-accent text-accent-foreground">
           <Clock className="h-3.5 w-3.5" />
@@ -54,16 +54,21 @@ export const RegularDealContent = ({
             {city}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-sm px-2.5 py-1 rounded-full bg-success/10 text-success font-medium ring-1 ring-success/20">
+            <span className={`text-sm px-2.5 py-0.5 rounded-full ${
+              quantityLeft <= 5 
+                ? 'bg-destructive/10 text-destructive' 
+                : 'bg-success/10 text-success'
+            } font-medium`}>
               {quantityLeft} kvar
             </span>
           </div>
         </div>
 
-        <div className="space-y-3 pt-3 border-t border-accent/10">
+        <div className="space-y-3">
           <PriceDisplay
             originalPrice={originalPrice}
             discountedPrice={discountedPrice}
+            className="pb-2"
           />
           <Button 
             className="w-full bg-gradient-to-r from-primary to-success hover:from-primary/90 hover:to-success/90 text-white font-semibold shadow-md" 
