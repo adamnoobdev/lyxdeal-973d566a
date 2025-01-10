@@ -1,7 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { CATEGORIES } from "@/constants/app-constants";
 
 export function HeroSection() {
+  const navigate = useNavigate();
+
+  const handleCategorySelect = (category: string) => {
+    navigate(`/search?category=${encodeURIComponent(category)}`);
+  };
+
   return (
     <section className="relative bg-gradient-to-br from-primary-500/90 via-secondary-500/90 to-accent-300/90 min-h-[500px] flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-[url('/hero-bg.jpg')] bg-cover bg-center mix-blend-overlay opacity-20" />
@@ -22,6 +29,7 @@ export function HeroSection() {
               category={category}
               variant="default"
               className="cursor-pointer transform transition-all duration-300 hover:scale-105 active:scale-95 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-white/20"
+              onClick={() => handleCategorySelect(category)}
             />
           ))}
         </div>

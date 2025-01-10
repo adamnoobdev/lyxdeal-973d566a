@@ -6,9 +6,16 @@ interface CategoryBadgeProps {
   variant?: "default" | "outline";
   className?: string;
   children?: React.ReactNode;
+  onClick?: () => void;
 }
 
-export function CategoryBadge({ category, variant = "outline", className = "", children }: CategoryBadgeProps) {
+export function CategoryBadge({ 
+  category, 
+  variant = "outline", 
+  className = "", 
+  children,
+  onClick 
+}: CategoryBadgeProps) {
   const getCategoryEmoji = (category: string) => {
     switch (category.toLowerCase()) {
       case 'hudvård': return '✨';
@@ -32,6 +39,7 @@ export function CategoryBadge({ category, variant = "outline", className = "", c
             ? "bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:via-secondary/90 hover:to-accent/90 text-white border-transparent"
             : "border-primary/20 text-primary hover:bg-primary/10"
       } ${className}`}
+      onClick={onClick}
     >
       {children || (
         <>
