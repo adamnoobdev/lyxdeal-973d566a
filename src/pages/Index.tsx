@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Categories } from "@/components/Categories";
 import { Cities } from "@/components/Cities";
-import { HeroSection } from "@/components/home/HeroSection";
-import { StatsSection } from "@/components/home/StatsSection";
-import { DealsSection } from "@/components/home/DealsSection";
+import { HeroSection } from "@/components/home/sections/HeroSection";
+import { StatsSection } from "@/components/home/sections/StatsSection";
+import { DealsSection } from "@/components/home/sections/DealsSection";
 
 export default function IndexPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Alla Erbjudanden");
