@@ -27,9 +27,6 @@ export const DealImage = ({ imageUrl, title, discountPercentage, isNew }: DealIm
         />
       </div>
       <div className="absolute right-3 top-3 flex gap-2">
-        <span className="bg-gradient-to-r from-success/90 to-primary/90 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm ring-1 ring-white/10">
-          -{discountPercentage}%
-        </span>
         {isNew && (
           <CategoryBadge
             category="NYTT"
