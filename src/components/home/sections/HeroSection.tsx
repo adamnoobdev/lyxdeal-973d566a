@@ -3,7 +3,7 @@ import { CATEGORIES } from "@/constants/app-constants";
 
 export function HeroSection() {
   return (
-    <section className="relative bg-gradient-to-br from-primary/90 via-secondary/90 to-accent/90 min-h-[500px] flex items-center justify-center px-4">
+    <section className="relative bg-gradient-to-br from-primary-500/90 via-secondary-500/90 to-accent-300/90 min-h-[500px] flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-[url('/hero-bg.jpg')] bg-cover bg-center mix-blend-overlay opacity-20" />
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-4 animate-fade-up">
