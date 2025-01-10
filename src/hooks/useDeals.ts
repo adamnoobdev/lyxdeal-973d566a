@@ -34,19 +34,7 @@ export const useDeals = (category?: string, city?: string) => {
           return [];
         }
 
-        return data.map((deal) => ({
-          id: deal.id,
-          title: deal.title,
-          description: deal.description,
-          imageUrl: deal.image_url,
-          originalPrice: deal.original_price,
-          discountedPrice: deal.discounted_price,
-          timeRemaining: deal.time_remaining,
-          category: deal.category,
-          city: deal.city,
-          created_at: deal.created_at,
-          quantityLeft: deal.quantity_left,
-        }));
+        return data as Deal[];
       } catch (error) {
         console.error("Unexpected error:", error);
         toast.error("Ett oväntat fel uppstod. Försök igen senare.");
@@ -78,19 +66,7 @@ export const useFeaturedDeals = () => {
           return [];
         }
 
-        return data.map((deal) => ({
-          id: deal.id,
-          title: deal.title,
-          description: deal.description,
-          imageUrl: deal.image_url,
-          originalPrice: deal.original_price,
-          discountedPrice: deal.discounted_price,
-          timeRemaining: deal.time_remaining,
-          category: deal.category,
-          city: deal.city,
-          created_at: deal.created_at,
-          quantityLeft: deal.quantity_left,
-        }));
+        return data as Deal[];
       } catch (error) {
         console.error("Unexpected error:", error);
         toast.error("Ett oväntat fel uppstod vid hämtning av utvalda erbjudanden");
