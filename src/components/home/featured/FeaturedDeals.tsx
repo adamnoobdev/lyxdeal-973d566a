@@ -4,6 +4,7 @@ import { DealCard } from "@/components/DealCard";
 import { Deal } from "@/types/deal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
+import { ResponsiveGrid } from "@/components/common/ResponsiveGrid";
 
 export function FeaturedDeals() {
   const { data: deals, isLoading, error } = useQuery({
@@ -22,11 +23,11 @@ export function FeaturedDeals() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <ResponsiveGrid>
         {[...Array(4)].map((_, i) => (
           <div key={i} className="h-96 bg-accent/50 rounded-xl animate-pulse" />
         ))}
-      </div>
+      </ResponsiveGrid>
     );
   }
 
@@ -46,13 +47,13 @@ export function FeaturedDeals() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <ResponsiveGrid>
       {deals.map((deal) => (
         <DealCard
           key={deal.id}
           {...deal}
         />
       ))}
-    </div>
+    </ResponsiveGrid>
   );
 }

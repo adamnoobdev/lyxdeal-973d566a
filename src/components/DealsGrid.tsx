@@ -1,5 +1,6 @@
 import { DealCard } from "./DealCard";
 import { Deal } from "@/types/deal";
+import { ResponsiveGrid } from "./common/ResponsiveGrid";
 
 interface DealsGridProps {
   deals: Deal[];
@@ -12,13 +13,13 @@ export function DealsGrid({ deals, className = "" }: DealsGridProps) {
   }
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ${className}`}>
+    <ResponsiveGrid className={className}>
       {deals.map((deal) => (
         <DealCard
           key={deal.id}
           {...deal}
         />
       ))}
-    </div>
+    </ResponsiveGrid>
   );
 }
