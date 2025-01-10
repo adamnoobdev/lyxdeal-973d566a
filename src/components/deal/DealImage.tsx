@@ -4,11 +4,10 @@ import { Star } from "lucide-react";
 interface DealImageProps {
   imageUrl: string;
   title: string;
-  discountPercentage: number;
   isNew: boolean;
 }
 
-export const DealImage = ({ imageUrl, title, discountPercentage, isNew }: DealImageProps) => {
+export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
   // Fallback image if the provided URL is invalid or image fails to load
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = "/placeholder.svg";

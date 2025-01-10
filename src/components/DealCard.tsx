@@ -31,10 +31,6 @@ const DealCardComponent = ({
   created_at,
   quantity_left,
 }: DealCardProps) => {
-  const discountPercentage = Math.round(
-    ((original_price - discounted_price) / original_price) * 100
-  );
-
   const isNew = useCallback(() => {
     const createdDate = new Date(created_at);
     const now = new Date();
@@ -49,7 +45,6 @@ const DealCardComponent = ({
         <DealImage
           imageUrl={image_url}
           title={title}
-          discountPercentage={discountPercentage}
           isNew={isNew()}
         />
         <RegularDealContent
