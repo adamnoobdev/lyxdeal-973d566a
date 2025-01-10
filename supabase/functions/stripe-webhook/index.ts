@@ -1,61 +1,66 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { corsHeaders, handleCors } from "../_shared/cors.ts"
-import Stripe from 'stripe'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from 'https://esm.sh/stripe@14.21.0';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
   apiVersion: '2023-10-16',
-  httpClient: Stripe.createFetchHttpClient(),
 });
 
-const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
+const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') || '';
+
+serve(async (req) => {
+  const signature = req.headers.get('stripe-signature');
+
+  if (!signature) {
+    return new Response('No signature', { status: 400 });
+  }
 
   try {
-    const signature = req.headers.get('stripe-signature');
-    if (!signature) {
-      throw new Error('No signature found in request');
-    }
-
     const body = await req.text();
-    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
-    if (!webhookSecret) {
-      throw new Error('Webhook secret not configured');
-    }
+    const event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
 
-    const event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      webhookSecret
-    );
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      
+      // Get line items to find the price ID
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+      const priceId = lineItems.data[0]?.price?.id;
 
-    switch (event.type) {
-      case 'checkout.session.completed':
-        const session = event.data.object;
-        // Handle successful payment
-        console.log('Payment successful:', session);
-        break;
-      case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object;
-        // Handle successful payment intent
-        console.log('PaymentIntent successful:', paymentIntent);
-        break;
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
+      if (!priceId) {
+        throw new Error('No price ID found in session');
+      }
+
+      // Initialize Supabase client
+      const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+
+      // Find and update the deal
+      const { error: updateError } = await supabaseClient.rpc('decrease_quantity', {
+        price_id: priceId
+      });
+
+      if (updateError) {
+        console.error('Error updating quantity:', updateError);
+        throw updateError;
+      }
+
+      console.log('Successfully processed payment and updated quantity');
     }
 
     return new Response(JSON.stringify({ received: true }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       status: 200,
-    })
-  } catch (error) {
-    console.error('Webhook error:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    })
+    });
+  } catch (err) {
+    console.error('Error processing webhook:', err);
+    return new Response(
+      JSON.stringify({ error: err.message }), 
+      { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
-}
-
-serve(handler)
+});

@@ -10,8 +10,11 @@ export const useDeals = (category?: string, city?: string) => {
       console.log('Starting deals fetch with filters:', { category, city });
       
       try {
-        // Test connection to Supabase
-        console.log('Testing Supabase connection...');
+        // Log authentication state
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Current session:', session);
+        
+        // First, check if we can connect to Supabase
         const { data: connectionTest, error: connectionError } = await supabase
           .from('deals')
           .select('count')
@@ -19,8 +22,7 @@ export const useDeals = (category?: string, city?: string) => {
           
         if (connectionError) {
           console.error('Supabase connection test failed:', connectionError);
-          toast.error(`Det gick inte att ansluta till databasen: ${connectionError.message}`);
-          throw new Error(`Database connection failed: ${connectionError.message}`);
+          throw new Error(`Kunde inte ansluta till databasen: ${connectionError.message}`);
         }
         
         console.log('Connection test successful:', connectionTest);
@@ -45,7 +47,6 @@ export const useDeals = (category?: string, city?: string) => {
 
         if (error) {
           console.error("Error fetching deals:", error);
-          toast.error("Det gick inte att hämta erbjudanden. Försök igen senare.");
           throw error;
         }
 
@@ -58,7 +59,7 @@ export const useDeals = (category?: string, city?: string) => {
         return data || [];
       } catch (error) {
         console.error('Unexpected error in useDeals:', error);
-        toast.error("Det gick inte att hämta erbjudanden. Försök igen senare.");
+        toast.error("Kunde inte hämta erbjudanden. Försök igen senare.");
         throw error;
       }
     },
@@ -80,7 +81,6 @@ export const useFeaturedDeals = () => {
 
         if (error) {
           console.error("Error fetching featured deals:", error);
-          toast.error("Det gick inte att hämta utvalda erbjudanden");
           throw error;
         }
 
@@ -92,7 +92,7 @@ export const useFeaturedDeals = () => {
         return data || [];
       } catch (error) {
         console.error('Unexpected error in useFeaturedDeals:', error);
-        toast.error("Det gick inte att hämta utvalda erbjudanden");
+        toast.error("Kunde inte hämta utvalda erbjudanden");
         throw error;
       }
     },
