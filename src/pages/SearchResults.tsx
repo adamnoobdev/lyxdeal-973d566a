@@ -7,6 +7,7 @@ import { Cities } from "@/components/Cities";
 import { Deal } from "@/types/deal";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,35 +19,60 @@ export default function SearchResults() {
   useEffect(() => {
     const fetchDeals = async () => {
       setIsLoading(true);
-      const query = searchParams.get("q")?.toLowerCase() || "";
-      const category = searchParams.get("category");
-      const city = searchParams.get("city");
+      console.log('Starting deals fetch with params:', {
+        query: searchParams.get("q"),
+        category: searchParams.get("category"),
+        city: searchParams.get("city")
+      });
 
-      let supabaseQuery = supabase
-        .from("deals")
-        .select("*");
+      try {
+        // First, test connection
+        const { data: sessionData } = await supabase.auth.getSession();
+        console.log('Current session:', sessionData);
 
-      if (query) {
-        supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+        const query = searchParams.get("q")?.toLowerCase() || "";
+        const category = searchParams.get("category");
+        const city = searchParams.get("city");
+
+        let supabaseQuery = supabase
+          .from("deals")
+          .select("*");
+
+        if (query) {
+          console.log('Applying search filter:', query);
+          supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+        }
+
+        if (category && category !== "Alla Erbjudanden") {
+          console.log('Applying category filter:', category);
+          supabaseQuery = supabaseQuery.eq("category", category);
+        }
+
+        if (city && city !== "Alla Städer") {
+          console.log('Applying city filter:', city);
+          supabaseQuery = supabaseQuery.eq("city", city);
+        }
+
+        const { data, error } = await supabaseQuery;
+
+        if (error) {
+          console.error("Error fetching deals:", error);
+          toast.error("Kunde inte hämta erbjudanden. Försök igen senare.");
+          return;
+        }
+
+        console.log('Deals fetch successful:', {
+          totalDeals: data?.length || 0,
+          firstDeal: data?.[0]
+        });
+
+        setDeals(data as Deal[]);
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        toast.error("Ett oväntat fel uppstod när erbjudanden skulle hämtas.");
+      } finally {
+        setIsLoading(false);
       }
-
-      if (category && category !== "Alla Erbjudanden") {
-        supabaseQuery = supabaseQuery.eq("category", category);
-      }
-
-      if (city && city !== "Alla Städer") {
-        supabaseQuery = supabaseQuery.eq("city", city);
-      }
-
-      const { data, error } = await supabaseQuery;
-
-      if (error) {
-        console.error("Error fetching deals:", error);
-        return;
-      }
-
-      setDeals(data as Deal[]);
-      setIsLoading(false);
     };
 
     fetchDeals();
