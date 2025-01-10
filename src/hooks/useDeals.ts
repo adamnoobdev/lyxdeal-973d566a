@@ -7,40 +7,61 @@ export const useDeals = (category?: string, city?: string) => {
   return useQuery({
     queryKey: ["deals", category, city],
     queryFn: async () => {
-      // Log authentication state
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Current session:', session);
-      console.log('Access token:', session?.access_token);
+      console.log('Starting deals fetch with filters:', { category, city });
+      
+      try {
+        // Log authentication state
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Current session:', session);
+        
+        // First, check if we can connect to Supabase
+        const { data: connectionTest, error: connectionError } = await supabase
+          .from('deals')
+          .select('count')
+          .single();
+          
+        if (connectionError) {
+          console.error('Supabase connection test failed:', connectionError);
+          throw new Error(`Kunde inte ansluta till databasen: ${connectionError.message}`);
+        }
+        
+        console.log('Connection test successful:', connectionTest);
 
-      let query = supabase
-        .from("deals")
-        .select("*");
+        // Build the query
+        let query = supabase
+          .from("deals")
+          .select("*");
 
-      if (category) {
-        console.log('Applying category filter:', category);
-        query = query.eq("category", category);
-      }
+        if (category && category !== "Alla Erbjudanden") {
+          console.log('Applying category filter:', category);
+          query = query.eq("category", category);
+        }
 
-      if (city) {
-        console.log('Applying city filter:', city);
-        query = query.eq("city", city);
-      }
+        if (city && city !== "Alla Städer") {
+          console.log('Applying city filter:', city);
+          query = query.eq("city", city);
+        }
 
-      const { data, error } = await query.order("created_at", { ascending: false });
+        // Execute the query
+        const { data, error } = await query.order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching deals:", error);
-        toast.error("Kunde inte hämta erbjudanden");
+        if (error) {
+          console.error("Error fetching deals:", error);
+          throw error;
+        }
+
+        console.log('Deals fetch successful:', {
+          totalDeals: data?.length || 0,
+          firstDeal: data?.[0],
+          filters: { category, city }
+        });
+
+        return data || [];
+      } catch (error) {
+        console.error('Unexpected error in useDeals:', error);
+        toast.error("Kunde inte hämta erbjudanden. Försök igen senare.");
         throw error;
       }
-
-      if (!data) {
-        console.log('No deals found');
-        return [];
-      }
-
-      console.log('Fetched deals:', data);
-      return data as Deal[];
     },
   });
 };
@@ -49,28 +70,31 @@ export const useFeaturedDeals = () => {
   return useQuery({
     queryKey: ["featured-deals"],
     queryFn: async () => {
-      // Log authentication state for featured deals as well
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Current session (featured deals):', session);
+      console.log('Starting featured deals fetch');
+      
+      try {
+        const { data, error } = await supabase
+          .from("deals")
+          .select("*")
+          .eq("featured", true)
+          .order("created_at", { ascending: false });
 
-      const { data, error } = await supabase
-        .from("deals")
-        .select("*")
-        .eq("featured", true)
-        .order("created_at", { ascending: false });
+        if (error) {
+          console.error("Error fetching featured deals:", error);
+          throw error;
+        }
 
-      if (error) {
-        console.error("Error fetching featured deals:", error);
+        console.log('Featured deals fetch successful:', {
+          totalDeals: data?.length || 0,
+          firstDeal: data?.[0]
+        });
+
+        return data || [];
+      } catch (error) {
+        console.error('Unexpected error in useFeaturedDeals:', error);
         toast.error("Kunde inte hämta utvalda erbjudanden");
         throw error;
       }
-
-      if (!data) {
-        return [];
-      }
-
-      console.log('Fetched featured deals:', data);
-      return data as Deal[];
     },
   });
 };
