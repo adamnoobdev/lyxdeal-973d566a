@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { StatsSection } from "@/components/home/StatsSection";
 import { FiltersSection } from "@/components/home/FiltersSection";
 import { DealsSection } from "@/components/home/DealsSection";
+import { toast } from "sonner";
 
 export default function IndexPage() {
   console.log('Rendering IndexPage');
@@ -20,8 +21,13 @@ export default function IndexPage() {
     selectedCity,
     dealsCount: deals?.length,
     isLoading,
-    error
+    hasError: !!error
   });
+
+  if (error) {
+    console.error('Error fetching deals:', error);
+    toast.error('Ett fel uppstod när erbjudanden skulle hämtas');
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
