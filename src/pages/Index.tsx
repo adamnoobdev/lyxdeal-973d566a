@@ -31,8 +31,9 @@ export default function IndexPage() {
     // Implement search logic here
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  // Updated to match SearchBarProps type
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
   };
 
   return (
