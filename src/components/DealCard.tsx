@@ -1,65 +1,63 @@
-import { memo, useCallback } from "react";
-import { Card } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { DealImage } from "./deal/DealImage";
+import { Deal } from "@/types/deal";
+import { FeaturedDealContent } from "./deal/FeaturedDealContent";
 import { RegularDealContent } from "./deal/RegularDealContent";
+import { DealImage } from "./deal/DealImage";
+import { cn } from "@/lib/utils";
 
-interface DealCardProps {
-  id: number;
-  title: string;
-  description: string;
-  image_url: string;
-  original_price: number;
-  discounted_price: number;
-  time_remaining: string;
-  category: string;
-  city: string;
-  created_at: string;
-  quantity_left: number;
+interface DealCardProps extends Deal {
+  className?: string;
 }
 
-const DealCardComponent = ({
-  id,
-  title,
-  description,
-  image_url,
-  original_price,
-  discounted_price,
-  time_remaining,
-  category,
-  city,
-  created_at,
-  quantity_left,
-}: DealCardProps) => {
-  const isNew = useCallback(() => {
-    const createdDate = new Date(created_at);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - createdDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 3;
-  }, [created_at]);
+export function DealCard({ className, ...deal }: DealCardProps) {
+  const {
+    title,
+    description,
+    image_url,
+    original_price,
+    discounted_price,
+    time_remaining,
+    category,
+    city,
+    featured,
+    quantity_left,
+  } = deal;
+
+  const discountPercentage = Math.round(
+    ((original_price - discounted_price) / original_price) * 100
+  );
+
+  const isNew = new Date(deal.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   return (
-    <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-lg hover:-translate-y-1 bg-gradient-to-br from-white via-white to-accent-50/30 border border-accent/20">
-      <Link to={`/deal/${id}`} className="block">
-        <DealImage
-          imageUrl={image_url}
-          title={title}
-          isNew={isNew()}
-        />
-        <RegularDealContent
+    <div className={cn("relative group overflow-hidden rounded-xl", className)}>
+      <DealImage imageUrl={image_url} title={title} />
+      {featured ? (
+        <FeaturedDealContent
           title={title}
           description={description}
           category={category}
+          discountPercentage={discountPercentage}
+          isNew={isNew}
           city={city}
           timeRemaining={time_remaining}
           originalPrice={original_price}
           discountedPrice={discounted_price}
           quantityLeft={quantity_left}
         />
-      </Link>
-    </Card>
+      ) : (
+        <RegularDealContent
+          title={title}
+          description={description}
+          category={category}
+          discountPercentage={discountPercentage}
+          isNew={isNew}
+          city={city}
+          timeRemaining={time_remaining}
+          originalPrice={original_price}
+          discountedPrice={discounted_price}
+          quantityLeft={quantity_left}
+        />
+      )}
+    </div>
   );
-};
-
-export const DealCard = memo(DealCardComponent);
+}

@@ -4,8 +4,22 @@ import { DealCard } from "./DealCard";
 import { Deal } from "@/types/deal";
 import { Alert, AlertDescription } from "./ui/alert";
 import { AlertTriangle } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { useEffect } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 
 export function FeaturedDeals() {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
+    Autoplay({ delay: 4000, stopOnInteraction: false }),
+  ]);
+
   const { data: deals, isLoading, error } = useQuery({
     queryKey: ['featuredDeals'],
     queryFn: async () => {
@@ -24,38 +38,28 @@ export function FeaturedDeals() {
           throw error;
         }
 
-        console.log('Raw featured deals response:', data);
         console.log('Featured deals fetch successful. Number of deals:', data?.length);
-        if (data && data.length > 0) {
-          console.log('First featured deal:', data[0]);
-          console.log('All featured deals:', data);
-        } else {
-          console.log('No featured deals found in database');
-        }
-        
         return data as Deal[];
       } catch (error) {
         console.error('Unexpected error in featured deals:', error);
-        if (error instanceof Error) {
-          console.error('Error details:', error.message, error.stack);
-        }
         throw error;
       }
     },
   });
 
+  useEffect(() => {
+    if (emblaApi) {
+      emblaApi.reInit();
+    }
+  }, [emblaApi, deals]);
+
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-96 bg-accent/50 rounded-xl animate-pulse" />
-        ))}
-      </div>
+      <div className="h-[500px] bg-accent/50 rounded-xl animate-pulse" />
     );
   }
 
   if (error) {
-    console.error('Featured deals error:', error);
     return (
       <Alert variant="destructive" className="my-4">
         <AlertTriangle className="h-4 w-4" />
@@ -67,19 +71,29 @@ export function FeaturedDeals() {
   }
 
   if (!deals?.length) {
-    console.log('No featured deals found');
     return null;
   }
 
-  console.log('Rendering featured deals:', deals);
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {deals.map((deal) => (
-        <DealCard
-          key={deal.id}
-          {...deal}
-        />
-      ))}
-    </div>
+    <Carousel
+      ref={emblaRef}
+      className="w-full relative group"
+      opts={{
+        align: "start",
+        loop: true,
+      }}
+    >
+      <CarouselContent>
+        {deals.map((deal) => (
+          <CarouselItem key={deal.id} className="basis-full">
+            <div className="relative h-[500px] rounded-xl overflow-hidden transition-all duration-300 transform hover:scale-[1.01]">
+              <DealCard {...deal} className="h-full" />
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <CarouselNext className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </Carousel>
   );
 }
