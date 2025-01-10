@@ -9,15 +9,21 @@ interface DealImageProps {
 }
 
 export const DealImage = ({ imageUrl, title, discountPercentage, isNew }: DealImageProps) => {
+  // Fallback image if the provided URL is invalid or image fails to load
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = "/placeholder.svg";
+  };
+
   return (
     <div className="relative overflow-hidden rounded-t-lg">
-      <div className="aspect-[4/3] overflow-hidden">
+      <div className="aspect-[4/3] overflow-hidden bg-accent/10">
         <img
           src={imageUrl}
           alt={title}
           className="h-full w-full object-cover transition-all duration-700 ease-in-out group-hover:scale-105"
           loading="lazy"
           decoding="async"
+          onError={handleImageError}
         />
       </div>
       <div className="absolute right-3 top-3 flex gap-2">
