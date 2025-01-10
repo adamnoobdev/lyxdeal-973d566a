@@ -22,11 +22,17 @@ export const NavigationBar = () => {
     const checkUserRole = async () => {
       if (session?.user) {
         // Kolla först om användaren är en salongsägare eller admin
-        const { data: salon } = await supabase
+        const { data: salon, error } = await supabase
           .from('salons')
           .select('role')
           .eq('user_id', session.user.id)
-          .single();
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error checking user role:', error);
+          setUserRole('customer');
+          return;
+        }
         
         if (salon) {
           setUserRole(salon.role as 'salon_owner' | 'admin');
