@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Lock, LogOut, Plus, List } from "lucide-react";
+import { Lock, LogOut, Plus, List, LayoutDashboard, Store, Tag } from "lucide-react";
 import { SalonsList } from "@/components/admin/salons/SalonsList";
 
 const ADMIN_PASSWORD = "admin123";
@@ -107,12 +107,15 @@ export default function AdminPage() {
 
   return (
     <div className="container mx-auto p-6 animate-fade-up">
-      <Card>
-        <CardHeader className="border-b">
+      <Card className="border-none shadow-none bg-transparent">
+        <CardHeader className="px-0">
           <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="text-2xl">Admin Dashboard</CardTitle>
-              <CardDescription>
+            <div className="space-y-1">
+              <CardTitle className="text-3xl font-bold flex items-center gap-2">
+                <LayoutDashboard className="h-8 w-8 text-primary" />
+                Admin Dashboard
+              </CardTitle>
+              <CardDescription className="text-lg">
                 Hantera erbjudanden och salonger
               </CardDescription>
             </div>
@@ -123,47 +126,59 @@ export default function AdminPage() {
                 setPassword("");
                 toast.success("Du har loggats ut! 👋");
               }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 hover:bg-destructive hover:text-white transition-colors"
             >
               <LogOut className="h-4 w-4" />
               Logga ut
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
-          <Tabs defaultValue="deals" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="deals" className="flex items-center gap-2">
-                <List className="h-4 w-4" />
+        <CardContent className="px-0 pt-6">
+          <Tabs defaultValue="deals" className="space-y-6">
+            <TabsList className="w-full justify-start bg-muted/50 p-1">
+              <TabsTrigger value="deals" className="flex items-center gap-2 data-[state=active]:bg-white">
+                <Tag className="h-4 w-4" />
                 Erbjudanden
               </TabsTrigger>
-              <TabsTrigger value="salons" className="flex items-center gap-2">
-                <List className="h-4 w-4" />
+              <TabsTrigger value="salons" className="flex items-center gap-2 data-[state=active]:bg-white">
+                <Store className="h-4 w-4" />
                 Salonger
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="deals">
-              <Tabs defaultValue="list" className="space-y-4">
-                <TabsList>
-                  <TabsTrigger value="list" className="flex items-center gap-2">
+            <TabsContent value="deals" className="space-y-6">
+              <Tabs defaultValue="list" className="space-y-6">
+                <TabsList className="w-full justify-start bg-muted/50 p-1">
+                  <TabsTrigger value="list" className="flex items-center gap-2 data-[state=active]:bg-white">
                     <List className="h-4 w-4" />
                     Lista erbjudanden
                   </TabsTrigger>
-                  <TabsTrigger value="create" className="flex items-center gap-2">
+                  <TabsTrigger value="create" className="flex items-center gap-2 data-[state=active]:bg-white">
                     <Plus className="h-4 w-4" />
                     Skapa erbjudande
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="list">
-                  <DealsList />
+                  <Card>
+                    <CardContent className="p-6">
+                      <DealsList />
+                    </CardContent>
+                  </Card>
                 </TabsContent>
                 <TabsContent value="create">
-                  <DealForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+                  <Card>
+                    <CardContent className="p-6">
+                      <DealForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+                    </CardContent>
+                  </Card>
                 </TabsContent>
               </Tabs>
             </TabsContent>
             <TabsContent value="salons">
-              <SalonsList />
+              <Card>
+                <CardContent className="p-6">
+                  <SalonsList />
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </CardContent>
