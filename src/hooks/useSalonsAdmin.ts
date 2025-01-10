@@ -15,28 +15,14 @@ export const useSalonsAdmin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const checkAdminAccess = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return false;
-
-    const { data: roles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', session.user.id)
-      .eq('role', 'admin')
-      .single();
-
-    return !!roles;
-  };
-
   const fetchSalons = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const isAdmin = await checkAdminAccess();
-      if (!isAdmin) {
-        throw new Error("Unauthorized: Admin access required");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error("Du måste vara inloggad för att hantera salonger");
       }
 
       const { data, error: fetchError } = await supabase
@@ -58,9 +44,9 @@ export const useSalonsAdmin = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const isAdmin = await checkAdminAccess();
-      if (!isAdmin) {
-        throw new Error("Unauthorized: Admin access required");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error("Du måste vara inloggad för att ta bort salonger");
       }
 
       const { error: deleteError } = await supabase
@@ -83,9 +69,9 @@ export const useSalonsAdmin = () => {
 
   const handleCreate = async (values: UpdateSalonData) => {
     try {
-      const isAdmin = await checkAdminAccess();
-      if (!isAdmin) {
-        throw new Error("Unauthorized: Admin access required");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error("Du måste vara inloggad för att skapa salonger");
       }
 
       const { error: createError } = await supabase
@@ -107,9 +93,9 @@ export const useSalonsAdmin = () => {
 
   const handleUpdate = async (values: UpdateSalonData, id: number) => {
     try {
-      const isAdmin = await checkAdminAccess();
-      if (!isAdmin) {
-        throw new Error("Unauthorized: Admin access required");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error("Du måste vara inloggad för att uppdatera salonger");
       }
 
       const { error: updateError } = await supabase

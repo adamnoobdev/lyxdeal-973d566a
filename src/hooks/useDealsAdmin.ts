@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Deal } from "@/components/admin/types";
 import { useSession } from "./useSession";
-import { checkAdminRole, fetchDeals } from "@/utils/adminUtils";
 import { deleteDeal, updateDeal } from "@/utils/dealMutations";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -17,12 +16,6 @@ export const useDealsAdmin = () => {
         throw new Error("Du måste vara inloggad för att hantera erbjudanden");
       }
 
-      const { data: userRole } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
       const { data: salon } = await supabase
         .from('salons')
         .select('id')
@@ -34,8 +27,8 @@ export const useDealsAdmin = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Om användaren är en salong, visa bara deras erbjudanden
-      if (userRole?.role === 'salon' && salon) {
+      // Om användaren är kopplad till en salong, visa bara deras erbjudanden
+      if (salon) {
         query = query.eq('salon_id', salon.id);
       }
 
