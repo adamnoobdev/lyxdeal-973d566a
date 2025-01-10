@@ -35,10 +35,6 @@ export const NavigationBar = () => {
         
         if (salon) {
           setUserRole(salon.role as 'salon_owner' | 'admin');
-          // Automatically redirect admin users to the admin dashboard
-          if (salon.role === 'admin' && window.location.pathname === '/') {
-            navigate('/admin');
-          }
         } else {
           setUserRole('customer');
         }
@@ -48,7 +44,7 @@ export const NavigationBar = () => {
     };
 
     checkUserRole();
-  }, [session, navigate]);
+  }, [session]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,8 +94,6 @@ export const NavigationBar = () => {
       navigate("/salon/dashboard");
     } else if (userRole === 'admin') {
       navigate("/admin");
-    } else {
-      toast.error("Du har inte tillgång till denna sida");
     }
     setIsOpen(false);
   };
