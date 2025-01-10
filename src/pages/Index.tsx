@@ -9,7 +9,10 @@ export default function IndexPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Alla Erbjudanden");
   const [selectedCity, setSelectedCity] = useState<string>("Alla Städer");
 
-  const { data: deals, isLoading, error } = useDeals(selectedCategory, selectedCity);
+  const { data: deals, isLoading, error } = useDeals(
+    selectedCategory === "Alla Erbjudanden" ? undefined : selectedCategory,
+    selectedCity === "Alla Städer" ? undefined : selectedCity
+  );
 
   return (
     <div className="flex flex-col min-h-screen">

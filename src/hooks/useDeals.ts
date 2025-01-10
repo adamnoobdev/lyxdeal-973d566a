@@ -1,41 +1,39 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { Deal } from "@/types/deal";
 
 export const useDeals = (category?: string, city?: string) => {
   return useQuery({
     queryKey: ["deals", category, city],
     queryFn: async () => {
-      console.log('Fetching deals with category:', category, 'and city:', city);
+      console.log('Starting deals fetch with filters:', { category, city });
       
-      try {
-        let query = supabase
-          .from("deals")
-          .select("*")
-          .order("created_at", { ascending: false });
+      let query = supabase
+        .from("deals")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-        if (category && category !== "Alla Erbjudanden") {
-          query = query.eq("category", category);
-        }
+      // Only apply category filter if it's not "Alla Erbjudanden"
+      if (category && category !== "Alla Erbjudanden") {
+        console.log('Applying category filter:', category);
+        query = query.eq("category", category);
+      }
 
-        if (city && city !== "Alla Städer") {
-          query = query.eq("city", city);
-        }
+      // Only apply city filter if it's not "Alla Städer"
+      if (city && city !== "Alla Städer") {
+        console.log('Applying city filter:', city);
+        query = query.eq("city", city);
+      }
 
-        const { data, error } = await query;
+      const { data, error } = await query;
 
-        if (error) {
-          console.error("Error fetching deals:", error);
-          throw error;
-        }
-
-        console.log('Fetched deals:', data?.length || 0, 'results');
-        return data as Deal[];
-      } catch (error) {
-        console.error("Unexpected error:", error);
+      if (error) {
+        console.error("Error fetching deals:", error);
         throw error;
       }
+
+      console.log('Deals fetched successfully:', data?.length || 0, 'results');
+      return data as Deal[];
     },
     retry: 1,
   });
@@ -47,24 +45,19 @@ export const useFeaturedDeals = () => {
     queryFn: async () => {
       console.log('Fetching featured deals');
       
-      try {
-        const { data, error } = await supabase
-          .from("deals")
-          .select("*")
-          .eq("featured", true)
-          .order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*")
+        .eq("featured", true)
+        .order("created_at", { ascending: false });
 
-        if (error) {
-          console.error("Error fetching featured deals:", error);
-          throw error;
-        }
-
-        console.log('Fetched featured deals:', data?.length || 0, 'results');
-        return data as Deal[];
-      } catch (error) {
-        console.error("Unexpected error:", error);
+      if (error) {
+        console.error("Error fetching featured deals:", error);
         throw error;
       }
+
+      console.log('Featured deals fetched:', data?.length || 0, 'results');
+      return data as Deal[];
     },
     retry: 1,
   });
