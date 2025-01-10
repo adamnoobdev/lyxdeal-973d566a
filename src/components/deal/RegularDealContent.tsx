@@ -23,33 +23,33 @@ export const RegularDealContent = ({
   quantityLeft,
 }: RegularDealContentProps) => {
   return (
-    <div className="flex h-full flex-col gap-3 p-4">
-      <div className="flex items-start justify-between gap-2">
+    <div className="flex h-full flex-col gap-4 p-5">
+      <div className="flex items-start justify-between gap-3">
         <CategoryBadge 
           category={category}
           variant="default"
           className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md"
         />
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm font-medium px-3 py-1 rounded-full bg-accent/40 text-accent-foreground backdrop-blur-sm">
           {timeRemaining}
         </span>
       </div>
 
-      <div className="space-y-1.5">
-        <h3 className="font-semibold leading-tight text-foreground line-clamp-2">
+      <div className="space-y-2.5">
+        <h3 className="font-semibold text-lg leading-tight text-foreground line-clamp-2 group-hover:text-primary/90 transition-colors">
           {title}
         </h3>
-        <p className="text-sm text-muted-foreground line-clamp-2">
+        <p className="text-sm text-muted-foreground/80 line-clamp-2 leading-relaxed">
           {description}
         </p>
       </div>
 
-      <div className="mt-auto space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
+      <div className="mt-auto space-y-4">
+        <div className="flex items-center justify-between border-t border-accent/10 pt-4">
+          <span className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             {city}
           </span>
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-sm px-2.5 py-1 rounded-full bg-success/10 text-success font-medium ring-1 ring-success/20">
             {quantityLeft} kvar
           </span>
         </div>
@@ -57,6 +57,7 @@ export const RegularDealContent = ({
         <PriceDisplay
           originalPrice={originalPrice}
           discountedPrice={discountedPrice}
+          className="pt-1"
         />
       </div>
     </div>

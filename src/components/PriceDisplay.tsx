@@ -16,12 +16,12 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
   };
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-3 ${className}`}>
       <Tag className="h-4 w-4 text-primary" />
-      <span className="text-sm line-through text-muted-foreground/70">
+      <span className="text-sm line-through text-muted-foreground/60">
         {formatPrice(originalPrice)}
       </span>
-      <span className="text-base font-bold text-foreground">
+      <span className="text-lg font-bold text-foreground">
         {formatPrice(discountedPrice)}
       </span>
     </div>
