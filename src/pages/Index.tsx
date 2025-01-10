@@ -31,6 +31,10 @@ export default function IndexPage() {
     // Implement search logic here
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="space-y-4">
@@ -42,7 +46,7 @@ export default function IndexPage() {
 
       <SearchBar 
         searchQuery={searchQuery}
-        onSearchChange={(e) => setSearchQuery(e.target.value)}
+        onSearchChange={handleSearchChange}
         onSubmit={handleSearch}
       />
 
