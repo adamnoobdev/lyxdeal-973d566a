@@ -1,7 +1,7 @@
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag } from "lucide-react";
+import { MapPin, ShoppingBag } from "lucide-react";
 
 interface RegularDealContentProps {
   title: string;
@@ -46,21 +46,23 @@ export const RegularDealContent = ({
         </p>
       </div>
 
-      <div className="mt-auto space-y-4">
-        <div className="flex items-center justify-between border-t border-accent/10 pt-4">
-          <span className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            {city}
-          </span>
+      <div className="mt-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
+            <MapPin className="h-4 w-4" />
+            <span className="text-sm font-medium">
+              {city}
+            </span>
+          </div>
           <span className="text-sm px-2.5 py-1 rounded-full bg-success/10 text-success font-medium ring-1 ring-success/20">
             {quantityLeft} kvar
           </span>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4 pt-4 border-t border-accent/10">
           <PriceDisplay
             originalPrice={originalPrice}
             discountedPrice={discountedPrice}
-            className="pt-1"
           />
           
           <Button 
