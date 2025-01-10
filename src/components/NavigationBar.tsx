@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useScroll } from "@/hooks/useScroll";
 import { useSession } from "@/hooks/useSession";
@@ -7,14 +7,34 @@ import { DesktopNavigation } from "./navigation/DesktopNavigation";
 import { MobileActions } from "./navigation/MobileActions";
 import { MobileSearchContainer } from "./navigation/MobileSearchContainer";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const NavigationBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentCity, setCurrentCity] = useState("Alla Städer");
+  const [hasSalon, setHasSalon] = useState(false);
   const { showMobileSearch } = useScroll();
   const session = useSession();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSalon = async () => {
+      if (session?.user) {
+        const { data: salon } = await supabase
+          .from('salons')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        setHasSalon(!!salon);
+      } else {
+        setHasSalon(false);
+      }
+    };
+
+    checkSalon();
+  }, [session]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,12 +56,22 @@ export const NavigationBar = () => {
   const handleLogout = async () => {
     if (session) {
       await supabase.auth.signOut();
+      toast.success("Du har loggat ut");
       navigate("/");
     }
   };
 
   const handleLogin = () => {
-    navigate("/login");
+    navigate("/auth");
+    setIsOpen(false);
+  };
+
+  const handleDashboard = () => {
+    if (hasSalon) {
+      navigate("/salon/dashboard");
+    } else {
+      toast.error("Du har inte tillgång till en salongsportal");
+    }
     setIsOpen(false);
   };
 
@@ -60,6 +90,8 @@ export const NavigationBar = () => {
             onCategorySelect={handleCategorySelect}
             session={session}
             onLogout={handleLogout}
+            hasSalon={hasSalon}
+            onDashboard={handleDashboard}
           />
 
           <MobileActions 
@@ -71,6 +103,8 @@ export const NavigationBar = () => {
             session={session}
             onLogout={handleLogout}
             onLogin={handleLogin}
+            hasSalon={hasSalon}
+            onDashboard={handleDashboard}
           />
         </div>
 

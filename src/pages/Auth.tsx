@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import type { AuthError } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -15,7 +16,18 @@ const Auth = () => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/");
+        // Check if user has a salon
+        const { data: salon } = await supabase
+          .from('salons')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (salon) {
+          navigate("/salon/dashboard");
+        } else {
+          navigate("/");
+        }
       }
     };
     checkUser();
@@ -23,10 +35,23 @@ const Auth = () => {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session) {
-        navigate("/");
+        // Check if user has a salon after sign in
+        const { data: salon } = await supabase
+          .from('salons')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (salon) {
+          toast.success("Välkommen tillbaka!");
+          navigate("/salon/dashboard");
+        } else {
+          navigate("/");
+        }
       }
       if (event === "SIGNED_OUT") {
         setErrorMessage("");
+        navigate("/");
       }
     });
 
