@@ -7,7 +7,7 @@ import { DealsGrid } from "@/components/DealsGrid";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { Deal } from "@/types/deal";
-import { Sparkles, Star, Clock, Percent } from "lucide-react";
+import { Sparkles, Star, QrCode, Percent } from "lucide-react";
 import { CATEGORIES } from "@/constants/app-constants";
 
 export default function IndexPage() {
@@ -76,9 +76,9 @@ export default function IndexPage() {
               description: "Rabatt på behandlingar" 
             },
             { 
-              icon: Clock, 
-              title: "Boka direkt", 
-              description: "Snabb och enkel bokning" 
+              icon: QrCode, 
+              title: "Digital kod", 
+              description: "Använd direkt i salongen" 
             },
             { 
               icon: Star, 
