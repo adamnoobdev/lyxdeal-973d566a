@@ -21,7 +21,7 @@ export const useDealsAdmin = () => {
         .select("role")
         .eq("user_id", session.user.id)
         .eq("role", "admin")
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
       if (roleError) {
         console.error("Role check error:", roleError);
