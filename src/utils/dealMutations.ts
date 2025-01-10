@@ -1,7 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const deleteDeal = async (id: number) => {
-  const { error } = await supabase.from("deals").delete().eq("id", id);
+  const { error } = await supabase
+    .from("deals")
+    .delete()
+    .eq("id", id);
+    
   if (error) throw error;
   return true;
 };
