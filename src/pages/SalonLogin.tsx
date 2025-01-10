@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
+import { CreateSalonDialog } from "@/components/admin/salons/CreateSalonDialog";
 
 const getErrorMessage = (error: AuthError) => {
   if (error instanceof AuthApiError) {
@@ -28,6 +29,7 @@ export default function SalonLogin() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [creatingTestAccount, setCreatingTestAccount] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,6 +108,41 @@ export default function SalonLogin() {
     }
   };
 
+  const handleCreateSalon = async (values: any) => {
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.signUp({
+        email: values.email,
+        password: password || Math.random().toString(36).slice(-8),
+      });
+
+      if (authError) throw authError;
+
+      if (!user) {
+        throw new Error('No user returned from signup');
+      }
+
+      const { error: salonError } = await supabase
+        .from('salons')
+        .insert([
+          {
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            address: values.address,
+            user_id: user.id,
+          }
+        ]);
+
+      if (salonError) throw salonError;
+
+      toast.success("Salong skapad! Kontrollera din e-post för att verifiera kontot.");
+      setIsCreateDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating salon:', error);
+      toast.error("Kunde inte skapa salong: " + (error instanceof Error ? error.message : 'Okänt fel'));
+    }
+  };
+
   return (
     <div className="container flex items-center justify-center min-h-screen py-12">
       <Card className="w-full max-w-md p-6 space-y-6">
@@ -163,23 +200,40 @@ export default function SalonLogin() {
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={createTestAccount}
-          disabled={loading || creatingTestAccount}
-        >
-          {creatingTestAccount ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Skapar testkonto...
-            </>
-          ) : (
-            "Skapa testkonto"
-          )}
-        </Button>
+        <div className="space-y-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => setIsCreateDialogOpen(true)}
+          >
+            Skapa ny salong
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={createTestAccount}
+            disabled={loading || creatingTestAccount}
+          >
+            {creatingTestAccount ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Skapar testkonto...
+              </>
+            ) : (
+              "Skapa testkonto"
+            )}
+          </Button>
+        </div>
       </Card>
+
+      <CreateSalonDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSubmit={handleCreateSalon}
+      />
     </div>
   );
 }
