@@ -15,17 +15,25 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
     }).format(price);
   };
 
+  const discountPercentage = Math.round(
+    ((originalPrice - discountedPrice) / originalPrice) * 100
+  );
+
   return (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
+    <div className={`space-y-2 ${className}`}>
       <div className="flex items-center gap-2">
-        <Tag className="h-4 w-4 text-primary" />
+        <span className="text-xs font-semibold px-2 py-1 rounded-full bg-primary/10 text-primary">
+          {discountPercentage}% rabatt
+        </span>
+      </div>
+      <div className="flex flex-col">
         <span className="text-sm font-medium text-muted-foreground/60 line-through">
           {formatPrice(originalPrice)}
         </span>
+        <span className="text-3xl font-bold text-foreground">
+          {formatPrice(discountedPrice)}
+        </span>
       </div>
-      <span className="text-2xl font-bold text-foreground">
-        {formatPrice(discountedPrice)}
-      </span>
     </div>
   );
 }
