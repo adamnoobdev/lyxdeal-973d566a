@@ -21,7 +21,7 @@ export const NavigationBar = () => {
   useEffect(() => {
     const checkUserRole = async () => {
       if (session?.user) {
-        // Kolla först om användaren är en salongsägare
+        // Kolla först om användaren är en salongsägare eller admin
         const { data: salon } = await supabase
           .from('salons')
           .select('role')
