@@ -9,7 +9,7 @@ export default function IndexPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Alla Erbjudanden");
   const [selectedCity, setSelectedCity] = useState<string>("Alla Städer");
 
-  const { data: deals, isLoading } = useDeals(selectedCategory, selectedCity);
+  const { data: deals, isLoading, error } = useDeals(selectedCategory, selectedCity);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -23,7 +23,11 @@ export default function IndexPage() {
           onSelectCategory={setSelectedCategory}
           onSelectCity={setSelectedCity}
         />
-        <DealsSection deals={deals} isLoading={isLoading} />
+        <DealsSection 
+          deals={deals} 
+          isLoading={isLoading} 
+          error={error as Error | null}
+        />
       </main>
     </div>
   );

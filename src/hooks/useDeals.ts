@@ -7,6 +7,8 @@ export const useDeals = (category?: string, city?: string) => {
   return useQuery({
     queryKey: ["deals", category, city],
     queryFn: async () => {
+      console.log('Fetching deals with category:', category, 'and city:', city);
+      
       try {
         let query = supabase
           .from("deals")
@@ -25,19 +27,13 @@ export const useDeals = (category?: string, city?: string) => {
 
         if (error) {
           console.error("Error fetching deals:", error);
-          toast.error("Kunde inte hämta erbjudanden. Försök igen senare.");
           throw error;
         }
 
-        if (!data || data.length === 0) {
-          toast.info("Inga erbjudanden hittades");
-          return [];
-        }
-
+        console.log('Fetched deals:', data?.length || 0, 'results');
         return data as Deal[];
       } catch (error) {
         console.error("Unexpected error:", error);
-        toast.error("Ett oväntat fel uppstod. Försök igen senare.");
         throw error;
       }
     },
@@ -49,6 +45,8 @@ export const useFeaturedDeals = () => {
   return useQuery({
     queryKey: ["featuredDeals"],
     queryFn: async () => {
+      console.log('Fetching featured deals');
+      
       try {
         const { data, error } = await supabase
           .from("deals")
@@ -58,18 +56,13 @@ export const useFeaturedDeals = () => {
 
         if (error) {
           console.error("Error fetching featured deals:", error);
-          toast.error("Kunde inte hämta utvalda erbjudanden");
           throw error;
         }
 
-        if (!data || data.length === 0) {
-          return [];
-        }
-
+        console.log('Fetched featured deals:', data?.length || 0, 'results');
         return data as Deal[];
       } catch (error) {
         console.error("Unexpected error:", error);
-        toast.error("Ett oväntat fel uppstod vid hämtning av utvalda erbjudanden");
         throw error;
       }
     },
