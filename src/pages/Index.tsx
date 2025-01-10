@@ -12,7 +12,7 @@ export default function IndexPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Alla Erbjudanden");
   const [selectedCity, setSelectedCity] = useState<string>("Alla Städer");
 
-  const { data: deals, isLoading } = useDeals(selectedCategory, selectedCity);
+  const { data: deals, isLoading, error } = useDeals(selectedCategory, selectedCity);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -104,14 +104,25 @@ export default function IndexPage() {
             <Sparkles className="h-6 w-6 text-primary" />
             <h2 className="text-3xl font-bold">Alla erbjudanden</h2>
           </div>
-          {isLoading ? (
+          {error ? (
+            <Alert variant="destructive" className="my-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Det gick inte att hämta erbjudanden. Försök igen senare.
+              </AlertDescription>
+            </Alert>
+          ) : isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="h-96 bg-accent/50 rounded-xl animate-pulse" />
               ))}
             </div>
+          ) : deals && deals.length > 0 ? (
+            <DealsGrid deals={deals} />
           ) : (
-            deals && <DealsGrid deals={deals} />
+            <p className="text-center text-muted-foreground py-8">
+              Inga erbjudanden hittades.
+            </p>
           )}
         </section>
       </main>
