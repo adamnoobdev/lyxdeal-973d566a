@@ -7,7 +7,7 @@ import { DealsGrid } from "@/components/DealsGrid";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { Deal } from "@/types/deal";
-import { Sparkles, Star } from "lucide-react";
+import { Sparkles, Star, Clock, Percent } from "lucide-react";
 import { CATEGORIES } from "@/constants/app-constants";
 
 export default function IndexPage() {
@@ -70,9 +70,21 @@ export default function IndexPage() {
         {/* Featured Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { icon: Star, title: "4.8/5", description: "Genomsnittligt betyg" },
-            { icon: Sparkles, title: "10,000+", description: "Nöjda kunder" },
-            { icon: Star, title: "500+", description: "Partnersalonger" }
+            { 
+              icon: Percent, 
+              title: "Upp till 70%", 
+              description: "Rabatt på behandlingar" 
+            },
+            { 
+              icon: Clock, 
+              title: "Boka direkt", 
+              description: "Snabb och enkel bokning" 
+            },
+            { 
+              icon: Star, 
+              title: "Kvalitetssäkrat", 
+              description: "Utvalda salonger" 
+            }
           ].map((stat, index) => (
             <div 
               key={index} 
