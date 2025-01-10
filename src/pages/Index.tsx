@@ -4,9 +4,10 @@ import { Cities } from "@/components/Cities";
 import { DealsGrid } from "@/components/DealsGrid";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
 import { CategoryBadge } from "@/components/CategoryBadge";
-import { Sparkles, Star, QrCode, Percent } from "lucide-react";
+import { Sparkles, Star, QrCode, Percent, AlertTriangle } from "lucide-react";
 import { CATEGORIES } from "@/constants/app-constants";
 import { useDeals } from "@/hooks/useDeals";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function IndexPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Alla Erbjudanden");
