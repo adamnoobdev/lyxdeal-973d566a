@@ -48,13 +48,13 @@ const DealCardComponent = ({
 
   if (featured) {
     return (
-      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl">
+      <Card className="group relative overflow-hidden transition-all duration-500 hover:shadow-xl hover:shadow-primary/10">
         <Link to={`/deal/${id}`} className="block relative">
-          <div className="relative h-[350px] sm:h-[400px] md:h-[450px]">
+          <div className="relative h-[400px] sm:h-[450px] md:h-[500px]">
             <img
               src={image_url}
               alt={title}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
               decoding="async"
             />
@@ -77,7 +77,7 @@ const DealCardComponent = ({
   }
 
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+    <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
       <Link to={`/deal/${id}`}>
         <DealImage
           imageUrl={image_url}
