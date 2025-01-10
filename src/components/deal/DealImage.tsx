@@ -1,4 +1,5 @@
 import { CategoryBadge } from "../CategoryBadge";
+import { Star } from "lucide-react";
 
 interface DealImageProps {
   imageUrl: string;
@@ -14,21 +15,24 @@ export const DealImage = ({ imageUrl, title, discountPercentage, isNew }: DealIm
         <img
           src={imageUrl}
           alt={title}
-          className="h-full w-full object-cover transition-all duration-500 ease-in-out group-hover:scale-105"
+          className="h-full w-full object-cover transition-all duration-700 ease-in-out group-hover:scale-105"
           loading="lazy"
           decoding="async"
         />
       </div>
       <div className="absolute right-3 top-3 flex gap-2">
-        <span className="bg-gradient-to-r from-[#D946EF]/90 to-[#9b87f5]/90 text-white text-xs px-2.5 py-1 rounded-full font-medium shadow-lg backdrop-blur-sm">
+        <span className="bg-gradient-to-r from-success/90 to-primary/90 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm ring-1 ring-white/10">
           -{discountPercentage}%
         </span>
         {isNew && (
           <CategoryBadge
             category="NYTT"
             variant="default"
-            className="bg-yellow-400/90 text-yellow-950 hover:bg-yellow-500 border-transparent shadow-lg backdrop-blur-sm"
-          />
+            className="bg-gradient-to-r from-yellow-400/90 to-amber-500/90 text-yellow-950 hover:from-yellow-400 hover:to-amber-500 border-transparent shadow-lg backdrop-blur-sm ring-1 ring-white/10 flex items-center gap-1"
+          >
+            <Star className="h-3 w-3" />
+            NYTT
+          </CategoryBadge>
         )}
       </div>
     </div>
