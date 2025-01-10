@@ -27,8 +27,10 @@ export function CategoryBadge({ category, variant = "outline", className = "", c
       variant={variant} 
       className={`inline-flex items-center gap-1 w-auto ${
         category === "NYTT" 
-          ? "bg-yellow-400 text-yellow-950 hover:bg-yellow-500 border-transparent" 
-          : ""
+          ? "bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-950 hover:from-yellow-500 hover:to-yellow-600 border-transparent" 
+          : variant === "default" 
+            ? "bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:via-secondary/90 hover:to-accent/90 text-white border-transparent"
+            : "border-primary/20 text-primary hover:bg-primary/10"
       } ${className}`}
     >
       {children || (

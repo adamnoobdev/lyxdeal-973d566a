@@ -30,9 +30,9 @@ export const RegularDealContent = ({
         <CategoryBadge 
           category={category}
           variant="default"
-          className="bg-gradient-to-r from-primary via-success to-secondary text-white font-semibold shadow-sm"
+          className="bg-primary/90 hover:bg-primary text-white shadow-sm transition-colors"
         />
-        <div className="flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full bg-accent text-accent-foreground">
+        <div className="flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full bg-accent/20 text-accent-foreground">
           <Clock className="h-3.5 w-3.5" />
           {timeRemaining}
         </div>
@@ -71,7 +71,7 @@ export const RegularDealContent = ({
             className="pb-2"
           />
           <Button 
-            className="w-full bg-gradient-to-r from-primary to-success hover:from-primary/90 hover:to-success/90 text-white font-semibold shadow-md" 
+            className="w-full bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:via-secondary/90 hover:to-accent/90 text-white font-semibold shadow-md transition-all duration-300" 
             size="lg"
           >
             <ShoppingBag className="mr-2 h-4 w-4" />
