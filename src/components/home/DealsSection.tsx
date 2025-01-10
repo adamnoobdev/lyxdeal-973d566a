@@ -15,7 +15,8 @@ export const DealsSection = ({ deals, isLoading, error }: DealsSectionProps) => 
   console.log('DealsSection props:', {
     dealsCount: deals?.length,
     isLoading,
-    hasError: !!error
+    hasError: !!error,
+    errorMessage: error?.message
   });
 
   return (
