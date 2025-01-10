@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CATEGORIES } from "@/constants/app-constants";
@@ -11,11 +11,25 @@ interface CategoriesProps {
 
 const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const handleCategoryClick = (category: string) => {
     onSelectCategory(category);
+    const city = searchParams.get('city');
+    
     if (category !== "Alla Erbjudanden") {
-      navigate(`/search?category=${encodeURIComponent(category)}`);
+      const newParams = new URLSearchParams();
+      newParams.set('category', category);
+      if (city) {
+        newParams.set('city', city);
+      }
+      navigate(`/search?${newParams.toString()}`);
+    } else {
+      const newParams = new URLSearchParams();
+      if (city) {
+        newParams.set('city', city);
+      }
+      navigate(`/search?${newParams.toString()}`);
     }
   };
 

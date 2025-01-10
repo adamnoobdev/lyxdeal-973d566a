@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CITIES } from "@/constants/app-constants";
@@ -9,6 +10,24 @@ interface CitiesProps {
 }
 
 const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const handleCityClick = (city: string) => {
+    onSelectCity(city);
+    const category = searchParams.get('category') || '';
+    
+    if (city !== "Alla Städer") {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('city', city);
+      navigate(`/search?${newParams.toString()}`);
+    } else {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('city');
+      navigate(`/search?${newParams.toString()}`);
+    }
+  };
+
   return (
     <div className="relative mb-6 -mx-4 md:mx-0">
       <ScrollArea className="w-full whitespace-nowrap">
@@ -17,7 +36,7 @@ const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
             <Button
               key={city}
               variant={selectedCity === city ? "default" : "outline"}
-              onClick={() => onSelectCity(city)}
+              onClick={() => handleCityClick(city)}
               className={`
                 ${selectedCity === city ? "bg-primary shadow-md" : "hover:bg-accent"}
                 flex-shrink-0 text-xs py-1.5 px-4 h-8 transition-all duration-300

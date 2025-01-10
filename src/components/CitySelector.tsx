@@ -1,3 +1,4 @@
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,6 +28,22 @@ export const CitySelector = ({
   onCitySelect,
   variant = "desktop" 
 }: CitySelectorProps) => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const handleCitySelect = (city: string) => {
+    onCitySelect(city);
+    const category = searchParams.get('category');
+    
+    const newParams = new URLSearchParams(searchParams);
+    if (city !== "Alla Städer") {
+      newParams.set('city', city);
+    } else {
+      newParams.delete('city');
+    }
+    navigate(`/search?${newParams.toString()}`);
+  };
+
   if (variant === "mobile") {
     return (
       <div className="flex flex-col gap-1">
@@ -35,7 +52,7 @@ export const CitySelector = ({
             key={city}
             variant="ghost"
             className="w-full justify-start gap-3 h-10 font-medium"
-            onClick={() => onCitySelect(city)}
+            onClick={() => handleCitySelect(city)}
           >
             <MapPin className="h-4 w-4" />
             <span>{city}</span>
@@ -64,7 +81,7 @@ export const CitySelector = ({
         {cities.map((city) => (
           <DropdownMenuItem
             key={city}
-            onClick={() => onCitySelect(city)}
+            onClick={() => handleCitySelect(city)}
             className="flex items-center gap-3 py-2 px-3 cursor-pointer rounded-md"
           >
             <MapPin className="h-4 w-4" />
