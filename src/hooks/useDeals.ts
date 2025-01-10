@@ -10,22 +10,19 @@ export const useDeals = (category?: string, city?: string) => {
       
       let query = supabase
         .from("deals")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*");
 
-      // Only apply category filter if it's not undefined
       if (category) {
         console.log('Applying category filter:', category);
         query = query.eq("category", category);
       }
 
-      // Only apply city filter if it's not undefined
       if (city) {
         console.log('Applying city filter:', city);
         query = query.eq("city", city);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await query.order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching deals:", error);
@@ -39,7 +36,6 @@ export const useDeals = (category?: string, city?: string) => {
       
       return data as Deal[];
     },
-    retry: 1,
   });
 };
 
@@ -67,6 +63,5 @@ export const useFeaturedDeals = () => {
       
       return data as Deal[];
     },
-    retry: 1,
   });
 };
