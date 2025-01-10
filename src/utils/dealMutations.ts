@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 export const deleteDeal = async (id: number) => {
   const { error } = await supabase.from("deals").delete().eq("id", id);
@@ -20,6 +19,7 @@ export const updateDeal = async (values: any, id: number) => {
       city: values.city,
       time_remaining: values.timeRemaining,
       featured: values.featured,
+      salon_id: values.salon_id,
     })
     .eq("id", id);
 

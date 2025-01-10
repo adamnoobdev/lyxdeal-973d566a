@@ -4,6 +4,7 @@ import { Deal } from "@/components/admin/types";
 import { useSession } from "./useSession";
 import { checkAdminRole, fetchDeals } from "@/utils/adminUtils";
 import { deleteDeal, updateDeal } from "@/utils/dealMutations";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useDealsAdmin = () => {
   const queryClient = useQueryClient();
@@ -16,8 +17,32 @@ export const useDealsAdmin = () => {
         throw new Error("Du måste vara inloggad för att hantera erbjudanden");
       }
 
-      await checkAdminRole(session.user.id);
-      return fetchDeals();
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .single();
+
+      const { data: salon } = await supabase
+        .from('salons')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      let query = supabase
+        .from('deals')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      // Om användaren är en salong, visa bara deras erbjudanden
+      if (userRole?.role === 'salon' && salon) {
+        query = query.eq('salon_id', salon.id);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data;
     },
     retry: false,
   });
@@ -47,7 +72,13 @@ export const useDealsAdmin = () => {
         return false;
       }
 
-      await updateDeal(values, id);
+      const { data: salon } = await supabase
+        .from('salons')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      await updateDeal({ ...values, salon_id: salon?.id }, id);
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast.success("Erbjudandet har uppdaterats");
       return true;

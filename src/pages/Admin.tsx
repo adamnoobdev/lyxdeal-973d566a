@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DealForm } from "@/components/DealForm";
 import { DealsList } from "@/components/admin/DealsList";
@@ -24,6 +24,7 @@ const formSchema = z.object({
   city: z.string(),
   timeRemaining: z.string(),
   featured: z.boolean(),
+  salon_id: z.number().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -33,6 +34,26 @@ export default function AdminPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
+  const [currentSalon, setCurrentSalon] = useState<{ id: number } | null>(null);
+
+  useEffect(() => {
+    const checkCurrentUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: salon } = await supabase
+          .from('salons')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (salon) {
+          setCurrentSalon(salon);
+        }
+      }
+    };
+
+    checkCurrentUser();
+  }, []);
 
   const handleSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -47,6 +68,7 @@ export default function AdminPage() {
         city: values.city,
         time_remaining: values.timeRemaining,
         featured: values.featured,
+        salon_id: currentSalon?.id,
       });
 
       if (error) throw error;

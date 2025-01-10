@@ -21,6 +21,7 @@ export type Database = {
           image_url: string
           original_price: number
           quantity_left: number
+          salon_id: number | null
           stripe_price_id: string | null
           time_remaining: string
           title: string
@@ -37,6 +38,7 @@ export type Database = {
           image_url: string
           original_price: number
           quantity_left?: number
+          salon_id?: number | null
           stripe_price_id?: string | null
           time_remaining: string
           title: string
@@ -53,12 +55,21 @@ export type Database = {
           image_url?: string
           original_price?: number
           quantity_left?: number
+          salon_id?: number | null
           stripe_price_id?: string | null
           time_remaining?: string
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "deals_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
