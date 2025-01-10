@@ -2,20 +2,43 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Deal } from "@/components/admin/types";
+import { useSession } from "./useSession";
 
 export const useDealsAdmin = () => {
   const queryClient = useQueryClient();
+  const session = useSession();
 
   const { data: deals, isLoading, error } = useQuery({
     queryKey: ["admin-deals"],
     queryFn: async () => {
+      if (!session?.user?.id) {
+        throw new Error("Du måste vara inloggad för att hantera erbjudanden");
+      }
+
+      // First check if user has admin role
+      const { data: roleData, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .single();
+
+      if (roleError) {
+        console.error("Role check error:", roleError);
+        throw new Error("Kunde inte verifiera admin-behörighet");
+      }
+
+      if (!roleData) {
+        throw new Error("Du har inte behörighet att hantera erbjudanden");
+      }
+
       const { data, error } = await supabase
         .from("deals")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) {
-        toast.error("Kunde inte hämta erbjudanden");
+        console.error("Deals fetch error:", error);
         throw error;
       }
 
@@ -34,12 +57,19 @@ export const useDealsAdmin = () => {
         updated_at: deal.updated_at
       })) as Deal[];
     },
+    retry: false,
   });
 
   const handleDelete = async (id: number) => {
     try {
+      if (!session?.user?.id) {
+        toast.error("Du måste vara inloggad för att ta bort erbjudanden");
+        return false;
+      }
+
       const { error } = await supabase.from("deals").delete().eq("id", id);
       if (error) throw error;
+      
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast.success("Erbjudandet har tagits bort");
       return true;
@@ -52,6 +82,11 @@ export const useDealsAdmin = () => {
 
   const handleUpdate = async (values: any, id: number) => {
     try {
+      if (!session?.user?.id) {
+        toast.error("Du måste vara inloggad för att uppdatera erbjudanden");
+        return false;
+      }
+
       const { error } = await supabase
         .from("deals")
         .update({
