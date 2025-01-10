@@ -15,7 +15,7 @@ interface DealCardProps {
   category: string;
   city: string;
   created_at: string;
-  quantityLeft: number;
+  quantity_left: number;
 }
 
 const DealCardComponent = ({
@@ -29,7 +29,7 @@ const DealCardComponent = ({
   category,
   city,
   created_at,
-  quantityLeft,
+  quantity_left,
 }: DealCardProps) => {
   const discountPercentage = Math.round(
     ((original_price - discounted_price) / original_price) * 100
@@ -60,7 +60,7 @@ const DealCardComponent = ({
           timeRemaining={time_remaining}
           originalPrice={original_price}
           discountedPrice={discounted_price}
-          quantityLeft={quantityLeft}
+          quantityLeft={quantity_left}
         />
       </Link>
     </Card>
