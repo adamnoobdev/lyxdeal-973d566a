@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DealCard } from "./DealCard";
 import { Deal } from "@/types/deal";
+import { Alert, AlertDescription } from "./ui/alert";
+import { ExclamationTriangleIcon } from "lucide-react";
 
 export function FeaturedDeals() {
-  const { data: deals, isLoading } = useQuery({
+  const { data: deals, isLoading, error } = useQuery({
     queryKey: ['featuredDeals'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -28,6 +30,17 @@ export function FeaturedDeals() {
           ))}
         </div>
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive" className="my-4">
+        <ExclamationTriangleIcon className="h-4 w-4" />
+        <AlertDescription>
+          Det gick inte att hämta utvalda erbjudanden. Försök igen senare.
+        </AlertDescription>
+      </Alert>
     );
   }
 
