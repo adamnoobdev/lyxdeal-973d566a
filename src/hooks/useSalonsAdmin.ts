@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Salon } from "@/components/admin/types";
 import { toast } from "sonner";
@@ -12,17 +12,24 @@ type UpdateSalonData = {
 };
 
 const fetchSalonsData = async () => {
-  const { data, error } = await supabase
-    .from("salons")
-    .select("*")
-    .order("created_at", { ascending: false });
+  try {
+    console.log("Attempting to fetch salons...");
+    const { data, error } = await supabase
+      .from("salons")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Error fetching salons:", error);
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
+    }
+
+    console.log("Salons fetched successfully:", data);
+    return data;
+  } catch (error) {
+    console.error("Error in fetchSalonsData:", error);
     throw error;
   }
-  
-  return data;
 };
 
 const deleteSalonData = async (id: number) => {
@@ -94,8 +101,9 @@ export const useSalonsAdmin = () => {
   const [error, setError] = useState<Error | string | null>(null);
   const session = useSession();
 
-  const fetchSalons = async () => {
+  const fetchSalons = useCallback(async () => {
     if (!session) {
+      console.log("No session found");
       setError("Du måste vara inloggad för att se salonger");
       setIsLoading(false);
       return;
@@ -103,11 +111,10 @@ export const useSalonsAdmin = () => {
 
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      console.log("Fetching salons data...");
+      console.log("Fetching salons with session:", session.user.id);
       const data = await fetchSalonsData();
-      console.log("Salons data received:", data);
       setSalons(data || []);
     } catch (err: any) {
       console.error("Error in fetchSalons:", err);
@@ -117,7 +124,7 @@ export const useSalonsAdmin = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [session]);
 
   const handleDelete = async (id: number) => {
     try {

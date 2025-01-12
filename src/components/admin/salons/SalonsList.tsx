@@ -16,7 +16,7 @@ export const SalonsList = () => {
   const { salons, isLoading, error, handleDelete, handleUpdate, handleCreate, fetchSalons } = useSalonsAdmin();
 
   useEffect(() => {
-    console.log("Initiating salon fetch");
+    console.log("SalonsList mounted, fetching salons...");
     fetchSalons();
   }, [fetchSalons]);
 
