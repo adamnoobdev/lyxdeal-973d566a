@@ -1,11 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone } from "lucide-react";
+import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone, ChevronRight } from "lucide-react";
 import { CategoryBadge } from "./CategoryBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
 import { PriceDisplay } from "./PriceDisplay";
+import { Link } from "react-router-dom";
 
 interface DealInfoProps {
   id: number;
@@ -83,6 +84,27 @@ export const DealInfo = ({
 
   return (
     <div className="space-y-8">
+      {salon && (
+        <div className="flex items-center justify-between bg-accent/10 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Store className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-medium text-foreground">{salon.name}</h3>
+              <p className="text-sm text-muted-foreground">Erbjudandet säljs av denna salong</p>
+            </div>
+          </div>
+          <Link 
+            to={`/salon/${id}`} 
+            className="flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            Se salong
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+      )}
+
       <div className="space-y-4">
         <CategoryBadge 
           category={category} 
@@ -117,10 +139,6 @@ export const DealInfo = ({
           {salon && (
             <div className="border-t pt-4 space-y-2">
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <Store className="h-4 w-4 text-primary" />
-                  <span className="font-medium text-foreground">{salon.name}</span>
-                </div>
                 {salon.address && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="h-3.5 w-3.5" />
