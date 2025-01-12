@@ -101,12 +101,7 @@ const ProductDetails = () => {
                 alt={deal.title}
                 className="aspect-[4/3] w-full object-cover transition-transform duration-700 hover:scale-105"
               />
-              <div className="absolute right-3 top-3 flex gap-2">
-                <CategoryBadge 
-                  category={`${discountPercentage}% RABATT`} 
-                  variant="default"
-                  className="bg-gradient-to-r from-[#D946EF]/80 to-[#9b87f5]/80 text-white font-semibold shadow-lg backdrop-blur-md"
-                />
+              <div className="absolute right-3 top-3">
                 {isNew(deal.created_at) && (
                   <CategoryBadge
                     category="NYTT"
