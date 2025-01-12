@@ -122,30 +122,6 @@ export const DealInfo = ({
           {description}
         </p>
       </div>
-
-      {salon && (
-        <div className="rounded-lg border border-muted/20 bg-muted/5 p-4">
-          <p className="text-sm text-muted-foreground mb-3">Erbjudandet säljs av:</p>
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-2">
-              <Store className="h-4 w-4 text-primary/70" />
-              <span className="font-medium text-foreground">{salon.name}</span>
-            </div>
-            {salon.address && (
-              <div className="flex items-center gap-2 text-muted-foreground text-sm group cursor-default">
-                <MapPin className="h-3.5 w-3.5 group-hover:text-primary/70 transition-colors" />
-                <span className="group-hover:text-foreground transition-colors">{salon.address}</span>
-              </div>
-            )}
-            {salon.phone && (
-              <div className="flex items-center gap-2 text-muted-foreground text-sm group cursor-default">
-                <Phone className="h-3.5 w-3.5 group-hover:text-primary/70 transition-colors" />
-                <span className="group-hover:text-foreground transition-colors">{salon.phone}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
       
       <div className="rounded-xl bg-gradient-to-br from-white via-white to-gray-50/50 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20">
         <div className="space-y-4">
@@ -165,6 +141,30 @@ export const DealInfo = ({
               {formatPrice(discountedPrice)}
             </p>
           </div>
+
+          {salon && (
+            <div className="border-t border-accent/10 pt-4 pb-6">
+              <p className="text-sm text-muted-foreground mb-3">Erbjudandet säljs av:</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Store className="h-4 w-4 text-primary/70" />
+                  <span className="font-medium text-foreground">{salon.name}</span>
+                </div>
+                {salon.address && (
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm group cursor-default">
+                    <MapPin className="h-3.5 w-3.5 group-hover:text-primary/70 transition-colors" />
+                    <span className="group-hover:text-foreground transition-colors">{salon.address}</span>
+                  </div>
+                )}
+                {salon.phone && (
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm group cursor-default">
+                    <Phone className="h-3.5 w-3.5 group-hover:text-primary/70 transition-colors" />
+                    <span className="group-hover:text-foreground transition-colors">{salon.phone}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           
           <Button 
             className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-6 group transition-all duration-300"
