@@ -23,7 +23,6 @@ export const SalonsTable = ({ salons, onEdit, onDelete }: SalonsTableProps) => {
           <TableHead>Namn</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Telefon</TableHead>
-          <TableHead>Adress</TableHead>
           <TableHead>Åtgärder</TableHead>
         </TableRow>
       </TableHeader>
@@ -33,9 +32,9 @@ export const SalonsTable = ({ salons, onEdit, onDelete }: SalonsTableProps) => {
             <TableCell>{salon.name}</TableCell>
             <TableCell>{salon.email}</TableCell>
             <TableCell>{salon.phone || "-"}</TableCell>
-            <TableCell>{salon.address || "-"}</TableCell>
             <TableCell>
               <SalonActions
+                salonId={salon.id}
                 onEdit={() => onEdit(salon)}
                 onDelete={() => onDelete(salon)}
               />

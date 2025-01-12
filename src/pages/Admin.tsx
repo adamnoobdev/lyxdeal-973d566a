@@ -6,6 +6,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { DealsList } from "@/components/admin/DealsList";
 import { SalonsList } from "@/components/admin/salons/SalonsList";
+import { SalonDeals } from "@/components/admin/salons/SalonDeals";
 import { toast } from "sonner";
 
 export default function Admin() {
@@ -94,12 +95,13 @@ export default function Admin() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full pt-16"> {/* Added pt-16 for navbar height */}
+      <div className="min-h-screen flex w-full pt-16">
         <AdminSidebar />
         <main className="flex-1 p-8">
           <Routes>
             <Route path="/" element={<DealsList />} />
             <Route path="/salons" element={<SalonsList />} />
+            <Route path="/salons/:salonId/deals" element={<SalonDeals />} />
           </Routes>
         </main>
       </div>
