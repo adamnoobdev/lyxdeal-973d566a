@@ -7,6 +7,7 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { DealsList } from "@/components/admin/DealsList";
 import { SalonsList } from "@/components/admin/salons/SalonsList";
 import { SalonDeals } from "@/components/admin/salons/SalonDeals";
+import { Dashboard } from "@/components/admin/Dashboard";
 import { toast } from "sonner";
 
 export default function Admin() {
@@ -99,7 +100,8 @@ export default function Admin() {
         <AdminSidebar />
         <main className="flex-1 p-8">
           <Routes>
-            <Route path="/" element={<DealsList />} />
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/deals" element={<DealsList />} />
             <Route path="/salons" element={<SalonsList />} />
             <Route path="/salons/:salonId/deals" element={<SalonDeals />} />
           </Routes>
