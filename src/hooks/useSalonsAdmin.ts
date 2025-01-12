@@ -45,11 +45,33 @@ const createSalonData = async (values: UpdateSalonData) => {
     throw new Error("Du måste vara inloggad för att skapa salonger");
   }
 
-  const { error } = await supabase
-    .from("salons")
-    .insert([values]);
+  try {
+    const response = await fetch("/api/create-salon-account", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(values),
+    });
 
-  if (error) throw error;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || "Ett fel uppstod när salongen skulle skapas");
+    }
+
+    toast.success(
+      `Salong skapad! Temporärt lösenord: ${data.temporaryPassword}`,
+      {
+        duration: 10000,
+      }
+    );
+
+    return data.salon;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };
 
 const updateSalonData = async (values: UpdateSalonData, id: number) => {
@@ -104,7 +126,6 @@ export const useSalonsAdmin = () => {
   const handleCreate = async (values: UpdateSalonData) => {
     try {
       await createSalonData(values);
-      toast.success("Salongen har skapats");
       await fetchSalons();
       return true;
     } catch (err: any) {
