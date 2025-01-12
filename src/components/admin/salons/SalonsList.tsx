@@ -1,37 +1,33 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { useState } from "react";
 import { Salon } from "../types";
-import { SalonsTable } from "./SalonsTable";
+import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
 import { EditSalonDialog } from "./EditSalonDialog";
 import { DeleteSalonDialog } from "./DeleteSalonDialog";
-import { CreateSalonDialog } from "./CreateSalonDialog";
 import { SalonsLoadingSkeleton } from "./SalonsLoadingSkeleton";
-import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
-import { SalonDetails } from "./SalonDetails";
+import { SalonsHeader } from "./SalonsHeader";
+import { SalonsContent } from "./SalonsContent";
 
 export const SalonsList = () => {
   const [editingSalon, setEditingSalon] = useState<Salon | null>(null);
   const [deletingSalon, setDeletingSalon] = useState<Salon | null>(null);
   const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const { salons, isLoading, error, fetchSalons, handleDelete, handleUpdate, handleCreate } = useSalonsAdmin();
-
-  useEffect(() => {
-    fetchSalons();
-  }, []);
+  const [isCreating, setIsCreating] = useState(false);
+  
+  const { salons, isLoading, error, handleDelete, handleUpdate, handleCreate } = useSalonsAdmin();
 
   const onDelete = async () => {
     if (deletingSalon) {
       const success = await handleDelete(deletingSalon.id);
       if (success) {
         setDeletingSalon(null);
-        setSelectedSalon(null);
+        if (selectedSalon?.id === deletingSalon.id) {
+          setSelectedSalon(null);
+        }
       }
     }
   };
 
-  const onUpdate = async (values: { name: string; email: string; phone?: string; address?: string }) => {
+  const onUpdate = async (values: any) => {
     if (editingSalon) {
       const success = await handleUpdate(values, editingSalon.id);
       if (success) {
@@ -40,10 +36,10 @@ export const SalonsList = () => {
     }
   };
 
-  const onCreate = async (values: { name: string; email: string; phone?: string; address?: string }) => {
+  const onCreate = async (values: any) => {
     const success = await handleCreate(values);
     if (success) {
-      setIsCreateDialogOpen(false);
+      setIsCreating(false);
     }
   };
 
@@ -51,44 +47,30 @@ export const SalonsList = () => {
     return <SalonsLoadingSkeleton />;
   }
 
-  if (error) return (
-    <div className="text-center py-8 text-red-500">
-      Ett fel uppstod när salonger skulle hämtas
-    </div>
-  );
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Salonger</h2>
-        <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Skapa ny salong
-        </Button>
-      </div>
+      <SalonsHeader 
+        error={error} 
+        onCreateClick={() => setIsCreating(true)} 
+      />
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="w-full">
-          <SalonsTable
-            salons={salons || []}
-            onEdit={setEditingSalon}
-            onDelete={setDeletingSalon}
-            onSelect={setSelectedSalon}
-            selectedSalonId={selectedSalon?.id}
-          />
-        </div>
-
-        {selectedSalon && (
-          <div className="w-full lg:w-1/3 lg:border-l lg:pl-6">
-            <SalonDetails salon={selectedSalon} />
-          </div>
-        )}
-      </div>
+      {salons && (
+        <SalonsContent
+          salons={salons}
+          selectedSalon={selectedSalon}
+          onEdit={setEditingSalon}
+          onDelete={setDeletingSalon}
+          onSelect={setSelectedSalon}
+        />
+      )}
 
       <EditSalonDialog
-        isOpen={!!editingSalon}
-        onClose={() => setEditingSalon(null)}
-        onSubmit={onUpdate}
+        isOpen={!!editingSalon || isCreating}
+        onClose={() => {
+          setEditingSalon(null);
+          setIsCreating(false);
+        }}
+        onSubmit={editingSalon ? onUpdate : onCreate}
         initialValues={
           editingSalon
             ? {
@@ -106,12 +88,6 @@ export const SalonsList = () => {
         onClose={() => setDeletingSalon(null)}
         onConfirm={onDelete}
         salonName={deletingSalon?.name}
-      />
-
-      <CreateSalonDialog
-        isOpen={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
-        onSubmit={onCreate}
       />
     </div>
   );
