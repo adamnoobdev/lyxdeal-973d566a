@@ -19,7 +19,6 @@ export default function Admin() {
 
     const checkAdminStatus = async () => {
       try {
-        // Vänta på att sessionen ska vara tillgänglig
         if (!session?.user?.id) {
           console.log("Waiting for session...");
           return;
@@ -77,7 +76,6 @@ export default function Admin() {
     };
   }, [session, navigate]);
 
-  // Visa laddningsindikator medan vi kontrollerar admin-status
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -86,19 +84,17 @@ export default function Admin() {
     );
   }
 
-  // Visa inget om admin-status fortfarande kontrolleras
   if (isAdmin === null) {
     return null;
   }
 
-  // Visa inget om användaren inte är admin
   if (!isAdmin) {
     return null;
   }
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full pt-16"> {/* Added pt-16 for navbar height */}
         <AdminSidebar />
         <main className="flex-1 p-8">
           <Routes>
