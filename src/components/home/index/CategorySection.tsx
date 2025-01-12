@@ -15,15 +15,19 @@ export function CategorySection({
   onSelectCity,
 }: CategorySectionProps) {
   return (
-    <div className="space-y-8">
-      <Categories 
-        selectedCategory={selectedCategory}
-        onSelectCategory={onSelectCategory}
-      />
-      <Cities 
-        selectedCity={selectedCity}
-        onSelectCity={onSelectCity}
-      />
+    <div className="space-y-8 animate-fade-up">
+      <div className="bg-accent/5 rounded-xl p-6 space-y-6">
+        <Categories 
+          selectedCategory={selectedCategory}
+          onSelectCategory={onSelectCategory}
+        />
+        <div className="border-t border-accent/10 pt-6">
+          <Cities 
+            selectedCity={selectedCity}
+            onSelectCity={onSelectCity}
+          />
+        </div>
+      </div>
     </div>
   );
 }
