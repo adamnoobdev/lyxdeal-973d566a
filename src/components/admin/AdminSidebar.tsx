@@ -29,7 +29,7 @@ export const AdminSidebar = () => {
   const location = useLocation();
 
   return (
-    <Sidebar>
+    <Sidebar className="pt-16"> {/* Added pt-16 for navbar height */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Administration</SidebarGroupLabel>
