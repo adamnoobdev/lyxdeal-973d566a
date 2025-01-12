@@ -10,6 +10,62 @@ type UpdateSalonData = {
   address?: string | null;
 };
 
+const fetchSalonsData = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    throw new Error("Du måste vara inloggad för att hantera salonger");
+  }
+
+  const { data, error } = await supabase
+    .from("salons")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+};
+
+const deleteSalonData = async (id: number) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    throw new Error("Du måste vara inloggad för att ta bort salonger");
+  }
+
+  const { error } = await supabase
+    .from("salons")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+};
+
+const createSalonData = async (values: UpdateSalonData) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    throw new Error("Du måste vara inloggad för att skapa salonger");
+  }
+
+  const { error } = await supabase
+    .from("salons")
+    .insert([values]);
+
+  if (error) throw error;
+};
+
+const updateSalonData = async (values: UpdateSalonData, id: number) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    throw new Error("Du måste vara inloggad för att uppdatera salonger");
+  }
+
+  const { error } = await supabase
+    .from("salons")
+    .update(values)
+    .eq("id", id);
+
+  if (error) throw error;
+};
+
 export const useSalonsAdmin = () => {
   const [salons, setSalons] = useState<Salon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,18 +76,7 @@ export const useSalonsAdmin = () => {
     setError(null);
     
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        throw new Error("Du måste vara inloggad för att hantera salonger");
-      }
-
-      const { data, error: fetchError } = await supabase
-        .from("salons")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (fetchError) throw fetchError;
-
+      const data = await fetchSalonsData();
       setSalons(data || []);
     } catch (err: any) {
       const errorMessage = err?.message || "Failed to fetch salons";
@@ -44,18 +89,7 @@ export const useSalonsAdmin = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        throw new Error("Du måste vara inloggad för att ta bort salonger");
-      }
-
-      const { error: deleteError } = await supabase
-        .from("salons")
-        .delete()
-        .eq("id", id);
-
-      if (deleteError) throw deleteError;
-
+      await deleteSalonData(id);
       toast.success("Salongen har tagits bort");
       await fetchSalons();
       return true;
@@ -69,17 +103,7 @@ export const useSalonsAdmin = () => {
 
   const handleCreate = async (values: UpdateSalonData) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        throw new Error("Du måste vara inloggad för att skapa salonger");
-      }
-
-      const { error: createError } = await supabase
-        .from("salons")
-        .insert([values]);
-
-      if (createError) throw createError;
-
+      await createSalonData(values);
       toast.success("Salongen har skapats");
       await fetchSalons();
       return true;
@@ -93,18 +117,7 @@ export const useSalonsAdmin = () => {
 
   const handleUpdate = async (values: UpdateSalonData, id: number) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        throw new Error("Du måste vara inloggad för att uppdatera salonger");
-      }
-
-      const { error: updateError } = await supabase
-        .from("salons")
-        .update(values)
-        .eq("id", id);
-
-      if (updateError) throw updateError;
-
+      await updateSalonData(values, id);
       toast.success("Salongen har uppdaterats");
       await fetchSalons();
       return true;
