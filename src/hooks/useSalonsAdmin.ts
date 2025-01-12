@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Salon } from "@/components/admin/types";
 import { toast } from "sonner";
+import { useSession } from "@/hooks/useSession";
 
 type UpdateSalonData = {
   name: string;
@@ -11,17 +12,16 @@ type UpdateSalonData = {
 };
 
 const fetchSalonsData = async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.user) {
-    throw new Error("Du måste vara inloggad för att hantera salonger");
-  }
-
   const { data, error } = await supabase
     .from("salons")
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) {
+    console.error("Error fetching salons:", error);
+    throw error;
+  }
+  
   return data;
 };
 
@@ -92,18 +92,28 @@ export const useSalonsAdmin = () => {
   const [salons, setSalons] = useState<Salon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | string | null>(null);
+  const session = useSession();
 
   const fetchSalons = async () => {
+    if (!session) {
+      setError("Du måste vara inloggad för att se salonger");
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     
     try {
+      console.log("Fetching salons data...");
       const data = await fetchSalonsData();
+      console.log("Salons data received:", data);
       setSalons(data || []);
     } catch (err: any) {
-      const errorMessage = err instanceof Error ? err : String(err);
+      console.error("Error in fetchSalons:", err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
       setError(errorMessage);
-      toast.error(errorMessage instanceof Error ? errorMessage.message : errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
