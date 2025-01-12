@@ -14,7 +14,7 @@ export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
 
   return (
     <div className="relative overflow-hidden rounded-t-lg">
-      <div className="aspect-[3/2] overflow-hidden bg-accent/10">
+      <div className="aspect-[16/9] overflow-hidden bg-accent/10">
         <img
           src={imageUrl}
           alt={title}
