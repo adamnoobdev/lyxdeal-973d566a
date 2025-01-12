@@ -67,8 +67,8 @@ export const SalonsList = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="w-full">
           <SalonsTable
             salons={salons || []}
             onEdit={setEditingSalon}
@@ -79,7 +79,7 @@ export const SalonsList = () => {
         </div>
 
         {selectedSalon && (
-          <div className="lg:border-l lg:pl-6">
+          <div className="w-full lg:w-1/3 lg:border-l lg:pl-6">
             <SalonDetails salon={selectedSalon} />
           </div>
         )}
