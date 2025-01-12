@@ -19,6 +19,7 @@ interface DealInfoProps {
   city: string;
   quantityLeft: number;
   salon?: {
+    id?: number;
     name: string;
     address: string | null;
     phone: string | null;
@@ -95,13 +96,15 @@ export const DealInfo = ({
               <p className="text-sm text-muted-foreground">Erbjudandet säljs av denna salong</p>
             </div>
           </div>
-          <Link 
-            to={`/salon/${id}`} 
-            className="flex items-center gap-1 text-sm text-primary hover:underline"
-          >
-            Se salong
-            <ChevronRight className="h-4 w-4" />
-          </Link>
+          {salon.id && (
+            <Link 
+              to={`/salon/${salon.id}`} 
+              className="flex items-center gap-1 text-sm text-primary hover:underline"
+            >
+              Se salong
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          )}
         </div>
       )}
 
