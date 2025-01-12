@@ -42,13 +42,11 @@ export const DesktopNavigation = ({
           currentCity={currentCity}
           onCitySelect={onCitySelect}
           variant="desktop"
-          className="dropdown-content"
         />
 
         <CategorySelector
           onCategorySelect={onCategorySelect}
           variant="desktop"
-          className="dropdown-content"
         />
 
         {session ? (
