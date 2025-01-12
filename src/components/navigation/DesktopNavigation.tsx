@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { SearchContainer } from "@/components/SearchContainer";
 import { CitySelector } from "@/components/CitySelector";
 import { CategorySelector } from "@/components/CategorySelector";
-import { LayoutDashboard, LogOut } from "lucide-react";
+import { LayoutDashboard, LogOut, UserRound } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface DesktopNavigationProps {
   searchQuery: string;
@@ -29,6 +30,8 @@ export const DesktopNavigation = ({
   userRole,
   onDashboard
 }: DesktopNavigationProps) => {
+  const navigate = useNavigate();
+
   return (
     <div className="hidden items-center md:flex md:flex-1 md:gap-4">
       <SearchContainer
@@ -74,7 +77,17 @@ export const DesktopNavigation = ({
               <span className="hidden lg:inline">Logga ut</span>
             </Button>
           </>
-        ) : null}
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+            onClick={() => navigate("/auth")}
+          >
+            <UserRound className="h-4 w-4" />
+            <span className="hidden lg:inline">Logga in</span>
+          </Button>
+        )}
       </div>
     </div>
   );
