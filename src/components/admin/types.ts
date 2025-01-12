@@ -13,6 +13,9 @@ export interface Deal {
   updated_at: string;
   quantity_left: number;
   salon_id?: number;
+  salons?: {
+    name: string;
+  };
 }
 
 export interface Salon {

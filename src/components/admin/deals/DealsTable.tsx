@@ -25,6 +25,7 @@ export const DealsTable = ({ deals, onEdit, onDelete }: DealsTableProps) => {
           <TableHead>Kategori</TableHead>
           <TableHead>Stad</TableHead>
           <TableHead>Pris</TableHead>
+          <TableHead>Salong</TableHead>
           <TableHead>Åtgärder</TableHead>
         </TableRow>
       </TableHeader>
@@ -35,6 +36,7 @@ export const DealsTable = ({ deals, onEdit, onDelete }: DealsTableProps) => {
             <TableCell>{deal.category}</TableCell>
             <TableCell>{deal.city}</TableCell>
             <TableCell>{deal.discounted_price} kr</TableCell>
+            <TableCell>{(deal as any).salons?.name || 'Ingen salong'}</TableCell>
             <TableCell>
               <DealActions
                 onEdit={() => onEdit(deal)}

@@ -18,12 +18,16 @@ export const useDealsAdmin = () => {
   const { data: deals = [], isLoading, error } = useQuery({
     queryKey: ["admin-deals"],
     queryFn: async () => {
+      console.log("Fetching deals with session:", session?.user?.id);
       const { data, error } = await supabase
         .from("deals")
-        .select("*")
+        .select("*, salons(name)")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Deals fetch error:", error);
+        throw error;
+      }
       return data;
     },
     enabled: !!session?.user?.id,
