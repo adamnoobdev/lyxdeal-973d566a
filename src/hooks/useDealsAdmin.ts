@@ -12,7 +12,7 @@ import {
 } from "@/utils/dealAdminUtils";
 
 export const useDealsAdmin = () => {
-  const { session } = useSession();
+  const session = useSession();
   const queryClient = useQueryClient();
 
   const { data: deals = [], isLoading, error } = useQuery<Deal[]>({
@@ -24,7 +24,6 @@ export const useDealsAdmin = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      console.log("Fetched deals:", data);
       return data;
     },
     enabled: !!session?.user?.id,
