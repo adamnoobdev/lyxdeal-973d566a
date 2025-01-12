@@ -34,9 +34,9 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
   };
 
   return (
-    <div className="relative -mx-4 md:mx-0">
+    <div className="relative mb-6 -mx-4 md:mx-0">
       <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex w-full gap-2 md:gap-3 px-4 pb-2 justify-start md:justify-center">
+        <div className="flex w-full gap-3 px-4 pb-2 justify-start md:justify-center">
           {CATEGORIES.map((category) => (
             <Button
               key={category}
@@ -44,7 +44,7 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
               onClick={() => handleCategoryClick(category)}
               className={`
                 ${selectedCategory === category ? "bg-primary shadow-md" : "hover:bg-accent"}
-                flex-shrink-0 text-xs md:text-sm py-1.5 px-3 md:px-4 h-8 transition-all duration-300
+                flex-shrink-0 text-xs py-1.5 px-4 h-8 transition-all duration-300
                 hover:shadow-md active:scale-95
               `}
             >

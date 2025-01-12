@@ -25,7 +25,7 @@ export const RegularDealContent = ({
   quantityLeft,
 }: RegularDealContentProps) => {
   return (
-    <div className="flex h-full flex-col gap-2 p-3">
+    <div className="flex h-full flex-col gap-3 p-4">
       <div className="flex items-start justify-between gap-2">
         <CategoryBadge 
           category={category}
@@ -47,7 +47,7 @@ export const RegularDealContent = ({
         </p>
       </div>
 
-      <div className="mt-auto space-y-2">
+      <div className="mt-auto space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
             <MapPin className="h-3 w-3" />
