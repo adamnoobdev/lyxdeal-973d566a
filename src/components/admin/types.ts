@@ -11,6 +11,7 @@ export interface Deal {
   featured: boolean;
   created_at: string;
   updated_at: string;
+  quantity_left: number;
   salon_id?: number;
 }
 

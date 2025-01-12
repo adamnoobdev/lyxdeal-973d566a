@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Deal } from "@/types/deal";
+import { Deal } from "@/components/admin/types";
 import { DealsTable } from "../deals/DealsTable";
 import { EditDealDialog } from "../deals/EditDealDialog";
 import { DeleteDealDialog } from "../deals/DeleteDealDialog";
@@ -27,10 +27,19 @@ export function SalonDeals() {
       setIsLoading(true);
       setError(null);
 
+      if (!salonId) {
+        throw new Error("No salon ID provided");
+      }
+
+      const salonIdNumber = parseInt(salonId);
+      if (isNaN(salonIdNumber)) {
+        throw new Error("Invalid salon ID");
+      }
+
       const { data, error } = await supabase
         .from("deals")
         .select("*")
-        .eq("salon_id", salonId)
+        .eq("salon_id", salonIdNumber)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -103,9 +112,7 @@ export function SalonDeals() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          {error}
-        </AlertDescription>
+        <AlertDescription>{error}</AlertDescription>
       </Alert>
     );
   }
