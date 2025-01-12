@@ -9,6 +9,7 @@ import { DealInfo } from "@/components/DealInfo";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { ReviewForm } from "@/components/ReviewForm";
 import { RelatedDeals } from "@/components/deal/RelatedDeals";
+import { DealFeatures } from "@/components/deal/DealFeatures";
 import { useEffect } from "react";
 
 const ProductDetails = () => {
@@ -116,8 +117,18 @@ const ProductDetails = () => {
           <DealInfo {...deal} />
         </div>
 
-        <div className="mt-12 mb-16 border-t border-accent/10 pt-12">
-          <RelatedDeals currentDealId={deal.id} category={deal.category} />
+        <div className="mt-12 mb-16 space-y-12">
+          <div className="border-t border-accent/10 pt-12">
+            <DealFeatures 
+              discountPercentage={discountPercentage}
+              timeRemaining={deal.timeRemaining}
+              quantityLeft={deal.quantityLeft}
+            />
+          </div>
+
+          <div className="border-t border-accent/10 pt-12">
+            <RelatedDeals currentDealId={deal.id} category={deal.category} />
+          </div>
         </div>
 
         <div className="max-w-2xl mx-auto">
