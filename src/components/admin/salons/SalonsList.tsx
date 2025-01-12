@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Salon } from "../types";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
 import { EditSalonDialog } from "./EditSalonDialog";
@@ -13,7 +13,12 @@ export const SalonsList = () => {
   const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   
-  const { salons, isLoading, error, handleDelete, handleUpdate, handleCreate } = useSalonsAdmin();
+  const { salons, isLoading, error, handleDelete, handleUpdate, handleCreate, fetchSalons } = useSalonsAdmin();
+
+  useEffect(() => {
+    console.log("Initiating salon fetch");
+    fetchSalons();
+  }, [fetchSalons]);
 
   const onDelete = async () => {
     if (deletingSalon) {
