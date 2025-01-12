@@ -82,7 +82,7 @@ export const Footer = () => {
         <Separator className="my-8" />
         
         <div className="text-center text-gray-600">
-          <p>&copy; {new Date().getFullYear()} DealSite. Alla rättigheter förbehållna.</p>
+          <p>&copy; {new Date().getFullYear()} Lyxdeal. Alla rättigheter förbehållna.</p>
         </div>
       </div>
     </footer>
