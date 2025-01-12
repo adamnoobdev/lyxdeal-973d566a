@@ -40,6 +40,7 @@ export const SalonsTable = ({ salons, onEdit, onDelete, onSelect, selectedSalonI
             <TableCell>{salon.email}</TableCell>
             <TableCell>
               <SalonActions
+                salonId={salon.id}
                 onEdit={() => onEdit(salon)}
                 onDelete={() => onDelete(salon)}
               />
