@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
+import { CSSProperties } from "react";
 
 interface CategoryBadgeProps {
   category: string;
@@ -7,6 +8,7 @@ interface CategoryBadgeProps {
   className?: string;
   children?: React.ReactNode;
   onClick?: () => void;
+  style?: CSSProperties;  // Add this line to support style prop
 }
 
 export function CategoryBadge({ 
@@ -14,7 +16,8 @@ export function CategoryBadge({
   variant = "outline", 
   className = "", 
   children,
-  onClick 
+  onClick,
+  style  // Add this line
 }: CategoryBadgeProps) {
   const getCategoryEmoji = (category: string) => {
     switch (category.toLowerCase()) {
@@ -40,6 +43,7 @@ export function CategoryBadge({
             : "border-primary/20 text-primary hover:bg-primary/10"
       } ${className}`}
       onClick={onClick}
+      style={style}  // Add this line
     >
       {children || (
         <>
