@@ -5,6 +5,7 @@ import { CategoryBadge } from "./CategoryBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
+import { PriceDisplay } from "./PriceDisplay";
 
 interface DealInfoProps {
   id: number;
@@ -36,14 +37,6 @@ export const DealInfo = ({
   salon,
 }: DealInfoProps) => {
   const [isLoading, setIsLoading] = useState(false);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
 
   const renderStars = (rating: number) => {
     return Array(5).fill(0).map((_, index) => (
@@ -93,24 +86,26 @@ export const DealInfo = ({
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <CategoryBadge category={category} className="bg-primary/10 text-primary hover:bg-primary/20" />
-        <Badge variant="outline" className="bg-destructive/5 text-destructive border-destructive/20">
-          {discountPercentage}% rabatt
-        </Badge>
-      </div>
-      
-      <div className="space-y-3">
-        <h1 className="text-4xl font-bold tracking-tight text-foreground">
-          {title}
-        </h1>
+    <div className="space-y-8">
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <CategoryBadge category={category} className="bg-primary/10 text-primary hover:bg-primary/20" />
+          <Badge variant="outline" className="bg-destructive/5 text-destructive border-destructive/20">
+            {discountPercentage}% rabatt
+          </Badge>
+        </div>
         
-        <div className="flex items-center gap-2">
-          {renderStars(4.5)}
-          <span className="text-sm text-muted-foreground">
-            (4.5 / 5)
-          </span>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
+            {title}
+          </h1>
+          
+          <div className="flex items-center gap-2">
+            {renderStars(4.5)}
+            <span className="text-sm text-muted-foreground">
+              (4.5 / 5)
+            </span>
+          </div>
         </div>
       </div>
       
@@ -119,32 +114,14 @@ export const DealInfo = ({
       </p>
       
       <div className="rounded-lg border bg-card p-6 shadow-sm">
-        <div className="space-y-4">
-          <div className="flex justify-between items-baseline border-b pb-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Ordinarie pris</p>
-              <p className="text-lg line-through text-muted-foreground/60">{formatPrice(originalPrice)}</p>
-            </div>
-            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
-              Du sparar {formatPrice(originalPrice - discountedPrice)}
-            </Badge>
-          </div>
+        <div className="space-y-6">
+          <PriceDisplay 
+            originalPrice={originalPrice} 
+            discountedPrice={discountedPrice} 
+          />
           
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Ditt pris</p>
-            <div className="flex items-baseline gap-2">
-              <p className="text-4xl font-bold text-foreground">
-                {formatPrice(discountedPrice)}
-              </p>
-              <Badge variant="default" className="bg-primary/90">
-                -{discountPercentage}%
-              </Badge>
-            </div>
-          </div>
-
           {salon && (
             <div className="border-t pt-4 space-y-2">
-              <p className="text-sm text-muted-foreground">Erbjudandet säljs av:</p>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <Store className="h-4 w-4 text-muted-foreground" />
@@ -177,7 +154,7 @@ export const DealInfo = ({
         </div>
       </div>
       
-      <div className="flex flex-col gap-3 text-sm text-muted-foreground">
+      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-primary/70" />
           <span>{city}</span>
