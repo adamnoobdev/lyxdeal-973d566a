@@ -16,7 +16,7 @@ export function MainContent({
   onSelectCity,
 }: MainContentProps) {
   return (
-    <main className="flex-1 container mx-auto px-4 py-12 space-y-12">
+    <main className="flex-1 container mx-auto py-8 md:py-12 space-y-8 md:space-y-12">
       <StatsSection />
 
       <CategorySection 
