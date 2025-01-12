@@ -124,22 +124,23 @@ export const DealInfo = ({
       </div>
 
       {salon && (
-        <div className="rounded-xl bg-gradient-to-br from-white via-white to-gray-50/50 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-primary">
-              <Store className="h-5 w-5" />
-              <h3 className="font-semibold">{salon.name}</h3>
+        <div className="rounded-lg border border-muted/20 bg-muted/5 p-4">
+          <p className="text-sm text-muted-foreground mb-3">Erbjudandet säljs av:</p>
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2">
+              <Store className="h-4 w-4 text-primary/70" />
+              <span className="font-medium text-foreground">{salon.name}</span>
             </div>
             {salon.address && (
-              <div className="flex items-center gap-2 text-muted-foreground text-sm transition-transform duration-300 hover:translate-x-1">
-                <MapPin className="h-4 w-4" />
-                <span>{salon.address}</span>
+              <div className="flex items-center gap-2 text-muted-foreground text-sm group cursor-default">
+                <MapPin className="h-3.5 w-3.5 group-hover:text-primary/70 transition-colors" />
+                <span className="group-hover:text-foreground transition-colors">{salon.address}</span>
               </div>
             )}
             {salon.phone && (
-              <div className="flex items-center gap-2 text-muted-foreground text-sm transition-transform duration-300 hover:translate-x-1">
-                <Phone className="h-4 w-4" />
-                <span>{salon.phone}</span>
+              <div className="flex items-center gap-2 text-muted-foreground text-sm group cursor-default">
+                <Phone className="h-3.5 w-3.5 group-hover:text-primary/70 transition-colors" />
+                <span className="group-hover:text-foreground transition-colors">{salon.phone}</span>
               </div>
             )}
           </div>
