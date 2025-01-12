@@ -59,7 +59,7 @@ export default function SalonLogin() {
 
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
-        .select('*')
+        .select('role')
         .eq('user_id', authData.user.id)
         .maybeSingle();
 
@@ -73,7 +73,13 @@ export default function SalonLogin() {
         return;
       }
 
-      navigate("/salon/dashboard");
+      // Navigate based on role
+      if (salonData.role === 'admin') {
+        navigate("/admin");
+      } else {
+        navigate("/salon/dashboard");
+      }
+      
     } catch (error) {
       console.error('Login error:', error);
       toast.error("Ett oväntat fel inträffade vid inloggning");
