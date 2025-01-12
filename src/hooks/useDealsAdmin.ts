@@ -15,7 +15,7 @@ export const useDealsAdmin = () => {
   const session = useSession();
   const queryClient = useQueryClient();
 
-  const { data: deals = [], isLoading, error } = useQuery<Deal[]>({
+  const { data: deals = [], isLoading, error } = useQuery({
     queryKey: ["admin-deals"],
     queryFn: async () => {
       const { data, error } = await supabase
