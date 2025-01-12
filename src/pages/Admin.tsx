@@ -11,7 +11,7 @@ import { Dashboard } from "@/components/admin/Dashboard";
 import { toast } from "sonner";
 
 export default function Admin() {
-  const session = useSession();
+  const { session, user } = useSession();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,17 +21,17 @@ export default function Admin() {
 
     const checkAdminStatus = async () => {
       try {
-        if (!session?.user?.id) {
+        if (!user?.id) {
           console.log("Waiting for session...");
           return;
         }
 
-        console.log("Checking admin status for user:", session.user.id);
+        console.log("Checking admin status for user:", user.id);
 
         const { data: salon, error } = await supabase
           .from('salons')
           .select('role')
-          .eq('user_id', session.user.id)
+          .eq('user_id', user.id)
           .single();
 
         console.log("Salon query result:", { salon, error });
@@ -76,7 +76,7 @@ export default function Admin() {
     return () => {
       isMounted = false;
     };
-  }, [session, navigate]);
+  }, [user, navigate]);
 
   if (isLoading) {
     return (

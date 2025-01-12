@@ -15,17 +15,17 @@ export const NavigationBar = () => {
   const [currentCity, setCurrentCity] = useState("Alla Städer");
   const [userRole, setUserRole] = useState<'customer' | 'salon_owner' | 'admin' | null>(null);
   const { showMobileSearch } = useScroll();
-  const session = useSession();
+  const { session, user } = useSession();
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkUserRole = async () => {
-      if (session?.user) {
+      if (user) {
         try {
           const { data: salon, error } = await supabase
             .from('salons')
             .select('role')
-            .eq('user_id', session.user.id)
+            .eq('user_id', user.id)
             .single();
           
           if (error) {
@@ -35,10 +35,10 @@ export const NavigationBar = () => {
           }
           
           if (salon) {
-            console.log('Found salon role:', salon.role); // Debug log
+            console.log('Found salon role:', salon.role);
             setUserRole(salon.role as 'salon_owner' | 'admin');
           } else {
-            console.log('No salon found, setting as customer'); // Debug log
+            console.log('No salon found, setting as customer');
             setUserRole('customer');
           }
         } catch (error) {
@@ -51,7 +51,7 @@ export const NavigationBar = () => {
     };
 
     checkUserRole();
-  }, [session]);
+  }, [user]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,7 +97,7 @@ export const NavigationBar = () => {
   };
 
   const handleDashboard = () => {
-    console.log('Current user role:', userRole); // Debug log
+    console.log('Current user role:', userRole);
     if (userRole === 'salon_owner') {
       navigate("/salon/dashboard");
     } else if (userRole === 'admin') {

@@ -31,5 +31,9 @@ export const useSession = () => {
     };
   }, []);
 
-  return { session, isLoading };
+  return {
+    session,
+    isLoading,
+    user: session?.user || null
+  };
 };

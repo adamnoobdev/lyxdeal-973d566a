@@ -12,13 +12,13 @@ import {
 } from "@/utils/dealAdminUtils";
 
 export const useDealsAdmin = () => {
-  const session = useSession();
+  const { session, user } = useSession();
   const queryClient = useQueryClient();
 
   const { data: deals = [], isLoading, error } = useQuery({
     queryKey: ["admin-deals"],
     queryFn: async () => {
-      console.log("Fetching deals with session:", session?.user?.id);
+      console.log("Fetching deals with session:", user?.id);
       const { data, error } = await supabase
         .from("deals")
         .select("*, salons(name)")
@@ -30,7 +30,7 @@ export const useDealsAdmin = () => {
       }
       return data;
     },
-    enabled: !!session?.user?.id,
+    enabled: !!user?.id,
   });
 
   const handleDelete = async (id: number) => {
@@ -61,12 +61,12 @@ export const useDealsAdmin = () => {
 
   const handleCreate = async (values: DealFormValues) => {
     try {
-      if (!session?.user?.id) {
+      if (!user?.id) {
         toast.error("Du måste vara inloggad för att skapa erbjudanden");
         return false;
       }
 
-      const salon = await fetchSalonIdForUser(session.user.id);
+      const salon = await fetchSalonIdForUser(user.id);
       if (!salon) {
         toast.error("Ingen salong hittades kopplad till ditt konto");
         return false;

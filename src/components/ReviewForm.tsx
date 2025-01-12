@@ -17,13 +17,13 @@ export const ReviewForm = ({ dealId }: ReviewFormProps) => {
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const session = useSession();
+  const { session, user } = useSession();
   const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!session) {
+    if (!user) {
       toast.error("Du måste vara inloggad för att lämna en recension");
       return;
     }
@@ -42,7 +42,7 @@ export const ReviewForm = ({ dealId }: ReviewFormProps) => {
             deal_id: dealId,
             rating,
             comment: comment.trim() || null,
-            user_id: session.user.id // Add the user_id here
+            user_id: user.id
           },
         ]);
 
