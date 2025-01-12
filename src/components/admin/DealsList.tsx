@@ -6,12 +6,14 @@ import { DeleteDealDialog } from "./deals/DeleteDealDialog";
 import { DealsLoadingSkeleton } from "./deals/DealsLoadingSkeleton";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
-  const { deals, isLoading, error, handleDelete, handleUpdate } = useDealsAdmin();
+  const [isCreating, setIsCreating] = useState(false);
+  const { deals, isLoading, error, handleDelete, handleUpdate, handleCreate } = useDealsAdmin();
 
   const onDelete = async () => {
     if (deletingDeal) {
@@ -31,6 +33,13 @@ export const DealsList = () => {
     }
   };
 
+  const onCreate = async (values: any) => {
+    const success = await handleCreate(values);
+    if (success) {
+      setIsCreating(false);
+    }
+  };
+
   if (isLoading) {
     return <DealsLoadingSkeleton />;
   }
@@ -44,28 +53,37 @@ export const DealsList = () => {
     </Alert>
   );
 
-  if (!deals?.length) {
-    return (
-      <Alert>
-        <AlertDescription>
-          Inga erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
   return (
-    <>
-      <DealsTable
-        deals={deals}
-        onEdit={setEditingDeal}
-        onDelete={setDeletingDeal}
-      />
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Erbjudanden</h1>
+        <Button onClick={() => setIsCreating(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Skapa erbjudande
+        </Button>
+      </div>
+
+      {!deals?.length ? (
+        <Alert>
+          <AlertDescription>
+            Inga erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <DealsTable
+          deals={deals}
+          onEdit={setEditingDeal}
+          onDelete={setDeletingDeal}
+        />
+      )}
 
       <EditDealDialog
-        isOpen={!!editingDeal}
-        onClose={() => setEditingDeal(null)}
-        onSubmit={onUpdate}
+        isOpen={!!editingDeal || isCreating}
+        onClose={() => {
+          setEditingDeal(null);
+          setIsCreating(false);
+        }}
+        onSubmit={editingDeal ? onUpdate : onCreate}
         initialValues={
           editingDeal
             ? {
@@ -89,6 +107,6 @@ export const DealsList = () => {
         onConfirm={onDelete}
         dealTitle={deletingDeal?.title}
       />
-    </>
+    </div>
   );
 };
