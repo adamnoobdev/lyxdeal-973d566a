@@ -19,6 +19,7 @@ serve(async (req) => {
     console.log('Processing checkout for deal:', dealId);
 
     if (!dealId) {
+      console.error('No deal ID provided');
       return new Response(
         JSON.stringify({ error: 'No deal ID provided' }),
         { 
