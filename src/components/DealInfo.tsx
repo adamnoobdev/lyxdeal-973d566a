@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock, Tag, ShoppingBag } from "lucide-react";
+import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone } from "lucide-react";
 import { CategoryBadge } from "./CategoryBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -16,6 +16,11 @@ interface DealInfoProps {
   timeRemaining: string;
   city: string;
   quantityLeft: number;
+  salon?: {
+    name: string;
+    address: string | null;
+    phone: string | null;
+  } | null;
 }
 
 export const DealInfo = ({
@@ -28,6 +33,7 @@ export const DealInfo = ({
   timeRemaining,
   city,
   quantityLeft,
+  salon,
 }: DealInfoProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -116,6 +122,29 @@ export const DealInfo = ({
           {description}
         </p>
       </div>
+
+      {salon && (
+        <div className="rounded-xl bg-gradient-to-br from-white via-white to-gray-50/50 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-primary">
+              <Store className="h-5 w-5" />
+              <h3 className="font-semibold">{salon.name}</h3>
+            </div>
+            {salon.address && (
+              <div className="flex items-center gap-2 text-muted-foreground text-sm transition-transform duration-300 hover:translate-x-1">
+                <MapPin className="h-4 w-4" />
+                <span>{salon.address}</span>
+              </div>
+            )}
+            {salon.phone && (
+              <div className="flex items-center gap-2 text-muted-foreground text-sm transition-transform duration-300 hover:translate-x-1">
+                <Phone className="h-4 w-4" />
+                <span>{salon.phone}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       
       <div className="rounded-xl bg-gradient-to-br from-white via-white to-gray-50/50 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20">
         <div className="space-y-4">

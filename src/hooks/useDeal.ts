@@ -20,7 +20,14 @@ export const useDeal = (id: string | undefined) => {
 
         const { data, error } = await supabase
           .from("deals")
-          .select("*")
+          .select(`
+            *,
+            salons (
+              name,
+              address,
+              phone
+            )
+          `)
           .eq("id", dealId)
           .maybeSingle();
 
@@ -47,11 +54,15 @@ export const useDeal = (id: string | undefined) => {
           city: data.city,
           created_at: data.created_at,
           quantityLeft: data.quantity_left,
+          salon: data.salons ? {
+            name: data.salons.name,
+            address: data.salons.address,
+            phone: data.salons.phone,
+          } : null,
         };
       } catch (error) {
         console.error("Unexpected error:", error);
         if (error instanceof Error) {
-          // Re-throw specific errors we created
           throw error;
         }
         toast.error("Ett oväntat fel uppstod. Försök igen senare.");
@@ -59,7 +70,6 @@ export const useDeal = (id: string | undefined) => {
       }
     },
     retry: (failureCount, error) => {
-      // Only retry on network errors, not on our custom errors
       if (error instanceof Error) {
         return !['No deal ID provided', 'Invalid deal ID', 'Deal not found'].includes(error.message);
       }
