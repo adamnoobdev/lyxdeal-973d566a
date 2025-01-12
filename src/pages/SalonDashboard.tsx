@@ -13,6 +13,7 @@ interface SalonData {
   email: string;
   phone: string | null;
   address: string | null;
+  role: string;
 }
 
 export default function SalonDashboard() {
@@ -22,20 +23,15 @@ export default function SalonDashboard() {
 
   useEffect(() => {
     checkUser();
-    fetchSalonData();
   }, []);
 
   const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/salon/login");
-    }
-  };
-
-  const fetchSalonData = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) return;
+      if (!session) {
+        navigate("/salon/login");
+        return;
+      }
 
       const { data: salon, error } = await supabase
         .from("salons")
@@ -44,11 +40,17 @@ export default function SalonDashboard() {
         .single();
 
       if (error) throw error;
+
+      if (salon?.role === 'admin') {
+        navigate("/admin");
+        return;
+      }
+
       setSalonData(salon);
+      setLoading(false);
     } catch (error) {
-      console.error("Error fetching salon data:", error);
-      toast.error("Det gick inte att hämta salongens information");
-    } finally {
+      console.error("Error checking user:", error);
+      toast.error("Det gick inte att hämta användarinformation");
       setLoading(false);
     }
   };
