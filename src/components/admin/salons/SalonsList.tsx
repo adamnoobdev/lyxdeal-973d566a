@@ -8,10 +8,12 @@ import { DeleteSalonDialog } from "./DeleteSalonDialog";
 import { CreateSalonDialog } from "./CreateSalonDialog";
 import { SalonsLoadingSkeleton } from "./SalonsLoadingSkeleton";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
+import { SalonDetails } from "./SalonDetails";
 
 export const SalonsList = () => {
   const [editingSalon, setEditingSalon] = useState<Salon | null>(null);
   const [deletingSalon, setDeletingSalon] = useState<Salon | null>(null);
+  const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { salons, isLoading, error, fetchSalons, handleDelete, handleUpdate, handleCreate } = useSalonsAdmin();
 
@@ -24,6 +26,7 @@ export const SalonsList = () => {
       const success = await handleDelete(deletingSalon.id);
       if (success) {
         setDeletingSalon(null);
+        setSelectedSalon(null);
       }
     }
   };
@@ -64,11 +67,23 @@ export const SalonsList = () => {
         </Button>
       </div>
 
-      <SalonsTable
-        salons={salons || []}
-        onEdit={setEditingSalon}
-        onDelete={setDeletingSalon}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <SalonsTable
+            salons={salons || []}
+            onEdit={setEditingSalon}
+            onDelete={setDeletingSalon}
+            onSelect={setSelectedSalon}
+            selectedSalonId={selectedSalon?.id}
+          />
+        </div>
+
+        {selectedSalon && (
+          <div className="lg:border-l lg:pl-6">
+            <SalonDetails salon={selectedSalon} />
+          </div>
+        )}
+      </div>
 
       <EditSalonDialog
         isOpen={!!editingSalon}
