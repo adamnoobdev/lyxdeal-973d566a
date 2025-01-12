@@ -43,7 +43,7 @@ export const DealInfo = ({
       <Star
         key={index}
         className={`h-4 w-4 ${
-          index < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+          index < rating ? "text-secondary fill-secondary" : "text-muted-200"
         }`}
       />
     ));
@@ -86,7 +86,7 @@ export const DealInfo = ({
       <div className="space-y-4">
         <CategoryBadge 
           category={category} 
-          className="bg-primary/10 text-primary hover:bg-primary/20" 
+          className="bg-primary-50 text-primary hover:bg-primary-100 transition-colors" 
         />
         
         <div className="space-y-2">
@@ -118,8 +118,8 @@ export const DealInfo = ({
             <div className="border-t pt-4 space-y-2">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <Store className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{salon.name}</span>
+                  <Store className="h-4 w-4 text-primary" />
+                  <span className="font-medium text-foreground">{salon.name}</span>
                 </div>
                 {salon.address && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -138,7 +138,7 @@ export const DealInfo = ({
           )}
           
           <Button 
-            className="w-full bg-primary hover:bg-primary/90 text-white font-medium"
+            className="w-full bg-gradient-to-r from-primary via-primary-600 to-secondary hover:from-primary-600 hover:via-primary-700 hover:to-secondary-600 text-white font-medium transition-all duration-300"
             onClick={handlePurchase}
             disabled={quantityLeft <= 0 || isLoading}
           >
@@ -150,15 +150,15 @@ export const DealInfo = ({
       
       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-primary/70" />
+          <MapPin className="h-4 w-4 text-primary" />
           <span>{city}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-primary/70" />
+          <Clock className="h-4 w-4 text-primary" />
           <span>{timeRemaining}</span>
         </div>
         {quantityLeft > 0 && (
-          <div className="flex items-center gap-2 text-emerald-600">
+          <div className="flex items-center gap-2 text-success">
             <Tag className="h-4 w-4" />
             <span>{quantityLeft} kvar i lager</span>
           </div>

@@ -36,12 +36,12 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
             <span className="text-3xl font-bold text-foreground">
               {formatPrice(discountedPrice)}
             </span>
-            <Badge variant="default" className="bg-primary/90">
+            <Badge variant="default" className="bg-primary text-primary-foreground">
               -{discountPercentage}%
             </Badge>
           </div>
         </div>
-        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+        <Badge variant="outline" className="bg-success-50 text-success-700 border-success-200">
           Du sparar {formatPrice(savings)}
         </Badge>
       </div>
