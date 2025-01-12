@@ -121,61 +121,59 @@ const ProductDetails = () => {
           <DealInfo {...deal} />
         </div>
 
-        <div className="mt-16">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold mb-8 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Recensioner
-            </h2>
-            
-            <div className="bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20 p-6 mb-8 animate-fade-up">
-              <h3 className="text-lg font-semibold mb-4">Skriv en recension</h3>
-              <ReviewForm dealId={deal.id} />
-            </div>
-
-            <div className="space-y-6">
-              {isLoadingReviews ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-32 w-full rounded-xl" />
-                  <Skeleton className="h-32 w-full rounded-xl" />
-                  <Skeleton className="h-32 w-full rounded-xl" />
-                </div>
-              ) : reviews && reviews.length > 0 ? (
-                reviews.map((review) => (
-                  <div 
-                    key={review.id} 
-                    className="bg-white rounded-xl shadow-sm p-6 border border-accent/20 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] animate-fade-up"
-                  >
-                    <div className="flex items-center gap-1 mb-2">
-                      {Array.from({ length: 5 }).map((_, index) => (
-                        <Star
-                          key={index}
-                          className={`h-5 w-5 ${
-                            index < review.rating
-                              ? "text-yellow-400 fill-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    {review.comment && (
-                      <p className="text-muted-foreground mb-2">{review.comment}</p>
-                    )}
-                    <p className="text-sm text-muted-foreground">
-                      {formatDate(review.created_at)}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-muted-foreground">
-                  Inga recensioner än. Var först med att recensera!
-                </p>
-              )}
-            </div>
-          </div>
+        <div className="mt-12 mb-16 border-t border-accent/10 pt-12">
+          <RelatedDeals currentDealId={deal.id} category={deal.category} />
         </div>
 
-        <div className="mt-24">
-          <RelatedDeals currentDealId={deal.id} category={deal.category} />
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold mb-8 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+            Recensioner
+          </h2>
+          
+          <div className="bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20 p-6 mb-8 animate-fade-up">
+            <h3 className="text-lg font-semibold mb-4">Skriv en recension</h3>
+            <ReviewForm dealId={deal.id} />
+          </div>
+
+          <div className="space-y-6">
+            {isLoadingReviews ? (
+              <div className="space-y-4">
+                <Skeleton className="h-32 w-full rounded-xl" />
+                <Skeleton className="h-32 w-full rounded-xl" />
+                <Skeleton className="h-32 w-full rounded-xl" />
+              </div>
+            ) : reviews && reviews.length > 0 ? (
+              reviews.map((review) => (
+                <div 
+                  key={review.id} 
+                  className="bg-white rounded-xl shadow-sm p-6 border border-accent/20 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] animate-fade-up"
+                >
+                  <div className="flex items-center gap-1 mb-2">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Star
+                        key={index}
+                        className={`h-5 w-5 ${
+                          index < review.rating
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  {review.comment && (
+                    <p className="text-muted-foreground mb-2">{review.comment}</p>
+                  )}
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate(review.created_at)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground">
+                Inga recensioner än. Var först med att recensera!
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -33,9 +33,9 @@ export function RelatedDeals({ currentDealId, category }: RelatedDealsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-96 bg-accent/50 rounded-xl animate-pulse" />
+          <div key={i} className="h-96 bg-accent/10 rounded-xl animate-pulse" />
         ))}
       </div>
     );
@@ -46,14 +46,14 @@ export function RelatedDeals({ currentDealId, category }: RelatedDealsProps) {
   }
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-8 animate-fade-up">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-primary" />
-        <h3 className="text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+        <Sparkles className="h-6 w-6 text-primary" />
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
           Liknande erbjudanden
-        </h3>
+        </h2>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {relatedDeals.map((deal) => (
           <DealCard key={deal.id} {...deal} />
         ))}
