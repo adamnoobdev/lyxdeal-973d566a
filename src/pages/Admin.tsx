@@ -16,41 +16,56 @@ export default function Admin() {
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (!session?.user) {
+        console.log("No session found, redirecting to home");
         toast.error("Du måste vara inloggad");
         navigate("/");
         return;
       }
 
-      const { data: salon, error } = await supabase
-        .from('salons')
-        .select('role')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
+      try {
+        const { data: salon, error } = await supabase
+          .from('salons')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .single();
 
-      if (error) {
-        console.error('Error checking admin status:', error);
+        console.log("Salon data:", salon); // Debug log
+
+        if (error) {
+          console.error('Error checking admin status:', error);
+          toast.error("Ett fel uppstod vid behörighetskontroll");
+          navigate("/");
+          return;
+        }
+
+        if (!salon || salon.role !== 'admin') {
+          console.log("User is not admin:", salon?.role); // Debug log
+          toast.error("Du har inte behörighet till denna sida");
+          navigate("/");
+          return;
+        }
+
+        console.log("User confirmed as admin"); // Debug log
+        setIsAdmin(true);
+      } catch (error) {
+        console.error('Error in checkAdminStatus:', error);
         toast.error("Ett fel uppstod");
         navigate("/");
-        return;
       }
-
-      if (!salon || salon.role !== 'admin') {
-        toast.error("Du har inte behörighet till denna sida");
-        navigate("/");
-        return;
-      }
-
-      setIsAdmin(true);
     };
 
     checkAdminStatus();
   }, [session, navigate]);
 
   // Show nothing while checking admin status
-  if (isAdmin === null) return null;
+  if (isAdmin === null) {
+    return null;
+  }
 
   // Only render admin content if user is confirmed admin
-  if (!isAdmin) return null;
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <SidebarProvider>
