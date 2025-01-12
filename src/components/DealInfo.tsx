@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock, Tag } from "lucide-react";
+import { Star, MapPin, Clock, Tag, ShoppingBag } from "lucide-react";
 import { CategoryBadge } from "./CategoryBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -82,57 +82,84 @@ export const DealInfo = ({
     }
   };
 
+  const discountPercentage = Math.round(
+    ((originalPrice - discountedPrice) / originalPrice) * 100
+  );
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
-        <CategoryBadge category={category} className="shadow-sm" />
+    <div className="space-y-8 animate-fade-up">
+      <div className="flex flex-wrap items-center gap-3">
+        <CategoryBadge 
+          category={category} 
+          className="shadow-sm bg-primary/10 text-primary hover:bg-primary/20 transition-colors" 
+        />
+        <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
+          {discountPercentage}% rabatt
+        </Badge>
       </div>
       
-      <h1 className="text-3xl font-bold">{title}</h1>
-      
-      <div className="flex items-center gap-2">
-        {renderStars(4.5)}
-        <span className="text-sm text-gray-600">
-          (4.5 / 5)
-        </span>
-      </div>
-      
-      <div className="space-y-2">
-        <p className="text-lg text-gray-600">{description}</p>
-      </div>
-      
-      <div className="rounded-lg bg-white p-6 shadow-lg">
-        <div className="mb-4">
-          <p className="text-sm text-gray-600">Ordinarie pris</p>
-          <p className="text-lg line-through">{formatPrice(originalPrice)}</p>
-        </div>
-        <div className="mb-4">
-          <p className="text-sm text-gray-600">Ditt pris</p>
-          <p className="text-3xl font-bold text-primary">
-            {formatPrice(discountedPrice)}
-          </p>
-        </div>
-        <Button 
-          className="w-full bg-primary hover:bg-primary/90 text-white"
-          onClick={handlePurchase}
-          disabled={quantityLeft <= 0 || isLoading}
-        >
-          {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
-        </Button>
-      </div>
-      
-      <div className="space-y-2 text-sm text-gray-600">
+      <div className="space-y-4">
+        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+          {title}
+        </h1>
+        
         <div className="flex items-center gap-2">
+          {renderStars(4.5)}
+          <span className="text-sm text-muted-foreground">
+            (4.5 / 5)
+          </span>
+        </div>
+      </div>
+      
+      <div className="prose prose-gray max-w-none">
+        <p className="text-lg text-muted-foreground leading-relaxed">
+          {description}
+        </p>
+      </div>
+      
+      <div className="rounded-xl bg-gradient-to-br from-white via-white to-gray-50/50 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20">
+        <div className="space-y-4">
+          <div className="flex justify-between items-end border-b border-accent/10 pb-4">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Ordinarie pris</p>
+              <p className="text-lg line-through text-muted-foreground/60">{formatPrice(originalPrice)}</p>
+            </div>
+            <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200">
+              Spara {formatPrice(originalPrice - discountedPrice)}
+            </Badge>
+          </div>
+          
+          <div className="pb-6">
+            <p className="text-sm text-muted-foreground mb-1">Ditt pris</p>
+            <p className="text-4xl font-bold tracking-tight text-primary">
+              {formatPrice(discountedPrice)}
+            </p>
+          </div>
+          
+          <Button 
+            className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-6 group transition-all duration-300"
+            onClick={handlePurchase}
+            disabled={quantityLeft <= 0 || isLoading}
+          >
+            <ShoppingBag className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+            {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
+          </Button>
+        </div>
+      </div>
+      
+      <div className="flex flex-col gap-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 transition-transform duration-300 hover:translate-x-1">
           <MapPin className="h-4 w-4 text-primary" />
           <span>{city}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 transition-transform duration-300 hover:translate-x-1">
           <Clock className="h-4 w-4 text-primary" />
           <span>{timeRemaining}</span>
         </div>
         {quantityLeft > 0 && (
-          <div className="flex items-center gap-2 text-emerald-600 font-medium">
-            <span>{quantityLeft} kvar</span>
+          <div className="flex items-center gap-2 text-emerald-600 font-medium transition-transform duration-300 hover:translate-x-1">
+            <Tag className="h-4 w-4" />
+            <span>{quantityLeft} kvar i lager</span>
           </div>
         )}
       </div>

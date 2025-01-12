@@ -30,16 +30,18 @@ const ProductDetails = () => {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-12">
         <div className="container mx-auto px-4">
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <h2 className="text-2xl font-bold text-gray-900">
               Erbjudandet kunde inte hittas
             </h2>
             <Button
               onClick={() => navigate("/")}
-              className="mt-4"
+              variant="outline"
+              className="gap-2"
             >
+              <ArrowLeft className="h-4 w-4" />
               Gå tillbaka till startsidan
             </Button>
           </div>
@@ -50,16 +52,16 @@ const ProductDetails = () => {
 
   if (isLoading || !deal) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid gap-8 md:grid-cols-2">
-            <Skeleton className="h-[400px] w-full rounded-lg" />
+            <Skeleton className="h-[400px] w-full rounded-xl" />
             <div className="space-y-4">
               <Skeleton className="h-8 w-24" />
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-48 w-full rounded-lg" />
+              <Skeleton className="h-48 w-full rounded-xl" />
             </div>
           </div>
         </div>
@@ -80,32 +82,35 @@ const ProductDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white pb-12">
       <div className="container mx-auto px-4">
-        <Link to="/" className="inline-flex items-center gap-2 py-4 text-gray-600 hover:text-gray-900">
-          <ArrowLeft className="h-4 w-4" />
+        <Link 
+          to="/" 
+          className="inline-flex items-center gap-2 py-6 text-muted-foreground hover:text-foreground transition-colors group"
+        >
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
           Tillbaka till erbjudanden
         </Link>
         
-        <div className="grid gap-8 md:grid-cols-2">
-          <div>
-            <div className="relative">
+        <div className="grid gap-12 md:grid-cols-2">
+          <div className="space-y-6">
+            <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20 animate-fade-up">
               <img
                 src={deal.imageUrl}
                 alt={deal.title}
-                className="aspect-[4/3] w-full rounded-lg object-cover shadow-lg"
+                className="aspect-[4/3] w-full object-cover transition-transform duration-700 hover:scale-105"
               />
               <div className="absolute right-3 top-3 flex gap-2">
                 <CategoryBadge 
                   category={`${discountPercentage}% RABATT`} 
                   variant="default"
-                  className="bg-gradient-to-r from-[#D946EF]/40 to-[#9b87f5]/40 text-white font-semibold shadow-sm backdrop-blur-md bg-white/10"
+                  className="bg-gradient-to-r from-[#D946EF]/80 to-[#9b87f5]/80 text-white font-semibold shadow-lg backdrop-blur-md"
                 />
                 {isNew(deal.created_at) && (
                   <CategoryBadge
                     category="NYTT"
                     variant="default"
-                    className="bg-yellow-500/90 text-yellow-950 font-semibold shadow-sm backdrop-blur-md"
+                    className="bg-yellow-500/90 text-yellow-950 font-semibold shadow-lg backdrop-blur-md"
                   />
                 )}
               </div>
@@ -115,11 +120,13 @@ const ProductDetails = () => {
           <DealInfo {...deal} />
         </div>
 
-        <div className="mt-12">
+        <div className="mt-16">
           <div className="max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold mb-6">Recensioner</h2>
+            <h2 className="text-2xl font-bold mb-8 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              Recensioner
+            </h2>
             
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div className="bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20 p-6 mb-8 animate-fade-up">
               <h3 className="text-lg font-semibold mb-4">Skriv en recension</h3>
               <ReviewForm dealId={deal.id} />
             </div>
@@ -127,13 +134,16 @@ const ProductDetails = () => {
             <div className="space-y-6">
               {isLoadingReviews ? (
                 <div className="space-y-4">
-                  <Skeleton className="h-32 w-full" />
-                  <Skeleton className="h-32 w-full" />
-                  <Skeleton className="h-32 w-full" />
+                  <Skeleton className="h-32 w-full rounded-xl" />
+                  <Skeleton className="h-32 w-full rounded-xl" />
+                  <Skeleton className="h-32 w-full rounded-xl" />
                 </div>
               ) : reviews && reviews.length > 0 ? (
                 reviews.map((review) => (
-                  <div key={review.id} className="bg-white rounded-lg shadow p-6">
+                  <div 
+                    key={review.id} 
+                    className="bg-white rounded-xl shadow-sm p-6 border border-accent/20 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] animate-fade-up"
+                  >
                     <div className="flex items-center gap-1 mb-2">
                       {Array.from({ length: 5 }).map((_, index) => (
                         <Star
@@ -147,15 +157,15 @@ const ProductDetails = () => {
                       ))}
                     </div>
                     {review.comment && (
-                      <p className="text-gray-700 mb-2">{review.comment}</p>
+                      <p className="text-muted-foreground mb-2">{review.comment}</p>
                     )}
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       {formatDate(review.created_at)}
                     </p>
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500">
+                <p className="text-center text-muted-foreground">
                   Inga recensioner än. Var först med att recensera!
                 </p>
               )}
