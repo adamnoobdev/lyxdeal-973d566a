@@ -54,7 +54,7 @@ export const useDealsAdmin = () => {
       console.log("Fetched deals:", data);
       return data;
     },
-    enabled: !!session?.user?.id, // Kör bara queryn om användaren är inloggad
+    enabled: !!session?.user?.id,
   });
 
   const handleDelete = async (id: number) => {
@@ -104,11 +104,46 @@ export const useDealsAdmin = () => {
     }
   };
 
+  const handleCreate = async (values: any) => {
+    try {
+      if (!session?.user?.id) {
+        toast.error("Du måste vara inloggad för att skapa erbjudanden");
+        return false;
+      }
+
+      const { data: salon } = await supabase
+        .from('salons')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (!salon) {
+        toast.error("Ingen salong hittades kopplad till ditt konto");
+        return false;
+      }
+
+      const { error } = await supabase
+        .from('deals')
+        .insert([{ ...values, salon_id: salon.id }]);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
+      toast.success("Erbjudandet har skapats");
+      return true;
+    } catch (error: any) {
+      console.error("Create error:", error);
+      toast.error(error.message || "Kunde inte skapa erbjudandet");
+      return false;
+    }
+  };
+
   return {
     deals,
     isLoading,
     error,
     handleDelete,
     handleUpdate,
+    handleCreate,
   };
 };
