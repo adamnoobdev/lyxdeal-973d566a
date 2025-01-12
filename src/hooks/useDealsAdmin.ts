@@ -1,56 +1,29 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/hooks/useSession";
 import { toast } from "sonner";
 import { Deal } from "@/components/admin/types";
-import { useSession } from "./useSession";
-import { deleteDeal, updateDeal } from "@/utils/dealMutations";
-import { supabase } from "@/integrations/supabase/client";
+import { DealFormValues } from "@/types/deal-form";
+import { 
+  fetchSalonIdForUser, 
+  createDealInDb, 
+  updateDealInDb, 
+  deleteDealFromDb 
+} from "@/utils/dealAdminUtils";
 
 export const useDealsAdmin = () => {
+  const { session } = useSession();
   const queryClient = useQueryClient();
-  const session = useSession();
 
-  const { data: deals, isLoading, error } = useQuery({
+  const { data: deals = [], isLoading, error } = useQuery<Deal[]>({
     queryKey: ["admin-deals"],
     queryFn: async () => {
-      console.log("Starting to fetch deals...");
-      console.log("Session:", session);
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-      if (!session?.user?.id) {
-        console.error("No session found");
-        throw new Error("Du måste vara inloggad för att hantera erbjudanden");
-      }
-
-      // Först hämta salongen kopplad till användaren
-      const { data: salon, error: salonError } = await supabase
-        .from('salons')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
-      if (salonError) {
-        console.error("Error fetching salon:", salonError);
-        throw new Error("Kunde inte hämta salonginformation");
-      }
-
-      console.log("Salon data:", salon);
-
-      if (!salon) {
-        console.error("No salon found for user");
-        throw new Error("Ingen salong hittades kopplad till ditt konto");
-      }
-
-      // Hämta erbjudanden för den specifika salongen
-      const { data, error: dealsError } = await supabase
-        .from('deals')
-        .select('*')
-        .eq('salon_id', salon.id)
-        .order('created_at', { ascending: false });
-
-      if (dealsError) {
-        console.error("Error fetching deals:", dealsError);
-        throw dealsError;
-      }
-
+      if (error) throw error;
       console.log("Fetched deals:", data);
       return data;
     },
@@ -59,12 +32,7 @@ export const useDealsAdmin = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      if (!session?.user?.id) {
-        toast.error("Du måste vara inloggad för att ta bort erbjudanden");
-        return false;
-      }
-
-      await deleteDeal(id);
+      await deleteDealFromDb(id);
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast.success("Erbjudandet har tagits bort");
       return true;
@@ -75,25 +43,9 @@ export const useDealsAdmin = () => {
     }
   };
 
-  const handleUpdate = async (values: any, id: number) => {
+  const handleUpdate = async (values: DealFormValues, id: number) => {
     try {
-      if (!session?.user?.id) {
-        toast.error("Du måste vara inloggad för att uppdatera erbjudanden");
-        return false;
-      }
-
-      const { data: salon } = await supabase
-        .from('salons')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
-      if (!salon) {
-        toast.error("Ingen salong hittades kopplad till ditt konto");
-        return false;
-      }
-
-      await updateDeal({ ...values, salon_id: salon.id }, id);
+      await updateDealInDb(values, id);
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast.success("Erbjudandet har uppdaterats");
       return true;
@@ -104,30 +56,20 @@ export const useDealsAdmin = () => {
     }
   };
 
-  const handleCreate = async (values: any) => {
+  const handleCreate = async (values: DealFormValues) => {
     try {
       if (!session?.user?.id) {
         toast.error("Du måste vara inloggad för att skapa erbjudanden");
         return false;
       }
 
-      const { data: salon } = await supabase
-        .from('salons')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-
+      const salon = await fetchSalonIdForUser(session.user.id);
       if (!salon) {
         toast.error("Ingen salong hittades kopplad till ditt konto");
         return false;
       }
 
-      const { error } = await supabase
-        .from('deals')
-        .insert([{ ...values, salon_id: salon.id }]);
-
-      if (error) throw error;
-
+      await createDealInDb(values, salon.id);
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast.success("Erbjudandet har skapats");
       return true;
