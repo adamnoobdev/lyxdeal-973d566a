@@ -20,6 +20,15 @@ const fetchSalonsData = async () => {
 };
 
 const deleteSalonData = async (id: number) => {
+  // First delete all deals associated with the salon
+  const { error: dealsError } = await supabase
+    .from("deals")
+    .delete()
+    .eq("salon_id", id);
+
+  if (dealsError) throw dealsError;
+
+  // Then delete the salon
   const { error } = await supabase
     .from("salons")
     .delete()
@@ -79,7 +88,7 @@ export const useSalonsAdmin = () => {
   const handleDelete = async (id: number) => {
     try {
       await deleteSalonData(id);
-      toast.success("Salongen har tagits bort");
+      toast.success("Salongen och tillhörande erbjudanden har tagits bort");
       await fetchSalons();
       return true;
     } catch (err) {
