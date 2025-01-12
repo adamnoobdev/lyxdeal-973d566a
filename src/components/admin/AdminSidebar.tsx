@@ -1,4 +1,4 @@
-import { Home, Store } from "lucide-react";
+import { LayoutDashboard, Store, Tag } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,9 +13,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
   {
-    title: "Erbjudanden",
-    icon: Home,
+    title: "Översikt",
+    icon: LayoutDashboard,
     path: "/admin",
+  },
+  {
+    title: "Erbjudanden",
+    icon: Tag,
+    path: "/admin/deals",
   },
   {
     title: "Salonger",
@@ -29,7 +34,7 @@ export const AdminSidebar = () => {
   const location = useLocation();
 
   return (
-    <Sidebar className="pt-16"> {/* Added pt-16 for navbar height */}
+    <Sidebar className="pt-16">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Administration</SidebarGroupLabel>
