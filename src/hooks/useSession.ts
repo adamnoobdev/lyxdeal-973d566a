@@ -4,25 +4,32 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const useSession = () => {
   const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Hämta initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session:", session);
+    // Initial session check
+    const initSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+      } catch (error) {
+        console.error("Session initialization error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initSession();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
 
-    // Prenumerera på auth-ändringar
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", session);
-      setSession(session);
-    });
-
-    // Cleanup subscription
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  return session;
+  return { session, isLoading };
 };
