@@ -44,7 +44,7 @@ export const updateDealInDb = async (values: DealFormValues, dealId: number) => 
       category: values.category,
       city: values.city,
       time_remaining: values.timeRemaining,
-      featured: values.featured,
+      featured: values.featured
     })
     .eq('id', dealId);
 
