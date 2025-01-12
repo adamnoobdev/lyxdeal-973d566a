@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ResponsiveGridProps {
