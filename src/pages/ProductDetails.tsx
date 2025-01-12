@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DealInfo } from "@/components/DealInfo";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { ReviewForm } from "@/components/ReviewForm";
+import { RelatedDeals } from "@/components/deal/RelatedDeals";
 import { useEffect } from "react";
 
 const ProductDetails = () => {
@@ -171,6 +172,10 @@ const ProductDetails = () => {
               )}
             </div>
           </div>
+        </div>
+
+        <div className="mt-24">
+          <RelatedDeals currentDealId={deal.id} category={deal.category} />
         </div>
       </div>
     </div>
