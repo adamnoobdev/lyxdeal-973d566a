@@ -12,57 +12,86 @@ export default function Admin() {
   const session = useSession();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (!session?.user) {
-        console.log("No session found, redirecting to home");
-        toast.error("Du måste vara inloggad");
-        navigate("/");
-        return;
-      }
+    let isMounted = true;
 
+    const checkAdminStatus = async () => {
       try {
+        // Vänta på att sessionen ska vara tillgänglig
+        if (!session?.user?.id) {
+          console.log("Waiting for session...");
+          return;
+        }
+
+        console.log("Checking admin status for user:", session.user.id);
+
         const { data: salon, error } = await supabase
           .from('salons')
           .select('role')
           .eq('user_id', session.user.id)
           .single();
 
-        console.log("Salon data:", salon); // Debug log
+        console.log("Salon query result:", { salon, error });
 
         if (error) {
           console.error('Error checking admin status:', error);
-          toast.error("Ett fel uppstod vid behörighetskontroll");
-          navigate("/");
+          if (isMounted) {
+            toast.error("Ett fel uppstod vid behörighetskontroll");
+            navigate("/");
+          }
           return;
         }
 
         if (!salon || salon.role !== 'admin') {
-          console.log("User is not admin:", salon?.role); // Debug log
-          toast.error("Du har inte behörighet till denna sida");
-          navigate("/");
+          console.log("User is not admin. Role:", salon?.role);
+          if (isMounted) {
+            toast.error("Du har inte behörighet till denna sida");
+            navigate("/");
+          }
           return;
         }
 
-        console.log("User confirmed as admin"); // Debug log
-        setIsAdmin(true);
+        console.log("Admin status confirmed");
+        if (isMounted) {
+          setIsAdmin(true);
+        }
       } catch (error) {
         console.error('Error in checkAdminStatus:', error);
-        toast.error("Ett fel uppstod");
-        navigate("/");
+        if (isMounted) {
+          toast.error("Ett fel uppstod");
+          navigate("/");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     checkAdminStatus();
+
+    return () => {
+      isMounted = false;
+    };
   }, [session, navigate]);
 
-  // Show nothing while checking admin status
+  // Visa laddningsindikator medan vi kontrollerar admin-status
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  // Visa inget om admin-status fortfarande kontrolleras
   if (isAdmin === null) {
     return null;
   }
 
-  // Only render admin content if user is confirmed admin
+  // Visa inget om användaren inte är admin
   if (!isAdmin) {
     return null;
   }
