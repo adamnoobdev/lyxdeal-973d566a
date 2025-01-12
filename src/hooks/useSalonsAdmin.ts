@@ -70,7 +70,7 @@ const createSalonData = async (values: UpdateSalonData) => {
 
     return data.salon;
   } catch (error) {
-    throw new Error(error.message);
+    throw error instanceof Error ? error : new Error(String(error));
   }
 };
 
@@ -91,7 +91,7 @@ const updateSalonData = async (values: UpdateSalonData, id: number) => {
 export const useSalonsAdmin = () => {
   const [salons, setSalons] = useState<Salon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | string | null>(null);
 
   const fetchSalons = async () => {
     setIsLoading(true);
@@ -101,9 +101,9 @@ export const useSalonsAdmin = () => {
       const data = await fetchSalonsData();
       setSalons(data || []);
     } catch (err: any) {
-      const errorMessage = err?.message || "Failed to fetch salons";
+      const errorMessage = err instanceof Error ? err : String(err);
       setError(errorMessage);
-      toast.error(errorMessage);
+      toast.error(errorMessage instanceof Error ? errorMessage.message : errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +116,7 @@ export const useSalonsAdmin = () => {
       await fetchSalons();
       return true;
     } catch (err: any) {
-      const errorMessage = err?.message || "Ett fel uppstod när salongen skulle tas bort";
+      const errorMessage = err instanceof Error ? err.message : String(err);
       toast.error(errorMessage);
       console.error("Error:", err);
       return false;
@@ -129,7 +129,7 @@ export const useSalonsAdmin = () => {
       await fetchSalons();
       return true;
     } catch (err: any) {
-      const errorMessage = err?.message || "Ett fel uppstod när salongen skulle skapas";
+      const errorMessage = err instanceof Error ? err.message : String(err);
       toast.error(errorMessage);
       console.error("Error:", err);
       return false;
@@ -143,7 +143,7 @@ export const useSalonsAdmin = () => {
       await fetchSalons();
       return true;
     } catch (err: any) {
-      const errorMessage = err?.message || "Ett fel uppstod när salongen skulle uppdateras";
+      const errorMessage = err instanceof Error ? err.message : String(err);
       toast.error(errorMessage);
       console.error("Error:", err);
       return false;

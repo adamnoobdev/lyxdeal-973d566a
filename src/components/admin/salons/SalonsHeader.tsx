@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
 interface SalonsHeaderProps {
-  error: Error | null;
+  error: Error | string | null;
   onCreateClick: () => void;
 }
 
@@ -14,7 +14,7 @@ export const SalonsHeader = ({ error, onCreateClick }: SalonsHeaderProps) => {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          {error instanceof Error ? error.message : "Ett fel uppstod när salonger skulle hämtas"}
+          {error instanceof Error ? error.message : error}
         </AlertDescription>
       </Alert>
     );
