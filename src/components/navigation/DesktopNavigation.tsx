@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { CategorySelector } from "@/components/CategorySelector";
+import { SearchContainer } from "@/components/SearchContainer";
 import { CitySelector } from "@/components/CitySelector";
-import { SearchBar } from "@/components/SearchBar";
-import { LogOut, UserRound, LayoutDashboard } from "lucide-react";
+import { CategorySelector } from "@/components/CategorySelector";
+import { LayoutDashboard, LogOut } from "lucide-react";
 
 interface DesktopNavigationProps {
   searchQuery: string;
-  onSearchChange: (value: string) => void;
-  onSearch: (e: React.FormEvent) => void;
+  onSearchChange: (query: string) => void;
+  onSearch: () => void;
   currentCity: string;
   onCitySelect: (city: string) => void;
   onCategorySelect: (category: string) => void;
@@ -28,51 +28,56 @@ export const DesktopNavigation = ({
   onLogout,
   userRole,
   onDashboard
-}: DesktopNavigationProps) => (
-  <div className="hidden md:flex md:flex-1 md:items-center md:justify-between md:space-x-4">
-    <SearchBar
-      searchQuery={searchQuery}
-      onSearchChange={onSearchChange}
-      onSubmit={onSearch}
-      className="w-full max-w-md"
-    />
-    <div className="flex items-center space-x-4">
-      <CitySelector currentCity={currentCity} onCitySelect={onCitySelect} />
-      <CategorySelector onCategorySelect={onCategorySelect} />
-      {session ? (
-        <>
-          {(userRole === 'salon_owner' || userRole === 'admin') && (
+}: DesktopNavigationProps) => {
+  return (
+    <div className="hidden items-center md:flex md:flex-1 md:gap-4">
+      <SearchContainer
+        searchQuery={searchQuery}
+        onSearchChange={onSearchChange}
+        onSearch={onSearch}
+      />
+
+      <div className="flex items-center gap-2">
+        <CitySelector
+          currentCity={currentCity}
+          onCitySelect={onCitySelect}
+          variant="desktop"
+          className="dropdown-content"
+        />
+
+        <CategorySelector
+          onCategorySelect={onCategorySelect}
+          variant="desktop"
+          className="dropdown-content"
+        />
+
+        {session ? (
+          <>
+            {(userRole === 'salon_owner' || userRole === 'admin') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={onDashboard}
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden lg:inline">
+                  {userRole === 'admin' ? 'Admin' : 'Portal'}
+                </span>
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
               className="gap-2"
-              onClick={onDashboard}
+              onClick={onLogout}
             >
-              <LayoutDashboard className="h-4 w-4" />
-              {userRole === 'admin' ? 'Admin' : 'Portal'}
+              <LogOut className="h-4 w-4" />
+              <span className="hidden lg:inline">Logga ut</span>
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-2"
-            onClick={onLogout}
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Logga ut</span>
-          </Button>
-        </>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-2"
-          onClick={() => window.location.href = '/auth'}
-        >
-          <UserRound className="h-4 w-4" />
-          <span>Logga in</span>
-        </Button>
-      )}
+          </>
+        ) : null}
+      </div>
     </div>
-  </div>
-);
+  );
+};

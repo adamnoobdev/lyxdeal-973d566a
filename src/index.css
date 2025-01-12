@@ -83,3 +83,19 @@
     text-wrap: balance;
   }
 }
+
+/* Ensure dropdowns appear above other content */
+.dropdown-content {
+  @apply z-[100] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60;
+}
+
+/* Add specific styles for navigation dropdowns */
+nav [data-radix-popper-content-wrapper] {
+  @apply z-[100] !important;
+}
+
+/* Ensure dropdown menus have proper background and shadow */
+[role="menu"],
+[role="listbox"] {
+  @apply bg-popover shadow-lg ring-1 ring-black ring-opacity-5;
+}
