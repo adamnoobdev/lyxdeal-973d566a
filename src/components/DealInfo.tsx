@@ -81,19 +81,13 @@ export const DealInfo = ({
     }
   };
 
-  const discountPercentage = Math.round(
-    ((originalPrice - discountedPrice) / originalPrice) * 100
-  );
-
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <CategoryBadge category={category} className="bg-primary/10 text-primary hover:bg-primary/20" />
-          <Badge variant="outline" className="bg-destructive/5 text-destructive border-destructive/20">
-            {discountPercentage}% rabatt
-          </Badge>
-        </div>
+        <CategoryBadge 
+          category={category} 
+          className="bg-primary/10 text-primary hover:bg-primary/20" 
+        />
         
         <div className="space-y-2">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">
