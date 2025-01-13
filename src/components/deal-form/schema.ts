@@ -26,7 +26,10 @@ export const formSchema = z.object({
     message: "Vänligen ange hur länge erbjudandet gäller.",
   }),
   featured: z.boolean().default(false),
-  salon_id: z.number().optional(),
+  salon_id: z.number({
+    required_error: "Vänligen välj en salong",
+    invalid_type_error: "Vänligen välj en salong",
+  }),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
