@@ -31,13 +31,13 @@ export function PriceDisplay({
   const priceTextSize = {
     sm: "text-2xl",
     md: "text-2xl",
-    lg: "text-3xl"
+    lg: "text-4xl"
   }[size];
 
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="flex justify-between items-baseline">
-        <div className="space-y-1">
+        <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Tag className="h-4 w-4 text-muted-foreground/60" />
             <span className="text-sm line-through text-muted-foreground/60">
