@@ -40,14 +40,25 @@ const deleteSalonData = async (id: number) => {
 };
 
 const createSalonData = async (values: any) => {
-  const { data, error } = await supabase
-    .from("salons")
-    .insert([values])
-    .select()
-    .single();
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error("No active session");
 
-  if (error) throw error;
-  return data;
+    const { data, error } = await supabase.functions.invoke("create-salon-account", {
+      body: values,
+    });
+
+    if (error) throw error;
+    
+    if (data.temporaryPassword) {
+      toast.success(`Lösenord för ${values.email}: ${data.temporaryPassword}`);
+    }
+    
+    return data.salon;
+  } catch (error) {
+    console.error("Error creating salon:", error);
+    throw error;
+  }
 };
 
 const updateSalonData = async (values: any, id: number) => {
