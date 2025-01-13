@@ -12,10 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 
+interface CreateSalonResponse {
+  salon: any;
+  temporaryPassword: string;
+}
+
 interface CreateSalonDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (values: any) => Promise<void>;
+  onSubmit: (values: any) => Promise<CreateSalonResponse>;
 }
 
 export const CreateSalonDialog = ({
@@ -30,9 +35,13 @@ export const CreateSalonDialog = ({
       const response = await onSubmit(values);
       if (response?.temporaryPassword) {
         setPassword(response.temporaryPassword);
+      } else {
+        console.warn("No temporary password received from server");
+        toast.error("Ett fel uppstod vid skapande av lösenord");
       }
     } catch (error) {
       console.error("Error creating salon:", error);
+      toast.error("Ett fel uppstod vid skapande av salong");
     }
   };
 

@@ -3,6 +3,7 @@ import { Salon } from "../types";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
 import { EditSalonDialog } from "./EditSalonDialog";
 import { DeleteSalonDialog } from "./DeleteSalonDialog";
+import { CreateSalonDialog } from "./CreateSalonDialog";
 import { SalonsLoadingSkeleton } from "./SalonsLoadingSkeleton";
 import { SalonsHeader } from "./SalonsHeader";
 import { SalonsContent } from "./SalonsContent";
@@ -42,10 +43,7 @@ export const SalonsList = () => {
 
   const onCreate = async (values: any) => {
     const response = await handleCreate(values);
-    if (response?.salon) {
-      setIsCreating(false);
-      return response;
-    }
+    return response;
   };
 
   if (isLoading) {
