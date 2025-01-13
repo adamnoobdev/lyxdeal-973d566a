@@ -26,7 +26,7 @@ export const NavigationBar = () => {
             .from('salons')
             .select('role')
             .eq('user_id', user.id)
-            .single();
+            .maybeSingle();
           
           if (error) {
             console.error('Error checking user role:', error);
