@@ -84,27 +84,6 @@ export const DealInfo = ({
 
   return (
     <div className="space-y-8">
-      {salon && (
-        <div className="flex items-center justify-between bg-accent/10 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-full">
-              <Store className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-medium text-foreground">{salon.name}</h3>
-              <p className="text-sm text-muted-foreground">Erbjudandet säljs av denna salong</p>
-            </div>
-          </div>
-          <Link 
-            to={`/salon/${id}`} 
-            className="flex items-center gap-1 text-sm text-primary hover:underline"
-          >
-            Se salong
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-      )}
-
       <div className="space-y-4">
         <CategoryBadge 
           category={category} 
@@ -137,17 +116,29 @@ export const DealInfo = ({
           />
           
           {salon && (
-            <div className="border-t pt-4 space-y-2">
-              <div className="space-y-1.5">
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Store className="h-4 w-4 text-muted-foreground/70" />
+                  <span>{salon.name}</span>
+                </div>
+                <Link 
+                  to={`/salon/${id}`} 
+                  className="text-primary hover:text-primary/80 transition-colors"
+                >
+                  Se salong
+                </Link>
+              </div>
+              <div className="mt-2 space-y-1">
                 {salon.address && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
+                    <MapPin className="h-3 w-3" />
                     <span>{salon.address}</span>
                   </div>
                 )}
                 {salon.phone && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Phone className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
+                    <Phone className="h-3 w-3" />
                     <span>{salon.phone}</span>
                   </div>
                 )}
