@@ -18,8 +18,9 @@ import { formSchema, FormValues } from "./deal-form/schema";
 import { createStripeProductForDeal } from "@/utils/stripeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
@@ -28,6 +29,8 @@ interface DealFormProps {
 }
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
+  const queryClient = useQueryClient();
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues || {
@@ -59,6 +62,29 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       return data;
     },
   });
+
+  useEffect(() => {
+    // Subscribe to changes in the salons table
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'salons'
+        },
+        () => {
+          // Invalidate and refetch the salons query
+          queryClient.invalidateQueries({ queryKey: ["salons"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const handleImageSelected = (imageUrl: string) => {
     form.setValue("imageUrl", imageUrl);
