@@ -1,34 +1,18 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { LogOut, Settings, Scissors, ShoppingBag } from "lucide-react";
-import { toast } from "sonner";
-import { ProfileSettings } from "@/components/salon/ProfileSettings";
-import { PurchasesTable } from "@/components/salon/PurchasesTable";
 import { useQuery } from "@tanstack/react-query";
-
-interface SalonData {
-  id: number;
-  name: string;
-  email: string;
-  phone: string | null;
-  address: string | null;
-  role: string;
-  user_id: string | null;
-}
-
-interface Purchase {
-  id: number;
-  customer_email: string;
-  discount_code: string;
-  created_at: string;
-  deals: {
-    title: string;
-  };
-}
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/hooks/useSession";
+import { Card } from "@/components/ui/card";
+import { DealForm } from "@/components/DealForm";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DealsTable } from "@/components/admin/deals/DealsTable";
+import { EditDealDialog } from "@/components/admin/deals/EditDealDialog";
+import { DeleteDealDialog } from "@/components/admin/deals/DeleteDealDialog";
+import { Deal } from "@/components/admin/types";
+import { FormValues } from "@/components/deal-form/schema";
+import { toast } from "sonner";
 
 interface DealStats {
   deal_id: number;
@@ -37,198 +21,159 @@ interface DealStats {
 }
 
 export default function SalonDashboard() {
-  const navigate = useNavigate();
-  const [salonData, setSalonData] = useState<SalonData | null>(null);
+  const { session } = useSession();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
+  const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
 
-  const { data: purchases, isLoading: purchasesLoading } = useQuery({
-    queryKey: ['salon-purchases'],
+  const { data: salonData } = useQuery({
+    queryKey: ['salon', session?.user.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('purchases')
-        .select(`
-          id,
-          customer_email,
-          discount_code,
-          created_at,
-          deals (
-            title
-          )
-        `)
-        .order('created_at', { ascending: false });
+        .from('salons')
+        .select('*')
+        .eq('user_id', session?.user.id)
+        .single();
 
-      if (error) throw error;
-      return data as Purchase[];
+      if (error) {
+        console.error('Error fetching salon data:', error);
+        throw error;
+      }
+
+      return data;
     },
-    enabled: !!salonData,
+    enabled: !!session?.user.id,
   });
 
   const { data: dealStats } = useQuery({
-    queryKey: ['salon-deal-stats'],
+    queryKey: ['salon-deal-stats', salonData?.id],
     queryFn: async () => {
-      // First, get all deals for this salon
+      if (!salonData?.id) throw new Error("No salon ID available");
+
       const { data: deals, error: dealsError } = await supabase
         .from('deals')
-        .select('id, title')
-        .eq('salon_id', salonData?.id);
+        .select(`
+          id,
+          title,
+          purchases:purchases(count)
+        `)
+        .eq('salon_id', salonData.id);
 
-      if (dealsError) throw dealsError;
+      if (dealsError) {
+        console.error('Error fetching deal stats:', dealsError);
+        throw dealsError;
+      }
 
-      // Then, for each deal, count its purchases
-      const statsPromises = deals.map(async (deal) => {
-        const { count, error: countError } = await supabase
-          .from('purchases')
-          .select('*', { count: 'exact', head: true })
-          .eq('deal_id', deal.id);
-
-        if (countError) throw countError;
-
-        return {
-          deal_id: deal.id,
-          title: deal.title,
-          total_purchases: count || 0,
-        };
-      });
-
-      return Promise.all(statsPromises) as Promise<DealStats[]>;
+      return deals.map(deal => ({
+        deal_id: deal.id,
+        title: deal.title,
+        total_purchases: deal.purchases?.length || 0
+      })) as DealStats[];
     },
-    enabled: !!salonData,
+    enabled: !!salonData?.id,
   });
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/salon/login");
-        return;
-      }
-
-      const { data: salon, error } = await supabase
-        .from("salons")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .single();
-
-      if (error) throw error;
-
-      if (salon?.role === 'admin') {
-        navigate("/admin");
-        return;
-      }
-
-      setSalonData(salon);
-    } catch (error) {
-      console.error("Error checking user:", error);
-      toast.error("Det gick inte att hämta användarinformation");
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      navigate("/salon/login");
-    } catch (error) {
-      console.error("Error signing out:", error);
-      toast.error("Det gick inte att logga ut");
-    }
-  };
-
-  if (!salonData) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">{salonData.name}</h1>
-          <p className="text-muted-foreground mt-1">{salonData.email}</p>
-        </div>
-        <Button variant="outline" onClick={handleSignOut}>
-          <LogOut className="mr-2 h-4 w-4" />
-          Logga ut
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Salong Dashboard</h1>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Skapa erbjudande
         </Button>
       </div>
 
-      <Tabs defaultValue="deals" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="deals">
-            <Scissors className="mr-2 h-4 w-4" />
-            Erbjudanden
-          </TabsTrigger>
-          <TabsTrigger value="purchases">
-            <ShoppingBag className="mr-2 h-4 w-4" />
-            Köp
-          </TabsTrigger>
-          <TabsTrigger value="settings">
-            <Settings className="mr-2 h-4 w-4" />
-            Inställningar
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="deals">
-          <div className="grid gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Statistik</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {dealStats?.map((stat) => (
-                    <div key={stat.deal_id} className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">{stat.title}</span>
-                      <span className="font-medium">{stat.total_purchases} köp</span>
-                    </div>
-                  ))}
-                  {!dealStats?.length && (
-                    <p className="text-sm text-muted-foreground">
-                      Inga köp har gjorts än
-                    </p>
-                  )}
-                </div>
-              </CardContent>
+      {dealStats && dealStats.length > 0 && (
+        <div className="grid gap-4 md:grid-cols-3">
+          {dealStats.map((stat) => (
+            <Card key={stat.deal_id} className="p-4">
+              <h3 className="font-semibold">{stat.title}</h3>
+              <p className="text-sm text-muted-foreground">
+                Antal köp: {stat.total_purchases}
+              </p>
             </Card>
-          </div>
-        </TabsContent>
+          ))}
+        </div>
+      )}
 
-        <TabsContent value="purchases">
-          <Card>
-            <CardHeader>
-              <CardTitle>Köphistorik</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {purchasesLoading ? (
-                <div className="animate-pulse space-y-4">
-                  <div className="h-12 bg-muted rounded" />
-                  <div className="h-12 bg-muted rounded" />
-                  <div className="h-12 bg-muted rounded" />
-                </div>
-              ) : purchases?.length ? (
-                <PurchasesTable purchases={purchases} />
-              ) : (
-                <p className="text-center text-muted-foreground py-8">
-                  Inga köp har gjorts än
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Skapa Erbjudande</DialogTitle>
+          </DialogHeader>
+          <DealForm onSubmit={async (values: FormValues) => {
+            try {
+              await supabase.from('deals').insert({
+                ...values,
+                salon_id: salonData?.id,
+              });
+              toast.success("Erbjudande skapat!");
+              setIsCreateDialogOpen(false);
+            } catch (error) {
+              console.error("Error creating deal:", error);
+              toast.error("Ett fel uppstod när erbjudandet skulle skapas.");
+            }
+          }} />
+        </DialogContent>
+      </Dialog>
 
-        <TabsContent value="settings">
-          <ProfileSettings 
-            salon={salonData} 
-            onUpdate={checkUser}
-          />
-        </TabsContent>
-      </Tabs>
+      <EditDealDialog
+        isOpen={!!editingDeal}
+        onClose={() => setEditingDeal(null)}
+        onSubmit={async (values: FormValues) => {
+          if (!editingDeal) return;
+
+          try {
+            await supabase
+              .from('deals')
+              .update(values)
+              .eq('id', editingDeal.id);
+            toast.success("Erbjudande uppdaterat!");
+            setEditingDeal(null);
+          } catch (error) {
+            console.error("Error updating deal:", error);
+            toast.error("Ett fel uppstod när erbjudandet skulle uppdateras.");
+          }
+        }}
+        initialValues={editingDeal ? {
+          title: editingDeal.title,
+          description: editingDeal.description,
+          imageUrl: editingDeal.image_url,
+          originalPrice: editingDeal.original_price.toString(),
+          discountedPrice: editingDeal.discounted_price.toString(),
+          category: editingDeal.category,
+          city: editingDeal.city,
+          timeRemaining: editingDeal.time_remaining,
+          featured: editingDeal.featured,
+        } : undefined}
+      />
+
+      <DeleteDealDialog
+        isOpen={!!deletingDeal}
+        onClose={() => setDeletingDeal(null)}
+        onConfirm={async () => {
+          if (!deletingDeal) return;
+
+          try {
+            await supabase
+              .from('deals')
+              .delete()
+              .eq('id', deletingDeal.id);
+            toast.success("Erbjudande borttaget!");
+            setDeletingDeal(null);
+          } catch (error) {
+            console.error("Error deleting deal:", error);
+            toast.error("Ett fel uppstod när erbjudandet skulle tas bort.");
+          }
+        }}
+        dealTitle={deletingDeal?.title}
+      />
+
+      <DealsTable
+        deals={dealStats}
+        onEdit={setEditingDeal}
+        onDelete={setDeletingDeal}
+      />
     </div>
   );
 }
