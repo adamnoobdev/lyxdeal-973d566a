@@ -25,31 +25,31 @@ export const RegularDealContent = ({
   quantityLeft,
 }: RegularDealContentProps) => {
   return (
-    <div className="flex h-full flex-col p-2.5">
+    <div className="flex h-full flex-col p-3">
       {/* Top section with badges */}
-      <div className="flex items-center justify-between gap-1.5 mb-2">
+      <div className="flex items-center justify-between gap-1 mb-2">
         <CategoryBadge 
           category={category}
-          className="bg-primary/5 text-primary hover:bg-primary/10 transition-colors text-xs"
+          className="bg-primary/5 text-primary hover:bg-primary/10 transition-colors text-[13px]"
         />
-        <span className="inline-flex items-center gap-0.5 text-xs font-medium px-1.5 py-0.5 rounded-full bg-accent/5 text-accent-foreground">
+        <span className="inline-flex items-center gap-0.5 text-[13px] font-medium px-1.5 py-0.5 rounded-full bg-accent/5 text-accent-foreground">
           <Clock className="h-3 w-3" />
           {timeRemaining}
         </span>
       </div>
 
       {/* Title and description */}
-      <div className="mb-2">
-        <h3 className="text-sm font-semibold leading-tight text-foreground group-hover:text-primary/90 transition-colors line-clamp-2 mb-1">
+      <div className="mb-1.5">
+        <h3 className="text-[15px] font-semibold leading-tight text-foreground group-hover:text-primary/90 transition-colors line-clamp-2 mb-1">
           {title}
         </h3>
-        <p className="text-xs text-muted-foreground/90 leading-relaxed line-clamp-2">
+        <p className="text-[13px] text-muted-foreground/90 leading-snug line-clamp-2">
           {description}
         </p>
       </div>
 
       {/* Location and quantity */}
-      <div className="flex items-center justify-between text-xs mb-2">
+      <div className="flex items-center justify-between text-[13px] mb-1.5">
         <div className="flex items-center gap-0.5 text-muted-foreground/90">
           <MapPin className="h-3 w-3" />
           <span>{city}</span>
@@ -62,7 +62,7 @@ export const RegularDealContent = ({
       </div>
 
       {/* Price and buy button */}
-      <div className="mt-auto space-y-2">
+      <div className="mt-auto space-y-1.5">
         <PriceDisplay
           originalPrice={originalPrice}
           discountedPrice={discountedPrice}

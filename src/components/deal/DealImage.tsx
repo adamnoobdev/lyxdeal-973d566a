@@ -22,7 +22,7 @@ export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
         <div className="absolute left-2 top-2">
           <CategoryBadge 
             category="NYTT"
-            className="bg-primary/90 text-white hover:bg-primary shadow-sm text-xs"
+            className="bg-primary/90 text-white hover:bg-primary shadow-sm text-[13px]"
           >
             <Star className="mr-0.5 h-2.5 w-2.5" />
             Ny
