@@ -65,33 +65,21 @@ export default function SalonDashboard() {
   const { data: dealStats } = useQuery({
     queryKey: ['salon-deal-stats'],
     queryFn: async () => {
-      // Modified query to avoid using .group()
       const { data, error } = await supabase
-        .from('purchases')
+        .from('deals')
         .select(`
-          deal_id,
-          deals!inner (
-            id,
-            title
-          ),
-          count
-        `, { count: 'exact', head: false })
-        .eq('deals.salon_id', salonData?.id);
+          id,
+          title,
+          purchases:purchases(count)
+        `)
+        .eq('salon_id', salonData?.id);
 
       if (error) throw error;
       
-      // Process the data to get the stats we need
-      const statsMap = new Map<number, { title: string; count: number }>();
-      data?.forEach(purchase => {
-        const dealId = purchase.deals.id;
-        const current = statsMap.get(dealId) || { title: purchase.deals.title, count: 0 };
-        statsMap.set(dealId, { ...current, count: current.count + 1 });
-      });
-
-      return Array.from(statsMap.entries()).map(([dealId, stats]) => ({
-        deal_id: dealId,
-        title: stats.title,
-        total_purchases: stats.count,
+      return data.map(deal => ({
+        deal_id: deal.id,
+        title: deal.title,
+        total_purchases: deal.purchases[0]?.count ?? 0,
       })) as DealStats[];
     },
     enabled: !!salonData,
