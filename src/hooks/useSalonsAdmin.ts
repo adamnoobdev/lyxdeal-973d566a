@@ -53,19 +53,7 @@ const createSalonData = async (values: any) => {
     
     console.log("Response from edge function:", data);
     
-    if (data.temporaryPassword) {
-      toast.success(
-        `Lösenord för ${values.email}: ${data.temporaryPassword}`, 
-        {
-          duration: 10000, // Show for 10 seconds
-          position: "top-center",
-        }
-      );
-    } else {
-      console.warn("No temporary password received from edge function");
-    }
-    
-    return data.salon;
+    return data;
   } catch (error) {
     console.error("Error creating salon:", error);
     throw error;
@@ -130,10 +118,10 @@ export const useSalonsAdmin = () => {
 
   const handleCreate = async (values: any) => {
     try {
-      await createSalonData(values);
+      const response = await createSalonData(values);
       toast.success("Salongen har skapats");
       await fetchSalons();
-      return true;
+      return response;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Kunde inte skapa salongen";
       toast.error(errorMessage);

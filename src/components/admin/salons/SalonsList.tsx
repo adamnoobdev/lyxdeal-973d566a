@@ -41,9 +41,10 @@ export const SalonsList = () => {
   };
 
   const onCreate = async (values: any) => {
-    const success = await handleCreate(values);
-    if (success) {
+    const response = await handleCreate(values);
+    if (response?.salon) {
       setIsCreating(false);
+      return response;
     }
   };
 
@@ -69,12 +70,9 @@ export const SalonsList = () => {
       )}
 
       <EditSalonDialog
-        isOpen={!!editingSalon || isCreating}
-        onClose={() => {
-          setEditingSalon(null);
-          setIsCreating(false);
-        }}
-        onSubmit={editingSalon ? onUpdate : onCreate}
+        isOpen={!!editingSalon}
+        onClose={() => setEditingSalon(null)}
+        onSubmit={onUpdate}
         initialValues={
           editingSalon
             ? {
@@ -92,6 +90,12 @@ export const SalonsList = () => {
         onClose={() => setDeletingSalon(null)}
         onConfirm={onDelete}
         salonName={deletingSalon?.name}
+      />
+
+      <CreateSalonDialog
+        isOpen={isCreating}
+        onClose={() => setIsCreating(false)}
+        onSubmit={onCreate}
       />
     </div>
   );
