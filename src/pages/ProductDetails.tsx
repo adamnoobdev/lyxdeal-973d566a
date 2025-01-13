@@ -10,13 +10,14 @@ import { CategoryBadge } from "@/components/CategoryBadge";
 import { ReviewForm } from "@/components/ReviewForm";
 import { RelatedDeals } from "@/components/deal/RelatedDeals";
 import { DealFeatures } from "@/components/deal/DealFeatures";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: deal, isLoading, isError } = useDeal(id);
   const { data: reviews, isLoading: isLoadingReviews } = useReviews(id);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -28,6 +29,21 @@ const ProductDetails = () => {
     const diffTime = Math.abs(now.getTime() - createdDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays <= 3;
+  };
+
+  const getImageUrl = (imageUrl: string) => {
+    if (imageError || !imageUrl) {
+      return "/placeholder.svg";
+    }
+    
+    // If it's a blob URL or already a full URL, return as is
+    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('http')) {
+      return imageUrl;
+    }
+    
+    // If it's a relative path from Supabase storage, construct the full URL
+    const { origin } = window.location;
+    return `${origin}${imageUrl}`;
   };
 
   if (isError) {
@@ -98,9 +114,10 @@ const ProductDetails = () => {
           <div className="space-y-8">
             <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20 animate-fade-up">
               <img
-                src={deal.imageUrl}
+                src={getImageUrl(deal.imageUrl)}
                 alt={deal.title}
                 className="aspect-[4/3] w-full object-cover transition-transform duration-700 hover:scale-105"
+                onError={() => setImageError(true)}
               />
               <div className="absolute right-3 top-3">
                 {isNew(deal.created_at) && (

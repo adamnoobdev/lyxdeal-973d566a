@@ -1,5 +1,6 @@
 import { CategoryBadge } from "../CategoryBadge";
 import { Star } from "lucide-react";
+import { useState } from "react";
 
 interface DealImageProps {
   imageUrl: string;
@@ -8,15 +9,33 @@ interface DealImageProps {
 }
 
 export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = "/placeholder.svg";
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    console.log('Image failed to load:', imageUrl);
+    setImageError(true);
+  };
+
+  const getImageUrl = () => {
+    if (imageError || !imageUrl) {
+      return "/placeholder.svg";
+    }
+    
+    // If it's a blob URL or already a full URL, return as is
+    if (imageUrl.startsWith('blob:') || imageUrl.startsWith('http')) {
+      return imageUrl;
+    }
+    
+    // If it's a relative path from Supabase storage, construct the full URL
+    const { origin } = window.location;
+    return `${origin}${imageUrl}`;
   };
 
   return (
     <div className="relative overflow-hidden rounded-t-lg">
       <div className="aspect-[3/2] overflow-hidden bg-accent/10">
         <img
-          src={imageUrl}
+          src={getImageUrl()}
           alt={title}
           className="h-full w-full object-cover transition-all duration-700 ease-in-out group-hover:scale-105"
           loading="lazy"
