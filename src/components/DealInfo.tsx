@@ -1,21 +1,22 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone, ChevronRight } from "lucide-react";
-import { CategoryBadge } from "./CategoryBadge";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useState } from "react";
-import { PriceDisplay } from "./PriceDisplay";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { PriceDisplay } from "@/components/PriceDisplay";
+import { CategoryBadge } from "@/components/CategoryBadge";
+import { MapPin, Phone, Timer, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DealInfoProps {
   id: number;
   title: string;
   description: string;
-  category: string;
+  imageUrl: string;
   originalPrice: number;
   discountedPrice: number;
   timeRemaining: string;
+  category: string;
   city: string;
   quantityLeft: number;
   salon?: {
@@ -23,167 +24,143 @@ interface DealInfoProps {
     name: string;
     address: string | null;
     phone: string | null;
-  } | null;
+  };
+  onPurchase?: () => void;
 }
 
 export const DealInfo = ({
   id,
   title,
   description,
-  category,
+  imageUrl,
   originalPrice,
   discountedPrice,
   timeRemaining,
+  category,
   city,
   quantityLeft,
   salon,
+  onPurchase,
 }: DealInfoProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const renderStars = (rating: number) => {
-    return Array(5).fill(0).map((_, index) => (
-      <Star
-        key={index}
-        className={`h-4 w-4 ${
-          index < rating ? "text-secondary fill-secondary" : "text-muted-200"
-        }`}
-      />
-    ));
-  };
-
   const handlePurchase = async () => {
     try {
-      setIsLoading(true);
-      console.log('Starting purchase process for deal:', id);
-
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { dealId: id }
+        body: { dealId: id },
       });
 
       if (error) {
-        console.error('Purchase error:', error);
-        toast.error(`Ett fel uppstod: ${error.message}`);
+        console.error('Error creating checkout session:', error);
+        toast.error('Ett fel uppstod vid köp');
         return;
       }
 
-      if (!data?.url) {
-        console.error('No checkout URL received');
-        toast.error('Kunde inte starta köpet. Kontrollera att erbjudandet fortfarande är tillgängligt.');
-        return;
+      if (data?.url) {
+        window.location.href = data.url;
       }
-
-      console.log('Redirecting to checkout URL:', data.url);
-      window.location.href = data.url;
     } catch (error) {
-      console.error('Purchase error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Ett okänt fel uppstod';
-      toast.error(`Ett fel uppstod: ${errorMessage}`);
-    } finally {
-      setIsLoading(false);
+      console.error('Error in purchase:', error);
+      toast.error('Ett fel uppstod vid köp');
     }
   };
 
   return (
-    <div className="space-y-8">
-      {salon && (
-        <div className="flex items-center justify-between bg-accent/10 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-full">
-              <Store className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-medium text-foreground">{salon.name}</h3>
-              <p className="text-sm text-muted-foreground">Erbjudandet säljs av denna salong</p>
-            </div>
+    <div className="grid gap-6 lg:grid-cols-2">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          <div className="mt-2 flex items-center gap-2">
+            <CategoryBadge category={category} />
+            <Badge variant="secondary">
+              <MapPin className="mr-1 h-3 w-3" />
+              {city}
+            </Badge>
           </div>
-          {salon.id && (
-            <Link 
-              to={`/salon/${salon.id}`} 
-              className="flex items-center gap-1 text-sm text-primary hover:underline"
-            >
-              Se salong
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          )}
         </div>
-      )}
 
-      <div className="space-y-4">
-        <CategoryBadge 
-          category={category} 
-          className="bg-primary-50 text-primary hover:bg-primary-100 transition-colors" 
+        <img
+          src={imageUrl}
+          alt={title}
+          className="aspect-[4/3] w-full rounded-lg object-cover"
         />
-        
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            {title}
-          </h1>
-          
-          <div className="flex items-center gap-2">
-            {renderStars(4.5)}
-            <span className="text-sm text-muted-foreground">
-              (4.5 / 5)
-            </span>
+
+        <p className="text-muted-foreground">{description}</p>
+
+        {salon && (
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <MapPin className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-medium">{salon.name}</h3>
+                <p className="text-sm text-muted-foreground">Erbjudandet säljs av denna salong</p>
+              </div>
+            </div>
+            {salon.id && (
+              <Link 
+                to={`/salon/${salon.id}`}
+                className="flex items-center gap-1 text-sm text-primary hover:underline"
+              >
+                Se salong
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            )}
           </div>
-        </div>
+        )}
       </div>
-      
-      <p className="text-lg text-muted-foreground leading-relaxed">
-        {description}
-      </p>
-      
-      <div className="rounded-lg border bg-card p-6 shadow-sm">
-        <div className="space-y-6">
-          <PriceDisplay 
-            originalPrice={originalPrice} 
-            discountedPrice={discountedPrice} 
-          />
-          
-          {salon && (
-            <div className="border-t pt-4 space-y-2">
-              <div className="space-y-1.5">
+
+      <div>
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div>
+              <PriceDisplay
+                originalPrice={originalPrice}
+                discountedPrice={discountedPrice}
+                size="lg"
+              />
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Inkl. moms. Inga dolda avgifter.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Timer className="h-4 w-4" />
+              <span>{timeRemaining}</span>
+            </div>
+
+            {quantityLeft > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {quantityLeft} erbjudanden kvar
+              </p>
+            )}
+
+            {salon && (
+              <div className="space-y-2 border-t pt-4">
                 {salon.address && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
                     <span>{salon.address}</span>
                   </div>
                 )}
                 {salon.phone && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Phone className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
                     <span>{salon.phone}</span>
                   </div>
                 )}
               </div>
-            </div>
-          )}
-          
-          <Button 
-            className="w-full bg-gradient-to-r from-primary via-primary-600 to-secondary hover:from-primary-600 hover:via-primary-700 hover:to-secondary-600 text-white font-medium transition-all duration-300"
-            onClick={handlePurchase}
-            disabled={quantityLeft <= 0 || isLoading}
-          >
-            <ShoppingBag className="mr-2 h-5 w-5" />
-            {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
-          </Button>
-        </div>
-      </div>
-      
-      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-primary" />
-          <span>{city}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-primary" />
-          <span>{timeRemaining}</span>
-        </div>
-        {quantityLeft > 0 && (
-          <div className="flex items-center gap-2 text-success">
-            <Tag className="h-4 w-4" />
-            <span>{quantityLeft} kvar i lager</span>
+            )}
+
+            <Button
+              className="w-full"
+              size="lg"
+              onClick={handlePurchase}
+              disabled={quantityLeft === 0}
+            >
+              {quantityLeft > 0 ? "Köp nu" : "Slutsåld"}
+            </Button>
           </div>
-        )}
+        </Card>
       </div>
     </div>
   );
