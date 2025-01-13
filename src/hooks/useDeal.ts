@@ -23,7 +23,6 @@ export const useDeal = (id: string | undefined) => {
           .select(`
             *,
             salons (
-              id,
               name,
               address,
               phone
@@ -56,7 +55,6 @@ export const useDeal = (id: string | undefined) => {
           created_at: data.created_at,
           quantityLeft: data.quantity_left,
           salon: data.salons ? {
-            id: data.salons.id,
             name: data.salons.name,
             address: data.salons.address,
             phone: data.salons.phone,

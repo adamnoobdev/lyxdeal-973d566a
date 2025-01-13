@@ -1,181 +1,186 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PriceDisplay } from "@/components/PriceDisplay";
-import { CategoryBadge } from "@/components/CategoryBadge";
-import { MapPin, Timer, ChevronRight, Store, Tag } from "lucide-react";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone, ChevronRight } from "lucide-react";
+import { CategoryBadge } from "./CategoryBadge";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useState } from "react";
+import { PriceDisplay } from "./PriceDisplay";
+import { Link } from "react-router-dom";
 
 interface DealInfoProps {
   id: number;
   title: string;
   description: string;
-  imageUrl: string;
+  category: string;
   originalPrice: number;
   discountedPrice: number;
   timeRemaining: string;
-  category: string;
   city: string;
   quantityLeft: number;
   salon?: {
-    id?: number;
     name: string;
     address: string | null;
     phone: string | null;
-  };
-  onPurchase?: () => void;
+  } | null;
 }
 
 export const DealInfo = ({
   id,
   title,
   description,
-  imageUrl,
+  category,
   originalPrice,
   discountedPrice,
   timeRemaining,
-  category,
   city,
   quantityLeft,
   salon,
-  onPurchase,
 }: DealInfoProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const renderStars = (rating: number) => {
+    return Array(5).fill(0).map((_, index) => (
+      <Star
+        key={index}
+        className={`h-4 w-4 ${
+          index < rating ? "text-secondary fill-secondary" : "text-muted-200"
+        }`}
+      />
+    ));
+  };
+
   const handlePurchase = async () => {
     try {
+      setIsLoading(true);
+      console.log('Starting purchase process for deal:', id);
+
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { dealId: id },
+        body: { dealId: id }
       });
 
       if (error) {
-        console.error('Error creating checkout session:', error);
-        toast.error('Ett fel uppstod vid köp');
+        console.error('Purchase error:', error);
+        toast.error(`Ett fel uppstod: ${error.message}`);
         return;
       }
 
-      if (data?.url) {
-        window.location.href = data.url;
+      if (!data?.url) {
+        console.error('No checkout URL received');
+        toast.error('Kunde inte starta köpet. Kontrollera att erbjudandet fortfarande är tillgängligt.');
+        return;
       }
+
+      console.log('Redirecting to checkout URL:', data.url);
+      window.location.href = data.url;
     } catch (error) {
-      console.error('Error in purchase:', error);
-      toast.error('Ett fel uppstod vid köp');
+      console.error('Purchase error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Ett okänt fel uppstod';
+      toast.error(`Ett fel uppstod: ${errorMessage}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <CategoryBadge 
-                category={category} 
-                className="bg-primary/10 text-primary hover:bg-primary/20"
-              />
-              <Badge variant="secondary" className="bg-secondary/10 text-secondary">
-                <MapPin className="mr-1 h-3 w-3" />
-                {city}
-              </Badge>
+    <div className="space-y-8">
+      {salon && (
+        <div className="flex items-center justify-between bg-accent/10 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Store className="h-5 w-5 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold tracking-tight lg:text-5xl">
-              {title}
-            </h1>
+            <div>
+              <h3 className="font-medium text-foreground">{salon.name}</h3>
+              <p className="text-sm text-muted-foreground">Erbjudandet säljs av denna salong</p>
+            </div>
           </div>
+          <Link 
+            to={`/salon/${id}`} 
+            className="flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            Se salong
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+      )}
 
-          <div className="relative overflow-hidden rounded-2xl bg-accent/5">
-            <img
-              src={imageUrl}
-              alt={title}
-              className="aspect-video w-full object-cover transition-transform duration-300 hover:scale-105"
-            />
+      <div className="space-y-4">
+        <CategoryBadge 
+          category={category} 
+          className="bg-primary-50 text-primary hover:bg-primary-100 transition-colors" 
+        />
+        
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
+            {title}
+          </h1>
+          
+          <div className="flex items-center gap-2">
+            {renderStars(4.5)}
+            <span className="text-sm text-muted-foreground">
+              (4.5 / 5)
+            </span>
           </div>
-
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">Om erbjudandet</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              {description}
-            </p>
-          </div>
-
+        </div>
+      </div>
+      
+      <p className="text-lg text-muted-foreground leading-relaxed">
+        {description}
+      </p>
+      
+      <div className="rounded-lg border bg-card p-6 shadow-sm">
+        <div className="space-y-6">
+          <PriceDisplay 
+            originalPrice={originalPrice} 
+            discountedPrice={discountedPrice} 
+          />
+          
           {salon && (
-            <Card className="overflow-hidden border-accent/20">
-              <div className="border-b border-accent/10 p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Store className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{salon.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Erbjudandet säljs av denna salong
-                      </p>
-                    </div>
-                  </div>
-                  {salon.id && (
-                    <Link 
-                      to={`/salon/${salon.id}`}
-                      className="flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/90 transition-colors"
-                    >
-                      Se salong
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
-                  )}
-                </div>
-              </div>
-              <div className="space-y-2 p-6 bg-accent/5">
+            <div className="border-t pt-4 space-y-2">
+              <div className="space-y-1.5">
                 {salon.address && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5" />
                     <span>{salon.address}</span>
                   </div>
                 )}
-              </div>
-            </Card>
-          )}
-        </div>
-
-        <div className="lg:pl-8">
-          <Card className="sticky top-6 overflow-hidden border-accent/20">
-            <div className="p-6 space-y-6">
-              <div className="space-y-4">
-                <PriceDisplay
-                  originalPrice={originalPrice}
-                  discountedPrice={discountedPrice}
-                  size="lg"
-                  className="pb-2"
-                />
-                <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                  <Tag className="h-4 w-4" />
-                  Inkl. moms. Inga dolda avgifter.
-                </p>
-              </div>
-
-              <div className="space-y-4 border-t border-accent/10 pt-4">
-                <div className="flex items-center gap-2 text-sm">
-                  <Timer className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">{timeRemaining}</span>
-                </div>
-
-                {quantityLeft > 0 && (
-                  <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-                    {quantityLeft} erbjudanden kvar
+                {salon.phone && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Phone className="h-3.5 w-3.5" />
+                    <span>{salon.phone}</span>
                   </div>
                 )}
               </div>
-
-              <Button
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg h-12 text-lg font-medium rounded-xl"
-                size="lg"
-                onClick={handlePurchase}
-                disabled={quantityLeft === 0}
-              >
-                {quantityLeft > 0 ? "Köp nu" : "Slutsåld"}
-              </Button>
             </div>
-          </Card>
+          )}
+          
+          <Button 
+            className="w-full bg-gradient-to-r from-primary via-primary-600 to-secondary hover:from-primary-600 hover:via-primary-700 hover:to-secondary-600 text-white font-medium transition-all duration-300"
+            onClick={handlePurchase}
+            disabled={quantityLeft <= 0 || isLoading}
+          >
+            <ShoppingBag className="mr-2 h-5 w-5" />
+            {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
+          </Button>
         </div>
+      </div>
+      
+      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-primary" />
+          <span>{city}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-primary" />
+          <span>{timeRemaining}</span>
+        </div>
+        {quantityLeft > 0 && (
+          <div className="flex items-center gap-2 text-success">
+            <Tag className="h-4 w-4" />
+            <span>{quantityLeft} kvar i lager</span>
+          </div>
+        )}
       </div>
     </div>
   );
