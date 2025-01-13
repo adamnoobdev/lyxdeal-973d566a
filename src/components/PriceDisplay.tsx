@@ -5,9 +5,15 @@ interface PriceDisplayProps {
   originalPrice: number;
   discountedPrice: number;
   className?: string;
+  size?: "sm" | "md" | "lg";
 }
 
-export function PriceDisplay({ originalPrice, discountedPrice, className = "" }: PriceDisplayProps) {
+export function PriceDisplay({ 
+  originalPrice, 
+  discountedPrice, 
+  className = "",
+  size = "md"
+}: PriceDisplayProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
@@ -22,6 +28,12 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
 
   const savings = originalPrice - discountedPrice;
 
+  const priceTextSize = {
+    sm: "text-2xl",
+    md: "text-2xl",
+    lg: "text-3xl"
+  }[size];
+
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="flex justify-between items-baseline">
@@ -33,7 +45,7 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
             </span>
           </div>
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-foreground">
+            <span className={`${priceTextSize} font-bold text-foreground`}>
               {formatPrice(discountedPrice)}
             </span>
             <Badge variant="default" className="bg-primary text-primary-foreground">
