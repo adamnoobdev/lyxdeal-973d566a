@@ -47,12 +47,13 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
     },
   });
 
-  const { data: salons = [] } = useQuery({
+  const { data: salons = [], isLoading: isSalonsLoading } = useQuery({
     queryKey: ["salons"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("salons")
         .select("id, name")
+        .eq('role', 'salon_owner')  // Only fetch salon owners, not admins
         .order("name");
       
       if (error) {
@@ -70,12 +71,11 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'salons'
         },
         () => {
-          // Invalidate and refetch the salons query
           queryClient.invalidateQueries({ queryKey: ["salons"] });
         }
       )
@@ -124,6 +124,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
                   {...field}
                   onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
                   value={field.value || ""}
+                  disabled={isSalonsLoading}
                 >
                   <option value="">Välj salong...</option>
                   {salons.map((salon) => (
