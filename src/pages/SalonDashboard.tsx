@@ -65,33 +65,31 @@ export default function SalonDashboard() {
   const { data: dealStats } = useQuery({
     queryKey: ['salon-deal-stats'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('purchases')
-        .select(`
-          count,
-          deals!inner (
-            id,
-            title,
-            salon_id
-          )
-        `, { count: 'exact', head: false })
-        .eq('deals.salon_id', salonData?.id);
+      // First, get all deals for this salon
+      const { data: deals, error: dealsError } = await supabase
+        .from('deals')
+        .select('id, title')
+        .eq('salon_id', salonData?.id);
 
-      if (error) throw error;
-      
-      // Process the data to group by deal
-      const statsMap = new Map<number, { title: string; count: number }>();
-      data.forEach(purchase => {
-        const dealId = purchase.deals.id;
-        const current = statsMap.get(dealId) || { title: purchase.deals.title, count: 0 };
-        statsMap.set(dealId, { ...current, count: current.count + 1 });
+      if (dealsError) throw dealsError;
+
+      // Then, for each deal, count its purchases
+      const statsPromises = deals.map(async (deal) => {
+        const { count, error: countError } = await supabase
+          .from('purchases')
+          .select('*', { count: 'exact', head: true })
+          .eq('deal_id', deal.id);
+
+        if (countError) throw countError;
+
+        return {
+          deal_id: deal.id,
+          title: deal.title,
+          total_purchases: count || 0,
+        };
       });
 
-      return Array.from(statsMap.entries()).map(([dealId, stats]) => ({
-        deal_id: dealId,
-        title: stats.title,
-        total_purchases: stats.count,
-      })) as DealStats[];
+      return Promise.all(statsPromises) as Promise<DealStats[]>;
     },
     enabled: !!salonData,
   });
