@@ -1,11 +1,12 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone } from "lucide-react";
-import { CategoryBadge } from "./CategoryBadge";
+import { ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
 import { PriceDisplay } from "./PriceDisplay";
+import { DealHeader } from "./deal/DealHeader";
+import { SalonInfo } from "./deal/SalonInfo";
+import { DealMetadata } from "./deal/DealMetadata";
 
 interface DealInfoProps {
   id: number;
@@ -37,17 +38,6 @@ export const DealInfo = ({
   salon,
 }: DealInfoProps) => {
   const [isLoading, setIsLoading] = useState(false);
-
-  const renderStars = (rating: number) => {
-    return Array(5).fill(0).map((_, index) => (
-      <Star
-        key={index}
-        className={`h-4 w-4 ${
-          index < rating ? "text-yellow-400 fill-yellow-400" : "text-muted-200"
-        }`}
-      />
-    ));
-  };
 
   const handlePurchase = async () => {
     try {
@@ -83,25 +73,7 @@ export const DealInfo = ({
 
   return (
     <div className="space-y-8">
-      <div className="space-y-4">
-        <CategoryBadge 
-          category={category} 
-          className="bg-primary-50 text-primary hover:bg-primary-100 transition-colors" 
-        />
-        
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            {title}
-          </h1>
-          
-          <div className="flex items-center gap-2">
-            {renderStars(4.5)}
-            <span className="text-sm text-muted-foreground">
-              (4.5 / 5)
-            </span>
-          </div>
-        </div>
-      </div>
+      <DealHeader title={title} category={category} />
       
       <p className="text-lg text-muted-foreground leading-relaxed">
         {description}
@@ -114,30 +86,7 @@ export const DealInfo = ({
             discountedPrice={discountedPrice} 
           />
           
-          {salon && (
-            <div className="border-t pt-4">
-              <div className="flex items-center text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Store className="h-4 w-4 text-muted-foreground/70" />
-                  <span>{salon.name}</span>
-                </div>
-              </div>
-              <div className="mt-2 space-y-1">
-                {salon.address && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
-                    <MapPin className="h-3 w-3" />
-                    <span>{salon.address}</span>
-                  </div>
-                )}
-                {salon.phone && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
-                    <Phone className="h-3 w-3" />
-                    <span>{salon.phone}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          {salon && <SalonInfo salon={salon} />}
           
           <Button 
             className="w-full bg-gradient-to-r from-primary via-primary-600 to-secondary hover:from-primary-600 hover:via-primary-700 hover:to-secondary-600 text-white font-medium transition-all duration-300"
@@ -150,22 +99,11 @@ export const DealInfo = ({
         </div>
       </div>
       
-      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-primary" />
-          <span>{city}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-primary" />
-          <span>{timeRemaining}</span>
-        </div>
-        {quantityLeft > 0 && (
-          <div className="flex items-center gap-2 text-success">
-            <Tag className="h-4 w-4" />
-            <span>{quantityLeft} kvar i lager</span>
-          </div>
-        )}
-      </div>
+      <DealMetadata 
+        city={city}
+        timeRemaining={timeRemaining}
+        quantityLeft={quantityLeft}
+      />
     </div>
   );
 };
