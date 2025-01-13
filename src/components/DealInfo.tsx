@@ -44,7 +44,7 @@ export const DealInfo = ({
       <Star
         key={index}
         className={`h-4 w-4 ${
-          index < rating ? "text-secondary fill-secondary" : "text-muted-200"
+          index < rating ? "text-yellow-400 fill-yellow-400" : "text-muted-200"
         }`}
       />
     ));
