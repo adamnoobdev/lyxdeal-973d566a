@@ -30,32 +30,32 @@ export function PriceDisplay({
 
   const priceTextSize = {
     sm: "text-2xl",
-    md: "text-2xl",
-    lg: "text-4xl"
+    md: "text-3xl",
+    lg: "text-5xl"
   }[size];
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <div className="flex justify-between items-baseline">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Tag className="h-4 w-4 text-muted-foreground/60" />
-            <span className="text-sm line-through text-muted-foreground/60">
-              {formatPrice(originalPrice)}
-            </span>
-          </div>
-          <div className="flex items-baseline gap-3">
-            <span className={`${priceTextSize} font-bold text-foreground`}>
-              {formatPrice(discountedPrice)}
-            </span>
-            <Badge variant="default" className="bg-primary text-primary-foreground">
-              -{discountPercentage}%
-            </Badge>
-          </div>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-base line-through text-muted-foreground/60">
+            {formatPrice(originalPrice)}
+          </span>
+          <Badge variant="default" className="bg-primary text-primary-foreground">
+            -{discountPercentage}%
+          </Badge>
         </div>
-        <Badge variant="outline" className="bg-success-50 text-success-700 border-success-200">
-          Du sparar {formatPrice(savings)}
-        </Badge>
+        <div className="flex items-baseline justify-between">
+          <span className={`${priceTextSize} font-bold text-foreground`}>
+            {formatPrice(discountedPrice)}
+          </span>
+          <Badge 
+            variant="outline" 
+            className="bg-success-50 text-success-700 border-success-200"
+          >
+            Du sparar {formatPrice(savings)}
+          </Badge>
+        </div>
       </div>
     </div>
   );
