@@ -25,53 +25,53 @@ export const RegularDealContent = ({
   quantityLeft,
 }: RegularDealContentProps) => {
   return (
-    <div className="flex h-full flex-col p-4">
-      {/* Header med badges */}
-      <div className="flex items-center justify-between mb-3">
+    <div className="flex h-full flex-col p-3.5">
+      {/* Top section with badges */}
+      <div className="flex items-center justify-between gap-2 mb-3">
         <CategoryBadge 
           category={category}
-          className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+          className="bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
         />
-        <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-accent/10 text-accent-foreground">
+        <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-accent/5 text-accent-foreground">
           <Clock className="h-3 w-3" />
           {timeRemaining}
         </span>
       </div>
 
-      {/* Titel och beskrivning */}
-      <div className="mb-3">
-        <h3 className="text-lg font-semibold leading-tight text-foreground group-hover:text-primary/90 transition-colors line-clamp-2 mb-2">
+      {/* Title and description */}
+      <div className="mb-2.5">
+        <h3 className="text-base font-semibold leading-tight text-foreground group-hover:text-primary/90 transition-colors line-clamp-2 mb-1.5">
           {title}
         </h3>
-        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+        <p className="text-sm text-muted-foreground/90 leading-relaxed line-clamp-2">
           {description}
         </p>
       </div>
 
-      {/* Location och quantity */}
-      <div className="flex items-center justify-between text-sm mb-4">
-        <div className="flex items-center gap-1.5 text-muted-foreground">
-          <MapPin className="h-4 w-4" />
+      {/* Location and quantity */}
+      <div className="flex items-center justify-between text-xs mb-3">
+        <div className="flex items-center gap-1 text-muted-foreground/90">
+          <MapPin className="h-3.5 w-3.5" />
           <span>{city}</span>
         </div>
         {quantityLeft <= 10 && (
-          <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-xs font-medium">
+          <span className="px-1.5 py-0.5 rounded-full bg-destructive/5 text-destructive text-xs font-medium">
             Endast {quantityLeft} kvar
           </span>
         )}
       </div>
 
-      {/* Pris och köpknapp */}
-      <div className="mt-auto space-y-3">
+      {/* Price and buy button */}
+      <div className="mt-auto space-y-2.5">
         <PriceDisplay
           originalPrice={originalPrice}
           discountedPrice={discountedPrice}
         />
         <Button 
-          className="w-full bg-gradient-to-r from-primary via-primary-600 to-secondary hover:from-primary-600 hover:via-primary-700 hover:to-secondary-600 text-white shadow-sm transition-all duration-300 hover:shadow-md" 
+          className="w-full bg-gradient-to-r from-primary/90 via-primary to-secondary/90 hover:from-primary hover:via-primary-600 hover:to-secondary text-white shadow-sm transition-all duration-300 hover:shadow-md" 
           size="sm"
         >
-          <ShoppingBag className="mr-2 h-4 w-4" />
+          <ShoppingBag className="mr-1.5 h-3.5 w-3.5" />
           Köp nu
         </Button>
       </div>
