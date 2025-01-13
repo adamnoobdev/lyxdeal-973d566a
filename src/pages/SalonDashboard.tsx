@@ -66,20 +66,24 @@ export default function SalonDashboard() {
     queryKey: ['salon-deal-stats'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('deals')
+        .from('purchases')
         .select(`
-          id,
-          title,
-          purchases:purchases(count)
+          deals!inner (
+            id,
+            title
+          ),
+          count
         `)
-        .eq('salon_id', salonData?.id);
+        .eq('deals.salon_id', salonData?.id)
+        .select('deal_id, count(*)')
+        .groupBy('deal_id, deals.id, deals.title');
 
       if (error) throw error;
       
       return data.map(deal => ({
-        deal_id: deal.id,
-        title: deal.title,
-        total_purchases: deal.purchases[0]?.count ?? 0,
+        deal_id: deal.deals.id,
+        title: deal.deals.title,
+        total_purchases: parseInt(deal.count),
       })) as DealStats[];
     },
     enabled: !!salonData,
@@ -222,4 +226,4 @@ export default function SalonDashboard() {
       </Tabs>
     </div>
   );
-};
+}
