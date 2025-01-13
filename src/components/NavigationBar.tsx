@@ -35,8 +35,11 @@ export const NavigationBar = () => {
           }
           
           if (salon) {
-            console.log('Found salon role:', salon.role);
-            setUserRole(salon.role as 'salon_owner' | 'admin');
+            if (salon.role === 'admin') {
+              setUserRole('admin');
+            } else {
+              setUserRole('salon_owner');
+            }
           } else {
             console.log('No salon found, setting as customer');
             setUserRole('customer');
