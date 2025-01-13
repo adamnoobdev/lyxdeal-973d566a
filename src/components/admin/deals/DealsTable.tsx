@@ -11,12 +11,16 @@ import {
 import { DealActions } from "./DealActions";
 
 interface DealsTableProps {
-  deals: Deal[];
+  deals: Deal[] | undefined;
   onEdit: (deal: Deal) => void;
   onDelete: (deal: Deal) => void;
 }
 
-export const DealsTable = ({ deals, onEdit, onDelete }: DealsTableProps) => {
+export const DealsTable = ({ deals = [], onEdit, onDelete }: DealsTableProps) => {
+  if (!deals || deals.length === 0) {
+    return <p className="text-muted-foreground">Inga erbjudanden hittade.</p>;
+  }
+
   return (
     <Table>
       <TableHeader>

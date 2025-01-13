@@ -14,12 +14,6 @@ import { Deal } from "@/components/admin/types";
 import { FormValues } from "@/components/deal-form/schema";
 import { toast } from "sonner";
 
-interface DealStats {
-  deal_id: number;
-  title: string;
-  total_purchases: number;
-}
-
 export default function SalonDashboard() {
   const { session } = useSession();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -45,33 +39,55 @@ export default function SalonDashboard() {
     enabled: !!session?.user.id,
   });
 
-  const { data: dealStats } = useQuery({
-    queryKey: ['salon-deal-stats', salonData?.id],
+  const { data: deals } = useQuery({
+    queryKey: ['salon-deals', salonData?.id],
     queryFn: async () => {
       if (!salonData?.id) throw new Error("No salon ID available");
 
-      const { data: deals, error: dealsError } = await supabase
+      const { data: deals, error } = await supabase
         .from('deals')
         .select(`
-          id,
-          title,
-          purchases:purchases(count)
+          *,
+          salons (
+            name
+          )
         `)
         .eq('salon_id', salonData.id);
 
-      if (dealsError) {
-        console.error('Error fetching deal stats:', dealsError);
-        throw dealsError;
+      if (error) {
+        console.error('Error fetching deals:', error);
+        throw error;
       }
 
-      return deals.map(deal => ({
-        deal_id: deal.id,
-        title: deal.title,
-        total_purchases: deal.purchases?.length || 0
-      })) as DealStats[];
+      return deals;
     },
     enabled: !!salonData?.id,
   });
+
+  const handleCreateDeal = async (values: FormValues) => {
+    try {
+      const { error } = await supabase.from('deals').insert({
+        title: values.title,
+        description: values.description,
+        image_url: values.imageUrl,
+        original_price: parseInt(values.originalPrice),
+        discounted_price: parseInt(values.discountedPrice),
+        category: values.category,
+        city: values.city,
+        time_remaining: values.timeRemaining,
+        featured: values.featured,
+        salon_id: salonData?.id,
+      });
+
+      if (error) throw error;
+      
+      toast.success("Erbjudande skapat!");
+      setIsCreateDialogOpen(false);
+    } catch (error) {
+      console.error("Error creating deal:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas.");
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -83,13 +99,13 @@ export default function SalonDashboard() {
         </Button>
       </div>
 
-      {dealStats && dealStats.length > 0 && (
+      {deals && deals.length > 0 && (
         <div className="grid gap-4 md:grid-cols-3">
-          {dealStats.map((stat) => (
-            <Card key={stat.deal_id} className="p-4">
-              <h3 className="font-semibold">{stat.title}</h3>
+          {deals.map((deal) => (
+            <Card key={deal.id} className="p-4">
+              <h3 className="font-semibold">{deal.title}</h3>
               <p className="text-sm text-muted-foreground">
-                Antal köp: {stat.total_purchases}
+                Pris: {deal.discounted_price} kr
               </p>
             </Card>
           ))}
@@ -101,19 +117,7 @@ export default function SalonDashboard() {
           <DialogHeader>
             <DialogTitle>Skapa Erbjudande</DialogTitle>
           </DialogHeader>
-          <DealForm onSubmit={async (values: FormValues) => {
-            try {
-              await supabase.from('deals').insert({
-                ...values,
-                salon_id: salonData?.id,
-              });
-              toast.success("Erbjudande skapat!");
-              setIsCreateDialogOpen(false);
-            } catch (error) {
-              console.error("Error creating deal:", error);
-              toast.error("Ett fel uppstod när erbjudandet skulle skapas.");
-            }
-          }} />
+          <DealForm onSubmit={handleCreateDeal} />
         </DialogContent>
       </Dialog>
 
@@ -124,10 +128,23 @@ export default function SalonDashboard() {
           if (!editingDeal) return;
 
           try {
-            await supabase
+            const { error } = await supabase
               .from('deals')
-              .update(values)
+              .update({
+                title: values.title,
+                description: values.description,
+                image_url: values.imageUrl,
+                original_price: parseInt(values.originalPrice),
+                discounted_price: parseInt(values.discountedPrice),
+                category: values.category,
+                city: values.city,
+                time_remaining: values.timeRemaining,
+                featured: values.featured,
+              })
               .eq('id', editingDeal.id);
+
+            if (error) throw error;
+            
             toast.success("Erbjudande uppdaterat!");
             setEditingDeal(null);
           } catch (error) {
@@ -144,7 +161,8 @@ export default function SalonDashboard() {
           category: editingDeal.category,
           city: editingDeal.city,
           timeRemaining: editingDeal.time_remaining,
-          featured: editingDeal.featured,
+          featured: editingDeal.featured || false,
+          salon_id: editingDeal.salon_id,
         } : undefined}
       />
 
@@ -155,10 +173,13 @@ export default function SalonDashboard() {
           if (!deletingDeal) return;
 
           try {
-            await supabase
+            const { error } = await supabase
               .from('deals')
               .delete()
               .eq('id', deletingDeal.id);
+
+            if (error) throw error;
+            
             toast.success("Erbjudande borttaget!");
             setDeletingDeal(null);
           } catch (error) {
@@ -170,7 +191,7 @@ export default function SalonDashboard() {
       />
 
       <DealsTable
-        deals={dealStats}
+        deals={deals}
         onEdit={setEditingDeal}
         onDelete={setDeletingDeal}
       />
