@@ -33,10 +33,10 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
             </span>
           </div>
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-foreground">
+            <span className="text-3xl font-bold text-foreground bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               {formatPrice(discountedPrice)}
             </span>
-            <Badge variant="default" className="bg-primary text-primary-foreground">
+            <Badge variant="default" className="bg-primary text-primary-foreground animate-pulse">
               -{discountPercentage}%
             </Badge>
           </div>

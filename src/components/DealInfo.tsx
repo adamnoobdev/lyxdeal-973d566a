@@ -83,7 +83,7 @@ export const DealInfo = ({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-up">
       <div className="space-y-4">
         <CategoryBadge 
           category={category} 
@@ -91,7 +91,7 @@ export const DealInfo = ({
         />
         
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
             {title}
           </h1>
           
@@ -108,7 +108,7 @@ export const DealInfo = ({
         {description}
       </p>
       
-      <div className="rounded-lg border bg-card p-6 shadow-sm">
+      <div className="rounded-xl border bg-gradient-to-b from-white to-gray-50/50 p-6 shadow-sm transition-all duration-300 hover:shadow-md">
         <div className="space-y-6">
           <PriceDisplay 
             originalPrice={originalPrice} 
@@ -119,14 +119,15 @@ export const DealInfo = ({
             <div className="border-t pt-4">
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Store className="h-4 w-4 text-muted-foreground/70" />
-                  <span>{salon.name}</span>
+                  <Store className="h-4 w-4 text-primary/70" />
+                  <span className="font-medium text-foreground">{salon.name}</span>
                 </div>
                 <Link 
                   to={`/salon/${id}`} 
-                  className="text-primary hover:text-primary/80 transition-colors"
+                  className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors group"
                 >
                   Se salong
+                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </div>
               <div className="mt-2 space-y-1">
@@ -147,7 +148,7 @@ export const DealInfo = ({
           )}
           
           <Button 
-            className="w-full bg-gradient-to-r from-primary via-primary-600 to-secondary hover:from-primary-600 hover:via-primary-700 hover:to-secondary-600 text-white font-medium transition-all duration-300"
+            className="w-full bg-gradient-to-r from-primary via-primary-600 to-secondary hover:from-primary-600 hover:via-primary-700 hover:to-secondary-600 text-white font-medium transition-all duration-300 animate-gradient"
             onClick={handlePurchase}
             disabled={quantityLeft <= 0 || isLoading}
           >

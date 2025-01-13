@@ -13,8 +13,8 @@ export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-t-lg">
-      <div className="aspect-[3/2] overflow-hidden bg-accent/10">
+    <div className="relative overflow-hidden rounded-xl">
+      <div className="aspect-[3/2] overflow-hidden bg-accent/10 group">
         <img
           src={imageUrl}
           alt={title}
@@ -29,7 +29,7 @@ export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
           <CategoryBadge
             category="NYTT"
             variant="default"
-            className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-950 hover:from-yellow-500 hover:to-yellow-600 border-transparent shadow-lg backdrop-blur-sm ring-1 ring-white/10 text-xs"
+            className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-950 hover:from-yellow-500 hover:to-yellow-600 border-transparent shadow-lg backdrop-blur-sm ring-1 ring-white/10 text-xs animate-pulse"
           >
             <Star className="h-2.5 w-2.5" />
             NYTT
