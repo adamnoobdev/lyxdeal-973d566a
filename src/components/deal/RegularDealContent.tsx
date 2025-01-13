@@ -25,33 +25,33 @@ export const RegularDealContent = ({
   quantityLeft,
 }: RegularDealContentProps) => {
   return (
-    <div className="flex h-full flex-col p-3.5">
+    <div className="flex h-full flex-col p-2.5">
       {/* Top section with badges */}
-      <div className="flex items-center justify-between gap-2 mb-3">
+      <div className="flex items-center justify-between gap-1.5 mb-2">
         <CategoryBadge 
           category={category}
-          className="bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
+          className="bg-primary/5 text-primary hover:bg-primary/10 transition-colors text-xs"
         />
-        <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-accent/5 text-accent-foreground">
+        <span className="inline-flex items-center gap-0.5 text-xs font-medium px-1.5 py-0.5 rounded-full bg-accent/5 text-accent-foreground">
           <Clock className="h-3 w-3" />
           {timeRemaining}
         </span>
       </div>
 
       {/* Title and description */}
-      <div className="mb-2.5">
-        <h3 className="text-base font-semibold leading-tight text-foreground group-hover:text-primary/90 transition-colors line-clamp-2 mb-1.5">
+      <div className="mb-2">
+        <h3 className="text-sm font-semibold leading-tight text-foreground group-hover:text-primary/90 transition-colors line-clamp-2 mb-1">
           {title}
         </h3>
-        <p className="text-sm text-muted-foreground/90 leading-relaxed line-clamp-2">
+        <p className="text-xs text-muted-foreground/90 leading-relaxed line-clamp-2">
           {description}
         </p>
       </div>
 
       {/* Location and quantity */}
-      <div className="flex items-center justify-between text-xs mb-3">
-        <div className="flex items-center gap-1 text-muted-foreground/90">
-          <MapPin className="h-3.5 w-3.5" />
+      <div className="flex items-center justify-between text-xs mb-2">
+        <div className="flex items-center gap-0.5 text-muted-foreground/90">
+          <MapPin className="h-3 w-3" />
           <span>{city}</span>
         </div>
         {quantityLeft <= 10 && (
@@ -62,7 +62,7 @@ export const RegularDealContent = ({
       </div>
 
       {/* Price and buy button */}
-      <div className="mt-auto space-y-2.5">
+      <div className="mt-auto space-y-2">
         <PriceDisplay
           originalPrice={originalPrice}
           discountedPrice={discountedPrice}
@@ -71,7 +71,7 @@ export const RegularDealContent = ({
           className="w-full bg-gradient-to-r from-primary/90 via-primary to-secondary/90 hover:from-primary hover:via-primary-600 hover:to-secondary text-white shadow-sm transition-all duration-300 hover:shadow-md" 
           size="sm"
         >
-          <ShoppingBag className="mr-1.5 h-3.5 w-3.5" />
+          <ShoppingBag className="mr-1 h-3 w-3" />
           Köp nu
         </Button>
       </div>
