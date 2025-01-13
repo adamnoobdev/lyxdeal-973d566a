@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone } from "lucide-react";
+import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone, ChevronRight } from "lucide-react";
 import { CategoryBadge } from "./CategoryBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -83,7 +83,7 @@ export const DealInfo = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="space-y-4">
         <CategoryBadge 
           category={category} 
@@ -108,7 +108,7 @@ export const DealInfo = ({
         {description}
       </p>
       
-      <div className="rounded-lg border bg-white p-6 shadow-sm">
+      <div className="rounded-lg border bg-card p-6 shadow-sm">
         <div className="space-y-6">
           <PriceDisplay 
             originalPrice={originalPrice} 
@@ -119,7 +119,7 @@ export const DealInfo = ({
             <div className="border-t pt-4">
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Store className="h-4 w-4" />
+                  <Store className="h-4 w-4 text-muted-foreground/70" />
                   <span>{salon.name}</span>
                 </div>
                 <Link 
@@ -147,7 +147,7 @@ export const DealInfo = ({
           )}
           
           <Button 
-            className="w-full bg-primary hover:bg-primary/90 text-white"
+            className="w-full bg-gradient-to-r from-primary via-primary-600 to-secondary hover:from-primary-600 hover:via-primary-700 hover:to-secondary-600 text-white font-medium transition-all duration-300"
             onClick={handlePurchase}
             disabled={quantityLeft <= 0 || isLoading}
           >
