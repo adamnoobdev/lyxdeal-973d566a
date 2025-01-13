@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LogOut, Settings, Scissors } from "lucide-react";
+import { LogOut, Settings, Scissors, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
+import { ProfileSettings } from "@/components/salon/ProfileSettings";
+import { PurchasesTable } from "@/components/salon/PurchasesTable";
+import { useQuery } from "@tanstack/react-query";
 
 interface SalonData {
   id: number;
@@ -14,12 +17,75 @@ interface SalonData {
   phone: string | null;
   address: string | null;
   role: string;
+  user_id: string | null;
+}
+
+interface Purchase {
+  id: number;
+  customer_email: string;
+  discount_code: string;
+  created_at: string;
+  deals: {
+    title: string;
+  };
+}
+
+interface DealStats {
+  deal_id: number;
+  title: string;
+  total_purchases: number;
 }
 
 export default function SalonDashboard() {
   const navigate = useNavigate();
   const [salonData, setSalonData] = useState<SalonData | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  const { data: purchases, isLoading: purchasesLoading } = useQuery({
+    queryKey: ['salon-purchases'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('purchases')
+        .select(`
+          id,
+          customer_email,
+          discount_code,
+          created_at,
+          deals (
+            title
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as Purchase[];
+    },
+    enabled: !!salonData,
+  });
+
+  const { data: dealStats } = useQuery({
+    queryKey: ['salon-deal-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('purchases')
+        .select(`
+          deals!inner (
+            id,
+            title
+          ),
+          count
+        `)
+        .eq('deals.salon_id', salonData?.id)
+        .group('deals.id, deals.title');
+
+      if (error) throw error;
+      return data.map(stat => ({
+        deal_id: stat.deals.id,
+        title: stat.deals.title,
+        total_purchases: parseInt(stat.count),
+      })) as DealStats[];
+    },
+    enabled: !!salonData,
+  });
 
   useEffect(() => {
     checkUser();
@@ -47,11 +113,9 @@ export default function SalonDashboard() {
       }
 
       setSalonData(salon);
-      setLoading(false);
     } catch (error) {
       console.error("Error checking user:", error);
       toast.error("Det gick inte att hämta användarinformation");
-      setLoading(false);
     }
   };
 
@@ -66,7 +130,7 @@ export default function SalonDashboard() {
     }
   };
 
-  if (loading) {
+  if (!salonData) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -78,8 +142,8 @@ export default function SalonDashboard() {
     <div className="container py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold">{salonData?.name}</h1>
-          <p className="text-muted-foreground mt-1">{salonData?.email}</p>
+          <h1 className="text-3xl font-bold">{salonData.name}</h1>
+          <p className="text-muted-foreground mt-1">{salonData.email}</p>
         </div>
         <Button variant="outline" onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
@@ -93,6 +157,10 @@ export default function SalonDashboard() {
             <Scissors className="mr-2 h-4 w-4" />
             Erbjudanden
           </TabsTrigger>
+          <TabsTrigger value="purchases">
+            <ShoppingBag className="mr-2 h-4 w-4" />
+            Köp
+          </TabsTrigger>
           <TabsTrigger value="settings">
             <Settings className="mr-2 h-4 w-4" />
             Inställningar
@@ -100,22 +168,58 @@ export default function SalonDashboard() {
         </TabsList>
 
         <TabsContent value="deals">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Dina erbjudanden</h2>
-            <p className="text-muted-foreground">
-              Här kommer du kunna hantera dina erbjudanden.
-            </p>
+          <div className="grid gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Statistik</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {dealStats?.map((stat) => (
+                    <div key={stat.deal_id} className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">{stat.title}</span>
+                      <span className="font-medium">{stat.total_purchases} köp</span>
+                    </div>
+                  ))}
+                  {!dealStats?.length && (
+                    <p className="text-sm text-muted-foreground">
+                      Inga köp har gjorts än
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="purchases">
+          <Card>
+            <CardHeader>
+              <CardTitle>Köphistorik</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {purchasesLoading ? (
+                <div className="animate-pulse space-y-4">
+                  <div className="h-12 bg-muted rounded" />
+                  <div className="h-12 bg-muted rounded" />
+                  <div className="h-12 bg-muted rounded" />
+                </div>
+              ) : purchases?.length ? (
+                <PurchasesTable purchases={purchases} />
+              ) : (
+                <p className="text-center text-muted-foreground py-8">
+                  Inga köp har gjorts än
+                </p>
+              )}
+            </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="settings">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Salong information</h2>
-            <div className="space-y-2">
-              <p><strong>Adress:</strong> {salonData?.address || "Ej angiven"}</p>
-              <p><strong>Telefon:</strong> {salonData?.phone || "Ej angiven"}</p>
-            </div>
-          </Card>
+          <ProfileSettings 
+            salon={salonData} 
+            onUpdate={checkUser}
+          />
         </TabsContent>
       </Tabs>
     </div>

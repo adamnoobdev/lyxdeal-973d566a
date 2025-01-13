@@ -71,6 +71,41 @@ export type Database = {
           },
         ]
       }
+      purchases: {
+        Row: {
+          created_at: string
+          customer_email: string
+          deal_id: number | null
+          discount_code: string
+          id: number
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email: string
+          deal_id?: number | null
+          discount_code: string
+          id?: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string
+          deal_id?: number | null
+          discount_code?: string
+          id?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           comment: string | null
