@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 
 interface SalonActionsProps {
   salonId: number;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit: (e: React.MouseEvent) => void;
+  onDelete: (e: React.MouseEvent) => void;
 }
 
 export const SalonActions = ({ salonId, onEdit, onDelete }: SalonActionsProps) => {

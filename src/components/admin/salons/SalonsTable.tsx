@@ -54,11 +54,11 @@ export const SalonsTable = ({
               <TableCell>
                 <SalonActions
                   salonId={salon.id}
-                  onEdit={(e) => {
+                  onEdit={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     onEdit(salon);
                   }}
-                  onDelete={(e) => {
+                  onDelete={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     onDelete(salon);
                   }}
