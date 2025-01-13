@@ -75,7 +75,7 @@ export default function SalonDashboard() {
           count:count(*)
         `, { count: 'exact' })
         .eq('deals.salon_id', salonData?.id)
-        .groupBy('deals.id, deals.title');
+        .group('deals.id, deals.title');
 
       if (error) throw error;
       
