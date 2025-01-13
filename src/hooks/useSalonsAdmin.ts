@@ -61,12 +61,39 @@ const createSalonData = async (values: any) => {
 };
 
 const updateSalonData = async (values: any, id: number) => {
-  const { error } = await supabase
-    .from("salons")
-    .update(values)
-    .eq("id", id);
+  try {
+    // If a new password is provided, update it via auth admin API
+    if (values.password) {
+      const { data: salon } = await supabase
+        .from("salons")
+        .select("user_id")
+        .eq("id", id)
+        .single();
 
-  if (error) throw error;
+      if (salon?.user_id) {
+        const { error: passwordError } = await supabase.functions.invoke("update-salon-password", {
+          body: { 
+            userId: salon.user_id,
+            newPassword: values.password
+          }
+        });
+
+        if (passwordError) throw passwordError;
+      }
+    }
+
+    // Remove password from values before updating salon data
+    const { password, ...salonData } = values;
+    const { error } = await supabase
+      .from("salons")
+      .update(salonData)
+      .eq("id", id);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error updating salon:", error);
+    throw error;
+  }
 };
 
 export const useSalonsAdmin = () => {

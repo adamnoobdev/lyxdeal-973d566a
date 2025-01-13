@@ -5,6 +5,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { BasicInfoFields } from "./form/BasicInfoFields";
 import { ContactFields } from "./form/ContactFields";
+import { PasswordField } from "./form/PasswordField";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
@@ -16,14 +17,16 @@ const formSchema = z.object({
   }),
   phone: z.string().optional(),
   address: z.string().optional(),
+  password: z.string().optional(),
 });
 
 interface SalonFormProps {
   onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>;
   initialValues?: z.infer<typeof formSchema>;
+  isEditing?: boolean;
 }
 
-export const SalonForm = ({ onSubmit, initialValues }: SalonFormProps) => {
+export const SalonForm = ({ onSubmit, initialValues, isEditing }: SalonFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues || {
@@ -31,6 +34,7 @@ export const SalonForm = ({ onSubmit, initialValues }: SalonFormProps) => {
       email: "",
       phone: "",
       address: "",
+      password: "",
     },
   });
 
@@ -39,6 +43,7 @@ export const SalonForm = ({ onSubmit, initialValues }: SalonFormProps) => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <BasicInfoFields form={form} />
         <ContactFields form={form} />
+        {isEditing && <PasswordField form={form} />}
         
         <div className="flex justify-end gap-4">
           <Button 
@@ -48,7 +53,7 @@ export const SalonForm = ({ onSubmit, initialValues }: SalonFormProps) => {
             {form.formState.isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Skapar...
+                Sparar...
               </>
             ) : (
               "Spara"

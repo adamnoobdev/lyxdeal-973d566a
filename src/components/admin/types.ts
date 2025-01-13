@@ -28,3 +28,11 @@ export interface Salon {
   user_id: string | null;
   role: string;
 }
+
+export interface SalonFormValues {
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  password?: string;
+}

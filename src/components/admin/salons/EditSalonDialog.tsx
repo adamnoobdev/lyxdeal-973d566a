@@ -25,7 +25,11 @@ export const EditSalonDialog = ({
         <DialogHeader>
           <DialogTitle>Redigera salong</DialogTitle>
         </DialogHeader>
-        <SalonForm onSubmit={onSubmit} initialValues={initialValues} />
+        <SalonForm 
+          onSubmit={onSubmit} 
+          initialValues={initialValues} 
+          isEditing={true}
+        />
       </DialogContent>
     </Dialog>
   );
