@@ -68,16 +68,17 @@ export default function SalonDashboard() {
       const { data, error } = await supabase
         .from('purchases')
         .select(`
-          deals!inner (
+          deals:deal_id (
             id,
             title
           ),
-          count
-        `)
+          count:count(*)
+        `, { count: 'exact' })
         .eq('deals.salon_id', salonData?.id)
-        .group('deals.id, deals.title');
+        .groupBy('deals.id, deals.title');
 
       if (error) throw error;
+      
       return data.map(stat => ({
         deal_id: stat.deals.id,
         title: stat.deals.title,
