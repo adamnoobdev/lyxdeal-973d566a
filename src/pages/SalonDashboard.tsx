@@ -65,24 +65,33 @@ export default function SalonDashboard() {
   const { data: dealStats } = useQuery({
     queryKey: ['salon-deal-stats'],
     queryFn: async () => {
+      // Modified query to avoid using .group()
       const { data, error } = await supabase
         .from('purchases')
         .select(`
-          deals:deal_id (
+          deal_id,
+          deals!inner (
             id,
             title
           ),
-          count:count(*)
-        `, { count: 'exact' })
-        .eq('deals.salon_id', salonData?.id)
-        .group('deals.id, deals.title');
+          count
+        `, { count: 'exact', head: false })
+        .eq('deals.salon_id', salonData?.id);
 
       if (error) throw error;
       
-      return data.map(stat => ({
-        deal_id: stat.deals.id,
-        title: stat.deals.title,
-        total_purchases: parseInt(stat.count),
+      // Process the data to get the stats we need
+      const statsMap = new Map<number, { title: string; count: number }>();
+      data?.forEach(purchase => {
+        const dealId = purchase.deals.id;
+        const current = statsMap.get(dealId) || { title: purchase.deals.title, count: 0 };
+        statsMap.set(dealId, { ...current, count: current.count + 1 });
+      });
+
+      return Array.from(statsMap.entries()).map(([dealId, stats]) => ({
+        deal_id: dealId,
+        title: stats.title,
+        total_purchases: stats.count,
       })) as DealStats[];
     },
     enabled: !!salonData,
@@ -225,4 +234,4 @@ export default function SalonDashboard() {
       </Tabs>
     </div>
   );
-}
+};
