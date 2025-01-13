@@ -1,11 +1,13 @@
 import { Salon } from "../types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Mail, Phone, MapPin } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, Calendar } from "lucide-react";
 import { DealsTable } from "../deals/DealsTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
+import { sv } from "date-fns/locale";
 
 interface SalonDetailsProps {
   salon: Salon;
@@ -35,25 +37,31 @@ export const SalonDetails = ({ salon }: SalonDetailsProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-2 text-sm">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
             <span>ID: {salon.id}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <Mail className="h-4 w-4 text-muted-foreground" />
-            <span>{salon.email}</span>
+            <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="break-all">{salon.email}</span>
           </div>
           {salon.phone && (
             <div className="flex items-center gap-2 text-sm">
-              <Phone className="h-4 w-4 text-muted-foreground" />
+              <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
               <span>{salon.phone}</span>
             </div>
           )}
           {salon.address && (
             <div className="flex items-center gap-2 text-sm">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
               <span>{salon.address}</span>
             </div>
           )}
+          <div className="flex items-center gap-2 text-sm">
+            <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span>
+              Skapad {format(new Date(salon.created_at), "d MMMM yyyy", { locale: sv })}
+            </span>
+          </div>
         </CardContent>
       </Card>
 
@@ -70,14 +78,16 @@ export const SalonDetails = ({ salon }: SalonDetailsProps) => {
               <Skeleton className="h-10 w-full" />
             </div>
           ) : deals?.length ? (
-            <DealsTable 
-              deals={deals} 
-              onEdit={() => {}} 
-              onDelete={() => {}} 
-            />
+            <div className="overflow-x-auto">
+              <DealsTable 
+                deals={deals} 
+                onEdit={() => {}} 
+                onDelete={() => {}} 
+              />
+            </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              Denna salong har inga aktiva erbjudanden.
+            <p className="text-sm text-muted-foreground text-center py-8">
+              Denna salong har inga aktiva erbjudanden
             </p>
           )}
         </CardContent>

@@ -18,21 +18,35 @@ export const SalonsContent = ({
   onSelect,
 }: SalonsContentProps) => {
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      <div className="w-full">
-        <SalonsTable
-          salons={salons}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onSelect={onSelect}
-        />
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="xl:col-span-2">
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="p-4 border-b">
+            <h2 className="text-lg font-semibold">Salonger</h2>
+          </div>
+          <div className="p-4">
+            <SalonsTable
+              salons={salons}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onSelect={onSelect}
+              selectedSalonId={selectedSalon?.id}
+            />
+          </div>
+        </div>
       </div>
 
-      {selectedSalon && (
-        <div className="w-full lg:w-1/3 lg:border-l lg:pl-6">
+      <div className="xl:col-span-1">
+        {selectedSalon ? (
           <SalonDetails salon={selectedSalon} />
-        </div>
-      )}
+        ) : (
+          <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
+            <p className="text-muted-foreground">
+              Välj en salong för att se detaljer
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
