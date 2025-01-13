@@ -1,12 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone, ChevronRight } from "lucide-react";
+import { Star, MapPin, Clock, Tag, ShoppingBag, Store, Phone } from "lucide-react";
 import { CategoryBadge } from "./CategoryBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
 import { PriceDisplay } from "./PriceDisplay";
-import { Link } from "react-router-dom";
 
 interface DealInfoProps {
   id: number;
@@ -117,17 +116,11 @@ export const DealInfo = ({
           
           {salon && (
             <div className="border-t pt-4">
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <div className="flex items-center text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Store className="h-4 w-4 text-muted-foreground/70" />
                   <span>{salon.name}</span>
                 </div>
-                <Link 
-                  to={`/salon/${id}`} 
-                  className="text-primary hover:text-primary/80 transition-colors"
-                >
-                  Se salong
-                </Link>
               </div>
               <div className="mt-2 space-y-1">
                 {salon.address && (
