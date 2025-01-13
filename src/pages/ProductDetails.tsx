@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeal";
 import { useReviews } from "@/hooks/useReviews";
 import { DealInfo } from "@/components/DealInfo";
@@ -13,7 +13,6 @@ import { ResponsiveImage } from "@/components/common/ResponsiveImage";
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { data: deal, isLoading, isError } = useDeal(id);
   const { data: reviews, isLoading: isLoadingReviews } = useReviews(id);
 
@@ -55,6 +54,11 @@ const ProductDetails = () => {
     );
   }
 
+  // Calculate discount percentage for DealFeatures
+  const discountPercentage = Math.round(
+    ((deal.originalPrice - deal.discountedPrice) / deal.originalPrice) * 100
+  );
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
@@ -68,7 +72,7 @@ const ProductDetails = () => {
               />
               <div className="absolute right-3 top-3">
                 {isNew(deal.created_at) && (
-                  <CategoryBadge>
+                  <CategoryBadge category="NYTT">
                     <Star className="mr-1 h-3.5 w-3.5" />
                     Ny
                   </CategoryBadge>
@@ -76,7 +80,11 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            <DealFeatures />
+            <DealFeatures 
+              discountPercentage={discountPercentage}
+              timeRemaining={deal.timeRemaining}
+              quantityLeft={deal.quantityLeft}
+            />
 
             {!isLoadingReviews && (
               <div className="space-y-6">
@@ -92,12 +100,12 @@ const ProductDetails = () => {
               title={deal.title}
               description={deal.description}
               category={deal.category}
-              originalPrice={deal.original_price}
-              discountedPrice={deal.discounted_price}
-              timeRemaining={deal.time_remaining}
+              originalPrice={deal.originalPrice}
+              discountedPrice={deal.discountedPrice}
+              timeRemaining={deal.timeRemaining}
               city={deal.city}
-              quantityLeft={deal.quantity_left}
-              salon={deal.salons}
+              quantityLeft={deal.quantityLeft}
+              salon={deal.salon}
             />
           </div>
         </div>
@@ -106,7 +114,6 @@ const ProductDetails = () => {
           <RelatedDeals
             currentDealId={deal.id}
             category={deal.category}
-            city={deal.city}
           />
         </div>
       </div>
