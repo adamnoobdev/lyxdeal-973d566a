@@ -15,9 +15,11 @@ export default function SalonLogin() {
 
   const handleCreateSalon = async (values: any) => {
     try {
+      const temporaryPassword = Math.random().toString(36).slice(-8);
+
       const { data: { user }, error: authError } = await supabase.auth.signUp({
         email: values.email,
-        password: password || Math.random().toString(36).slice(-8),
+        password: temporaryPassword,
       });
 
       if (authError) throw authError;
@@ -26,7 +28,7 @@ export default function SalonLogin() {
         throw new Error('No user returned from signup');
       }
 
-      const { error: salonError } = await supabase
+      const { data: salon, error: salonError } = await supabase
         .from('salons')
         .insert([
           {
@@ -36,15 +38,23 @@ export default function SalonLogin() {
             address: values.address,
             user_id: user.id,
           }
-        ]);
+        ])
+        .select()
+        .single();
 
       if (salonError) throw salonError;
 
       toast.success("Salong skapad! Kontrollera din e-post för att verifiera kontot.");
       setIsCreateDialogOpen(false);
+
+      return {
+        salon,
+        temporaryPassword,
+      };
     } catch (error) {
       console.error('Error creating salon:', error);
       toast.error("Kunde inte skapa salong: " + (error instanceof Error ? error.message : 'Okänt fel'));
+      throw error;
     }
   };
 
