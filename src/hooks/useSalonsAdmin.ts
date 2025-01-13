@@ -41,17 +41,28 @@ const deleteSalonData = async (id: number) => {
 
 const createSalonData = async (values: any) => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error("No active session");
-
+    console.log("Creating salon with values:", values);
     const { data, error } = await supabase.functions.invoke("create-salon-account", {
       body: values,
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error from edge function:", error);
+      throw error;
+    }
+    
+    console.log("Response from edge function:", data);
     
     if (data.temporaryPassword) {
-      toast.success(`Lösenord för ${values.email}: ${data.temporaryPassword}`);
+      toast.success(
+        `Lösenord för ${values.email}: ${data.temporaryPassword}`, 
+        {
+          duration: 10000, // Show for 10 seconds
+          position: "top-center",
+        }
+      );
+    } else {
+      console.warn("No temporary password received from edge function");
     }
     
     return data.salon;

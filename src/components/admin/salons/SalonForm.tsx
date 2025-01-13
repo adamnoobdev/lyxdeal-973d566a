@@ -5,6 +5,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { BasicInfoFields } from "./form/BasicInfoFields";
 import { ContactFields } from "./form/ContactFields";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -40,7 +41,19 @@ export const SalonForm = ({ onSubmit, initialValues }: SalonFormProps) => {
         <ContactFields form={form} />
         
         <div className="flex justify-end gap-4">
-          <Button type="submit">Spara</Button>
+          <Button 
+            type="submit" 
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Skapar...
+              </>
+            ) : (
+              "Spara"
+            )}
+          </Button>
         </div>
       </form>
     </Form>
