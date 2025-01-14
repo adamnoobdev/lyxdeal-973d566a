@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { LoginForm } from "@/components/salon/LoginForm";
 import { TestAccountManager } from "@/components/salon/TestAccountManager";
-import { CreateSalonDialog } from "@/components/admin/salons/CreateSalonDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -10,52 +9,6 @@ export default function SalonLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-
-  const handleCreateSalon = async (values: any) => {
-    try {
-      const temporaryPassword = Math.random().toString(36).slice(-8);
-
-      const { data: { user }, error: authError } = await supabase.auth.signUp({
-        email: values.email,
-        password: temporaryPassword,
-      });
-
-      if (authError) throw authError;
-
-      if (!user) {
-        throw new Error('No user returned from signup');
-      }
-
-      const { data: salon, error: salonError } = await supabase
-        .from('salons')
-        .insert([
-          {
-            name: values.name,
-            email: values.email,
-            phone: values.phone,
-            address: values.address,
-            user_id: user.id,
-          }
-        ])
-        .select()
-        .single();
-
-      if (salonError) throw salonError;
-
-      toast.success("Salong skapad! Kontrollera din e-post för att verifiera kontot.");
-      setIsCreateDialogOpen(false);
-
-      return {
-        salon,
-        temporaryPassword,
-      };
-    } catch (error) {
-      console.error('Error creating salon:', error);
-      toast.error("Kunde inte skapa salong: " + (error instanceof Error ? error.message : 'Okänt fel'));
-      throw error;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -96,12 +49,6 @@ export default function SalonLogin() {
           />
         </div>
       </Card>
-
-      <CreateSalonDialog
-        isOpen={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
-        onSubmit={handleCreateSalon}
-      />
     </div>
   );
 }
