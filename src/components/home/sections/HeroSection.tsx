@@ -10,7 +10,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[500px] flex items-center justify-center px-4 bg-background border-b">
+    <section className="relative min-h-[500px] flex items-center justify-center px-4 bg-gradient-to-br from-background via-muted/50 to-background border-b border-muted-200">
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
@@ -27,7 +27,7 @@ export function HeroSection() {
               key={category}
               category={category}
               variant="outline"
-              className="cursor-pointer transition-colors hover:bg-accent"
+              className="cursor-pointer bg-white/50 hover:bg-accent/10 transition-colors"
               onClick={() => handleCategorySelect(category)}
             />
           ))}

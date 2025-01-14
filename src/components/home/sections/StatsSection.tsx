@@ -24,14 +24,14 @@ export function StatsSection() {
       {STATS.map((stat, index) => (
         <div 
           key={index} 
-          className="p-6 space-y-3 border rounded-lg"
+          className="p-6 space-y-3 bg-white/50 border border-muted-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
         >
           <div className="inline-flex items-center justify-center w-10 h-10">
-            <stat.icon className="h-6 w-6 text-primary" />
+            <stat.icon className="h-6 w-6 text-primary/80" />
           </div>
           
           <div className="space-y-1.5">
-            <h3 className="text-lg font-semibold">{stat.title}</h3>
+            <h3 className="text-lg font-semibold text-foreground">{stat.title}</h3>
             <p className="text-sm text-muted-foreground">{stat.description}</p>
           </div>
         </div>
