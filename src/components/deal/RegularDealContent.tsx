@@ -67,7 +67,7 @@ export const RegularDealContent = ({
             className="pb-1 text-sm"
           />
           <Button 
-            className="w-full bg-muted-50 hover:bg-muted-100 text-foreground border border-muted-200 shadow-none text-xs py-2" 
+            className="w-full bg-primary-50 hover:bg-primary-100 text-primary-600 border-primary-100 shadow-none text-xs py-2 transition-colors" 
             variant="outline"
             size="sm"
           >
