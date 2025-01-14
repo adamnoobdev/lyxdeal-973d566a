@@ -71,6 +71,51 @@ export type Database = {
           },
         ]
       }
+      discount_codes: {
+        Row: {
+          code: string
+          created_at: string
+          deal_id: number | null
+          id: number
+          is_used: boolean | null
+          purchase_id: number | null
+          used_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          deal_id?: number | null
+          id?: number
+          is_used?: boolean | null
+          purchase_id?: number | null
+          used_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          deal_id?: number | null
+          id?: number
+          is_used?: boolean | null
+          purchase_id?: number | null
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_codes_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discount_codes_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchases: {
         Row: {
           created_at: string

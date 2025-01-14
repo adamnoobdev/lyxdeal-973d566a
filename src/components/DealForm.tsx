@@ -16,6 +16,7 @@ import { PriceFields } from "./deal-form/PriceFields";
 import { LocationFields } from "./deal-form/LocationFields";
 import { formSchema, FormValues } from "./deal-form/schema";
 import { createStripeProductForDeal } from "@/utils/stripeUtils";
+import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -53,7 +54,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       const { data, error } = await supabase
         .from("salons")
         .select("id, name")
-        .eq('role', 'salon_owner')  // Only fetch salon owners, not admins
+        .eq('role', 'salon_owner')
         .order("name");
       
       if (error) {
@@ -65,7 +66,6 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   });
 
   useEffect(() => {
-    // Subscribe to changes in the salons table
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -97,11 +97,27 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
         return;
       }
 
+      // First create the deal
       await onSubmit(values);
 
-      // Only create Stripe product if this is a new deal
+      // Only proceed with additional steps if this is a new deal
       if (!initialValues) {
-        await createStripeProductForDeal(values);
+        // Get the newly created deal's ID
+        const { data: newDeal } = await supabase
+          .from('deals')
+          .select('id')
+          .eq('salon_id', values.salon_id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (newDeal) {
+          // Generate discount codes for the new deal
+          await generateDiscountCodes(newDeal.id);
+          // Create Stripe product
+          await createStripeProductForDeal(values);
+          toast.success("Erbjudande och presentkoder har skapats");
+        }
       }
     } catch (error) {
       console.error('Error:', error);
