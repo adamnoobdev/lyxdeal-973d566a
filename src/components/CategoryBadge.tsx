@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Award } from "lucide-react";
+import { Star } from "lucide-react";
 import { CSSProperties } from "react";
 
 interface CategoryBadgeProps {
@@ -8,7 +8,7 @@ interface CategoryBadgeProps {
   className?: string;
   children?: React.ReactNode;
   onClick?: () => void;
-  style?: CSSProperties;
+  style?: CSSProperties;  // Add this line to support style prop
 }
 
 export function CategoryBadge({ 
@@ -17,7 +17,7 @@ export function CategoryBadge({
   className = "", 
   children,
   onClick,
-  style
+  style  // Add this line
 }: CategoryBadgeProps) {
   const getCategoryEmoji = (category: string) => {
     switch (category.toLowerCase()) {
@@ -37,18 +37,18 @@ export function CategoryBadge({
       variant={variant} 
       className={`inline-flex items-center gap-1 w-auto ${
         category === "NYTT" 
-          ? "bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200" 
+          ? "bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-950 hover:from-yellow-500 hover:to-yellow-600 border-transparent" 
           : variant === "default" 
-            ? "bg-muted-50 text-muted-700 hover:bg-muted-100 border-muted-200"
-            : "border-muted-200 text-muted-700 hover:bg-muted-50"
+            ? "bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:via-secondary/90 hover:to-accent/90 text-white border-transparent"
+            : "border-primary/20 text-primary hover:bg-primary/10"
       } ${className}`}
       onClick={onClick}
-      style={style}
+      style={style}  // Add this line
     >
       {children || (
         <>
           {category === "NYTT" ? (
-            <Award className="h-3 w-3" />
+            <Star className="h-3 w-3" />
           ) : (
             getCategoryEmoji(category)
           )} 
