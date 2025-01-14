@@ -44,7 +44,13 @@ export function SalonDeals() {
 
       if (error) throw error;
 
-      setDeals(data || []);
+      // Type assertion to ensure status is of the correct type
+      const typedDeals = (data || []).map(deal => ({
+        ...deal,
+        status: deal.status as 'pending' | 'approved' | 'rejected'
+      }));
+
+      setDeals(typedDeals);
     } catch (err: any) {
       console.error("Error fetching salon deals:", err);
       setError(err.message);
@@ -90,6 +96,7 @@ export function SalonDeals() {
           city: values.city,
           time_remaining: values.timeRemaining,
           featured: values.featured,
+          status: 'pending' as const,
         })
         .eq("id", editingDeal.id);
 
