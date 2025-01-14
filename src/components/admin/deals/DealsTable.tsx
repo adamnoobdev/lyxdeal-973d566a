@@ -30,7 +30,7 @@ export const DealsTable = ({
   onReject,
 }: DealsTableProps) => {
   if (!deals || deals.length === 0) {
-    return <p className="text-muted-foreground">Inga erbjudanden hittade.</p>;
+    return <p className="text-muted-foreground p-4">Inga erbjudanden hittade.</p>;
   }
 
   const getStatusBadge = (status: string) => {
@@ -45,58 +45,60 @@ export const DealsTable = ({
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Titel</TableHead>
-          <TableHead>Kategori</TableHead>
-          <TableHead>Stad</TableHead>
-          <TableHead>Pris</TableHead>
-          <TableHead>Salong</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Åtgärder</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {deals.map((deal) => (
-          <TableRow key={deal.id}>
-            <TableCell>{deal.title}</TableCell>
-            <TableCell>{deal.category}</TableCell>
-            <TableCell>{deal.city}</TableCell>
-            <TableCell>{deal.discounted_price} kr</TableCell>
-            <TableCell>{(deal as any).salons?.name || 'Ingen salong'}</TableCell>
-            <TableCell>{getStatusBadge(deal.status)}</TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                {showApprovalActions && deal.status === 'pending' && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => onApprove?.(deal.id)}
-                    >
-                      <Check className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => onReject?.(deal.id)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-                <DealActions
-                  onEdit={() => onEdit(deal)}
-                  onDelete={() => onDelete(deal)}
-                />
-              </div>
-            </TableCell>
+    <div className="w-full overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="min-w-[200px]">Titel</TableHead>
+            <TableHead className="min-w-[120px]">Kategori</TableHead>
+            <TableHead className="min-w-[120px]">Stad</TableHead>
+            <TableHead className="min-w-[100px]">Pris</TableHead>
+            <TableHead className="min-w-[150px]">Salong</TableHead>
+            <TableHead className="min-w-[100px]">Status</TableHead>
+            <TableHead className="min-w-[200px]">Åtgärder</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {deals.map((deal) => (
+            <TableRow key={deal.id}>
+              <TableCell className="font-medium">{deal.title}</TableCell>
+              <TableCell>{deal.category}</TableCell>
+              <TableCell>{deal.city}</TableCell>
+              <TableCell>{deal.discounted_price} kr</TableCell>
+              <TableCell>{(deal as any).salons?.name || 'Ingen salong'}</TableCell>
+              <TableCell>{getStatusBadge(deal.status)}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {showApprovalActions && deal.status === 'pending' && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => onApprove?.(deal.id)}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => onReject?.(deal.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                  <DealActions
+                    onEdit={() => onEdit(deal)}
+                    onDelete={() => onDelete(deal)}
+                  />
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };

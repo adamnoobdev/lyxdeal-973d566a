@@ -77,44 +77,59 @@ export const DealsList = () => {
   const otherDeals = deals?.filter(deal => deal.status !== 'pending') || [];
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Erbjudanden</h1>
-        <Button onClick={() => setIsCreating(true)}>
+    <div className="space-y-8 p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Erbjudanden</h1>
+          <p className="text-muted-foreground mt-1">Hantera och övervaka alla erbjudanden</p>
+        </div>
+        <Button onClick={() => setIsCreating(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Skapa erbjudande
         </Button>
       </div>
 
-      {pendingDeals.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Väntande godkännande</h2>
-          <DealsTable
-            deals={pendingDeals}
-            onEdit={setEditingDeal}
-            onDelete={setDeletingDeal}
-            showApprovalActions
-            onApprove={(dealId) => handleStatusChange(dealId, 'approved')}
-            onReject={(dealId) => handleStatusChange(dealId, 'rejected')}
-          />
-        </div>
-      )}
-
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Alla erbjudanden</h2>
-        {!otherDeals.length ? (
-          <Alert>
-            <AlertDescription>
-              Inga erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <DealsTable
-            deals={otherDeals}
-            onEdit={setEditingDeal}
-            onDelete={setDeletingDeal}
-          />
+      <div className="space-y-6">
+        {pendingDeals.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Väntande godkännande</h2>
+              <Badge variant="secondary">{pendingDeals.length}</Badge>
+            </div>
+            <div className="overflow-x-auto rounded-lg border">
+              <DealsTable
+                deals={pendingDeals}
+                onEdit={setEditingDeal}
+                onDelete={setDeletingDeal}
+                showApprovalActions
+                onApprove={(dealId) => handleStatusChange(dealId, 'approved')}
+                onReject={(dealId) => handleStatusChange(dealId, 'rejected')}
+              />
+            </div>
+          </div>
         )}
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Alla erbjudanden</h2>
+            <Badge variant="secondary">{otherDeals.length}</Badge>
+          </div>
+          {!otherDeals.length ? (
+            <Alert>
+              <AlertDescription>
+                Inga erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <div className="overflow-x-auto rounded-lg border">
+              <DealsTable
+                deals={otherDeals}
+                onEdit={setEditingDeal}
+                onDelete={setDeletingDeal}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <EditDealDialog
