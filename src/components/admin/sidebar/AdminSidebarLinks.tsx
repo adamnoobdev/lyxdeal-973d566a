@@ -32,7 +32,7 @@ export const AdminSidebarLinks = () => {
             <SidebarMenuItem key={link.href}>
               <SidebarMenuButton
                 asChild
-                active={location.pathname === link.href}
+                isActive={location.pathname === link.href}
               >
                 <Link to={link.href}>
                   <link.icon className="h-4 w-4" />
