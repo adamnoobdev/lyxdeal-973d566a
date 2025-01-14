@@ -7,14 +7,16 @@ export default function IndexPage() {
   const [selectedCity, setSelectedCity] = useState<string>("Alla Städer");
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-background">
       <HeroSection />
-      <MainContent 
-        selectedCategory={selectedCategory}
-        selectedCity={selectedCity}
-        onSelectCategory={setSelectedCategory}
-        onSelectCity={setSelectedCity}
-      />
+      <div className="container mx-auto px-4 py-8">
+        <MainContent 
+          selectedCategory={selectedCategory}
+          selectedCity={selectedCity}
+          onSelectCategory={setSelectedCategory}
+          onSelectCity={setSelectedCity}
+        />
+      </div>
     </div>
   );
 }
