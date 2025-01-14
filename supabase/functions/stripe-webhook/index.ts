@@ -8,6 +8,15 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
 
 const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') || '';
 
+const generateRandomCode = (length = 8): string => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return code;
+};
+
 serve(async (req) => {
   const signature = req.headers.get('stripe-signature');
 
@@ -36,7 +45,50 @@ serve(async (req) => {
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       );
 
-      // Find and update the deal
+      // Find the deal based on stripe_price_id
+      const { data: deals, error: dealError } = await supabaseClient
+        .from('deals')
+        .select('id')
+        .eq('stripe_price_id', priceId)
+        .single();
+
+      if (dealError || !deals) {
+        console.error('Error finding deal:', dealError);
+        throw new Error('Could not find deal');
+      }
+
+      // Create a purchase record
+      const { data: purchase, error: purchaseError } = await supabaseClient
+        .from('purchases')
+        .insert({
+          deal_id: deals.id,
+          customer_email: session.customer_details?.email || '',
+          discount_code: generateRandomCode(),
+          status: 'completed'
+        })
+        .select()
+        .single();
+
+      if (purchaseError) {
+        console.error('Error creating purchase:', purchaseError);
+        throw purchaseError;
+      }
+
+      // Create a discount code record
+      const { error: discountError } = await supabaseClient
+        .from('discount_codes')
+        .insert({
+          deal_id: deals.id,
+          code: purchase.discount_code,
+          purchase_id: purchase.id
+        });
+
+      if (discountError) {
+        console.error('Error creating discount code:', discountError);
+        throw discountError;
+      }
+
+      // Update deal quantity
       const { error: updateError } = await supabaseClient.rpc('decrease_quantity', {
         price_id: priceId
       });
@@ -46,7 +98,7 @@ serve(async (req) => {
         throw updateError;
       }
 
-      console.log('Successfully processed payment and updated quantity');
+      console.log('Successfully processed payment and created discount code');
     }
 
     return new Response(JSON.stringify({ received: true }), {
