@@ -95,8 +95,8 @@ export default function Admin() {
   }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full pt-16">
+    <SidebarProvider defaultOpen>
+      <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <main className="flex-1 p-8">
           <Routes>
