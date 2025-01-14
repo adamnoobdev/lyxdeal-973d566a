@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { LoginForm } from "@/components/salon/LoginForm";
 import { TestAccountManager } from "@/components/salon/TestAccountManager";
 import { CreateSalonDialog } from "@/components/admin/salons/CreateSalonDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function SalonLogin() {
   const [email, setEmail] = useState("");
