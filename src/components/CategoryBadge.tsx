@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Award } from "lucide-react";
 import { CSSProperties } from "react";
 
 interface CategoryBadgeProps {
@@ -37,7 +37,7 @@ export function CategoryBadge({
       variant={variant} 
       className={`inline-flex items-center gap-1 w-auto ${
         category === "NYTT" 
-          ? "bg-primary-50 text-primary-700 hover:bg-primary-100 border-primary-200" 
+          ? "bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200" 
           : variant === "default" 
             ? "bg-muted-50 text-muted-700 hover:bg-muted-100 border-muted-200"
             : "border-muted-200 text-muted-700 hover:bg-muted-50"
@@ -48,7 +48,7 @@ export function CategoryBadge({
       {children || (
         <>
           {category === "NYTT" ? (
-            <Star className="h-3 w-3" />
+            <Award className="h-3 w-3" />
           ) : (
             getCategoryEmoji(category)
           )} 
