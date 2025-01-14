@@ -1,18 +1,15 @@
 import { useParams } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeal";
-import { useReviews } from "@/hooks/useReviews";
-import { DealInfo } from "@/components/DealInfo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { ReviewForm } from "@/components/ReviewForm";
 import { RelatedDeals } from "@/components/deal/RelatedDeals";
 import { useEffect } from "react";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
+import { DealInfo } from "@/components/DealInfo";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const { data: deal, isLoading, isError } = useDeal(id);
-  const { data: reviews, isLoading: isLoadingReviews } = useReviews(id);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -49,7 +46,7 @@ const ProductDetails = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div className="space-y-8">
+            <div>
               <div className="overflow-hidden rounded-lg">
                 <ResponsiveImage
                   src={deal.imageUrl}
@@ -57,15 +54,6 @@ const ProductDetails = () => {
                   className="aspect-[4/3] w-full object-cover"
                 />
               </div>
-
-              {!isLoadingReviews && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-semibold">
-                    Recensioner
-                  </h2>
-                  <ReviewForm dealId={deal.id} />
-                </div>
-              )}
             </div>
 
             <div className="lg:sticky lg:top-8 lg:self-start">
