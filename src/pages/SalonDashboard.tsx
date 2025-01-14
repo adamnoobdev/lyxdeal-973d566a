@@ -13,6 +13,8 @@ import { DeleteDealDialog } from "@/components/admin/deals/DeleteDealDialog";
 import { Deal } from "@/components/admin/types";
 import { FormValues } from "@/components/deal-form/schema";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function SalonDashboard() {
   const { session } = useSession();
@@ -39,7 +41,7 @@ export default function SalonDashboard() {
     enabled: !!session?.user.id,
   });
 
-  const { data: deals } = useQuery({
+  const { data: deals, refetch } = useQuery({
     queryKey: ['salon-deals', salonData?.id],
     queryFn: async () => {
       if (!salonData?.id) throw new Error("No salon ID available");
@@ -77,20 +79,26 @@ export default function SalonDashboard() {
         time_remaining: values.timeRemaining,
         featured: values.featured,
         salon_id: salonData?.id,
+        status: 'pending'
       });
 
       if (error) throw error;
       
-      toast.success("Erbjudande skapat!");
+      toast.success("Erbjudande skapat! Det kommer att granskas av en administratör innan det publiceras.");
       setIsCreateDialogOpen(false);
+      refetch();
     } catch (error) {
       console.error("Error creating deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle skapas.");
     }
   };
 
+  const pendingDeals = deals?.filter(deal => deal.status === 'pending') || [];
+  const approvedDeals = deals?.filter(deal => deal.status === 'approved') || [];
+  const rejectedDeals = deals?.filter(deal => deal.status === 'rejected') || [];
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Salong Dashboard</h1>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
@@ -99,16 +107,35 @@ export default function SalonDashboard() {
         </Button>
       </div>
 
-      {deals && deals.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-3">
-          {deals.map((deal) => (
-            <Card key={deal.id} className="p-4">
-              <h3 className="font-semibold">{deal.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                Pris: {deal.discounted_price} kr
-              </p>
-            </Card>
-          ))}
+      {pendingDeals.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Väntande godkännande</h2>
+          <Alert>
+            <AlertDescription>
+              Dessa erbjudanden väntar på godkännande från en administratör innan de publiceras.
+            </AlertDescription>
+          </Alert>
+          <DealsTable deals={pendingDeals} onEdit={setEditingDeal} onDelete={setDeletingDeal} />
+        </div>
+      )}
+
+      {approvedDeals.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Aktiva erbjudanden</h2>
+          <DealsTable deals={approvedDeals} onEdit={setEditingDeal} onDelete={setDeletingDeal} />
+        </div>
+      )}
+
+      {rejectedDeals.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Nekade erbjudanden</h2>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Dessa erbjudanden har nekats av en administratör. Du kan redigera och skicka in dem igen för ny granskning.
+            </AlertDescription>
+          </Alert>
+          <DealsTable deals={rejectedDeals} onEdit={setEditingDeal} onDelete={setDeletingDeal} />
         </div>
       )}
 
@@ -140,13 +167,15 @@ export default function SalonDashboard() {
                 city: values.city,
                 time_remaining: values.timeRemaining,
                 featured: values.featured,
+                status: 'pending' // Reset to pending when edited
               })
               .eq('id', editingDeal.id);
 
             if (error) throw error;
             
-            toast.success("Erbjudande uppdaterat!");
+            toast.success("Erbjudande uppdaterat! Det kommer att granskas igen av en administratör.");
             setEditingDeal(null);
+            refetch();
           } catch (error) {
             console.error("Error updating deal:", error);
             toast.error("Ett fel uppstod när erbjudandet skulle uppdateras.");
@@ -182,18 +211,13 @@ export default function SalonDashboard() {
             
             toast.success("Erbjudande borttaget!");
             setDeletingDeal(null);
+            refetch();
           } catch (error) {
             console.error("Error deleting deal:", error);
             toast.error("Ett fel uppstod när erbjudandet skulle tas bort.");
           }
         }}
         dealTitle={deletingDeal?.title}
-      />
-
-      <DealsTable
-        deals={deals}
-        onEdit={setEditingDeal}
-        onDelete={setDeletingDeal}
       />
     </div>
   );

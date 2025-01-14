@@ -13,6 +13,7 @@ export interface Deal {
   updated_at: string;
   quantity_left: number;
   salon_id?: number;
+  status: 'pending' | 'approved' | 'rejected';
   salons?: {
     name: string;
   };

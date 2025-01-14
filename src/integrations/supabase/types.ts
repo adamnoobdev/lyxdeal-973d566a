@@ -22,6 +22,7 @@ export type Database = {
           original_price: number
           quantity_left: number
           salon_id: number | null
+          status: string
           stripe_price_id: string | null
           time_remaining: string
           title: string
@@ -39,6 +40,7 @@ export type Database = {
           original_price: number
           quantity_left?: number
           salon_id?: number | null
+          status?: string
           stripe_price_id?: string | null
           time_remaining: string
           title: string
@@ -56,6 +58,7 @@ export type Database = {
           original_price?: number
           quantity_left?: number
           salon_id?: number | null
+          status?: string
           stripe_price_id?: string | null
           time_remaining?: string
           title?: string

@@ -8,12 +8,15 @@ import { useDealsAdmin } from "@/hooks/useDealsAdmin";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-  const { deals, isLoading, error, handleDelete, handleUpdate, handleCreate } = useDealsAdmin();
+  const { deals, isLoading, error, handleDelete, handleUpdate, handleCreate, refetch } = useDealsAdmin();
 
   const onDelete = async () => {
     if (deletingDeal) {
@@ -40,6 +43,23 @@ export const DealsList = () => {
     }
   };
 
+  const handleStatusChange = async (dealId: number, newStatus: 'approved' | 'rejected') => {
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .update({ status: newStatus })
+        .eq('id', dealId);
+
+      if (error) throw error;
+
+      toast.success(`Erbjudandet har ${newStatus === 'approved' ? 'godkänts' : 'nekats'}`);
+      refetch();
+    } catch (error) {
+      console.error('Error updating deal status:', error);
+      toast.error('Något gick fel när statusen skulle uppdateras');
+    }
+  };
+
   if (isLoading) {
     return <DealsLoadingSkeleton />;
   }
@@ -53,8 +73,11 @@ export const DealsList = () => {
     </Alert>
   );
 
+  const pendingDeals = deals?.filter(deal => deal.status === 'pending') || [];
+  const otherDeals = deals?.filter(deal => deal.status !== 'pending') || [];
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Erbjudanden</h1>
         <Button onClick={() => setIsCreating(true)}>
@@ -63,19 +86,36 @@ export const DealsList = () => {
         </Button>
       </div>
 
-      {!deals?.length ? (
-        <Alert>
-          <AlertDescription>
-            Inga erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
-          </AlertDescription>
-        </Alert>
-      ) : (
-        <DealsTable
-          deals={deals}
-          onEdit={setEditingDeal}
-          onDelete={setDeletingDeal}
-        />
+      {pendingDeals.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Väntande godkännande</h2>
+          <DealsTable
+            deals={pendingDeals}
+            onEdit={setEditingDeal}
+            onDelete={setDeletingDeal}
+            showApprovalActions
+            onApprove={(dealId) => handleStatusChange(dealId, 'approved')}
+            onReject={(dealId) => handleStatusChange(dealId, 'rejected')}
+          />
+        </div>
       )}
+
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Alla erbjudanden</h2>
+        {!otherDeals.length ? (
+          <Alert>
+            <AlertDescription>
+              Inga erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <DealsTable
+            deals={otherDeals}
+            onEdit={setEditingDeal}
+            onDelete={setDeletingDeal}
+          />
+        )}
+      </div>
 
       <EditDealDialog
         isOpen={!!editingDeal || isCreating}
@@ -96,6 +136,7 @@ export const DealsList = () => {
                 city: editingDeal.city,
                 timeRemaining: editingDeal.time_remaining,
                 featured: editingDeal.featured,
+                salon_id: editingDeal.salon_id,
               }
             : undefined
         }
