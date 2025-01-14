@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 const getErrorMessage = (error: AuthError) => {
   if (error instanceof AuthApiError) {
@@ -91,25 +92,31 @@ export const LoginForm = ({
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSignIn}>
+    <form className="space-y-6" onSubmit={handleSignIn}>
       <div className="space-y-2">
+        <Label htmlFor="email">E-postadress</Label>
         <Input
+          id="email"
           type="email"
-          placeholder="E-post"
+          placeholder="namn@exempel.se"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
           required
+          className="w-full"
         />
       </div>
       <div className="space-y-2">
+        <Label htmlFor="password">Lösenord</Label>
         <Input
+          id="password"
           type="password"
-          placeholder="Lösenord"
+          placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
           required
+          className="w-full"
         />
       </div>
       

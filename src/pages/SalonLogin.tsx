@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { toast } from "sonner";
-import { CreateSalonDialog } from "@/components/admin/salons/CreateSalonDialog";
 import { LoginForm } from "@/components/salon/LoginForm";
 import { TestAccountManager } from "@/components/salon/TestAccountManager";
+import { CreateSalonDialog } from "@/components/admin/salons/CreateSalonDialog";
 
 export default function SalonLogin() {
   const [email, setEmail] = useState("");
@@ -59,10 +56,12 @@ export default function SalonLogin() {
   };
 
   return (
-    <div className="container flex items-center justify-center min-h-screen py-12">
-      <Card className="w-full max-w-md p-6 space-y-6">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Salongsportal</h1>
+    <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md p-8 space-y-8 shadow-lg">
+        <div className="space-y-4 text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            Välkommen till Lyxdeal
+          </h1>
           <p className="text-muted-foreground">
             Logga in för att hantera din salong
           </p>
@@ -81,20 +80,13 @@ export default function SalonLogin() {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Eller</span>
+            <span className="bg-background px-2 text-muted-foreground">
+              Eller
+            </span>
           </div>
         </div>
 
         <div className="space-y-4">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => setIsCreateDialogOpen(true)}
-          >
-            Skapa ny salong
-          </Button>
-
           <TestAccountManager 
             setEmail={setEmail}
             setPassword={setPassword}
