@@ -22,11 +22,15 @@ export const EditDealDialog = ({
 }: EditDealDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 md:p-6">
         <DialogHeader>
-          <DialogTitle>Redigera erbjudande</DialogTitle>
+          <DialogTitle>
+            {initialValues ? "Redigera erbjudande" : "Skapa erbjudande"}
+          </DialogTitle>
         </DialogHeader>
-        <DealForm onSubmit={onSubmit} initialValues={initialValues} />
+        <div className="mt-4">
+          <DealForm onSubmit={onSubmit} initialValues={initialValues} />
+        </div>
       </DialogContent>
     </Dialog>
   );
