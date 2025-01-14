@@ -1,43 +1,40 @@
-import { SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { CircleDollarSign, Store } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { LayoutDashboard, Tags } from "lucide-react";
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
+import { SidebarLink } from "./SidebarLink";
 
 const salonLinks = [
   {
-    title: "Min salong",
-    icon: Store,
     href: "/salon",
+    icon: LayoutDashboard,
+    label: "Dashboard",
   },
   {
-    title: "Köp",
-    icon: CircleDollarSign,
-    href: "/salon/purchases",
+    href: "/salon/deals",
+    icon: Tags,
+    label: "Erbjudanden",
   },
-];
+] as const;
 
 export const SalonSidebarLinks = () => {
   const location = useLocation();
 
   return (
-    <>
+    <SidebarGroup>
       <SidebarGroupLabel>Salong</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {salonLinks.map((link) => (
-            <SidebarMenuItem key={link.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={location.pathname === link.href}
-              >
-                <Link to={link.href}>
-                  <link.icon className="h-4 w-4" />
-                  <span>{link.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <SidebarLink
+              key={link.href}
+              href={link.href}
+              icon={link.icon}
+              label={link.label}
+              isCurrentPath={location.pathname === link.href}
+            />
           ))}
         </SidebarMenu>
       </SidebarGroupContent>
-    </>
+    </SidebarGroup>
   );
 };
