@@ -14,6 +14,10 @@ export interface Deal {
   quantity_left: number;
   stripe_price_id?: string;
   salon_id?: number;
+  status: 'pending' | 'approved' | 'rejected';
+  salons?: {
+    name: string;
+  };
 }
 
 export type DealFormData = {

@@ -4,10 +4,11 @@ import { useSession } from "@/hooks/useSession";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal";
 import { DealsSection } from "@/components/salon/DealsSection";
 import { DealDialog } from "@/components/salon/DealDialog";
 import { useSalonDeals } from "@/hooks/useSalonDeals";
+import { FormValues } from "@/components/deal-form/schema";
 
 export default function SalonDashboard() {
   const { session } = useSession();
@@ -24,11 +25,7 @@ export default function SalonDashboard() {
         .eq('user_id', session?.user.id)
         .single();
 
-      if (error) {
-        console.error('Error fetching salon data:', error);
-        throw error;
-      }
-
+      if (error) throw error;
       return data;
     },
     enabled: !!session?.user.id,
@@ -42,6 +39,18 @@ export default function SalonDashboard() {
     updateDeal,
     deleteDeal,
   } = useSalonDeals(salonData?.id);
+
+  const handleCreate = async (values: FormValues): Promise<void> => {
+    await createDeal(values);
+    setIsCreateDialogOpen(false);
+  };
+
+  const handleUpdate = async (values: FormValues): Promise<void> => {
+    if (editingDeal) {
+      await updateDeal(values, editingDeal.id);
+      setEditingDeal(null);
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -80,13 +89,13 @@ export default function SalonDashboard() {
       <DealDialog
         isOpen={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
-        onSubmit={createDeal}
+        onSubmit={handleCreate}
       />
 
       <DealDialog
         isOpen={!!editingDeal}
         onClose={() => setEditingDeal(null)}
-        onSubmit={(values) => editingDeal && updateDeal(values, editingDeal.id)}
+        onSubmit={handleUpdate}
         initialValues={editingDeal ? {
           title: editingDeal.title,
           description: editingDeal.description,
@@ -96,7 +105,7 @@ export default function SalonDashboard() {
           category: editingDeal.category,
           city: editingDeal.city,
           timeRemaining: editingDeal.time_remaining,
-          featured: editingDeal.featured || false,
+          featured: editingDeal.featured,
           salon_id: editingDeal.salon_id,
         } : undefined}
       />

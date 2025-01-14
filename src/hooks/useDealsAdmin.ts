@@ -1,84 +1,99 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/hooks/useSession";
+import { Deal } from "@/types/deal";
 import { toast } from "sonner";
-import { Deal } from "@/components/admin/types";
-import { DealFormValues } from "@/types/deal-form";
-import { 
-  fetchSalonIdForUser, 
-  createDealInDb, 
-  updateDealInDb, 
-  deleteDealFromDb 
-} from "@/utils/dealAdminUtils";
 
 export const useDealsAdmin = () => {
-  const { session, user } = useSession();
-  const queryClient = useQueryClient();
-
-  const { data: deals = [], isLoading, error } = useQuery({
-    queryKey: ["admin-deals"],
+  const { data: deals = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['deals'],
     queryFn: async () => {
-      console.log("Fetching deals with session:", user?.id);
       const { data, error } = await supabase
-        .from("deals")
-        .select("*, salons(name)")
-        .order("created_at", { ascending: false });
+        .from('deals')
+        .select(`
+          *,
+          salons (
+            name
+          )
+        `)
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Deals fetch error:", error);
-        throw error;
-      }
-      return data;
-    },
-    enabled: !!user?.id,
+      if (error) throw error;
+      return data as Deal[];
+    }
   });
 
   const handleDelete = async (id: number) => {
     try {
-      await deleteDealFromDb(id);
-      queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
+      const { error } = await supabase
+        .from('deals')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
       toast.success("Erbjudandet har tagits bort");
+      refetch();
       return true;
-    } catch (error: any) {
-      console.error("Delete error:", error);
-      toast.error(error.message || "Kunde inte ta bort erbjudandet");
+    } catch (error) {
+      console.error('Error deleting deal:', error);
+      toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
       return false;
     }
   };
 
-  const handleUpdate = async (values: DealFormValues, id: number) => {
+  const handleUpdate = async (values: any, id: number) => {
     try {
-      await updateDealInDb(values, id);
-      queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
+      const { error } = await supabase
+        .from('deals')
+        .update({
+          title: values.title,
+          description: values.description,
+          image_url: values.imageUrl,
+          original_price: parseInt(values.originalPrice),
+          discounted_price: parseInt(values.discountedPrice),
+          category: values.category,
+          city: values.city,
+          time_remaining: values.timeRemaining,
+          featured: values.featured,
+          salon_id: values.salon_id,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
       toast.success("Erbjudandet har uppdaterats");
+      refetch();
       return true;
-    } catch (error: any) {
-      console.error("Update error:", error);
-      toast.error(error.message || "Kunde inte uppdatera erbjudandet");
+    } catch (error) {
+      console.error('Error updating deal:', error);
+      toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
       return false;
     }
   };
 
-  const handleCreate = async (values: DealFormValues) => {
+  const handleCreate = async (values: any) => {
     try {
-      if (!user?.id) {
-        toast.error("Du måste vara inloggad för att skapa erbjudanden");
-        return false;
-      }
+      const { error } = await supabase
+        .from('deals')
+        .insert([{
+          title: values.title,
+          description: values.description,
+          image_url: values.imageUrl,
+          original_price: parseInt(values.originalPrice),
+          discounted_price: parseInt(values.discountedPrice),
+          category: values.category,
+          city: values.city,
+          time_remaining: values.timeRemaining,
+          featured: values.featured,
+          salon_id: values.salon_id,
+          status: 'pending'
+        }]);
 
-      const salon = await fetchSalonIdForUser(user.id);
-      if (!salon) {
-        toast.error("Ingen salong hittades kopplad till ditt konto");
-        return false;
-      }
-
-      await createDealInDb(values, salon.id);
-      queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
+      if (error) throw error;
       toast.success("Erbjudandet har skapats");
+      refetch();
       return true;
-    } catch (error: any) {
-      console.error("Create error:", error);
-      toast.error(error.message || "Kunde inte skapa erbjudandet");
+    } catch (error) {
+      console.error('Error creating deal:', error);
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
       return false;
     }
   };
@@ -90,5 +105,6 @@ export const useDealsAdmin = () => {
     handleDelete,
     handleUpdate,
     handleCreate,
+    refetch
   };
 };
