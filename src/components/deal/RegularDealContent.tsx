@@ -30,16 +30,16 @@ export const RegularDealContent = ({
         <CategoryBadge 
           category={category}
           variant="default"
-          className="text-xs bg-gradient-to-r from-primary-300 to-secondary-300 text-primary-900 border-none"
+          className="text-xs bg-primary-50 text-primary-700 hover:bg-primary-100 border-none transition-colors"
         />
-        <div className="flex items-center gap-1 text-xs text-primary-600">
+        <div className="flex items-center gap-1 text-xs text-muted-500">
           <Clock className="h-3 w-3" />
           {timeRemaining}
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <h3 className="text-base font-medium leading-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
+        <h3 className="text-base font-medium leading-tight text-foreground group-hover:text-primary-600 transition-colors line-clamp-2">
           {title}
         </h3>
         <p className="text-xs text-muted-500 leading-relaxed line-clamp-2">
@@ -49,12 +49,12 @@ export const RegularDealContent = ({
 
       <div className="mt-auto space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-xs text-secondary-600">
+          <div className="flex items-center gap-1 text-xs text-muted-500">
             <MapPin className="h-3 w-3" />
             {city}
           </div>
           {quantityLeft <= 5 && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-destructive-50 text-destructive-600">
               {quantityLeft} kvar
             </span>
           )}
@@ -67,7 +67,7 @@ export const RegularDealContent = ({
             className="pb-1 text-sm"
           />
           <Button 
-            className="w-full bg-gradient-to-r from-primary via-secondary to-accent hover:opacity-90 text-white border-none text-xs py-2 shadow-sm" 
+            className="w-full bg-primary-50 hover:bg-primary-100 text-primary-700 border-none text-xs py-2" 
             size="sm"
           >
             <ShoppingBag className="mr-1.5 h-3 w-3" />
