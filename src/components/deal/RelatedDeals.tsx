@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
 import { DealCard } from "../DealCard";
 import { Sparkles } from "lucide-react";
+import { ResponsiveGrid } from "../common/ResponsiveGrid";
 
 interface RelatedDealsProps {
   currentDealId: number;
@@ -65,11 +66,11 @@ export function RelatedDeals({ currentDealId, category }: RelatedDealsProps) {
           Fler erbjudanden
         </h2>
       </div>
-      <div className="grid gap-4">
+      <ResponsiveGrid>
         {relatedDeals.map((deal) => (
           <DealCard key={deal.id} {...deal} />
         ))}
-      </div>
+      </ResponsiveGrid>
     </div>
   );
 }
