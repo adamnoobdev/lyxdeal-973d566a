@@ -46,14 +46,6 @@ export const Footer = () => {
                   Integritetspolicy
                 </Link>
               </li>
-              <li>
-                <Link 
-                  to="/salon/login" 
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Salongsportal
-                </Link>
-              </li>
             </ul>
           </div>
           
