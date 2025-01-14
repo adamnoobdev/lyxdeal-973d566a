@@ -54,67 +54,70 @@ const ProductDetails = () => {
     );
   }
 
-  // Calculate discount percentage for DealFeatures
   const discountPercentage = Math.round(
     ((deal.originalPrice - deal.discountedPrice) / deal.originalPrice) * 100
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <div className="space-y-8">
-            <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20 animate-fade-up">
-              <ResponsiveImage
-                src={deal.imageUrl}
-                alt={deal.title}
-                className="aspect-[4/3] w-full object-cover transition-transform duration-700 hover:scale-105"
-              />
-              <div className="absolute right-3 top-3">
-                {isNew(deal.created_at) && (
-                  <CategoryBadge category="NYTT">
-                    <Star className="mr-1 h-3.5 w-3.5" />
-                    Ny
-                  </CategoryBadge>
-                )}
+    <div className="min-h-screen bg-gradient-to-b from-white to-accent/5">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <div className="space-y-8">
+              <div className="relative overflow-hidden rounded-xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-accent/20 group animate-fade-up">
+                <ResponsiveImage
+                  src={deal.imageUrl}
+                  alt={deal.title}
+                  className="aspect-[4/3] w-full object-cover transition-all duration-700 group-hover:scale-105"
+                />
+                <div className="absolute right-3 top-3">
+                  {isNew(deal.created_at) && (
+                    <CategoryBadge category="NYTT" className="bg-primary text-white shadow-lg">
+                      <Star className="mr-1 h-3.5 w-3.5" />
+                      Ny
+                    </CategoryBadge>
+                  )}
+                </div>
               </div>
+
+              <DealFeatures 
+                discountPercentage={discountPercentage}
+                timeRemaining={deal.timeRemaining}
+                quantityLeft={deal.quantityLeft}
+              />
+
+              {!isLoadingReviews && (
+                <div className="space-y-6 bg-white rounded-xl p-6 shadow-sm border border-accent/20">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    Recensioner
+                  </h2>
+                  <ReviewForm dealId={deal.id} />
+                </div>
+              )}
             </div>
 
-            <DealFeatures 
-              discountPercentage={discountPercentage}
-              timeRemaining={deal.timeRemaining}
-              quantityLeft={deal.quantityLeft}
-            />
-
-            {!isLoadingReviews && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Recensioner</h2>
-                <ReviewForm dealId={deal.id} />
-              </div>
-            )}
+            <div className="lg:sticky lg:top-8 lg:self-start">
+              <DealInfo
+                id={deal.id}
+                title={deal.title}
+                description={deal.description}
+                category={deal.category}
+                originalPrice={deal.originalPrice}
+                discountedPrice={deal.discountedPrice}
+                timeRemaining={deal.timeRemaining}
+                city={deal.city}
+                quantityLeft={deal.quantityLeft}
+                salon={deal.salon}
+              />
+            </div>
           </div>
 
-          <div>
-            <DealInfo
-              id={deal.id}
-              title={deal.title}
-              description={deal.description}
+          <div className="mt-16 animate-fade-up">
+            <RelatedDeals
+              currentDealId={deal.id}
               category={deal.category}
-              originalPrice={deal.originalPrice}
-              discountedPrice={deal.discountedPrice}
-              timeRemaining={deal.timeRemaining}
-              city={deal.city}
-              quantityLeft={deal.quantityLeft}
-              salon={deal.salon}
             />
           </div>
-        </div>
-
-        <div className="mt-16">
-          <RelatedDeals
-            currentDealId={deal.id}
-            category={deal.category}
-          />
         </div>
       </div>
     </div>
