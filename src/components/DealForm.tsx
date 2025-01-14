@@ -80,17 +80,21 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <SalonField form={form} />
-        <FormFields form={form} handleImageSelected={handleImageSelected} />
-        <PriceFields form={form} />
-        <LocationFields form={form} categories={CATEGORIES} cities={CITIES} />
-        <QuantityField form={form} />
-        <AdditionalFields form={form} />
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 max-h-[calc(85vh-8rem)] overflow-y-auto px-1">
+        <div className="space-y-4">
+          <SalonField form={form} />
+          <FormFields form={form} handleImageSelected={handleImageSelected} />
+          <PriceFields form={form} />
+          <LocationFields form={form} categories={CATEGORIES} cities={CITIES} />
+          <QuantityField form={form} />
+          <AdditionalFields form={form} />
+        </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Sparar..." : "Spara erbjudande"}
-        </Button>
+        <div className="sticky bottom-0 pt-4 bg-background">
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Sparar..." : "Spara erbjudande"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
