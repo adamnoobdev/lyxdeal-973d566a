@@ -1,27 +1,18 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { FormFields } from "./deal-form/FormFields";
 import { PriceFields } from "./deal-form/PriceFields";
 import { LocationFields } from "./deal-form/LocationFields";
+import { SalonField } from "./deal-form/SalonField";
+import { QuantityField } from "./deal-form/QuantityField";
+import { AdditionalFields } from "./deal-form/AdditionalFields";
 import { formSchema, FormValues } from "./deal-form/schema";
 import { createStripeProductForDeal } from "@/utils/stripeUtils";
 import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
@@ -30,8 +21,6 @@ interface DealFormProps {
 }
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
-  const queryClient = useQueryClient();
-  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues || {
@@ -48,44 +37,6 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       quantity: "10", // Default value for quantity
     },
   });
-
-  const { data: salons = [], isLoading: isSalonsLoading } = useQuery({
-    queryKey: ["salons"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("salons")
-        .select("id, name")
-        .eq('role', 'salon_owner')
-        .order("name");
-      
-      if (error) {
-        console.error("Error fetching salons:", error);
-        throw error;
-      }
-      return data;
-    },
-  });
-
-  useEffect(() => {
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'salons'
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["salons"] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
 
   const handleImageSelected = (imageUrl: string) => {
     form.setValue("imageUrl", imageUrl);
@@ -129,89 +80,12 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="salon_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Salong</FormLabel>
-              <FormControl>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                  value={field.value || ""}
-                >
-                  <option value="">Välj salong...</option>
-                  {salons?.map((salon) => (
-                    <option key={salon.id} value={salon.id}>
-                      {salon.name}
-                    </option>
-                  ))}
-                </select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        <SalonField form={form} />
         <FormFields form={form} handleImageSelected={handleImageSelected} />
         <PriceFields form={form} />
         <LocationFields form={form} categories={CATEGORIES} cities={CITIES} />
-
-        <FormField
-          control={form.control}
-          name="quantity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Antal erbjudanden</FormLabel>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="t.ex. 10" 
-                  {...field} 
-                  min="1"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="timeRemaining"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Giltighetstid</FormLabel>
-              <FormControl>
-                <Input placeholder="t.ex. 2 dagar kvar" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="featured"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Utvalt erbjudande</FormLabel>
-                <p className="text-sm text-muted-foreground">
-                  Detta erbjudande kommer att visas i sektionen för utvalda erbjudanden
-                </p>
-              </div>
-            </FormItem>
-          )}
-        />
+        <QuantityField form={form} />
+        <AdditionalFields form={form} />
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Sparar..." : "Spara erbjudande"}
