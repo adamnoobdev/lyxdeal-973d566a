@@ -29,35 +29,35 @@ export const RegularDealContent = ({
       <div className="flex items-start justify-between gap-2">
         <CategoryBadge 
           category={category}
-          variant="default"
-          className="bg-primary/90 hover:bg-primary text-white shadow-sm transition-colors text-xs"
+          variant="outline"
+          className="text-xs border-muted-200 text-muted-500"
         />
-        <div className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground">
+        <div className="flex items-center gap-1 text-xs text-muted-500">
           <Clock className="h-3 w-3" />
           {timeRemaining}
         </div>
       </div>
 
-      <div className="space-y-1">
-        <h3 className="text-base font-semibold leading-tight text-foreground group-hover:text-primary/90 transition-colors line-clamp-2">
+      <div className="space-y-1.5">
+        <h3 className="text-base font-medium leading-tight text-foreground group-hover:text-primary/90 transition-colors line-clamp-2">
           {title}
         </h3>
-        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+        <p className="text-xs text-muted-500 leading-relaxed line-clamp-2">
           {description}
         </p>
       </div>
 
       <div className="mt-auto space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+          <div className="flex items-center gap-1 text-xs text-muted-500">
             <MapPin className="h-3 w-3" />
             {city}
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium">
+          {quantityLeft <= 5 && (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/5 text-destructive-600">
               {quantityLeft} kvar
             </span>
-          </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -67,7 +67,8 @@ export const RegularDealContent = ({
             className="pb-1 text-sm"
           />
           <Button 
-            className="w-full bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:via-secondary/90 hover:to-accent/90 text-white font-semibold shadow-md transition-all duration-300 text-xs py-2" 
+            className="w-full bg-muted-50 hover:bg-muted-100 text-foreground border border-muted-200 shadow-none text-xs py-2" 
+            variant="outline"
             size="sm"
           >
             <ShoppingBag className="mr-1.5 h-3 w-3" />
