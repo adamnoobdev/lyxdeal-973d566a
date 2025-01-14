@@ -45,6 +45,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       timeRemaining: "",
       featured: false,
       salon_id: undefined,
+      quantity: "10", // Default value for quantity
     },
   });
 
@@ -112,8 +113,8 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           .single();
 
         if (newDeal) {
-          // Generate discount codes for the new deal
-          await generateDiscountCodes(newDeal.id);
+          // Generate discount codes based on the quantity specified
+          await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
           // Create Stripe product
           await createStripeProductForDeal(values);
           toast.success("Erbjudande och presentkoder har skapats");
@@ -140,10 +141,9 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
                   {...field}
                   onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
                   value={field.value || ""}
-                  disabled={isSalonsLoading}
                 >
                   <option value="">Välj salong...</option>
-                  {salons.map((salon) => (
+                  {salons?.map((salon) => (
                     <option key={salon.id} value={salon.id}>
                       {salon.name}
                     </option>
@@ -158,6 +158,25 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
         <FormFields form={form} handleImageSelected={handleImageSelected} />
         <PriceFields form={form} />
         <LocationFields form={form} categories={CATEGORIES} cities={CITIES} />
+
+        <FormField
+          control={form.control}
+          name="quantity"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Antal erbjudanden</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number" 
+                  placeholder="t.ex. 10" 
+                  {...field} 
+                  min="1"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
