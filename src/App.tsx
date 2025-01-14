@@ -7,7 +7,6 @@ import ProductDetails from "@/pages/ProductDetails";
 import SearchResults from "@/pages/SearchResults";
 import Auth from "@/pages/Auth";
 import Admin from "@/pages/Admin";
-import SalonLogin from "@/pages/SalonLogin";
 import SalonDashboard from "@/pages/SalonDashboard";
 import FAQ from "@/pages/FAQ";
 
@@ -23,7 +22,6 @@ function App() {
             <Route path="/search" element={<SearchResults />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin/*" element={<Admin />} />
-            <Route path="/salon/login" element={<SalonLogin />} />
             <Route path="/salon/dashboard" element={<SalonDashboard />} />
             <Route path="/faq" element={<FAQ />} />
           </Routes>
