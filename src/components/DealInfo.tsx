@@ -72,14 +72,14 @@ export const DealInfo = ({
   };
 
   return (
-    <div className="space-y-6 bg-white rounded-xl p-6 shadow-sm border border-accent/20 animate-fade-up">
+    <div className="space-y-8">
       <DealHeader title={title} category={category} />
       
-      <p className="text-lg text-muted-foreground leading-relaxed">
+      <p className="text-lg text-muted-foreground">
         {description}
       </p>
       
-      <div className="rounded-lg bg-gradient-to-br from-accent-50 to-accent-100/50 p-6">
+      <div className="rounded-lg bg-muted/5 p-6">
         <div className="space-y-6">
           <PriceDisplay 
             originalPrice={originalPrice} 
@@ -89,7 +89,7 @@ export const DealInfo = ({
           {salon && <SalonInfo salon={salon} />}
           
           <Button 
-            className="w-full bg-gradient-to-r from-primary via-primary-600 to-secondary hover:from-primary-600 hover:via-primary-700 hover:to-secondary-600 text-white font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="w-full bg-primary hover:bg-primary/90 text-white"
             onClick={handlePurchase}
             disabled={quantityLeft <= 0 || isLoading}
             size="lg"
