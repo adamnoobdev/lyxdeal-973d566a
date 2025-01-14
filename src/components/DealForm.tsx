@@ -13,6 +13,7 @@ import { createStripeProductForDeal } from "@/utils/stripeUtils";
 import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
