@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -34,7 +35,8 @@ export const AdminSidebar = () => {
   const location = useLocation();
 
   return (
-    <Sidebar className="pt-16">
+    <Sidebar className="pt-16" variant="inset" collapsible="icon">
+      <SidebarTrigger className="absolute right-2 top-[4.5rem]" />
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Administration</SidebarGroupLabel>
@@ -49,6 +51,7 @@ export const AdminSidebar = () => {
                         ? "bg-accent text-accent-foreground"
                         : ""
                     }
+                    tooltip={item.title}
                   >
                     <item.icon className="h-4 w-4" />
                     <span>{item.title}</span>
