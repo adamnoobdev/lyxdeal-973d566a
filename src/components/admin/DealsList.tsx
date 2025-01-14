@@ -61,23 +61,29 @@ export const DealsList = () => {
   };
 
   if (isLoading) {
-    return <DealsLoadingSkeleton />;
+    return (
+      <div className="space-y-8 p-4 md:p-8">
+        <DealsLoadingSkeleton />
+      </div>
+    );
   }
 
   if (error) return (
-    <Alert variant="destructive">
-      <AlertCircle className="h-4 w-4" />
-      <AlertDescription>
-        {error instanceof Error ? error.message : "Ett fel uppstod när erbjudanden skulle hämtas"}
-      </AlertDescription>
-    </Alert>
+    <div className="p-4 md:p-8">
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          {error instanceof Error ? error.message : "Ett fel uppstod när erbjudanden skulle hämtas"}
+        </AlertDescription>
+      </Alert>
+    </div>
   );
 
   const pendingDeals = deals?.filter(deal => deal.status === 'pending') || [];
   const otherDeals = deals?.filter(deal => deal.status !== 'pending') || [];
 
   return (
-    <div className="space-y-8 p-4 md:p-8">
+    <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Erbjudanden</h1>
@@ -96,7 +102,7 @@ export const DealsList = () => {
               <h2 className="text-xl font-semibold">Väntande godkännande</h2>
               <Badge variant="secondary">{pendingDeals.length}</Badge>
             </div>
-            <div className="overflow-x-auto rounded-lg border">
+            <div className="overflow-x-auto rounded-lg border bg-background">
               <DealsTable
                 deals={pendingDeals}
                 onEdit={setEditingDeal}
@@ -121,7 +127,7 @@ export const DealsList = () => {
               </AlertDescription>
             </Alert>
           ) : (
-            <div className="overflow-x-auto rounded-lg border">
+            <div className="overflow-x-auto rounded-lg border bg-background">
               <DealsTable
                 deals={otherDeals}
                 onEdit={setEditingDeal}
