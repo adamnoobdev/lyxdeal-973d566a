@@ -8,7 +8,7 @@ interface CategoryBadgeProps {
   className?: string;
   children?: React.ReactNode;
   onClick?: () => void;
-  style?: CSSProperties;  // Add this line to support style prop
+  style?: CSSProperties;
 }
 
 export function CategoryBadge({ 
@@ -17,7 +17,7 @@ export function CategoryBadge({
   className = "", 
   children,
   onClick,
-  style  // Add this line
+  style
 }: CategoryBadgeProps) {
   const getCategoryEmoji = (category: string) => {
     switch (category.toLowerCase()) {
@@ -37,13 +37,13 @@ export function CategoryBadge({
       variant={variant} 
       className={`inline-flex items-center gap-1 w-auto ${
         category === "NYTT" 
-          ? "bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-950 hover:from-yellow-500 hover:to-yellow-600 border-transparent" 
+          ? "bg-primary-50 text-primary-700 hover:bg-primary-100 border-primary-200" 
           : variant === "default" 
-            ? "bg-gradient-to-r from-primary via-secondary to-accent hover:from-primary/90 hover:via-secondary/90 hover:to-accent/90 text-white border-transparent"
-            : "border-primary/20 text-primary hover:bg-primary/10"
+            ? "bg-muted-50 text-muted-700 hover:bg-muted-100 border-muted-200"
+            : "border-muted-200 text-muted-700 hover:bg-muted-50"
       } ${className}`}
       onClick={onClick}
-      style={style}  // Add this line
+      style={style}
     >
       {children || (
         <>
