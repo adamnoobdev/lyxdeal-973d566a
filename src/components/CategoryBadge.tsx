@@ -39,8 +39,8 @@ export function CategoryBadge({
         category === "NYTT" 
           ? "bg-amber-100 hover:bg-amber-200 text-black border-transparent" 
           : variant === "default" 
-            ? "bg-muted text-muted-foreground hover:bg-muted/90 border-transparent"
-            : "border-muted/20 text-muted-foreground hover:bg-muted/10"
+            ? "bg-primary hover:bg-primary/90 text-primary-foreground border-transparent"
+            : "border-primary/20 text-primary hover:bg-primary/10"
       } ${className}`}
       onClick={onClick}
       style={style}
