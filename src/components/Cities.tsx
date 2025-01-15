@@ -41,8 +41,8 @@ const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
               className={`
                 group relative overflow-hidden min-w-[140px]
                 ${selectedCity === city 
-                  ? "bg-primary shadow-lg hover:bg-primary/90" 
-                  : "hover:bg-accent/10 border-primary/10"}
+                  ? "bg-primary hover:bg-primary/90 shadow-lg" 
+                  : "hover:bg-primary/20 border-primary/20"}
                 h-10 px-4 transition-all duration-300
                 hover:shadow-md active:scale-95
               `}
@@ -52,7 +52,7 @@ const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
                 <span className="font-medium">{city}</span>
               </span>
               {selectedCity === city && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-gradient" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-gradient" />
               )}
             </Button>
           ))}
