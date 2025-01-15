@@ -75,21 +75,26 @@ export const DealInfo = ({
     <div className="space-y-8">
       <DealHeader title={title} category={category} />
       
-      <p className="text-lg text-muted-foreground">
+      <p className="text-lg leading-relaxed text-muted-foreground">
         {description}
       </p>
       
-      <div className="rounded-lg bg-muted/5 p-6">
+      <div className="rounded-xl bg-gradient-to-br from-primary-50/50 to-primary-100/50 p-8 shadow-sm">
         <div className="space-y-6">
           <PriceDisplay 
             originalPrice={originalPrice} 
             discountedPrice={discountedPrice} 
+            className="pb-2"
           />
           
-          {salon && <SalonInfo salon={salon} />}
+          {salon && (
+            <div className="border-t border-primary-200/50 pt-6">
+              <SalonInfo salon={salon} />
+            </div>
+          )}
           
           <Button 
-            className="w-full bg-primary hover:bg-primary/90 text-white"
+            className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
             onClick={handlePurchase}
             disabled={quantityLeft <= 0 || isLoading}
             size="lg"
