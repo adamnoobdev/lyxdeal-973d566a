@@ -72,14 +72,14 @@ export const DealInfo = ({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <DealHeader title={title} category={category} />
       
       <p className="text-lg leading-relaxed text-muted-foreground">
         {description}
       </p>
       
-      <div className="rounded-xl bg-gradient-to-br from-primary-50/50 to-primary-100/50 p-8 shadow-sm">
+      <div className="rounded-xl bg-gradient-to-br from-primary-50/50 via-primary-100/30 to-primary-50/50 p-8 shadow-lg transition-all duration-300 hover:shadow-xl">
         <div className="space-y-6">
           <PriceDisplay 
             originalPrice={originalPrice} 
@@ -94,12 +94,12 @@ export const DealInfo = ({
           )}
           
           <Button 
-            className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] group"
             onClick={handlePurchase}
             disabled={quantityLeft <= 0 || isLoading}
             size="lg"
           >
-            <ShoppingBag className="mr-2 h-5 w-5" />
+            <ShoppingBag className="mr-2 h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
             {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
           </Button>
         </div>
