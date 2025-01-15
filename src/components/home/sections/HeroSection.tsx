@@ -14,10 +14,10 @@ export function HeroSection() {
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-            Skönhetsbehandlingar & Spa till Bästa Pris
+            Skönhetsbehandlingar till Bästa Pris
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Upp till 70% rabatt på Sveriges främsta salonger och spa
+            Upp till 70% rabatt på Sveriges främsta salonger
           </p>
         </div>
         
