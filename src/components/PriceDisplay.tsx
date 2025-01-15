@@ -1,5 +1,4 @@
 import { Tag } from "lucide-react";
-import { Badge } from "./ui/badge";
 
 interface PriceDisplayProps {
   originalPrice: number;
@@ -21,21 +20,18 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
   );
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`space-y-1.5 ${className}`}>
       <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-semibold text-foreground">
+        <span className="text-3xl font-bold text-gray-900">
           {formatPrice(discountedPrice)}
         </span>
-        <Badge 
-          variant="outline" 
-          className="text-sm bg-primary/5 text-primary border-primary/10 font-medium"
-        >
+        <span className="text-sm px-2 py-0.5 rounded-full bg-red-50 text-red-600 font-medium">
           -{discountPercentage}%
-        </Badge>
+        </span>
       </div>
-      <div className="flex items-center gap-2">
-        <Tag className="h-4 w-4 text-muted-500" />
-        <span className="text-sm line-through text-muted-500">
+      <div className="flex items-center gap-1.5 text-gray-500">
+        <Tag className="h-4 w-4" />
+        <span className="text-sm line-through">
           {formatPrice(originalPrice)}
         </span>
       </div>

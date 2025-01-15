@@ -4,9 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
 import { PriceDisplay } from "./PriceDisplay";
-import { DealHeader } from "./deal/DealHeader";
-import { SalonInfo } from "./deal/SalonInfo";
-import { DealMetadata } from "./deal/DealMetadata";
 
 interface DealInfoProps {
   id: number;
@@ -28,14 +25,10 @@ interface DealInfoProps {
 export const DealInfo = ({
   id,
   title,
-  description,
-  category,
   originalPrice,
   discountedPrice,
   timeRemaining,
-  city,
   quantityLeft,
-  salon,
 }: DealInfoProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -72,45 +65,47 @@ export const DealInfo = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <DealHeader title={title} category={category} />
-      
-      <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
-        <p className="text-base text-muted-foreground leading-relaxed">
-          {description}
-        </p>
+    <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
         
-        <div className="border-t border-muted-200 pt-6">
-          <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
             <PriceDisplay 
               originalPrice={originalPrice} 
               discountedPrice={discountedPrice}
+              className="text-lg"
             />
-            
-            <Button 
-              className="w-full bg-primary hover:bg-primary/90 text-white transition-colors duration-200 group"
-              onClick={handlePurchase}
-              disabled={quantityLeft <= 0 || isLoading}
-              size="lg"
-            >
-              <ShoppingBag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-              {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
-            </Button>
           </div>
         </div>
-      </div>
-      
-      {salon && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <SalonInfo salon={salon} />
+
+        <div className="pt-4 border-t border-gray-100">
+          <div className="space-y-3 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>{quantityLeft} köp kvar till detta pris</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-primary" />
+              <span>{timeRemaining} kvar av kampanjen</span>
+            </div>
+          </div>
         </div>
-      )}
-      
-      <DealMetadata 
-        city={city}
-        timeRemaining={timeRemaining}
-        quantityLeft={quantityLeft}
-      />
+        
+        <Button 
+          className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-200 group"
+          onClick={handlePurchase}
+          disabled={quantityLeft <= 0 || isLoading}
+          size="lg"
+        >
+          <ShoppingBag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+          {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
+        </Button>
+
+        <p className="text-xs text-center text-gray-500">
+          Säker betalning via Stripe
+        </p>
+      </div>
     </div>
   );
 };
