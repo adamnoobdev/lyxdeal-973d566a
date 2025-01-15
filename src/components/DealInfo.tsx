@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, CreditCard, Bitcoin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -102,9 +102,15 @@ export const DealInfo = ({
           {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
         </Button>
 
-        <p className="text-xs text-center text-gray-500">
-          Säker betalning via Stripe
-        </p>
+        <div className="space-y-2">
+          <p className="text-xs text-center text-gray-500">
+            Säker betalning via Stripe
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <CreditCard className="h-4 w-4 text-gray-400" />
+            <Bitcoin className="h-4 w-4 text-gray-400" />
+          </div>
+        </div>
       </div>
     </div>
   );
