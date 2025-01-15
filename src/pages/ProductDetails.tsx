@@ -42,16 +42,16 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-white to-primary-50/20">
+      <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div>
-              <div className="overflow-hidden rounded-lg">
+            <div className="space-y-6">
+              <div className="overflow-hidden rounded-xl shadow-lg bg-white p-2">
                 <ResponsiveImage
                   src={deal.imageUrl}
                   alt={deal.title}
-                  className="aspect-[4/3] w-full object-cover"
+                  className="aspect-[4/3] w-full object-cover rounded-lg transition-transform duration-300 hover:scale-105"
                 />
               </div>
             </div>
@@ -72,7 +72,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          <div className="mt-16">
+          <div className="mt-24">
             <RelatedDeals
               currentDealId={deal.id}
               category={deal.category}
