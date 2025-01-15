@@ -15,6 +15,10 @@ export default defineConfig(({ mode }) => ({
       credentials: true
     },
   },
+  preview: {
+    port: 8080,
+    host: true,
+  },
   plugins: [
     react(),
     mode === 'development' &&
