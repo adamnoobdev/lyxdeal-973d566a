@@ -67,8 +67,8 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
               className={`
                 group relative overflow-hidden min-w-[140px]
                 ${selectedCategory === category 
-                  ? "bg-primary shadow-lg hover:bg-primary/90" 
-                  : "hover:bg-accent/10 border-primary/10"}
+                  ? "bg-primary hover:bg-primary/90 shadow-lg ring-2 ring-primary/50" 
+                  : "hover:bg-primary/30 border-primary/30 hover:border-primary/50"}
                 h-10 px-4 transition-all duration-300
                 hover:shadow-md active:scale-95
               `}
@@ -78,7 +78,7 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
                 <span className="font-medium">{category}</span>
               </span>
               {selectedCategory === category && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-gradient" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-gradient" />
               )}
             </Button>
           ))}
