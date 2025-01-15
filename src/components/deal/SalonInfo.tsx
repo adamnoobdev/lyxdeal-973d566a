@@ -10,23 +10,26 @@ interface SalonInfoProps {
 
 export const SalonInfo = ({ salon }: SalonInfoProps) => {
   return (
-    <div className="border-t pt-4">
-      <div className="flex items-center text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <Store className="h-4 w-4 text-muted-foreground/70" />
-          <span>{salon.name}</span>
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="rounded-full bg-primary/5 p-2">
+          <Store className="h-5 w-5 text-primary" />
         </div>
+        <h3 className="text-base font-medium text-foreground">
+          {salon.name}
+        </h3>
       </div>
-      <div className="mt-2 space-y-1">
+      
+      <div className="space-y-2 text-sm text-muted-foreground">
         {salon.address && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
-            <MapPin className="h-3 w-3" />
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
             <span>{salon.address}</span>
           </div>
         )}
         {salon.phone && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
-            <Phone className="h-3 w-3" />
+          <div className="flex items-center gap-2">
+            <Phone className="h-4 w-4" />
             <span>{salon.phone}</span>
           </div>
         )}

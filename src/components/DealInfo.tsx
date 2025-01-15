@@ -72,38 +72,39 @@ export const DealInfo = ({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       <DealHeader title={title} category={category} />
       
-      <p className="text-lg leading-relaxed text-muted-foreground">
-        {description}
-      </p>
-      
-      <div className="rounded-xl bg-gradient-to-br from-primary-50/50 via-primary-100/30 to-primary-50/50 p-8 shadow-lg transition-all duration-300 hover:shadow-xl">
-        <div className="space-y-6">
-          <PriceDisplay 
-            originalPrice={originalPrice} 
-            discountedPrice={discountedPrice} 
-            className="pb-2"
-          />
-          
-          {salon && (
-            <div className="border-t border-primary-200/50 pt-6">
-              <SalonInfo salon={salon} />
-            </div>
-          )}
-          
-          <Button 
-            className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] group"
-            onClick={handlePurchase}
-            disabled={quantityLeft <= 0 || isLoading}
-            size="lg"
-          >
-            <ShoppingBag className="mr-2 h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-            {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
-          </Button>
+      <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+        <p className="text-base text-muted-foreground leading-relaxed">
+          {description}
+        </p>
+        
+        <div className="border-t border-muted-200 pt-6">
+          <div className="space-y-4">
+            <PriceDisplay 
+              originalPrice={originalPrice} 
+              discountedPrice={discountedPrice}
+            />
+            
+            <Button 
+              className="w-full bg-primary hover:bg-primary/90 text-white transition-colors duration-200 group"
+              onClick={handlePurchase}
+              disabled={quantityLeft <= 0 || isLoading}
+              size="lg"
+            >
+              <ShoppingBag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+              {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
+            </Button>
+          </div>
         </div>
       </div>
+      
+      {salon && (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <SalonInfo salon={salon} />
+        </div>
+      )}
       
       <DealMetadata 
         city={city}
