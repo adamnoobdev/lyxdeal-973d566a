@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CITIES } from "@/constants/app-constants";
+import { MapPin } from "lucide-react";
 
 interface CitiesProps {
   selectedCity: string;
@@ -29,21 +30,30 @@ const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
   };
 
   return (
-    <div className="relative mb-6 -mx-4 md:mx-0">
+    <div className="relative -mx-4 md:mx-0">
       <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex w-full gap-3 px-4 pb-2 justify-start md:justify-center">
+        <div className="flex w-full gap-3 px-4 pb-4 justify-start md:justify-center">
           {CITIES.map((city) => (
             <Button
               key={city}
               variant={selectedCity === city ? "default" : "outline"}
               onClick={() => handleCityClick(city)}
               className={`
-                ${selectedCity === city ? "bg-primary shadow-md" : "hover:bg-accent"}
-                flex-shrink-0 text-xs py-1.5 px-4 h-8 transition-all duration-300
+                group relative overflow-hidden
+                ${selectedCity === city 
+                  ? "bg-primary shadow-lg hover:bg-primary/90" 
+                  : "hover:bg-accent/10 border-primary/10"}
+                flex-shrink-0 h-10 px-4 transition-all duration-300
                 hover:shadow-md active:scale-95
               `}
             >
-              {city}
+              <span className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                <span className="font-medium">{city}</span>
+              </span>
+              {selectedCity === city && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-gradient" />
+              )}
             </Button>
           ))}
         </div>
