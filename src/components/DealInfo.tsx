@@ -72,44 +72,46 @@ export const DealInfo = ({
   };
 
   return (
-    <div className="space-y-8 bg-white rounded-xl p-6 shadow-sm">
-      <DealHeader title={title} category={category} />
-      
-      <p className="text-lg leading-relaxed text-muted-foreground">
-        {description}
-      </p>
-      
-      <div className="rounded-xl bg-gradient-to-br from-primary-50 via-primary-50/50 to-primary-100/50 p-6 shadow-sm border border-primary-100/20">
-        <div className="space-y-6">
-          <PriceDisplay 
-            originalPrice={originalPrice} 
-            discountedPrice={discountedPrice} 
-            className="pb-2"
-          />
-          
-          {salon && (
-            <div className="border-t border-primary-200/50 pt-6">
-              <SalonInfo salon={salon} />
-            </div>
-          )}
-          
-          <Button 
-            className="w-full bg-primary hover:bg-primary-600 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] py-6 text-lg font-medium"
-            onClick={handlePurchase}
-            disabled={quantityLeft <= 0 || isLoading}
-            size="lg"
-          >
-            <ShoppingBag className="mr-3 h-6 w-6" />
-            {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
-          </Button>
+    <div className="space-y-8">
+      <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+        <DealHeader title={title} category={category} />
+        
+        <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+        
+        <div className="mt-8 rounded-xl bg-gradient-to-br from-primary-50 via-primary-50/50 to-primary-100/50 p-6 lg:p-8 shadow-sm border border-primary-100/20">
+          <div className="space-y-6">
+            <PriceDisplay 
+              originalPrice={originalPrice} 
+              discountedPrice={discountedPrice} 
+              className="pb-2"
+            />
+            
+            {salon && (
+              <div className="border-t border-primary-200/50 pt-6">
+                <SalonInfo salon={salon} />
+              </div>
+            )}
+            
+            <Button 
+              className="w-full bg-primary hover:bg-primary-600 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] py-6 text-lg font-medium"
+              onClick={handlePurchase}
+              disabled={quantityLeft <= 0 || isLoading}
+              size="lg"
+            >
+              <ShoppingBag className="mr-3 h-6 w-6" />
+              {isLoading ? 'Bearbetar...' : quantityLeft > 0 ? 'Köp Nu' : 'Slutsåld'}
+            </Button>
+          </div>
         </div>
+        
+        <DealMetadata 
+          city={city}
+          timeRemaining={timeRemaining}
+          quantityLeft={quantityLeft}
+        />
       </div>
-      
-      <DealMetadata 
-        city={city}
-        timeRemaining={timeRemaining}
-        quantityLeft={quantityLeft}
-      />
     </div>
   );
 };

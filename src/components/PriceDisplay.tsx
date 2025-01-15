@@ -31,7 +31,7 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
             </span>
           </div>
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-primary tracking-tight">
+            <span className="text-4xl font-bold text-primary tracking-tight">
               {formatPrice(discountedPrice)}
             </span>
             <Badge 
