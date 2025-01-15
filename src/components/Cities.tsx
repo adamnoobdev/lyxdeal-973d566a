@@ -39,11 +39,11 @@ const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
               variant={selectedCity === city ? "default" : "outline"}
               onClick={() => handleCityClick(city)}
               className={`
-                group relative overflow-hidden
+                group relative overflow-hidden min-w-[140px]
                 ${selectedCity === city 
                   ? "bg-primary shadow-lg hover:bg-primary/90" 
                   : "hover:bg-accent/10 border-primary/10"}
-                flex-shrink-0 h-10 px-4 transition-all duration-300
+                h-10 px-4 transition-all duration-300
                 hover:shadow-md active:scale-95
               `}
             >

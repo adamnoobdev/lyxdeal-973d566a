@@ -9,7 +9,7 @@ import {
   Syringe, 
   Repeat2, 
   Scissors, 
-  Nail, 
+  Palmtree, 
   Heart 
 } from "lucide-react";
 
@@ -25,7 +25,7 @@ const getCategoryIcon = (category: string) => {
     case 'rynkbehandlingar': return <Repeat2 className="w-4 h-4" />;
     case 'hudvård': return <Sparkles className="w-4 h-4" />;
     case 'hårvård': return <Scissors className="w-4 h-4" />;
-    case 'naglar': return <Nail className="w-4 h-4" />;
+    case 'naglar': return <Palmtree className="w-4 h-4" />;
     case 'massage': return <Heart className="w-4 h-4" />;
     default: return <Sparkles className="w-4 h-4" />;
   }
@@ -65,11 +65,11 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
               variant={selectedCategory === category ? "default" : "outline"}
               onClick={() => handleCategoryClick(category)}
               className={`
-                group relative overflow-hidden
+                group relative overflow-hidden min-w-[140px]
                 ${selectedCategory === category 
                   ? "bg-primary shadow-lg hover:bg-primary/90" 
                   : "hover:bg-accent/10 border-primary/10"}
-                flex-shrink-0 h-10 px-4 transition-all duration-300
+                h-10 px-4 transition-all duration-300
                 hover:shadow-md active:scale-95
               `}
             >
