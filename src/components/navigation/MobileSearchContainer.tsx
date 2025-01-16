@@ -14,8 +14,8 @@ export const MobileSearchContainer = ({
   onSearch
 }: MobileSearchContainerProps) => (
   <div 
-    className={`md:hidden overflow-hidden transition-[height] duration-300 ease-in-out ${
-      showMobileSearch ? 'h-14' : 'h-0'
+    className={`md:hidden overflow-hidden transition-[height,opacity] duration-300 ease-in-out border-b ${
+      showMobileSearch ? 'h-16 opacity-100' : 'h-0 opacity-0'
     }`}
   >
     <MobileSearchBar

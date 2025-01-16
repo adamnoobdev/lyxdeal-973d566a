@@ -14,7 +14,7 @@ export const MobileSearchBar = ({
   showMobileSearch,
 }: MobileSearchBarProps) => {
   return (
-    <div className="px-4 py-2">
+    <div className="px-4 py-3">
       <SearchBar
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
