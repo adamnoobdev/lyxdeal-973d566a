@@ -4,6 +4,7 @@ import { CATEGORIES } from "@/constants/app-constants";
 
 export function HeroSection() {
   const navigate = useNavigate();
+  const HERO_IMAGE_URL = "https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/hero-background.jpg";
 
   const handleCategorySelect = (category: string) => {
     navigate(`/search?category=${encodeURIComponent(category)}`);
@@ -12,9 +13,9 @@ export function HeroSection() {
   return (
     <section className="relative min-h-[500px] flex items-center justify-center px-4 bg-gradient-to-br from-background via-muted/50 to-background border-b border-muted-200">
       <div 
-        className="absolute inset-0 bg-[url('/hero-background.jpg')] bg-cover bg-center opacity-20"
+        className="absolute inset-0 bg-cover bg-center opacity-20"
         style={{ 
-          backgroundImage: "url('/hero-background.jpg')",
+          backgroundImage: `url('${HERO_IMAGE_URL}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
