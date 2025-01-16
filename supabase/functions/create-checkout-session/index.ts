@@ -122,7 +122,6 @@ serve(async (req) => {
       success_url: `${req.headers.get('origin')}/success?deal_id=${dealId}`,
       cancel_url: `${req.headers.get('origin')}/product/${dealId}`,
       client_reference_id: dealId.toString(),
-      // Anpassa utseendet på checkout-sidan
       custom_text: {
         submit: {
           message: 'Vi kommer skicka din rabattkod via email efter betalningen är genomförd.',
@@ -142,7 +141,6 @@ serve(async (req) => {
       payment_intent_data: {
         description: deal.title,
       },
-      // Anpassa färger och tema
       appearance: {
         theme: 'stripe',
         variables: {
@@ -157,9 +155,10 @@ serve(async (req) => {
       },
     });
 
-    if (!session.url) {
+    if (!session?.url) {
+      console.error('Failed to create checkout session URL');
       return new Response(
-        JSON.stringify({ error: 'Failed to create checkout session URL' }),
+        JSON.stringify({ error: 'Failed to create checkout session' }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 500
@@ -172,7 +171,7 @@ serve(async (req) => {
       JSON.stringify({ url: session.url }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
+        status: 200
       }
     );
 
@@ -184,7 +183,7 @@ serve(async (req) => {
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
+        status: 500
       }
     );
   }
