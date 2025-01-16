@@ -13,30 +13,30 @@ export function DealsSection({ selectedCategory, selectedCity }: DealsSectionPro
   const { data: deals, isLoading, error } = useDeals(selectedCategory, selectedCity);
 
   return (
-    <div className="space-y-12">
-      <section className="space-y-6">
-        <div className="flex items-center gap-2">
+    <div className="space-y-8 md:space-y-12">
+      <section className="space-y-4 md:space-y-6">
+        <div className="flex items-center gap-2 px-4 md:px-0">
           <Star className="h-5 w-5 text-primary" />
-          <h2 className="text-2xl font-semibold">Utvalda erbjudanden</h2>
+          <h2 className="text-xl md:text-2xl font-semibold">Utvalda erbjudanden</h2>
         </div>
         <FeaturedDeals />
       </section>
 
-      <section className="space-y-6">
-        <div className="flex items-center gap-2">
+      <section className="space-y-4 md:space-y-6">
+        <div className="flex items-center gap-2 px-4 md:px-0">
           <Sparkles className="h-5 w-5 text-primary" />
-          <h2 className="text-2xl font-semibold">Alla erbjudanden</h2>
+          <h2 className="text-xl md:text-2xl font-semibold">Alla erbjudanden</h2>
         </div>
         
         {error ? (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="mx-4 md:mx-0">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Det gick inte att hämta erbjudanden. Försök igen senare.
             </AlertDescription>
           </Alert>
         ) : isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 md:px-0">
             {[...Array(6)].map((_, i) => (
               <div 
                 key={i} 
@@ -45,7 +45,9 @@ export function DealsSection({ selectedCategory, selectedCity }: DealsSectionPro
             ))}
           </div>
         ) : deals && deals.length > 0 ? (
-          <DealsGrid deals={deals} />
+          <div className="px-4 md:px-0">
+            <DealsGrid deals={deals} />
+          </div>
         ) : (
           <div className="text-center py-8">
             <p className="text-muted-foreground">

@@ -26,19 +26,19 @@ export const RegularDealContent = ({
 }: RegularDealContentProps) => {
   return (
     <div className="flex h-full flex-col gap-3 p-4">
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-2 flex-wrap">
         <CategoryBadge 
           category={category}
           variant="outline"
           className="text-xs border-muted-200 text-muted-500"
         />
-        <div className="flex items-center gap-1 text-xs text-muted-500">
-          <Clock className="h-3 w-3" />
+        <div className="flex items-center gap-1 text-xs text-muted-500 whitespace-nowrap">
+          <Clock className="h-3 w-3 flex-shrink-0" />
           {timeRemaining}
         </div>
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 flex-grow">
         <h3 className="text-base font-medium leading-tight text-foreground group-hover:text-primary/90 transition-colors line-clamp-2">
           {title}
         </h3>
@@ -48,13 +48,13 @@ export const RegularDealContent = ({
       </div>
 
       <div className="mt-auto space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-1 text-xs text-muted-500">
-            <MapPin className="h-3 w-3" />
+            <MapPin className="h-3 w-3 flex-shrink-0" />
             {city}
           </div>
           {quantityLeft <= 5 && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/5 text-destructive-600">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/5 text-destructive-600 whitespace-nowrap">
               {quantityLeft} kvar
             </span>
           )}
@@ -71,11 +71,11 @@ export const RegularDealContent = ({
             variant="outline"
             size="sm"
           >
-            <ShoppingBag className="mr-1.5 h-3 w-3" />
+            <ShoppingBag className="mr-1.5 h-3 w-3 flex-shrink-0" />
             Köp nu
           </Button>
         </div>
       </div>
     </div>
   );
-};
+}
