@@ -83,7 +83,7 @@
   }
 
   nav [data-radix-popper-content-wrapper] {
-    @apply z-[100] !important;
+    @apply !z-[9999] !important;
   }
 }
 
