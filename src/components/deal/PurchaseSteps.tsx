@@ -17,8 +17,8 @@ export const PurchaseSteps = () => {
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
             <Mail className="h-6 w-6 text-primary" />
           </div>
-          <h3 className="font-medium text-gray-900">2. Få din rabattkod</h3>
-          <p className="text-sm text-gray-600">Din unika rabattkod skickas direkt till din e-post</p>
+          <h3 className="font-medium text-gray-900">2. Få din presentkortskod</h3>
+          <p className="text-sm text-gray-600">Din unika inlösningskod skickas direkt till din e-post</p>
         </div>
 
         <div className="flex flex-col items-center text-center space-y-3">
