@@ -25,38 +25,15 @@
   filter: drop-shadow(0 0 1em rgba(232, 124, 232, 0.4));
 }
 
-.logo.react:hover {
-  filter: drop-shadow(0 0 1em rgba(232, 124, 232, 0.4));
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 30s linear;
-  }
-}
-
 .card {
   padding: 2em;
-  transition: all 0.2s ease-out;
+  transition: transform 200ms ease-out;
   will-change: transform;
   transform: translateZ(0);
 }
 
 .card:hover {
   transform: translateY(-1px) translateZ(0);
-}
-
-.read-the-docs {
-  color: #888;
 }
 
 * {
@@ -103,16 +80,5 @@
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
-  }
-}
-
-@media (hover: none) {
-  .card:hover {
-    transform: none;
-  }
-  
-  .group:active .group-hover\:scale-105,
-  .group .group-hover\:scale-105 {
-    transform: scale(1.02);
   }
 }

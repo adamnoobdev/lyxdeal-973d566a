@@ -1,4 +1,5 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,7 +16,7 @@ const cities = [
   "Malmö",
   "Uppsala",
   "Linköping"
-];
+] as const;
 
 interface CitySelectorProps {
   currentCity: string;
@@ -23,7 +24,7 @@ interface CitySelectorProps {
   variant?: "desktop" | "mobile";
 }
 
-export const CitySelector = ({ 
+const CitySelectorComponent = ({ 
   currentCity, 
   onCitySelect,
   variant = "desktop" 
@@ -33,8 +34,6 @@ export const CitySelector = ({
 
   const handleCitySelect = (city: string) => {
     onCitySelect(city);
-    const category = searchParams.get('category');
-    
     const newParams = new URLSearchParams(searchParams);
     if (city !== "Alla Städer") {
       newParams.set('city', city);
@@ -92,3 +91,5 @@ export const CitySelector = ({
     </DropdownMenu>
   );
 };
+
+export const CitySelector = memo(CitySelectorComponent);
