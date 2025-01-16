@@ -42,11 +42,6 @@ export const Footer = () => {
                   Villkor
                 </Link>
               </li>
-              <li>
-                <Link to="/privacy" className="text-gray-600 hover:text-gray-900">
-                  Integritetspolicy
-                </Link>
-              </li>
             </ul>
           </div>
           
