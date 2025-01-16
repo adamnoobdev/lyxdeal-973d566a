@@ -141,18 +141,6 @@ serve(async (req) => {
       payment_intent_data: {
         description: deal.title,
       },
-      appearance: {
-        theme: 'stripe',
-        variables: {
-          colorPrimary: '#520053',
-          colorBackground: '#ffffff',
-          colorText: '#520053',
-          colorDanger: '#EF4444',
-          fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
-          borderRadius: '12px',
-          spacingUnit: '4px',
-        },
-      },
     });
 
     if (!session?.url) {
