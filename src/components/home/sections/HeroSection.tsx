@@ -13,7 +13,7 @@ export function HeroSection() {
   return (
     <section className="relative min-h-[600px] flex items-center justify-center px-4 overflow-hidden">
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-30 transition-opacity duration-700"
+        className="absolute inset-0 bg-cover bg-center opacity-70 transition-opacity duration-700"
         style={{ 
           backgroundImage: `url('${HERO_IMAGE_URL}')`,
           backgroundSize: 'cover',
@@ -23,7 +23,7 @@ export function HeroSection() {
       <div 
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(102.3deg, rgba(147,39,143,0.9) 5.9%, rgba(234,172,232,0.8) 64%, rgba(246,219,245,0.7) 89%)',
+          background: 'linear-gradient(102.3deg, rgba(147,39,143,0.4) 5.9%, rgba(234,172,232,0.3) 64%, rgba(246,219,245,0.2) 89%)',
         }}
       />
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-10 py-20">
