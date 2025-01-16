@@ -35,7 +35,7 @@ export function CategoryBadge({
   return (
     <Badge 
       variant={variant} 
-      className={`inline-flex items-center gap-1 w-auto text-xs md:text-sm px-2 py-0.5 md:px-2.5 md:py-1 ${
+      className={`inline-flex items-center gap-1 w-auto text-xs px-2 py-0.5 ${
         category === "NYTT" 
           ? "bg-amber-100 hover:bg-amber-200 text-black border-transparent" 
           : variant === "default" 
