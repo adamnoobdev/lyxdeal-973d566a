@@ -47,11 +47,6 @@ export const Footer = () => {
                   Integritetspolicy
                 </Link>
               </li>
-              <li>
-                <Link to="/returns" className="text-gray-600 hover:text-gray-900">
-                  Returpolicy (14 dagars ångerrätt)
-                </Link>
-              </li>
             </ul>
           </div>
           
