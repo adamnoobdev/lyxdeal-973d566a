@@ -134,7 +134,7 @@ serve(async (req) => {
             type: 'custom',
             custom: 'Jag godkänner att ta emot erbjudanden via email',
           },
-          type: 'checkbox',
+          type: 'text',
           optional: true,
         },
       ],
