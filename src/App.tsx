@@ -9,6 +9,7 @@ import Auth from "@/pages/Auth";
 import Admin from "@/pages/Admin";
 import SalonDashboard from "@/pages/SalonDashboard";
 import FAQ from "@/pages/FAQ";
+import Terms from "@/pages/Terms";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/salon/dashboard" element={<SalonDashboard />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
           </Routes>
         </main>
         <Footer />
