@@ -24,10 +24,7 @@ export function HeroSection() {
         className="absolute inset-0 bg-black/20"
       />
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 md:space-y-8 py-12 md:py-16">
-        <div 
-          className="space-y-4 animate-fade-up"
-          style={{ animationDelay: '0.2s' }}
-        >
+        <div className="space-y-4">
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white leading-tight drop-shadow-lg px-4">
             Skönhetsbehandlingar till Bästa Pris
           </h1>
@@ -36,17 +33,13 @@ export function HeroSection() {
           </p>
         </div>
         
-        <div 
-          className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto px-4 animate-fade-up"
-          style={{ animationDelay: '0.4s' }}
-        >
-          {CATEGORIES.filter(cat => cat !== "Alla Erbjudanden").map((category, index) => (
+        <div className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto px-4">
+          {CATEGORIES.filter(cat => cat !== "Alla Erbjudanden").map((category) => (
             <CategoryBadge 
               key={category}
               category={category}
               variant="outline"
-              className="cursor-pointer bg-white/90 hover:bg-white text-primary hover:text-primary-600 transition-all duration-300 transform hover:scale-105 shadow-lg animate-fade-up text-sm md:text-base"
-              style={{ animationDelay: `${0.5 + index * 0.1}s` }}
+              className="cursor-pointer bg-white/90 hover:bg-white text-primary hover:text-primary-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm md:text-base"
               onClick={() => handleCategorySelect(category)}
             />
           ))}
