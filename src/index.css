@@ -85,6 +85,12 @@
   nav [data-radix-popper-content-wrapper] {
     @apply !z-[9999] !important;
   }
+
+  /* Lägg till bakgrundsfärg för dropdown-menyer */
+  [data-radix-popper-content-wrapper] [role="menu"],
+  [data-radix-popper-content-wrapper] [role="dialog"] {
+    @apply bg-background border shadow-lg backdrop-blur-sm supports-[backdrop-filter]:bg-background/95;
+  }
 }
 
 @layer utilities {
