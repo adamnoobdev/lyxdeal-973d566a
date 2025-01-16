@@ -132,7 +132,7 @@ serve(async (req) => {
           key: 'marketing_consent',
           label: {
             type: 'custom',
-            custom: 'Jag godkänner att ta emot erbjudanden via email (Ja/Nej)',
+            custom: 'Jag godkänner att ta emot erbjudanden via email',
           },
           type: 'text',
           optional: true,
