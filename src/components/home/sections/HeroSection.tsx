@@ -11,7 +11,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[600px] flex items-center justify-center px-4 overflow-hidden">
+    <section className="relative min-h-[500px] flex items-center justify-center px-4 overflow-hidden">
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-90 transition-opacity duration-700"
         style={{ 
@@ -23,9 +23,9 @@ export function HeroSection() {
       <div 
         className="absolute inset-0 bg-black/20"
       />
-      <div className="relative z-10 max-w-4xl mx-auto text-center space-y-10 py-20">
+      <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8 py-16">
         <div 
-          className="space-y-6 animate-fade-up"
+          className="space-y-4 animate-fade-up"
           style={{ animationDelay: '0.2s' }}
         >
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight drop-shadow-lg">
@@ -37,7 +37,7 @@ export function HeroSection() {
         </div>
         
         <div 
-          className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto animate-fade-up"
+          className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto animate-fade-up"
           style={{ animationDelay: '0.4s' }}
         >
           {CATEGORIES.filter(cat => cat !== "Alla Erbjudanden").map((category, index) => (
