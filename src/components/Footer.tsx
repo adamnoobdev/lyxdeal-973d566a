@@ -39,7 +39,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link to="/terms" className="text-gray-600 hover:text-gray-900">
-                  Villkor
+                  Allmänna villkor
                 </Link>
               </li>
             </ul>
