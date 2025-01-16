@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Separator } from "./ui/separator";
-import { Building2, Mail, Phone, MapPin } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, Globe } from "lucide-react";
 
 export const Footer = () => {
   return (
@@ -68,27 +68,30 @@ export const Footer = () => {
 
           <div className="text-center sm:text-left">
             <h3 className="font-semibold text-lg mb-4">Företagsinformation</h3>
-            <ul className="space-y-3 text-sm text-gray-600">
-              <li className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-gray-400 shrink-0" />
+            <ul className="space-y-4 text-sm text-gray-600">
+              <li className="flex items-start gap-3">
+                <Building2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p>Larlid & Co AB</p>
-                  <p>Org.nr: 5593608051</p>
+                  <p className="font-medium">Larlid & Co AB</p>
+                  <p className="text-gray-500">Org.nr: 559360-8051</p>
                 </div>
               </li>
-              <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-400 shrink-0" />
-                <p>Västra Granittrappan 10<br />131 57 Nacka</p>
+              <li className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p>Västra Granittrappan 10</p>
+                  <p>131 57 Nacka</p>
+                </div>
               </li>
-              <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-gray-400 shrink-0" />
-                <a href="mailto:info@larlid.com" className="hover:text-gray-900">
+              <li className="flex items-center gap-3">
+                <Mail className="h-5 w-5 text-primary shrink-0" />
+                <a href="mailto:info@larlid.com" className="hover:text-primary transition-colors">
                   info@larlid.com
                 </a>
               </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-gray-400 shrink-0" />
-                <a href="tel:+46101774400" className="hover:text-gray-900">
+              <li className="flex items-center gap-3">
+                <Phone className="h-5 w-5 text-primary shrink-0" />
+                <a href="tel:+46101774400" className="hover:text-primary transition-colors">
                   010-177 44 00
                 </a>
               </li>
