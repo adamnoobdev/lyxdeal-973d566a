@@ -26,7 +26,7 @@ export const PurchaseSteps = () => {
             <Tag className="h-6 w-6 text-primary" />
           </div>
           <h3 className="font-medium text-gray-900">3. Använd din kod</h3>
-          <p className="text-sm text-gray-600">Visa upp koden hos salongen för att lösa in ditt erbjudande</p>
+          <p className="text-sm text-gray-600">Nyttja din behandling direkt på salongens bokadirekt-sida</p>
         </div>
       </div>
     </div>
