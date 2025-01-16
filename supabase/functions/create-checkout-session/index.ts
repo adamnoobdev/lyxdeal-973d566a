@@ -8,13 +8,11 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Parse request body
     const { dealId } = await req.json();
     console.log('Processing checkout for deal:', dealId);
 
@@ -29,7 +27,6 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY');
     
@@ -46,7 +43,6 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-    // Get deal information
     const { data: deal, error: dealError } = await supabaseAdmin
       .from('deals')
       .select('*')
@@ -97,7 +93,6 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Stripe
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
     if (!stripeKey) {
       console.error('Missing Stripe configuration');
@@ -127,6 +122,39 @@ serve(async (req) => {
       success_url: `${req.headers.get('origin')}/success?deal_id=${dealId}`,
       cancel_url: `${req.headers.get('origin')}/product/${dealId}`,
       client_reference_id: dealId.toString(),
+      // Anpassa utseendet på checkout-sidan
+      custom_text: {
+        submit: {
+          message: 'Vi kommer skicka din rabattkod via email efter betalningen är genomförd.',
+        },
+      },
+      custom_fields: [
+        {
+          key: 'consent',
+          label: {
+            type: 'custom',
+            custom: 'Jag godkänner att ta emot erbjudanden via email',
+          },
+          type: 'checkbox',
+          optional: true,
+        },
+      ],
+      payment_intent_data: {
+        description: deal.title,
+      },
+      // Anpassa färger och tema
+      appearance: {
+        theme: 'stripe',
+        variables: {
+          colorPrimary: '#520053',
+          colorBackground: '#ffffff',
+          colorText: '#520053',
+          colorDanger: '#EF4444',
+          fontFamily: 'Plus Jakarta Sans, system-ui, sans-serif',
+          borderRadius: '12px',
+          spacingUnit: '4px',
+        },
+      },
     });
 
     if (!session.url) {
