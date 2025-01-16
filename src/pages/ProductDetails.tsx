@@ -6,6 +6,7 @@ import { RelatedDeals } from "@/components/deal/RelatedDeals";
 import { useEffect } from "react";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
 import { DealInfo } from "@/components/DealInfo";
+import { PurchaseSteps } from "@/components/deal/PurchaseSteps";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -55,6 +56,8 @@ const ProductDetails = () => {
                   className="w-full aspect-[4/3] object-cover"
                 />
               </div>
+              
+              <PurchaseSteps />
               
               <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
                 <h2 className="text-xl font-semibold">Det här ingår</h2>
