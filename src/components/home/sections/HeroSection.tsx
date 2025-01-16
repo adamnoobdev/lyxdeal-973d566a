@@ -12,8 +12,12 @@ export function HeroSection() {
   return (
     <section className="relative min-h-[500px] flex items-center justify-center px-4 bg-gradient-to-br from-background via-muted/50 to-background border-b border-muted-200">
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-10"
-        style={{ backgroundImage: 'url("/hero-background.jpg")' }}
+        className="absolute inset-0 bg-[url('/hero-background.jpg')] bg-cover bg-center opacity-20"
+        style={{ 
+          backgroundImage: "url('/hero-background.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
       />
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-4">
