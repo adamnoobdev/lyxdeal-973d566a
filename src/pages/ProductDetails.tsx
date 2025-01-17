@@ -56,7 +56,7 @@ const ProductDetails = () => {
                   className="w-full aspect-[4/3] object-cover"
                 />
               </div>
-              
+
               <PurchaseSteps />
               
               <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
