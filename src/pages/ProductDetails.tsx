@@ -57,8 +57,6 @@ const ProductDetails = () => {
                 />
               </div>
 
-              <PurchaseSteps />
-              
               <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
                 <h2 className="text-xl font-semibold">Det här ingår</h2>
                 <ul className="space-y-3">
@@ -70,6 +68,8 @@ const ProductDetails = () => {
                   ))}
                 </ul>
               </div>
+
+              <PurchaseSteps />
 
               {deal.salon && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
