@@ -23,7 +23,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 299 100% 16%;
-    --radius: 0.75rem;
+    --radius: 0;
   }
 
   .dark {
@@ -46,6 +46,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 300 100% 85%;
+    --radius: 0;
   }
 
   * {
@@ -86,7 +87,6 @@
     @apply !z-[9999] !important;
   }
 
-  /* Lägg till bakgrundsfärg för dropdown-menyer */
   [data-radix-popper-content-wrapper] [role="menu"],
   [data-radix-popper-content-wrapper] [role="dialog"] {
     @apply bg-background border shadow-lg backdrop-blur-sm supports-[backdrop-filter]:bg-background/95;
