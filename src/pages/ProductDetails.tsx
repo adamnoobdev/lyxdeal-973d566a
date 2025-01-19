@@ -13,8 +13,9 @@ const ProductDetails = () => {
   const { data: deal, isLoading, isError } = useDeal(id);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    // Scroll to top when component mounts or id changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [id]); // Added id as dependency to ensure scroll on navigation between products
 
   if (isError) {
     return (
