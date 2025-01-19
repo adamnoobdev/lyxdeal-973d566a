@@ -12,7 +12,7 @@ export function HeroSection() {
 
   return (
     <div className="container mx-auto">
-      <section className="relative min-h-[400px] md:min-h-[500px] flex items-center justify-center rounded-2xl overflow-hidden my-6">
+      <section className="relative min-h-[400px] md:min-h-[500px] flex items-center justify-center overflow-hidden my-6">
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-90 transition-opacity duration-700"
           style={{ 
