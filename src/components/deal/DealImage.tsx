@@ -11,7 +11,7 @@ interface DealImageProps {
 export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
   return (
     <div className="relative overflow-hidden">
-      <div className="aspect-[3/2] overflow-hidden bg-muted-50">
+      <div className="aspect-[4/3] overflow-hidden bg-muted-50">
         <ResponsiveImage
           src={imageUrl}
           alt={title}
@@ -19,9 +19,9 @@ export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
         />
       </div>
       {isNew && (
-        <div className="absolute left-2 top-2">
-          <CategoryBadge category="NYTT" className="bg-white/90 text-primary-600 text-xs">
-            <Star className="mr-1 h-3 w-3" />
+        <div className="absolute left-1.5 top-1.5">
+          <CategoryBadge category="NYTT" className="bg-white/90 text-primary-600 text-[10px]">
+            <Star className="mr-0.5 h-2.5 w-2.5" />
             Ny
           </CategoryBadge>
         </div>
