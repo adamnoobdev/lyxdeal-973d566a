@@ -46,7 +46,7 @@ export const RegularDealContent = ({
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
           <div className="flex items-baseline gap-1">
-            <span className="text-xs font-semibold">
+            <span className="text-sm font-semibold">
               {discountedPrice} kr
             </span>
             <span className="text-[10px] line-through text-muted-foreground">
@@ -57,7 +57,7 @@ export const RegularDealContent = ({
             {city} • {quantityLeft} kvar
           </p>
         </div>
-        <span className="text-[10px] font-medium text-primary-600 bg-primary-50/50 px-1.5 py-0.5">
+        <span className="text-xs font-medium text-primary-600 bg-primary-50/50 px-2 py-1 rounded">
           -{discountPercentage}%
         </span>
       </div>
