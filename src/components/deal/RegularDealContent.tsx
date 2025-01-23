@@ -27,7 +27,7 @@ export const RegularDealContent = ({
   );
 
   return (
-    <div className="p-2 space-y-1.5">
+    <div className="p-2.5 space-y-2">
       <div className="flex items-start justify-between gap-1.5">
         <CategoryBadge category={category} className="text-[10px]" />
         <div className="flex items-center text-[10px] text-muted-foreground">
@@ -37,19 +37,19 @@ export const RegularDealContent = ({
       </div>
 
       <div>
-        <h3 className="font-medium text-xs line-clamp-2">{title}</h3>
-        <p className="text-[10px] text-muted-foreground line-clamp-2 mt-0.5">
+        <h3 className="font-medium text-sm leading-snug line-clamp-2 mb-1">{title}</h3>
+        <p className="text-[11px] text-muted-foreground line-clamp-2">
           {description}
         </p>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pt-0.5">
         <div className="space-y-0.5">
-          <div className="flex items-baseline gap-1">
-            <span className="text-sm font-semibold">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-base font-semibold">
               {discountedPrice} kr
             </span>
-            <span className="text-[10px] line-through text-muted-foreground">
+            <span className="text-xs line-through text-muted-foreground">
               {originalPrice} kr
             </span>
           </div>
@@ -57,7 +57,7 @@ export const RegularDealContent = ({
             {city} • {quantityLeft} kvar
           </p>
         </div>
-        <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-1 rounded shadow-sm">
+        <span className="text-xs font-medium text-white bg-[#ea384c] px-2.5 py-1 rounded-full shadow-sm">
           -{discountPercentage}%
         </span>
       </div>
