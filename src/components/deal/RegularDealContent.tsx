@@ -57,7 +57,7 @@ export const RegularDealContent = ({
             {city} • {quantityLeft} kvar
           </p>
         </div>
-        <span className="text-xs font-medium text-primary-600 bg-primary-50/50 px-2 py-1 rounded">
+        <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-1 rounded shadow-sm">
           -{discountPercentage}%
         </span>
       </div>
