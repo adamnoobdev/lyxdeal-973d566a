@@ -19,7 +19,7 @@ export interface Deal {
   salons?: {
     name: string;
   };
-  is_free?: boolean;
+  is_free: boolean;
 }
 
 export type DealFormData = {
@@ -33,6 +33,6 @@ export type DealFormData = {
   timeRemaining: string;
   featured: boolean;
   salon_id?: number;
-  is_free?: boolean;
+  is_free: boolean;
   quantity?: string;
 }

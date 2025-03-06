@@ -48,7 +48,8 @@ export function SalonDeals() {
       // Type assertion to ensure status is of the correct type
       const typedDeals = (data || []).map(deal => ({
         ...deal,
-        status: deal.status as 'pending' | 'approved' | 'rejected'
+        status: deal.status as 'pending' | 'approved' | 'rejected',
+        is_free: deal.is_free || false
       }));
 
       setDeals(typedDeals);
@@ -98,6 +99,7 @@ export function SalonDeals() {
           time_remaining: values.timeRemaining,
           featured: values.featured,
           is_free: values.is_free || false,
+          quantity_left: parseInt(values.quantity) || 10,
           status: 'pending' as const,
         })
         .eq("id", editingDeal.id);

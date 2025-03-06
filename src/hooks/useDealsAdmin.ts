@@ -57,6 +57,7 @@ export const useDealsAdmin = () => {
           featured: values.featured,
           salon_id: values.salon_id,
           is_free: values.is_free || false,
+          quantity_left: parseInt(values.quantity) || 10,
         })
         .eq('id', id);
 
@@ -88,6 +89,7 @@ export const useDealsAdmin = () => {
           salon_id: values.salon_id,
           status: 'pending',
           is_free: values.is_free || false,
+          quantity_left: parseInt(values.quantity) || 10,
         }]);
 
       if (error) throw error;

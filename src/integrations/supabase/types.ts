@@ -19,6 +19,7 @@ export type Database = {
           featured: boolean | null
           id: number
           image_url: string
+          is_free: boolean | null
           original_price: number
           quantity_left: number
           salon_id: number | null
@@ -37,6 +38,7 @@ export type Database = {
           featured?: boolean | null
           id?: never
           image_url: string
+          is_free?: boolean | null
           original_price: number
           quantity_left?: number
           salon_id?: number | null
@@ -55,6 +57,7 @@ export type Database = {
           featured?: boolean | null
           id?: never
           image_url?: string
+          is_free?: boolean | null
           original_price?: number
           quantity_left?: number
           salon_id?: number | null

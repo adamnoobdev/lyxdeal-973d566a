@@ -18,7 +18,7 @@ export interface Deal {
   salons?: {
     name: string;
   };
-  is_free?: boolean;
+  is_free: boolean;
 }
 
 export interface Salon {
