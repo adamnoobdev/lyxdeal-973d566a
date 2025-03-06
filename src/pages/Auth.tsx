@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
@@ -96,10 +97,24 @@ export default function Auth() {
             variables: {
               default: {
                 colors: {
-                  brand: '#000000',
-                  brandAccent: '#666666',
+                  brand: '#520053',
+                  brandAccent: '#FEB4FF',
+                  inputBackground: 'white',
+                  inputBorder: '#E5E7EB',
+                  inputBorderFocus: '#520053',
+                  inputBorderHover: '#B944BA',
+                  inputLabelText: '#6B7280',
+                  inputText: '#374151',
+                  messageText: '#520053',
+                  anchorTextColor: '#520053',
+                  anchorTextHoverColor: '#B944BA',
                 }
               }
+            },
+            className: {
+              button: 'bg-primary hover:bg-primary/90 text-white rounded',
+              input: 'rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent',
+              label: 'text-primary font-medium',
             }
           }}
           localization={{
@@ -108,14 +123,28 @@ export default function Auth() {
                 email_label: 'Email',
                 password_label: 'Lösenord',
                 button_label: 'Logga in',
+                loading_button_label: 'Loggar in...',
+                social_provider_text: 'Logga in med {{provider}}',
+                link_text: 'Har du redan ett konto? Logga in'
               },
               sign_up: {
                 email_label: 'Email',
                 password_label: 'Lösenord',
-                button_label: 'Skapa konto',
+                button_label: 'Registrera',
+                loading_button_label: 'Registrerar...',
+                social_provider_text: 'Registrera med {{provider}}',
+                link_text: 'Har du inget konto? Registrera'
+              },
+              forgotten_password: {
+                email_label: 'Email',
+                password_label: 'Lösenord',
+                button_label: 'Återställ lösenord',
+                loading_button_label: 'Skickar instruktioner...'
               },
             }
           }}
+          providers={[]}
+          showLinks={false}
         />
       </Card>
     </div>
