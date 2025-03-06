@@ -1,6 +1,6 @@
 
 import { CategoryBadge } from "../CategoryBadge";
-import { Clock, ShieldCheck } from "lucide-react";
+import { Clock, Tag } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 
@@ -32,8 +32,8 @@ export const RegularDealContent = ({
   );
 
   return (
-    <div className="p-2.5 space-y-2">
-      <div className="flex items-start justify-between gap-1.5">
+    <div className="p-2.5 flex flex-col h-full">
+      <div className="flex items-start justify-between gap-1.5 mb-2">
         <CategoryBadge category={category} className="text-[10px]" />
         <div className="flex items-center text-[10px] text-muted-foreground">
           <Clock className="h-2.5 w-2.5 mr-0.5" />
@@ -41,14 +41,14 @@ export const RegularDealContent = ({
         </div>
       </div>
 
-      <div>
+      <div className="flex-grow min-h-[4rem]">
         <h3 className="font-medium text-sm leading-snug line-clamp-2 mb-1">{title}</h3>
         <p className="text-[11px] text-muted-foreground line-clamp-2">
           {description}
         </p>
       </div>
 
-      <div className="flex items-center justify-between pt-0.5">
+      <div className="flex items-center justify-between pt-1 mt-auto">
         <div className="space-y-0.5">
           <div className="flex items-baseline gap-1.5">
             <span className="text-base font-semibold">
@@ -74,7 +74,7 @@ export const RegularDealContent = ({
             className="w-full text-xs py-1.5"
             variant="default"
           >
-            <ShieldCheck className="h-3.5 w-3.5 mr-1.5" />
+            <Tag className="h-3.5 w-3.5 mr-1.5" />
             Säkra deal
           </Button>
         </Link>
