@@ -47,9 +47,7 @@ const DealsSectionComponent = ({ selectedCategory, selectedCity }: DealsSectionP
             ))}
           </div>
         ) : deals && deals.length > 0 ? (
-          <div className="px-4 md:px-0">
-            <DealsGrid deals={deals} />
-          </div>
+          <DealsGrid deals={deals} />
         ) : (
           <div className="text-center py-8">
             <p className="text-muted-foreground">
