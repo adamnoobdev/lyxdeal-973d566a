@@ -27,7 +27,9 @@ export const RegularDealContent = ({
   quantityLeft,
   id,
 }: RegularDealContentProps) => {
-  const discountPercentage = Math.round(
+  // Calculate discount percentage only if not free
+  const isFree = discountedPrice === 0 || originalPrice === 0;
+  const discountPercentage = isFree ? 100 : Math.round(
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
 
@@ -53,11 +55,13 @@ export const RegularDealContent = ({
           <div className="space-y-0.5">
             <div className="flex items-baseline gap-1.5">
               <span className="text-base font-semibold">
-                {discountedPrice} kr
+                {isFree ? "GRATIS" : `${discountedPrice} kr`}
               </span>
-              <span className="text-xs line-through text-muted-foreground">
-                {originalPrice} kr
-              </span>
+              {!isFree && (
+                <span className="text-xs line-through text-muted-foreground">
+                  {originalPrice} kr
+                </span>
+              )}
             </div>
             <p className="text-[10px] text-muted-foreground">
               {city} • {quantityLeft} kvar
@@ -70,7 +74,7 @@ export const RegularDealContent = ({
         
         {id && (
           <div className="w-full">
-            <Link to={`/deal/${id}`} className="block w-full">
+            <Link to={`/deal/${id}`}>
               <Button 
                 size="sm" 
                 className="w-full text-xs h-9"

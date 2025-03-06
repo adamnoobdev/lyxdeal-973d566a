@@ -64,7 +64,7 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
               <FormControl>
                 <Input 
                   type="number" 
-                  placeholder="1000" 
+                  placeholder={isFree ? "0" : "1000"} 
                   {...field} 
                   disabled={isFree}
                 />
@@ -83,7 +83,7 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
               <FormControl>
                 <Input 
                   type="number" 
-                  placeholder="750" 
+                  placeholder={isFree ? "0" : "750"} 
                   {...field} 
                   disabled={isFree}
                 />
