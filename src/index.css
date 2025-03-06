@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -90,6 +91,15 @@
   [data-radix-popper-content-wrapper] [role="menu"],
   [data-radix-popper-content-wrapper] [role="dialog"] {
     @apply bg-background border shadow-lg backdrop-blur-sm supports-[backdrop-filter]:bg-background/95;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 

@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DealCard } from "@/components/DealCard";
@@ -5,8 +6,11 @@ import { Deal } from "@/types/deal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { ResponsiveGrid } from "@/components/common/ResponsiveGrid";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function FeaturedDeals() {
+  const isMobile = useIsMobile();
   const { data: deals, isLoading, error } = useQuery({
     queryKey: ['featuredDeals'],
     queryFn: async () => {
