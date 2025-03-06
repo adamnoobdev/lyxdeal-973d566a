@@ -16,11 +16,12 @@ export function PriceDisplay({
   isFreeOverride = false,
   showZero = false,
 }: PriceDisplayProps) {
-  const isFree = isFreeOverride || discountedPrice === 0 || discountedPrice === 1 && isFreeOverride;
+  // Determine if this is a free deal (either explicitly marked as free or has discounted price of 0 or 1)
+  const isFree = isFreeOverride || discountedPrice === 0 || (discountedPrice === 1 && isFreeOverride);
   
   const formatPrice = (price: number) => {
-    // If showZero is true and price is 0, display "0 kr" instead of "GRATIS"
-    if (isFree && price === discountedPrice) {
+    // Special handling for the discounted price when it's a free deal
+    if (isFree && (price === discountedPrice || price === 1)) {
       if (showZero) {
         return new Intl.NumberFormat('sv-SE', {
           style: 'currency',
