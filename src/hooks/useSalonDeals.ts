@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/components/admin/types";
@@ -33,11 +32,9 @@ export const useSalonDeals = (salonId: number | undefined) => {
 
   const createDeal = async (values: FormValues) => {
     try {
-      // Ensure prices meet database constraints
-      const originalPrice = values.is_free ? 1 : parseInt(values.originalPrice) || 1;
-      const discountedPrice = values.is_free ? 1 : parseInt(values.discountedPrice) || 1;
+      const originalPrice = parseInt(values.originalPrice) || 0;
+      const discountedPrice = values.is_free ? 0 : parseInt(values.discountedPrice) || 0;
       
-      // Log what we're about to send to the database
       console.log('Creating salon deal with values:', {
         ...values,
         originalPrice,
@@ -78,11 +75,9 @@ export const useSalonDeals = (salonId: number | undefined) => {
 
   const updateDeal = async (values: FormValues, dealId: number) => {
     try {
-      // Ensure prices meet database constraints
-      const originalPrice = values.is_free ? 1 : parseInt(values.originalPrice) || 1;
-      const discountedPrice = values.is_free ? 1 : parseInt(values.discountedPrice) || 1;
+      const originalPrice = parseInt(values.originalPrice) || 0;
+      const discountedPrice = values.is_free ? 0 : parseInt(values.discountedPrice) || 0;
       
-      // Log what we're about to send to the database
       console.log('Updating salon deal with values:', {
         ...values,
         originalPrice,

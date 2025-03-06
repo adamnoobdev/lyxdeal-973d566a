@@ -14,19 +14,13 @@ interface PriceFieldsProps {
 export const PriceFields = ({ form }: PriceFieldsProps) => {
   const isFree = form.watch("is_free");
 
-  // When "is_free" is toggled, update price fields
+  // When "is_free" is toggled, update only the discounted price field
   useEffect(() => {
     if (isFree) {
-      form.setValue("originalPrice", "0");
       form.setValue("discountedPrice", "0");
     } else {
-      // Clear 0 values if un-checking free
-      const currentOriginalPrice = form.getValues("originalPrice");
+      // Clear 0 values for discounted price if un-checking free
       const currentDiscountedPrice = form.getValues("discountedPrice");
-      
-      if (currentOriginalPrice === "0") {
-        form.setValue("originalPrice", "");
-      }
       
       if (currentDiscountedPrice === "0") {
         form.setValue("discountedPrice", "");
@@ -64,9 +58,9 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
               <FormControl>
                 <Input 
                   type="number" 
-                  placeholder={isFree ? "0" : "1000"} 
+                  placeholder="1000" 
                   {...field} 
-                  disabled={isFree}
+                  // Always allow editing the original price
                 />
               </FormControl>
               <FormMessage />

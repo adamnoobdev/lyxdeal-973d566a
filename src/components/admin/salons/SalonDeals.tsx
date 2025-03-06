@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Deal } from "@/components/admin/types";
@@ -45,7 +44,6 @@ export function SalonDeals() {
 
       if (error) throw error;
 
-      // Type assertion to ensure status is of the correct type
       const typedDeals = (data || []).map(deal => ({
         ...deal,
         status: deal.status as 'pending' | 'approved' | 'rejected',
@@ -86,11 +84,9 @@ export function SalonDeals() {
     if (!editingDeal) return;
 
     try {
-      // Ensure prices meet database constraints
-      const originalPrice = values.is_free ? 1 : parseInt(values.originalPrice) || 1;
-      const discountedPrice = values.is_free ? 1 : parseInt(values.discountedPrice) || 1;
+      const originalPrice = parseInt(values.originalPrice) || 0;
+      const discountedPrice = values.is_free ? 0 : parseInt(values.discountedPrice) || 0;
       
-      // Log what we're about to send to the database
       console.log('Updating salon deal with values:', {
         ...values,
         originalPrice,
