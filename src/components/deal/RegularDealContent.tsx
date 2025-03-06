@@ -41,14 +41,14 @@ export const RegularDealContent = ({
         </div>
       </div>
 
-      <div className="flex-grow min-h-[4rem]">
+      <div className="flex-grow flex flex-col min-h-[4.5rem]">
         <h3 className="font-medium text-sm leading-snug line-clamp-2 mb-1">{title}</h3>
         <p className="text-[11px] text-muted-foreground line-clamp-2">
           {description}
         </p>
       </div>
 
-      <div className="flex items-center justify-between pt-1 mt-auto">
+      <div className="flex items-center justify-between pt-2 mt-auto">
         <div className="space-y-0.5">
           <div className="flex items-baseline gap-1.5">
             <span className="text-base font-semibold">
@@ -68,16 +68,18 @@ export const RegularDealContent = ({
       </div>
       
       {id && (
-        <Link to={`/deal/${id}`} className="block w-full mt-2">
-          <Button 
-            size="sm" 
-            className="w-full text-xs py-1.5"
-            variant="default"
-          >
-            <Tag className="h-3.5 w-3.5 mr-1.5" />
-            Säkra deal
-          </Button>
-        </Link>
+        <div className="w-full mt-3">
+          <Link to={`/deal/${id}`} className="block w-full">
+            <Button 
+              size="sm" 
+              className="w-full text-xs py-2 h-10"
+              variant="default"
+            >
+              <Tag className="h-3.5 w-3.5 mr-1.5" />
+              Säkra deal
+            </Button>
+          </Link>
+        </div>
       )}
     </div>
   );

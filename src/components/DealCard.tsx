@@ -41,9 +41,9 @@ const DealCardComponent = ({
   }, [created_at]);
 
   return (
-    <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 bg-white/80 backdrop-blur-sm border-muted-200 hover:shadow-lg">
-      <Link to={`/deal/${id}`} className="block">
-        <div className="relative w-full h-full">
+    <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 bg-white/80 backdrop-blur-sm border-muted-200 hover:shadow-lg">
+      <Link to={`/deal/${id}`} className="block h-full flex flex-col">
+        <div className="relative w-full h-full flex flex-col">
           <DealImage
             imageUrl={image_url}
             title={title}
