@@ -73,10 +73,10 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md p-8 space-y-8 shadow-lg">
-        <div className="space-y-4 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md p-8 space-y-6 shadow-lg border border-primary/10">
+        <div className="space-y-3 text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-primary">
             Välkommen till Lyxdeal
           </h1>
           <p className="text-muted-foreground">
@@ -98,7 +98,7 @@ export default function Auth() {
               default: {
                 colors: {
                   brand: '#520053',
-                  brandAccent: '#FEB4FF',
+                  brandAccent: '#B944BA',
                   inputBackground: 'white',
                   inputBorder: '#E5E7EB',
                   inputBorderFocus: '#520053',
@@ -112,9 +112,11 @@ export default function Auth() {
               }
             },
             className: {
-              button: 'bg-primary hover:bg-primary/90 text-white rounded',
-              input: 'rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent',
+              button: 'bg-primary hover:bg-primary/90 text-white rounded py-3 font-medium',
+              input: 'rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent py-2.5',
               label: 'text-primary font-medium',
+              message: 'text-primary',
+              container: 'space-y-4',
             }
           }}
           localization={{
@@ -145,6 +147,7 @@ export default function Auth() {
           }}
           providers={[]}
           showLinks={false}
+          redirectTo={window.location.origin}
         />
       </Card>
     </div>
