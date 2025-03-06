@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { FormValues } from "@/components/deal-form/schema";
@@ -41,3 +42,5 @@ export const createStripeProductForDeal = async (values: FormValues) => {
     throw error;
   }
 };
+
+// Future functions for salon subscription plans will be added here
