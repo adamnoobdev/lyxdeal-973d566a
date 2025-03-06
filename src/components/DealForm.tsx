@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       featured: false,
       salon_id: undefined,
       quantity: "10", // Default value for quantity
+      is_free: false, // Default value for is_free
     },
   });
 
@@ -67,9 +69,14 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
         if (newDeal) {
           // Generate discount codes based on the quantity specified
           await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
-          // Create Stripe product
-          await createStripeProductForDeal(values);
-          toast.success("Erbjudande och presentkoder har skapats");
+          
+          // Only create Stripe product if not free
+          if (!values.is_free) {
+            await createStripeProductForDeal(values);
+            toast.success("Erbjudande och presentkoder har skapats");
+          } else {
+            toast.success("Gratis erbjudande och presentkoder har skapats");
+          }
         }
       }
     } catch (error) {

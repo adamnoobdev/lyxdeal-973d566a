@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
@@ -55,6 +56,7 @@ export const useDealsAdmin = () => {
           time_remaining: values.timeRemaining,
           featured: values.featured,
           salon_id: values.salon_id,
+          is_free: values.is_free || false,
         })
         .eq('id', id);
 
@@ -84,7 +86,8 @@ export const useDealsAdmin = () => {
           time_remaining: values.timeRemaining,
           featured: values.featured,
           salon_id: values.salon_id,
-          status: 'pending'
+          status: 'pending',
+          is_free: values.is_free || false,
         }]);
 
       if (error) throw error;

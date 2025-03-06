@@ -1,3 +1,4 @@
+
 import { Tag } from "lucide-react";
 
 interface PriceDisplayProps {
@@ -8,6 +9,7 @@ interface PriceDisplayProps {
 
 export function PriceDisplay({ originalPrice, discountedPrice, className = "" }: PriceDisplayProps) {
   const formatPrice = (price: number) => {
+    if (price === 0) return "Gratis";
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
       currency: 'SEK',
@@ -15,7 +17,7 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
     }).format(price);
   };
 
-  const discountPercentage = Math.round(
+  const discountPercentage = originalPrice === 0 ? 100 : Math.round(
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
 
@@ -25,16 +27,20 @@ export function PriceDisplay({ originalPrice, discountedPrice, className = "" }:
         <span className="text-3xl font-bold text-gray-900">
           {formatPrice(discountedPrice)}
         </span>
-        <span className="text-sm px-2 py-0.5 rounded-full bg-red-50 text-red-600 font-medium">
-          -{discountPercentage}%
-        </span>
+        {originalPrice > 0 && (
+          <span className="text-sm px-2 py-0.5 rounded-full bg-red-50 text-red-600 font-medium">
+            -{discountPercentage}%
+          </span>
+        )}
       </div>
-      <div className="flex items-center gap-1.5 text-gray-500">
-        <Tag className="h-4 w-4" />
-        <span className="text-sm line-through">
-          {formatPrice(originalPrice)}
-        </span>
-      </div>
+      {originalPrice > 0 && (
+        <div className="flex items-center gap-1.5 text-gray-500">
+          <Tag className="h-4 w-4" />
+          <span className="text-sm line-through">
+            {formatPrice(originalPrice)}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

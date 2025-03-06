@@ -1,3 +1,4 @@
+
 import * as z from "zod";
 
 export const formSchema = z.object({
@@ -10,10 +11,10 @@ export const formSchema = z.object({
   imageUrl: z.string().min(1, {
     message: "En bild måste laddas upp.",
   }),
-  originalPrice: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+  originalPrice: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
     message: "Vänligen ange ett giltigt pris.",
   }),
-  discountedPrice: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+  discountedPrice: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
     message: "Vänligen ange ett giltigt rabatterat pris.",
   }),
   category: z.string().min(1, {
@@ -33,6 +34,7 @@ export const formSchema = z.object({
   quantity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: "Vänligen ange hur många erbjudanden som ska kunna säljas.",
   }),
+  is_free: z.boolean().default(false),
 });
 
 export type FormValues = z.infer<typeof formSchema>;

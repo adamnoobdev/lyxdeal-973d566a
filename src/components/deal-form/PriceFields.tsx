@@ -1,43 +1,86 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "./schema";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useEffect } from "react";
 
 interface PriceFieldsProps {
   form: UseFormReturn<z.infer<typeof formSchema>>;
 }
 
 export const PriceFields = ({ form }: PriceFieldsProps) => {
+  const isFree = form.watch("is_free");
+
+  // When "is_free" is toggled, update price fields
+  useEffect(() => {
+    if (isFree) {
+      form.setValue("originalPrice", "0");
+      form.setValue("discountedPrice", "0");
+    }
+  }, [isFree, form]);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <>
       <FormField
         control={form.control}
-        name="originalPrice"
+        name="is_free"
         render={({ field }) => (
-          <FormItem>
-            <FormLabel>Ordinarie pris (SEK)</FormLabel>
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 mb-4">
             <FormControl>
-              <Input type="number" placeholder="1000" {...field} />
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
             </FormControl>
-            <FormMessage />
+            <div className="space-y-1 leading-none">
+              <FormLabel>Gratis erbjudande</FormLabel>
+            </div>
           </FormItem>
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="discountedPrice"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Rabatterat pris (SEK)</FormLabel>
-            <FormControl>
-              <Input type="number" placeholder="750" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormField
+          control={form.control}
+          name="originalPrice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Ordinarie pris (SEK)</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number" 
+                  placeholder="1000" 
+                  {...field} 
+                  disabled={isFree}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="discountedPrice"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Rabatterat pris (SEK)</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number" 
+                  placeholder="750" 
+                  {...field} 
+                  disabled={isFree}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    </>
   );
 };
