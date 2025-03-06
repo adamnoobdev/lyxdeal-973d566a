@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -54,6 +55,7 @@ export const useDeal = (id: string | undefined) => {
           city: data.city,
           created_at: data.created_at,
           quantityLeft: data.quantity_left,
+          isFree: data.is_free || false, // Add the isFree property
           salon: data.salons ? {
             name: data.salons.name,
             address: data.salons.address,
