@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
@@ -72,8 +71,8 @@ export default function Auth() {
     return error.message;
   };
 
-  return <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
-      <Card className="w-full max-w-md p-8 space-y-6 border border-primary/20 shadow-none">
+  return <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-primary/5">
+      <Card className="w-full max-w-md p-8 space-y-6 border border-primary shadow-none">
         <div className="space-y-3 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-primary">
             Välkommen till Lyxdeal
