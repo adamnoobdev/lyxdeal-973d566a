@@ -43,23 +43,27 @@ const DealCardComponent = ({
   return (
     <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 bg-white/80 backdrop-blur-sm border-muted-200 hover:shadow-lg">
       <Link to={`/deal/${id}`} className="block h-full flex flex-col">
-        <div className="relative w-full h-full flex flex-col">
-          <DealImage
-            imageUrl={image_url}
-            title={title}
-            isNew={isNew()}
-          />
-          <RegularDealContent
-            title={title}
-            description={description}
-            category={category}
-            city={city}
-            timeRemaining={time_remaining}
-            originalPrice={original_price}
-            discountedPrice={discounted_price}
-            quantityLeft={quantity_left}
-            id={id}
-          />
+        <div className="flex flex-col h-full">
+          <div className="w-full aspect-[4/3]">
+            <DealImage
+              imageUrl={image_url}
+              title={title}
+              isNew={isNew()}
+            />
+          </div>
+          <div className="flex-1 flex flex-col">
+            <RegularDealContent
+              title={title}
+              description={description}
+              category={category}
+              city={city}
+              timeRemaining={time_remaining}
+              originalPrice={original_price}
+              discountedPrice={discounted_price}
+              quantityLeft={quantity_left}
+              id={id}
+            />
+          </div>
         </div>
       </Link>
     </Card>
