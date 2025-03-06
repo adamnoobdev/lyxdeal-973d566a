@@ -6,18 +6,21 @@ interface PriceDisplayProps {
   discountedPrice: number;
   className?: string;
   isFreeOverride?: boolean;
+  showZero?: boolean; // Add this new prop to control displaying 0 kr
 }
 
 export function PriceDisplay({ 
   originalPrice, 
   discountedPrice, 
   className = "",
-  isFreeOverride = false
+  isFreeOverride = false,
+  showZero = false, // Default to false to maintain current behavior
 }: PriceDisplayProps) {
   const isFree = isFreeOverride || originalPrice === 0 || discountedPrice === 0;
   
   const formatPrice = (price: number) => {
-    if (isFree) return "GRATIS";
+    // If we should show zero and the price is 0, display "0 kr" instead of "GRATIS"
+    if (isFree && !showZero) return "GRATIS";
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
       currency: 'SEK',

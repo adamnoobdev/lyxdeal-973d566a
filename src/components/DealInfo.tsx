@@ -41,6 +41,7 @@ export const DealInfo = ({
               originalPrice={originalPrice} 
               discountedPrice={discountedPrice}
               isFreeOverride={isFree}
+              showZero={true} // Show 0 kr on the product page
               className="text-lg"
             />
           </div>
@@ -84,4 +85,4 @@ export const DealInfo = ({
       </div>
     </div>
   );
-};
+}
