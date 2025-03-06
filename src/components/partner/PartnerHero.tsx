@@ -1,9 +1,6 @@
-
 import { Button } from "../ui/button";
-
 export const PartnerHero = () => {
-  return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-primary">
+  return <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-primary">
       <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-10"></div>
       <div className="container px-4 md:px-8 relative z-10">
         <div className="py-16 md:py-24 flex flex-col items-center text-center">
@@ -17,12 +14,9 @@ export const PartnerHero = () => {
             <Button size="lg" className="bg-white text-primary hover:bg-white/90">
               Bli partner idag
             </Button>
-            <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
-              Läs mer
-            </Button>
+            
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
