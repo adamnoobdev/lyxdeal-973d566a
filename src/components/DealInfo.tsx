@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Phone, ShieldCheck } from "lucide-react";
+import { Phone, Tag } from "lucide-react";
 import { PriceDisplay } from "./PriceDisplay";
 
 interface DealInfoProps {
@@ -60,7 +60,7 @@ export const DealInfo = ({
           className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-200 group"
           size="lg"
         >
-          <ShieldCheck className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+          <Tag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
           Säkra deal
         </Button>
         
