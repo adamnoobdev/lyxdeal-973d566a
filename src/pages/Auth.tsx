@@ -6,9 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
+
 export default function Auth() {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+
   useEffect(() => {
     const {
       data: {
@@ -50,6 +52,7 @@ export default function Auth() {
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
+
   const getErrorMessage = (error: AuthError) => {
     if (error instanceof AuthApiError) {
       switch (error.code) {
@@ -67,8 +70,9 @@ export default function Auth() {
     }
     return error.message;
   };
-  return <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
-      <Card className="w-full max-w-md p-8 space-y-6 shadow-lg border border-primary/10">
+
+  return <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
+      <Card className="w-full max-w-md p-8 space-y-6 border border-primary/20 shadow-none">
         <div className="space-y-3 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-primary">
             Välkommen till Lyxdeal
@@ -82,58 +86,65 @@ export default function Auth() {
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>}
 
-        <SupabaseAuth supabaseClient={supabase} appearance={{
-        theme: ThemeSupa,
-        variables: {
-          default: {
-            colors: {
-              brand: '#520053',
-              brandAccent: '#B944BA',
-              inputBackground: 'white',
-              inputBorder: '#E5E7EB',
-              inputBorderFocus: '#520053',
-              inputBorderHover: '#B944BA',
-              inputLabelText: '#6B7280',
-              inputText: '#374151',
-              messageText: '#520053',
-              anchorTextColor: '#520053',
-              anchorTextHoverColor: '#B944BA'
+        <SupabaseAuth 
+          supabaseClient={supabase} 
+          appearance={{
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: '#520053',
+                  brandAccent: '#B944BA',
+                  inputBackground: 'white',
+                  inputBorder: '#E5E7EB',
+                  inputBorderFocus: '#520053',
+                  inputBorderHover: '#B944BA',
+                  inputLabelText: '#6B7280',
+                  inputText: '#374151',
+                  messageText: '#520053',
+                  anchorTextColor: '#520053',
+                  anchorTextHoverColor: '#B944BA'
+                }
+              }
+            },
+            className: {
+              button: 'bg-primary hover:bg-primary/90 text-white rounded py-3 font-medium',
+              input: 'rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent py-2.5',
+              label: 'text-primary font-medium',
+              message: 'text-primary',
+              container: 'space-y-4'
             }
-          }
-        },
-        className: {
-          button: 'bg-primary hover:bg-primary/90 text-white rounded py-3 font-medium',
-          input: 'rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent py-2.5',
-          label: 'text-primary font-medium',
-          message: 'text-primary',
-          container: 'space-y-4'
-        }
-      }} localization={{
-        variables: {
-          sign_in: {
-            email_label: 'Email',
-            password_label: 'Lösenord',
-            button_label: 'Logga in',
-            loading_button_label: 'Loggar in...',
-            social_provider_text: 'Logga in med {{provider}}',
-            link_text: 'Har du redan ett konto? Logga in'
-          },
-          sign_up: {
-            email_label: 'Email',
-            password_label: 'Lösenord',
-            button_label: 'Registrera',
-            loading_button_label: 'Registrerar...',
-            social_provider_text: 'Registrera med {{provider}}',
-            link_text: 'Har du inget konto? Registrera'
-          },
-          forgotten_password: {
-            email_label: 'Email',
-            password_label: 'Lösenord',
-            button_label: 'Återställ lösenord',
-            loading_button_label: 'Skickar instruktioner...'
-          }
-        }
-      }} providers={[]} showLinks={false} redirectTo={window.location.origin} />
+          }} 
+          localization={{
+            variables: {
+              sign_in: {
+                email_label: 'E-postadress',
+                password_label: 'Lösenord',
+                button_label: 'Logga in',
+                loading_button_label: 'Loggar in...',
+                social_provider_text: 'Logga in med {{provider}}',
+                link_text: 'Har du redan ett konto? Logga in'
+              },
+              sign_up: {
+                email_label: 'E-postadress',
+                password_label: 'Lösenord',
+                button_label: 'Registrera',
+                loading_button_label: 'Registrerar...',
+                social_provider_text: 'Registrera med {{provider}}',
+                link_text: 'Har du inget konto? Registrera'
+              },
+              forgotten_password: {
+                email_label: 'E-postadress',
+                password_label: 'Lösenord',
+                button_label: 'Återställ lösenord',
+                loading_button_label: 'Skickar instruktioner...'
+              }
+            }
+          }}
+          providers={[]}
+          showLinks={false}
+          redirectTo={window.location.origin}
+        />
       </Card>
     </div>;
 }
