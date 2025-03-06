@@ -16,7 +16,7 @@ export const ResponsiveGrid = ({ children, className = "" }: ResponsiveGridProps
       <ScrollArea className="w-full pb-4">
         <div className={`flex space-x-4 pb-2 px-4 overflow-x-auto scrollbar-hide ${className}`}>
           {React.Children.map(children, (child) => (
-            <div className="min-w-[280px] max-w-[280px] flex-shrink-0">
+            <div className="min-w-[210px] max-w-[210px] flex-shrink-0">
               {child}
             </div>
           ))}
