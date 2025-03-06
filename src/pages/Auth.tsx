@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
@@ -142,12 +143,13 @@ export default function Auth() {
                 password_label: 'Lösenord',
                 button_label: 'Återställ lösenord',
                 loading_button_label: 'Skickar instruktioner...',
+                link_text: 'Glömt ditt lösenord?',
                 email_input_placeholder: 'Din e-postadress'
               }
             }
           }}
           providers={[]}
-          showLinks={false}
+          showLinks={true}
           redirectTo={window.location.origin}
         />
       </Card>
