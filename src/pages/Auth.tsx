@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
@@ -104,15 +105,22 @@ export default function Auth() {
                   messageText: '#520053',
                   anchorTextColor: '#520053',
                   anchorTextHoverColor: '#B944BA'
+                },
+                fonts: {
+                  bodyFontFamily: `'Outfit', sans-serif`,
+                  buttonFontFamily: `'Outfit', sans-serif`,
+                  inputFontFamily: `'Outfit', sans-serif`,
+                  labelFontFamily: `'Outfit', sans-serif`
                 }
               }
             },
             className: {
               button: 'bg-primary hover:bg-primary/90 text-white rounded py-3 font-medium',
-              input: 'rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent py-2.5',
-              label: 'text-primary font-medium',
-              message: 'text-primary',
-              container: 'space-y-4'
+              input: 'rounded border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent py-2.5 font-outfit',
+              label: 'text-primary font-medium font-outfit',
+              message: 'text-primary font-outfit',
+              container: 'space-y-4',
+              anchor: 'font-outfit'
             }
           }} 
           localization={{
