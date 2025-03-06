@@ -1,16 +1,18 @@
-import { SidebarContent, SidebarGroup } from "@/components/ui/sidebar";
+
 import { AdminSidebarLinks } from "./AdminSidebarLinks";
 import { SalonSidebarLinks } from "./SalonSidebarLinks";
 
-export const AdminSidebarContent = () => {
+interface AdminSidebarContentProps {
+  userRole?: string;
+}
+
+export const AdminSidebarContent = ({ userRole }: AdminSidebarContentProps) => {
+  const isAdmin = userRole !== 'salon_owner';
+  
   return (
-    <SidebarContent>
-      <SidebarGroup>
-        <AdminSidebarLinks />
-      </SidebarGroup>
-      <SidebarGroup>
-        <SalonSidebarLinks />
-      </SidebarGroup>
-    </SidebarContent>
+    <div className="flex flex-col gap-4 p-4">
+      <AdminSidebarLinks />
+      {!isAdmin && <SalonSidebarLinks />}
+    </div>
   );
 };
