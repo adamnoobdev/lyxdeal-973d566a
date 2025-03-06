@@ -6,7 +6,7 @@ interface PriceDisplayProps {
   discountedPrice: number;
   className?: string;
   isFreeOverride?: boolean;
-  showZero?: boolean; // Add this new prop to control displaying 0 kr
+  showZero?: boolean;
 }
 
 export function PriceDisplay({ 
@@ -14,7 +14,7 @@ export function PriceDisplay({
   discountedPrice, 
   className = "",
   isFreeOverride = false,
-  showZero = false, // Default to false to maintain current behavior
+  showZero = false,
 }: PriceDisplayProps) {
   const isFree = isFreeOverride || originalPrice === 0 || discountedPrice === 0;
   
@@ -59,7 +59,7 @@ export function PriceDisplay({
           </span>
         )}
       </div>
-      {!isFree && originalPrice > 0 && (
+      {originalPrice > 0 && ( /* Always show original price if it's greater than 0, even for free deals */
         <div className="flex items-center gap-1.5 text-gray-500">
           <Tag className="h-4 w-4" />
           <span className="text-sm line-through">

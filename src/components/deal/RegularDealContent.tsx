@@ -59,7 +59,7 @@ export const RegularDealContent = ({
               <span className="text-base font-semibold">
                 {isFreeDeal ? "GRATIS" : `${discountedPrice} kr`}
               </span>
-              {!isFreeDeal && (
+              {originalPrice > 0 && ( /* Always show original price if it exists */
                 <span className="text-xs line-through text-muted-foreground">
                   {originalPrice} kr
                 </span>
