@@ -19,8 +19,18 @@ export function PriceDisplay({
   const isFree = isFreeOverride || originalPrice === 0 || discountedPrice === 0;
   
   const formatPrice = (price: number) => {
-    // If we should show zero and the price is 0, display "0 kr" instead of "GRATIS"
-    if (isFree && !showZero) return "GRATIS";
+    // If showZero is true and price is 0, display "0 kr" instead of "GRATIS"
+    if (isFree) {
+      if (showZero) {
+        return new Intl.NumberFormat('sv-SE', {
+          style: 'currency',
+          currency: 'SEK',
+          maximumFractionDigits: 0
+        }).format(0); // Force 0 here to ensure we get "0 kr"
+      }
+      return "GRATIS";
+    }
+    
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
       currency: 'SEK',
