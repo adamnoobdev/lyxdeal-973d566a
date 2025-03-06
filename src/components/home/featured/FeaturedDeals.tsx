@@ -6,11 +6,9 @@ import { Deal } from "@/types/deal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { ResponsiveGrid } from "@/components/common/ResponsiveGrid";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { memo } from "react";
 
-export function FeaturedDeals() {
-  const isMobile = useIsMobile();
+const FeaturedDealsComponent = () => {
   const { data: deals, isLoading, error } = useQuery({
     queryKey: ['featuredDeals'],
     queryFn: async () => {
@@ -18,18 +16,20 @@ export function FeaturedDeals() {
         .from('deals')
         .select('*')
         .eq('featured', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(8); // Begränsa antal för bättre prestanda
 
       if (error) throw error;
       return data as Deal[];
     },
+    staleTime: 5 * 60 * 1000, // Cache data för 5 minuter
   });
 
   if (isLoading) {
     return (
       <ResponsiveGrid>
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-96 bg-accent/50 rounded-xl animate-pulse" />
+          <div key={i} className="h-64 bg-accent/50 rounded-xl animate-pulse" />
         ))}
       </ResponsiveGrid>
     );
@@ -60,4 +60,6 @@ export function FeaturedDeals() {
       ))}
     </ResponsiveGrid>
   );
-}
+};
+
+export const FeaturedDeals = memo(FeaturedDealsComponent);

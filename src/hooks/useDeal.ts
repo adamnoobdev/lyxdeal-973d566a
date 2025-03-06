@@ -9,13 +9,11 @@ export const useDeal = (id: string | undefined) => {
     queryFn: async () => {
       try {
         if (!id) {
-          toast.error("Inget erbjudande-ID angivet");
           throw new Error("No deal ID provided");
         }
         
         const dealId = parseInt(id);
         if (isNaN(dealId)) {
-          toast.error("Ogiltigt erbjudande-ID");
           throw new Error("Invalid deal ID");
         }
 
@@ -33,13 +31,10 @@ export const useDeal = (id: string | undefined) => {
           .maybeSingle();
 
         if (error) {
-          console.error("Error fetching deal:", error);
-          toast.error("Kunde inte hämta erbjudandet. Försök igen senare.");
           throw error;
         }
 
         if (!data) {
-          toast.error("Erbjudandet kunde inte hittas");
           throw new Error("Deal not found");
         }
 
@@ -55,7 +50,7 @@ export const useDeal = (id: string | undefined) => {
           city: data.city,
           created_at: data.created_at,
           quantityLeft: data.quantity_left,
-          isFree: data.is_free || false, // Add the isFree property
+          isFree: data.is_free || false,
           salon: data.salons ? {
             name: data.salons.name,
             address: data.salons.address,
@@ -63,19 +58,21 @@ export const useDeal = (id: string | undefined) => {
           } : null,
         };
       } catch (error) {
-        console.error("Unexpected error:", error);
         if (error instanceof Error) {
+          if (['No deal ID provided', 'Invalid deal ID', 'Deal not found'].includes(error.message)) {
+            toast.error(error.message === 'No deal ID provided' ? "Inget erbjudande-ID angivet" :
+                      error.message === 'Invalid deal ID' ? "Ogiltigt erbjudande-ID" : 
+                      "Erbjudandet kunde inte hittas");
+          } else {
+            toast.error("Ett fel uppstod när erbjudandet skulle hämtas");
+          }
           throw error;
         }
-        toast.error("Ett oväntat fel uppstod. Försök igen senare.");
+        toast.error("Ett oväntat fel uppstod");
         throw new Error("Failed to fetch deal");
       }
     },
-    retry: (failureCount, error) => {
-      if (error instanceof Error) {
-        return !['No deal ID provided', 'Invalid deal ID', 'Deal not found'].includes(error.message);
-      }
-      return failureCount < 1;
-    },
+    staleTime: 5 * 60 * 1000, // Cache i 5 minuter
+    refetchOnWindowFocus: false,
   });
 };

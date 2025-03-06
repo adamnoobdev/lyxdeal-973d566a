@@ -1,15 +1,17 @@
+
 import { Star, Sparkles, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FeaturedDeals } from "@/components/home/featured/FeaturedDeals";
 import { DealsGrid } from "@/components/DealsGrid";
 import { useDeals } from "@/hooks/useDeals";
+import { memo } from "react";
 
 interface DealsSectionProps {
   selectedCategory: string;
   selectedCity: string;
 }
 
-export function DealsSection({ selectedCategory, selectedCity }: DealsSectionProps) {
+const DealsSectionComponent = ({ selectedCategory, selectedCity }: DealsSectionProps) => {
   const { data: deals, isLoading, error } = useDeals(selectedCategory, selectedCity);
 
   return (
@@ -36,11 +38,11 @@ export function DealsSection({ selectedCategory, selectedCity }: DealsSectionPro
             </AlertDescription>
           </Alert>
         ) : isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 md:px-0">
-            {[...Array(6)].map((_, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 md:px-0">
+            {[...Array(4)].map((_, i) => (
               <div 
                 key={i} 
-                className="h-96 bg-accent/5 rounded-lg animate-pulse"
+                className="h-64 bg-accent/5 rounded-lg animate-pulse"
               />
             ))}
           </div>
@@ -58,4 +60,6 @@ export function DealsSection({ selectedCategory, selectedCity }: DealsSectionPro
       </section>
     </div>
   );
-}
+};
+
+export const DealsSection = memo(DealsSectionComponent);

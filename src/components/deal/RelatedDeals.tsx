@@ -5,19 +5,18 @@ import { Deal } from "@/types/deal";
 import { DealCard } from "../DealCard";
 import { Sparkles } from "lucide-react";
 import { ResponsiveGrid } from "../common/ResponsiveGrid";
+import { memo } from "react";
 
 interface RelatedDealsProps {
   currentDealId: number;
   category: string;
 }
 
-export function RelatedDeals({ currentDealId, category }: RelatedDealsProps) {
+const RelatedDealsComponent = ({ currentDealId, category }: RelatedDealsProps) => {
   const { data: relatedDeals, isLoading } = useQuery({
-    queryKey: ['relatedDeals', currentDealId],
+    queryKey: ['relatedDeals', currentDealId, category],
     queryFn: async () => {
-      console.log('Fetching related deals');
-      
-      // First try to get some deals from the same category
+      // Först hämta några erbjudanden från samma kategori
       const { data: categoryDeals } = await supabase
         .from('deals')
         .select('*')
@@ -26,30 +25,27 @@ export function RelatedDeals({ currentDealId, category }: RelatedDealsProps) {
         .limit(3)
         .order('created_at', { ascending: false });
 
-      // Then get other popular deals from different categories
+      // Sedan några populära erbjudanden från andra kategorier
       const { data: otherDeals } = await supabase
         .from('deals')
         .select('*')
         .neq('category', category)
         .neq('id', currentDealId)
-        .limit(5)
+        .limit(3)
         .order('created_at', { ascending: false });
 
-      // Combine and shuffle the results
-      const allDeals = [...(categoryDeals || []), ...(otherDeals || [])];
-      const shuffledDeals = allDeals
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 6); // Show up to 6 deals
-
-      return shuffledDeals as Deal[];
+      // Kombinera resultaten
+      return [...(categoryDeals || []), ...(otherDeals || [])].slice(0, 6) as Deal[];
     },
+    staleTime: 5 * 60 * 1000, // Cache i 5 minuter
+    refetchOnWindowFocus: false,
   });
 
   if (isLoading) {
     return (
       <div className="grid gap-4">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-48 bg-accent/10 rounded-xl animate-pulse" />
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-48 bg-accent/10 rounded-xl" />
         ))}
       </div>
     );
@@ -60,12 +56,10 @@ export function RelatedDeals({ currentDealId, category }: RelatedDealsProps) {
   }
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-primary" />
-        <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-          Fler erbjudanden
-        </h2>
+        <h2 className="text-xl font-bold">Fler erbjudanden</h2>
       </div>
       <ResponsiveGrid>
         {relatedDeals.map((deal) => (
@@ -74,4 +68,6 @@ export function RelatedDeals({ currentDealId, category }: RelatedDealsProps) {
       </ResponsiveGrid>
     </div>
   );
-}
+};
+
+export const RelatedDeals = memo(RelatedDealsComponent);

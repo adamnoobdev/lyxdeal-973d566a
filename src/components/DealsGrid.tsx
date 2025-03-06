@@ -1,3 +1,5 @@
+
+import { memo } from "react";
 import { DealCard } from "./DealCard";
 import { Deal } from "@/types/deal";
 import { ResponsiveGrid } from "./common/ResponsiveGrid";
@@ -7,7 +9,7 @@ interface DealsGridProps {
   className?: string;
 }
 
-export function DealsGrid({ deals, className = "" }: DealsGridProps) {
+const DealsGridComponent = ({ deals, className = "" }: DealsGridProps) => {
   if (!deals?.length) {
     return null;
   }
@@ -22,4 +24,6 @@ export function DealsGrid({ deals, className = "" }: DealsGridProps) {
       ))}
     </ResponsiveGrid>
   );
-}
+};
+
+export const DealsGrid = memo(DealsGridComponent);

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -8,12 +8,12 @@ interface ResponsiveGridProps {
   className?: string;
 }
 
-export const ResponsiveGrid = ({ children, className = "" }: ResponsiveGridProps) => {
+const ResponsiveGridComponent = ({ children, className = "" }: ResponsiveGridProps) => {
   const isMobile = useIsMobile();
   
   if (isMobile) {
     return (
-      <ScrollArea className="w-full pb-4">
+      <div className="w-full overflow-hidden">
         <div className={`flex space-x-4 pb-2 px-4 overflow-x-auto scrollbar-hide ${className}`}>
           {React.Children.map(children, (child) => (
             <div className="min-w-[210px] max-w-[210px] flex-shrink-0">
@@ -21,7 +21,7 @@ export const ResponsiveGrid = ({ children, className = "" }: ResponsiveGridProps
             </div>
           ))}
         </div>
-      </ScrollArea>
+      </div>
     );
   }
   
@@ -31,3 +31,5 @@ export const ResponsiveGrid = ({ children, className = "" }: ResponsiveGridProps
     </div>
   );
 };
+
+export const ResponsiveGrid = memo(ResponsiveGridComponent);
