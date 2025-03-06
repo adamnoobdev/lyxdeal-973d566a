@@ -11,10 +11,16 @@ export const formSchema = z.object({
   imageUrl: z.string().min(1, {
     message: "En bild måste laddas upp.",
   }),
-  originalPrice: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+  originalPrice: z.string().refine((val) => {
+    // Allow 0 for free deals, but ensure it's convertible to a number
+    return !isNaN(Number(val)) && Number(val) >= 0;
+  }, {
     message: "Vänligen ange ett giltigt pris.",
   }),
-  discountedPrice: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+  discountedPrice: z.string().refine((val) => {
+    // Allow 0 for free deals, but ensure it's convertible to a number
+    return !isNaN(Number(val)) && Number(val) >= 0;
+  }, {
     message: "Vänligen ange ett giltigt rabatterat pris.",
   }),
   category: z.string().min(1, {

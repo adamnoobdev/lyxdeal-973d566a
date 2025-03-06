@@ -15,6 +15,7 @@ import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
@@ -23,6 +24,8 @@ interface DealFormProps {
 }
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
+  const [submitting, setSubmitting] = useState(false);
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues || {
@@ -47,10 +50,15 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
 
   const handleSubmit = async (values: FormValues) => {
     try {
+      setSubmitting(true);
+      
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
         return;
       }
+      
+      // Log form values before submitting
+      console.log('Submitting form with values:', values);
 
       // First create the deal
       await onSubmit(values);
@@ -82,6 +90,8 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
     } catch (error) {
       console.error('Error:', error);
       toast.error("Något gick fel när erbjudandet skulle sparas.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -102,8 +112,8 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
         </div>
 
         <div className="sticky bottom-0 pt-4 bg-background">
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Sparar..." : "Spara erbjudande"}
+          <Button type="submit" className="w-full" disabled={isSubmitting || submitting}>
+            {(isSubmitting || submitting) ? "Sparar..." : "Spara erbjudande"}
           </Button>
         </div>
       </form>

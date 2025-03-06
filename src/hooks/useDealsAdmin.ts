@@ -43,17 +43,17 @@ export const useDealsAdmin = () => {
 
   const handleUpdate = async (values: any, id: number) => {
     try {
-      // Check if there's a database constraint for discounted_price
-      // Get the deal first to see if we need special handling
-      const { data: existingDeal } = await supabase
-        .from('deals')
-        .select('discounted_price')
-        .eq('id', id)
-        .single();
-
-      // Handle free deals - if it's free, we need to ensure discounted_price is at least 1
-      // to comply with database constraints
-      const minPriceForDb = values.is_free ? 1 : parseInt(values.discountedPrice);
+      // Ensure prices meet database constraints
+      const originalPrice = values.is_free ? 1 : parseInt(values.originalPrice) || 1;
+      const discountedPrice = values.is_free ? 1 : parseInt(values.discountedPrice) || 1;
+      
+      // Log what we're about to send to the database
+      console.log('Updating deal with values:', {
+        ...values,
+        originalPrice,
+        discountedPrice,
+        is_free: values.is_free
+      });
       
       const { error } = await supabase
         .from('deals')
@@ -61,8 +61,8 @@ export const useDealsAdmin = () => {
           title: values.title,
           description: values.description,
           image_url: values.imageUrl,
-          original_price: parseInt(values.originalPrice),
-          discounted_price: minPriceForDb,
+          original_price: originalPrice,
+          discounted_price: discountedPrice,
           category: values.category,
           city: values.city,
           time_remaining: values.timeRemaining,
@@ -73,7 +73,11 @@ export const useDealsAdmin = () => {
         })
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error details:', error);
+        throw error;
+      }
+      
       toast.success("Erbjudandet har uppdaterats");
       refetch();
       return true;
@@ -86,9 +90,17 @@ export const useDealsAdmin = () => {
 
   const handleCreate = async (values: any) => {
     try {
-      // Handle free deals - if it's free, we need to ensure discounted_price is at least 1
-      // to comply with database constraints
-      const minPriceForDb = values.is_free ? 1 : parseInt(values.discountedPrice);
+      // Ensure prices meet database constraints
+      const originalPrice = values.is_free ? 1 : parseInt(values.originalPrice) || 1;
+      const discountedPrice = values.is_free ? 1 : parseInt(values.discountedPrice) || 1;
+      
+      // Log what we're about to send to the database
+      console.log('Creating deal with values:', {
+        ...values,
+        originalPrice,
+        discountedPrice,
+        is_free: values.is_free
+      });
       
       const { error } = await supabase
         .from('deals')
@@ -96,8 +108,8 @@ export const useDealsAdmin = () => {
           title: values.title,
           description: values.description,
           image_url: values.imageUrl,
-          original_price: parseInt(values.originalPrice),
-          discounted_price: minPriceForDb,
+          original_price: originalPrice,
+          discounted_price: discountedPrice,
           category: values.category,
           city: values.city,
           time_remaining: values.timeRemaining,
@@ -108,7 +120,11 @@ export const useDealsAdmin = () => {
           quantity_left: parseInt(values.quantity) || 10,
         }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error details:', error);
+        throw error;
+      }
+      
       toast.success("Erbjudandet har skapats");
       refetch();
       return true;

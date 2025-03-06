@@ -86,9 +86,17 @@ export function SalonDeals() {
     if (!editingDeal) return;
 
     try {
-      // Handle free deals - if it's free, we need to ensure discounted_price is at least 1
-      // to comply with database constraints
-      const minPriceForDb = values.is_free ? 1 : parseInt(values.discountedPrice);
+      // Ensure prices meet database constraints
+      const originalPrice = values.is_free ? 1 : parseInt(values.originalPrice) || 1;
+      const discountedPrice = values.is_free ? 1 : parseInt(values.discountedPrice) || 1;
+      
+      // Log what we're about to send to the database
+      console.log('Updating salon deal with values:', {
+        ...values,
+        originalPrice,
+        discountedPrice,
+        is_free: values.is_free
+      });
       
       const { error } = await supabase
         .from("deals")
@@ -96,19 +104,22 @@ export function SalonDeals() {
           title: values.title,
           description: values.description,
           image_url: values.imageUrl,
-          original_price: parseInt(values.originalPrice),
-          discounted_price: minPriceForDb,
+          original_price: originalPrice,
+          discounted_price: discountedPrice,
           category: values.category,
           city: values.city,
           time_remaining: values.timeRemaining,
           featured: values.featured,
           is_free: values.is_free || false,
           quantity_left: parseInt(values.quantity) || 10,
-          status: 'pending' as const,
+          status: 'pending',
         })
         .eq("id", editingDeal.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error details:', error);
+        throw error;
+      }
 
       toast.success("Erbjudandet har uppdaterats");
       await fetchSalonDeals();

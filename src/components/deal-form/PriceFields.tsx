@@ -19,6 +19,18 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
     if (isFree) {
       form.setValue("originalPrice", "0");
       form.setValue("discountedPrice", "0");
+    } else {
+      // Clear 0 values if un-checking free
+      const currentOriginalPrice = form.getValues("originalPrice");
+      const currentDiscountedPrice = form.getValues("discountedPrice");
+      
+      if (currentOriginalPrice === "0") {
+        form.setValue("originalPrice", "");
+      }
+      
+      if (currentDiscountedPrice === "0") {
+        form.setValue("discountedPrice", "");
+      }
     }
   }, [isFree, form]);
 
