@@ -13,6 +13,7 @@ interface RegularDealContentProps {
   originalPrice: number;
   discountedPrice: number;
   quantityLeft: number;
+  isFree?: boolean;
   id?: number;
 }
 
@@ -25,11 +26,12 @@ export const RegularDealContent = ({
   originalPrice,
   discountedPrice,
   quantityLeft,
+  isFree = false,
   id,
 }: RegularDealContentProps) => {
   // Calculate discount percentage only if not free
-  const isFree = discountedPrice === 0 || originalPrice === 0;
-  const discountPercentage = isFree ? 100 : Math.round(
+  const isFreeDeal = isFree || discountedPrice === 0 || originalPrice === 0;
+  const discountPercentage = isFreeDeal ? 100 : Math.round(
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
 
@@ -55,9 +57,9 @@ export const RegularDealContent = ({
           <div className="space-y-0.5">
             <div className="flex items-baseline gap-1.5">
               <span className="text-base font-semibold">
-                {isFree ? "GRATIS" : `${discountedPrice} kr`}
+                {isFreeDeal ? "GRATIS" : `${discountedPrice} kr`}
               </span>
-              {!isFree && (
+              {!isFreeDeal && (
                 <span className="text-xs line-through text-muted-foreground">
                   {originalPrice} kr
                 </span>

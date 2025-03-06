@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -96,6 +97,7 @@ const ProductDetails = () => {
                   timeRemaining={deal.timeRemaining}
                   city={deal.city}
                   quantityLeft={deal.quantityLeft}
+                  isFree={deal.isFree}
                   salon={deal.salon}
                 />
               </div>

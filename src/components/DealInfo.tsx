@@ -13,6 +13,7 @@ interface DealInfoProps {
   timeRemaining: string;
   city: string;
   quantityLeft: number;
+  isFree?: boolean;
   salon?: {
     name: string;
     address: string | null;
@@ -26,6 +27,7 @@ export const DealInfo = ({
   discountedPrice,
   timeRemaining,
   quantityLeft,
+  isFree = false,
   salon,
 }: DealInfoProps) => {
   return (
@@ -38,6 +40,7 @@ export const DealInfo = ({
             <PriceDisplay 
               originalPrice={originalPrice} 
               discountedPrice={discountedPrice}
+              isFreeOverride={isFree}
               className="text-lg"
             />
           </div>

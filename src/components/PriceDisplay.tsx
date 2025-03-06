@@ -5,10 +5,16 @@ interface PriceDisplayProps {
   originalPrice: number;
   discountedPrice: number;
   className?: string;
+  isFreeOverride?: boolean;
 }
 
-export function PriceDisplay({ originalPrice, discountedPrice, className = "" }: PriceDisplayProps) {
-  const isFree = originalPrice === 0 || discountedPrice === 0;
+export function PriceDisplay({ 
+  originalPrice, 
+  discountedPrice, 
+  className = "",
+  isFreeOverride = false
+}: PriceDisplayProps) {
+  const isFree = isFreeOverride || originalPrice === 0 || discountedPrice === 0;
   
   const formatPrice = (price: number) => {
     if (isFree) return "GRATIS";
