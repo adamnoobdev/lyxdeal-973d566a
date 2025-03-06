@@ -43,6 +43,18 @@ export const useDealsAdmin = () => {
 
   const handleUpdate = async (values: any, id: number) => {
     try {
+      // Check if there's a database constraint for discounted_price
+      // Get the deal first to see if we need special handling
+      const { data: existingDeal } = await supabase
+        .from('deals')
+        .select('discounted_price')
+        .eq('id', id)
+        .single();
+
+      // Handle free deals - if it's free, we need to ensure discounted_price is at least 1
+      // to comply with database constraints
+      const minPriceForDb = values.is_free ? 1 : parseInt(values.discountedPrice);
+      
       const { error } = await supabase
         .from('deals')
         .update({
@@ -50,7 +62,7 @@ export const useDealsAdmin = () => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: parseInt(values.originalPrice),
-          discounted_price: parseInt(values.discountedPrice),
+          discounted_price: minPriceForDb,
           category: values.category,
           city: values.city,
           time_remaining: values.timeRemaining,
@@ -74,6 +86,10 @@ export const useDealsAdmin = () => {
 
   const handleCreate = async (values: any) => {
     try {
+      // Handle free deals - if it's free, we need to ensure discounted_price is at least 1
+      // to comply with database constraints
+      const minPriceForDb = values.is_free ? 1 : parseInt(values.discountedPrice);
+      
       const { error } = await supabase
         .from('deals')
         .insert([{
@@ -81,7 +97,7 @@ export const useDealsAdmin = () => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: parseInt(values.originalPrice),
-          discounted_price: parseInt(values.discountedPrice),
+          discounted_price: minPriceForDb,
           category: values.category,
           city: values.city,
           time_remaining: values.timeRemaining,

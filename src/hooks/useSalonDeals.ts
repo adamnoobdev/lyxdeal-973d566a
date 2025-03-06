@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/components/admin/types";
@@ -32,18 +33,24 @@ export const useSalonDeals = (salonId: number | undefined) => {
 
   const createDeal = async (values: FormValues) => {
     try {
+      // Handle free deals - if it's free, we need to ensure discounted_price is at least 1
+      // to comply with database constraints
+      const minPriceForDb = values.is_free ? 1 : parseInt(values.discountedPrice);
+      
       const { error } = await supabase.from('deals').insert({
         title: values.title,
         description: values.description,
         image_url: values.imageUrl,
         original_price: parseInt(values.originalPrice),
-        discounted_price: parseInt(values.discountedPrice),
+        discounted_price: minPriceForDb,
         category: values.category,
         city: values.city,
         time_remaining: values.timeRemaining,
         featured: values.featured,
         salon_id: salonId,
-        status: 'pending'
+        status: 'pending',
+        is_free: values.is_free || false,
+        quantity_left: parseInt(values.quantity) || 10,
       });
 
       if (error) throw error;
@@ -60,6 +67,10 @@ export const useSalonDeals = (salonId: number | undefined) => {
 
   const updateDeal = async (values: FormValues, dealId: number) => {
     try {
+      // Handle free deals - if it's free, we need to ensure discounted_price is at least 1
+      // to comply with database constraints
+      const minPriceForDb = values.is_free ? 1 : parseInt(values.discountedPrice);
+      
       const { error } = await supabase
         .from('deals')
         .update({
@@ -67,12 +78,14 @@ export const useSalonDeals = (salonId: number | undefined) => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: parseInt(values.originalPrice),
-          discounted_price: parseInt(values.discountedPrice),
+          discounted_price: minPriceForDb,
           category: values.category,
           city: values.city,
           time_remaining: values.timeRemaining,
           featured: values.featured,
-          status: 'pending'
+          status: 'pending',
+          is_free: values.is_free || false,
+          quantity_left: parseInt(values.quantity) || 10,
         })
         .eq('id', dealId);
 

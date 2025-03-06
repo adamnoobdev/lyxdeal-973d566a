@@ -86,6 +86,10 @@ export function SalonDeals() {
     if (!editingDeal) return;
 
     try {
+      // Handle free deals - if it's free, we need to ensure discounted_price is at least 1
+      // to comply with database constraints
+      const minPriceForDb = values.is_free ? 1 : parseInt(values.discountedPrice);
+      
       const { error } = await supabase
         .from("deals")
         .update({
@@ -93,7 +97,7 @@ export function SalonDeals() {
           description: values.description,
           image_url: values.imageUrl,
           original_price: parseInt(values.originalPrice),
-          discounted_price: parseInt(values.discountedPrice),
+          discounted_price: minPriceForDb,
           category: values.category,
           city: values.city,
           time_remaining: values.timeRemaining,
