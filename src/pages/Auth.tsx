@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
@@ -123,7 +124,9 @@ export default function Auth() {
                 button_label: 'Logga in',
                 loading_button_label: 'Loggar in...',
                 social_provider_text: 'Logga in med {{provider}}',
-                link_text: 'Har du redan ett konto? Logga in'
+                link_text: 'Har du redan ett konto? Logga in',
+                email_input_placeholder: 'Din e-postadress',
+                password_input_placeholder: 'Ditt lösenord'
               },
               sign_up: {
                 email_label: 'E-postadress',
@@ -131,13 +134,16 @@ export default function Auth() {
                 button_label: 'Registrera',
                 loading_button_label: 'Registrerar...',
                 social_provider_text: 'Registrera med {{provider}}',
-                link_text: 'Har du inget konto? Registrera'
+                link_text: 'Har du inget konto? Registrera',
+                email_input_placeholder: 'Din e-postadress',
+                password_input_placeholder: 'Ditt lösenord'
               },
               forgotten_password: {
                 email_label: 'E-postadress',
                 password_label: 'Lösenord',
                 button_label: 'Återställ lösenord',
-                loading_button_label: 'Skickar instruktioner...'
+                loading_button_label: 'Skickar instruktioner...',
+                email_input_placeholder: 'Din e-postadress'
               }
             }
           }}
