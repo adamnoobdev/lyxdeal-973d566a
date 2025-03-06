@@ -1,3 +1,4 @@
+
 import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
@@ -13,6 +14,7 @@ const Admin = lazy(() => import("@/pages/Admin"));
 const SalonDashboard = lazy(() => import("@/pages/SalonDashboard"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const Terms = lazy(() => import("@/pages/Terms"));
+const PartnerPage = lazy(() => import("@/pages/PartnerPage"));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -37,6 +39,7 @@ function App() {
               <Route path="/salon/dashboard" element={<SalonDashboard />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/bli-partner" element={<PartnerPage />} />
             </Routes>
           </Suspense>
         </main>
