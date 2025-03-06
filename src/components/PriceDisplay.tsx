@@ -16,11 +16,11 @@ export function PriceDisplay({
   isFreeOverride = false,
   showZero = false,
 }: PriceDisplayProps) {
-  const isFree = isFreeOverride || originalPrice === 0 || discountedPrice === 0;
+  const isFree = isFreeOverride || discountedPrice === 0 || discountedPrice === 1 && isFreeOverride;
   
   const formatPrice = (price: number) => {
     // If showZero is true and price is 0, display "0 kr" instead of "GRATIS"
-    if (isFree) {
+    if (isFree && price === discountedPrice) {
       if (showZero) {
         return new Intl.NumberFormat('sv-SE', {
           style: 'currency',
@@ -59,7 +59,7 @@ export function PriceDisplay({
           </span>
         )}
       </div>
-      {originalPrice > 0 && ( /* Always show original price if it's greater than 0, even for free deals */
+      {originalPrice > 0 && ( 
         <div className="flex items-center gap-1.5 text-gray-500">
           <Tag className="h-4 w-4" />
           <span className="text-sm line-through">
