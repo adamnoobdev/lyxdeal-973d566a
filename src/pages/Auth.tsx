@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
@@ -149,7 +148,7 @@ export default function Auth() {
             }
           }}
           providers={[]}
-          showLinks={true}
+          showLinks={false}
           redirectTo={window.location.origin}
         />
       </Card>
