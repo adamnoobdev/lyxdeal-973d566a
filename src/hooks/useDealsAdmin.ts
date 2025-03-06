@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
@@ -43,7 +44,10 @@ export const useDealsAdmin = () => {
   const handleUpdate = async (values: any, id: number) => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
-      const discountedPrice = values.is_free ? 0 : parseInt(values.discountedPrice) || 0;
+      
+      // Always set discounted_price to at least 1 to satisfy database constraint
+      // Even for free deals, we'll use the is_free flag to determine display logic
+      const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
       
       console.log('Updating deal with values:', {
         ...values,
@@ -59,7 +63,7 @@ export const useDealsAdmin = () => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: originalPrice,
-          discounted_price: discountedPrice,
+          discounted_price: discountedPrice, // Always minimum 1
           category: values.category,
           city: values.city,
           time_remaining: values.timeRemaining,
@@ -88,7 +92,10 @@ export const useDealsAdmin = () => {
   const handleCreate = async (values: any) => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
-      const discountedPrice = values.is_free ? 0 : parseInt(values.discountedPrice) || 0;
+      
+      // Always set discounted_price to at least 1 to satisfy database constraint
+      // Even for free deals, we'll use the is_free flag to determine display logic
+      const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
       
       console.log('Creating deal with values:', {
         ...values,
@@ -104,7 +111,7 @@ export const useDealsAdmin = () => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: originalPrice,
-          discounted_price: discountedPrice,
+          discounted_price: discountedPrice, // Always minimum 1
           category: values.category,
           city: values.city,
           time_remaining: values.timeRemaining,
