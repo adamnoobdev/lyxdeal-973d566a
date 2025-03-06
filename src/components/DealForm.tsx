@@ -90,7 +90,11 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 max-h-[calc(85vh-8rem)] overflow-y-auto px-1">
         <div className="space-y-4">
           <SalonField form={form} />
-          <FormFields form={form} handleImageSelected={handleImageSelected} />
+          <FormFields 
+            form={form} 
+            handleImageSelected={handleImageSelected} 
+            initialImageUrl={initialValues?.imageUrl}
+          />
           <PriceFields form={form} />
           <LocationFields form={form} categories={CATEGORIES} cities={CITIES} />
           <QuantityField form={form} />

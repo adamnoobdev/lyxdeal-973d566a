@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Deal } from "./types";
 import { DealsTable } from "./deals/DealsTable";
@@ -158,6 +159,8 @@ export const DealsList = () => {
                 timeRemaining: editingDeal.time_remaining,
                 featured: editingDeal.featured,
                 salon_id: editingDeal.salon_id,
+                is_free: editingDeal.is_free || false,
+                quantity: editingDeal.quantity_left?.toString() || "10",
               }
             : undefined
         }

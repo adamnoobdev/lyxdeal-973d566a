@@ -34,4 +34,5 @@ export type DealFormData = {
   featured: boolean;
   salon_id?: number;
   is_free?: boolean;
+  quantity?: string;
 }

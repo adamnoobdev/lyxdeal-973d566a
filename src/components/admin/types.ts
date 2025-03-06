@@ -1,3 +1,4 @@
+
 export interface Deal {
   id: number;
   title: string;
@@ -17,6 +18,7 @@ export interface Deal {
   salons?: {
     name: string;
   };
+  is_free?: boolean;
 }
 
 export interface Salon {

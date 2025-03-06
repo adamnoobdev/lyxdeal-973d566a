@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,9 +10,10 @@ import { formSchema } from "./schema";
 interface FormFieldsProps {
   form: UseFormReturn<z.infer<typeof formSchema>>;
   handleImageSelected: (imageUrl: string) => void;
+  initialImageUrl?: string;
 }
 
-export const FormFields = ({ form, handleImageSelected }: FormFieldsProps) => {
+export const FormFields = ({ form, handleImageSelected, initialImageUrl }: FormFieldsProps) => {
   return (
     <>
       <FormField
@@ -49,7 +51,10 @@ export const FormFields = ({ form, handleImageSelected }: FormFieldsProps) => {
           <FormItem>
             <FormLabel>Bild</FormLabel>
             <FormControl>
-              <ImageUpload onImageSelected={handleImageSelected} />
+              <ImageUpload 
+                onImageSelected={handleImageSelected} 
+                currentImageUrl={initialImageUrl}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

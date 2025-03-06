@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Deal } from "@/components/admin/types";
@@ -96,6 +97,7 @@ export function SalonDeals() {
           city: values.city,
           time_remaining: values.timeRemaining,
           featured: values.featured,
+          is_free: values.is_free || false,
           status: 'pending' as const,
         })
         .eq("id", editingDeal.id);
@@ -158,6 +160,9 @@ export function SalonDeals() {
                 city: editingDeal.city,
                 timeRemaining: editingDeal.time_remaining,
                 featured: editingDeal.featured,
+                salon_id: editingDeal.salon_id,
+                is_free: editingDeal.is_free || false,
+                quantity: editingDeal.quantity_left?.toString() || "10",
               }
             : undefined
         }
@@ -171,4 +176,4 @@ export function SalonDeals() {
       />
     </>
   );
-}
+};
