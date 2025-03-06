@@ -1,6 +1,8 @@
 
 import { CategoryBadge } from "../CategoryBadge";
-import { Clock } from "lucide-react";
+import { Clock, ShieldCheck } from "lucide-react";
+import { Button } from "../ui/button";
+import { Link } from "react-router-dom";
 
 interface RegularDealContentProps {
   title: string;
@@ -11,6 +13,7 @@ interface RegularDealContentProps {
   originalPrice: number;
   discountedPrice: number;
   quantityLeft: number;
+  id?: number;
 }
 
 export const RegularDealContent = ({
@@ -22,6 +25,7 @@ export const RegularDealContent = ({
   originalPrice,
   discountedPrice,
   quantityLeft,
+  id,
 }: RegularDealContentProps) => {
   const discountPercentage = Math.round(
     ((originalPrice - discountedPrice) / originalPrice) * 100
@@ -62,6 +66,19 @@ export const RegularDealContent = ({
           -{discountPercentage}%
         </span>
       </div>
+      
+      {id && (
+        <Link to={`/deal/${id}`} className="block w-full mt-2">
+          <Button 
+            size="sm" 
+            className="w-full text-xs py-1.5"
+            variant="default"
+          >
+            <ShieldCheck className="h-3.5 w-3.5 mr-1.5" />
+            Säkra deal
+          </Button>
+        </Link>
+      )}
     </div>
   );
 };

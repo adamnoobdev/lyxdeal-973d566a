@@ -1,3 +1,4 @@
+
 import { memo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -57,6 +58,7 @@ const DealCardComponent = ({
             originalPrice={original_price}
             discountedPrice={discounted_price}
             quantityLeft={quantity_left}
+            id={id}
           />
         </div>
       </Link>

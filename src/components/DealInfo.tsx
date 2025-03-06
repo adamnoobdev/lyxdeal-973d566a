@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Phone } from "lucide-react";
+import { Phone, ShieldCheck } from "lucide-react";
 import { PriceDisplay } from "./PriceDisplay";
 
 interface DealInfoProps {
@@ -56,9 +56,17 @@ export const DealInfo = ({
           </div>
         </div>
         
+        <Button 
+          className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-200 group"
+          size="lg"
+        >
+          <ShieldCheck className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+          Säkra deal
+        </Button>
+        
         {salon && salon.phone && (
           <Button 
-            className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-200 group"
+            className="w-full bg-white text-primary border border-primary hover:bg-primary/5 transition-all duration-200 group mt-3"
             size="lg"
             onClick={() => window.location.href = `tel:${salon.phone}`}
           >
