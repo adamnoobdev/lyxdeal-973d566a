@@ -1,23 +1,35 @@
-import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 
-export const Logo = () => {
-  const { data: { publicUrl } } = supabase
-    .storage
-    .from('assets')
-    .getPublicUrl('Lyxdeal-logo.svg');
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+
+const Logo: React.FC = () => {
+  const [logoUrl, setLogoUrl] = useState('');
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const { data } = await supabase.storage.from('assets').getPublicUrl('Lyxdeal-logo.svg');
+        if (data?.publicUrl) {
+          setLogoUrl(data.publicUrl);
+        }
+      } catch (error) {
+        console.error('Error fetching logo:', error);
+      }
+    };
+    
+    fetchLogo();
+  }, []);
 
   return (
-    <Link 
-      to="/" 
-      className="flex items-center gap-2 text-xl font-bold hover:opacity-80 transition-opacity"
-      aria-label="Gå till startsidan"
-    >
-      <img 
-        src={publicUrl} 
-        alt="Lyxdeal Logo" 
-        className="h-8 w-auto"
-      />
+    <Link to="/" className="flex items-center">
+      {logoUrl ? (
+        <img src={logoUrl} alt="LyxDeal Logo" className="h-8 w-auto" />
+      ) : (
+        <span className="font-bold text-2xl">LyxDeal</span>
+      )}
     </Link>
   );
 };
+
+export default Logo;
