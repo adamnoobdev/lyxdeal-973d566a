@@ -8,12 +8,12 @@ interface DealsHeaderProps {
 
 export const DealsHeader = ({ onCreateClick }: DealsHeaderProps) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Erbjudanden</h1>
-        <p className="text-muted-foreground mt-1">Hantera och övervaka alla erbjudanden</p>
+        <p className="text-muted-foreground">Hantera och övervaka alla erbjudanden</p>
       </div>
-      <Button onClick={onCreateClick} className="w-full sm:w-auto">
+      <Button onClick={onCreateClick} size="sm" className="w-full sm:w-auto">
         <Plus className="h-4 w-4 mr-2" />
         Skapa erbjudande
       </Button>

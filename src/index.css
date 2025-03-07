@@ -24,7 +24,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 299 100% 16%;
-    --radius: 0;
+    --radius: 0.5rem;
   }
 
   .dark {
@@ -47,7 +47,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 300 100% 85%;
-    --radius: 0;
+    --radius: 0.5rem;
   }
 
   * {
@@ -59,15 +59,15 @@
   }
 
   h1 {
-    @apply text-4xl font-bold tracking-tight lg:text-5xl;
+    @apply text-3xl font-bold tracking-tight lg:text-4xl;
   }
 
   h2 {
-    @apply text-3xl font-semibold tracking-tight;
+    @apply text-2xl font-semibold tracking-tight;
   }
 
   h3 {
-    @apply text-2xl font-semibold tracking-tight;
+    @apply text-xl font-semibold tracking-tight;
   }
 
   p {
@@ -101,10 +101,33 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  
+  /* Add button transitions */
+  button {
+    @apply transition-all duration-200;
+  }
+  
+  /* Add spacing for admin layout */
+  .admin-container {
+    @apply p-4 md:p-6 lg:p-8;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* Custom breakpoint for extra small screens */
+  @media (min-width: 480px) {
+    .xs\:flex {
+      display: flex;
+    }
+    .xs\:hidden {
+      display: none;
+    }
+    .xs\:table-cell {
+      display: table-cell;
+    }
   }
 }

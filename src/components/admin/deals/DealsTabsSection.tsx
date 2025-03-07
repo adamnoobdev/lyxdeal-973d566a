@@ -3,6 +3,7 @@ import { Deal } from "../types";
 import { DealsTable } from "./DealsTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Inbox, Power } from "lucide-react";
 
 interface DealsTabsSectionProps {
   activeDeals: Deal[];
@@ -20,55 +21,53 @@ export const DealsTabsSection = ({
   handleToggleActive
 }: DealsTabsSectionProps) => {
   return (
-    <div className="space-y-4">
-      <Tabs defaultValue="active" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="active">
-            Aktiva erbjudanden ({activeDeals.length})
-          </TabsTrigger>
-          <TabsTrigger value="inactive">
-            Inaktiva erbjudanden ({inactiveDeals.length})
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="active">
-          {!activeDeals.length ? (
-            <Alert>
-              <AlertDescription>
-                Inga aktiva erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <div className="overflow-x-auto rounded-lg border bg-background">
-              <DealsTable
-                deals={activeDeals}
-                onEdit={setEditingDeal}
-                onDelete={setDeletingDeal}
-                onToggleActive={handleToggleActive}
-              />
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="inactive">
-          {!inactiveDeals.length ? (
-            <Alert>
-              <AlertDescription>
-                Inga inaktiva erbjudanden hittades.
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <div className="overflow-x-auto rounded-lg border bg-background">
-              <DealsTable
-                deals={inactiveDeals}
-                onEdit={setEditingDeal}
-                onDelete={setDeletingDeal}
-                onToggleActive={handleToggleActive}
-              />
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
+    <Tabs defaultValue="active" className="w-full">
+      <TabsList className="mb-4 w-full max-w-md">
+        <TabsTrigger value="active" className="flex-1">
+          <Power className="h-4 w-4 mr-2 text-green-500" />
+          Aktiva ({activeDeals.length})
+        </TabsTrigger>
+        <TabsTrigger value="inactive" className="flex-1">
+          <Power className="h-4 w-4 mr-2 text-gray-400" />
+          Inaktiva ({inactiveDeals.length})
+        </TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="active">
+        {!activeDeals.length ? (
+          <Alert className="bg-muted">
+            <Inbox className="h-4 w-4 mr-2" />
+            <AlertDescription>
+              Inga aktiva erbjudanden hittades.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <DealsTable
+            deals={activeDeals}
+            onEdit={setEditingDeal}
+            onDelete={setDeletingDeal}
+            onToggleActive={handleToggleActive}
+          />
+        )}
+      </TabsContent>
+      
+      <TabsContent value="inactive">
+        {!inactiveDeals.length ? (
+          <Alert className="bg-muted">
+            <Inbox className="h-4 w-4 mr-2" />
+            <AlertDescription>
+              Inga inaktiva erbjudanden hittades.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <DealsTable
+            deals={inactiveDeals}
+            onEdit={setEditingDeal}
+            onDelete={setDeletingDeal}
+            onToggleActive={handleToggleActive}
+          />
+        )}
+      </TabsContent>
+    </Tabs>
   );
 };

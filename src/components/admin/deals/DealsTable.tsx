@@ -49,18 +49,18 @@ export const DealsTable = ({
   };
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full overflow-auto rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="min-w-[200px]">Titel</TableHead>
-            <TableHead className="min-w-[120px] hidden md:table-cell">Kategori</TableHead>
-            <TableHead className="min-w-[120px] hidden md:table-cell">Stad</TableHead>
-            <TableHead className="min-w-[100px]">Pris</TableHead>
-            <TableHead className="min-w-[150px] hidden md:table-cell">Salong</TableHead>
-            <TableHead className="min-w-[100px] hidden sm:table-cell">Status</TableHead>
-            <TableHead className="min-w-[100px]">Aktivitet</TableHead>
-            <TableHead className="min-w-[200px]">Åtgärder</TableHead>
+            <TableHead className="hidden md:table-cell">Kategori</TableHead>
+            <TableHead className="hidden md:table-cell">Stad</TableHead>
+            <TableHead>Pris</TableHead>
+            <TableHead className="hidden md:table-cell">Salong</TableHead>
+            <TableHead className="hidden sm:table-cell">Status</TableHead>
+            <TableHead className="hidden xs:table-cell">Aktivitet</TableHead>
+            <TableHead>Åtgärder</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -70,7 +70,7 @@ export const DealsTable = ({
               className={!deal.is_active ? "bg-muted/50" : undefined}
             >
               <TableCell className="font-medium">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <div 
                     className={`w-2 h-2 rounded-full ${deal.is_active ? 'bg-green-500' : 'bg-gray-400'}`} 
                     title={deal.is_active ? 'Aktiv' : 'Inaktiv'}
@@ -89,7 +89,7 @@ export const DealsTable = ({
               </TableCell>
               <TableCell className="hidden md:table-cell">{(deal as any).salons?.name || 'Ingen salong'}</TableCell>
               <TableCell className="hidden sm:table-cell">{getStatusBadge(deal.status)}</TableCell>
-              <TableCell>
+              <TableCell className="hidden xs:table-cell">
                 <Badge 
                   variant={deal.is_active ? "default" : "outline"}
                   className={`${deal.is_active ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'text-gray-500'}`}
@@ -98,47 +98,37 @@ export const DealsTable = ({
                 </Badge>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1 flex-wrap">
                   {showApprovalActions && deal.status === 'pending' && (
                     <>
                       <Button
                         variant="outline"
-                        size="sm"
-                        className="h-8 w-8 p-0"
+                        size="icon"
+                        className="h-8 w-8"
                         onClick={() => onApprove?.(deal.id)}
-                        title="Godkänn erbjudande"
+                        title="Godkänn"
                       >
                         <Check className="h-4 w-4 text-green-600" />
                       </Button>
                       <Button
                         variant="outline"
-                        size="sm"
-                        className="h-8 w-8 p-0"
+                        size="icon"
+                        className="h-8 w-8"
                         onClick={() => onReject?.(deal.id)}
-                        title="Neka erbjudande"
+                        title="Neka"
                       >
                         <X className="h-4 w-4 text-red-600" />
                       </Button>
                     </>
                   )}
                   
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => window.open(`/deals/${deal.id}`, '_blank')}
-                    title="Förhandsgranska erbjudande"
-                  >
-                    <Eye className="h-4 w-4 text-blue-600" />
-                  </Button>
-                  
                   {onToggleActive && (
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="h-8 w-8 p-0"
+                      size="icon"
+                      className="h-8 w-8"
                       onClick={() => onToggleActive(deal)}
-                      title={deal.is_active ? "Inaktivera erbjudande" : "Aktivera erbjudande"}
+                      title={deal.is_active ? "Inaktivera" : "Aktivera"}
                     >
                       <Power className={`h-4 w-4 ${deal.is_active ? 'text-green-500' : 'text-gray-400'}`} />
                     </Button>
