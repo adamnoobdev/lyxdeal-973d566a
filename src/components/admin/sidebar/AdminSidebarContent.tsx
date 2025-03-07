@@ -3,7 +3,7 @@ import { AdminSidebarLinks } from "./AdminSidebarLinks";
 import { SalonSidebarLinks } from "./SalonSidebarLinks";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Settings, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -37,10 +37,6 @@ export const AdminSidebarContent = ({ userRole }: AdminSidebarContentProps) => {
       <div className="p-4 mt-auto">
         <Separator className="mb-4" />
         <div className="space-y-2">
-          <Button variant="outline" className="w-full justify-start" onClick={() => navigate("/admin/settings")}>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Inställningar</span>
-          </Button>
           <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive" onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Logga ut</span>
