@@ -5,7 +5,7 @@ import { useTheme } from 'next-themes';
 import { useSession } from '@/hooks/useSession';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Moon, Sun, Menu, ChevronDown, MapPin, Heart, ShoppingCart, User } from 'lucide-react';
+import { Search, Moon, Sun, Menu, ChevronDown, MapPin, Heart, ShoppingCart } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -157,9 +157,6 @@ const NavigationBar = ({
                       <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Logga in
                       </Link>
-                      <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
-                        Registrera
-                      </Link>
                     </div>
                   )}
                 </div>
@@ -195,13 +192,6 @@ const NavigationBar = ({
 
           {/* Right section - Actions */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex">
-              <Link to="/search" className="relative">
-                <MapPin className="h-5 w-5" />
-                <span className="sr-only">Välj stad</span>
-              </Link>
-            </Button>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="hidden md:inline-flex">
@@ -253,14 +243,9 @@ const NavigationBar = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <>
-                <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
-                  <Link to="/auth">Logga in</Link>
-                </Button>
-                <Button size="sm" asChild className="hidden md:inline-flex">
-                  <Link to="/auth">Registrera</Link>
-                </Button>
-              </>
+              <Button size="sm" asChild>
+                <Link to="/auth">Logga in</Link>
+              </Button>
             )}
 
             {mounted ? (
