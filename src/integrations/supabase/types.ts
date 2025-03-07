@@ -16,6 +16,7 @@ export type Database = {
           created_at: string
           description: string
           discounted_price: number
+          expiration_date: string | null
           featured: boolean | null
           id: number
           image_url: string
@@ -35,6 +36,7 @@ export type Database = {
           created_at?: string
           description: string
           discounted_price: number
+          expiration_date?: string | null
           featured?: boolean | null
           id?: never
           image_url: string
@@ -54,6 +56,7 @@ export type Database = {
           created_at?: string
           description?: string
           discounted_price?: number
+          expiration_date?: string | null
           featured?: boolean | null
           id?: never
           image_url?: string
