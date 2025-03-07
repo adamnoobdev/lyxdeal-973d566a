@@ -1,7 +1,8 @@
+
 import { Routes, Route } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { AdminAuthCheck } from "@/components/admin/auth/AdminAuthCheck";
-import { DealsList } from "@/components/admin/DealsList";
+import { DealsList } from "@/components/admin/deals";
 import { SalonsList } from "@/components/admin/salons/SalonsList";
 import { SalonDeals } from "@/components/admin/salons/SalonDeals";
 import { Dashboard } from "@/components/admin/Dashboard";
