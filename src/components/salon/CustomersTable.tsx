@@ -15,7 +15,7 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Copy, ExternalLink, Inbox } from "lucide-react";
+import { Copy, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Customer {
@@ -52,7 +52,7 @@ export const CustomersTable = () => {
 
         // Om vi är på en specifik erbjudandesida, filtrera efter deal_id
         if (dealId) {
-          query = query.eq("deal_id", dealId);
+          query = query.eq("deal_id", parseInt(dealId));
         }
 
         const { data, error } = await query;

@@ -39,9 +39,6 @@ export const PendingDealsSection = ({
           onEdit={setEditingDeal}
           onDelete={setDeletingDeal}
           onToggleActive={handleToggleActive}
-          showApprovalActions
-          onApprove={(dealId) => handleStatusChange(dealId, 'approved')}
-          onReject={(dealId) => handleStatusChange(dealId, 'rejected')}
         />
       </CardContent>
     </Card>

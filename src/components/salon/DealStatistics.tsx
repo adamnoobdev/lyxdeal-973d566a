@@ -25,7 +25,7 @@ export const DealStatistics = ({ dealId, salonId }: DealStatisticsProps) => {
       let query = supabase.from("deal_statistics").select("*");
       
       if (dealId) {
-        query = query.eq("deal_id", dealId);
+        query = query.eq("deal_id", parseInt(dealId));
       } 
       
       if (salonId) {

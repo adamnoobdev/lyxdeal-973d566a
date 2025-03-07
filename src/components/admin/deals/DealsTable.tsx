@@ -23,6 +23,9 @@ interface DealsTableProps {
   onToggleActive?: ((deal: Deal) => void) | undefined;
   hasViewDetailsAction?: boolean;
   onViewDetails?: (deal: Deal) => void;
+  showApprovalActions?: boolean;
+  onApprove?: (dealId: number) => void;
+  onReject?: (dealId: number) => void;
 }
 
 export const DealsTable = ({ 
@@ -31,7 +34,10 @@ export const DealsTable = ({
   onDelete, 
   onToggleActive,
   hasViewDetailsAction = false,
-  onViewDetails
+  onViewDetails,
+  showApprovalActions,
+  onApprove,
+  onReject
 }: DealsTableProps) => {
   return (
     <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
@@ -77,9 +83,9 @@ export const DealsTable = ({
                   <div className="flex items-center">
                     <Badge variant={
                       deal.status === 'approved' 
-                        ? (deal.is_active ? 'success' : 'outline')
+                        ? (deal.is_active ? 'default' : 'outline')
                         : deal.status === 'pending' 
-                          ? 'warning' 
+                          ? 'secondary' 
                           : 'destructive'
                     }>
                       {deal.status === 'approved' 
@@ -104,7 +110,6 @@ export const DealsTable = ({
                       </Button>
                     )}
                     <DealActions
-                      deal={deal}
                       onEdit={onEdit ? () => onEdit(deal) : undefined}
                       onDelete={onDelete ? () => onDelete(deal) : undefined}
                       onToggleActive={onToggleActive ? () => onToggleActive(deal) : undefined}

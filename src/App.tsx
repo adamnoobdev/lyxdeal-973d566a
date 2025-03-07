@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
@@ -9,7 +10,7 @@ import SearchResults from "./pages/SearchResults";
 import PartnerPage from "./pages/PartnerPage";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
-import AdminLayout from "./components/admin/layout/AdminLayout";
+import { AdminLayout } from "./components/admin/layout/AdminLayout";
 import Admin from "./pages/Admin";
 import SalonDashboard from "./pages/SalonDashboard";
 import SalonDetails from "./pages/SalonDetails";
