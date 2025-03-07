@@ -13,12 +13,24 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { endOfMonth } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-  const { deals, isLoading, error, handleDelete, handleUpdate, handleCreate, refetch } = useDealsAdmin();
+  const { 
+    deals, 
+    activeDeals,
+    inactiveDeals,
+    isLoading, 
+    error, 
+    handleDelete, 
+    handleUpdate, 
+    handleCreate, 
+    handleToggleActive,
+    refetch 
+  } = useDealsAdmin();
 
   const onDelete = async () => {
     if (deletingDeal) {
@@ -82,7 +94,6 @@ export const DealsList = () => {
   );
 
   const pendingDeals = deals?.filter(deal => deal.status === 'pending') || [];
-  const otherDeals = deals?.filter(deal => deal.status !== 'pending') || [];
 
   return (
     <div className="space-y-8">
@@ -109,6 +120,7 @@ export const DealsList = () => {
                 deals={pendingDeals}
                 onEdit={setEditingDeal}
                 onDelete={setDeletingDeal}
+                onToggleActive={handleToggleActive}
                 showApprovalActions
                 onApprove={(dealId) => handleStatusChange(dealId, 'approved')}
                 onReject={(dealId) => handleStatusChange(dealId, 'rejected')}
@@ -118,25 +130,54 @@ export const DealsList = () => {
         )}
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Alla erbjudanden</h2>
-            <Badge variant="secondary">{otherDeals.length}</Badge>
-          </div>
-          {!otherDeals.length ? (
-            <Alert>
-              <AlertDescription>
-                Inga erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <div className="overflow-x-auto rounded-lg border bg-background">
-              <DealsTable
-                deals={otherDeals}
-                onEdit={setEditingDeal}
-                onDelete={setDeletingDeal}
-              />
-            </div>
-          )}
+          <Tabs defaultValue="active" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="active">
+                Aktiva erbjudanden ({activeDeals.length})
+              </TabsTrigger>
+              <TabsTrigger value="inactive">
+                Inaktiva erbjudanden ({inactiveDeals.length})
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="active">
+              {!activeDeals.length ? (
+                <Alert>
+                  <AlertDescription>
+                    Inga aktiva erbjudanden hittades. Skapa ditt första erbjudande genom att klicka på "Skapa erbjudande" ovan.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="overflow-x-auto rounded-lg border bg-background">
+                  <DealsTable
+                    deals={activeDeals}
+                    onEdit={setEditingDeal}
+                    onDelete={setDeletingDeal}
+                    onToggleActive={handleToggleActive}
+                  />
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="inactive">
+              {!inactiveDeals.length ? (
+                <Alert>
+                  <AlertDescription>
+                    Inga inaktiva erbjudanden hittades.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="overflow-x-auto rounded-lg border bg-background">
+                  <DealsTable
+                    deals={inactiveDeals}
+                    onEdit={setEditingDeal}
+                    onDelete={setDeletingDeal}
+                    onToggleActive={handleToggleActive}
+                  />
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 
@@ -160,6 +201,7 @@ export const DealsList = () => {
                 featured: editingDeal.featured,
                 salon_id: editingDeal.salon_id,
                 is_free: editingDeal.is_free || false,
+                is_active: editingDeal.is_active,
                 quantity: editingDeal.quantity_left?.toString() || "10",
                 expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
               }

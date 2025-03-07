@@ -16,6 +16,7 @@ export interface DealUpdateValues {
   quantity: number;
   expirationDate: Date;
   salon_id?: number;
+  is_active?: boolean;
 }
 
 /**
@@ -48,6 +49,7 @@ export const fetchSalonDeals = async (salonId: string | undefined): Promise<Deal
       ...deal,
       status: deal.status as 'pending' | 'approved' | 'rejected',
       is_free: deal.is_free || false,
+      is_active: deal.is_active ?? true,
       expiration_date: deal.expiration_date || defaultExpirationDate
     };
   }) as Deal[];
@@ -71,25 +73,47 @@ export const deleteSalonDeal = async (dealId: number): Promise<void> => {
  * Updates a deal with new values
  */
 export const updateSalonDeal = async (dealId: number, values: DealUpdateValues): Promise<void> => {
-  const originalPrice = values.originalPrice || 0;
+  const originalPrice = values.originalPrice || A;
   const discountedPrice = values.is_free ? 0 : values.discountedPrice || 0;
   
+  const updateData: any = {
+    title: values.title,
+    description: values.description,
+    image_url: values.imageUrl,
+    original_price: originalPrice,
+    discounted_price: discountedPrice,
+    category: values.category,
+    city: values.city,
+    featured: values.featured,
+    is_free: values.is_free || false,
+    quantity_left: values.quantity || 10,
+    status: 'pending',
+    expiration_date: values.expirationDate.toISOString()
+  };
+
+  // Only add is_active field if it's explicitly provided
+  if (values.is_active !== undefined) {
+    updateData.is_active = values.is_active;
+  }
+
   const { error } = await supabase
     .from("deals")
-    .update({
-      title: values.title,
-      description: values.description,
-      image_url: values.imageUrl,
-      original_price: originalPrice,
-      discounted_price: discountedPrice,
-      category: values.category,
-      city: values.city,
-      featured: values.featured,
-      is_free: values.is_free || false,
-      quantity_left: values.quantity || 10,
-      status: 'pending',
-      expiration_date: values.expirationDate.toISOString()
-    })
+    .update(updateData)
+    .eq("id", dealId);
+
+  if (error) {
+    console.error('Database error details:', error);
+    throw error;
+  }
+};
+
+/**
+ * Toggles a deal's active status
+ */
+export const toggleDealActiveStatus = async (dealId: number, isActive: boolean): Promise<void> => {
+  const { error } = await supabase
+    .from("deals")
+    .update({ is_active: isActive })
     .eq("id", dealId);
 
   if (error) {

@@ -5,6 +5,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
@@ -84,6 +85,27 @@ export const AdditionalFields = ({ form }: AdditionalFieldsProps) => {
               <p className="text-sm text-muted-foreground">
                 Detta erbjudande kommer att visas i sektionen för utvalda erbjudanden
               </p>
+            </div>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="is_active"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+            <FormControl>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
+            <div className="space-y-1 leading-none">
+              <FormLabel>Aktivt erbjudande</FormLabel>
+              <FormDescription>
+                Detta erbjudande kommer att vara synligt på hemsidan. Inaktiva erbjudanden syns bara i adminpanelen.
+              </FormDescription>
             </div>
           </FormItem>
         )}

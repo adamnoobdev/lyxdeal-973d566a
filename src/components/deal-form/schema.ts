@@ -41,6 +41,7 @@ export const formSchema = z.object({
     message: "Vänligen ange hur många erbjudanden som ska kunna säljas.",
   }),
   is_free: z.boolean().default(false),
+  is_active: z.boolean().default(true),
 });
 
 export type FormValues = z.infer<typeof formSchema>;

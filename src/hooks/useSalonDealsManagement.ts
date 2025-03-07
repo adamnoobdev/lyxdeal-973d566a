@@ -2,7 +2,13 @@
 import { useState, useEffect } from "react";
 import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";
-import { fetchSalonDeals, deleteSalonDeal, updateSalonDeal, DealUpdateValues } from "@/utils/dealApiUtils";
+import { 
+  fetchSalonDeals, 
+  deleteSalonDeal, 
+  updateSalonDeal, 
+  toggleDealActiveStatus,
+  DealUpdateValues 
+} from "@/utils/dealApiUtils";
 
 export const useSalonDealsManagement = (salonId: string | undefined) => {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -60,6 +66,7 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
         city: values.city,
         featured: values.featured,
         is_free: values.is_free || false,
+        is_active: values.is_active !== undefined ? values.is_active : editingDeal.is_active,
         quantity: parseInt(values.quantity) || 10,
         expirationDate: values.expirationDate,
         salon_id: editingDeal.salon_id
@@ -75,8 +82,25 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
     }
   };
 
+  const handleToggleActive = async (deal: Deal) => {
+    try {
+      await toggleDealActiveStatus(deal.id, !deal.is_active);
+      toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktivt' : 'inaktivt'}`);
+      await loadSalonDeals();
+    } catch (err: any) {
+      console.error("Error toggling deal active status:", err);
+      toast.error("Ett fel uppstod när erbjudandets status skulle ändras");
+    }
+  };
+
+  // Filtrera erbjudanden efter aktiva/inaktiva
+  const activeDeals = deals.filter(deal => deal.is_active);
+  const inactiveDeals = deals.filter(deal => !deal.is_active);
+  
   return {
     deals,
+    activeDeals,
+    inactiveDeals,
     isLoading,
     error,
     editingDeal,
@@ -85,5 +109,6 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
     setDeletingDeal,
     handleDelete,
     handleUpdate,
+    handleToggleActive,
   };
 };

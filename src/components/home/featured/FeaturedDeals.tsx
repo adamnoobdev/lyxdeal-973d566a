@@ -16,6 +16,7 @@ const FeaturedDealsComponent = () => {
         .from('deals')
         .select('*')
         .eq('featured', true)
+        .eq('is_active', true) // Endast aktiva erbjudanden
         .order('created_at', { ascending: false })
         .limit(8); // Begränsa antal för bättre prestanda
 

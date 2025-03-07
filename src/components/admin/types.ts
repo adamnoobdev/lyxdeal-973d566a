@@ -19,6 +19,7 @@ export interface Deal {
     name: string;
   };
   is_free: boolean;
+  is_active: boolean;
   expiration_date: string;
 }
 

@@ -62,6 +62,7 @@ export const useDealsAdmin = () => {
         originalPrice,
         discountedPrice,
         is_free: values.is_free,
+        is_active: values.is_active,
         expirationDate: expirationDate
       });
       
@@ -80,6 +81,7 @@ export const useDealsAdmin = () => {
           featured: values.featured,
           salon_id: values.salon_id,
           is_free: values.is_free || false,
+          is_active: values.is_active,
           quantity_left: parseInt(values.quantity) || 10,
         })
         .eq('id', id);
@@ -118,6 +120,7 @@ export const useDealsAdmin = () => {
         originalPrice,
         discountedPrice,
         is_free: values.is_free,
+        is_active: values.is_active !== undefined ? values.is_active : true,
         expirationDate: expirationDate
       });
       
@@ -137,6 +140,7 @@ export const useDealsAdmin = () => {
           salon_id: values.salon_id,
           status: 'pending',
           is_free: values.is_free || false,
+          is_active: values.is_active !== undefined ? values.is_active : true,
           quantity_left: parseInt(values.quantity) || 10,
         }]);
 
@@ -155,13 +159,39 @@ export const useDealsAdmin = () => {
     }
   };
 
+  const handleToggleActive = async (deal: Deal) => {
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .update({ is_active: !deal.is_active })
+        .eq('id', deal.id);
+
+      if (error) throw error;
+      
+      toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktiverat' : 'inaktiverat'}`);
+      refetch();
+      return true;
+    } catch (error) {
+      console.error('Error toggling deal active status:', error);
+      toast.error("Ett fel uppstod när erbjudandets status skulle ändras");
+      return false;
+    }
+  };
+
+  // Filtrera erbjudanden efter aktiva/inaktiva
+  const activeDeals = deals.filter(deal => deal.is_active);
+  const inactiveDeals = deals.filter(deal => !deal.is_active);
+
   return {
     deals,
+    activeDeals,
+    inactiveDeals,
     isLoading,
     error,
     handleDelete,
     handleUpdate,
     handleCreate,
+    handleToggleActive,
     refetch
   };
 };

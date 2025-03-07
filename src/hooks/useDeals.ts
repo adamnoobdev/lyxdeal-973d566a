@@ -12,6 +12,7 @@ export const useDeals = (category?: string, city?: string) => {
         let query = supabase
           .from("deals")
           .select("*")
+          .eq("is_active", true) // Endast aktiva erbjudanden
           .order("created_at", { ascending: false });
 
         if (category && category !== "Alla Erbjudanden") {

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,7 +25,9 @@ export default function SearchResults() {
 
       let supabaseQuery = supabase
         .from("deals")
-        .select("*");
+        .select("*")
+        .eq("is_active", true) // Endast aktiva erbjudanden
+        .order("created_at", { ascending: false });
 
       if (query) {
         supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
