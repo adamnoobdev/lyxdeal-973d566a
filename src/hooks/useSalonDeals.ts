@@ -27,7 +27,8 @@ export const useSalonDeals = (salonId: number | undefined) => {
         throw error;
       }
 
-      return deals as Deal[];
+      // Add type assertion to make TypeScript happy
+      return deals as unknown as Deal[];
     },
     enabled: !!salonId,
   });
