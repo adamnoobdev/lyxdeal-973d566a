@@ -19,6 +19,7 @@ export interface Deal {
     name: string;
   };
   is_free: boolean;
+  expiration_date: string;
 }
 
 export interface Salon {

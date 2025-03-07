@@ -54,6 +54,15 @@ export default function SalonDashboard() {
     }
   };
 
+  // Helper functions to handle Deal type compatibility
+  const handleEditDeal = (deal: Deal) => {
+    setEditingDeal(deal);
+  };
+
+  const handleDeleteDeal = (deal: Deal) => {
+    setDeletingDeal(deal);
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center">
@@ -68,15 +77,15 @@ export default function SalonDashboard() {
         title="Väntande godkännande"
         deals={pendingDeals}
         alertMessage="Dessa erbjudanden väntar på godkännande från en administratör innan de publiceras."
-        onEdit={setEditingDeal}
-        onDelete={setDeletingDeal}
+        onEdit={handleEditDeal}
+        onDelete={handleDeleteDeal}
       />
 
       <DealsSection
         title="Aktiva erbjudanden"
         deals={approvedDeals}
-        onEdit={setEditingDeal}
-        onDelete={setDeletingDeal}
+        onEdit={handleEditDeal}
+        onDelete={handleDeleteDeal}
       />
 
       <DealsSection
@@ -84,8 +93,8 @@ export default function SalonDashboard() {
         deals={rejectedDeals}
         alertVariant="destructive"
         alertMessage="Dessa erbjudanden har nekats av en administratör. Du kan redigera och skicka in dem igen för ny granskning."
-        onEdit={setEditingDeal}
-        onDelete={setDeletingDeal}
+        onEdit={handleEditDeal}
+        onDelete={handleDeleteDeal}
       />
 
       <DealDialog
