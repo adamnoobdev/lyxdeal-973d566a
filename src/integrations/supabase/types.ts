@@ -87,6 +87,9 @@ export type Database = {
         Row: {
           code: string
           created_at: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
           deal_id: number | null
           id: number
           is_used: boolean | null
@@ -96,6 +99,9 @@ export type Database = {
         Insert: {
           code: string
           created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           deal_id?: number | null
           id?: number
           is_used?: boolean | null
@@ -105,6 +111,9 @@ export type Database = {
         Update: {
           code?: string
           created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           deal_id?: number | null
           id?: number
           is_used?: boolean | null
@@ -112,6 +121,13 @@ export type Database = {
           used_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "discount_codes_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deal_statistics"
+            referencedColumns: ["deal_id"]
+          },
           {
             foreignKeyName: "discount_codes_deal_id_fkey"
             columns: ["deal_id"]
@@ -158,6 +174,13 @@ export type Database = {
             foreignKeyName: "purchases_deal_id_fkey"
             columns: ["deal_id"]
             isOneToOne: false
+            referencedRelation: "deal_statistics"
+            referencedColumns: ["deal_id"]
+          },
+          {
+            foreignKeyName: "purchases_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
             referencedRelation: "deals"
             referencedColumns: ["id"]
           },
@@ -196,10 +219,35 @@ export type Database = {
             foreignKeyName: "reviews_deal_id_fkey"
             columns: ["deal_id"]
             isOneToOne: false
+            referencedRelation: "deal_statistics"
+            referencedColumns: ["deal_id"]
+          },
+          {
+            foreignKeyName: "reviews_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
             referencedRelation: "deals"
             referencedColumns: ["id"]
           },
         ]
+      }
+      salon_user_status: {
+        Row: {
+          created_at: string
+          first_login: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          first_login?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          first_login?: boolean
+          user_id?: string
+        }
+        Relationships: []
       }
       salons: {
         Row: {
@@ -236,7 +284,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      deal_statistics: {
+        Row: {
+          customer_signups: number | null
+          deal_id: number | null
+          deal_title: string | null
+          salon_id: number | null
+          salon_name: string | null
+          total_codes: number | null
+          used_codes: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_test_salon: {
