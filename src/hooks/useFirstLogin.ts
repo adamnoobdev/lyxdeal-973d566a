@@ -11,6 +11,17 @@ export const useFirstLogin = () => {
   useEffect(() => {
     const checkFirstLogin = async () => {
       if (!user?.id) {
+        setIsFirstLogin(false);
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if we've already determined this in the current session
+      const localStatusKey = `salon_first_login_${user.id}`;
+      const localStatus = localStorage.getItem(localStatusKey);
+      
+      if (localStatus === 'false') {
+        setIsFirstLogin(false);
         setIsLoading(false);
         return;
       }
@@ -25,11 +36,18 @@ export const useFirstLogin = () => {
         if (error) throw error;
         
         // Om vi inte hittar någon rad, anta att det är första inloggningen
-        setIsFirstLogin(data?.first_login !== false);
+        const isFirst = data?.first_login !== false;
+        setIsFirstLogin(isFirst);
+        
+        // Store the result in localStorage to avoid checking again
+        if (!isFirst) {
+          localStorage.setItem(localStatusKey, 'false');
+        }
       } catch (error) {
         console.error("Fel vid kontroll av första inloggning:", error);
         // Om något går fel, anta att det inte är första inloggningen
         setIsFirstLogin(false);
+        localStorage.setItem(localStatusKey, 'false');
       } finally {
         setIsLoading(false);
       }

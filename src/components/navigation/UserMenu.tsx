@@ -1,10 +1,12 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Session } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
 import { User } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface UserMenuProps {
   session: Session | null;
@@ -19,6 +21,28 @@ const UserMenu: React.FC<UserMenuProps> = ({
   dashboardPath,
   userRole
 }) => {
+  const navigate = useNavigate();
+  
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success("Du har loggats ut");
+      navigate('/auth');
+    } catch (error) {
+      console.error('Utloggningsfel:', error);
+      toast.error("Det gick inte att logga ut. Försök igen.");
+    }
+  };
+  
+  const goToProfile = () => {
+    if (hasDashboard) {
+      navigate(dashboardPath);
+    } else {
+      navigate('/auth');
+    }
+  };
+
   if (session?.user) {
     return (
       <DropdownMenu>
@@ -29,10 +53,10 @@ const UserMenu: React.FC<UserMenuProps> = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuItem onClick={() => window.location.href = '/auth'}>
+          <DropdownMenuItem onClick={goToProfile}>
             Min profil
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => window.location.href = '/auth'}>
+          <DropdownMenuItem onClick={handleLogout}>
             Logga ut
           </DropdownMenuItem>
         </DropdownMenuContent>
