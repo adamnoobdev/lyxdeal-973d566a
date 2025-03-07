@@ -17,18 +17,18 @@ export const DealActions = ({ onEdit, onDelete }: DealActionsProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted">
-          <MoreHorizontal className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-primary/10">
+          <MoreHorizontal className="h-4 w-4 text-primary/80" />
           <span className="sr-only">Öppna meny</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
-          <Pencil className="h-4 w-4 mr-2 text-blue-600" />
+      <DropdownMenuContent align="end" className="w-40 border-secondary/20">
+        <DropdownMenuItem onClick={onEdit} className="cursor-pointer hover:bg-primary/5">
+          <Pencil className="h-4 w-4 mr-2 text-primary" />
           Redigera
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => window.open(`/deals/1`, '_blank')} className="cursor-pointer">
-          <Eye className="h-4 w-4 mr-2 text-indigo-600" />
+        <DropdownMenuItem onClick={() => window.open(`/deals/1`, '_blank')} className="cursor-pointer hover:bg-primary/5">
+          <Eye className="h-4 w-4 mr-2 text-primary" />
           Förhandsgranska
         </DropdownMenuItem>
         <DropdownMenuItem 

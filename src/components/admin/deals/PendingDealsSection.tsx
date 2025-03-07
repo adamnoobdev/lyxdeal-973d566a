@@ -23,11 +23,11 @@ export const PendingDealsSection = ({
   if (!pendingDeals.length) return null;
   
   return (
-    <Card className="border-amber-200 bg-amber-50 mb-8">
+    <Card className="border-amber-200 bg-amber-50/50 mb-8 shadow-sm">
       <CardHeader className="pb-2 pt-4">
         <div className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-amber-500" />
-          <h2 className="text-lg font-semibold">Väntande godkännande</h2>
+          <h2 className="text-lg font-semibold text-amber-800">Väntande godkännande</h2>
           <Badge variant="outline" className="ml-auto bg-amber-100 text-amber-800 border-amber-200">
             {pendingDeals.length}
           </Badge>

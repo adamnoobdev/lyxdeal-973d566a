@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { DealActions } from "./DealActions";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Power, Eye, Pencil, Trash2 } from "lucide-react";
+import { Check, X, Power, Eye } from "lucide-react";
 import { formatCurrency } from "@/utils/dealApiUtils";
 import { Card } from "@/components/ui/card";
 
@@ -40,8 +40,8 @@ export const DealsTable = ({
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: "default" | "destructive" | "outline" | "secondary", label: string, color: string }> = {
-      pending: { variant: "secondary", label: "Väntar", color: "bg-amber-100 text-amber-800" },
-      approved: { variant: "default", label: "Godkänd", color: "bg-green-100 text-green-800" },
+      pending: { variant: "secondary", label: "Väntar", color: "bg-amber-100 text-amber-800 border-amber-200" },
+      approved: { variant: "default", label: "Godkänd", color: "bg-green-100 text-green-800 border-green-200" },
       rejected: { variant: "destructive", label: "Nekad", color: "" }
     };
 
@@ -54,25 +54,25 @@ export const DealsTable = ({
   };
 
   return (
-    <Card className="border rounded-lg overflow-hidden">
+    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
       <div className="w-full overflow-auto">
         <Table>
-          <TableHeader className="bg-muted/30">
+          <TableHeader className="bg-primary/5">
             <TableRow>
-              <TableHead className="min-w-[200px] font-semibold">Titel</TableHead>
-              <TableHead className="hidden md:table-cell font-semibold">Kategori</TableHead>
-              <TableHead className="hidden md:table-cell font-semibold">Stad</TableHead>
-              <TableHead className="font-semibold">Pris</TableHead>
-              <TableHead className="hidden md:table-cell font-semibold">Salong</TableHead>
-              <TableHead className="hidden sm:table-cell font-semibold">Status</TableHead>
-              <TableHead className="text-center font-semibold">Åtgärder</TableHead>
+              <TableHead className="min-w-[200px] font-semibold text-primary">Titel</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold text-primary">Kategori</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold text-primary">Stad</TableHead>
+              <TableHead className="font-semibold text-primary">Pris</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold text-primary">Salong</TableHead>
+              <TableHead className="hidden sm:table-cell font-semibold text-primary">Status</TableHead>
+              <TableHead className="text-center font-semibold text-primary">Åtgärder</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {deals.map((deal) => (
               <TableRow 
                 key={deal.id} 
-                className={`${!deal.is_active ? "bg-gray-50" : "hover:bg-gray-50"} transition-colors`}
+                className={`${!deal.is_active ? "bg-gray-50" : "hover:bg-primary/5"} transition-colors`}
               >
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
@@ -87,9 +87,9 @@ export const DealsTable = ({
                 <TableCell className="hidden md:table-cell text-muted-foreground">{deal.city}</TableCell>
                 <TableCell>
                   {deal.is_free ? (
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-800">Gratis</Badge>
+                    <Badge variant="secondary" className="bg-secondary/30 text-primary border-secondary/40">Gratis</Badge>
                   ) : (
-                    <span className="font-medium text-gray-900">{formatCurrency(deal.discounted_price)} kr</span>
+                    <span className="font-medium text-primary">{formatCurrency(deal.discounted_price)} kr</span>
                   )}
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-muted-foreground">{(deal as any).salons?.name || 'Ingen salong'}</TableCell>
@@ -123,11 +123,11 @@ export const DealsTable = ({
                       <Button
                         variant="outline"
                         size="icon"
-                        className={`h-8 w-8 ${deal.is_active ? 'bg-green-50 border-green-200 hover:bg-green-100' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
+                        className={`h-8 w-8 ${deal.is_active ? 'bg-primary/10 border-primary/20 hover:bg-primary/20' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
                         onClick={() => onToggleActive(deal)}
                         title={deal.is_active ? "Inaktivera" : "Aktivera"}
                       >
-                        <Power className={`h-4 w-4 ${deal.is_active ? 'text-green-600' : 'text-gray-400'}`} />
+                        <Power className={`h-4 w-4 ${deal.is_active ? 'text-primary' : 'text-gray-400'}`} />
                       </Button>
                     )}
                     
