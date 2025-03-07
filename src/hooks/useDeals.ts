@@ -9,16 +9,20 @@ export const useDeals = (category?: string, city?: string) => {
     queryKey: ["deals", category, city],
     queryFn: async () => {
       try {
+        // Skapa basqueryn - hämta endast aktiva erbjudanden som standard
         let query = supabase
           .from("deals")
           .select("*")
           .eq("is_active", true) // Endast aktiva erbjudanden
+          .eq("status", "approved") // Endast godkända erbjudanden
           .order("created_at", { ascending: false });
 
+        // Lägg till kategorifiltrering om en specifik kategori valts
         if (category && category !== "Alla Erbjudanden") {
           query = query.eq("category", category);
         }
 
+        // Lägg till stadsfiltrering om en specifik stad valts
         if (city && city !== "Alla Städer") {
           query = query.eq("city", city);
         }
@@ -31,6 +35,7 @@ export const useDeals = (category?: string, city?: string) => {
           throw error;
         }
 
+        console.log(`Hämtade ${data.length} aktiva erbjudanden`);
         return data as Deal[];
       } catch (error) {
         console.error("Unexpected error in useDeals:", error);

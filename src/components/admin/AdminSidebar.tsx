@@ -4,9 +4,20 @@ import { AdminSidebarContent } from "./sidebar/AdminSidebarContent";
 import { useSession } from "@/hooks/useSession";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 export const AdminSidebar = () => {
   const { session } = useSession();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Fetch user role to determine what sidebar content to show
   const { data: userData } = useQuery({
@@ -31,7 +42,12 @@ export const AdminSidebar = () => {
   });
 
   return (
-    <Sidebar className="border-r bg-background/80 backdrop-blur-sm pt-16" variant="inset" collapsible="icon">
+    <Sidebar 
+      className="border-r bg-background/95 backdrop-blur-sm pt-16 z-10 shadow-sm" 
+      variant="inset" 
+      collapsible="icon"
+      defaultCollapsed={isMobile}
+    >
       <SidebarTrigger className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" />
       <AdminSidebarContent userRole={userData?.role} />
     </Sidebar>

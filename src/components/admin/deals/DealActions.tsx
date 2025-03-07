@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 
@@ -16,7 +17,7 @@ export const DealActions = ({ onEdit, onDelete }: DealActionsProps) => {
         className="flex items-center gap-2"
       >
         <Pencil className="h-4 w-4" />
-        Redigera
+        <span className="hidden sm:inline">Redigera</span>
       </Button>
       <Button
         variant="destructive"
@@ -25,7 +26,7 @@ export const DealActions = ({ onEdit, onDelete }: DealActionsProps) => {
         className="flex items-center gap-2"
       >
         <Trash2 className="h-4 w-4" />
-        Ta bort
+        <span className="hidden sm:inline">Ta bort</span>
       </Button>
     </div>
   );

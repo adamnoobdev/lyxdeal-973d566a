@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";
@@ -18,6 +17,13 @@ export interface DealUpdateValues {
   salon_id?: number;
   is_active?: boolean;
 }
+
+/**
+ * Formats a number as Swedish currency (kr)
+ */
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('sv-SE').format(amount);
+};
 
 /**
  * Fetches deals for a salon by ID

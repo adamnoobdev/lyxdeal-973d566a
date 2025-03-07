@@ -1,5 +1,6 @@
+
 import { useLocation } from "react-router-dom";
-import { LayoutDashboard, Store, Tags } from "lucide-react";
+import { LayoutDashboard, Store, Tags, ShoppingBag, BookUser } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
 import { SidebarLink } from "./SidebarLink";
 
@@ -8,16 +9,31 @@ const adminLinks = [
     href: "/admin",
     icon: LayoutDashboard,
     label: "Dashboard",
+    description: "Översikt och statistik",
   },
   {
     href: "/admin/deals",
     icon: Tags,
     label: "Erbjudanden",
+    description: "Hantera erbjudanden",
   },
   {
     href: "/admin/salons",
     icon: Store,
     label: "Salonger",
+    description: "Hantera salonger",
+  },
+  {
+    href: "/admin/orders",
+    icon: ShoppingBag,
+    label: "Beställningar",
+    description: "Se alla beställningar",
+  },
+  {
+    href: "/admin/customers",
+    icon: BookUser,
+    label: "Kunder",
+    description: "Kundlista",
   },
 ] as const;
 

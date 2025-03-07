@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/table";
 import { DealActions } from "./DealActions";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Power } from "lucide-react";
+import { Check, X, Power, Eye } from "lucide-react";
+import { formatCurrency } from "@/utils/dealApiUtils";
 
 interface DealsTableProps {
   deals: Deal[] | undefined;
@@ -33,7 +34,7 @@ export const DealsTable = ({
   onReject,
 }: DealsTableProps) => {
   if (!deals || deals.length === 0) {
-    return <p className="text-muted-foreground p-4">Inga erbjudanden hittade.</p>;
+    return <p className="text-muted-foreground p-4 text-center">Inga erbjudanden hittade.</p>;
   }
 
   const getStatusBadge = (status: string) => {
@@ -53,26 +54,46 @@ export const DealsTable = ({
         <TableHeader>
           <TableRow>
             <TableHead className="min-w-[200px]">Titel</TableHead>
-            <TableHead className="min-w-[120px]">Kategori</TableHead>
-            <TableHead className="min-w-[120px]">Stad</TableHead>
+            <TableHead className="min-w-[120px] hidden md:table-cell">Kategori</TableHead>
+            <TableHead className="min-w-[120px] hidden md:table-cell">Stad</TableHead>
             <TableHead className="min-w-[100px]">Pris</TableHead>
-            <TableHead className="min-w-[150px]">Salong</TableHead>
-            <TableHead className="min-w-[100px]">Status</TableHead>
+            <TableHead className="min-w-[150px] hidden md:table-cell">Salong</TableHead>
+            <TableHead className="min-w-[100px] hidden sm:table-cell">Status</TableHead>
             <TableHead className="min-w-[100px]">Aktivitet</TableHead>
             <TableHead className="min-w-[200px]">Åtgärder</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {deals.map((deal) => (
-            <TableRow key={deal.id} className={!deal.is_active ? "bg-muted/50" : undefined}>
-              <TableCell className="font-medium">{deal.title}</TableCell>
-              <TableCell>{deal.category}</TableCell>
-              <TableCell>{deal.city}</TableCell>
-              <TableCell>{deal.discounted_price} kr</TableCell>
-              <TableCell>{(deal as any).salons?.name || 'Ingen salong'}</TableCell>
-              <TableCell>{getStatusBadge(deal.status)}</TableCell>
+            <TableRow 
+              key={deal.id} 
+              className={!deal.is_active ? "bg-muted/50" : undefined}
+            >
+              <TableCell className="font-medium">
+                <div className="flex items-center space-x-2">
+                  <div 
+                    className={`w-2 h-2 rounded-full ${deal.is_active ? 'bg-green-500' : 'bg-gray-400'}`} 
+                    title={deal.is_active ? 'Aktiv' : 'Inaktiv'}
+                  />
+                  <span className="truncate max-w-[150px] md:max-w-[250px]">{deal.title}</span>
+                </div>
+              </TableCell>
+              <TableCell className="hidden md:table-cell">{deal.category}</TableCell>
+              <TableCell className="hidden md:table-cell">{deal.city}</TableCell>
               <TableCell>
-                <Badge variant={deal.is_active ? "default" : "outline"}>
+                {deal.is_free ? (
+                  <Badge variant="secondary">Gratis</Badge>
+                ) : (
+                  <span className="whitespace-nowrap">{formatCurrency(deal.discounted_price)} kr</span>
+                )}
+              </TableCell>
+              <TableCell className="hidden md:table-cell">{(deal as any).salons?.name || 'Ingen salong'}</TableCell>
+              <TableCell className="hidden sm:table-cell">{getStatusBadge(deal.status)}</TableCell>
+              <TableCell>
+                <Badge 
+                  variant={deal.is_active ? "default" : "outline"}
+                  className={`${deal.is_active ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'text-gray-500'}`}
+                >
                   {deal.is_active ? "Aktiv" : "Inaktiv"}
                 </Badge>
               </TableCell>
@@ -85,19 +106,32 @@ export const DealsTable = ({
                         size="sm"
                         className="h-8 w-8 p-0"
                         onClick={() => onApprove?.(deal.id)}
+                        title="Godkänn erbjudande"
                       >
-                        <Check className="h-4 w-4" />
+                        <Check className="h-4 w-4 text-green-600" />
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         className="h-8 w-8 p-0"
                         onClick={() => onReject?.(deal.id)}
+                        title="Neka erbjudande"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4 text-red-600" />
                       </Button>
                     </>
                   )}
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => window.open(`/deals/${deal.id}`, '_blank')}
+                    title="Förhandsgranska erbjudande"
+                  >
+                    <Eye className="h-4 w-4 text-blue-600" />
+                  </Button>
+                  
                   {onToggleActive && (
                     <Button
                       variant="outline"
@@ -109,6 +143,7 @@ export const DealsTable = ({
                       <Power className={`h-4 w-4 ${deal.is_active ? 'text-green-500' : 'text-gray-400'}`} />
                     </Button>
                   )}
+                  
                   <DealActions
                     onEdit={() => onEdit(deal)}
                     onDelete={() => onDelete(deal)}
