@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -11,31 +10,35 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from '@/integrations/supabase/client';
 import { CITIES, CATEGORIES, City, Category } from '@/constants/app-constants';
-
 interface NavigationBarProps {
   userRole?: string | null;
 }
-
 const NavigationBar = ({
   userRole
 }: NavigationBarProps) => {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const { session } = useSession();
+  const {
+    theme,
+    setTheme
+  } = useTheme();
+  const {
+    session
+  } = useSession();
   const [showBg, setShowBg] = useState(false);
   const [logoUrl, setLogoUrl] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState<City>('Alla Städer');
   const [selectedCategory, setSelectedCategory] = useState<Category>('Alla Erbjudanden');
   const navigate = useNavigate();
-
   useEffect(() => {
     setMounted(true);
 
     // Fetch logo from Supabase storage
     const fetchLogo = async () => {
       try {
-        const { data } = await supabase.storage.from('assets').getPublicUrl('Lyxdeal-logo.svg');
+        const {
+          data
+        } = await supabase.storage.from('assets').getPublicUrl('Lyxdeal-logo.svg');
         if (data?.publicUrl) {
           setLogoUrl(data.publicUrl);
         }
@@ -45,7 +48,6 @@ const NavigationBar = ({
     };
     fetchLogo();
   }, []);
-
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -57,7 +59,6 @@ const NavigationBar = ({
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     let searchParams = new URLSearchParams();
@@ -66,12 +67,9 @@ const NavigationBar = ({
     if (selectedCategory !== 'Alla Erbjudanden') searchParams.append('category', selectedCategory);
     navigate(`/search?${searchParams.toString()}`);
   };
-
   const hasDashboard = !!userRole;
   const dashboardPath = userRole === 'admin' ? '/admin' : '/salon/dashboard';
-
-  return (
-    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${showBg ? 'bg-white shadow-sm dark:bg-gray-900' : 'bg-white/80 backdrop-blur-sm dark:bg-gray-900/80'}`}>
+  return <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${showBg ? 'bg-white shadow-sm dark:bg-gray-900' : 'bg-white/80 backdrop-blur-sm dark:bg-gray-900/80'}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left section - Logo and hamburger menu */}
@@ -98,11 +96,9 @@ const NavigationBar = ({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-[200px]">
-                        {CITIES.map(city => (
-                          <DropdownMenuItem key={city} onClick={() => setSelectedCity(city)}>
+                        {CITIES.map(city => <DropdownMenuItem key={city} onClick={() => setSelectedCity(city)}>
                             {city}
-                          </DropdownMenuItem>
-                        ))}
+                          </DropdownMenuItem>)}
                       </DropdownMenuContent>
                     </DropdownMenu>
                     
@@ -113,11 +109,9 @@ const NavigationBar = ({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-[200px]">
-                        {CATEGORIES.map(category => (
-                          <DropdownMenuItem key={category} onClick={() => setSelectedCategory(category)}>
+                        {CATEGORIES.map(category => <DropdownMenuItem key={category} onClick={() => setSelectedCategory(category)}>
                             {category}
-                          </DropdownMenuItem>
-                        ))}
+                          </DropdownMenuItem>)}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
@@ -135,14 +129,11 @@ const NavigationBar = ({
                     </Link>
                   </div>
                   
-                  {hasDashboard && (
-                    <Link to={dashboardPath} className="px-4 py-2 block bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded">
+                  {hasDashboard && <Link to={dashboardPath} className="px-4 py-2 block bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded">
                       {userRole === 'admin' ? 'Admin Dashboard' : 'Salongens Dashboard'}
-                    </Link>
-                  )}
+                    </Link>}
                   
-                  {session?.user ? (
-                    <div className="space-y-2">
+                  {session?.user ? <div className="space-y-2">
                       <p className="text-sm font-medium leading-none">Konto</p>
                       <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Min profil
@@ -150,25 +141,18 @@ const NavigationBar = ({
                       <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Logga ut
                       </Link>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
+                    </div> : <div className="space-y-2">
                       <p className="text-sm font-medium leading-none">Konto</p>
                       <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Logga in
                       </Link>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </SheetContent>
             </Sheet>
 
             <Link to="/" className="flex items-center">
-              {logoUrl ? (
-                <img src={logoUrl} alt="LyxDeal Logo" className="h-8 w-auto" />
-              ) : (
-                <span className="font-bold text-2xl">LyxDeal</span>
-              )}
+              {logoUrl ? <img src={logoUrl} alt="LyxDeal Logo" className="h-8 w-auto" /> : <span className="font-bold text-2xl">LyxDeal</span>}
             </Link>
           </div>
 
@@ -179,13 +163,7 @@ const NavigationBar = ({
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className="h-4 w-4 text-gray-400" />
                 </div>
-                <Input 
-                  type="search" 
-                  placeholder="Sök på LyxDeal" 
-                  className="pl-10 pr-4 py-2 w-full rounded-full border-gray-300"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                />
+                <Input type="search" placeholder="Sök på LyxDeal" className="pl-10 pr-4 py-2 w-full rounded-full border-gray-300" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
               </div>
             </form>
           </div>
@@ -199,32 +177,21 @@ const NavigationBar = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
-                {CITIES.map(city => (
-                  <DropdownMenuItem key={city} onClick={() => setSelectedCity(city)}>
+                {CITIES.map(city => <DropdownMenuItem key={city} onClick={() => setSelectedCity(city)}>
                     {city}
-                  </DropdownMenuItem>
-                ))}
+                  </DropdownMenuItem>)}
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="ghost" size="icon" className="hidden md:inline-flex">
-              <Heart className="h-5 w-5" />
-              <span className="sr-only">Favoriter</span>
-            </Button>
+            
 
-            <Button variant="ghost" size="icon" className="hidden md:inline-flex">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="sr-only">Kundvagn</span>
-            </Button>
+            
 
-            {hasDashboard && (
-              <Link to={dashboardPath} className="hidden md:inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80">
+            {hasDashboard && <Link to={dashboardPath} className="hidden md:inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80">
                 {userRole === 'admin' ? 'Admin' : 'Salong'}
-              </Link>
-            )}
+              </Link>}
 
-            {session?.user ? (
-              <DropdownMenu>
+            {session?.user ? <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
                     <Avatar className="h-8 w-8">
@@ -241,20 +208,15 @@ const NavigationBar = ({
                     Logga ut
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button size="sm" asChild>
+              </DropdownMenu> : <Button size="sm" asChild>
                 <Link to="/auth">Logga in</Link>
-              </Button>
-            )}
+              </Button>}
 
-            {mounted ? (
-              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="ml-1">
+            {mounted ? <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="ml-1">
                 <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 <span className="sr-only">Toggle theme</span>
-              </Button>
-            ) : null}
+              </Button> : null}
 
             {/* Mobile search and menu */}
             <div className="flex md:hidden">
@@ -271,13 +233,7 @@ const NavigationBar = ({
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Search className="h-4 w-4 text-gray-400" />
                       </div>
-                      <Input 
-                        type="search" 
-                        placeholder="Sök på LyxDeal" 
-                        className="pl-10 pr-4 py-2 w-full"
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                      />
+                      <Input type="search" placeholder="Sök på LyxDeal" className="pl-10 pr-4 py-2 w-full" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                     </div>
                     <div className="flex gap-2">
                       <DropdownMenu>
@@ -287,11 +243,9 @@ const NavigationBar = ({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-[200px]">
-                          {CITIES.map(city => (
-                            <DropdownMenuItem key={city} onClick={() => setSelectedCity(city)}>
+                          {CITIES.map(city => <DropdownMenuItem key={city} onClick={() => setSelectedCity(city)}>
                               {city}
-                            </DropdownMenuItem>
-                          ))}
+                            </DropdownMenuItem>)}
                         </DropdownMenuContent>
                       </DropdownMenu>
                       
@@ -302,11 +256,9 @@ const NavigationBar = ({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-[200px]">
-                          {CATEGORIES.map(category => (
-                            <DropdownMenuItem key={category} onClick={() => setSelectedCategory(category)}>
+                          {CATEGORIES.map(category => <DropdownMenuItem key={category} onClick={() => setSelectedCategory(category)}>
                               {category}
-                            </DropdownMenuItem>
-                          ))}
+                            </DropdownMenuItem>)}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -320,8 +272,6 @@ const NavigationBar = ({
           </div>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default NavigationBar;
