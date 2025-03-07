@@ -1,9 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { Deal } from "@/components/admin/types";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { endOfMonth } from "date-fns";
+import { fetchSalonDeals, deleteSalonDeal, updateSalonDeal, DealUpdateValues } from "@/utils/dealApiUtils";
 
 export const useSalonDealsManagement = (salonId: string | undefined) => {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -14,46 +13,16 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
 
   useEffect(() => {
     if (salonId) {
-      fetchSalonDeals();
+      loadSalonDeals();
     }
   }, [salonId]);
 
-  const fetchSalonDeals = async () => {
+  const loadSalonDeals = async () => {
     try {
       setIsLoading(true);
       setError(null);
-
-      if (!salonId) {
-        throw new Error("No salon ID provided");
-      }
-
-      const salonIdNumber = parseInt(salonId);
-      if (isNaN(salonIdNumber)) {
-        throw new Error("Invalid salon ID");
-      }
-
-      const { data, error } = await supabase
-        .from("deals")
-        .select("*")
-        .eq("salon_id", salonIdNumber)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      // Transform data to include required properties
-      const typedDeals = (data || []).map(deal => {
-        // Default expiration_date to current date if not present
-        const defaultExpirationDate = new Date().toISOString();
-        
-        return {
-          ...deal,
-          status: deal.status as 'pending' | 'approved' | 'rejected',
-          is_free: deal.is_free || false,
-          expiration_date: deal.expiration_date || defaultExpirationDate
-        };
-      }) as Deal[];
-
-      setDeals(typedDeals);
+      const fetchedDeals = await fetchSalonDeals(salonId);
+      setDeals(fetchedDeals);
     } catch (err: any) {
       console.error("Error fetching salon deals:", err);
       setError(err.message);
@@ -67,15 +36,9 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
     if (!deletingDeal) return;
 
     try {
-      const { error } = await supabase
-        .from("deals")
-        .delete()
-        .eq("id", deletingDeal.id);
-
-      if (error) throw error;
-
+      await deleteSalonDeal(deletingDeal.id);
       toast.success("Erbjudandet har tagits bort");
-      await fetchSalonDeals();
+      await loadSalonDeals();
       setDeletingDeal(null);
     } catch (err: any) {
       console.error("Error deleting deal:", err);
@@ -87,41 +50,24 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
     if (!editingDeal) return;
 
     try {
-      const originalPrice = parseInt(values.originalPrice) || 0;
-      const discountedPrice = values.is_free ? 0 : parseInt(values.discountedPrice) || 0;
+      const updateValues: DealUpdateValues = {
+        title: values.title,
+        description: values.description,
+        imageUrl: values.imageUrl,
+        originalPrice: parseInt(values.originalPrice) || 0,
+        discountedPrice: values.is_free ? 0 : parseInt(values.discountedPrice) || 0,
+        category: values.category,
+        city: values.city,
+        featured: values.featured,
+        is_free: values.is_free || false,
+        quantity: parseInt(values.quantity) || 10,
+        expirationDate: values.expirationDate,
+        salon_id: editingDeal.salon_id
+      };
       
-      console.log('Updating salon deal with values:', {
-        ...values,
-        originalPrice,
-        discountedPrice,
-        is_free: values.is_free
-      });
-      
-      const { error } = await supabase
-        .from("deals")
-        .update({
-          title: values.title,
-          description: values.description,
-          image_url: values.imageUrl,
-          original_price: originalPrice,
-          discounted_price: discountedPrice,
-          category: values.category,
-          city: values.city,
-          featured: values.featured,
-          is_free: values.is_free || false,
-          quantity_left: parseInt(values.quantity) || 10,
-          status: 'pending',
-          expiration_date: values.expirationDate.toISOString()
-        })
-        .eq("id", editingDeal.id);
-
-      if (error) {
-        console.error('Database error details:', error);
-        throw error;
-      }
-
+      await updateSalonDeal(editingDeal.id, updateValues);
       toast.success("Erbjudandet har uppdaterats");
-      await fetchSalonDeals();
+      await loadSalonDeals();
       setEditingDeal(null);
     } catch (err: any) {
       console.error("Error updating deal:", err);
