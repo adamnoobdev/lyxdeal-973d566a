@@ -46,7 +46,7 @@ const DealCardComponent = ({
     <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 bg-white/80 backdrop-blur-sm border-muted-200 hover:shadow-lg">
       <Link to={`/deal/${id}`} className="block h-full flex flex-col">
         <div className="flex flex-col h-full">
-          <div className="w-full aspect-[4/3]">
+          <div className="w-full">
             <DealImage
               imageUrl={image_url}
               title={title}

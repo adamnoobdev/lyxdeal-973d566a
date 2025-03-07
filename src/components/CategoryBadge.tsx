@@ -36,7 +36,7 @@ export function CategoryBadge({
   return (
     <Badge 
       variant={variant} 
-      className={`!inline-flex !items-center !gap-1.5 !w-fit !min-w-0 !text-sm !leading-none !px-3 !py-1.5 whitespace-nowrap ${
+      className={`!inline-flex !items-center !gap-1 !w-fit !min-w-0 !text-xs !leading-none !px-2 !py-1 whitespace-nowrap ${
         category === "NYTT" 
           ? "bg-amber-100 hover:bg-amber-200 text-black border-transparent" 
           : variant === "default" 
@@ -49,7 +49,7 @@ export function CategoryBadge({
       {children || (
         <>
           {category === "NYTT" ? (
-            <Award className="!h-3.5 !w-3.5 !shrink-0 text-black" />
+            <Award className="!h-3 !w-3 !shrink-0 text-black" />
           ) : (
             <span className="!shrink-0">{getCategoryEmoji(category)}</span>
           )} 

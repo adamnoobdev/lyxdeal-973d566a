@@ -1,3 +1,4 @@
+
 import { CategoryBadge } from "../CategoryBadge";
 import { Star } from "lucide-react";
 import { ResponsiveImage } from "../common/ResponsiveImage";
@@ -11,7 +12,7 @@ interface DealImageProps {
 export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
   return (
     <div className="relative overflow-hidden">
-      <div className="aspect-[4/3] overflow-hidden bg-muted-50">
+      <div className="aspect-[16/11] overflow-hidden bg-muted-50">
         <ResponsiveImage
           src={imageUrl}
           alt={title}
