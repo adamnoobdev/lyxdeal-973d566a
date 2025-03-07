@@ -1,18 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { useSession } from '@/hooks/useSession';
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search, Moon, Sun, Menu } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Moon, Sun, Menu, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sheet,
   SheetContent,
@@ -20,7 +20,9 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
+import { supabase } from '@/integrations/supabase/client';
+import { CITIES, CATEGORIES, City, Category } from '@/constants/app-constants';
 
 interface NavigationBarProps {
   userRole?: string | null;
@@ -31,9 +33,31 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
   const { theme, setTheme } = useTheme();
   const { session } = useSession();
   const [showBg, setShowBg] = useState(false);
+  const [logoUrl, setLogoUrl] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCity, setSelectedCity] = useState<City>('Alla Städer');
+  const [selectedCategory, setSelectedCategory] = useState<Category>('Alla Erbjudanden');
+  const navigate = useNavigate();
 
   useEffect(() => {
     setMounted(true);
+    
+    // Fetch logo from Supabase storage
+    const fetchLogo = async () => {
+      try {
+        const { data } = await supabase.storage
+          .from('assets')
+          .getPublicUrl('Lyxdeal-logo.svg');
+          
+        if (data?.publicUrl) {
+          setLogoUrl(data.publicUrl);
+        }
+      } catch (error) {
+        console.error('Error fetching logo:', error);
+      }
+    };
+    
+    fetchLogo();
   }, []);
 
   useEffect(() => {
@@ -49,17 +73,32 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    let searchParams = new URLSearchParams();
+    if (searchQuery) searchParams.append('q', searchQuery);
+    if (selectedCity !== 'Alla Städer') searchParams.append('city', selectedCity);
+    if (selectedCategory !== 'Alla Erbjudanden') searchParams.append('category', selectedCategory);
+    
+    navigate(`/search?${searchParams.toString()}`);
+  };
+
   const hasDashboard = !!userRole;
   const dashboardPath = userRole === 'admin' ? '/admin' : '/salon/dashboard';
 
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${showBg ? 'bg-white shadow-sm dark:bg-gray-900' : ''}`}>
+    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${showBg ? 'bg-white shadow-sm dark:bg-gray-900' : 'bg-white/80 backdrop-blur-sm dark:bg-gray-900/80'}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <a href="/" className="flex items-center">
-              <span className="font-bold text-2xl">LyxDeal</span>
-            </a>
+            <Link to="/" className="flex items-center">
+              {logoUrl ? (
+                <img src={logoUrl} alt="LyxDeal Logo" className="h-8 w-auto" />
+              ) : (
+                <span className="font-bold text-2xl">LyxDeal</span>
+              )}
+            </Link>
             <nav className="hidden md:flex items-center space-x-6 ml-6">
               <Link to="/" className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">
                 Hem
@@ -73,20 +112,68 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
             </nav>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1 md:flex-none">
-              <Input type="search" placeholder="Sök efter lyxiga erbjudanden..." className="pr-10" />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-            </div>
+          <div className="flex items-center gap-4 flex-1 md:max-w-xl ml-4">
+            <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2">
+              <div className="relative flex-1">
+                <Input 
+                  type="search" 
+                  placeholder="Sök efter lyxiga erbjudanden..." 
+                  className="pr-10 w-full" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button type="submit" className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Search className="h-4 w-4 text-gray-500" />
+                </button>
+              </div>
+              
+              <div className="hidden md:flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-10">
+                      {selectedCity} <ChevronDown className="ml-1 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[200px]">
+                    {CITIES.map((city) => (
+                      <DropdownMenuItem 
+                        key={city} 
+                        onClick={() => setSelectedCity(city)}
+                      >
+                        {city}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-10">
+                      {selectedCategory} <ChevronDown className="ml-1 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[200px]">
+                    {CATEGORIES.map((category) => (
+                      <DropdownMenuItem 
+                        key={category} 
+                        onClick={() => setSelectedCategory(category)}
+                      >
+                        {category}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </form>
             
             <div className="hidden md:flex items-center space-x-4">
               {hasDashboard && (
-                <a 
-                  href={dashboardPath}
+                <Link
+                  to={dashboardPath}
                   className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80"
                 >
                   {userRole === 'admin' ? 'Admin' : 'Salong'}
-                </a>
+                </Link>
               )}
               
               {session?.user ? (
@@ -95,7 +182,7 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
                     <Button variant="ghost" className="h-8 w-8 p-0">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={session?.user?.user_metadata?.avatar_url} alt={session?.user?.user_metadata?.full_name} />
-                        <AvatarFallback>{session?.user?.user_metadata?.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>{session?.user?.user_metadata?.full_name?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
@@ -150,41 +237,85 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
                     Utforska LyxDeal.
                   </SheetDescription>
                 </SheetHeader>
-                <div className="grid gap-4 py-4">
-                  <Link to="/" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
-                    Hem
-                  </Link>
-                  <Link to="/partner" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
-                    Partner
-                  </Link>
-                  <Link to="/faq" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
-                    FAQ
-                  </Link>
+                <div className="flex flex-col gap-4 py-4">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium leading-none">Filter</p>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-between">
+                          {selectedCity} <ChevronDown className="ml-1 h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-[200px]">
+                        {CITIES.map((city) => (
+                          <DropdownMenuItem 
+                            key={city} 
+                            onClick={() => setSelectedCity(city)}
+                          >
+                            {city}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full justify-between">
+                          {selectedCategory} <ChevronDown className="ml-1 h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-[200px]">
+                        {CATEGORIES.map((category) => (
+                          <DropdownMenuItem 
+                            key={category} 
+                            onClick={() => setSelectedCategory(category)}
+                          >
+                            {category}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium leading-none">Navigation</p>
+                    <Link to="/" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
+                      Hem
+                    </Link>
+                    <Link to="/partner" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
+                      Partner
+                    </Link>
+                    <Link to="/faq" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
+                      FAQ
+                    </Link>
+                  </div>
                   
                   {hasDashboard && (
-                    <Link to={dashboardPath} className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
-                      {userRole === 'admin' ? 'Admin' : 'Salong'}
+                    <Link to={dashboardPath} className="px-4 py-2 block bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded">
+                      {userRole === 'admin' ? 'Admin Dashboard' : 'Salongens Dashboard'}
                     </Link>
                   )}
                   
                   {session?.user ? (
-                    <>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium leading-none">Konto</p>
                       <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Min profil
                       </Link>
                       <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Logga ut
                       </Link>
-                    </>
+                    </div>
                   ) : (
-                    <>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium leading-none">Konto</p>
                       <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Logga in
                       </Link>
                       <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Registrera
                       </Link>
-                    </>
+                    </div>
                   )}
                 </div>
               </SheetContent>
