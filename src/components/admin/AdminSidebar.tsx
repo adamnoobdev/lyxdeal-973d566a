@@ -15,7 +15,9 @@ export const AdminSidebar = () => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      setIsCollapsed(mobile);
+      if (mobile) {
+        setIsCollapsed(true);
+      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -49,6 +51,7 @@ export const AdminSidebar = () => {
       className="border-r bg-background/95 backdrop-blur-sm pt-16 z-10 shadow-sm" 
       variant="inset" 
       collapsible="icon"
+      defaultCollapsed={isCollapsed}
     >
       <SidebarTrigger className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" />
       <AdminSidebarContent userRole={userData?.role} />

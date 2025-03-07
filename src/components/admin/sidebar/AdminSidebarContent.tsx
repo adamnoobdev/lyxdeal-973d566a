@@ -13,7 +13,7 @@ interface AdminSidebarContentProps {
 }
 
 export const AdminSidebarContent = ({ userRole }: AdminSidebarContentProps) => {
-  const isAdmin = userRole !== 'salon_owner';
+  const isAdmin = userRole === 'admin';
   const navigate = useNavigate();
   
   const handleLogout = async () => {
@@ -30,7 +30,7 @@ export const AdminSidebarContent = ({ userRole }: AdminSidebarContentProps) => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-auto scrollbar-hide p-4 space-y-6">
-        <AdminSidebarLinks />
+        {isAdmin && <AdminSidebarLinks />}
         {!isAdmin && <SalonSidebarLinks />}
       </div>
       
