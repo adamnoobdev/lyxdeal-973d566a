@@ -96,7 +96,7 @@ export const DealsList = () => {
   const pendingDeals = deals?.filter(deal => deal.status === 'pending') || [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 p-4 md:p-6">
       <DealsHeader onCreateClick={() => setIsCreating(true)} />
 
       <div className="space-y-6">

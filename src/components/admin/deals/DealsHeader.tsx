@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 interface DealsHeaderProps {
   onCreateClick: () => void;
@@ -8,15 +9,23 @@ interface DealsHeaderProps {
 
 export const DealsHeader = ({ onCreateClick }: DealsHeaderProps) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Erbjudanden</h1>
-        <p className="text-muted-foreground">Hantera och övervaka alla erbjudanden</p>
-      </div>
-      <Button onClick={onCreateClick} size="sm" className="w-full sm:w-auto">
-        <Plus className="h-4 w-4 mr-2" />
-        Skapa erbjudande
-      </Button>
-    </div>
+    <Card className="bg-white shadow-sm border mb-6">
+      <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6">
+        <div>
+          <CardTitle className="text-2xl font-bold tracking-tight">Erbjudanden</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Hantera och övervaka alla erbjudanden
+          </CardDescription>
+        </div>
+        <Button 
+          onClick={onCreateClick} 
+          size="sm" 
+          className="w-full sm:w-auto mt-4 sm:mt-0 bg-indigo-600 hover:bg-indigo-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Skapa erbjudande
+        </Button>
+      </CardHeader>
+    </Card>
   );
 };

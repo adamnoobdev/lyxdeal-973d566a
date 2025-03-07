@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/table";
 import { DealActions } from "./DealActions";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Power, Eye } from "lucide-react";
+import { Check, X, Power, Eye, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/utils/dealApiUtils";
+import { Card } from "@/components/ui/card";
 
 interface DealsTableProps {
   deals: Deal[] | undefined;
@@ -38,112 +39,109 @@ export const DealsTable = ({
   }
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: "default" | "destructive" | "outline" | "secondary", label: string }> = {
-      pending: { variant: "secondary", label: "Väntar" },
-      approved: { variant: "default", label: "Godkänd" },
-      rejected: { variant: "destructive", label: "Nekad" }
+    const variants: Record<string, { variant: "default" | "destructive" | "outline" | "secondary", label: string, color: string }> = {
+      pending: { variant: "secondary", label: "Väntar", color: "bg-amber-100 text-amber-800" },
+      approved: { variant: "default", label: "Godkänd", color: "bg-green-100 text-green-800" },
+      rejected: { variant: "destructive", label: "Nekad", color: "" }
     };
 
-    const { variant, label } = variants[status] || variants.pending;
-    return <Badge variant={variant}>{label}</Badge>;
+    const { variant, label, color } = variants[status] || variants.pending;
+    return (
+      <Badge variant={variant} className={color}>
+        {label}
+      </Badge>
+    );
   };
 
   return (
-    <div className="w-full overflow-auto rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="min-w-[200px]">Titel</TableHead>
-            <TableHead className="hidden md:table-cell">Kategori</TableHead>
-            <TableHead className="hidden md:table-cell">Stad</TableHead>
-            <TableHead>Pris</TableHead>
-            <TableHead className="hidden md:table-cell">Salong</TableHead>
-            <TableHead className="hidden sm:table-cell">Status</TableHead>
-            <TableHead className="hidden xs:table-cell">Aktivitet</TableHead>
-            <TableHead>Åtgärder</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {deals.map((deal) => (
-            <TableRow 
-              key={deal.id} 
-              className={!deal.is_active ? "bg-muted/50" : undefined}
-            >
-              <TableCell className="font-medium">
-                <div className="flex items-center gap-2">
-                  <div 
-                    className={`w-2 h-2 rounded-full ${deal.is_active ? 'bg-green-500' : 'bg-gray-400'}`} 
-                    title={deal.is_active ? 'Aktiv' : 'Inaktiv'}
-                  />
-                  <span className="truncate max-w-[150px] md:max-w-[250px]">{deal.title}</span>
-                </div>
-              </TableCell>
-              <TableCell className="hidden md:table-cell">{deal.category}</TableCell>
-              <TableCell className="hidden md:table-cell">{deal.city}</TableCell>
-              <TableCell>
-                {deal.is_free ? (
-                  <Badge variant="secondary">Gratis</Badge>
-                ) : (
-                  <span className="whitespace-nowrap">{formatCurrency(deal.discounted_price)} kr</span>
-                )}
-              </TableCell>
-              <TableCell className="hidden md:table-cell">{(deal as any).salons?.name || 'Ingen salong'}</TableCell>
-              <TableCell className="hidden sm:table-cell">{getStatusBadge(deal.status)}</TableCell>
-              <TableCell className="hidden xs:table-cell">
-                <Badge 
-                  variant={deal.is_active ? "default" : "outline"}
-                  className={`${deal.is_active ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'text-gray-500'}`}
-                >
-                  {deal.is_active ? "Aktiv" : "Inaktiv"}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1 flex-wrap">
-                  {showApprovalActions && deal.status === 'pending' && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => onApprove?.(deal.id)}
-                        title="Godkänn"
-                      >
-                        <Check className="h-4 w-4 text-green-600" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => onReject?.(deal.id)}
-                        title="Neka"
-                      >
-                        <X className="h-4 w-4 text-red-600" />
-                      </Button>
-                    </>
-                  )}
-                  
-                  {onToggleActive && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => onToggleActive(deal)}
-                      title={deal.is_active ? "Inaktivera" : "Aktivera"}
-                    >
-                      <Power className={`h-4 w-4 ${deal.is_active ? 'text-green-500' : 'text-gray-400'}`} />
-                    </Button>
-                  )}
-                  
-                  <DealActions
-                    onEdit={() => onEdit(deal)}
-                    onDelete={() => onDelete(deal)}
-                  />
-                </div>
-              </TableCell>
+    <Card className="border rounded-lg overflow-hidden">
+      <div className="w-full overflow-auto">
+        <Table>
+          <TableHeader className="bg-muted/30">
+            <TableRow>
+              <TableHead className="min-w-[200px] font-semibold">Titel</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold">Kategori</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold">Stad</TableHead>
+              <TableHead className="font-semibold">Pris</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold">Salong</TableHead>
+              <TableHead className="hidden sm:table-cell font-semibold">Status</TableHead>
+              <TableHead className="text-center font-semibold">Åtgärder</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {deals.map((deal) => (
+              <TableRow 
+                key={deal.id} 
+                className={`${!deal.is_active ? "bg-gray-50" : "hover:bg-gray-50"} transition-colors`}
+              >
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className={`w-3 h-3 rounded-full ${deal.is_active ? 'bg-green-500' : 'bg-gray-400'}`} 
+                      title={deal.is_active ? 'Aktiv' : 'Inaktiv'}
+                    />
+                    <span className="truncate max-w-[150px] md:max-w-[250px]">{deal.title}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell text-muted-foreground">{deal.category}</TableCell>
+                <TableCell className="hidden md:table-cell text-muted-foreground">{deal.city}</TableCell>
+                <TableCell>
+                  {deal.is_free ? (
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800">Gratis</Badge>
+                  ) : (
+                    <span className="font-medium text-gray-900">{formatCurrency(deal.discounted_price)} kr</span>
+                  )}
+                </TableCell>
+                <TableCell className="hidden md:table-cell text-muted-foreground">{(deal as any).salons?.name || 'Ingen salong'}</TableCell>
+                <TableCell className="hidden sm:table-cell">{getStatusBadge(deal.status)}</TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-center gap-1">
+                    {showApprovalActions && deal.status === 'pending' && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8 bg-green-50 border-green-200 hover:bg-green-100 hover:text-green-700"
+                          onClick={() => onApprove?.(deal.id)}
+                          title="Godkänn"
+                        >
+                          <Check className="h-4 w-4 text-green-600" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8 bg-red-50 border-red-200 hover:bg-red-100 hover:text-red-700"
+                          onClick={() => onReject?.(deal.id)}
+                          title="Neka"
+                        >
+                          <X className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </>
+                    )}
+                    
+                    {onToggleActive && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className={`h-8 w-8 ${deal.is_active ? 'bg-green-50 border-green-200 hover:bg-green-100' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
+                        onClick={() => onToggleActive(deal)}
+                        title={deal.is_active ? "Inaktivera" : "Aktivera"}
+                      >
+                        <Power className={`h-4 w-4 ${deal.is_active ? 'text-green-600' : 'text-gray-400'}`} />
+                      </Button>
+                    )}
+                    
+                    <DealActions
+                      onEdit={() => onEdit(deal)}
+                      onDelete={() => onDelete(deal)}
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </Card>
   );
 };

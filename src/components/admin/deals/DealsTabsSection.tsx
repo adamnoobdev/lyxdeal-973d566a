@@ -22,12 +22,12 @@ export const DealsTabsSection = ({
 }: DealsTabsSectionProps) => {
   return (
     <Tabs defaultValue="active" className="w-full">
-      <TabsList className="mb-4 w-full max-w-md">
-        <TabsTrigger value="active" className="flex-1">
+      <TabsList className="mb-4 w-full max-w-md bg-muted/50">
+        <TabsTrigger value="active" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm">
           <Power className="h-4 w-4 mr-2 text-green-500" />
           Aktiva ({activeDeals.length})
         </TabsTrigger>
-        <TabsTrigger value="inactive" className="flex-1">
+        <TabsTrigger value="inactive" className="flex-1 data-[state=active]:bg-white data-[state=active]:shadow-sm">
           <Power className="h-4 w-4 mr-2 text-gray-400" />
           Inaktiva ({inactiveDeals.length})
         </TabsTrigger>
@@ -35,7 +35,7 @@ export const DealsTabsSection = ({
       
       <TabsContent value="active">
         {!activeDeals.length ? (
-          <Alert className="bg-muted">
+          <Alert className="bg-muted border-muted-foreground/20">
             <Inbox className="h-4 w-4 mr-2" />
             <AlertDescription>
               Inga aktiva erbjudanden hittades.
@@ -53,7 +53,7 @@ export const DealsTabsSection = ({
       
       <TabsContent value="inactive">
         {!inactiveDeals.length ? (
-          <Alert className="bg-muted">
+          <Alert className="bg-muted border-muted-foreground/20">
             <Inbox className="h-4 w-4 mr-2" />
             <AlertDescription>
               Inga inaktiva erbjudanden hittades.
