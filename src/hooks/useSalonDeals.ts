@@ -27,8 +27,15 @@ export const useSalonDeals = (salonId: number | undefined) => {
         throw error;
       }
 
+      // Transform the data to include required properties and add default values
+      const transformedDeals = deals.map(deal => ({
+        ...deal,
+        is_free: deal.is_free || false,
+        expiration_date: deal.expiration_date || new Date().toISOString()
+      }));
+
       // Add type assertion to make TypeScript happy
-      return deals as unknown as Deal[];
+      return transformedDeals as unknown as Deal[];
     },
     enabled: !!salonId,
   });

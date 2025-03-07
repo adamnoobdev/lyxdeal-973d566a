@@ -40,6 +40,7 @@ export const useDeal = (id: string | undefined) => {
 
         // Calculate days remaining
         const calculateDaysRemaining = () => {
+          // If no expiration_date in the database, parse days from time_remaining or default to 30
           if (!data.expiration_date) {
             // If no expiration date, parse days from time_remaining or default to 30
             if (data.time_remaining && data.time_remaining.includes("dag")) {
@@ -72,7 +73,7 @@ export const useDeal = (id: string | undefined) => {
           originalPrice: data.original_price,
           discountedPrice: data.discounted_price,
           daysRemaining,
-          expirationDate: data.expiration_date,
+          expirationDate: data.expiration_date || new Date().toISOString(),
           category: data.category,
           city: data.city,
           created_at: data.created_at,

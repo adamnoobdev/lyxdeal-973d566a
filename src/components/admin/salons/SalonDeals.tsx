@@ -46,14 +46,18 @@ export function SalonDeals() {
 
       if (error) throw error;
 
-      // Add the type assertion to include expiration_date property
-      const typedDeals = (data || []).map(deal => ({
-        ...deal,
-        status: deal.status as 'pending' | 'approved' | 'rejected',
-        is_free: deal.is_free || false,
-        // If expiration_date doesn't exist, set a default value
-        expiration_date: deal.expiration_date || new Date().toISOString()
-      })) as Deal[];
+      // Transform data to include required properties
+      const typedDeals = (data || []).map(deal => {
+        // Default expiration_date to current date if not present
+        const defaultExpirationDate = new Date().toISOString();
+        
+        return {
+          ...deal,
+          status: deal.status as 'pending' | 'approved' | 'rejected',
+          is_free: deal.is_free || false,
+          expiration_date: deal.expiration_date || defaultExpirationDate
+        };
+      }) as Deal[];
 
       setDeals(typedDeals);
     } catch (err: any) {
