@@ -1,11 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from 'next-themes';
-import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
 import { useSession } from '@/hooks/useSession';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search } from 'lucide-react';
+import { Search, Moon, Sun, Menu } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +21,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Menu } from 'lucide-react';
 
 interface NavigationBarProps {
   userRole?: string | null;
@@ -54,7 +53,7 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
   const dashboardPath = userRole === 'admin' ? '/admin' : '/salon/dashboard';
 
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${showBg ? 'bg-white shadow-sm' : ''}`}>
+    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${showBg ? 'bg-white shadow-sm dark:bg-gray-900' : ''}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -62,13 +61,13 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
               <span className="font-bold text-2xl">LyxDeal</span>
             </a>
             <nav className="hidden md:flex items-center space-x-6 ml-6">
-              <Link to="/" className="text-gray-600 hover:text-gray-800">
+              <Link to="/" className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">
                 Hem
               </Link>
-              <Link to="/partner" className="text-gray-600 hover:text-gray-800">
+              <Link to="/partner" className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">
                 Partner
               </Link>
-              <Link to="/faq" className="text-gray-600 hover:text-gray-800">
+              <Link to="/faq" className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">
                 FAQ
               </Link>
             </nav>
@@ -131,8 +130,8 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
                   size="icon"
                   onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                 >
-                  <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                   <span className="sr-only">Toggle theme</span>
                 </Button>
               ) : null}
@@ -152,30 +151,37 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
                   </SheetDescription>
                 </SheetHeader>
                 <div className="grid gap-4 py-4">
-                  <Link to="/" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded">
+                  <Link to="/" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                     Hem
                   </Link>
-                  <Link to="/partner" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded">
+                  <Link to="/partner" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                     Partner
                   </Link>
-                  <Link to="/faq" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded">
+                  <Link to="/faq" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                     FAQ
                   </Link>
+                  
+                  {hasDashboard && (
+                    <Link to={dashboardPath} className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
+                      {userRole === 'admin' ? 'Admin' : 'Salong'}
+                    </Link>
+                  )}
+                  
                   {session?.user ? (
                     <>
-                      <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded">
+                      <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Min profil
                       </Link>
-                      <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded">
+                      <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Logga ut
                       </Link>
                     </>
                   ) : (
                     <>
-                      <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded">
+                      <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Logga in
                       </Link>
-                      <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded">
+                      <Link to="/auth" className="px-4 py-2 block text-gray-700 hover:bg-gray-100 rounded dark:text-gray-300 dark:hover:bg-gray-800">
                         Registrera
                       </Link>
                     </>
@@ -186,7 +192,6 @@ const NavigationBar = ({ userRole }: NavigationBarProps) => {
           </div>
         </div>
       </div>
-      
     </header>
   );
 };

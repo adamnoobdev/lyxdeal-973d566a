@@ -1,6 +1,6 @@
 
 import { useLocation } from "react-router-dom";
-import { LayoutDashboard, Tags, Users } from "lucide-react";
+import { LayoutDashboard, Tags, Users, Settings } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
 import { SidebarLink } from "./SidebarLink";
 
@@ -19,6 +19,11 @@ const salonLinks = [
     href: "/salon/customers",
     icon: Users,
     label: "Kunder",
+  },
+  {
+    href: "/salon/settings",
+    icon: Settings,
+    label: "Inställningar",
   },
 ] as const;
 
