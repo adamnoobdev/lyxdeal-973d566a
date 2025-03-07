@@ -9,6 +9,7 @@ import { SalonDealsEmpty } from "./SalonDealsEmpty";
 import { useSalonDealsManagement } from "@/hooks/useSalonDealsManagement";
 import { endOfMonth } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
 
 export function SalonDeals() {
   const { salonId } = useParams();
@@ -41,34 +42,36 @@ export function SalonDeals() {
 
   return (
     <>
-      <Tabs defaultValue="active" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="active">
-            Aktiva erbjudanden ({activeDeals.length})
-          </TabsTrigger>
-          <TabsTrigger value="inactive">
-            Inaktiva erbjudanden ({inactiveDeals.length})
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="active">
-          <DealsTable
-            deals={activeDeals}
-            onEdit={setEditingDeal}
-            onDelete={setDeletingDeal}
-            onToggleActive={handleToggleActive}
-          />
-        </TabsContent>
-        
-        <TabsContent value="inactive">
-          <DealsTable
-            deals={inactiveDeals}
-            onEdit={setEditingDeal}
-            onDelete={setDeletingDeal}
-            onToggleActive={handleToggleActive}
-          />
-        </TabsContent>
-      </Tabs>
+      <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-4">
+        <Tabs defaultValue="active" className="w-full">
+          <TabsList className="mb-4 w-full max-w-md bg-secondary/10 border border-secondary/30">
+            <TabsTrigger value="active" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
+              Aktiva erbjudanden ({activeDeals.length})
+            </TabsTrigger>
+            <TabsTrigger value="inactive" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
+              Inaktiva erbjudanden ({inactiveDeals.length})
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="active">
+            <DealsTable
+              deals={activeDeals}
+              onEdit={setEditingDeal}
+              onDelete={setDeletingDeal}
+              onToggleActive={handleToggleActive}
+            />
+          </TabsContent>
+          
+          <TabsContent value="inactive">
+            <DealsTable
+              deals={inactiveDeals}
+              onEdit={setEditingDeal}
+              onDelete={setDeletingDeal}
+              onToggleActive={handleToggleActive}
+            />
+          </TabsContent>
+        </Tabs>
+      </Card>
 
       <EditDealDialog
         isOpen={!!editingDeal}

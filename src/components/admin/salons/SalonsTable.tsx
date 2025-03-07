@@ -1,3 +1,4 @@
+
 import { Salon } from "../types";
 import {
   Table,
@@ -8,6 +9,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SalonActions } from "./SalonActions";
+import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SalonsTableProps {
   salons: Salon[];
@@ -25,56 +28,62 @@ export const SalonsTable = ({
   selectedSalonId 
 }: SalonsTableProps) => {
   return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[200px]">Namn</TableHead>
-            <TableHead className="hidden sm:table-cell">Email</TableHead>
-            <TableHead className="hidden md:table-cell">Telefon</TableHead>
-            <TableHead className="w-[100px]">Åtgärder</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {salons.map((salon) => (
-            <TableRow 
-              key={salon.id}
-              className={`cursor-pointer transition-colors ${
-                selectedSalonId === salon.id 
-                  ? "bg-primary/5 hover:bg-primary/10" 
-                  : "hover:bg-muted/50"
-              }`}
-              onClick={() => onSelect(salon)}
-            >
-              <TableCell className="font-medium">{salon.name}</TableCell>
-              <TableCell className="hidden sm:table-cell">{salon.email}</TableCell>
-              <TableCell className="hidden md:table-cell">
-                {salon.phone || "-"}
-              </TableCell>
-              <TableCell>
-                <SalonActions
-                  salonId={salon.id}
-                  onEdit={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    onEdit(salon);
-                  }}
-                  onDelete={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    onDelete(salon);
-                  }}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-          {salons.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
-                Inga salonger hittades
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
+      <ScrollArea className="h-full max-h-[70vh]">
+        <div className="w-full">
+          <Table>
+            <TableHeader className="bg-primary/5 sticky top-0 z-10">
+              <TableRow>
+                <TableHead className="min-w-[200px] font-semibold text-primary">Namn</TableHead>
+                <TableHead className="min-w-[200px] font-semibold text-primary">Email</TableHead>
+                <TableHead className="min-w-[150px] font-semibold text-primary">Telefon</TableHead>
+                <TableHead className="min-w-[100px] text-center font-semibold text-primary">Åtgärder</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {salons.map((salon) => (
+                <TableRow 
+                  key={salon.id}
+                  className={`cursor-pointer transition-colors ${
+                    selectedSalonId === salon.id 
+                      ? "bg-primary/5 hover:bg-primary/10" 
+                      : "hover:bg-muted/50"
+                  }`}
+                  onClick={() => onSelect(salon)}
+                >
+                  <TableCell className="font-medium">{salon.name}</TableCell>
+                  <TableCell>{salon.email}</TableCell>
+                  <TableCell>
+                    {salon.phone || "-"}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-center">
+                      <SalonActions
+                        salonId={salon.id}
+                        onEdit={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          onEdit(salon);
+                        }}
+                        onDelete={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          onDelete(salon);
+                        }}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {salons.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                    Inga salonger hittades
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </ScrollArea>
+    </Card>
   );
 };
