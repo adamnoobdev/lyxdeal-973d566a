@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Session } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { User } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface UserMenuProps {
@@ -23,11 +23,9 @@ const UserMenu: React.FC<UserMenuProps> = ({
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={session.user.user_metadata?.avatar_url} alt={session.user.user_metadata?.full_name} />
-              <AvatarFallback>{session.user.user_metadata?.full_name?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
-            </Avatar>
+          <Button variant="ghost" size="icon" className="h-9 w-9">
+            <User className="h-5 w-5" />
+            <span className="sr-only">User menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>

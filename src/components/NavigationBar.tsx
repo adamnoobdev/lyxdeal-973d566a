@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from 'next-themes';
 import { useSession } from '@/hooks/useSession';
 
 // Import custom components
@@ -9,7 +8,6 @@ import Logo from './navigation/Logo';
 import SearchBar from './navigation/SearchBar';
 import CitySelector from './navigation/CitySelector';
 import UserMenu from './navigation/UserMenu';
-import ThemeToggle from './navigation/ThemeToggle';
 import MobileMenu from './navigation/MobileMenu';
 import MobileSearch from './navigation/MobileSearch';
 import DashboardLink from './navigation/DashboardLink';
@@ -29,14 +27,7 @@ const NavigationBar = ({
   const [selectedCity, setSelectedCity] = useState<City>('Alla Städer');
   const [selectedCategory, setSelectedCategory] = useState<Category>('Alla Erbjudanden');
   const { session } = useSession();
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
-
-  // Set mounted state after component mounts
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Handle scroll background effect
   useEffect(() => {
@@ -64,7 +55,7 @@ const NavigationBar = ({
   const dashboardPath = userRole === 'admin' ? '/admin' : '/salon/dashboard';
 
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${showBg ? 'bg-white shadow-sm dark:bg-gray-900' : 'bg-white/80 backdrop-blur-sm dark:bg-gray-900/80'}`}>
+    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${showBg ? 'bg-white shadow-sm' : 'bg-white/80 backdrop-blur-sm'}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left section - Logo and hamburger menu */}
@@ -110,8 +101,6 @@ const NavigationBar = ({
               dashboardPath={dashboardPath}
               userRole={userRole}
             />
-
-            {mounted && <ThemeToggle />}
 
             {/* Mobile search */}
             <div className="flex md:hidden">
