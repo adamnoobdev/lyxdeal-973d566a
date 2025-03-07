@@ -9,10 +9,13 @@ import { useState, useEffect } from "react";
 export const AdminSidebar = () => {
   const { session } = useSession();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setIsCollapsed(mobile);
     };
 
     window.addEventListener('resize', handleResize);
@@ -46,7 +49,6 @@ export const AdminSidebar = () => {
       className="border-r bg-background/95 backdrop-blur-sm pt-16 z-10 shadow-sm" 
       variant="inset" 
       collapsible="icon"
-      defaultCollapsed={isMobile}
     >
       <SidebarTrigger className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" />
       <AdminSidebarContent userRole={userData?.role} />
