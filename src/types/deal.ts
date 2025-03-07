@@ -21,6 +21,7 @@ export interface Deal {
     name: string;
   };
   is_free: boolean;
+  is_active: boolean;
 }
 
 export type DealFormData = {
@@ -35,5 +36,6 @@ export type DealFormData = {
   featured: boolean;
   salon_id?: number;
   is_free: boolean;
+  is_active?: boolean;
   quantity?: string;
 }
