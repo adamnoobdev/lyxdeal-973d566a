@@ -49,7 +49,7 @@ export function CategoryBadge({
       {children || (
         <>
           {category === "NYTT" ? (
-            <Award className="!h-3 !w-3 !shrink-0 text-black" />
+            <Award className="!h-3.5 !w-3.5 !shrink-0 text-black" />
           ) : (
             <span className="!shrink-0">{getCategoryEmoji(category)}</span>
           )} 

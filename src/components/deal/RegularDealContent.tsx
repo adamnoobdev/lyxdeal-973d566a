@@ -39,15 +39,15 @@ export const RegularDealContent = ({
     <div className="p-2 flex flex-col h-full justify-between">
       <div className="flex items-start justify-between gap-1 mb-1.5">
         <CategoryBadge category={category} className="text-[10px]" />
-        <div className="flex items-center text-[10px] text-muted-foreground">
-          <Clock className="h-2.5 w-2.5 mr-0.5" />
+        <div className="flex items-center text-xs text-muted-foreground">
+          <Clock className="h-3 w-3 mr-0.5" />
           {timeRemaining}
         </div>
       </div>
 
       <div className="mb-1.5">
-        <h3 className="font-medium text-sm leading-tight line-clamp-2 mb-0.5">{title}</h3>
-        <p className="text-[11px] text-muted-foreground line-clamp-2">
+        <h3 className="font-medium text-base leading-tight line-clamp-2 mb-0.5">{title}</h3>
+        <p className="text-xs text-muted-foreground line-clamp-2 leading-snug">
           {description}
         </p>
       </div>
@@ -56,16 +56,16 @@ export const RegularDealContent = ({
         <div className="flex items-center justify-between mb-1.5">
           <div className="space-y-0.5">
             <div className="flex items-baseline gap-1.5">
-              <span className="text-base font-semibold">
+              <span className="text-lg font-semibold">
                 {isFreeDeal ? "GRATIS" : `${discountedPrice} kr`}
               </span>
               {originalPrice > 0 && (
-                <span className="text-xs line-through text-muted-foreground">
+                <span className="text-sm line-through text-muted-foreground">
                   {originalPrice} kr
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {city} • {quantityLeft} kvar
             </p>
           </div>
@@ -77,12 +77,12 @@ export const RegularDealContent = ({
         {id && (
           <Button 
             size="sm" 
-            className="w-full text-xs h-8"
+            className="w-full text-sm h-8"
             variant="default"
             asChild
           >
             <Link to={`/deal/${id}`}>
-              <Tag className="h-3 w-3 mr-1" />
+              <Tag className="h-3.5 w-3.5 mr-1" />
               Säkra deal
             </Link>
           </Button>
