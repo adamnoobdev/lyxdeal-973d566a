@@ -12,7 +12,7 @@ interface DealCardProps {
   image_url: string;
   original_price: number;
   discounted_price: number;
-  time_remaining: string;
+  expiration_date?: string;
   category: string;
   city: string;
   created_at: string;
@@ -27,7 +27,7 @@ const DealCardComponent = ({
   image_url,
   original_price,
   discounted_price,
-  time_remaining,
+  expiration_date,
   category,
   city,
   created_at,
@@ -41,6 +41,25 @@ const DealCardComponent = ({
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays <= 3;
   }, [created_at]);
+
+  // Calculate days remaining
+  const calculateDaysRemaining = () => {
+    if (!expiration_date) return 30; // Default to 30 days if no date provided
+    
+    const expirationDate = new Date(expiration_date);
+    const now = new Date();
+    
+    // Set both dates to midnight to avoid time differences
+    expirationDate.setHours(0, 0, 0, 0);
+    now.setHours(0, 0, 0, 0);
+    
+    const diffTime = expirationDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > 0 ? diffDays : 0;
+  };
+
+  const daysRemaining = calculateDaysRemaining();
 
   return (
     <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 bg-white/80 backdrop-blur-sm border-muted-200 hover:shadow-lg">
@@ -59,7 +78,7 @@ const DealCardComponent = ({
               description={description}
               category={category}
               city={city}
-              timeRemaining={time_remaining}
+              daysRemaining={daysRemaining}
               originalPrice={original_price}
               discountedPrice={discounted_price}
               quantityLeft={quantity_left}

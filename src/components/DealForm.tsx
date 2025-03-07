@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { addDays, differenceInDays } from "date-fns";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
@@ -25,6 +26,9 @@ interface DealFormProps {
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
   const [submitting, setSubmitting] = useState(false);
+  
+  // Set default expiration date to 30 days from now if not provided
+  const defaultExpirationDate = initialValues?.expirationDate || addDays(new Date(), 30);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -36,7 +40,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       discountedPrice: "",
       category: "",
       city: "",
-      timeRemaining: "",
+      expirationDate: defaultExpirationDate,
       featured: false,
       salon_id: undefined,
       quantity: "10", // Default value for quantity
@@ -57,11 +61,23 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
         return;
       }
       
+      // Calculate days remaining
+      const today = new Date();
+      const daysRemaining = differenceInDays(values.expirationDate, today);
+      const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
+      
       // Log form values before submitting
       console.log('Submitting form with values:', values);
 
+      // Create values object with timeRemaining
+      const valuesWithTimeRemaining = {
+        ...values,
+        timeRemaining,
+        expirationDate: values.expirationDate.toISOString(),
+      };
+
       // First create the deal
-      await onSubmit(values);
+      await onSubmit(valuesWithTimeRemaining);
 
       // Only proceed with additional steps if this is a new deal
       if (!initialValues) {

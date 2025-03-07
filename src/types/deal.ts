@@ -7,6 +7,7 @@ export interface Deal {
   original_price: number;
   discounted_price: number;
   time_remaining: string;
+  expiration_date?: string;
   category: string;
   city: string;
   featured: boolean;
@@ -31,6 +32,7 @@ export type DealFormData = {
   category: string;
   city: string;
   timeRemaining: string;
+  expirationDate?: Date | string;
   featured: boolean;
   salon_id?: number;
   is_free: boolean;

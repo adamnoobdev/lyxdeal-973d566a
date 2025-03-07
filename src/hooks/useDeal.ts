@@ -38,6 +38,32 @@ export const useDeal = (id: string | undefined) => {
           throw new Error("Deal not found");
         }
 
+        // Calculate days remaining
+        const calculateDaysRemaining = () => {
+          if (!data.expiration_date) {
+            // If no expiration date, parse days from time_remaining or default to 30
+            if (data.time_remaining && data.time_remaining.includes("dag")) {
+              const daysText = data.time_remaining.split(" ")[0];
+              return parseInt(daysText) || 30;
+            }
+            return 30;
+          }
+          
+          const expirationDate = new Date(data.expiration_date);
+          const now = new Date();
+          
+          // Set both dates to midnight to avoid time differences
+          expirationDate.setHours(0, 0, 0, 0);
+          now.setHours(0, 0, 0, 0);
+          
+          const diffTime = expirationDate.getTime() - now.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          return diffDays > 0 ? diffDays : 0;
+        };
+
+        const daysRemaining = calculateDaysRemaining();
+
         return {
           id: data.id,
           title: data.title,
@@ -45,7 +71,8 @@ export const useDeal = (id: string | undefined) => {
           imageUrl: data.image_url,
           originalPrice: data.original_price,
           discountedPrice: data.discounted_price,
-          timeRemaining: data.time_remaining,
+          daysRemaining,
+          expirationDate: data.expiration_date,
           category: data.category,
           city: data.city,
           created_at: data.created_at,

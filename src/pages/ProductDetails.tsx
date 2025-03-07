@@ -94,7 +94,7 @@ const ProductDetails = () => {
                   category={deal.category}
                   originalPrice={deal.originalPrice}
                   discountedPrice={deal.discountedPrice}
-                  timeRemaining={deal.timeRemaining}
+                  daysRemaining={deal.daysRemaining}
                   city={deal.city}
                   quantityLeft={deal.quantityLeft}
                   isFree={deal.isFree}

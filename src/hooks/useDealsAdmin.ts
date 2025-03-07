@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
 import { toast } from "sonner";
+import { differenceInDays } from "date-fns";
 
 export const useDealsAdmin = () => {
   const { data: deals = [], isLoading, error, refetch } = useQuery({
@@ -49,11 +50,18 @@ export const useDealsAdmin = () => {
       // Even for free deals, we'll use the is_free flag to determine display logic
       const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
       
+      // Calculate days remaining and time remaining text
+      const today = new Date();
+      const expirationDate = values.expirationDate;
+      const daysRemaining = differenceInDays(expirationDate, today);
+      const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
+      
       console.log('Updating deal with values:', {
         ...values,
         originalPrice,
         discountedPrice,
-        is_free: values.is_free
+        is_free: values.is_free,
+        expirationDate: expirationDate
       });
       
       const { error } = await supabase
@@ -66,7 +74,8 @@ export const useDealsAdmin = () => {
           discounted_price: discountedPrice, // Always minimum 1
           category: values.category,
           city: values.city,
-          time_remaining: values.timeRemaining,
+          time_remaining: timeRemaining,
+          expiration_date: expirationDate.toISOString(),
           featured: values.featured,
           salon_id: values.salon_id,
           is_free: values.is_free || false,
@@ -97,11 +106,18 @@ export const useDealsAdmin = () => {
       // Even for free deals, we'll use the is_free flag to determine display logic
       const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
       
+      // Calculate days remaining and time remaining text
+      const today = new Date();
+      const expirationDate = values.expirationDate;
+      const daysRemaining = differenceInDays(expirationDate, today);
+      const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
+      
       console.log('Creating deal with values:', {
         ...values,
         originalPrice,
         discountedPrice,
-        is_free: values.is_free
+        is_free: values.is_free,
+        expirationDate: expirationDate
       });
       
       const { error } = await supabase
@@ -114,7 +130,8 @@ export const useDealsAdmin = () => {
           discounted_price: discountedPrice, // Always minimum 1
           category: values.category,
           city: values.city,
-          time_remaining: values.timeRemaining,
+          time_remaining: timeRemaining,
+          expiration_date: expirationDate.toISOString(),
           featured: values.featured,
           salon_id: values.salon_id,
           status: 'pending',

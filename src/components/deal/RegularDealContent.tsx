@@ -9,7 +9,7 @@ interface RegularDealContentProps {
   description: string;
   category: string;
   city: string;
-  timeRemaining: string;
+  daysRemaining: number;
   originalPrice: number;
   discountedPrice: number;
   quantityLeft: number;
@@ -22,7 +22,7 @@ export const RegularDealContent = ({
   description,
   category,
   city,
-  timeRemaining,
+  daysRemaining,
   originalPrice,
   discountedPrice,
   quantityLeft,
@@ -35,13 +35,17 @@ export const RegularDealContent = ({
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
 
+  // Format days remaining text
+  const daysText = daysRemaining === 1 ? "dag" : "dagar";
+  const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
+
   return (
     <div className="p-2 flex flex-col h-full justify-between">
       <div className="flex items-start justify-between gap-1 mb-1.5">
         <CategoryBadge category={category} className="text-[10px]" />
         <div className="flex items-center text-xs text-muted-foreground">
           <Clock className="h-3 w-3 mr-0.5" />
-          {timeRemaining}
+          {timeRemainingText}
         </div>
       </div>
 

@@ -29,8 +29,8 @@ export const formSchema = z.object({
   city: z.string().min(1, {
     message: "Vänligen ange en stad.",
   }),
-  timeRemaining: z.string().min(1, {
-    message: "Vänligen ange hur länge erbjudandet gäller.",
+  expirationDate: z.date({
+    required_error: "Vänligen välj ett slutdatum.",
   }),
   featured: z.boolean().default(false),
   salon_id: z.number({

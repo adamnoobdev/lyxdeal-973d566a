@@ -10,7 +10,7 @@ interface DealInfoProps {
   category: string;
   originalPrice: number;
   discountedPrice: number;
-  timeRemaining: string;
+  daysRemaining: number;
   city: string;
   quantityLeft: number;
   isFree?: boolean;
@@ -25,11 +25,15 @@ export const DealInfo = ({
   title,
   originalPrice,
   discountedPrice,
-  timeRemaining,
+  daysRemaining,
   quantityLeft,
   isFree = false,
   salon,
 }: DealInfoProps) => {
+  // Format days remaining text
+  const daysText = daysRemaining === 1 ? "dag" : "dagar";
+  const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
+
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
       <div className="space-y-4">
@@ -55,7 +59,7 @@ export const DealInfo = ({
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-primary" />
-              <span>{timeRemaining} kvar av kampanjen</span>
+              <span>{timeRemainingText}</span>
             </div>
           </div>
         </div>
