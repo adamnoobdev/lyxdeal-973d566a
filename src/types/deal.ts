@@ -7,7 +7,7 @@ export interface Deal {
   original_price: number;
   discounted_price: number;
   time_remaining: string;
-  expiration_date?: string;
+  expiration_date: string;
   category: string;
   city: string;
   featured: boolean;

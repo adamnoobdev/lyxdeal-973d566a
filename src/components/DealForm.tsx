@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
-import { addDays, differenceInDays } from "date-fns";
+import { addDays, differenceInDays, endOfMonth } from "date-fns";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
@@ -27,8 +27,8 @@ interface DealFormProps {
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
   const [submitting, setSubmitting] = useState(false);
   
-  // Set default expiration date to 30 days from now if not provided
-  const defaultExpirationDate = initialValues?.expirationDate || addDays(new Date(), 30);
+  // Set default expiration date to end of current month if not provided
+  const defaultExpirationDate = initialValues?.expirationDate || endOfMonth(new Date());
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -69,7 +69,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       // Log form values before submitting
       console.log('Submitting form with values:', values);
 
-      // Pass values directly to onSubmit (removed the timeRemaining addition)
+      // Pass values directly to onSubmit
       await onSubmit(values);
 
       // Only proceed with additional steps if this is a new deal

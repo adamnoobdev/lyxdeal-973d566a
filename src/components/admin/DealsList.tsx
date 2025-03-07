@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { endOfMonth } from "date-fns";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
@@ -160,7 +161,7 @@ export const DealsList = () => {
                 salon_id: editingDeal.salon_id,
                 is_free: editingDeal.is_free || false,
                 quantity: editingDeal.quantity_left?.toString() || "10",
-                expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : addDays(new Date(), 30),
+                expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
               }
             : undefined
         }
@@ -174,4 +175,4 @@ export const DealsList = () => {
       />
     </div>
   );
-};
+}

@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { addDays } from "date-fns";
+import { endOfMonth } from "date-fns";
 
 export function SalonDeals() {
   const { salonId } = useParams();
@@ -177,7 +177,7 @@ export function SalonDeals() {
                 salon_id: editingDeal.salon_id,
                 is_free: editingDeal.is_free || false,
                 quantity: editingDeal.quantity_left?.toString() || "10",
-                expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : addDays(new Date(), 30),
+                expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
               }
             : undefined
         }

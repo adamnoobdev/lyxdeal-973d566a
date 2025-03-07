@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -28,7 +29,7 @@ export const DealDialog = ({
             {initialValues ? "Redigera Erbjudande" : "Skapa Erbjudande"}
           </DialogTitle>
         </DialogHeader>
-        <DealForm onSubmit={onSubmit} />
+        <DealForm onSubmit={onSubmit} initialValues={initialValues} />
       </DialogContent>
     </Dialog>
   );

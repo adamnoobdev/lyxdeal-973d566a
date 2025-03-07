@@ -10,7 +10,7 @@ import { DealsSection } from "@/components/salon/DealsSection";
 import { DealDialog } from "@/components/salon/DealDialog";
 import { useSalonDeals } from "@/hooks/useSalonDeals";
 import { FormValues } from "@/components/deal-form/schema";
-import { addDays } from 'date-fns';
+import { addDays, endOfMonth } from 'date-fns';
 
 export default function SalonDashboard() {
   const { session } = useSession();
@@ -110,7 +110,7 @@ export default function SalonDashboard() {
           salon_id: editingDeal.salon_id,
           is_free: editingDeal.is_free,
           quantity: editingDeal.quantity_left?.toString() || "10",
-          expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : addDays(new Date(), 30),
+          expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
         } : undefined}
       />
     </div>
