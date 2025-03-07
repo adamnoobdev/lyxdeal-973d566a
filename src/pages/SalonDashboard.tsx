@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
@@ -9,6 +10,7 @@ import { DealsSection } from "@/components/salon/DealsSection";
 import { DealDialog } from "@/components/salon/DealDialog";
 import { useSalonDeals } from "@/hooks/useSalonDeals";
 import { FormValues } from "@/components/deal-form/schema";
+import { addDays } from 'date-fns';
 
 export default function SalonDashboard() {
   const { session } = useSession();
@@ -104,9 +106,11 @@ export default function SalonDashboard() {
           discountedPrice: editingDeal.discounted_price.toString(),
           category: editingDeal.category,
           city: editingDeal.city,
-          timeRemaining: editingDeal.time_remaining,
           featured: editingDeal.featured,
           salon_id: editingDeal.salon_id,
+          is_free: editingDeal.is_free,
+          quantity: editingDeal.quantity_left?.toString() || "10",
+          expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : addDays(new Date(), 30),
         } : undefined}
       />
     </div>

@@ -31,7 +31,6 @@ export type DealFormData = {
   discountedPrice: string;
   category: string;
   city: string;
-  timeRemaining: string;
   expirationDate?: Date | string;
   featured: boolean;
   salon_id?: number;

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
 import { toast } from "sonner";
 import { differenceInDays } from "date-fns";
+import { FormValues } from "@/components/deal-form/schema";
 
 export const useDealsAdmin = () => {
   const { data: deals = [], isLoading, error, refetch } = useQuery({
@@ -42,7 +43,7 @@ export const useDealsAdmin = () => {
     }
   };
 
-  const handleUpdate = async (values: any, id: number) => {
+  const handleUpdate = async (values: FormValues, id: number) => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
@@ -98,7 +99,7 @@ export const useDealsAdmin = () => {
     }
   };
 
-  const handleCreate = async (values: any) => {
+  const handleCreate = async (values: FormValues) => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       

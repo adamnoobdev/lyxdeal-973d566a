@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Deal } from "@/components/admin/types";
@@ -9,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { addDays } from "date-fns";
 
 export function SalonDeals() {
   const { salonId } = useParams();
@@ -104,11 +106,11 @@ export function SalonDeals() {
           discounted_price: discountedPrice,
           category: values.category,
           city: values.city,
-          time_remaining: values.timeRemaining,
           featured: values.featured,
           is_free: values.is_free || false,
           quantity_left: parseInt(values.quantity) || 10,
           status: 'pending',
+          expiration_date: values.expirationDate.toISOString()
         })
         .eq("id", editingDeal.id);
 
@@ -171,11 +173,11 @@ export function SalonDeals() {
                 discountedPrice: editingDeal.discounted_price.toString(),
                 category: editingDeal.category,
                 city: editingDeal.city,
-                timeRemaining: editingDeal.time_remaining,
                 featured: editingDeal.featured,
                 salon_id: editingDeal.salon_id,
                 is_free: editingDeal.is_free || false,
                 quantity: editingDeal.quantity_left?.toString() || "10",
+                expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : addDays(new Date(), 30),
               }
             : undefined
         }

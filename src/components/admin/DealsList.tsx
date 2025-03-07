@@ -156,11 +156,11 @@ export const DealsList = () => {
                 discountedPrice: editingDeal.discounted_price.toString(),
                 category: editingDeal.category,
                 city: editingDeal.city,
-                timeRemaining: editingDeal.time_remaining,
                 featured: editingDeal.featured,
                 salon_id: editingDeal.salon_id,
                 is_free: editingDeal.is_free || false,
                 quantity: editingDeal.quantity_left?.toString() || "10",
+                expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : addDays(new Date(), 30),
               }
             : undefined
         }

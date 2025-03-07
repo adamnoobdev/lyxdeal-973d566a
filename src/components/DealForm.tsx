@@ -69,15 +69,8 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       // Log form values before submitting
       console.log('Submitting form with values:', values);
 
-      // Create values object with timeRemaining
-      const valuesWithTimeRemaining = {
-        ...values,
-        timeRemaining,
-        expirationDate: values.expirationDate.toISOString(),
-      };
-
-      // First create the deal
-      await onSubmit(valuesWithTimeRemaining);
+      // Pass values directly to onSubmit (removed the timeRemaining addition)
+      await onSubmit(values);
 
       // Only proceed with additional steps if this is a new deal
       if (!initialValues) {
