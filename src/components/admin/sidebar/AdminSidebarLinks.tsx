@@ -30,7 +30,7 @@ export const AdminSidebarLinks = () => {
   
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="text-primary font-medium">Admin</SidebarGroupLabel>
+      <SidebarGroupLabel className="font-medium">Admin</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {adminLinks.map((link) => (

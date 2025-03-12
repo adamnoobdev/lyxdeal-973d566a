@@ -25,9 +25,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex bg-background">
         <AdminSidebar />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 relative">
           <ScrollArea className="h-screen pt-16">
             <div className="container mx-auto py-6 px-4 max-w-6xl">
               {children}
