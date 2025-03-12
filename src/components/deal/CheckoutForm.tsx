@@ -58,7 +58,6 @@ export const CheckoutForm = ({
       
       console.log("Submitting form for deal:", dealId, "Values:", values);
       
-      // Call the Supabase edge function directly instead of using a non-existent API route
       const { data, error } = await supabase.functions.invoke('checkout-deal', {
         body: {
           dealId,
@@ -68,20 +67,23 @@ export const CheckoutForm = ({
       
       if (error) {
         console.error("Checkout error:", error);
-        throw new Error(error.message || "Ett fel uppstod vid säkring av erbjudandet.");
+        // Anpassa felmeddelandet baserat på edge-funktionens svar
+        if (error.message?.includes("inga rabattkoder kvar")) {
+          toast.error("Tyvärr är detta erbjudande slutsålt. Försök med ett annat erbjudande.");
+        } else {
+          toast.error(error.message || "Ett fel uppstod vid säkring av erbjudandet.");
+        }
+        return;
       }
       
       console.log("Checkout success:", data);
       
       if (data.free && data.code) {
-        // För gratiserbjudanden, visa koden direkt
         toast.success("En bekräftelse med rabattkoden har skickats till din e-post");
         onSuccess(data.code);
       } else if (data.url) {
-        // För betalerbjudanden, omdirigera till Stripe
         window.location.href = data.url;
       } else {
-        // Detta bör inte hända, men vi hanterar det ändå
         toast.error("Oväntat svar från servern. Försök igen senare.");
       }
     } catch (error) {
