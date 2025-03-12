@@ -22,34 +22,43 @@ export const DealDialog = ({
   onSubmit,
   initialValues,
 }: DealDialogProps) => {
-  const [isClosing, setIsClosing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
-      setIsClosing(false);
+      setIsSubmitting(false);
     }
   }, [isOpen]);
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open && !isClosing) {
-      setIsClosing(true);
-      // Ensure we properly cleanup when closing
-      setTimeout(() => {
-        setIsClosing(false);
-        onClose();
-      }, 300); // Increased delay to ensure animation completes
+  const handleSubmit = async (values: FormValues) => {
+    try {
+      setIsSubmitting(true);
+      await onSubmit(values);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open && !isSubmitting) {
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="w-[95vw] max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {initialValues ? "Redigera Erbjudande" : "Skapa Erbjudande"}
           </DialogTitle>
         </DialogHeader>
-        <DealForm onSubmit={onSubmit} initialValues={initialValues} />
+        <DealForm 
+          onSubmit={handleSubmit} 
+          initialValues={initialValues} 
+          isSubmitting={isSubmitting}
+        />
       </DialogContent>
     </Dialog>
   );

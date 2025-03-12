@@ -15,8 +15,8 @@ import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
-import { addDays, differenceInDays, endOfMonth } from "date-fns";
+import { useState } from "react";
+import { endOfMonth } from "date-fns";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
@@ -24,16 +24,12 @@ interface DealFormProps {
   initialValues?: FormValues;
 }
 
-export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
-  const [submitting, setSubmitting] = useState(false);
-  const [isUnmounting, setIsUnmounting] = useState(false);
-  
-  // Clear state when component unmounts
-  useEffect(() => {
-    return () => {
-      setIsUnmounting(true);
-    };
-  }, []);
+export const DealForm = ({ 
+  onSubmit, 
+  isSubmitting = false, 
+  initialValues 
+}: DealFormProps) => {
+  const [localSubmitting, setLocalSubmitting] = useState(false);
   
   // Set default expiration date to end of current month if not provided
   const defaultExpirationDate = initialValues?.expirationDate || endOfMonth(new Date());
@@ -53,6 +49,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       salon_id: undefined,
       quantity: "10", // Default value for quantity
       is_free: false, // Default value for is_free
+      is_active: true, // Default value for is_active
     },
   });
 
@@ -61,21 +58,15 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   };
 
   const handleSubmit = async (values: FormValues) => {
-    if (submitting || isUnmounting) return;
+    if (localSubmitting || isSubmitting) return;
     
     try {
-      setSubmitting(true);
+      setLocalSubmitting(true);
       
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
-        setSubmitting(false);
         return;
       }
-      
-      // Calculate days remaining
-      const today = new Date();
-      const daysRemaining = differenceInDays(values.expirationDate, today);
-      const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
       
       // Log form values before submitting
       console.log('Submitting form with values:', values);
@@ -84,7 +75,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       await onSubmit(values);
 
       // Only proceed with additional steps if this is a new deal
-      if (!initialValues && !isUnmounting) {
+      if (!initialValues) {
         try {
           // Get the newly created deal's ID
           const { data: newDeal } = await supabase
@@ -95,36 +86,28 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
             .limit(1)
             .single();
 
-          if (newDeal && !isUnmounting) {
+          if (newDeal) {
             // Generate discount codes based on the quantity specified
             await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
             
             // Only create Stripe product if not free
-            if (!values.is_free && !isUnmounting) {
+            if (!values.is_free) {
               await createStripeProductForDeal(values);
               toast.success("Erbjudande och presentkoder har skapats");
-            } else if (!isUnmounting) {
+            } else {
               toast.success("Gratis erbjudande och presentkoder har skapats");
             }
           }
         } catch (error) {
           console.error('Error in post-submission process:', error);
-          if (!isUnmounting) {
-            toast.error("Erbjudandet sparades men det uppstod problem med att skapa presentkoder");
-          }
+          toast.error("Erbjudandet sparades men det uppstod problem med att skapa presentkoder");
         }
       }
     } catch (error) {
       console.error('Error:', error);
-      if (!isUnmounting) {
-        toast.error("Något gick fel när erbjudandet skulle sparas.");
-      }
+      toast.error("Något gick fel när erbjudandet skulle sparas.");
     } finally {
-      if (!isUnmounting) {
-        setTimeout(() => {
-          setSubmitting(false);
-        }, 300);
-      }
+      setLocalSubmitting(false);
     }
   };
 
@@ -145,8 +128,12 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
         </div>
 
         <div className="sticky bottom-0 pt-4 bg-background">
-          <Button type="submit" className="w-full" disabled={isSubmitting || submitting}>
-            {(isSubmitting || submitting) ? "Sparar..." : "Spara erbjudande"}
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={isSubmitting || localSubmitting}
+          >
+            {(isSubmitting || localSubmitting) ? "Sparar..." : "Spara erbjudande"}
           </Button>
         </div>
       </form>

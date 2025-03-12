@@ -4,29 +4,35 @@ import { AdminSidebarContent } from "./sidebar/AdminSidebarContent";
 import { useSession } from "@/hooks/useSession";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSidebar } from "@/components/ui/sidebar/sidebar-provider";
 
 export const AdminSidebar = () => {
   const { session } = useSession();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const { setOpen, toggleSidebar } = useSidebar();
+  const [isMobile, setIsMobile] = useState(false);
+  const { open, setOpen } = useSidebar();
   
-  const handleResize = useCallback(() => {
-    const newIsMobile = window.innerWidth < 768;
-    setIsMobile(newIsMobile);
-    if (!newIsMobile) {
-      setOpen(true);
-    }
-  }, [setOpen]);
-  
+  // Simplified resize handler
   useEffect(() => {
+    const handleResize = () => {
+      const newIsMobile = window.innerWidth < 768;
+      setIsMobile(newIsMobile);
+      if (!newIsMobile) {
+        setOpen(true);
+      }
+    };
+    
+    // Initial check
     handleResize();
+    
+    // Add event listener
     window.addEventListener('resize', handleResize);
+    
+    // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [handleResize]);
+  }, [setOpen]);
 
   // Fetch user role to determine what sidebar content to show
   const { data: userData } = useQuery({
@@ -58,7 +64,6 @@ export const AdminSidebar = () => {
     >
       <SidebarTrigger 
         className="fixed right-4 top-20 bg-background shadow-sm hover:bg-accent md:right-8 lg:hidden" 
-        onClick={toggleSidebar}
       />
       <AdminSidebarContent userRole={userData?.role} />
     </Sidebar>

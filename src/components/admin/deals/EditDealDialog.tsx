@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { DealForm } from "@/components/DealForm";
 import { FormValues } from "@/components/deal-form/schema";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 interface EditDealDialogProps {
   isOpen: boolean;
@@ -23,33 +23,32 @@ export const EditDealDialog = ({
   onSubmit,
   initialValues,
 }: EditDealDialogProps) => {
-  const [isClosing, setIsClosing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCleanup = useCallback(() => {
-    setIsClosing(false);
-    onClose();
-  }, [onClose]);
-
+  // Reset state when dialog closes
   useEffect(() => {
     if (!isOpen) {
-      setIsClosing(false);
+      setIsSubmitting(false);
     }
   }, [isOpen]);
 
-  const handleOpenChange = useCallback((open: boolean) => {
-    if (!open && !isClosing) {
-      setIsClosing(true);
-      const cleanup = () => {
-        handleCleanup();
-      };
-      setTimeout(cleanup, 300);
+  const handleSubmit = async (values: FormValues) => {
+    try {
+      setIsSubmitting(true);
+      await onSubmit(values);
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [isClosing, handleCleanup]);
+  };
 
   return (
     <Dialog 
       open={isOpen} 
-      onOpenChange={handleOpenChange}
+      onOpenChange={(open) => {
+        if (!open && !isSubmitting) {
+          onClose();
+        }
+      }}
     >
       <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6">
         <DialogHeader className="space-y-2">
@@ -61,7 +60,11 @@ export const EditDealDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="mt-4 h-full overflow-y-auto">
-          <DealForm onSubmit={onSubmit} initialValues={initialValues} />
+          <DealForm 
+            onSubmit={handleSubmit} 
+            initialValues={initialValues}
+            isSubmitting={isSubmitting} 
+          />
         </div>
       </DialogContent>
     </Dialog>
