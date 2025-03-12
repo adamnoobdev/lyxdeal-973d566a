@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -61,7 +60,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
       <SheetContent side="left" className="w-[300px] p-0">
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b">
-            <Logo variant="miniature" />
+            <div className="flex items-center gap-2">
+              <Logo variant="miniature" />
+              <span className="font-semibold text-lg">LyxDeal</span>
+            </div>
             <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
               <X className="h-5 w-5" />
               <span className="sr-only">Stäng meny</span>

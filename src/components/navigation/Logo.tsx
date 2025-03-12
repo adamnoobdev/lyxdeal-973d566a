@@ -10,21 +10,19 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ variant = 'default' }) => {
   const [logoUrl, setLogoUrl] = useState('');
   const [miniatureUrl, setMiniatureUrl] = useState('');
+  const miniatureIcon = '/lovable-uploads/5a5c81bd-bf04-44b1-a9f0-d931dbdc78fa.png';
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const [logoData, miniatureData] = await Promise.all([
-          supabase.storage.from('assets').getPublicUrl('Lyxdeal-logo.svg'),
-          supabase.storage.from('assets').getPublicUrl('Min-logo-32x.png')
-        ]);
+        const logoData = await supabase.storage.from('assets').getPublicUrl('Lyxdeal-logo.svg');
 
         if (logoData?.data?.publicUrl) {
           setLogoUrl(logoData.data.publicUrl);
         }
-        if (miniatureData?.data?.publicUrl) {
-          setMiniatureUrl(miniatureData.data.publicUrl);
-        }
+        
+        // Vi använder den lokala bilden direkt istället för att hämta från Supabase
+        setMiniatureUrl(miniatureIcon);
       } catch (error) {
         console.error('Error fetching logo:', error);
       }
@@ -40,7 +38,7 @@ const Logo: React.FC<LogoProps> = ({ variant = 'default' }) => {
           <img 
             src={miniatureUrl} 
             alt="LyxDeal" 
-            className="h-8 w-8 rounded-full object-contain" 
+            className="h-6 w-6 object-contain" 
           />
         ) : (
           <span className="font-bold text-xl">L</span>
