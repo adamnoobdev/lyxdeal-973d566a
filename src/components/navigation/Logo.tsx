@@ -16,7 +16,7 @@ const Logo: React.FC<LogoProps> = ({ variant = 'default' }) => {
       try {
         const [logoData, miniatureData] = await Promise.all([
           supabase.storage.from('assets').getPublicUrl('Lyxdeal-logo.svg'),
-          supabase.storage.from('assets').getPublicUrl('Lyxdeal-miniature.png')
+          supabase.storage.from('assets').getPublicUrl('Min-logo-32x.png')
         ]);
 
         if (logoData?.data?.publicUrl) {
