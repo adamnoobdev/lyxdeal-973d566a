@@ -3,30 +3,58 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
-const Logo: React.FC = () => {
+interface LogoProps {
+  variant?: 'default' | 'miniature';
+}
+
+const Logo: React.FC<LogoProps> = ({ variant = 'default' }) => {
   const [logoUrl, setLogoUrl] = useState('');
+  const [miniatureUrl, setMiniatureUrl] = useState('');
 
   useEffect(() => {
-    const fetchLogo = async () => {
+    const fetchImages = async () => {
       try {
-        const { data } = await supabase.storage.from('assets').getPublicUrl('Lyxdeal-logo.svg');
-        if (data?.publicUrl) {
-          setLogoUrl(data.publicUrl);
+        const [logoData, miniatureData] = await Promise.all([
+          supabase.storage.from('assets').getPublicUrl('Lyxdeal-logo.svg'),
+          supabase.storage.from('assets').getPublicUrl('Lyxdeal-miniature.png')
+        ]);
+
+        if (logoData?.data?.publicUrl) {
+          setLogoUrl(logoData.data.publicUrl);
+        }
+        if (miniatureData?.data?.publicUrl) {
+          setMiniatureUrl(miniatureData.data.publicUrl);
         }
       } catch (error) {
         console.error('Error fetching logo:', error);
       }
     };
     
-    fetchLogo();
+    fetchImages();
   }, []);
 
   return (
     <Link to="/" className="flex items-center">
-      {logoUrl ? (
-        <img src={logoUrl} alt="LyxDeal Logo" className="h-8 w-auto" />
+      {variant === 'miniature' ? (
+        miniatureUrl ? (
+          <img 
+            src={miniatureUrl} 
+            alt="LyxDeal" 
+            className="h-8 w-8 rounded-full object-contain" 
+          />
+        ) : (
+          <span className="font-bold text-xl">L</span>
+        )
       ) : (
-        <span className="font-bold text-2xl">LyxDeal</span>
+        logoUrl ? (
+          <img 
+            src={logoUrl} 
+            alt="LyxDeal Logo" 
+            className="h-8 w-auto" 
+          />
+        ) : (
+          <span className="font-bold text-2xl">LyxDeal</span>
+        )
       )}
     </Link>
   );
