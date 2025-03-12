@@ -25,7 +25,7 @@ export const useDealsAdmin = () => {
     }
   });
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number): Promise<boolean> => {
     try {
       const { error } = await supabase
         .from('deals')
@@ -43,7 +43,7 @@ export const useDealsAdmin = () => {
     }
   };
 
-  const handleUpdate = async (values: FormValues, id: number) => {
+  const handleUpdate = async (values: FormValues, id: number): Promise<boolean> => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
@@ -101,7 +101,7 @@ export const useDealsAdmin = () => {
     }
   };
 
-  const handleCreate = async (values: FormValues) => {
+  const handleCreate = async (values: FormValues): Promise<boolean> => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
@@ -159,7 +159,7 @@ export const useDealsAdmin = () => {
     }
   };
 
-  const handleToggleActive = async (deal: Deal) => {
+  const handleToggleActive = async (deal: Deal): Promise<boolean> => {
     try {
       const { error } = await supabase
         .from('deals')

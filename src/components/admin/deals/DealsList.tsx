@@ -13,6 +13,7 @@ import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { endOfMonth } from "date-fns";
+import { FormValues } from "@/components/deal-form/schema";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
@@ -46,7 +47,7 @@ export const DealsList = () => {
     }
   };
 
-  const onUpdate = async (values: any) => {
+  const onUpdate = async (values: FormValues): Promise<void> => {
     if (editingDeal) {
       try {
         const success = await handleUpdate(values, editingDeal.id);
@@ -60,17 +61,15 @@ export const DealsList = () => {
     }
   };
 
-  const onCreate = async (values: any) => {
+  const onCreate = async (values: FormValues): Promise<void> => {
     try {
       const success = await handleCreate(values);
       if (success) {
         setIsCreating(false);
       }
-      return success;
     } catch (error) {
       console.error("Error creating deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle skapas");
-      return false;
     }
   };
 
