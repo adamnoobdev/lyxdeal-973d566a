@@ -43,12 +43,12 @@ export const AdminSidebar = () => {
 
   return (
     <Sidebar 
-      className="border-r bg-background pt-16 z-10 shadow-sm" 
+      className="border-r bg-background pt-16 shadow-sm" 
       variant={isMobile ? "floating" : "inset"} 
       collapsible={isMobile ? "offcanvas" : "icon"}
     >
       <SidebarTrigger 
-        className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8 lg:hidden" 
+        className="fixed right-4 top-20 bg-background shadow-sm hover:bg-accent md:right-8 lg:hidden" 
       />
       <AdminSidebarContent userRole={userData?.role} />
     </Sidebar>
