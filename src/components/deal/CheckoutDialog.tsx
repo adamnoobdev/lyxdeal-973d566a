@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import { CheckoutForm } from "@/components/deal/CheckoutForm";
 import { SuccessView } from "@/components/deal/SuccessView";
+import { ShieldCheck } from "lucide-react";
 
 interface CheckoutDialogProps {
   isOpen: boolean;
@@ -42,13 +43,18 @@ export const CheckoutDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>
+        <DialogHeader className="text-center space-y-4">
+          {!showSuccess && (
+            <div className="mx-auto bg-primary/5 p-3 rounded-full w-16 h-16 flex items-center justify-center">
+              <ShieldCheck className="w-8 h-8 text-primary" />
+            </div>
+          )}
+          <DialogTitle className="text-xl">
             {showSuccess ? "Tack för ditt intresse!" : `Säkra "${dealTitle}"`}
           </DialogTitle>
           {!showSuccess && (
-            <DialogDescription>
-              Fyll i dina uppgifter för att få en exklusiv rabattkod till detta erbjudande.
+            <DialogDescription className="text-base">
+              Fyll i dina uppgifter för att få en exklusiv rabattkod. 
               Koden är giltig i 72 timmar efter att du mottagit den.
             </DialogDescription>
           )}

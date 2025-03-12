@@ -114,49 +114,65 @@ export const CheckoutForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Namn</FormLabel>
-              <FormControl>
-                <Input placeholder="Ditt namn" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Namn</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Ditt namn" 
+                    {...field} 
+                    className="bg-gray-50/50"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>E-post</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="din.epost@exempel.se" 
+                    type="email" 
+                    {...field}
+                    className="bg-gray-50/50"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telefonnummer (valfritt)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="070-123 45 67" 
+                    type="tel" 
+                    {...field}
+                    className="bg-gray-50/50"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>E-post</FormLabel>
-              <FormControl>
-                <Input placeholder="din.epost@exempel.se" type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Telefonnummer (valfritt)</FormLabel>
-              <FormControl>
-                <Input placeholder="070-123 45 67" type="tel" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="pt-2 text-center text-sm text-muted-foreground">
+        <div className="rounded-lg bg-blue-50 border border-blue-100 p-4 text-sm text-blue-700">
           <p>
             Genom att säkra detta erbjudande godkänner du att vi skickar dig en rabattkod
             till din angivna e-post. Koden är giltig i 72 timmar.
@@ -164,7 +180,7 @@ export const CheckoutForm = ({
         </div>
         
         <div className="flex flex-col gap-2 pt-2">
-          <Button type="submit" disabled={isSubmitting} className="w-full">
+          <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
             {isSubmitting ? "Bearbetar..." : "Säkra rabattkod"}
           </Button>
           <Button 
@@ -172,6 +188,7 @@ export const CheckoutForm = ({
             variant="outline" 
             onClick={onCancel}
             disabled={isSubmitting}
+            size="lg"
           >
             Avbryt
           </Button>
