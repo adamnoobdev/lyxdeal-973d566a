@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { DealForm } from "@/components/DealForm";
 import { FormValues } from "@/components/deal-form/schema";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface EditDealDialogProps {
   isOpen: boolean;
@@ -25,25 +25,32 @@ export const EditDealDialog = ({
 }: EditDealDialogProps) => {
   const [isClosing, setIsClosing] = useState(false);
 
+  const handleCleanup = useCallback(() => {
+    setIsClosing(false);
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     if (!isOpen) {
       setIsClosing(false);
     }
   }, [isOpen]);
 
-  const handleOpenChange = (open: boolean) => {
+  const handleOpenChange = useCallback((open: boolean) => {
     if (!open && !isClosing) {
       setIsClosing(true);
-      // Ensure we properly cleanup when closing
-      setTimeout(() => {
-        setIsClosing(false);
-        onClose();
-      }, 300); // Increased delay to ensure animation completes
+      const cleanup = () => {
+        handleCleanup();
+      };
+      setTimeout(cleanup, 300);
     }
-  };
+  }, [isClosing, handleCleanup]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={handleOpenChange}
+    >
       <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6">
         <DialogHeader className="space-y-2">
           <DialogTitle>
