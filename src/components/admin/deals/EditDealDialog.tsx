@@ -14,6 +14,7 @@ interface EditDealDialogProps {
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   initialValues?: FormValues;
+  isSubmitting?: boolean;
 }
 
 export const EditDealDialog = ({
@@ -21,9 +22,14 @@ export const EditDealDialog = ({
   onClose,
   onSubmit,
   initialValues,
+  isSubmitting = false,
 }: EditDealDialogProps) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open && !isSubmitting) {
+        onClose();
+      }
+    }}>
       <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6">
         <DialogHeader className="space-y-2">
           <DialogTitle>
@@ -34,7 +40,7 @@ export const EditDealDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="mt-4 h-full">
-          <DealForm onSubmit={onSubmit} initialValues={initialValues} />
+          <DealForm onSubmit={onSubmit} initialValues={initialValues} isSubmitting={isSubmitting} />
         </div>
       </DialogContent>
     </Dialog>

@@ -19,6 +19,7 @@ export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { 
     deals, 
@@ -36,13 +37,20 @@ export const DealsList = () => {
   const onDelete = async () => {
     if (deletingDeal) {
       try {
+        setIsSubmitting(true);
         const success = await handleDelete(deletingDeal.id);
         if (success) {
-          setDeletingDeal(null);
+          setTimeout(() => {
+            setDeletingDeal(null);
+            setIsSubmitting(false);
+          }, 300);
+        } else {
+          setIsSubmitting(false);
         }
       } catch (error) {
         console.error("Error deleting deal:", error);
         toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
+        setIsSubmitting(false);
       }
     }
   };
@@ -50,26 +58,40 @@ export const DealsList = () => {
   const onUpdate = async (values: FormValues): Promise<void> => {
     if (editingDeal) {
       try {
+        setIsSubmitting(true);
         const success = await handleUpdate(values, editingDeal.id);
         if (success) {
-          setEditingDeal(null);
+          setTimeout(() => {
+            setEditingDeal(null);
+            setIsSubmitting(false);
+          }, 300);
+        } else {
+          setIsSubmitting(false);
         }
       } catch (error) {
         console.error("Error updating deal:", error);
         toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
+        setIsSubmitting(false);
       }
     }
   };
 
   const onCreate = async (values: FormValues): Promise<void> => {
     try {
+      setIsSubmitting(true);
       const success = await handleCreate(values);
       if (success) {
-        setIsCreating(false);
+        setTimeout(() => {
+          setIsCreating(false);
+          setIsSubmitting(false);
+        }, 300);
+      } else {
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error("Error creating deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+      setIsSubmitting(false);
     }
   };
 
@@ -91,8 +113,16 @@ export const DealsList = () => {
   };
 
   const handleCloseEditDialog = () => {
-    setEditingDeal(null);
-    setIsCreating(false);
+    if (!isSubmitting) {
+      setEditingDeal(null);
+      setIsCreating(false);
+    }
+  };
+
+  const handleCloseDeleteDialog = () => {
+    if (!isSubmitting) {
+      setDeletingDeal(null);
+    }
   };
 
   if (isLoading) {
@@ -157,13 +187,15 @@ export const DealsList = () => {
               }
             : undefined
         }
+        isSubmitting={isSubmitting}
       />
 
       <DeleteDealDialog
         isOpen={!!deletingDeal}
-        onClose={() => setDeletingDeal(null)}
+        onClose={handleCloseDeleteDialog}
         onConfirm={onDelete}
         dealTitle={deletingDeal?.title}
+        isSubmitting={isSubmitting}
       />
     </div>
   );
