@@ -9,17 +9,11 @@ import { useState, useEffect } from "react";
 export const AdminSidebar = () => {
   const { session } = useSession();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isOpen, setIsOpen] = useState(window.innerWidth >= 768);
-
+  
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      setIsOpen(!mobile);
+      setIsMobile(window.innerWidth < 768);
     };
-
-    // Set initial values
-    handleResize();
     
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -55,7 +49,6 @@ export const AdminSidebar = () => {
     >
       <SidebarTrigger 
         className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" 
-        onClick={() => setIsOpen(!isOpen)}
       />
       <AdminSidebarContent userRole={userData?.role} />
     </Sidebar>
