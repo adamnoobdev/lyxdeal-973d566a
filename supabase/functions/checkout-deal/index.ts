@@ -1,7 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
-import { Stripe } from 'https://esm.sh/stripe@14.21.0';
 
 // Konstanter
 const corsHeaders = {
@@ -84,20 +83,24 @@ async function checkExistingCode(supabaseAdmin: any, dealId: number, customerEma
 }
 
 async function getAvailableDiscountCode(supabaseAdmin: any, dealId: number) {
-  const { data: discountCode, error: codeError } = await supabaseAdmin
+  const { data: discountCodes, error: codeError } = await supabaseAdmin
     .from('discount_codes')
     .select('*')
     .eq('deal_id', dealId)
     .is('customer_email', null)
-    .limit(1)
-    .single();
+    .limit(1);
 
-  if (codeError || !discountCode) {
+  if (codeError) {
     console.error('Error fetching discount code:', codeError);
+    throw new Error('Kunde inte hämta rabattkod');
+  }
+  
+  if (!discountCodes || discountCodes.length === 0) {
+    console.error('No available discount codes for deal:', dealId);
     throw new Error('Det finns inga rabattkoder kvar för detta erbjudande');
   }
 
-  return discountCode;
+  return discountCodes[0];
 }
 
 async function assignDiscountCodeToCustomer(supabaseAdmin: any, discountCodeId: number, customerInfo: any) {
@@ -116,29 +119,43 @@ async function assignDiscountCodeToCustomer(supabaseAdmin: any, discountCodeId: 
   }
 }
 
-async function decreaseQuantity(supabaseAdmin: any, priceId: string) {
-  const { error: decreaseError } = await supabaseAdmin.rpc('decrease_quantity', {
-    price_id: priceId || 'free_deal'
-  });
+async function decreaseQuantity(supabaseAdmin: any, dealId: number) {
+  try {
+    const { error: decreaseError } = await supabaseAdmin.rpc('decrease_quantity', {
+      price_id: `deal_${dealId}`
+    });
 
-  if (decreaseError) {
-    console.error('Error decreasing quantity:', decreaseError);
+    if (decreaseError) {
+      console.error('Error decreasing quantity:', decreaseError);
+      // Försök minska mängden direkt om RPC misslyckas
+      await supabaseAdmin
+        .from('deals')
+        .update({ quantity_left: supabaseAdmin.sql('quantity_left - 1') })
+        .eq('id', dealId)
+        .gt('quantity_left', 0);
+    }
+  } catch (error) {
+    console.error('Failed to decrease quantity:', error);
     // Vi fortsätter ändå, för detta är inte ett kritiskt fel
   }
 }
 
 async function createPurchaseRecord(supabaseAdmin: any, dealId: number, customerEmail: string, discountCode: string) {
-  const { error: purchaseError } = await supabaseAdmin
-    .from('purchases')
-    .insert({
-      deal_id: dealId,
-      customer_email: customerEmail,
-      discount_code: discountCode,
-      status: 'completed'
-    });
+  try {
+    const { error: purchaseError } = await supabaseAdmin
+      .from('purchases')
+      .insert({
+        deal_id: dealId,
+        customer_email: customerEmail,
+        discount_code: discountCode,
+        status: 'completed'
+      });
 
-  if (purchaseError) {
-    console.error('Error creating purchase record:', purchaseError);
+    if (purchaseError) {
+      console.error('Error creating purchase record:', purchaseError);
+    }
+  } catch (error) {
+    console.error('Failed to create purchase record:', error);
     // Vi fortsätter ändå, för detta är inte ett kritiskt fel
   }
 }
@@ -189,6 +206,11 @@ async function handleCheckout(req: Request) {
       console.error('No deal ID provided');
       return createErrorResponse('No deal ID provided', 400);
     }
+    
+    if (!customerInfo || !customerInfo.email || !customerInfo.name) {
+      console.error('Missing customer information');
+      return createErrorResponse('Vänligen fyll i alla obligatoriska fält', 400);
+    }
 
     const supabaseAdmin = await createSupabaseClient();
 
@@ -198,7 +220,6 @@ async function handleCheckout(req: Request) {
     // Kontrollera om kunden redan har en kod för detta erbjudande
     await checkExistingCode(supabaseAdmin, dealId, customerInfo.email);
 
-    // Alla erbjudanden behandlas nu som "gratis" eftersom vi inte tar betalt i förväg
     // Hitta en tillgänglig rabattkod
     const discountCode = await getAvailableDiscountCode(supabaseAdmin, dealId);
 
@@ -206,7 +227,7 @@ async function handleCheckout(req: Request) {
     await assignDiscountCodeToCustomer(supabaseAdmin, discountCode.id, customerInfo);
 
     // Minska antalet tillgängliga koder
-    await decreaseQuantity(supabaseAdmin, deal.stripe_price_id);
+    await decreaseQuantity(supabaseAdmin, dealId);
 
     // Skapa ett köpregister
     await createPurchaseRecord(supabaseAdmin, dealId, customerInfo.email, discountCode.code);

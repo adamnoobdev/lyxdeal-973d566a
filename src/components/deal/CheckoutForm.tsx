@@ -67,9 +67,15 @@ export const CheckoutForm = ({
       
       if (error) {
         console.error("Checkout error:", error);
-        // Anpassa felmeddelandet baserat på edge-funktionens svar
-        if (error.message?.includes("inga rabattkoder kvar")) {
+        
+        // Kolla efter specifika felmeddelanden och visa anpassade meddelanden
+        if (error.message?.includes("inga rabattkoder kvar") || 
+            error.message?.includes("slutsålt") || 
+            error.message?.includes("sold out") ||
+            error.message?.includes("quantity_left")) {
           toast.error("Tyvärr är detta erbjudande slutsålt. Försök med ett annat erbjudande.");
+        } else if (error.message?.includes("redan säkrat")) {
+          toast.error(error.message);
         } else {
           toast.error(error.message || "Ett fel uppstod vid säkring av erbjudandet.");
         }
@@ -78,10 +84,10 @@ export const CheckoutForm = ({
       
       console.log("Checkout success:", data);
       
-      if (data.free && data.code) {
+      if (data && data.free && data.code) {
         toast.success("En bekräftelse med rabattkoden har skickats till din e-post");
         onSuccess(data.code);
-      } else if (data.url) {
+      } else if (data && data.url) {
         window.location.href = data.url;
       } else {
         toast.error("Oväntat svar från servern. Försök igen senare.");

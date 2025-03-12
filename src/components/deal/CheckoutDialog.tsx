@@ -36,7 +36,7 @@ export const CheckoutDialog = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md sm:max-w-md w-[calc(100%-2rem)] mx-auto">
         <DialogHeader className="text-center space-y-4">
           {!showSuccess && (
             <div className="mx-auto bg-primary/5 p-3 rounded-full w-16 h-16 flex items-center justify-center">

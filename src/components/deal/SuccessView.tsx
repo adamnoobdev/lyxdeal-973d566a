@@ -25,7 +25,7 @@ export const SuccessView = ({ dealTitle, discountCode, onClose }: SuccessViewPro
 
   return (
     <div className="space-y-6">
-      <div className="bg-green-50 rounded-lg p-6 text-center space-y-4">
+      <div className="bg-green-50 rounded-lg p-4 sm:p-6 text-center space-y-4">
         <div className="mx-auto rounded-full bg-green-100 p-3 w-16 h-16 flex items-center justify-center">
           <Check className="h-8 w-8 text-green-600" />
         </div>
@@ -47,17 +47,17 @@ export const SuccessView = ({ dealTitle, discountCode, onClose }: SuccessViewPro
             Koden är giltig i 72 timmar
           </p>
         </div>
-        <div className="bg-white rounded-md p-4 shadow-sm">
+        <div className="bg-white rounded-md p-3 sm:p-4 shadow-sm">
           <p className="text-xs text-gray-500 mb-2">Din rabattkod</p>
           <div className="flex items-center justify-between gap-2">
-            <code className="font-mono text-lg font-bold tracking-wide text-gray-900">
+            <code className="font-mono text-base sm:text-lg font-bold tracking-wide text-gray-900 break-all">
               {discountCode}
             </code>
             <Button 
               size="sm" 
               variant="outline"
               onClick={handleCopyCode}
-              className="flex items-center gap-1.5"
+              className="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0"
             >
               {copied ? (
                 <>
