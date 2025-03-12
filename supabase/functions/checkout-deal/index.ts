@@ -75,7 +75,7 @@ serve(async (req) => {
     if (deal.quantity_left <= 0) {
       console.error('Deal is sold out:', dealId);
       return new Response(
-        JSON.stringify({ error: 'This deal is sold out' }),
+        JSON.stringify({ error: 'Detta erbjudande är slutsålt' }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400
@@ -83,87 +83,42 @@ serve(async (req) => {
       );
     }
 
-    // Handle free deals
-    if (deal.is_free || deal.discounted_price === 0) {
-      // Find an available discount code
-      const { data: discountCode, error: codeError } = await supabaseAdmin
-        .from('discount_codes')
-        .select('*')
-        .eq('deal_id', dealId)
-        .is('customer_email', null)
-        .limit(1)
-        .single();
+    // Check if customer already has a code for this deal
+    const { data: existingCodes, error: existingCodesError } = await supabaseAdmin
+      .from('discount_codes')
+      .select('code')
+      .eq('deal_id', dealId)
+      .eq('customer_email', customerInfo.email);
 
-      if (codeError || !discountCode) {
-        console.error('Error fetching discount code:', codeError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to fetch discount code' }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 500
-          }
-        );
-      }
-
-      // Update the discount code with customer information
-      const { error: updateError } = await supabaseAdmin
-        .from('discount_codes')
-        .update({
-          customer_name: customerInfo.name,
-          customer_email: customerInfo.email,
-          customer_phone: customerInfo.phone || null
-        })
-        .eq('id', discountCode.id);
-
-      if (updateError) {
-        console.error('Error updating discount code:', updateError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to update discount code' }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 500
-          }
-        );
-      }
-
-      // Decrease quantity
-      const { error: decreaseError } = await supabaseAdmin.rpc('decrease_quantity', {
-        price_id: 'free_deal'
-      });
-
-      if (decreaseError) {
-        console.error('Error decreasing quantity:', decreaseError);
-      }
-
+    if (existingCodesError) {
+      console.error('Error checking existing codes:', existingCodesError);
+    } else if (existingCodes && existingCodes.length > 0) {
+      // Customer already has a code for this deal
       return new Response(
         JSON.stringify({ 
-          free: true, 
-          code: discountCode.code 
+          error: 'Du har redan säkrat en rabattkod för detta erbjudande. Kontrollera din e-post.' 
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200
-        }
-      );
-    }
-
-    // For paid deals, proceed with Stripe checkout
-    if (!deal.stripe_price_id) {
-      console.error('No Stripe price ID found for deal:', dealId);
-      return new Response(
-        JSON.stringify({ error: 'No Stripe price ID found for this deal' }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400
         }
       );
     }
 
-    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeKey) {
-      console.error('Missing Stripe configuration');
+    // All deals are now treated as "free" since we don't charge anything upfront
+    // Find an available discount code
+    const { data: discountCode, error: codeError } = await supabaseAdmin
+      .from('discount_codes')
+      .select('*')
+      .eq('deal_id', dealId)
+      .is('customer_email', null)
+      .limit(1)
+      .single();
+
+    if (codeError || !discountCode) {
+      console.error('Error fetching discount code:', codeError);
       return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
+        JSON.stringify({ error: 'Det finns inga rabattkoder kvar för detta erbjudande' }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 500
@@ -171,44 +126,20 @@ serve(async (req) => {
       );
     }
 
-    const stripe = new Stripe(stripeKey, {
-      apiVersion: '2023-10-16',
-      httpClient: Stripe.createFetchHttpClient(),
-    });
+    // Update the discount code with customer information
+    const { error: updateError } = await supabaseAdmin
+      .from('discount_codes')
+      .update({
+        customer_name: customerInfo.name,
+        customer_email: customerInfo.email,
+        customer_phone: customerInfo.phone || null
+      })
+      .eq('id', discountCode.id);
 
-    console.log('Creating checkout session...');
-    const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price: deal.stripe_price_id,
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `${req.headers.get('origin')}/success?deal_id=${dealId}`,
-      cancel_url: `${req.headers.get('origin')}/deal/${dealId}`,
-      client_reference_id: dealId.toString(),
-      customer_email: customerInfo.email,
-      custom_text: {
-        submit: {
-          message: 'Vi kommer skicka din rabattkod via email efter betalningen är genomförd.',
-        },
-      },
-      payment_intent_data: {
-        description: deal.title,
-        metadata: {
-          deal_id: dealId.toString(),
-          customer_name: customerInfo.name,
-          customer_email: customerInfo.email,
-          customer_phone: customerInfo.phone || ''
-        }
-      },
-    });
-
-    if (!session?.url) {
-      console.error('Failed to create checkout session URL');
+    if (updateError) {
+      console.error('Error updating discount code:', updateError);
       return new Response(
-        JSON.stringify({ error: 'Failed to create checkout session' }),
+        JSON.stringify({ error: 'Failed to update discount code' }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 500
@@ -216,9 +147,34 @@ serve(async (req) => {
       );
     }
 
-    console.log('Checkout session created successfully:', session.id);
+    // Decrease quantity
+    const { error: decreaseError } = await supabaseAdmin.rpc('decrease_quantity', {
+      price_id: deal.stripe_price_id || 'free_deal'
+    });
+
+    if (decreaseError) {
+      console.error('Error decreasing quantity:', decreaseError);
+    }
+
+    // Create a purchase record
+    const { error: purchaseError } = await supabaseAdmin
+      .from('purchases')
+      .insert({
+        deal_id: dealId,
+        customer_email: customerInfo.email,
+        discount_code: discountCode.code,
+        status: 'completed'
+      });
+
+    if (purchaseError) {
+      console.error('Error creating purchase record:', purchaseError);
+    }
+
     return new Response(
-      JSON.stringify({ url: session.url }),
+      JSON.stringify({ 
+        free: true, 
+        code: discountCode.code 
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200
@@ -229,7 +185,7 @@ serve(async (req) => {
     console.error('Error in checkout process:', error);
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'An unknown error occurred'
+        error: error instanceof Error ? error.message : 'Ett oväntat fel uppstod'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

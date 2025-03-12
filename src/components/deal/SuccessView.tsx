@@ -61,6 +61,15 @@ export const SuccessView = ({ dealTitle, discountCode, onClose }: SuccessViewPro
         </div>
       </div>
       
+      <div className="space-y-4">
+        <p className="text-sm text-amber-600 font-medium">
+          OBS! Rabattkoden är endast giltig i 72 timmar från nu. Boka tid hos salongen så snart som möjligt.
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Betala direkt hos salongen vid ditt besök. Du kan använda koden vid bokning för att visa att du har en rabatt.
+        </p>
+      </div>
+      
       <Button onClick={onClose} className="w-full">Stäng</Button>
     </div>
   );

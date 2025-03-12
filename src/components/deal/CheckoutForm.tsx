@@ -1,10 +1,29 @@
 
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Namnet måste vara minst 2 tecken.",
+  }),
+  email: z.string().email({
+    message: "Var god ange en giltig e-postadress.",
+  }),
+  phone: z.string().optional(),
+});
 
 interface CheckoutFormProps {
   dealId: number;
@@ -13,175 +32,151 @@ interface CheckoutFormProps {
   isFree?: boolean;
 }
 
-export const CheckoutForm = ({ dealId, onSuccess, onCancel, isFree = false }: CheckoutFormProps) => {
+export const CheckoutForm = ({
+  dealId,
+  onSuccess,
+  onCancel,
+  isFree = false,
+}: CheckoutFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
+  
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.name || !formData.email) {
-      toast.error("Vänligen fyll i namn och e-post");
-      return;
-    }
-
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsSubmitting(true);
-
-      // För gratis erbjudanden hanterar vi allt direkt här
-      if (isFree) {
-        // Hämta en ledig rabattkod för det här erbjudandet
-        const { data: codeData, error: codeError } = await supabase
-          .from('discount_codes')
-          .select('*')
-          .eq('deal_id', dealId)
-          .is('customer_email', null)
-          .limit(1)
-          .single();
-
-        if (codeError || !codeData) {
-          throw new Error("Kunde inte hitta en ledig rabattkod");
-        }
-
-        // Uppdatera rabattkoden med kundinformation
-        const { error: updateError } = await supabase
-          .from('discount_codes')
-          .update({
-            customer_name: formData.name,
-            customer_email: formData.email,
-            customer_phone: formData.phone || null
-          })
-          .eq('id', codeData.id);
-
-        if (updateError) {
-          throw updateError;
-        }
-
-        // Minska antalet tillgängliga erbjudanden
-        await supabase.rpc('decrease_quantity', {
-          price_id: 'free_deal'
-        });
-
-        toast.success("Du har säkrat erbjudandet! En rabattkod har skickats till din e-post.");
-        onSuccess(codeData.code);
-      } else {
-        // Anropa vårt checkout API för att hantera rabattkoden
-        const response = await fetch('/api/checkout-deal', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            dealId,
-            customerInfo: {
-              name: formData.name,
-              email: formData.email,
-              phone: formData.phone || ''
-            }
-          }),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || "Något gick fel vid hantering av erbjudande");
-        }
-
-        const data = await response.json();
+      
+      console.log("Submitting form for deal:", dealId, "Values:", values);
+      
+      const response = await fetch("/api/checkout-deal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dealId,
+          customerInfo: values,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Checkout error response:", errorText);
+        let errorMessage = "Ett fel uppstod vid säkring av erbjudandet.";
         
-        if (data.code) {
-          toast.success("Du har säkrat erbjudandet! En rabattkod har skickats till din e-post.");
-          onSuccess(data.code);
-        } else if (data.redirect_url) {
-          // Om vi får en redirect URL, navigera dit
-          window.location.href = data.redirect_url;
+        try {
+          // Försök tolka som JSON om möjligt
+          const errorData = JSON.parse(errorText);
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // Om det inte är JSON, använd hela texten
+          errorMessage = errorText || errorMessage;
         }
+        
+        throw new Error(errorMessage);
+      }
+      
+      const data = await response.json();
+      console.log("Checkout success:", data);
+      
+      if (data.free && data.code) {
+        // För gratiserbjudanden, visa koden direkt
+        onSuccess(data.code);
+      } else if (data.url) {
+        // För betalerbjudanden, omdirigera till Stripe
+        window.location.href = data.url;
+      } else {
+        // Detta bör inte hända, men vi hanterar det ändå
+        toast.error("Oväntat svar från servern. Försök igen senare.");
       }
     } catch (error) {
       console.error("Checkout error:", error);
-      toast.error(error instanceof Error ? error.message : "Något gick fel");
+      
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Ett fel uppstod. Försök igen senare.");
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-6 p-2">
-      <div className="text-center">
-        <h3 className="text-lg font-semibold mb-2">
-          Säkra ditt erbjudande
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          Fyll i dina uppgifter för att få din unika rabattkod. Ingen betalning sker nu - du betalar direkt hos salongen.
-        </p>
-        <p className="text-sm text-orange-600 mt-1">
-          OBS: Endast en rabattkod per person. Koden är giltig i 72 timmar.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Namn *</Label>
-          <Input
-            id="name"
-            name="name"
-            placeholder="Ditt namn"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Namn</FormLabel>
+              <FormControl>
+                <Input placeholder="Ditt namn" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>E-post</FormLabel>
+              <FormControl>
+                <Input placeholder="din.epost@exempel.se" type="email" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefonnummer (valfritt)</FormLabel>
+              <FormControl>
+                <Input placeholder="070-123 45 67" type="tel" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <div className="pt-2 text-center text-sm text-muted-foreground">
+          <p>
+            Genom att säkra detta erbjudande godkänner du att vi skickar dig en rabattkod
+            till din angivna e-post. Koden är giltig i 72 timmar.
+          </p>
         </div>
         
-        <div className="space-y-2">
-          <Label htmlFor="email">E-post *</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="Din e-post"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="phone">Telefonnummer</Label>
-          <Input
-            id="phone"
-            name="phone"
-            placeholder="Ditt telefonnummer"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 pt-4">
+        <div className="flex flex-col gap-2 pt-2">
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? "Bearbetar..." : "Säkra rabattkod"}
+          </Button>
           <Button 
             type="button" 
-            onClick={onCancel}
             variant="outline" 
-            className="w-full"
+            onClick={onCancel}
+            disabled={isSubmitting}
           >
             Avbryt
           </Button>
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Bearbetar..." : "Säkra erbjudande"}
-          </Button>
         </div>
       </form>
-    </div>
+    </Form>
   );
 };

@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CheckoutForm } from "@/components/deal/CheckoutForm";
@@ -45,6 +46,12 @@ export const CheckoutDialog = ({
           <DialogTitle>
             {showSuccess ? "Tack för ditt intresse!" : `Säkra "${dealTitle}"`}
           </DialogTitle>
+          {!showSuccess && (
+            <DialogDescription>
+              Fyll i dina uppgifter för att få en exklusiv rabattkod till detta erbjudande.
+              Koden är giltig i 72 timmar efter att du mottagit den.
+            </DialogDescription>
+          )}
         </DialogHeader>
 
         {showSuccess ? (
