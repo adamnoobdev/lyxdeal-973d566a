@@ -1,4 +1,3 @@
-
 import { Deal } from "@/components/admin/types";
 import { DealActions } from "./DealActions";
 import {
@@ -39,10 +38,10 @@ export const DealsTable = ({
   onReject
 }: DealsTableProps) => {
   return (
-    <div className="rounded-xl overflow-hidden border bg-white shadow-sm">
+    <div className="rounded-lg overflow-hidden border bg-white">
       <ScrollArea className="w-full max-w-full">
         <Table>
-          <TableHeader className="bg-slate-50/80 sticky top-0 z-10">
+          <TableHeader className="bg-gray-50/50">
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-[300px] font-medium text-primary">Titel</TableHead>
               <TableHead className="w-[200px] font-medium text-primary">Salong</TableHead>
@@ -56,7 +55,7 @@ export const DealsTable = ({
             {deals.map((deal) => (
               <TableRow 
                 key={deal.id} 
-                className="hover:bg-slate-50/80 transition-colors"
+                className="hover:bg-gray-50/50"
               >
                 <TableCell>
                   <div className="flex flex-col max-w-[300px]">
@@ -91,9 +90,7 @@ export const DealsTable = ({
                     className={
                       deal.status === 'approved' && deal.is_active
                         ? 'bg-green-100 text-green-700 hover:bg-green-100'
-                        : deal.status === 'pending'
-                          ? 'bg-amber-50 text-amber-600 border-amber-200'
-                          : ''
+                        : ''
                     }
                   >
                     {deal.status === 'approved' 
@@ -112,7 +109,6 @@ export const DealsTable = ({
                         size="sm"
                         onClick={() => onViewDetails(deal)}
                         title="Visa detaljer"
-                        className="hover:bg-primary/10"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -126,13 +122,6 @@ export const DealsTable = ({
                 </TableCell>
               </TableRow>
             ))}
-            {deals.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                  Inga erbjudanden hittades
-                </TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </ScrollArea>

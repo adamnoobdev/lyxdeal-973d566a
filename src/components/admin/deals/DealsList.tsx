@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Deal } from "../types";
 import { EditDealDialog } from "./EditDealDialog";
 import { DeleteDealDialog } from "./DeleteDealDialog";
@@ -18,7 +18,6 @@ export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   
   const { 
     deals, 
@@ -33,74 +32,28 @@ export const DealsList = () => {
     refetch 
   } = useDealsAdmin();
 
-  // Clean up processing state when component unmounts
-  useEffect(() => {
-    return () => {
-      setIsProcessing(false);
-    };
-  }, []);
-
   const onDelete = async () => {
-    if (deletingDeal && !isProcessing) {
-      try {
-        setIsProcessing(true);
-        const success = await handleDelete(deletingDeal.id);
-        if (success) {
-          // Delay cleanup to ensure animations complete
-          setTimeout(() => {
-            setDeletingDeal(null);
-            setIsProcessing(false);
-            // Additional delay before refetching
-            setTimeout(() => {
-              refetch();
-            }, 300);
-          }, 300);
-        } else {
-          setIsProcessing(false);
-        }
-      } catch (error) {
-        console.error("Error during delete:", error);
-        setIsProcessing(false);
-        toast.error("Ett fel uppstod vid borttagning");
+    if (deletingDeal) {
+      const success = await handleDelete(deletingDeal.id);
+      if (success) {
+        setDeletingDeal(null);
       }
     }
   };
 
   const onUpdate = async (values: any) => {
-    if (editingDeal && !isProcessing) {
-      try {
-        setIsProcessing(true);
-        const success = await handleUpdate(values, editingDeal.id);
-        if (success) {
-          // Success handled in EditDealDialog
-          setTimeout(() => {
-            refetch();
-          }, 600);
-        }
-      } catch (error) {
-        console.error("Error during update:", error);
-        setIsProcessing(false);
-        toast.error("Ett fel uppstod vid uppdatering");
+    if (editingDeal) {
+      const success = await handleUpdate(values, editingDeal.id);
+      if (success) {
+        setEditingDeal(null);
       }
     }
   };
 
   const onCreate = async (values: any) => {
-    if (!isProcessing) {
-      try {
-        setIsProcessing(true);
-        const success = await handleCreate(values);
-        if (success) {
-          // Success handled in EditDealDialog
-          setTimeout(() => {
-            refetch();
-          }, 600);
-        }
-      } catch (error) {
-        console.error("Error during create:", error);
-        setIsProcessing(false);
-        toast.error("Ett fel uppstod vid skapande");
-      }
+    const success = await handleCreate(values);
+    if (success) {
+      setIsCreating(false);
     }
   };
 
@@ -114,10 +67,7 @@ export const DealsList = () => {
       if (error) throw error;
 
       toast.success(`Erbjudandet har ${newStatus === 'approved' ? 'godkänts' : 'nekats'}`);
-      // Delay refetch after status change
-      setTimeout(() => {
-        refetch();
-      }, 300);
+      refetch();
     } catch (error) {
       console.error('Error updating deal status:', error);
       toast.error('Något gick fel när statusen skulle uppdateras');
@@ -138,19 +88,6 @@ export const DealsList = () => {
   );
 
   const pendingDeals = deals?.filter(deal => deal.status === 'pending') || [];
-
-  const handleCloseDialog = () => {
-    // Ensure we don't set state if we're in processing mode
-    if (!isProcessing) {
-      setEditingDeal(null);
-      setIsCreating(false);
-      setDeletingDeal(null);
-      // Reset processing state after dialog is closed
-      setTimeout(() => {
-        setIsProcessing(false);
-      }, 300);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -176,41 +113,40 @@ export const DealsList = () => {
         />
       </div>
 
-      {(!!editingDeal || isCreating) && (
-        <EditDealDialog
-          isOpen={!!editingDeal || isCreating}
-          onClose={handleCloseDialog}
-          onSubmit={editingDeal ? onUpdate : onCreate}
-          initialValues={
-            editingDeal
-              ? {
-                  title: editingDeal.title,
-                  description: editingDeal.description,
-                  imageUrl: editingDeal.image_url,
-                  originalPrice: editingDeal.original_price.toString(),
-                  discountedPrice: editingDeal.discounted_price.toString(),
-                  category: editingDeal.category,
-                  city: editingDeal.city,
-                  featured: editingDeal.featured,
-                  salon_id: editingDeal.salon_id,
-                  is_free: editingDeal.is_free || false,
-                  is_active: editingDeal.is_active,
-                  quantity: editingDeal.quantity_left?.toString() || "10",
-                  expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
-                }
-              : undefined
-          }
-        />
-      )}
+      <EditDealDialog
+        isOpen={!!editingDeal || isCreating}
+        onClose={() => {
+          setEditingDeal(null);
+          setIsCreating(false);
+        }}
+        onSubmit={editingDeal ? onUpdate : onCreate}
+        initialValues={
+          editingDeal
+            ? {
+                title: editingDeal.title,
+                description: editingDeal.description,
+                imageUrl: editingDeal.image_url,
+                originalPrice: editingDeal.original_price.toString(),
+                discountedPrice: editingDeal.discounted_price.toString(),
+                category: editingDeal.category,
+                city: editingDeal.city,
+                featured: editingDeal.featured,
+                salon_id: editingDeal.salon_id,
+                is_free: editingDeal.is_free || false,
+                is_active: editingDeal.is_active,
+                quantity: editingDeal.quantity_left?.toString() || "10",
+                expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
+              }
+            : undefined
+        }
+      />
 
-      {!!deletingDeal && (
-        <DeleteDealDialog
-          isOpen={!!deletingDeal}
-          onClose={handleCloseDialog}
-          onConfirm={onDelete}
-          dealTitle={deletingDeal?.title}
-        />
-      )}
+      <DeleteDealDialog
+        isOpen={!!deletingDeal}
+        onClose={() => setDeletingDeal(null)}
+        onConfirm={onDelete}
+        dealTitle={deletingDeal?.title}
+      />
     </div>
   );
 };

@@ -15,8 +15,8 @@ import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
-import { endOfMonth } from "date-fns";
+import { useState } from "react";
+import { addDays, differenceInDays, endOfMonth } from "date-fns";
 
 interface DealFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
@@ -24,22 +24,11 @@ interface DealFormProps {
   initialValues?: FormValues;
 }
 
-export const DealForm = ({ 
-  onSubmit, 
-  isSubmitting = false, 
-  initialValues 
-}: DealFormProps) => {
-  const [localSubmitting, setLocalSubmitting] = useState(false);
+export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
+  const [submitting, setSubmitting] = useState(false);
   
   // Set default expiration date to end of current month if not provided
   const defaultExpirationDate = initialValues?.expirationDate || endOfMonth(new Date());
-  
-  // Reset local submitting state when prop changes
-  useEffect(() => {
-    if (!isSubmitting) {
-      setLocalSubmitting(false);
-    }
-  }, [isSubmitting]);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -56,7 +45,6 @@ export const DealForm = ({
       salon_id: undefined,
       quantity: "10", // Default value for quantity
       is_free: false, // Default value for is_free
-      is_active: true, // Default value for is_active
     },
   });
 
@@ -65,64 +53,61 @@ export const DealForm = ({
   };
 
   const handleSubmit = async (values: FormValues) => {
-    // Prevent multiple submissions
-    if (localSubmitting || isSubmitting) return;
-    
     try {
-      setLocalSubmitting(true);
+      setSubmitting(true);
       
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
-        setLocalSubmitting(false);
         return;
       }
+      
+      // Calculate days remaining
+      const today = new Date();
+      const daysRemaining = differenceInDays(values.expirationDate, today);
+      const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
       
       // Log form values before submitting
       console.log('Submitting form with values:', values);
 
-      // Pass values directly to onSubmit and let parent component handle the state
+      // Pass values directly to onSubmit
       await onSubmit(values);
 
       // Only proceed with additional steps if this is a new deal
       if (!initialValues) {
-        try {
-          // Get the newly created deal's ID
-          const { data: newDeal } = await supabase
-            .from('deals')
-            .select('id')
-            .eq('salon_id', values.salon_id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
+        // Get the newly created deal's ID
+        const { data: newDeal } = await supabase
+          .from('deals')
+          .select('id')
+          .eq('salon_id', values.salon_id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
 
-          if (newDeal) {
-            // Generate discount codes based on the quantity specified
-            await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
-            
-            // Only create Stripe product if not free
-            if (!values.is_free) {
-              await createStripeProductForDeal(values);
-              toast.success("Erbjudande och presentkoder har skapats");
-            } else {
-              toast.success("Gratis erbjudande och presentkoder har skapats");
-            }
+        if (newDeal) {
+          // Generate discount codes based on the quantity specified
+          await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
+          
+          // Only create Stripe product if not free
+          if (!values.is_free) {
+            await createStripeProductForDeal(values);
+            toast.success("Erbjudande och presentkoder har skapats");
+          } else {
+            toast.success("Gratis erbjudande och presentkoder har skapats");
           }
-        } catch (error) {
-          console.error('Error in post-submission process:', error);
-          toast.error("Erbjudandet sparades men det uppstod problem med att skapa presentkoder");
         }
       }
     } catch (error) {
       console.error('Error:', error);
       toast.error("Något gick fel när erbjudandet skulle sparas.");
+    } finally {
+      setSubmitting(false);
     }
-    // Note: We don't reset localSubmitting here since the parent component will control dialog closing
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5 max-h-[calc(85vh-8rem)] overflow-y-auto px-1">
-        <div className="space-y-5">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 max-h-[calc(85vh-8rem)] overflow-y-auto px-1">
+        <div className="space-y-4">
           <SalonField form={form} />
           <FormFields 
             form={form} 
@@ -135,13 +120,9 @@ export const DealForm = ({
           <AdditionalFields form={form} />
         </div>
 
-        <div className="sticky bottom-0 pt-4 pb-2 bg-background">
-          <Button 
-            type="submit" 
-            className="w-full bg-primary hover:bg-primary/90 shadow-md transition-all"
-            disabled={isSubmitting || localSubmitting}
-          >
-            {(isSubmitting || localSubmitting) ? "Sparar..." : "Spara erbjudande"}
+        <div className="sticky bottom-0 pt-4 bg-background">
+          <Button type="submit" className="w-full" disabled={isSubmitting || submitting}>
+            {(isSubmitting || submitting) ? "Sparar..." : "Spara erbjudande"}
           </Button>
         </div>
       </form>

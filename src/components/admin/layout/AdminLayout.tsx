@@ -9,11 +9,11 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const [defaultOpen, setDefaultOpen] = useState(true);
+  const [defaultOpen, setDefaultOpen] = useState(window.innerWidth >= 768);
   
   useEffect(() => {
     const handleResize = () => {
-      setDefaultOpen(window.innerWidth >= 1024);
+      setDefaultOpen(window.innerWidth >= 768);
     };
     
     handleResize();
@@ -23,11 +23,11 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
-      <div className="flex min-h-[calc(100vh-4rem)] w-full bg-slate-50">
+      <div className="flex min-h-[calc(100vh-4rem)]">
         <AdminSidebar />
-        <main className="flex-1 w-full transition-all duration-300">
-          <ScrollArea className="h-[calc(100vh-4rem)] w-full">
-            <div className="container mx-auto py-8 px-6 max-w-6xl">
+        <main className="flex-1 relative">
+          <ScrollArea className="h-[calc(100vh-4rem)]">
+            <div className="container mx-auto py-8 px-4 max-w-6xl">
               {children}
             </div>
           </ScrollArea>

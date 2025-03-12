@@ -5,33 +5,19 @@ import { useSession } from "@/hooks/useSession";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
-import { useSidebar } from "@/components/ui/sidebar/sidebar-provider";
 
 export const AdminSidebar = () => {
   const { session } = useSession();
-  const [isMobile, setIsMobile] = useState(false);
-  const { open, setOpen } = useSidebar();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   
   useEffect(() => {
     const handleResize = () => {
-      const newIsMobile = window.innerWidth < 768;
-      setIsMobile(newIsMobile);
-      if (!newIsMobile) {
-        setOpen(true);
-      }
+      setIsMobile(window.innerWidth < 768);
     };
     
-    // Initial check
-    handleResize();
-    
-    // Add event listener
     window.addEventListener('resize', handleResize);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [setOpen]);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Fetch user role to determine what sidebar content to show
   const { data: userData } = useQuery({
@@ -57,12 +43,12 @@ export const AdminSidebar = () => {
 
   return (
     <Sidebar 
-      className="border-r border-slate-200 bg-white pt-16 shadow-sm z-30" 
-      variant={isMobile ? "floating" : "inset"} 
+      className="border-r bg-white pt-16 z-10 shadow-sm" 
+      variant="inset" 
       collapsible={isMobile ? "offcanvas" : "icon"}
     >
       <SidebarTrigger 
-        className="fixed right-4 top-20 bg-white rounded-full shadow-md hover:bg-accent md:right-8 lg:hidden p-2.5" 
+        className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" 
       />
       <AdminSidebarContent userRole={userData?.role} />
     </Sidebar>

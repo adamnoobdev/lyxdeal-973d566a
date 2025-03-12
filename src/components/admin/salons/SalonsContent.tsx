@@ -1,4 +1,3 @@
-
 import { Salon } from "../types";
 import { SalonsTable } from "./SalonsTable";
 import { SalonDetails } from "./SalonDetails";
@@ -21,9 +20,9 @@ export const SalonsContent = ({
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
       <div className="xl:col-span-2">
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div className="p-4 border-b bg-slate-50/80">
-            <h2 className="text-lg font-semibold text-gray-800">Salonger</h2>
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="p-4 border-b">
+            <h2 className="text-lg font-semibold">Salonger</h2>
           </div>
           <div className="p-4">
             <SalonsTable
@@ -41,7 +40,7 @@ export const SalonsContent = ({
         {selectedSalon ? (
           <SalonDetails salon={selectedSalon} />
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border p-8 text-center">
+          <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
             <p className="text-muted-foreground">
               Välj en salong för att se detaljer
             </p>
