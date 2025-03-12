@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
@@ -18,6 +17,7 @@ import NavigationBar from "./components/NavigationBar";
 import { useSession } from "./hooks/useSession";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
+import { Footer } from "./components/Footer";
 
 const queryClient = new QueryClient();
 
@@ -60,7 +60,7 @@ function AppContent() {
     <Router>
       <div className="flex min-h-screen flex-col">
         <NavigationBar userRole={userRole} />
-        <div className="flex-1 pt-16"> {/* Add padding-top here */}
+        <div className="flex-1 pt-16">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -74,6 +74,7 @@ function AppContent() {
             <Route path="/salon/deal/:dealId" element={<AdminLayout><SalonDetails /></AdminLayout>} />
           </Routes>
         </div>
+        <Footer />
       </div>
       <Toaster position="top-right" />
     </Router>
