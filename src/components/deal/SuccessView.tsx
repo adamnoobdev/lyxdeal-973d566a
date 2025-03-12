@@ -37,7 +37,7 @@ export const SuccessView = ({ dealTitle, discountCode, onClose }: SuccessViewPro
       </div>
       
       <div className="bg-gray-50 p-4 rounded-md">
-        <p className="text-xs text-gray-500 mb-2">Din rabattkod</p>
+        <p className="text-xs text-gray-500 mb-2">Din rabattkod (giltig i 72 timmar)</p>
         <div className="flex items-center justify-between gap-2">
           <code className="font-mono text-lg font-bold tracking-wide">{discountCode}</code>
           <Button 

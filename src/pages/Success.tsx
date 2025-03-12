@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -145,7 +146,7 @@ export default function Success() {
           
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Tack för ditt köp!
+              Tack för ditt intresse!
             </h1>
             <p className="mt-2 text-gray-600">
               {state.deal?.title && `Du har nu säkrat "${state.deal.title}"`}
@@ -154,7 +155,7 @@ export default function Success() {
           
           {state.discountCode && (
             <div className="bg-gray-50 p-6 rounded-lg">
-              <p className="text-sm text-gray-500 mb-2">Din rabattkod</p>
+              <p className="text-sm text-gray-500 mb-2">Din rabattkod (giltig i 72 timmar)</p>
               <div className="flex items-center justify-center gap-3">
                 <code className="font-mono text-xl font-bold tracking-wide">
                   {state.discountCode}
@@ -168,7 +169,10 @@ export default function Success() {
                 </Button>
               </div>
               <p className="mt-4 text-sm text-gray-600">
-                Rabattkoden har även skickats till din e-post.
+                Rabattkoden har även skickats till din e-post. Ta med koden när du besöker salongen.
+              </p>
+              <p className="mt-2 text-sm text-orange-600 font-medium">
+                OBS: Rabattkoden är giltig i endast 72 timmar.
               </p>
             </div>
           )}

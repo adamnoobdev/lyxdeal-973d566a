@@ -60,11 +60,15 @@ export const DealInfo = ({
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>{quantityLeft} köp kvar till detta pris</span>
+              <span>{quantityLeft} rabattkoder kvar</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-primary" />
               <span>{timeRemainingText}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="w-2 h-2 rounded-full bg-orange-500" />
+              <span className="text-orange-600 font-medium">Rabattkoden är giltig i 72 timmar</span>
             </div>
           </div>
         </div>
@@ -75,7 +79,7 @@ export const DealInfo = ({
           onClick={() => setShowCheckout(true)}
         >
           <Tag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-          Säkra deal
+          Säkra rabattkod
         </Button>
         
         {salon && salon.phone && (
@@ -90,7 +94,7 @@ export const DealInfo = ({
         )}
 
         <p className="text-xs text-center text-gray-500">
-          Besök salongens hemsida för att boka tid
+          Besök salongens hemsida för att boka tid och betala direkt hos dem
         </p>
       </div>
 

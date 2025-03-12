@@ -74,8 +74,8 @@ export const CheckoutForm = ({ dealId, onSuccess, onCancel, isFree = false }: Ch
         toast.success("Du har säkrat erbjudandet! En rabattkod har skickats till din e-post.");
         onSuccess(codeData.code);
       } else {
-        // För betalda erbjudanden, anropa vårt Stripe checkout API
-        const response = await fetch('/api/create-checkout-session', {
+        // Anropa vårt checkout API för att hantera rabattkoden
+        const response = await fetch('/api/checkout-deal', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -92,18 +92,17 @@ export const CheckoutForm = ({ dealId, onSuccess, onCancel, isFree = false }: Ch
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.message || "Något gick fel vid betalning");
+          throw new Error(error.message || "Något gick fel vid hantering av erbjudande");
         }
 
         const data = await response.json();
         
-        // Om det är gratis, hanterar servern det och returnerar koden direkt
-        if (data.free && data.code) {
+        if (data.code) {
           toast.success("Du har säkrat erbjudandet! En rabattkod har skickats till din e-post.");
           onSuccess(data.code);
-        } else if (data.url) {
-          // Annars, omdirigera till Stripe checkout
-          window.location.href = data.url;
+        } else if (data.redirect_url) {
+          // Om vi får en redirect URL, navigera dit
+          window.location.href = data.redirect_url;
         }
       }
     } catch (error) {
@@ -118,12 +117,13 @@ export const CheckoutForm = ({ dealId, onSuccess, onCancel, isFree = false }: Ch
     <div className="space-y-6 p-2">
       <div className="text-center">
         <h3 className="text-lg font-semibold mb-2">
-          {isFree ? "Säkra gratis erbjudande" : "Fyll i dina uppgifter"}
+          Säkra ditt erbjudande
         </h3>
         <p className="text-sm text-muted-foreground">
-          {isFree 
-            ? "Fyll i dina uppgifter för att få din rabattkod direkt." 
-            : "Fyll i dina uppgifter för att gå vidare till betalning."}
+          Fyll i dina uppgifter för att få din unika rabattkod. Ingen betalning sker nu - du betalar direkt hos salongen.
+        </p>
+        <p className="text-sm text-orange-600 mt-1">
+          OBS: Endast en rabattkod per person. Koden är giltig i 72 timmar.
         </p>
       </div>
 
@@ -178,7 +178,7 @@ export const CheckoutForm = ({ dealId, onSuccess, onCancel, isFree = false }: Ch
             className="w-full"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Bearbetar..." : isFree ? "Säkra erbjudande" : "Gå till betalning"}
+            {isSubmitting ? "Bearbetar..." : "Säkra erbjudande"}
           </Button>
         </div>
       </form>

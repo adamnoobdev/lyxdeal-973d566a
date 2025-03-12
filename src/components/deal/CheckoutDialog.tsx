@@ -43,7 +43,7 @@ export const CheckoutDialog = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {showSuccess ? "Tack för ditt köp!" : `Säkra "${dealTitle}"`}
+            {showSuccess ? "Tack för ditt intresse!" : `Säkra "${dealTitle}"`}
           </DialogTitle>
         </DialogHeader>
 
