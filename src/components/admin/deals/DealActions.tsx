@@ -6,15 +6,43 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Eye, TicketPlus } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 
 interface DealActionsProps {
+  dealId?: number;
   onEdit?: () => void;
   onDelete?: () => void;
   onToggleActive?: () => void;
 }
 
-export const DealActions = ({ onEdit, onDelete, onToggleActive }: DealActionsProps) => {
+export const DealActions = ({ dealId, onEdit, onDelete, onToggleActive }: DealActionsProps) => {
+  const handleGenerateCodes = async () => {
+    if (!dealId) return;
+
+    try {
+      // Check existing codes first
+      const { count } = await supabase
+        .from('discount_codes')
+        .select('*', { count: 'exact', head: true })
+        .eq('deal_id', dealId);
+
+      // Generate 10 new codes
+      const result = await generateDiscountCodes(dealId, 10);
+      
+      if (result.success) {
+        toast.success(`${result.quantity} nya rabattkoder har skapats`);
+      } else {
+        toast.error("Kunde inte skapa rabattkoder");
+      }
+    } catch (error) {
+      console.error('Error generating codes:', error);
+      toast.error("Ett fel uppstod när rabattkoder skulle skapas");
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -23,17 +51,23 @@ export const DealActions = ({ onEdit, onDelete, onToggleActive }: DealActionsPro
           <span className="sr-only">Öppna meny</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40 border-secondary/20">
+      <DropdownMenuContent align="end" className="w-48 border-secondary/20">
         {onEdit && (
           <DropdownMenuItem onClick={onEdit} className="cursor-pointer hover:bg-primary/5">
             <Pencil className="h-4 w-4 mr-2 text-primary" />
             Redigera
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={() => window.open(`/deals/1`, '_blank')} className="cursor-pointer hover:bg-primary/5">
+        <DropdownMenuItem onClick={() => window.open(`/deals/${dealId}`, '_blank')} className="cursor-pointer hover:bg-primary/5">
           <Eye className="h-4 w-4 mr-2 text-primary" />
           Förhandsgranska
         </DropdownMenuItem>
+        {dealId && (
+          <DropdownMenuItem onClick={handleGenerateCodes} className="cursor-pointer hover:bg-primary/5">
+            <TicketPlus className="h-4 w-4 mr-2 text-primary" />
+            Skapa rabattkoder
+          </DropdownMenuItem>
+        )}
         {onDelete && (
           <DropdownMenuItem 
             onClick={onDelete}
