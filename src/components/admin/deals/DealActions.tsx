@@ -23,21 +23,19 @@ export const DealActions = ({ dealId, onEdit, onDelete, onToggleActive }: DealAc
     if (!dealId) return;
 
     try {
-      // Check existing codes first
-      const { count } = await supabase
-        .from('discount_codes')
-        .select('*', { count: 'exact', head: true })
-        .eq('deal_id', dealId);
-
+      toast.loading("Skapar rabattkoder...");
+      
       // Generate 10 new codes
       const result = await generateDiscountCodes(dealId, 10);
       
+      toast.dismiss();
       if (result.success) {
         toast.success(`${result.quantity} nya rabattkoder har skapats`);
       } else {
         toast.error("Kunde inte skapa rabattkoder");
       }
     } catch (error) {
+      toast.dismiss();
       console.error('Error generating codes:', error);
       toast.error("Ett fel uppstod när rabattkoder skulle skapas");
     }
@@ -65,7 +63,7 @@ export const DealActions = ({ dealId, onEdit, onDelete, onToggleActive }: DealAc
         {dealId && (
           <DropdownMenuItem onClick={handleGenerateCodes} className="cursor-pointer hover:bg-primary/5">
             <TicketPlus className="h-4 w-4 mr-2 text-primary" />
-            Skapa rabattkoder
+            Skapa 10 rabattkoder
           </DropdownMenuItem>
         )}
         {onDelete && (

@@ -23,7 +23,9 @@ export const EditDealDialog = ({
   initialValues,
 }: EditDealDialogProps) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
       <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6">
         <DialogHeader className="space-y-2">
           <DialogTitle>

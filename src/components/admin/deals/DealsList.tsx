@@ -46,6 +46,10 @@ export const DealsList = () => {
       const success = await handleUpdate(values, editingDeal.id);
       if (success) {
         setEditingDeal(null);
+        // Add a slight delay to ensure dialog is properly closed
+        setTimeout(() => {
+          refetch();
+        }, 100);
       }
     }
   };
@@ -54,6 +58,10 @@ export const DealsList = () => {
     const success = await handleCreate(values);
     if (success) {
       setIsCreating(false);
+      // Add a slight delay to ensure dialog is properly closed
+      setTimeout(() => {
+        refetch();
+      }, 100);
     }
   };
 
@@ -113,40 +121,44 @@ export const DealsList = () => {
         />
       </div>
 
-      <EditDealDialog
-        isOpen={!!editingDeal || isCreating}
-        onClose={() => {
-          setEditingDeal(null);
-          setIsCreating(false);
-        }}
-        onSubmit={editingDeal ? onUpdate : onCreate}
-        initialValues={
-          editingDeal
-            ? {
-                title: editingDeal.title,
-                description: editingDeal.description,
-                imageUrl: editingDeal.image_url,
-                originalPrice: editingDeal.original_price.toString(),
-                discountedPrice: editingDeal.discounted_price.toString(),
-                category: editingDeal.category,
-                city: editingDeal.city,
-                featured: editingDeal.featured,
-                salon_id: editingDeal.salon_id,
-                is_free: editingDeal.is_free || false,
-                is_active: editingDeal.is_active,
-                quantity: editingDeal.quantity_left?.toString() || "10",
-                expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
-              }
-            : undefined
-        }
-      />
+      {(!!editingDeal || isCreating) && (
+        <EditDealDialog
+          isOpen={!!editingDeal || isCreating}
+          onClose={() => {
+            setEditingDeal(null);
+            setIsCreating(false);
+          }}
+          onSubmit={editingDeal ? onUpdate : onCreate}
+          initialValues={
+            editingDeal
+              ? {
+                  title: editingDeal.title,
+                  description: editingDeal.description,
+                  imageUrl: editingDeal.image_url,
+                  originalPrice: editingDeal.original_price.toString(),
+                  discountedPrice: editingDeal.discounted_price.toString(),
+                  category: editingDeal.category,
+                  city: editingDeal.city,
+                  featured: editingDeal.featured,
+                  salon_id: editingDeal.salon_id,
+                  is_free: editingDeal.is_free || false,
+                  is_active: editingDeal.is_active,
+                  quantity: editingDeal.quantity_left?.toString() || "10",
+                  expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
+                }
+              : undefined
+          }
+        />
+      )}
 
-      <DeleteDealDialog
-        isOpen={!!deletingDeal}
-        onClose={() => setDeletingDeal(null)}
-        onConfirm={onDelete}
-        dealTitle={deletingDeal?.title}
-      />
+      {!!deletingDeal && (
+        <DeleteDealDialog
+          isOpen={!!deletingDeal}
+          onClose={() => setDeletingDeal(null)}
+          onConfirm={onDelete}
+          dealTitle={deletingDeal?.title}
+        />
+      )}
     </div>
   );
 };
