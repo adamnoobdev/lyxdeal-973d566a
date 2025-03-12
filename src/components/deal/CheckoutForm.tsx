@@ -92,6 +92,7 @@ export const CheckoutForm = ({
       
       if (data.free && data.code) {
         // För gratiserbjudanden, visa koden direkt
+        toast.success("En bekräftelse med rabattkoden har skickats till din e-post");
         onSuccess(data.code);
       } else if (data.url) {
         // För betalerbjudanden, omdirigera till Stripe

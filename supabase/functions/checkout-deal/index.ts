@@ -143,6 +143,42 @@ async function createPurchaseRecord(supabaseAdmin: any, dealId: number, customer
   }
 }
 
+async function sendDiscountCodeEmail(dealTitle: string, customerInfo: any, discountCode: string) {
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    if (!supabaseUrl) throw new Error('Missing SUPABASE_URL environment variable');
+
+    const functionUrl = `${supabaseUrl}/functions/v1/send-discount-email`;
+    
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+      },
+      body: JSON.stringify({
+        customerName: customerInfo.name,
+        customerEmail: customerInfo.email,
+        discountCode: discountCode,
+        dealTitle: dealTitle,
+        expiryHours: 72
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error sending email:', errorText);
+      // We continue execution even if email fails, as this is not critical for the checkout process
+    } else {
+      const result = await response.json();
+      console.log('Email sent successfully:', result);
+    }
+  } catch (error) {
+    console.error('Failed to send discount code email:', error);
+    // We continue execution even if email fails
+  }
+}
+
 // Huvudfunktion för att hantera checkout-flödet
 async function handleCheckout(req: Request) {
   try {
@@ -174,6 +210,9 @@ async function handleCheckout(req: Request) {
 
     // Skapa ett köpregister
     await createPurchaseRecord(supabaseAdmin, dealId, customerInfo.email, discountCode.code);
+
+    // Skicka rabattkoden via e-post
+    await sendDiscountCodeEmail(deal.title, customerInfo, discountCode.code);
 
     return createSuccessResponse({ 
       free: true, 
