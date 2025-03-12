@@ -22,7 +22,9 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Var god ange en giltig e-postadress.",
   }),
-  phone: z.string().optional(),
+  phone: z.string().min(6, {
+    message: "Var god ange ett giltigt telefonnummer.",
+  }),
 });
 
 interface CheckoutFormProps {
@@ -120,12 +122,13 @@ export const CheckoutForm = ({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Namn</FormLabel>
+                <FormLabel>Namn <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <Input 
                     placeholder="Ditt namn" 
                     {...field} 
                     className="bg-gray-50/50"
+                    required
                   />
                 </FormControl>
                 <FormMessage />
@@ -138,13 +141,14 @@ export const CheckoutForm = ({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>E-post</FormLabel>
+                <FormLabel>E-post <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <Input 
                     placeholder="din.epost@exempel.se" 
                     type="email" 
                     {...field}
                     className="bg-gray-50/50"
+                    required
                   />
                 </FormControl>
                 <FormMessage />
@@ -157,13 +161,14 @@ export const CheckoutForm = ({
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Telefonnummer (valfritt)</FormLabel>
+                <FormLabel>Telefonnummer <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <Input 
                     placeholder="070-123 45 67" 
                     type="tel" 
                     {...field}
                     className="bg-gray-50/50"
+                    required
                   />
                 </FormControl>
                 <FormMessage />
