@@ -8,6 +8,11 @@ import {
   SidebarMenuButton,
   SidebarMenuAction
 } from "./menu"
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel
+} from "./group"
 
 export {
   Sidebar,
@@ -18,8 +23,10 @@ export {
   SidebarMenu,
   SidebarMenuItem,  
   SidebarMenuButton,
-  SidebarMenuAction
+  SidebarMenuAction,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel
 }
 
 export type { SidebarContext } from "./types"
-

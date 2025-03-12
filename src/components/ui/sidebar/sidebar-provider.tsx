@@ -3,7 +3,7 @@ import * as React from "react"
 import { TooltipProvider } from "@radix-ui/react-tooltip"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
-import { SidebarContext } from "./types"
+import type { SidebarContext as SidebarContextType } from "./types"
 import type { SidebarProviderProps } from "./types"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
@@ -12,7 +12,7 @@ const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
-const SidebarContext = React.createContext<SidebarContext | null>(null)
+const SidebarContext = React.createContext<SidebarContextType | null>(null)
 
 export function useSidebar() {
   const context = React.useContext(SidebarContext)
@@ -76,7 +76,7 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
 
     const state = open ? "expanded" : "collapsed"
 
-    const contextValue = React.useMemo<SidebarContext>(
+    const contextValue = React.useMemo<SidebarContextType>(
       () => ({
         state,
         open,
@@ -115,4 +115,3 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
   }
 )
 SidebarProvider.displayName = "SidebarProvider"
-
