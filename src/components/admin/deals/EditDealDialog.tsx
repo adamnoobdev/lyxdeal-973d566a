@@ -22,10 +22,17 @@ export const EditDealDialog = ({
   onSubmit,
   initialValues,
 }: EditDealDialogProps) => {
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      // Ensure we properly cleanup when closing
+      setTimeout(() => {
+        onClose();
+      }, 100);
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) onClose();
-    }}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6">
         <DialogHeader className="space-y-2">
           <DialogTitle>
@@ -35,7 +42,7 @@ export const EditDealDialog = ({
             Fyll i informationen nedan för att {initialValues ? "uppdatera" : "skapa"} ett erbjudande
           </DialogDescription>
         </DialogHeader>
-        <div className="mt-4 h-full">
+        <div className="mt-4 h-full overflow-y-auto">
           <DealForm onSubmit={onSubmit} initialValues={initialValues} />
         </div>
       </DialogContent>

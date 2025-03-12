@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Deal } from "../types";
 import { EditDealDialog } from "./EditDealDialog";
@@ -46,10 +45,9 @@ export const DealsList = () => {
       const success = await handleUpdate(values, editingDeal.id);
       if (success) {
         setEditingDeal(null);
-        // Add a slight delay to ensure dialog is properly closed
         setTimeout(() => {
           refetch();
-        }, 100);
+        }, 200);
       }
     }
   };
@@ -58,10 +56,9 @@ export const DealsList = () => {
     const success = await handleCreate(values);
     if (success) {
       setIsCreating(false);
-      // Add a slight delay to ensure dialog is properly closed
       setTimeout(() => {
         refetch();
-      }, 100);
+      }, 200);
     }
   };
 

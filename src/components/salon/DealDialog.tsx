@@ -21,11 +21,18 @@ export const DealDialog = ({
   onSubmit,
   initialValues,
 }: DealDialogProps) => {
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      // Ensure we properly cleanup when closing
+      setTimeout(() => {
+        onClose();
+      }, 100);
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) onClose();
-    }}>
-      <DialogContent>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="w-[95vw] max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {initialValues ? "Redigera Erbjudande" : "Skapa Erbjudande"}
