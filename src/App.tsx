@@ -18,6 +18,7 @@ import { useSession } from "./hooks/useSession";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import { Footer } from "./components/Footer";
+import Success from "./pages/Success";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ function AppContent() {
             <Route path="/partner" element={<PartnerPage />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/success" element={<Success />} />
             <Route path="/admin/*" element={<AdminLayout><Admin /></AdminLayout>} />
             <Route path="/salon/dashboard" element={<AdminLayout><SalonDashboard /></AdminLayout>} />
             <Route path="/salon/deal/:dealId" element={<AdminLayout><SalonDetails /></AdminLayout>} />

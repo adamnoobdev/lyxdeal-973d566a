@@ -2,6 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Tag } from "lucide-react";
 import { PriceDisplay } from "./PriceDisplay";
+import { useState } from "react";
+import { CheckoutDialog } from "./deal/CheckoutDialog";
 
 interface DealInfoProps {
   id: number;
@@ -22,6 +24,7 @@ interface DealInfoProps {
 }
 
 export const DealInfo = ({
+  id,
   title,
   originalPrice,
   discountedPrice,
@@ -30,6 +33,8 @@ export const DealInfo = ({
   isFree = false,
   salon,
 }: DealInfoProps) => {
+  const [showCheckout, setShowCheckout] = useState(false);
+  
   // Format days remaining text
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
   const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
@@ -67,6 +72,7 @@ export const DealInfo = ({
         <Button 
           className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-200 group"
           size="lg"
+          onClick={() => setShowCheckout(true)}
         >
           <Tag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
           Säkra deal
@@ -87,6 +93,15 @@ export const DealInfo = ({
           Besök salongens hemsida för att boka tid
         </p>
       </div>
+
+      {/* Checkout Dialog */}
+      <CheckoutDialog 
+        isOpen={showCheckout}
+        onClose={() => setShowCheckout(false)}
+        dealId={id}
+        dealTitle={title}
+        isFree={isFree}
+      />
     </div>
   );
 }
