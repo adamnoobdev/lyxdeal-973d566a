@@ -25,18 +25,30 @@ export const EditDealDialog = ({
 }: EditDealDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset state when dialog closes
+  // Reset state when dialog opens or closes
   useEffect(() => {
     if (!isOpen) {
-      setIsSubmitting(false);
+      // Add a small delay before resetting to prevent UI glitches
+      const timer = setTimeout(() => {
+        setIsSubmitting(false);
+      }, 200);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
   const handleSubmit = async (values: FormValues) => {
+    if (isSubmitting) return;
+    
     try {
       setIsSubmitting(true);
       await onSubmit(values);
-    } finally {
+      // Successfully submitted, now close the dialog
+      setTimeout(() => {
+        if (onClose) onClose();
+        setTimeout(() => setIsSubmitting(false), 100);
+      }, 300);
+    } catch (error) {
+      console.error("Error submitting form:", error);
       setIsSubmitting(false);
     }
   };

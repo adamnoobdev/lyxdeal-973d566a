@@ -15,7 +15,7 @@ import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { endOfMonth } from "date-fns";
 
 interface DealFormProps {
@@ -33,6 +33,13 @@ export const DealForm = ({
   
   // Set default expiration date to end of current month if not provided
   const defaultExpirationDate = initialValues?.expirationDate || endOfMonth(new Date());
+  
+  // Reset local submitting state when prop changes
+  useEffect(() => {
+    if (!isSubmitting) {
+      setLocalSubmitting(false);
+    }
+  }, [isSubmitting]);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -58,6 +65,7 @@ export const DealForm = ({
   };
 
   const handleSubmit = async (values: FormValues) => {
+    // Prevent multiple submissions
     if (localSubmitting || isSubmitting) return;
     
     try {
@@ -65,13 +73,14 @@ export const DealForm = ({
       
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
+        setLocalSubmitting(false);
         return;
       }
       
       // Log form values before submitting
       console.log('Submitting form with values:', values);
 
-      // Pass values directly to onSubmit
+      // Pass values directly to onSubmit and let parent component handle the state
       await onSubmit(values);
 
       // Only proceed with additional steps if this is a new deal
@@ -106,9 +115,8 @@ export const DealForm = ({
     } catch (error) {
       console.error('Error:', error);
       toast.error("Något gick fel när erbjudandet skulle sparas.");
-    } finally {
-      setLocalSubmitting(false);
     }
+    // Note: We don't reset localSubmitting here since the parent component will control dialog closing
   };
 
   return (

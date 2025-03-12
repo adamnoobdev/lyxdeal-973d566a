@@ -72,17 +72,10 @@ export const DealsList = () => {
         setIsProcessing(true);
         const success = await handleUpdate(values, editingDeal.id);
         if (success) {
-          // Delay cleanup to ensure animations complete
+          // Success handled in EditDealDialog
           setTimeout(() => {
-            setEditingDeal(null);
-            setIsProcessing(false);
-            // Additional delay before refetching
-            setTimeout(() => {
-              refetch();
-            }, 300);
-          }, 300);
-        } else {
-          setIsProcessing(false);
+            refetch();
+          }, 600);
         }
       } catch (error) {
         console.error("Error during update:", error);
@@ -98,17 +91,10 @@ export const DealsList = () => {
         setIsProcessing(true);
         const success = await handleCreate(values);
         if (success) {
-          // Delay cleanup to ensure animations complete
+          // Success handled in EditDealDialog
           setTimeout(() => {
-            setIsCreating(false);
-            setIsProcessing(false);
-            // Additional delay before refetching
-            setTimeout(() => {
-              refetch();
-            }, 300);
-          }, 300);
-        } else {
-          setIsProcessing(false);
+            refetch();
+          }, 600);
         }
       } catch (error) {
         console.error("Error during create:", error);
@@ -156,10 +142,12 @@ export const DealsList = () => {
   const handleCloseDialog = () => {
     // Ensure we don't set state if we're in processing mode
     if (!isProcessing) {
+      setEditingDeal(null);
+      setIsCreating(false);
+      setDeletingDeal(null);
+      // Reset processing state after dialog is closed
       setTimeout(() => {
-        setEditingDeal(null);
-        setIsCreating(false);
-        setDeletingDeal(null);
+        setIsProcessing(false);
       }, 300);
     }
   };
