@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -21,14 +22,14 @@ export const SalonsHeader = ({ error, onCreateClick }: SalonsHeaderProps) => {
   }
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-gradient-to-r from-primary/5 to-primary/10 p-6 rounded-xl">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Salonger</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">Salonger</h1>
+        <p className="text-gray-600 font-medium mt-1">
           Hantera salonger och deras erbjudanden
         </p>
       </div>
-      <Button onClick={onCreateClick} size="sm" className="whitespace-nowrap">
+      <Button onClick={onCreateClick} className="whitespace-nowrap shadow-md bg-primary hover:bg-primary/90 transition-all">
         <Plus className="h-4 w-4 mr-2" />
         Skapa salong
       </Button>

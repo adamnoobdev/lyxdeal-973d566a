@@ -12,7 +12,6 @@ export const AdminSidebar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const { open, setOpen } = useSidebar();
   
-  // Simplified resize handler
   useEffect(() => {
     const handleResize = () => {
       const newIsMobile = window.innerWidth < 768;
@@ -58,12 +57,12 @@ export const AdminSidebar = () => {
 
   return (
     <Sidebar 
-      className="border-r bg-background pt-16 shadow-sm" 
+      className="border-r border-slate-200 bg-white pt-16 shadow-sm z-30" 
       variant={isMobile ? "floating" : "inset"} 
       collapsible={isMobile ? "offcanvas" : "icon"}
     >
       <SidebarTrigger 
-        className="fixed right-4 top-20 bg-background shadow-sm hover:bg-accent md:right-8 lg:hidden" 
+        className="fixed right-4 top-20 bg-white rounded-full shadow-md hover:bg-accent md:right-8 lg:hidden p-2.5" 
       />
       <AdminSidebarContent userRole={userData?.role} />
     </Sidebar>

@@ -113,8 +113,8 @@ export const DealForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 max-h-[calc(85vh-8rem)] overflow-y-auto px-1">
-        <div className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5 max-h-[calc(85vh-8rem)] overflow-y-auto px-1">
+        <div className="space-y-5">
           <SalonField form={form} />
           <FormFields 
             form={form} 
@@ -127,10 +127,10 @@ export const DealForm = ({
           <AdditionalFields form={form} />
         </div>
 
-        <div className="sticky bottom-0 pt-4 bg-background">
+        <div className="sticky bottom-0 pt-4 pb-2 bg-background">
           <Button 
             type="submit" 
-            className="w-full" 
+            className="w-full bg-primary hover:bg-primary/90 shadow-md transition-all"
             disabled={isSubmitting || localSubmitting}
           >
             {(isSubmitting || localSubmitting) ? "Sparar..." : "Spara erbjudande"}

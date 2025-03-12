@@ -28,11 +28,11 @@ export const SalonsTable = ({
   selectedSalonId 
 }: SalonsTableProps) => {
   return (
-    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
+    <Card className="border-none rounded-lg overflow-hidden shadow-sm">
       <ScrollArea className="h-full max-h-[70vh]">
         <div className="w-full">
           <Table>
-            <TableHeader className="bg-primary/5 sticky top-0 z-10">
+            <TableHeader className="bg-slate-50 sticky top-0 z-10">
               <TableRow>
                 <TableHead className="min-w-[200px] font-semibold text-primary">Namn</TableHead>
                 <TableHead className="min-w-[200px] font-semibold text-primary">Email</TableHead>
@@ -44,10 +44,10 @@ export const SalonsTable = ({
               {salons.map((salon) => (
                 <TableRow 
                   key={salon.id}
-                  className={`cursor-pointer transition-colors ${
+                  className={`cursor-pointer transition-all ${
                     selectedSalonId === salon.id 
                       ? "bg-primary/5 hover:bg-primary/10" 
-                      : "hover:bg-muted/50"
+                      : "hover:bg-slate-50"
                   }`}
                   onClick={() => onSelect(salon)}
                 >

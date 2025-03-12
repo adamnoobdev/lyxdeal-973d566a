@@ -23,11 +23,11 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
-      <div className="flex min-h-[calc(100vh-4rem)] w-full">
+      <div className="flex min-h-[calc(100vh-4rem)] w-full bg-slate-50">
         <AdminSidebar />
-        <main className="flex-1 w-full">
+        <main className="flex-1 w-full transition-all duration-300">
           <ScrollArea className="h-[calc(100vh-4rem)] w-full">
-            <div className="container mx-auto py-6 px-4 max-w-6xl">
+            <div className="container mx-auto py-8 px-6 max-w-6xl">
               {children}
             </div>
           </ScrollArea>

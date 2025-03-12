@@ -48,9 +48,9 @@ export const DealDialog = ({
         }
       }}
     >
-      <DialogContent className="w-[95vw] max-w-2xl">
+      <DialogContent className="w-[95vw] max-w-2xl rounded-xl">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-2xl text-primary">
             {initialValues ? "Redigera Erbjudande" : "Skapa Erbjudande"}
           </DialogTitle>
         </DialogHeader>
