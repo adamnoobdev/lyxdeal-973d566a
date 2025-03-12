@@ -1,3 +1,4 @@
+
 import { Deal } from "@/components/admin/types";
 import { DealActions } from "./DealActions";
 import {
@@ -114,6 +115,7 @@ export const DealsTable = ({
                       </Button>
                     )}
                     <DealActions
+                      dealId={deal.id}
                       onEdit={onEdit ? () => onEdit(deal) : undefined}
                       onDelete={onDelete ? () => onDelete(deal) : undefined}
                       onToggleActive={onToggleActive ? () => onToggleActive(deal) : undefined}

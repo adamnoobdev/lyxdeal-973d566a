@@ -34,26 +34,43 @@ export const DealsList = () => {
 
   const onDelete = async () => {
     if (deletingDeal) {
-      const success = await handleDelete(deletingDeal.id);
-      if (success) {
-        setDeletingDeal(null);
+      try {
+        const success = await handleDelete(deletingDeal.id);
+        if (success) {
+          setDeletingDeal(null);
+        }
+      } catch (error) {
+        console.error("Error deleting deal:", error);
+        toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
       }
     }
   };
 
   const onUpdate = async (values: any) => {
     if (editingDeal) {
-      const success = await handleUpdate(values, editingDeal.id);
-      if (success) {
-        setEditingDeal(null);
+      try {
+        const success = await handleUpdate(values, editingDeal.id);
+        if (success) {
+          setEditingDeal(null);
+        }
+      } catch (error) {
+        console.error("Error updating deal:", error);
+        toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
       }
     }
   };
 
   const onCreate = async (values: any) => {
-    const success = await handleCreate(values);
-    if (success) {
-      setIsCreating(false);
+    try {
+      const success = await handleCreate(values);
+      if (success) {
+        setIsCreating(false);
+      }
+      return success;
+    } catch (error) {
+      console.error("Error creating deal:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+      return false;
     }
   };
 
@@ -72,6 +89,11 @@ export const DealsList = () => {
       console.error('Error updating deal status:', error);
       toast.error('Något gick fel när statusen skulle uppdateras');
     }
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditingDeal(null);
+    setIsCreating(false);
   };
 
   if (isLoading) {
@@ -115,10 +137,7 @@ export const DealsList = () => {
 
       <EditDealDialog
         isOpen={!!editingDeal || isCreating}
-        onClose={() => {
-          setEditingDeal(null);
-          setIsCreating(false);
-        }}
+        onClose={handleCloseEditDialog}
         onSubmit={editingDeal ? onUpdate : onCreate}
         initialValues={
           editingDeal
