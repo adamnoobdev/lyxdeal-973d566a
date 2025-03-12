@@ -15,7 +15,7 @@ import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { addDays, differenceInDays, endOfMonth } from "date-fns";
 
 interface DealFormProps {
@@ -26,6 +26,14 @@ interface DealFormProps {
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
   const [submitting, setSubmitting] = useState(false);
+  const [isUnmounting, setIsUnmounting] = useState(false);
+  
+  // Clear state when component unmounts
+  useEffect(() => {
+    return () => {
+      setIsUnmounting(true);
+    };
+  }, []);
   
   // Set default expiration date to end of current month if not provided
   const defaultExpirationDate = initialValues?.expirationDate || endOfMonth(new Date());
@@ -53,11 +61,14 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   };
 
   const handleSubmit = async (values: FormValues) => {
+    if (submitting || isUnmounting) return;
+    
     try {
       setSubmitting(true);
       
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
+        setSubmitting(false);
         return;
       }
       
@@ -73,34 +84,47 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       await onSubmit(values);
 
       // Only proceed with additional steps if this is a new deal
-      if (!initialValues) {
-        // Get the newly created deal's ID
-        const { data: newDeal } = await supabase
-          .from('deals')
-          .select('id')
-          .eq('salon_id', values.salon_id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
+      if (!initialValues && !isUnmounting) {
+        try {
+          // Get the newly created deal's ID
+          const { data: newDeal } = await supabase
+            .from('deals')
+            .select('id')
+            .eq('salon_id', values.salon_id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
 
-        if (newDeal) {
-          // Generate discount codes based on the quantity specified
-          await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
-          
-          // Only create Stripe product if not free
-          if (!values.is_free) {
-            await createStripeProductForDeal(values);
-            toast.success("Erbjudande och presentkoder har skapats");
-          } else {
-            toast.success("Gratis erbjudande och presentkoder har skapats");
+          if (newDeal && !isUnmounting) {
+            // Generate discount codes based on the quantity specified
+            await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
+            
+            // Only create Stripe product if not free
+            if (!values.is_free && !isUnmounting) {
+              await createStripeProductForDeal(values);
+              toast.success("Erbjudande och presentkoder har skapats");
+            } else if (!isUnmounting) {
+              toast.success("Gratis erbjudande och presentkoder har skapats");
+            }
+          }
+        } catch (error) {
+          console.error('Error in post-submission process:', error);
+          if (!isUnmounting) {
+            toast.error("Erbjudandet sparades men det uppstod problem med att skapa presentkoder");
           }
         }
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error("Något gick fel när erbjudandet skulle sparas.");
+      if (!isUnmounting) {
+        toast.error("Något gick fel när erbjudandet skulle sparas.");
+      }
     } finally {
-      setSubmitting(false);
+      if (!isUnmounting) {
+        setTimeout(() => {
+          setSubmitting(false);
+        }, 300);
+      }
     }
   };
 

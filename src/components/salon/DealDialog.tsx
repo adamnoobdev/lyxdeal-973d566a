@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { DealForm } from "@/components/DealForm";
 import { FormValues } from "@/components/deal-form/schema";
+import { useState, useEffect } from "react";
 
 interface DealDialogProps {
   isOpen: boolean;
@@ -21,12 +22,22 @@ export const DealDialog = ({
   onSubmit,
   initialValues,
 }: DealDialogProps) => {
+  const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
   const handleOpenChange = (open: boolean) => {
-    if (!open) {
+    if (!open && !isClosing) {
+      setIsClosing(true);
       // Ensure we properly cleanup when closing
       setTimeout(() => {
+        setIsClosing(false);
         onClose();
-      }, 100);
+      }, 300); // Increased delay to ensure animation completes
     }
   };
 

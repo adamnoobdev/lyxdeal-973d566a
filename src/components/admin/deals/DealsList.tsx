@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Deal } from "../types";
 import { EditDealDialog } from "./EditDealDialog";
 import { DeleteDealDialog } from "./DeleteDealDialog";
@@ -17,6 +18,7 @@ export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const { 
     deals, 
@@ -31,34 +33,88 @@ export const DealsList = () => {
     refetch 
   } = useDealsAdmin();
 
+  // Clean up processing state when component unmounts
+  useEffect(() => {
+    return () => {
+      setIsProcessing(false);
+    };
+  }, []);
+
   const onDelete = async () => {
-    if (deletingDeal) {
-      const success = await handleDelete(deletingDeal.id);
-      if (success) {
-        setDeletingDeal(null);
+    if (deletingDeal && !isProcessing) {
+      try {
+        setIsProcessing(true);
+        const success = await handleDelete(deletingDeal.id);
+        if (success) {
+          // Delay cleanup to ensure animations complete
+          setTimeout(() => {
+            setDeletingDeal(null);
+            setIsProcessing(false);
+            // Additional delay before refetching
+            setTimeout(() => {
+              refetch();
+            }, 300);
+          }, 300);
+        } else {
+          setIsProcessing(false);
+        }
+      } catch (error) {
+        console.error("Error during delete:", error);
+        setIsProcessing(false);
+        toast.error("Ett fel uppstod vid borttagning");
       }
     }
   };
 
   const onUpdate = async (values: any) => {
-    if (editingDeal) {
-      const success = await handleUpdate(values, editingDeal.id);
-      if (success) {
-        setEditingDeal(null);
-        setTimeout(() => {
-          refetch();
-        }, 200);
+    if (editingDeal && !isProcessing) {
+      try {
+        setIsProcessing(true);
+        const success = await handleUpdate(values, editingDeal.id);
+        if (success) {
+          // Delay cleanup to ensure animations complete
+          setTimeout(() => {
+            setEditingDeal(null);
+            setIsProcessing(false);
+            // Additional delay before refetching
+            setTimeout(() => {
+              refetch();
+            }, 300);
+          }, 300);
+        } else {
+          setIsProcessing(false);
+        }
+      } catch (error) {
+        console.error("Error during update:", error);
+        setIsProcessing(false);
+        toast.error("Ett fel uppstod vid uppdatering");
       }
     }
   };
 
   const onCreate = async (values: any) => {
-    const success = await handleCreate(values);
-    if (success) {
-      setIsCreating(false);
-      setTimeout(() => {
-        refetch();
-      }, 200);
+    if (!isProcessing) {
+      try {
+        setIsProcessing(true);
+        const success = await handleCreate(values);
+        if (success) {
+          // Delay cleanup to ensure animations complete
+          setTimeout(() => {
+            setIsCreating(false);
+            setIsProcessing(false);
+            // Additional delay before refetching
+            setTimeout(() => {
+              refetch();
+            }, 300);
+          }, 300);
+        } else {
+          setIsProcessing(false);
+        }
+      } catch (error) {
+        console.error("Error during create:", error);
+        setIsProcessing(false);
+        toast.error("Ett fel uppstod vid skapande");
+      }
     }
   };
 
@@ -72,7 +128,10 @@ export const DealsList = () => {
       if (error) throw error;
 
       toast.success(`Erbjudandet har ${newStatus === 'approved' ? 'godkänts' : 'nekats'}`);
-      refetch();
+      // Delay refetch after status change
+      setTimeout(() => {
+        refetch();
+      }, 300);
     } catch (error) {
       console.error('Error updating deal status:', error);
       toast.error('Något gick fel när statusen skulle uppdateras');
@@ -93,6 +152,17 @@ export const DealsList = () => {
   );
 
   const pendingDeals = deals?.filter(deal => deal.status === 'pending') || [];
+
+  const handleCloseDialog = () => {
+    // Ensure we don't set state if we're in processing mode
+    if (!isProcessing) {
+      setTimeout(() => {
+        setEditingDeal(null);
+        setIsCreating(false);
+        setDeletingDeal(null);
+      }, 300);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -121,10 +191,7 @@ export const DealsList = () => {
       {(!!editingDeal || isCreating) && (
         <EditDealDialog
           isOpen={!!editingDeal || isCreating}
-          onClose={() => {
-            setEditingDeal(null);
-            setIsCreating(false);
-          }}
+          onClose={handleCloseDialog}
           onSubmit={editingDeal ? onUpdate : onCreate}
           initialValues={
             editingDeal
@@ -151,7 +218,7 @@ export const DealsList = () => {
       {!!deletingDeal && (
         <DeleteDealDialog
           isOpen={!!deletingDeal}
-          onClose={() => setDeletingDeal(null)}
+          onClose={handleCloseDialog}
           onConfirm={onDelete}
           dealTitle={deletingDeal?.title}
         />
