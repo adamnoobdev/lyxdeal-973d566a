@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +15,7 @@ interface SuccessState {
 
 export default function Success() {
   const [searchParams] = useSearchParams();
-  const dealId = searchParams.get("deal_id");
+  const dealIdString = searchParams.get("deal_id");
   const code = searchParams.get("code");
   const [state, setState] = useState<SuccessState>({
     isLoading: true,
@@ -28,8 +27,14 @@ export default function Success() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        if (!dealId) {
+        if (!dealIdString) {
           setState(prev => ({ ...prev, isLoading: false, error: "Ingen deal ID hittades" }));
+          return;
+        }
+
+        const dealId = parseInt(dealIdString, 10);
+        if (isNaN(dealId)) {
+          setState(prev => ({ ...prev, isLoading: false, error: "Ogiltigt deal ID" }));
           return;
         }
         
@@ -86,7 +91,7 @@ export default function Success() {
     };
     
     loadData();
-  }, [dealId, code]);
+  }, [dealIdString, code]);
 
   const handleCopyCode = () => {
     if (state.discountCode) {
