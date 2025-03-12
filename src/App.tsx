@@ -58,19 +58,23 @@ function AppContent() {
 
   return (
     <Router>
-      <NavigationBar userRole={userRole} />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/deal/:id" element={<ProductDetails />} />
-        <Route path="/search" element={<SearchResults />} />
-        <Route path="/partner" element={<PartnerPage />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/admin/*" element={<AdminLayout><Admin /></AdminLayout>} />
-        <Route path="/salon/dashboard" element={<AdminLayout><SalonDashboard /></AdminLayout>} />
-        <Route path="/salon/deal/:dealId" element={<AdminLayout><SalonDetails /></AdminLayout>} />
-      </Routes>
+      <div className="flex min-h-screen flex-col">
+        <NavigationBar userRole={userRole} />
+        <div className="flex-1 pt-16"> {/* Add padding-top here */}
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/deal/:id" element={<ProductDetails />} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/partner" element={<PartnerPage />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/admin/*" element={<AdminLayout><Admin /></AdminLayout>} />
+            <Route path="/salon/dashboard" element={<AdminLayout><SalonDashboard /></AdminLayout>} />
+            <Route path="/salon/deal/:dealId" element={<AdminLayout><SalonDetails /></AdminLayout>} />
+          </Routes>
+        </div>
+      </div>
       <Toaster position="top-right" />
     </Router>
   );
