@@ -22,7 +22,7 @@ export const DealsTabsSection = ({
 }: DealsTabsSectionProps) => {
   return (
     <Tabs defaultValue="active" className="w-full">
-      <TabsList className="mb-4 w-full max-w-md bg-secondary/10 border border-secondary/30">
+      <TabsList className="mb-4 w-full max-w-md bg-secondary/5 border border-secondary/10">
         <TabsTrigger value="active" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
           <Power className="h-4 w-4 mr-2 text-green-500" />
           Aktiva ({activeDeals.length})

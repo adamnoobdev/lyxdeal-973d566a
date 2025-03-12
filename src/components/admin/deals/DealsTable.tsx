@@ -14,7 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/utils/dealApiUtils";
-import { Card } from "@/components/ui/card";
 
 interface DealsTableProps {
   deals: Deal[];
@@ -40,26 +39,26 @@ export const DealsTable = ({
   onReject
 }: DealsTableProps) => {
   return (
-    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
+    <div className="rounded-lg overflow-hidden border border-secondary/10 bg-white">
       <ScrollArea className="w-full max-w-full overflow-auto">
         <Table>
-          <TableHeader className="bg-primary/5 sticky top-0 z-10">
+          <TableHeader className="bg-gray-50">
             <TableRow>
-              <TableHead className="min-w-[200px] font-semibold text-primary">Titel</TableHead>
-              <TableHead className="min-w-[120px] font-semibold text-primary">Salong</TableHead>
-              <TableHead className="min-w-[100px] font-semibold text-primary">Pris</TableHead>
-              <TableHead className="min-w-[100px] font-semibold text-primary">Rabatterat</TableHead>
-              <TableHead className="min-w-[120px] font-semibold text-primary">Kvar</TableHead>
-              <TableHead className="min-w-[120px] font-semibold text-primary">Status</TableHead>
-              <TableHead className="min-w-[100px] text-right font-semibold text-primary">Åtgärder</TableHead>
+              <TableHead className="min-w-[250px] font-medium text-primary">Titel</TableHead>
+              <TableHead className="min-w-[120px] font-medium text-primary">Salong</TableHead>
+              <TableHead className="min-w-[100px] font-medium text-primary">Pris</TableHead>
+              <TableHead className="min-w-[120px] font-medium text-primary">Rabatterat</TableHead>
+              <TableHead className="min-w-[80px] font-medium text-primary">Kvar</TableHead>
+              <TableHead className="min-w-[80px] font-medium text-primary">Status</TableHead>
+              <TableHead className="min-w-[80px] text-right font-medium text-primary">Åtgärder</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {deals.map((deal) => (
-              <TableRow key={deal.id}>
+              <TableRow key={deal.id} className="border-b border-gray-100">
                 <TableCell className="font-medium">
                   <div className="flex flex-col max-w-[300px]">
-                    <span className="truncate">{deal.title}</span>
+                    <span className="truncate font-medium">{deal.title}</span>
                     <span className="text-xs text-muted-foreground">{deal.category} - {deal.city}</span>
                   </div>
                 </TableCell>
@@ -75,7 +74,7 @@ export const DealsTable = ({
                   {deal.is_free ? (
                     <Badge variant="outline">—</Badge>
                   ) : (
-                    <span>{formatCurrency(deal.discounted_price)} kr</span>
+                    <span className="text-primary font-medium">{formatCurrency(deal.discounted_price)} kr</span>
                   )}
                 </TableCell>
                 <TableCell>{deal.quantity_left}</TableCell>
@@ -121,6 +120,6 @@ export const DealsTable = ({
           </TableBody>
         </Table>
       </ScrollArea>
-    </Card>
+    </div>
   );
 };

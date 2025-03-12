@@ -48,7 +48,7 @@ export const AdminSidebar = () => {
 
   return (
     <Sidebar 
-      className={`border-r bg-background/95 backdrop-blur-sm pt-16 z-10 shadow-sm ${isCollapsed ? 'collapsed' : ''}`} 
+      className={`border-r bg-white pt-16 z-10 shadow-sm ${isCollapsed ? 'collapsed' : ''}`} 
       variant="inset" 
       collapsible="icon"
     >

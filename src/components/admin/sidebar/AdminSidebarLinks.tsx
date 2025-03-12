@@ -1,6 +1,6 @@
 
 import { useLocation } from "react-router-dom";
-import { LayoutDashboard, Store, Tags } from "lucide-react";
+import { LayoutDashboard, Tag, Store } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
 import { SidebarLink } from "./SidebarLink";
 
@@ -13,7 +13,7 @@ const adminLinks = [
   },
   {
     href: "/admin/deals",
-    icon: Tags,
+    icon: Tag,
     label: "Erbjudanden",
     description: "Hantera erbjudanden",
   },
@@ -30,7 +30,7 @@ export const AdminSidebarLinks = () => {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Admin</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-primary font-medium">Admin</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {adminLinks.map((link) => (
