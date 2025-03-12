@@ -17,6 +17,8 @@ export const AdminSidebar = () => {
       setIsMobile(mobile);
       if (mobile) {
         setIsCollapsed(true);
+      } else {
+        setIsCollapsed(false);
       }
     };
 
@@ -50,7 +52,7 @@ export const AdminSidebar = () => {
     <Sidebar 
       className={`border-r bg-white pt-16 z-10 shadow-sm ${isCollapsed ? 'collapsed' : ''}`} 
       variant="inset" 
-      collapsible="icon"
+      collapsible={isMobile ? "offcanvas" : "icon"}
     >
       <SidebarTrigger 
         className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" 

@@ -23,9 +23,9 @@ export const SidebarLink: React.FC<SidebarLinkProps> = ({
       <Link
         to={href}
         className={cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors w-full",
           isCurrentPath 
-            ? "bg-primary/5 text-primary font-medium" 
+            ? "bg-primary/10 text-primary font-medium" 
             : "text-gray-500 hover:bg-gray-100/50 hover:text-primary"
         )}
       >

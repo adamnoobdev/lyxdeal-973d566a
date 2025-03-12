@@ -9,25 +9,25 @@ const adminLinks = [
     href: "/admin",
     icon: LayoutDashboard,
     label: "Dashboard",
-    description: "Översikt och statistik",
+    exact: true
   },
   {
     href: "/admin/deals",
     icon: Tag,
     label: "Erbjudanden",
-    description: "Hantera erbjudanden",
+    exact: false
   },
   {
     href: "/admin/salons",
     icon: Store,
     label: "Salonger",
-    description: "Hantera salonger",
+    exact: false
   },
 ] as const;
 
 export const AdminSidebarLinks = () => {
   const location = useLocation();
-
+  
   return (
     <SidebarGroup>
       <SidebarGroupLabel className="text-primary font-medium">Admin</SidebarGroupLabel>
@@ -39,7 +39,11 @@ export const AdminSidebarLinks = () => {
               href={link.href}
               icon={link.icon}
               label={link.label}
-              isCurrentPath={location.pathname === link.href}
+              isCurrentPath={
+                link.exact 
+                  ? location.pathname === link.href 
+                  : location.pathname.startsWith(link.href)
+              }
             />
           ))}
         </SidebarMenu>
