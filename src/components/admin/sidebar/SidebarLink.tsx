@@ -25,14 +25,14 @@ export const SidebarLink: React.FC<SidebarLinkProps> = ({
         className={cn(
           "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
           isCurrentPath 
-            ? "bg-primary/10 text-primary font-medium" 
-            : "text-muted-foreground hover:bg-muted hover:text-primary"
+            ? "bg-primary/5 text-primary font-medium" 
+            : "text-gray-500 hover:bg-gray-100/50 hover:text-primary"
         )}
       >
         <Icon
           className={cn(
             "h-5 w-5",
-            isCurrentPath ? "text-primary" : "text-muted-foreground"
+            isCurrentPath ? "text-primary" : "text-gray-400"
           )}
         />
         <span>{label}</span>

@@ -22,12 +22,18 @@ export const DealsTabsSection = ({
 }: DealsTabsSectionProps) => {
   return (
     <Tabs defaultValue="active" className="w-full">
-      <TabsList className="mb-4 w-full max-w-md bg-secondary/5 border border-secondary/10">
-        <TabsTrigger value="active" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
+      <TabsList className="mb-6 w-full max-w-md grid grid-cols-2 bg-white border">
+        <TabsTrigger 
+          value="active" 
+          className="data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none px-6 py-3"
+        >
           <Power className="h-4 w-4 mr-2 text-green-500" />
           Aktiva ({activeDeals.length})
         </TabsTrigger>
-        <TabsTrigger value="inactive" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
+        <TabsTrigger 
+          value="inactive"
+          className="data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none px-6 py-3"
+        >
           <Power className="h-4 w-4 mr-2 text-gray-400" />
           Inaktiva ({inactiveDeals.length})
         </TabsTrigger>
