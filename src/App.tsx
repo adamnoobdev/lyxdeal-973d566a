@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
@@ -71,9 +72,21 @@ function AppContent() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/success" element={<Success />} />
-            <Route path="/admin/*" element={<AdminLayout><Admin /></AdminLayout>} />
-            <Route path="/salon/dashboard" element={<AdminLayout><SalonDashboard /></AdminLayout>} />
-            <Route path="/salon/deal/:dealId" element={<AdminLayout><SalonDetails /></AdminLayout>} />
+            <Route path="/admin/*" element={
+              <AdminLayout>
+                <Admin />
+              </AdminLayout>
+            } />
+            <Route path="/salon/dashboard" element={
+              <AdminLayout>
+                <SalonDashboard />
+              </AdminLayout>
+            } />
+            <Route path="/salon/deal/:dealId" element={
+              <AdminLayout>
+                <SalonDetails />
+              </AdminLayout>
+            } />
           </Routes>
         </div>
         <Footer />
