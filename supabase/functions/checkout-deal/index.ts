@@ -8,6 +8,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
 // Hjälpfunktioner
 function createErrorResponse(error: string, status: number) {
   return new Response(
@@ -27,6 +29,14 @@ function createSuccessResponse(data: any) {
       status: 200
     }
   );
+}
+
+function generateRandomCode(length: number = 8): string {
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += CHARACTERS.charAt(Math.floor(Math.random() * CHARACTERS.length));
+  }
+  return code;
 }
 
 async function createSupabaseClient() {
@@ -82,7 +92,7 @@ async function checkExistingCode(supabaseAdmin: any, dealId: number, customerEma
   }
 }
 
-async function getAvailableDiscountCode(supabaseAdmin: any, dealId: number) {
+async function getAvailableDiscountCode(supabaseAdmin: any, dealId: number, generateIfMissing: boolean = false) {
   const { data: discountCodes, error: codeError } = await supabaseAdmin
     .from('discount_codes')
     .select('*')
@@ -93,6 +103,41 @@ async function getAvailableDiscountCode(supabaseAdmin: any, dealId: number) {
   if (codeError) {
     console.error('Error fetching discount code:', codeError);
     throw new Error('Kunde inte hämta rabattkod');
+  }
+  
+  // Om det inte finns tillgängliga koder och generateIfMissing är true, generera nya koder
+  if ((!discountCodes || discountCodes.length === 0) && generateIfMissing) {
+    console.log(`No available discount codes for deal ${dealId}. Generating new codes.`);
+    
+    try {
+      // Generera 10 nya rabattkoder för erbjudandet
+      const newCodes = Array.from({ length: 10 }, () => ({
+        deal_id: dealId,
+        code: generateRandomCode(8)
+      }));
+      
+      const { data: insertedCodes, error: insertError } = await supabaseAdmin
+        .from('discount_codes')
+        .insert(newCodes)
+        .select();
+      
+      if (insertError) {
+        console.error('Error generating new discount codes:', insertError);
+        throw new Error('Kunde inte generera nya rabattkoder');
+      }
+      
+      if (!insertedCodes || insertedCodes.length === 0) {
+        throw new Error('Kunde inte generera nya rabattkoder');
+      }
+      
+      console.log(`Generated ${insertedCodes.length} new discount codes for deal ${dealId}`);
+      
+      // Returnera den första av de nya koderna
+      return insertedCodes[0];
+    } catch (error) {
+      console.error('Failed to generate new discount codes:', error);
+      throw new Error('Det finns inga rabattkoder kvar för detta erbjudande');
+    }
   }
   
   if (!discountCodes || discountCodes.length === 0) {
@@ -121,22 +166,40 @@ async function assignDiscountCodeToCustomer(supabaseAdmin: any, discountCodeId: 
 
 async function decreaseQuantity(supabaseAdmin: any, dealId: number) {
   try {
+    // Försök först att använda RPC-funktionen
     const { error: decreaseError } = await supabaseAdmin.rpc('decrease_quantity', {
       price_id: `deal_${dealId}`
     });
 
     if (decreaseError) {
-      console.error('Error decreasing quantity:', decreaseError);
-      // Försök minska mängden direkt om RPC misslyckas
-      await supabaseAdmin
+      console.error('Error using RPC to decrease quantity:', decreaseError);
+      
+      // Om RPC misslyckas, försök med direkt uppdatering av tabellen
+      const { data: updateResult, error: updateError } = await supabaseAdmin
         .from('deals')
         .update({ quantity_left: supabaseAdmin.sql('quantity_left - 1') })
         .eq('id', dealId)
-        .gt('quantity_left', 0);
+        .gt('quantity_left', 0)
+        .select('quantity_left');
+      
+      if (updateError) {
+        console.error('Error decreasing quantity with direct update:', updateError);
+        throw new Error('Kunde inte minska antalet tillgängliga erbjudanden');
+      }
+
+      if (!updateResult || updateResult.length === 0 || updateResult[0].quantity_left < 0) {
+        console.error('Deal might be sold out, quantity not decreased');
+        throw new Error('Detta erbjudande är slutsålt');
+      }
     }
   } catch (error) {
     console.error('Failed to decrease quantity:', error);
-    // Vi fortsätter ändå, för detta är inte ett kritiskt fel
+    // Vi fortsätter ändå om det inte är ett kritiskt fel från vår egen kod
+    if (error instanceof Error && 
+        (error.message === 'Kunde inte minska antalet tillgängliga erbjudanden' || 
+         error.message === 'Detta erbjudande är slutsålt')) {
+      throw error;
+    }
   }
 }
 
@@ -199,8 +262,8 @@ async function sendDiscountCodeEmail(dealTitle: string, customerInfo: any, disco
 // Huvudfunktion för att hantera checkout-flödet
 async function handleCheckout(req: Request) {
   try {
-    const { dealId, customerInfo } = await req.json();
-    console.log('Processing checkout for deal:', dealId, 'Customer:', customerInfo);
+    const { dealId, customerInfo, generateIfMissing = false } = await req.json();
+    console.log('Processing checkout for deal:', dealId, 'Customer:', customerInfo, 'Generate if missing:', generateIfMissing);
 
     if (!dealId) {
       console.error('No deal ID provided');
@@ -220,8 +283,8 @@ async function handleCheckout(req: Request) {
     // Kontrollera om kunden redan har en kod för detta erbjudande
     await checkExistingCode(supabaseAdmin, dealId, customerInfo.email);
 
-    // Hitta en tillgänglig rabattkod
-    const discountCode = await getAvailableDiscountCode(supabaseAdmin, dealId);
+    // Hitta en tillgänglig rabattkod eller generera ny om alternativet är aktiverat
+    const discountCode = await getAvailableDiscountCode(supabaseAdmin, dealId, generateIfMissing);
 
     // Uppdatera rabattkoden med kundinformation
     await assignDiscountCodeToCustomer(supabaseAdmin, discountCode.id, customerInfo);

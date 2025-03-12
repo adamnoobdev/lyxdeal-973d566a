@@ -31,6 +31,7 @@ const formSchema = z.object({
 interface CheckoutFormProps {
   dealId: number;
   onSuccess: (code: string) => void;
+  onError: (message: string) => void;
   onCancel: () => void;
   isFree?: boolean;
 }
@@ -38,6 +39,7 @@ interface CheckoutFormProps {
 export const CheckoutForm = ({
   dealId,
   onSuccess,
+  onError,
   onCancel,
   isFree = false,
 }: CheckoutFormProps) => {
@@ -62,6 +64,7 @@ export const CheckoutForm = ({
         body: {
           dealId,
           customerInfo: values,
+          generateIfMissing: true // Lägg till denna parameter för att indikera att vi vill generera koder vid behov
         }
       });
       
@@ -73,11 +76,11 @@ export const CheckoutForm = ({
             error.message?.includes("slutsålt") || 
             error.message?.includes("sold out") ||
             error.message?.includes("quantity_left")) {
-          toast.error("Tyvärr är detta erbjudande slutsålt. Försök med ett annat erbjudande.");
+          onError("Tyvärr är detta erbjudande slutsålt. Försök med ett annat erbjudande.");
         } else if (error.message?.includes("redan säkrat")) {
-          toast.error(error.message);
+          onError(error.message);
         } else {
-          toast.error(error.message || "Ett fel uppstod vid säkring av erbjudandet.");
+          onError(error.message || "Ett fel uppstod vid säkring av erbjudandet.");
         }
         return;
       }
@@ -90,15 +93,15 @@ export const CheckoutForm = ({
       } else if (data && data.url) {
         window.location.href = data.url;
       } else {
-        toast.error("Oväntat svar från servern. Försök igen senare.");
+        onError("Oväntat svar från servern. Försök igen senare.");
       }
     } catch (error) {
       console.error("Checkout error:", error);
       
       if (error instanceof Error) {
-        toast.error(error.message);
+        onError(error.message);
       } else {
-        toast.error("Ett fel uppstod. Försök igen senare.");
+        onError("Ett fel uppstod. Försök igen senare.");
       }
     } finally {
       setIsSubmitting(false);
@@ -176,7 +179,7 @@ export const CheckoutForm = ({
           </p>
         </div>
         
-        <div className="flex flex-col gap-2 pt-2">
+        <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
             {isSubmitting ? "Bearbetar..." : "Säkra rabattkod"}
           </Button>
@@ -186,6 +189,7 @@ export const CheckoutForm = ({
             onClick={onCancel}
             disabled={isSubmitting}
             size="lg"
+            className="sm:max-w-[120px]"
           >
             Avbryt
           </Button>
