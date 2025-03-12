@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -57,37 +58,19 @@ export const CheckoutForm = ({
       
       console.log("Submitting form for deal:", dealId, "Values:", values);
       
-      const response = await fetch("/api/checkout-deal", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      // Call the Supabase edge function directly instead of using a non-existent API route
+      const { data, error } = await supabase.functions.invoke('checkout-deal', {
+        body: {
           dealId,
           customerInfo: values,
-        }),
+        }
       });
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Checkout error response:", errorText);
-        let errorMessage = "Ett fel uppstod vid säkring av erbjudandet.";
-        
-        try {
-          // Försök tolka som JSON om möjligt
-          const errorData = JSON.parse(errorText);
-          if (errorData.error) {
-            errorMessage = errorData.error;
-          }
-        } catch (e) {
-          // Om det inte är JSON, använd hela texten
-          errorMessage = errorText || errorMessage;
-        }
-        
-        throw new Error(errorMessage);
+      if (error) {
+        console.error("Checkout error:", error);
+        throw new Error(error.message || "Ett fel uppstod vid säkring av erbjudandet.");
       }
       
-      const data = await response.json();
       console.log("Checkout success:", data);
       
       if (data.free && data.code) {
