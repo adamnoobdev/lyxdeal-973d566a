@@ -27,8 +27,13 @@ const salonLinks = [
   },
 ] as const;
 
-export const SalonSidebarLinks = () => {
+interface SalonSidebarLinksProps {
+  currentPath?: string;
+}
+
+export const SalonSidebarLinks = ({ currentPath }: SalonSidebarLinksProps) => {
   const location = useLocation();
+  const currentLocation = currentPath || location.pathname;
 
   return (
     <SidebarGroup>
@@ -40,7 +45,7 @@ export const SalonSidebarLinks = () => {
               key={link.href}
               href={link.href}
               icon={link.icon}
-              isCurrentPath={location.pathname.startsWith(link.href)}
+              isCurrentPath={currentLocation.startsWith(link.href)}
             >
               {link.label}
             </SidebarLink>

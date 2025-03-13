@@ -25,8 +25,13 @@ const adminLinks = [
   },
 ] as const;
 
-export const AdminSidebarLinks = () => {
+interface AdminSidebarLinksProps {
+  currentPath?: string;
+}
+
+export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
   const location = useLocation();
+  const currentLocation = currentPath || location.pathname;
 
   return (
     <SidebarGroup>
@@ -38,7 +43,7 @@ export const AdminSidebarLinks = () => {
               key={link.href}
               href={link.href}
               icon={link.icon}
-              isCurrentPath={location.pathname === link.href}
+              isCurrentPath={currentLocation === link.href || currentLocation.startsWith(link.href)}
             >
               {link.label}
             </SidebarLink>

@@ -1,5 +1,5 @@
 
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -20,9 +20,6 @@ export function SidebarLink({
   label,
   isCurrentPath 
 }: SidebarLinkProps) {
-  const location = useLocation();
-  const isActive = location.pathname === href || isCurrentPath;
-
   return (
     <li className="flex">
       <NavLink
@@ -32,7 +29,7 @@ export function SidebarLink({
           cn(
             buttonVariants({ variant: "ghost" }),
             "w-full justify-start gap-2 font-normal",
-            (linkActive || active || isActive) && "bg-muted font-medium"
+            (linkActive || active || isCurrentPath) && "bg-muted font-medium"
           )
         }
       >
