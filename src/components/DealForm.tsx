@@ -15,7 +15,7 @@ import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { addDays, differenceInDays, endOfMonth } from "date-fns";
 
 interface DealFormProps {
@@ -48,11 +48,14 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
     },
   });
 
-  const handleImageSelected = (imageUrl: string) => {
+  const handleImageSelected = useCallback((imageUrl: string) => {
     form.setValue("imageUrl", imageUrl);
-  };
+  }, [form]);
 
-  const handleSubmit = async (values: FormValues) => {
+  const handleSubmit = useCallback(async (values: FormValues) => {
+    // Undvik dubbla formulärinskick
+    if (submitting) return;
+    
     try {
       setSubmitting(true);
       
@@ -102,7 +105,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [initialValues, onSubmit, submitting]);
 
   return (
     <Form {...form}>

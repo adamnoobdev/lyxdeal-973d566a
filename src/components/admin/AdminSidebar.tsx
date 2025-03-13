@@ -4,7 +4,10 @@ import { AdminSidebarContent } from "./sidebar/AdminSidebarContent";
 import { useSession } from "@/hooks/useSession";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
+
+// Memoize the sidebar content to prevent unnecessary re-renders
+const MemoizedAdminSidebarContent = memo(AdminSidebarContent);
 
 export const AdminSidebar = () => {
   const { session } = useSession();
@@ -22,6 +25,11 @@ export const AdminSidebar = () => {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, [isCollapsed]);
+
+  // Använd useCallback för att förhindra onödiga re-renders när sidebarn öppnas/stängs
+  const handleToggleCollapse = useCallback(() => {
+    setIsCollapsed(!isCollapsed);
   }, [isCollapsed]);
 
   // Fetch user role to determine what sidebar content to show
@@ -44,6 +52,7 @@ export const AdminSidebar = () => {
       return data;
     },
     enabled: !!session?.user?.id,
+    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes to prevent frequent refetches
   });
 
   return (
@@ -54,9 +63,9 @@ export const AdminSidebar = () => {
     >
       <SidebarTrigger 
         className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" 
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={handleToggleCollapse}
       />
-      <AdminSidebarContent userRole={userData?.role} />
+      <MemoizedAdminSidebarContent userRole={userData?.role} />
     </Sidebar>
   );
 };

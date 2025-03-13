@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Deal } from "../types";
 import { EditDealDialog } from "./EditDealDialog";
 import { DeleteDealDialog } from "./DeleteDealDialog";
@@ -32,32 +32,32 @@ export const DealsList = () => {
     refetch 
   } = useDealsAdmin();
 
-  const onDelete = async () => {
+  const onDelete = useCallback(async () => {
     if (deletingDeal) {
       const success = await handleDelete(deletingDeal.id);
       if (success) {
         setDeletingDeal(null);
       }
     }
-  };
+  }, [deletingDeal, handleDelete]);
 
-  const onUpdate = async (values: any) => {
+  const onUpdate = useCallback(async (values: any) => {
     if (editingDeal) {
       const success = await handleUpdate(values, editingDeal.id);
       if (success) {
         setEditingDeal(null);
       }
     }
-  };
+  }, [editingDeal, handleUpdate]);
 
-  const onCreate = async (values: any) => {
+  const onCreate = useCallback(async (values: any) => {
     const success = await handleCreate(values);
     if (success) {
       setIsCreating(false);
     }
-  };
+  }, [handleCreate]);
 
-  const handleStatusChange = async (dealId: number, newStatus: 'approved' | 'rejected') => {
+  const handleStatusChange = useCallback(async (dealId: number, newStatus: 'approved' | 'rejected') => {
     try {
       const { error } = await supabase
         .from('deals')
@@ -72,7 +72,7 @@ export const DealsList = () => {
       console.error('Error updating deal status:', error);
       toast.error('Något gick fel när statusen skulle uppdateras');
     }
-  };
+  }, [refetch]);
 
   if (isLoading) {
     return <DealsLoadingSkeleton />;

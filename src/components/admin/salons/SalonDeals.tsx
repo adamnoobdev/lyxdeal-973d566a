@@ -10,6 +10,10 @@ import { useSalonDealsManagement } from "@/hooks/useSalonDealsManagement";
 import { endOfMonth } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import { useCallback, memo } from "react";
+
+// Memoize the component to prevent unnecessary re-renders
+const MemoizedDealsTable = memo(DealsTable);
 
 export function SalonDeals() {
   const { salonId } = useParams();
@@ -27,6 +31,22 @@ export function SalonDeals() {
     handleUpdate,
     handleToggleActive,
   } = useSalonDealsManagement(salonId);
+
+  const handleEdit = useCallback((deal) => {
+    setEditingDeal(deal);
+  }, [setEditingDeal]);
+
+  const handleDelete = useCallback((deal) => {
+    setDeletingDeal(deal);
+  }, [setDeletingDeal]);
+
+  const handleClose = useCallback(() => {
+    setEditingDeal(null);
+  }, [setEditingDeal]);
+
+  const handleCloseDelete = useCallback(() => {
+    setDeletingDeal(null);
+  }, [setDeletingDeal]);
 
   if (isLoading) {
     return <DealsLoadingSkeleton />;
@@ -54,19 +74,19 @@ export function SalonDeals() {
           </TabsList>
           
           <TabsContent value="active">
-            <DealsTable
+            <MemoizedDealsTable
               deals={activeDeals}
-              onEdit={setEditingDeal}
-              onDelete={setDeletingDeal}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
               onToggleActive={handleToggleActive}
             />
           </TabsContent>
           
           <TabsContent value="inactive">
-            <DealsTable
+            <MemoizedDealsTable
               deals={inactiveDeals}
-              onEdit={setEditingDeal}
-              onDelete={setDeletingDeal}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
               onToggleActive={handleToggleActive}
             />
           </TabsContent>
@@ -75,7 +95,7 @@ export function SalonDeals() {
 
       <EditDealDialog
         isOpen={!!editingDeal}
-        onClose={() => setEditingDeal(null)}
+        onClose={handleClose}
         onSubmit={handleUpdate}
         initialValues={
           editingDeal
@@ -100,7 +120,7 @@ export function SalonDeals() {
 
       <DeleteDealDialog
         isOpen={!!deletingDeal}
-        onClose={() => setDeletingDeal(null)}
+        onClose={handleCloseDelete}
         onConfirm={handleDelete}
         dealTitle={deletingDeal?.title}
       />

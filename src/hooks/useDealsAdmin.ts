@@ -5,6 +5,7 @@ import { Deal } from "@/types/deal";
 import { toast } from "sonner";
 import { differenceInDays } from "date-fns";
 import { FormValues } from "@/components/deal-form/schema";
+import { useCallback } from "react";
 
 export const useDealsAdmin = () => {
   const { data: deals = [], isLoading, error, refetch } = useQuery({
@@ -25,7 +26,8 @@ export const useDealsAdmin = () => {
     }
   });
 
-  const handleDelete = async (id: number) => {
+  // Använd useCallback för att förhindra onödiga re-renders
+  const handleDelete = useCallback(async (id: number) => {
     try {
       const { error } = await supabase
         .from('deals')
@@ -41,9 +43,9 @@ export const useDealsAdmin = () => {
       toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
       return false;
     }
-  };
+  }, [refetch]);
 
-  const handleUpdate = async (values: FormValues, id: number) => {
+  const handleUpdate = useCallback(async (values: FormValues, id: number) => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
@@ -92,16 +94,16 @@ export const useDealsAdmin = () => {
       }
       
       toast.success("Erbjudandet har uppdaterats");
-      refetch();
+      await refetch();
       return true;
     } catch (error) {
       console.error('Error updating deal:', error);
       toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
       return false;
     }
-  };
+  }, [refetch]);
 
-  const handleCreate = async (values: FormValues) => {
+  const handleCreate = useCallback(async (values: FormValues) => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
@@ -150,16 +152,16 @@ export const useDealsAdmin = () => {
       }
       
       toast.success("Erbjudandet har skapats");
-      refetch();
+      await refetch();
       return true;
     } catch (error) {
       console.error('Error creating deal:', error);
       toast.error("Ett fel uppstod när erbjudandet skulle skapas");
       return false;
     }
-  };
+  }, [refetch]);
 
-  const handleToggleActive = async (deal: Deal) => {
+  const handleToggleActive = useCallback(async (deal: Deal) => {
     try {
       const { error } = await supabase
         .from('deals')
@@ -169,14 +171,14 @@ export const useDealsAdmin = () => {
       if (error) throw error;
       
       toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktiverat' : 'inaktiverat'}`);
-      refetch();
+      await refetch();
       return true;
     } catch (error) {
       console.error('Error toggling deal active status:', error);
       toast.error("Ett fel uppstod när erbjudandets status skulle ändras");
       return false;
     }
-  };
+  }, [refetch]);
 
   // Filtrera erbjudanden efter aktiva/inaktiva
   const activeDeals = deals.filter(deal => deal.is_active);
