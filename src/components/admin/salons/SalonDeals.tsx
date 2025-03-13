@@ -27,7 +27,7 @@ export function SalonDeals() {
     deletingDeal,
     setEditingDeal,
     setDeletingDeal,
-    handleDelete,
+    handleDelete: handleDeleteDeal,
     handleUpdate,
     handleToggleActive,
   } = useSalonDealsManagement(salonId);
@@ -36,7 +36,7 @@ export function SalonDeals() {
     setEditingDeal(deal);
   }, [setEditingDeal]);
 
-  const handleDelete = useCallback((deal) => {
+  const handleDeleteClick = useCallback((deal) => {
     setDeletingDeal(deal);
   }, [setDeletingDeal]);
 
@@ -77,7 +77,7 @@ export function SalonDeals() {
             <MemoizedDealsTable
               deals={activeDeals}
               onEdit={handleEdit}
-              onDelete={handleDelete}
+              onDelete={handleDeleteClick}
               onToggleActive={handleToggleActive}
             />
           </TabsContent>
@@ -86,7 +86,7 @@ export function SalonDeals() {
             <MemoizedDealsTable
               deals={inactiveDeals}
               onEdit={handleEdit}
-              onDelete={handleDelete}
+              onDelete={handleDeleteClick}
               onToggleActive={handleToggleActive}
             />
           </TabsContent>
@@ -121,7 +121,7 @@ export function SalonDeals() {
       <DeleteDealDialog
         isOpen={!!deletingDeal}
         onClose={handleCloseDelete}
-        onConfirm={handleDelete}
+        onConfirm={handleDeleteDeal}
         dealTitle={deletingDeal?.title}
       />
     </>
