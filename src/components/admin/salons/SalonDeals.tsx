@@ -10,7 +10,7 @@ import { useSalonDealsManagement } from "@/hooks/useSalonDealsManagement";
 import { endOfMonth } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { useCallback, memo } from "react";
+import { useCallback, memo, useMemo } from "react";
 
 // Memoize the component to prevent unnecessary re-renders
 const MemoizedDealsTable = memo(DealsTable);
@@ -47,6 +47,29 @@ export function SalonDeals() {
   const handleCloseDelete = useCallback(() => {
     setDeletingDeal(null);
   }, [setDeletingDeal]);
+  
+  // Använd useMemo för att förhindra onödiga beräkningar vid re-renders
+  const initialValues = useMemo(() => {
+    if (!editingDeal) return undefined;
+    
+    return {
+      title: editingDeal.title,
+      description: editingDeal.description,
+      imageUrl: editingDeal.image_url,
+      originalPrice: editingDeal.original_price.toString(),
+      discountedPrice: editingDeal.discounted_price.toString(),
+      category: editingDeal.category,
+      city: editingDeal.city,
+      featured: editingDeal.featured,
+      salon_id: editingDeal.salon_id,
+      is_free: editingDeal.is_free || false,
+      is_active: editingDeal.is_active,
+      quantity: editingDeal.quantity_left?.toString() || "10",
+      expirationDate: editingDeal.expiration_date 
+        ? new Date(editingDeal.expiration_date) 
+        : endOfMonth(new Date()),
+    };
+  }, [editingDeal]);
 
   if (isLoading) {
     return <DealsLoadingSkeleton />;
@@ -97,25 +120,7 @@ export function SalonDeals() {
         isOpen={!!editingDeal}
         onClose={handleClose}
         onSubmit={handleUpdate}
-        initialValues={
-          editingDeal
-            ? {
-                title: editingDeal.title,
-                description: editingDeal.description,
-                imageUrl: editingDeal.image_url,
-                originalPrice: editingDeal.original_price.toString(),
-                discountedPrice: editingDeal.discounted_price.toString(),
-                category: editingDeal.category,
-                city: editingDeal.city,
-                featured: editingDeal.featured,
-                salon_id: editingDeal.salon_id,
-                is_free: editingDeal.is_free || false,
-                is_active: editingDeal.is_active,
-                quantity: editingDeal.quantity_left?.toString() || "10",
-                expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
-              }
-            : undefined
-        }
+        initialValues={initialValues}
       />
 
       <DeleteDealDialog

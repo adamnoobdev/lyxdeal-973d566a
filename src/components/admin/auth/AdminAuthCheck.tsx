@@ -16,11 +16,12 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const checkPerformed = useRef(false);
   const isCheckingRef = useRef(false);
+  const isMountedRef = useRef(true);
 
   // Använd useCallback för att förhindra onödiga re-renders
   const checkAdminStatus = useCallback(async () => {
     // Undvik dubbla kontroller eller parallella anrop
-    if (checkPerformed.current || isCheckingRef.current) return;
+    if (checkPerformed.current || isCheckingRef.current || !isMountedRef.current) return;
     
     // Sätt en flagga för att visa att kontrollen pågår
     isCheckingRef.current = true;
@@ -45,42 +46,62 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
 
       if (error) {
         console.error('Error checking admin status:', error);
-        toast.error("Ett fel uppstod vid behörighetskontroll");
-        navigate("/");
+        if (isMountedRef.current) {
+          toast.error("Ett fel uppstod vid behörighetskontroll");
+          navigate("/");
+        }
         return;
       }
 
       if (!salon || salon.role !== 'admin') {
         console.log("User is not admin. Role:", salon?.role);
-        toast.error("Du har inte behörighet till denna sida");
-        navigate("/");
+        if (isMountedRef.current) {
+          toast.error("Du har inte behörighet till denna sida");
+          navigate("/");
+        }
         return;
       }
 
       console.log("Admin status confirmed");
-      setIsAdmin(true);
+      if (isMountedRef.current) {
+        setIsAdmin(true);
+      }
     } catch (error) {
       console.error('Error in checkAdminStatus:', error);
-      toast.error("Ett fel uppstod");
-      navigate("/");
+      if (isMountedRef.current) {
+        toast.error("Ett fel uppstod");
+        navigate("/");
+      }
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
       isCheckingRef.current = false;
     }
   }, [user?.id, navigate]);
 
   useEffect(() => {
+    // Sätt upp isMountedRef för att hantera cleanup korrekt
+    isMountedRef.current = true;
+    
     // Återställ kontrollflaggan om användaren ändras
     if (user?.id) {
-      checkAdminStatus();
+      if (!checkPerformed.current) {
+        checkAdminStatus();
+      }
     } else {
       checkPerformed.current = false;
       isCheckingRef.current = false;
-      setIsLoading(true);
-      setIsAdmin(null);
+      if (isMountedRef.current) {
+        setIsLoading(true);
+        setIsAdmin(null);
+      }
     }
 
-    // Ingen cleanup funktion som sätter isMounted = false då denna kan orsaka state-uppdateringar efter unmount
+    // Cleanup funktion som förhindrar state-uppdateringar efter unmount
+    return () => {
+      isMountedRef.current = false;
+    };
   }, [user?.id, checkAdminStatus]);
 
   // Om användarens session försvinner, återställ status
@@ -88,7 +109,9 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
     if (!session) {
       checkPerformed.current = false;
       isCheckingRef.current = false;
-      setIsAdmin(null);
+      if (isMountedRef.current) {
+        setIsAdmin(null);
+      }
     }
   }, [session]);
 

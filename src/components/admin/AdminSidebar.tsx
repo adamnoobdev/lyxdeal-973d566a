@@ -4,7 +4,7 @@ import { AdminSidebarContent } from "./sidebar/AdminSidebarContent";
 import { useSession } from "@/hooks/useSession";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect, memo, useCallback } from "react";
+import { useState, useEffect, memo, useCallback, useMemo } from "react";
 
 // Memoize the sidebar content to prevent unnecessary re-renders
 const MemoizedAdminSidebarContent = memo(AdminSidebarContent);
@@ -32,9 +32,12 @@ export const AdminSidebar = () => {
     setIsCollapsed(!isCollapsed);
   }, [isCollapsed]);
 
+  // Använd useMemo för queryKey för att minska re-renders
+  const queryKey = useMemo(() => ['user-role', session?.user?.id], [session?.user?.id]);
+
   // Fetch user role to determine what sidebar content to show
   const { data: userData } = useQuery({
-    queryKey: ['user-role', session?.user?.id],
+    queryKey: queryKey,
     queryFn: async () => {
       if (!session?.user?.id) return null;
       
