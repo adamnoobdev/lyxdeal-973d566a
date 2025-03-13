@@ -5,6 +5,7 @@ import { useSession } from "@/hooks/useSession";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, memo, useCallback, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 
 // Memoize the sidebar content to prevent unnecessary re-renders
 const MemoizedAdminSidebarContent = memo(AdminSidebarContent);
@@ -13,6 +14,7 @@ export const AdminSidebar = () => {
   const { session } = useSession();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
+  const location = useLocation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -68,7 +70,10 @@ export const AdminSidebar = () => {
         className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" 
         onClick={handleToggleCollapse}
       />
-      <MemoizedAdminSidebarContent userRole={userData?.role} />
+      <MemoizedAdminSidebarContent 
+        userRole={userData?.role} 
+        currentPath={location.pathname}
+      />
     </Sidebar>
   );
 };

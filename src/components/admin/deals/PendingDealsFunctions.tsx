@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useOperationExclusion } from "@/hooks/useOperationExclusion";
 
-export const usePendingDealsFunctions = (refetch: () => Promise<void>) => {
+export const usePendingDealsFunctions = (refetch: () => Promise<unknown>) => {
   const { runExclusiveOperation } = useOperationExclusion();
   
   const handleStatusChange = useCallback(async (dealId: number, newStatus: 'approved' | 'rejected') => {

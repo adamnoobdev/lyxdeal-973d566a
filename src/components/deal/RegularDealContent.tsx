@@ -29,8 +29,10 @@ export const RegularDealContent = ({
   isFree = false,
   id,
 }: RegularDealContentProps) => {
+  // Check if this is a free deal (either explicitly marked as free or has discounted price of 0 or 1)
+  const isFreeDeal = isFree || discountedPrice === 0 || discountedPrice === 1;
+  
   // Calculate discount percentage only if not free
-  const isFreeDeal = isFree || discountedPrice === 0 || (discountedPrice === 1 && isFree);
   const discountPercentage = isFreeDeal ? 100 : Math.round(
     ((originalPrice - discountedPrice) / originalPrice) * 100
   );
@@ -63,7 +65,7 @@ export const RegularDealContent = ({
               <span className="text-lg font-semibold">
                 {isFreeDeal ? "GRATIS" : `${discountedPrice} kr`}
               </span>
-              {originalPrice > 0 && (
+              {originalPrice > 0 && !isFreeDeal && (
                 <span className="text-sm line-through text-muted-foreground">
                   {originalPrice} kr
                 </span>

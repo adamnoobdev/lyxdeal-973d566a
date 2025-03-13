@@ -10,9 +10,10 @@ import { toast } from "sonner";
 
 interface AdminSidebarContentProps {
   userRole?: string;
+  currentPath?: string;
 }
 
-export const AdminSidebarContent = ({ userRole }: AdminSidebarContentProps) => {
+export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarContentProps) => {
   const isAdmin = userRole === 'admin';
   const navigate = useNavigate();
   
@@ -30,8 +31,8 @@ export const AdminSidebarContent = ({ userRole }: AdminSidebarContentProps) => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-auto scrollbar-hide p-4 space-y-6">
-        {isAdmin && <AdminSidebarLinks />}
-        {!isAdmin && <SalonSidebarLinks />}
+        {isAdmin && <AdminSidebarLinks currentPath={currentPath} />}
+        {!isAdmin && <SalonSidebarLinks currentPath={currentPath} />}
       </div>
       
       <div className="p-4 mt-auto">
