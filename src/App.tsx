@@ -37,7 +37,9 @@ function App() {
         <Route path="/salon">
           <Route path="login" element={<SalonLogin />} />
           <Route path="dashboard" element={<SalonDashboard />} />
-          <Route path="deals" element={<SalonDeals />} />
+          <Route path="deal" element={<SalonDeals />} />
+          <Route path="customers" element={<SalonDashboard />} />
+          <Route path="settings" element={<SalonDashboard />} />
         </Route>
       </Routes>
     </Router>

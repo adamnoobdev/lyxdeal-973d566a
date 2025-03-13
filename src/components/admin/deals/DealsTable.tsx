@@ -44,11 +44,11 @@ export const DealsTable = ({
         <Table>
           <TableHeader className="bg-gray-50">
             <TableRow>
-              <TableHead className="min-w-[250px] font-medium text-primary">Titel</TableHead>
-              <TableHead className="min-w-[120px] font-medium text-primary">Salong</TableHead>
-              <TableHead className="min-w-[100px] font-medium text-primary">Pris</TableHead>
-              <TableHead className="min-w-[120px] font-medium text-primary">Rabatterat</TableHead>
-              <TableHead className="min-w-[80px] font-medium text-primary">Kvar</TableHead>
+              <TableHead className="min-w-[180px] font-medium text-primary">Titel</TableHead>
+              <TableHead className="min-w-[120px] font-medium text-primary hidden md:table-cell">Salong</TableHead>
+              <TableHead className="min-w-[90px] font-medium text-primary">Pris</TableHead>
+              <TableHead className="min-w-[100px] font-medium text-primary hidden sm:table-cell">Rabatterat</TableHead>
+              <TableHead className="min-w-[60px] font-medium text-primary hidden md:table-cell">Kvar</TableHead>
               <TableHead className="min-w-[80px] font-medium text-primary">Status</TableHead>
               <TableHead className="min-w-[80px] text-right font-medium text-primary">Åtgärder</TableHead>
             </TableRow>
@@ -57,12 +57,12 @@ export const DealsTable = ({
             {deals.map((deal) => (
               <TableRow key={deal.id} className="border-b border-gray-100">
                 <TableCell className="font-medium">
-                  <div className="flex flex-col max-w-[300px]">
+                  <div className="flex flex-col max-w-[200px] sm:max-w-[250px] md:max-w-[300px]">
                     <span className="truncate font-medium">{deal.title}</span>
-                    <span className="text-xs text-muted-foreground">{deal.category} - {deal.city}</span>
+                    <span className="text-xs text-muted-foreground truncate">{deal.category} - {deal.city}</span>
                   </div>
                 </TableCell>
-                <TableCell>{deal.salons?.name || "—"}</TableCell>
+                <TableCell className="hidden md:table-cell">{deal.salons?.name || "—"}</TableCell>
                 <TableCell>
                   {deal.is_free ? (
                     <Badge variant="secondary">Gratis</Badge>
@@ -70,14 +70,14 @@ export const DealsTable = ({
                     <span>{formatCurrency(deal.original_price)} kr</span>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   {deal.is_free ? (
                     <Badge variant="outline">—</Badge>
                   ) : (
                     <span className="text-primary font-medium">{formatCurrency(deal.discounted_price)} kr</span>
                   )}
                 </TableCell>
-                <TableCell>{deal.quantity_left}</TableCell>
+                <TableCell className="hidden md:table-cell">{deal.quantity_left}</TableCell>
                 <TableCell>
                   <div className="flex items-center">
                     <Badge variant={
@@ -104,6 +104,7 @@ export const DealsTable = ({
                         size="sm"
                         onClick={() => onViewDetails(deal)}
                         title="Visa detaljer"
+                        className="hidden sm:flex"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
