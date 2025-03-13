@@ -40,9 +40,10 @@ export const SalonSidebarLinks = () => {
               key={link.href}
               href={link.href}
               icon={link.icon}
-              label={link.label}
               isCurrentPath={location.pathname.startsWith(link.href)}
-            />
+            >
+              {link.label}
+            </SidebarLink>
           ))}
         </SidebarMenu>
       </SidebarGroupContent>

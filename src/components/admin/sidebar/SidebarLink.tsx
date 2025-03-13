@@ -6,11 +6,20 @@ import { buttonVariants } from "@/components/ui/button";
 interface SidebarLinkProps {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   active?: boolean;
+  label?: string;
+  isCurrentPath?: boolean;
 }
 
-export function SidebarLink({ href, icon: Icon, children, active }: SidebarLinkProps) {
+export function SidebarLink({ 
+  href, 
+  icon: Icon, 
+  children, 
+  active, 
+  label,
+  isCurrentPath 
+}: SidebarLinkProps) {
   return (
     <li className="flex">
       <NavLink
@@ -19,12 +28,12 @@ export function SidebarLink({ href, icon: Icon, children, active }: SidebarLinkP
           cn(
             buttonVariants({ variant: "ghost" }),
             "w-full justify-start gap-2 font-normal",
-            (isActive || active) && "bg-muted font-medium"
+            (isActive || active || isCurrentPath) && "bg-muted font-medium"
           )
         }
       >
         <Icon className="h-4 w-4" />
-        {children}
+        {children || label}
       </NavLink>
     </li>
   );

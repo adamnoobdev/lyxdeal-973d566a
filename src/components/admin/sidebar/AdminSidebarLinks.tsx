@@ -38,9 +38,10 @@ export const AdminSidebarLinks = () => {
               key={link.href}
               href={link.href}
               icon={link.icon}
-              label={link.label}
               isCurrentPath={location.pathname === link.href}
-            />
+            >
+              {link.label}
+            </SidebarLink>
           ))}
         </SidebarMenu>
       </SidebarGroupContent>
