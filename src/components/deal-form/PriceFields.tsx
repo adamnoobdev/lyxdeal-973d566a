@@ -14,17 +14,22 @@ interface PriceFieldsProps {
 export const PriceFields = ({ form }: PriceFieldsProps) => {
   const isFree = form.watch("is_free");
 
-  // When "is_free" is toggled, update only the discounted price field
+  // When "is_free" is toggled, update prices to ensure DB constraints are met
   useEffect(() => {
     if (isFree) {
       // We're still showing 0 in the UI, but the actual value sent will be 1
       form.setValue("discountedPrice", "0");
+      // Make sure original price is at least 1 to satisfy DB constraint
+      const originalPrice = parseInt(form.getValues("originalPrice"));
+      if (isNaN(originalPrice) || originalPrice < 1) {
+        form.setValue("originalPrice", "1");
+      }
     } else {
       // Clear 0 values for discounted price if un-checking free
       const currentDiscountedPrice = form.getValues("discountedPrice");
       
       if (currentDiscountedPrice === "0") {
-        form.setValue("discountedPrice", "");
+        form.setValue("discountedPrice", "1");
       }
     }
   }, [isFree, form]);
@@ -60,8 +65,20 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
                 <Input 
                   type="number" 
                   placeholder="1000" 
+                  min="1"
                   {...field} 
-                  // Always allow editing the original price
+                  // Always allow editing the original price, but ensure it's at least 1
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numValue = parseInt(value);
+                    if (value === "" || isNaN(numValue)) {
+                      field.onChange("1");
+                    } else if (numValue < 1) {
+                      field.onChange("1");
+                    } else {
+                      field.onChange(value);
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -78,11 +95,25 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
               <FormControl>
                 <Input 
                   type="number" 
-                  placeholder={isFree ? "0" : "750"} 
+                  placeholder={isFree ? "0" : "750"}
+                  min={isFree ? "0" : "1"}
                   {...field} 
                   disabled={isFree}
-                  // This is the visual value (0) shown to the user, but in handleCreate/handleUpdate,
-                  // we'll actually set discounted_price to 1 when is_free is true to satisfy DB constraint
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numValue = parseInt(value);
+                    if (!isFree) {
+                      if (value === "" || isNaN(numValue)) {
+                        field.onChange("1");
+                      } else if (numValue < 1) {
+                        field.onChange("1");
+                      } else {
+                        field.onChange(value);
+                      }
+                    } else {
+                      field.onChange("0");
+                    }
+                  }}
                 />
               </FormControl>
               <FormMessage />

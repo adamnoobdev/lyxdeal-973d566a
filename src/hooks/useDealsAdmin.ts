@@ -43,11 +43,13 @@ export const useDealsAdmin = () => {
 
   const handleUpdate = async (values: FormValues, id: number): Promise<boolean> => {
     try {
-      const originalPrice = parseInt(values.originalPrice) || 0;
+      // Parse and ensure valid numbers for prices
+      const originalPrice = Math.max(parseInt(values.originalPrice) || 0, 1);
       
       // Always set discounted_price to at least 1 to satisfy database constraint
       // Even for free deals, we'll use the is_free flag to determine display logic
-      const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
+      let discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
+      discountedPrice = Math.max(discountedPrice, 1); // Ensure minimum value is 1
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -99,11 +101,13 @@ export const useDealsAdmin = () => {
 
   const handleCreate = async (values: FormValues): Promise<boolean> => {
     try {
-      const originalPrice = parseInt(values.originalPrice) || 0;
+      // Parse and ensure valid numbers for prices
+      const originalPrice = Math.max(parseInt(values.originalPrice) || 0, 1);
       
       // Always set discounted_price to at least 1 to satisfy database constraint
       // Even for free deals, we'll use the is_free flag to determine display logic
-      const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
+      let discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
+      discountedPrice = Math.max(discountedPrice, 1); // Ensure minimum value is 1
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -145,7 +149,7 @@ export const useDealsAdmin = () => {
         throw error;
       }
       
-      refetch();
+      await refetch();
       return true;
     } catch (error) {
       console.error('Error creating deal:', error);
@@ -162,7 +166,7 @@ export const useDealsAdmin = () => {
 
       if (error) throw error;
       
-      refetch();
+      await refetch();
       return true;
     } catch (error) {
       console.error('Error toggling deal active status:', error);

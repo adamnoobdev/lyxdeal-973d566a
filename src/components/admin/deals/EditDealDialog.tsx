@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { DealForm } from "@/components/DealForm";
 import { FormValues } from "@/components/deal-form/schema";
+import { useEffect, useState } from "react";
 
 interface EditDealDialogProps {
   isOpen: boolean;
@@ -24,11 +25,34 @@ export const EditDealDialog = ({
   initialValues,
   isSubmitting = false,
 }: EditDealDialogProps) => {
+  const [internalIsSubmitting, setInternalIsSubmitting] = useState(false);
+  
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset internal submitting state when dialog closes
+      setTimeout(() => {
+        setInternalIsSubmitting(false);
+      }, 300);
+    }
+  }, [isOpen]);
+  
+  const handleSubmit = async (values: FormValues) => {
+    try {
+      setInternalIsSubmitting(true);
+      await onSubmit(values);
+      // Success will be handled by parent component
+    } catch (error) {
+      console.error("Error in EditDealDialog handleSubmit:", error);
+    } 
+  };
+  
+  const preventCloseWhenSubmitting = isSubmitting || internalIsSubmitting;
+
   return (
     <Dialog 
       open={isOpen} 
       onOpenChange={(open) => {
-        if (!open && !isSubmitting) {
+        if (!open && !preventCloseWhenSubmitting) {
           onClose();
         }
       }}
@@ -43,7 +67,11 @@ export const EditDealDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="mt-4 h-full">
-          <DealForm onSubmit={onSubmit} initialValues={initialValues} isSubmitting={isSubmitting} />
+          <DealForm 
+            onSubmit={handleSubmit} 
+            initialValues={initialValues} 
+            isSubmitting={preventCloseWhenSubmitting} 
+          />
         </div>
       </DialogContent>
     </Dialog>

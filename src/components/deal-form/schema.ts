@@ -12,14 +12,16 @@ export const formSchema = z.object({
     message: "En bild måste laddas upp.",
   }),
   originalPrice: z.string().refine((val) => {
-    // Allow 0 for free deals, but ensure it's convertible to a number
-    return !isNaN(Number(val)) && Number(val) >= 0;
+    // Ensure it's convertible to a number and >= 1 to satisfy DB constraint
+    const num = Number(val);
+    return !isNaN(num) && num >= 1;
   }, {
-    message: "Vänligen ange ett giltigt pris.",
+    message: "Vänligen ange ett giltigt pris (minst 1 kr).",
   }),
   discountedPrice: z.string().refine((val) => {
-    // Allow 0 for free deals, but ensure it's convertible to a number
-    return !isNaN(Number(val)) && Number(val) >= 0;
+    // Also ensure it's >= 1 for non-free deals to satisfy DB constraint
+    const num = Number(val);
+    return !isNaN(num) && num >= 0;
   }, {
     message: "Vänligen ange ett giltigt rabatterat pris.",
   }),
