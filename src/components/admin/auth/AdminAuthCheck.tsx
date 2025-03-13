@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,11 +14,15 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const checkPerformed = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
 
     const checkAdminStatus = async () => {
+      // Undvik dubbla kontroller om vi redan har kontrollerat
+      if (checkPerformed.current) return;
+      
       try {
         if (!user?.id) {
           console.log("Waiting for session...");
@@ -25,6 +30,7 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
         }
 
         console.log("Checking admin status for user:", user.id);
+        checkPerformed.current = true;
 
         const { data: salon, error } = await supabase
           .from('salons')
@@ -69,12 +75,27 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
       }
     };
 
-    checkAdminStatus();
+    // Återställ kontrollflaggan om användaren ändras
+    if (user?.id) {
+      checkAdminStatus();
+    } else {
+      checkPerformed.current = false;
+      setIsLoading(true);
+      setIsAdmin(null);
+    }
 
     return () => {
       isMounted = false;
     };
-  }, [user, navigate]);
+  }, [user?.id, navigate]);
+
+  // Om användarens session försvinner, återställ status
+  useEffect(() => {
+    if (!session) {
+      checkPerformed.current = false;
+      setIsAdmin(null);
+    }
+  }, [session]);
 
   if (isLoading) {
     return (
