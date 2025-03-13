@@ -15,14 +15,14 @@ export const AdminSidebar = () => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (mobile) {
+      if (mobile && !isCollapsed) {
         setIsCollapsed(true);
       }
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isCollapsed]);
 
   // Fetch user role to determine what sidebar content to show
   const { data: userData } = useQuery({

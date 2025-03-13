@@ -30,13 +30,13 @@ export const SalonsTable = ({
   return (
     <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
       <ScrollArea className="h-full max-h-[70vh]">
-        <div className="w-full">
+        <div className="min-w-max">
           <Table>
             <TableHeader className="bg-primary/5 sticky top-0 z-10">
               <TableRow>
                 <TableHead className="min-w-[200px] font-semibold text-primary">Namn</TableHead>
-                <TableHead className="min-w-[200px] font-semibold text-primary">Email</TableHead>
-                <TableHead className="min-w-[150px] font-semibold text-primary">Telefon</TableHead>
+                <TableHead className="min-w-[200px] font-semibold text-primary hidden sm:table-cell">Email</TableHead>
+                <TableHead className="min-w-[150px] font-semibold text-primary hidden md:table-cell">Telefon</TableHead>
                 <TableHead className="min-w-[100px] text-center font-semibold text-primary">Åtgärder</TableHead>
               </TableRow>
             </TableHeader>
@@ -52,8 +52,8 @@ export const SalonsTable = ({
                   onClick={() => onSelect(salon)}
                 >
                   <TableCell className="font-medium">{salon.name}</TableCell>
-                  <TableCell>{salon.email}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">{salon.email}</TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {salon.phone || "-"}
                   </TableCell>
                   <TableCell>

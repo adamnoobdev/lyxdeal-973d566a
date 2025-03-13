@@ -39,7 +39,7 @@ export const SalonsContent = ({
           <div className="p-4 border-b">
             <h2 className="text-lg font-semibold">Salonger</h2>
           </div>
-          <div className="p-4">
+          <div className="p-4 overflow-auto">
             <SalonsTable
               salons={salons}
               onEdit={onEdit}

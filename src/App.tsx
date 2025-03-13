@@ -25,6 +25,7 @@ function App() {
           <Route path="auth" element={<Auth />} />
           <Route path="search" element={<SearchResults />} />
           <Route path="deals/:id" element={<ProductDetails />} />
+          <Route path="deal/:id" element={<ProductDetails />} />
           <Route path="secure-deal/:id" element={<SecureDeal />} />
           <Route path="faq" element={<FAQ />} />
           <Route path="terms" element={<Terms />} />
@@ -38,6 +39,7 @@ function App() {
           <Route path="login" element={<SalonLogin />} />
           <Route path="dashboard" element={<SalonDashboard />} />
           <Route path="deal" element={<SalonDeals />} />
+          <Route path="deals" element={<SalonDeals />} />
           <Route path="customers" element={<SalonDashboard />} />
           <Route path="settings" element={<SalonDashboard />} />
         </Route>

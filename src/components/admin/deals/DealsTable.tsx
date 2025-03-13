@@ -41,85 +41,94 @@ export const DealsTable = ({
   return (
     <div className="rounded-lg overflow-hidden border border-secondary/10 bg-white">
       <ScrollArea className="w-full max-w-full overflow-auto">
-        <Table>
-          <TableHeader className="bg-gray-50">
-            <TableRow>
-              <TableHead className="min-w-[180px] font-medium text-primary">Titel</TableHead>
-              <TableHead className="min-w-[120px] font-medium text-primary hidden md:table-cell">Salong</TableHead>
-              <TableHead className="min-w-[90px] font-medium text-primary">Pris</TableHead>
-              <TableHead className="min-w-[100px] font-medium text-primary hidden sm:table-cell">Rabatterat</TableHead>
-              <TableHead className="min-w-[60px] font-medium text-primary hidden md:table-cell">Kvar</TableHead>
-              <TableHead className="min-w-[80px] font-medium text-primary">Status</TableHead>
-              <TableHead className="min-w-[80px] text-right font-medium text-primary">Åtgärder</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {deals.map((deal) => (
-              <TableRow key={deal.id} className="border-b border-gray-100">
-                <TableCell className="font-medium">
-                  <div className="flex flex-col max-w-[200px] sm:max-w-[250px] md:max-w-[300px]">
-                    <span className="truncate font-medium">{deal.title}</span>
-                    <span className="text-xs text-muted-foreground truncate">{deal.category} - {deal.city}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">{deal.salons?.name || "—"}</TableCell>
-                <TableCell>
-                  {deal.is_free ? (
-                    <Badge variant="secondary">Gratis</Badge>
-                  ) : (
-                    <span>{formatCurrency(deal.original_price)} kr</span>
-                  )}
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  {deal.is_free ? (
-                    <Badge variant="outline">—</Badge>
-                  ) : (
-                    <span className="text-primary font-medium">{formatCurrency(deal.discounted_price)} kr</span>
-                  )}
-                </TableCell>
-                <TableCell className="hidden md:table-cell">{deal.quantity_left}</TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <Badge variant={
-                      deal.status === 'approved' 
-                        ? (deal.is_active ? 'default' : 'outline')
-                        : deal.status === 'pending' 
-                          ? 'secondary' 
-                          : 'destructive'
-                    }>
-                      {deal.status === 'approved' 
-                        ? (deal.is_active ? 'Aktiv' : 'Inaktiv')
-                        : deal.status === 'pending' 
-                          ? 'Väntar' 
-                          : 'Nekad'
-                      }
-                    </Badge>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-end gap-2">
-                    {hasViewDetailsAction && onViewDetails && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onViewDetails(deal)}
-                        title="Visa detaljer"
-                        className="hidden sm:flex"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <DealActions
-                      onEdit={onEdit ? () => onEdit(deal) : undefined}
-                      onDelete={onDelete ? () => onDelete(deal) : undefined}
-                      onToggleActive={onToggleActive ? () => onToggleActive(deal) : undefined}
-                    />
-                  </div>
-                </TableCell>
+        <div className="min-w-max">
+          <Table>
+            <TableHeader className="bg-gray-50">
+              <TableRow>
+                <TableHead className="min-w-[180px] font-medium text-primary">Titel</TableHead>
+                <TableHead className="min-w-[120px] font-medium text-primary hidden md:table-cell">Salong</TableHead>
+                <TableHead className="min-w-[90px] font-medium text-primary">Pris</TableHead>
+                <TableHead className="min-w-[100px] font-medium text-primary hidden sm:table-cell">Rabatterat</TableHead>
+                <TableHead className="min-w-[60px] font-medium text-primary hidden md:table-cell">Kvar</TableHead>
+                <TableHead className="min-w-[80px] font-medium text-primary">Status</TableHead>
+                <TableHead className="min-w-[80px] text-right font-medium text-primary">Åtgärder</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {deals.map((deal) => (
+                <TableRow key={deal.id} className="border-b border-gray-100">
+                  <TableCell className="font-medium">
+                    <div className="flex flex-col max-w-[200px] sm:max-w-[250px] md:max-w-[300px]">
+                      <span className="truncate font-medium">{deal.title}</span>
+                      <span className="text-xs text-muted-foreground truncate">{deal.category} - {deal.city}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{deal.salons?.name || "—"}</TableCell>
+                  <TableCell>
+                    {deal.is_free ? (
+                      <Badge variant="secondary">Gratis</Badge>
+                    ) : (
+                      <span>{formatCurrency(deal.original_price)} kr</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    {deal.is_free ? (
+                      <Badge variant="outline">—</Badge>
+                    ) : (
+                      <span className="text-primary font-medium">{formatCurrency(deal.discounted_price)} kr</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{deal.quantity_left}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <Badge variant={
+                        deal.status === 'approved' 
+                          ? (deal.is_active ? 'default' : 'outline')
+                          : deal.status === 'pending' 
+                            ? 'secondary' 
+                            : 'destructive'
+                      }>
+                        {deal.status === 'approved' 
+                          ? (deal.is_active ? 'Aktiv' : 'Inaktiv')
+                          : deal.status === 'pending' 
+                            ? 'Väntar' 
+                            : 'Nekad'
+                        }
+                      </Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-end gap-2">
+                      {hasViewDetailsAction && onViewDetails && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onViewDetails(deal)}
+                          title="Visa detaljer"
+                          className="hidden sm:flex"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <DealActions
+                        onEdit={onEdit ? () => onEdit(deal) : undefined}
+                        onDelete={onDelete ? () => onDelete(deal) : undefined}
+                        onToggleActive={onToggleActive ? () => onToggleActive(deal) : undefined}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {deals.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
+                    Inga erbjudanden hittades
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </ScrollArea>
     </div>
   );

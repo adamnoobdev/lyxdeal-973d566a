@@ -9,7 +9,7 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const [defaultOpen, setDefaultOpen] = useState(true);
+  const [defaultOpen, setDefaultOpen] = useState(window.innerWidth >= 768);
   
   useEffect(() => {
     const handleResize = () => {

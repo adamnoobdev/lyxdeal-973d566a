@@ -1,3 +1,4 @@
+
 import { Salon } from "../types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Mail, Phone, MapPin, Calendar } from "lucide-react";
@@ -8,6 +9,7 @@ import { Deal } from "@/types/deal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SalonDetailsProps {
   salon: Salon;
@@ -78,13 +80,15 @@ export const SalonDetails = ({ salon }: SalonDetailsProps) => {
               <Skeleton className="h-10 w-full" />
             </div>
           ) : deals?.length ? (
-            <div className="overflow-x-auto">
-              <DealsTable 
-                deals={deals} 
-                onEdit={() => {}} 
-                onDelete={() => {}} 
-              />
-            </div>
+            <ScrollArea className="max-h-[300px]">
+              <div className="overflow-x-auto">
+                <DealsTable 
+                  deals={deals} 
+                  onEdit={() => {}} 
+                  onDelete={() => {}} 
+                />
+              </div>
+            </ScrollArea>
           ) : (
             <p className="text-sm text-muted-foreground text-center py-8">
               Denna salong har inga aktiva erbjudanden
