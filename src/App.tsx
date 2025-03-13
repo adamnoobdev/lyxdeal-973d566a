@@ -33,6 +33,7 @@ function App() {
           <Route path="salons/:id" element={<SalonDetails />} />
         </Route>
         
+        {/* Använd "*" för att fånga alla undervägar för admin */}
         <Route path="/admin/*" element={<Admin />} />
         
         <Route path="/salon">
