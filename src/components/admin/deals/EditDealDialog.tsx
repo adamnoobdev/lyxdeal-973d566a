@@ -25,12 +25,15 @@ export const EditDealDialog = ({
   isSubmitting = false,
 }: EditDealDialogProps) => {
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open && !isSubmitting) {
-        onClose();
-      }
-    }}>
-      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6">
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open && !isSubmitting) {
+          onClose();
+        }
+      }}
+    >
+      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6 overflow-hidden">
         <DialogHeader className="space-y-2">
           <DialogTitle>
             {initialValues ? "Redigera erbjudande" : "Skapa erbjudande"}

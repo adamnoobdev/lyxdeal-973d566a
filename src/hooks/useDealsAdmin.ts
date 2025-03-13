@@ -33,12 +33,10 @@ export const useDealsAdmin = () => {
         .eq('id', id);
 
       if (error) throw error;
-      toast.success("Erbjudandet har tagits bort");
       refetch();
       return true;
     } catch (error) {
       console.error('Error deleting deal:', error);
-      toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
       return false;
     }
   };
@@ -91,12 +89,10 @@ export const useDealsAdmin = () => {
         throw error;
       }
       
-      toast.success("Erbjudandet har uppdaterats");
       refetch();
       return true;
     } catch (error) {
       console.error('Error updating deal:', error);
-      toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
       return false;
     }
   };
@@ -149,12 +145,10 @@ export const useDealsAdmin = () => {
         throw error;
       }
       
-      toast.success("Erbjudandet har skapats");
       refetch();
       return true;
     } catch (error) {
       console.error('Error creating deal:', error);
-      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
       return false;
     }
   };
@@ -168,7 +162,6 @@ export const useDealsAdmin = () => {
 
       if (error) throw error;
       
-      toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktiverat' : 'inaktiverat'}`);
       refetch();
       return true;
     } catch (error) {
@@ -179,8 +172,8 @@ export const useDealsAdmin = () => {
   };
 
   // Filtrera erbjudanden efter aktiva/inaktiva
-  const activeDeals = deals.filter(deal => deal.is_active);
-  const inactiveDeals = deals.filter(deal => !deal.is_active);
+  const activeDeals = deals.filter(deal => deal.is_active && deal.status === 'approved');
+  const inactiveDeals = deals.filter(deal => !deal.is_active && deal.status === 'approved');
 
   return {
     deals,

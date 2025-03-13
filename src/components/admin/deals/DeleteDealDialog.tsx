@@ -25,16 +25,15 @@ export const DeleteDealDialog = ({
   dealTitle,
   isSubmitting = false,
 }: DeleteDealDialogProps) => {
-  const handleConfirm = () => {
-    onConfirm();
-  };
-
   return (
-    <AlertDialog open={isOpen} onOpenChange={(open) => {
-      if (!open && !isSubmitting) {
-        onClose();
-      }
-    }}>
+    <AlertDialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open && !isSubmitting) {
+          onClose();
+        }
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Ta bort erbjudande</AlertDialogTitle>
@@ -47,7 +46,7 @@ export const DeleteDealDialog = ({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isSubmitting}>Avbryt</AlertDialogCancel>
           <AlertDialogAction 
-            onClick={handleConfirm} 
+            onClick={onConfirm} 
             className="bg-destructive hover:bg-destructive/90"
             disabled={isSubmitting}
           >

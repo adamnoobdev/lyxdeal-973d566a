@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Deal } from "../types";
 import { EditDealDialog } from "./EditDealDialog";
 import { DeleteDealDialog } from "./DeleteDealDialog";
@@ -34,18 +34,25 @@ export const DealsList = () => {
     refetch 
   } = useDealsAdmin();
 
+  const resetDialogStates = useCallback(() => {
+    setEditingDeal(null);
+    setDeletingDeal(null);
+    setIsCreating(false);
+    setIsSubmitting(false);
+  }, []);
+
   const onDelete = async () => {
     if (deletingDeal) {
       try {
         setIsSubmitting(true);
         const success = await handleDelete(deletingDeal.id);
         if (success) {
-          setTimeout(() => {
-            setDeletingDeal(null);
-            setIsSubmitting(false);
-          }, 300);
+          toast.success("Erbjudandet har tagits bort");
+          // Short delay to ensure the toast appears before closing dialog
+          setTimeout(resetDialogStates, 300);
         } else {
           setIsSubmitting(false);
+          toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
         }
       } catch (error) {
         console.error("Error deleting deal:", error);
@@ -61,12 +68,12 @@ export const DealsList = () => {
         setIsSubmitting(true);
         const success = await handleUpdate(values, editingDeal.id);
         if (success) {
-          setTimeout(() => {
-            setEditingDeal(null);
-            setIsSubmitting(false);
-          }, 300);
+          toast.success("Erbjudandet har uppdaterats");
+          // Short delay to ensure the toast appears before closing dialog
+          setTimeout(resetDialogStates, 300);
         } else {
           setIsSubmitting(false);
+          toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
         }
       } catch (error) {
         console.error("Error updating deal:", error);
@@ -81,12 +88,12 @@ export const DealsList = () => {
       setIsSubmitting(true);
       const success = await handleCreate(values);
       if (success) {
-        setTimeout(() => {
-          setIsCreating(false);
-          setIsSubmitting(false);
-        }, 300);
+        toast.success("Erbjudandet har skapats");
+        // Short delay to ensure the toast appears before closing dialog
+        setTimeout(resetDialogStates, 300);
       } else {
         setIsSubmitting(false);
+        toast.error("Ett fel uppstod när erbjudandet skulle skapas");
       }
     } catch (error) {
       console.error("Error creating deal:", error);
@@ -97,6 +104,7 @@ export const DealsList = () => {
 
   const handleStatusChange = async (dealId: number, newStatus: 'approved' | 'rejected') => {
     try {
+      setIsSubmitting(true);
       const { error } = await supabase
         .from('deals')
         .update({ status: newStatus })
@@ -106,9 +114,11 @@ export const DealsList = () => {
 
       toast.success(`Erbjudandet har ${newStatus === 'approved' ? 'godkänts' : 'nekats'}`);
       refetch();
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Error updating deal status:', error);
       toast.error('Något gick fel när statusen skulle uppdateras');
+      setIsSubmitting(false);
     }
   };
 
