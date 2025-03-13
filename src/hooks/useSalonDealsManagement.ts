@@ -31,7 +31,7 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
       setDeals(fetchedDeals);
     } catch (err: any) {
       console.error("Error fetching salon deals:", err);
-      setError(err.message);
+      setError(err.message || "Ett fel uppstod");
       toast.error("Ett fel uppstod när erbjudanden skulle hämtas");
     } finally {
       setIsLoading(false);
