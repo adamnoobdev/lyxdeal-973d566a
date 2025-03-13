@@ -1,42 +1,31 @@
 
-import React from "react";
-import { Link } from "react-router-dom";
-import { LucideIcon } from "lucide-react";
-import { SidebarMenuItem } from "@/components/ui/sidebar";
+import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 interface SidebarLinkProps {
   href: string;
-  icon: LucideIcon;
-  label: string;
-  isCurrentPath: boolean;
+  icon: React.ComponentType<{ className?: string }>;
+  children: React.ReactNode;
+  active?: boolean;
 }
 
-export const SidebarLink: React.FC<SidebarLinkProps> = ({
-  href,
-  icon: Icon,
-  label,
-  isCurrentPath,
-}) => {
+export function SidebarLink({ href, icon: Icon, children, active }: SidebarLinkProps) {
   return (
-    <li className="px-3 py-2">
-      <Link
+    <li className="flex">
+      <NavLink
         to={href}
-        className={cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-          isCurrentPath 
-            ? "bg-primary/10 text-primary font-medium" 
-            : "text-muted-foreground hover:bg-muted hover:text-primary"
-        )}
+        className={({ isActive }) =>
+          cn(
+            buttonVariants({ variant: "ghost" }),
+            "w-full justify-start gap-2 font-normal",
+            (isActive || active) && "bg-muted font-medium"
+          )
+        }
       >
-        <Icon
-          className={cn(
-            "h-5 w-5",
-            isCurrentPath ? "text-primary" : "text-muted-foreground"
-          )}
-        />
-        <span>{label}</span>
-      </Link>
+        <Icon className="h-4 w-4" />
+        {children}
+      </NavLink>
     </li>
   );
-};
+}

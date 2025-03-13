@@ -1,78 +1,46 @@
-// Import vid toppen av filen
-import { useState } from "react";
-import { useQuery, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Toaster } from "@/components/ui/sonner";
 
-// Import pages
-import Index from "@/pages/Index";
-import Admin from "@/pages/Admin";
-import FAQ from "@/pages/FAQ";
-import Terms from "@/pages/Terms";
-import Auth from "@/pages/Auth";
-import SalonLogin from "@/pages/SalonLogin";
-import SalonDashboard from "@/pages/SalonDashboard";
-import ProductDetails from "@/pages/ProductDetails";
-import SecureDeal from "@/pages/SecureDeal"; // Ny import
-import PartnerPage from "@/pages/PartnerPage";
-import SearchResults from "@/pages/SearchResults";
-
-// Import components
-import Layout from "@/components/layout/Layout";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
-import { Dashboard } from "@/components/admin/Dashboard";
-import { AdminAuthCheck } from "@/components/admin/auth/AdminAuthCheck";
-import { SalonAuthGuard } from "@/components/salon/SalonAuthGuard";
-import { SalonDeals } from "@/components/salon/SalonDeals";
-
-// Setup QueryClient
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from '@/components/layout/Layout';
+import Index from './pages/Index';
+import ProductDetails from './pages/ProductDetails';
+import Auth from './pages/Auth';
+import SearchResults from './pages/SearchResults';
+import Admin from './pages/Admin';
+import SalonDashboard from './pages/SalonDashboard';
+import SalonLogin from './pages/SalonLogin';
+import SalonDetails from './pages/SalonDetails';
+import PartnerPage from './pages/PartnerPage';
+import FAQ from './pages/FAQ';
+import Terms from './pages/Terms';
+import SecureDeal from './pages/SecureDeal';
+import { SalonDeals } from './components/salon/SalonDeals';
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          {/* Public Pages */}
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Index />} />
-            <Route path="faq" element={<FAQ />} />
-            <Route path="terms" element={<Terms />} />
-            <Route path="bli-partner" element={<PartnerPage />} />
-            <Route path="deal/:id" element={<ProductDetails />} />
-            <Route path="secure-deal/:id" element={<SecureDeal />} />
-            <Route path="search" element={<SearchResults />} />
-          </Route>
-
-          {/* Admin Pages */}
-          <Route path="/admin" element={
-            <AdminAuthCheck>
-              <AdminLayout>
-                <Dashboard />
-              </AdminLayout>
-            </AdminAuthCheck>
-          }>
-          </Route>
-
-          {/* Salon Dashboard */}
-          <Route path="/salon" element={<SalonAuthGuard><Layout /></SalonAuthGuard>}>
-            <Route index element={<SalonDashboard />} />
-            <Route path="deal/:id" element={<SalonDeals />} />
-          </Route>
-
-          {/* Auth Pages */}
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/salon/login" element={<SalonLogin />} />
-        </Routes>
-      </BrowserRouter>
-      <Toaster />
-    </QueryClientProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Index />} />
+          <Route path="auth" element={<Auth />} />
+          <Route path="search" element={<SearchResults />} />
+          <Route path="deals/:id" element={<ProductDetails />} />
+          <Route path="secure-deal/:id" element={<SecureDeal />} />
+          <Route path="faq" element={<FAQ />} />
+          <Route path="terms" element={<Terms />} />
+          <Route path="partner" element={<PartnerPage />} />
+          <Route path="salons/:id" element={<SalonDetails />} />
+        </Route>
+        
+        <Route path="/admin/*" element={<Admin />} />
+        
+        <Route path="/salon">
+          <Route path="login" element={<SalonLogin />} />
+          <Route path="dashboard" element={<SalonDashboard />} />
+          <Route path="deals" element={<SalonDeals />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
