@@ -1,5 +1,4 @@
-
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Deal } from "../types";
 import { EditDealDialog } from "./EditDealDialog";
 import { DeleteDealDialog } from "./DeleteDealDialog";
@@ -18,6 +17,8 @@ export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const isUpdatingDealRef = useRef(false);
+  const isDeletingDealRef = useRef(false);
   
   const { 
     deals, 
@@ -33,32 +34,71 @@ export const DealsList = () => {
   } = useDealsAdmin();
 
   const onDelete = useCallback(async () => {
-    if (deletingDeal) {
-      const success = await handleDelete(deletingDeal.id);
-      if (success) {
-        setDeletingDeal(null);
+    if (deletingDeal && !isDeletingDealRef.current) {
+      try {
+        isDeletingDealRef.current = true;
+        console.log("Starting deal deletion for ID:", deletingDeal.id);
+        const success = await handleDelete(deletingDeal.id);
+        
+        if (success) {
+          console.log("Deal deletion successful");
+          setDeletingDeal(null);
+        }
+      } catch (error) {
+        console.error("Error in deal deletion flow:", error);
+      } finally {
+        isDeletingDealRef.current = false;
       }
+    } else {
+      console.log("Delete operation already in progress or no deal to delete");
     }
   }, [deletingDeal, handleDelete]);
 
   const onUpdate = useCallback(async (values: any) => {
-    if (editingDeal) {
-      const success = await handleUpdate(values, editingDeal.id);
-      if (success) {
-        setEditingDeal(null);
+    if (editingDeal && !isUpdatingDealRef.current) {
+      try {
+        isUpdatingDealRef.current = true;
+        console.log("Starting deal update for ID:", editingDeal.id);
+        const success = await handleUpdate(values, editingDeal.id);
+        
+        if (success) {
+          console.log("Deal update successful");
+          setEditingDeal(null);
+        }
+      } catch (error) {
+        console.error("Error in deal update flow:", error);
+      } finally {
+        isUpdatingDealRef.current = false;
       }
+    } else {
+      console.log("Update operation already in progress or no deal to update");
     }
   }, [editingDeal, handleUpdate]);
 
   const onCreate = useCallback(async (values: any) => {
-    const success = await handleCreate(values);
-    if (success) {
-      setIsCreating(false);
+    if (!isUpdatingDealRef.current) {
+      try {
+        isUpdatingDealRef.current = true;
+        console.log("Starting deal creation");
+        const success = await handleCreate(values);
+        
+        if (success) {
+          console.log("Deal creation successful");
+          setIsCreating(false);
+        }
+      } catch (error) {
+        console.error("Error in deal creation flow:", error);
+      } finally {
+        isUpdatingDealRef.current = false;
+      }
+    } else {
+      console.log("Create operation already in progress");
     }
   }, [handleCreate]);
 
   const handleStatusChange = useCallback(async (dealId: number, newStatus: 'approved' | 'rejected') => {
     try {
+      console.log(`Changing deal status for ID ${dealId} to ${newStatus}`);
       const { error } = await supabase
         .from('deals')
         .update({ status: newStatus })
@@ -67,7 +107,8 @@ export const DealsList = () => {
       if (error) throw error;
 
       toast.success(`Erbjudandet har ${newStatus === 'approved' ? 'godkänts' : 'nekats'}`);
-      refetch();
+      console.log("Status change successful, refetching deals");
+      await refetch();
     } catch (error) {
       console.error('Error updating deal status:', error);
       toast.error('Något gick fel när statusen skulle uppdateras');

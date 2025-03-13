@@ -17,14 +17,29 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   const isLoadingDeals = useRef(false);
+  const isUpdatingDeal = useRef(false);
+  const isDeletingDeal = useRef(false);
   const isMountedRef = useRef(true);
   const previousSalonId = useRef<string | undefined>(undefined);
+  const loadAttempts = useRef(0);
 
   const loadSalonDeals = useCallback(async () => {
-    // Förhindra dubbla anrop
-    if (isLoadingDeals.current || !isMountedRef.current || !salonId) return;
+    // Förhindra dubbla anrop och kontrollera att komponenten fortfarande är monterad
+    if (isLoadingDeals.current || !isMountedRef.current || !salonId) {
+      console.log("Skipping loadSalonDeals: already loading, unmounted, or no salonId");
+      return;
+    }
+    
+    // Begränsa antalet laddningsförsök för att undvika potentiella oändliga loopar
+    if (loadAttempts.current > 3) {
+      console.log("Too many load attempts, skipping");
+      return;
+    }
+    
+    loadAttempts.current++;
     
     try {
+      console.log(`Loading salon deals for salon ID: ${salonId}, attempt: ${loadAttempts.current}`);
       isLoadingDeals.current = true;
       setIsLoading(true);
       setError(null);
@@ -32,7 +47,10 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
       const fetchedDeals = await fetchSalonDeals(salonId);
       
       if (isMountedRef.current) {
+        console.log(`Successfully loaded ${fetchedDeals.length} deals for salon ${salonId}`);
         setDeals(fetchedDeals);
+        // Återställ försöksräknaren vid framgång
+        loadAttempts.current = 0;
       }
     } catch (err: any) {
       console.error("Error fetching salon deals:", err);
@@ -53,19 +71,27 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
     
     // Endast ladda om erbjudanden om salonId har ändrats
     if (salonId && previousSalonId.current !== salonId) {
+      console.log(`SalonId changed from ${previousSalonId.current} to ${salonId}, reloading deals`);
       previousSalonId.current = salonId;
       loadSalonDeals();
     }
     
     return () => {
+      console.log("useSalonDealsManagement unmounting");
       isMountedRef.current = false;
     };
   }, [salonId, loadSalonDeals]);
 
-  const handleDelete = useCallback(async () => {
-    if (!deletingDeal || !isMountedRef.current) return;
+  const handleDeleteDeal = useCallback(async () => {
+    if (!deletingDeal || !isMountedRef.current || isDeletingDeal.current) {
+      console.log("Skipping delete: no deal, unmounted, or already deleting");
+      return;
+    }
 
     try {
+      isDeletingDeal.current = true;
+      console.log(`Deleting deal with ID: ${deletingDeal.id}`);
+      
       await deleteSalonDeal(deletingDeal.id);
       toast.success("Erbjudandet har tagits bort");
       
@@ -77,13 +103,21 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
     } catch (err: any) {
       console.error("Error deleting deal:", err);
       toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
+    } finally {
+      isDeletingDeal.current = false;
     }
   }, [deletingDeal]);
 
   const handleUpdate = useCallback(async (values: any) => {
-    if (!editingDeal || !isMountedRef.current) return;
+    if (!editingDeal || !isMountedRef.current || isUpdatingDeal.current) {
+      console.log("Skipping update: no deal, unmounted, or already updating");
+      return;
+    }
 
     try {
+      isUpdatingDeal.current = true;
+      console.log(`Updating deal with ID: ${editingDeal.id}`);
+      
       const updateValues: DealUpdateValues = {
         title: values.title,
         description: values.description,
@@ -100,10 +134,12 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
         salon_id: editingDeal.salon_id
       };
       
+      console.log("Updating deal with values:", updateValues);
       await updateSalonDeal(editingDeal.id, updateValues);
-      toast.success("Erbjudandet har uppdaterats");
       
       if (isMountedRef.current) {
+        toast.success("Erbjudandet har uppdaterats");
+        
         // Uppdatera det redigerade erbjudandet lokalt
         const updatedDeal = { 
           ...editingDeal, 
@@ -128,7 +164,11 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
       }
     } catch (err: any) {
       console.error("Error updating deal:", err);
-      toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
+      if (isMountedRef.current) {
+        toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
+      }
+    } finally {
+      isUpdatingDeal.current = false;
     }
   }, [editingDeal]);
 
@@ -136,10 +176,12 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
     if (!isMountedRef.current) return;
     
     try {
+      console.log(`Toggling active state for deal ID: ${deal.id}, current: ${deal.is_active}`);
       await toggleDealActiveStatus(deal.id, !deal.is_active);
-      toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktivt' : 'inaktivt'}`);
       
       if (isMountedRef.current) {
+        toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktivt' : 'inaktivt'}`);
+        
         // Uppdatera erbjudandet lokalt
         setDeals(prevDeals => prevDeals.map(d => 
           d.id === deal.id ? { ...d, is_active: !d.is_active } : d
@@ -147,7 +189,9 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
       }
     } catch (err: any) {
       console.error("Error toggling deal active status:", err);
-      toast.error("Ett fel uppstod när erbjudandets status skulle ändras");
+      if (isMountedRef.current) {
+        toast.error("Ett fel uppstod när erbjudandets status skulle ändras");
+      }
     }
   }, []);
 
@@ -165,7 +209,7 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
     deletingDeal,
     setEditingDeal,
     setDeletingDeal,
-    handleDelete,
+    handleDelete: handleDeleteDeal,
     handleUpdate,
     handleToggleActive,
   };

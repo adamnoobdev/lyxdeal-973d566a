@@ -15,7 +15,7 @@ import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { addDays, differenceInDays, endOfMonth } from "date-fns";
 
 interface DealFormProps {
@@ -26,6 +26,7 @@ interface DealFormProps {
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
   const [submitting, setSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   
   // Set default expiration date to end of current month if not provided
   const defaultExpirationDate = initialValues?.expirationDate || endOfMonth(new Date());
@@ -53,14 +54,20 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   }, [form]);
 
   const handleSubmit = useCallback(async (values: FormValues) => {
-    // Undvik dubbla formulärinskick
-    if (submitting) return;
+    // Förhindra dubbla formulärinskick med både state och ref
+    if (submitting || isSubmittingRef.current) {
+      console.log("Already submitting, preventing double submission");
+      return;
+    }
     
     try {
       setSubmitting(true);
+      isSubmittingRef.current = true;
       
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
+        setSubmitting(false);
+        isSubmittingRef.current = false;
         return;
       }
       
@@ -69,41 +76,65 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       const daysRemaining = differenceInDays(values.expirationDate, today);
       const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
       
-      // Log form values before submitting
       console.log('Submitting form with values:', values);
 
-      // Pass values directly to onSubmit
+      // Asynkront anropa onSubmit och vänta på resultat
       await onSubmit(values);
+      console.log("Form submission completed successfully");
 
-      // Only proceed with additional steps if this is a new deal
+      // Endast generera rabattkoder för nya erbjudanden, inte vid uppdatering
       if (!initialValues) {
-        // Get the newly created deal's ID
-        const { data: newDeal } = await supabase
-          .from('deals')
-          .select('id')
-          .eq('salon_id', values.salon_id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
+        try {
+          console.log("Fetching newly created deal ID");
+          // Försök hämta det senaste erbjudandet från databasen
+          const { data: newDeal, error } = await supabase
+            .from('deals')
+            .select('id')
+            .eq('salon_id', values.salon_id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
 
-        if (newDeal) {
-          // Generate discount codes based on the quantity specified
-          await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
-          
-          // Only create Stripe product if not free
-          if (!values.is_free) {
-            await createStripeProductForDeal(values);
-            toast.success("Erbjudande och presentkoder har skapats");
+          if (error || !newDeal) {
+            console.error("Error fetching new deal:", error);
+            toast.error("Erbjudandet skapades, men rabattkoder kunde inte genereras.");
           } else {
-            toast.success("Gratis erbjudande och presentkoder har skapats");
+            console.log("New deal found, ID:", newDeal.id);
+            
+            // Generera rabattkoder i en separat try-catch för att inte blockera resten av flödet
+            try {
+              const quantityNum = parseInt(values.quantity) || 10;
+              const codesGenerated = await generateDiscountCodes(newDeal.id, quantityNum);
+              
+              // Skapa Stripe-produkt endast om det inte är ett gratis erbjudande och rabattkoder genererades
+              if (!values.is_free && codesGenerated) {
+                await createStripeProductForDeal(values);
+                toast.success("Erbjudande och presentkoder har skapats");
+              } else if (codesGenerated) {
+                toast.success("Gratis erbjudande och presentkoder har skapats");
+              } else {
+                toast.success("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna");
+              }
+            } catch (codeError) {
+              console.error("Error in rabattkod generation:", codeError);
+              toast.success("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna");
+            }
           }
+        } catch (dealFetchError) {
+          console.error("Exception in deal fetching:", dealFetchError);
+          toast.success("Erbjudandet har skapats, men rabattkoder kunde inte genereras automatiskt");
         }
+      } else {
+        // För uppdateringar, visa endast framgångsmeddelande utan att generera koder
+        toast.success("Erbjudandet har uppdaterats");
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error in form submission:', error);
       toast.error("Något gick fel när erbjudandet skulle sparas.");
     } finally {
+      // Återställ submitting-flaggor och form efter slutfört arbete
       setSubmitting(false);
+      isSubmittingRef.current = false;
     }
   }, [initialValues, onSubmit, submitting]);
 
@@ -124,7 +155,11 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
         </div>
 
         <div className="sticky bottom-0 pt-4 bg-background">
-          <Button type="submit" className="w-full" disabled={isSubmitting || submitting}>
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={isSubmitting || submitting}
+          >
             {(isSubmitting || submitting) ? "Sparar..." : "Spara erbjudande"}
           </Button>
         </div>

@@ -11,19 +11,33 @@ export const generateRandomCode = (length: number = 8): string => {
   return code;
 };
 
+// Optimerad version med bättre felhantering och kontroll
 export const generateDiscountCodes = async (dealId: number, quantity: number = 10) => {
-  const codes = Array.from({ length: quantity }, () => ({
-    deal_id: dealId,
-    code: generateRandomCode(),
-  }));
+  // Skapa alla koder på förhand
+  console.log(`Generating ${quantity} discount codes for deal ${dealId}`);
+  
+  try {
+    const codes = Array.from({ length: quantity }, () => ({
+      deal_id: dealId,
+      code: generateRandomCode(),
+    }));
 
-  const { error } = await supabase
-    .from('discount_codes')
-    .insert(codes);
+    const { error } = await supabase
+      .from('discount_codes')
+      .insert(codes);
 
-  if (error) {
-    console.error('Error generating discount codes:', error);
-    throw error;
+    if (error) {
+      console.error('Error generating discount codes:', error);
+      throw error;
+    }
+    
+    console.log(`Successfully generated ${quantity} discount codes for deal ${dealId}`);
+    return true;
+  } catch (error) {
+    console.error('Exception when generating discount codes:', error);
+    // Returnera false istället för att kasta vidare felet
+    // så att anropande kod kan fortsätta även vid fel
+    return false;
   }
 };
 
