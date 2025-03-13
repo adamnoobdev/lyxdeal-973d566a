@@ -17,7 +17,7 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
   // When "is_free" is toggled, update only the discounted price field
   useEffect(() => {
     if (isFree) {
-      // We're still showing 0 in the UI, but the actual value sent will be 1
+      // We're setting to 0 for consistency with the rest of the application
       form.setValue("discountedPrice", "0");
     } else {
       // Clear 0 values for discounted price if un-checking free
@@ -81,8 +81,7 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
                   placeholder={isFree ? "0" : "750"} 
                   {...field} 
                   disabled={isFree}
-                  // This is the visual value (0) shown to the user, but in handleCreate/handleUpdate,
-                  // we'll actually set discounted_price to 1 when is_free is true to satisfy DB constraint
+                  // This is the visual value (0) shown to the user
                 />
               </FormControl>
               <FormMessage />

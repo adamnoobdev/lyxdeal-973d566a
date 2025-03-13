@@ -81,6 +81,7 @@ export const deleteSalonDeal = async (dealId: number): Promise<void> => {
  */
 export const updateSalonDeal = async (dealId: number, values: DealUpdateValues): Promise<void> => {
   const originalPrice = values.originalPrice || 0;
+  // Set discounted_price to 0 for free deals
   const discountedPrice = values.is_free ? 0 : values.discountedPrice || 0;
   
   const updateData: any = {

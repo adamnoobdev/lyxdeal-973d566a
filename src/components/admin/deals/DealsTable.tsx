@@ -66,14 +66,14 @@ export const DealsTable = ({
                   <TableCell className="hidden md:table-cell">{deal.salons?.name || "—"}</TableCell>
                   <TableCell>
                     {deal.is_free ? (
-                      <Badge variant="secondary">Gratis</Badge>
+                      <Badge variant="secondary">GRATIS</Badge>
                     ) : (
                       <span>{formatCurrency(deal.original_price)} kr</span>
                     )}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
                     {deal.is_free ? (
-                      <Badge variant="outline">Gratis</Badge>
+                      <Badge variant="outline">GRATIS</Badge>
                     ) : (
                       <span className="text-primary font-medium">{formatCurrency(deal.discounted_price)} kr</span>
                     )}

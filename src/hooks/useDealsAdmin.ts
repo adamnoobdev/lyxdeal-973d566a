@@ -49,9 +49,9 @@ export const useDealsAdmin = () => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
-      // Always set discounted_price to at least 1 to satisfy database constraint
-      // Even for free deals, we'll use the is_free flag to determine display logic
-      const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
+      // Set discounted_price to 0 for free deals
+      // This ensures the display logic works correctly
+      const discountedPrice = values.is_free ? 0 : (parseInt(values.discountedPrice) || 1);
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -75,7 +75,7 @@ export const useDealsAdmin = () => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: originalPrice,
-          discounted_price: discountedPrice, // Always minimum 1
+          discounted_price: discountedPrice, // 0 for free deals
           category: values.category,
           city: values.city,
           time_remaining: timeRemaining,
@@ -107,9 +107,9 @@ export const useDealsAdmin = () => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
-      // Always set discounted_price to at least 1 to satisfy database constraint
-      // Even for free deals, we'll use the is_free flag to determine display logic
-      const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
+      // Set discounted_price to 0 for free deals
+      // This ensures the display logic works correctly
+      const discountedPrice = values.is_free ? 0 : (parseInt(values.discountedPrice) || 1);
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -133,7 +133,7 @@ export const useDealsAdmin = () => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: originalPrice,
-          discounted_price: discountedPrice, // Always minimum 1
+          discounted_price: discountedPrice, // 0 for free deals
           category: values.category,
           city: values.city,
           time_remaining: timeRemaining,
