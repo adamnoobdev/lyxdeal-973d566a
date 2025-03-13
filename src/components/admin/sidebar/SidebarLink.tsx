@@ -19,7 +19,7 @@ export const SidebarLink: React.FC<SidebarLinkProps> = ({
   isCurrentPath,
 }) => {
   return (
-    <SidebarMenuItem asChild active={isCurrentPath}>
+    <li className="px-3 py-2">
       <Link
         to={href}
         className={cn(
@@ -37,6 +37,6 @@ export const SidebarLink: React.FC<SidebarLinkProps> = ({
         />
         <span>{label}</span>
       </Link>
-    </SidebarMenuItem>
+    </li>
   );
 };

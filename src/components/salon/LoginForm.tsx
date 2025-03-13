@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,21 +23,10 @@ const getErrorMessage = (error: AuthError) => {
   return "Ett oväntat fel inträffade";
 };
 
-interface LoginFormProps {
-  email: string;
-  password: string;
-  loading: boolean;
-  setEmail: (email: string) => void;
-  setPassword: (password: string) => void;
-}
-
-export const LoginForm = ({ 
-  email, 
-  password, 
-  loading, 
-  setEmail, 
-  setPassword 
-}: LoginFormProps) => {
+export const SalonLoginForm: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -46,6 +36,8 @@ export const LoginForm = ({
       toast.error("Vänligen fyll i både e-post och lösenord");
       return;
     }
+
+    setLoading(true);
 
     try {
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -82,12 +74,14 @@ export const LoginForm = ({
       if (salonData.role === 'admin') {
         navigate("/admin");
       } else {
-        navigate("/salon/dashboard");
+        navigate("/salon");
       }
       
     } catch (error) {
       console.error('Login error:', error);
       toast.error("Ett oväntat fel inträffade vid inloggning");
+    } finally {
+      setLoading(false);
     }
   };
 

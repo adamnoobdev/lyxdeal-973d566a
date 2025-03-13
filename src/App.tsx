@@ -51,9 +51,13 @@ function App() {
           </Route>
 
           {/* Admin Pages */}
-          <Route path="/admin" element={<AdminAuthCheck><AdminLayout /></AdminAuthCheck>}>
-            <Route index element={<Dashboard />} />
-            {/* ... keep existing admin routes */}
+          <Route path="/admin" element={
+            <AdminAuthCheck>
+              <AdminLayout>
+                <Dashboard />
+              </AdminLayout>
+            </AdminAuthCheck>
+          }>
           </Route>
 
           {/* Salon Dashboard */}
