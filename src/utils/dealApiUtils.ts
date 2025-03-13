@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";

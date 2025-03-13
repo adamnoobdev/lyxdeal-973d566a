@@ -5,6 +5,7 @@ import { useSalonDealsManagement } from '@/hooks/useSalonDealsManagement';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SalonDealsError } from '@/components/admin/salons/SalonDealsError';
+import { DealDialog } from './DealDialog';
 
 export const SalonDeals: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,8 +13,12 @@ export const SalonDeals: React.FC = () => {
     deals, 
     isLoading, 
     error,
+    editingDeal,
+    deletingDeal,
     setEditingDeal,
-    setDeletingDeal
+    setDeletingDeal,
+    handleDelete,
+    handleUpdate
   } = useSalonDealsManagement(id);
   
   // Use the first deal for display if available
@@ -49,6 +54,29 @@ export const SalonDeals: React.FC = () => {
             <Button variant="destructive" onClick={() => setDeletingDeal(currentDeal)}>Ta bort erbjudande</Button>
           </div>
         </div>
+      )}
+
+      {editingDeal && (
+        <DealDialog
+          isOpen={!!editingDeal}
+          onClose={() => setEditingDeal(null)}
+          onSubmit={handleUpdate}
+          initialValues={{
+            title: editingDeal.title,
+            description: editingDeal.description,
+            imageUrl: editingDeal.image_url,
+            originalPrice: editingDeal.original_price.toString(),
+            discountedPrice: editingDeal.discounted_price.toString(),
+            category: editingDeal.category,
+            city: editingDeal.city,
+            featured: editingDeal.featured,
+            salon_id: editingDeal.salon_id,
+            is_free: editingDeal.is_free || false,
+            is_active: editingDeal.is_active,
+            quantity: editingDeal.quantity_left?.toString() || "10",
+            expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : new Date(),
+          }}
+        />
       )}
     </div>
   );
