@@ -36,8 +36,8 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       title: "",
       description: "",
       imageUrl: "",
-      originalPrice: "1", // Set default to 1 to avoid DB constraint issues
-      discountedPrice: "1", // Set default to 1 to avoid DB constraint issues
+      originalPrice: "",
+      discountedPrice: "",
       category: "",
       city: "",
       expirationDate: defaultExpirationDate,
@@ -45,7 +45,6 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       salon_id: undefined,
       quantity: "10", // Default value for quantity
       is_free: false, // Default value for is_free
-      is_active: true, // Default value for is_active
     },
   });
 
@@ -55,58 +54,53 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
 
   const handleSubmit = async (values: FormValues) => {
     try {
-      if (isSubmitting || submitting) {
-        return; // Prevent multiple submissions
-      }
-      
       setSubmitting(true);
       
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
-        setSubmitting(false);
         return;
       }
       
-      // Call the parent's onSubmit handler
-      await onSubmit(values);
+      // Calculate days remaining
+      const today = new Date();
+      const daysRemaining = differenceInDays(values.expirationDate, today);
+      const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
       
-      // Only proceed with additional steps if this is a new deal and not in edit mode
-      if (!initialValues) {
-        try {
-          // Get the newly created deal's ID
-          const { data: newDeal } = await supabase
-            .from('deals')
-            .select('id')
-            .eq('salon_id', values.salon_id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
+      // Log form values before submitting
+      console.log('Submitting form with values:', values);
 
-          if (newDeal) {
-            // Generate discount codes based on the quantity specified
-            await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
-            
-            // Only create Stripe product if not free
-            if (!values.is_free) {
-              await createStripeProductForDeal(values);
-              toast.success("Erbjudande och presentkoder har skapats");
-            } else {
-              toast.success("Gratis erbjudande och presentkoder har skapats");
-            }
+      // Pass values directly to onSubmit
+      await onSubmit(values);
+
+      // Only proceed with additional steps if this is a new deal
+      if (!initialValues) {
+        // Get the newly created deal's ID
+        const { data: newDeal } = await supabase
+          .from('deals')
+          .select('id')
+          .eq('salon_id', values.salon_id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (newDeal) {
+          // Generate discount codes based on the quantity specified
+          await generateDiscountCodes(newDeal.id, parseInt(values.quantity));
+          
+          // Only create Stripe product if not free
+          if (!values.is_free) {
+            await createStripeProductForDeal(values);
+            toast.success("Erbjudande och presentkoder har skapats");
+          } else {
+            toast.success("Gratis erbjudande och presentkoder har skapats");
           }
-        } catch (innerError) {
-          console.error('Error in additional steps:', innerError);
-          // We don't show an error toast here since the deal was already created
         }
       }
     } catch (error) {
       console.error('Error:', error);
       toast.error("Något gick fel när erbjudandet skulle sparas.");
     } finally {
-      // Delay resetting the submitting state to ensure dialogs have time to close
-      setTimeout(() => {
-        setSubmitting(false);
-      }, 500);
+      setSubmitting(false);
     }
   };
 

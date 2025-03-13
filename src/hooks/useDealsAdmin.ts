@@ -25,7 +25,7 @@ export const useDealsAdmin = () => {
     }
   });
 
-  const handleDelete = async (id: number): Promise<boolean> => {
+  const handleDelete = async (id: number) => {
     try {
       const { error } = await supabase
         .from('deals')
@@ -33,23 +33,23 @@ export const useDealsAdmin = () => {
         .eq('id', id);
 
       if (error) throw error;
+      toast.success("Erbjudandet har tagits bort");
       refetch();
       return true;
     } catch (error) {
       console.error('Error deleting deal:', error);
+      toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
       return false;
     }
   };
 
-  const handleUpdate = async (values: FormValues, id: number): Promise<boolean> => {
+  const handleUpdate = async (values: FormValues, id: number) => {
     try {
-      // Parse and ensure valid numbers for prices
-      const originalPrice = Math.max(parseInt(values.originalPrice) || 0, 1);
+      const originalPrice = parseInt(values.originalPrice) || 0;
       
       // Always set discounted_price to at least 1 to satisfy database constraint
       // Even for free deals, we'll use the is_free flag to determine display logic
-      let discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
-      discountedPrice = Math.max(discountedPrice, 1); // Ensure minimum value is 1
+      const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -91,23 +91,23 @@ export const useDealsAdmin = () => {
         throw error;
       }
       
+      toast.success("Erbjudandet har uppdaterats");
       refetch();
       return true;
     } catch (error) {
       console.error('Error updating deal:', error);
+      toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
       return false;
     }
   };
 
-  const handleCreate = async (values: FormValues): Promise<boolean> => {
+  const handleCreate = async (values: FormValues) => {
     try {
-      // Parse and ensure valid numbers for prices
-      const originalPrice = Math.max(parseInt(values.originalPrice) || 0, 1);
+      const originalPrice = parseInt(values.originalPrice) || 0;
       
       // Always set discounted_price to at least 1 to satisfy database constraint
       // Even for free deals, we'll use the is_free flag to determine display logic
-      let discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
-      discountedPrice = Math.max(discountedPrice, 1); // Ensure minimum value is 1
+      const discountedPrice = values.is_free ? 1 : (parseInt(values.discountedPrice) || 1);
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -149,15 +149,17 @@ export const useDealsAdmin = () => {
         throw error;
       }
       
-      await refetch();
+      toast.success("Erbjudandet har skapats");
+      refetch();
       return true;
     } catch (error) {
       console.error('Error creating deal:', error);
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
       return false;
     }
   };
 
-  const handleToggleActive = async (deal: Deal): Promise<boolean> => {
+  const handleToggleActive = async (deal: Deal) => {
     try {
       const { error } = await supabase
         .from('deals')
@@ -166,7 +168,8 @@ export const useDealsAdmin = () => {
 
       if (error) throw error;
       
-      await refetch();
+      toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktiverat' : 'inaktiverat'}`);
+      refetch();
       return true;
     } catch (error) {
       console.error('Error toggling deal active status:', error);
@@ -176,8 +179,8 @@ export const useDealsAdmin = () => {
   };
 
   // Filtrera erbjudanden efter aktiva/inaktiva
-  const activeDeals = deals.filter(deal => deal.is_active && deal.status === 'approved');
-  const inactiveDeals = deals.filter(deal => !deal.is_active && deal.status === 'approved');
+  const activeDeals = deals.filter(deal => deal.is_active);
+  const inactiveDeals = deals.filter(deal => !deal.is_active);
 
   return {
     deals,

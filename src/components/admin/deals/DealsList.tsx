@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Deal } from "../types";
 import { EditDealDialog } from "./EditDealDialog";
 import { DeleteDealDialog } from "./DeleteDealDialog";
@@ -13,13 +13,11 @@ import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { endOfMonth } from "date-fns";
-import { FormValues } from "@/components/deal-form/schema";
 
 export const DealsList = () => {
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { 
     deals, 
@@ -34,77 +32,33 @@ export const DealsList = () => {
     refetch 
   } = useDealsAdmin();
 
-  const resetDialogStates = useCallback(() => {
-    setEditingDeal(null);
-    setDeletingDeal(null);
-    setIsCreating(false);
-    setIsSubmitting(false);
-  }, []);
-
   const onDelete = async () => {
     if (deletingDeal) {
-      try {
-        setIsSubmitting(true);
-        const success = await handleDelete(deletingDeal.id);
-        if (success) {
-          toast.success("Erbjudandet har tagits bort");
-          // Short delay to ensure the toast appears before closing dialog
-          setTimeout(resetDialogStates, 300);
-        } else {
-          setIsSubmitting(false);
-          toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
-        }
-      } catch (error) {
-        console.error("Error deleting deal:", error);
-        toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
-        setIsSubmitting(false);
-      }
-    }
-  };
-
-  const onUpdate = async (values: FormValues): Promise<void> => {
-    if (editingDeal) {
-      try {
-        setIsSubmitting(true);
-        const success = await handleUpdate(values, editingDeal.id);
-        if (success) {
-          toast.success("Erbjudandet har uppdaterats");
-          // Short delay to ensure the toast appears before closing dialog
-          setTimeout(resetDialogStates, 300);
-        } else {
-          setIsSubmitting(false);
-          toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
-        }
-      } catch (error) {
-        console.error("Error updating deal:", error);
-        toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
-        setIsSubmitting(false);
-      }
-    }
-  };
-
-  const onCreate = async (values: FormValues): Promise<void> => {
-    try {
-      setIsSubmitting(true);
-      const success = await handleCreate(values);
+      const success = await handleDelete(deletingDeal.id);
       if (success) {
-        toast.success("Erbjudandet har skapats");
-        // Short delay to ensure the toast appears before closing dialog
-        setTimeout(resetDialogStates, 300);
-      } else {
-        setIsSubmitting(false);
-        toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+        setDeletingDeal(null);
       }
-    } catch (error) {
-      console.error("Error creating deal:", error);
-      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
-      setIsSubmitting(false);
+    }
+  };
+
+  const onUpdate = async (values: any) => {
+    if (editingDeal) {
+      const success = await handleUpdate(values, editingDeal.id);
+      if (success) {
+        setEditingDeal(null);
+      }
+    }
+  };
+
+  const onCreate = async (values: any) => {
+    const success = await handleCreate(values);
+    if (success) {
+      setIsCreating(false);
     }
   };
 
   const handleStatusChange = async (dealId: number, newStatus: 'approved' | 'rejected') => {
     try {
-      setIsSubmitting(true);
       const { error } = await supabase
         .from('deals')
         .update({ status: newStatus })
@@ -114,24 +68,9 @@ export const DealsList = () => {
 
       toast.success(`Erbjudandet har ${newStatus === 'approved' ? 'godkänts' : 'nekats'}`);
       refetch();
-      setIsSubmitting(false);
     } catch (error) {
       console.error('Error updating deal status:', error);
       toast.error('Något gick fel när statusen skulle uppdateras');
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCloseEditDialog = () => {
-    if (!isSubmitting) {
-      setEditingDeal(null);
-      setIsCreating(false);
-    }
-  };
-
-  const handleCloseDeleteDialog = () => {
-    if (!isSubmitting) {
-      setDeletingDeal(null);
     }
   };
 
@@ -176,7 +115,10 @@ export const DealsList = () => {
 
       <EditDealDialog
         isOpen={!!editingDeal || isCreating}
-        onClose={handleCloseEditDialog}
+        onClose={() => {
+          setEditingDeal(null);
+          setIsCreating(false);
+        }}
         onSubmit={editingDeal ? onUpdate : onCreate}
         initialValues={
           editingDeal
@@ -197,15 +139,13 @@ export const DealsList = () => {
               }
             : undefined
         }
-        isSubmitting={isSubmitting}
       />
 
       <DeleteDealDialog
         isOpen={!!deletingDeal}
-        onClose={handleCloseDeleteDialog}
+        onClose={() => setDeletingDeal(null)}
         onConfirm={onDelete}
         dealTitle={deletingDeal?.title}
-        isSubmitting={isSubmitting}
       />
     </div>
   );

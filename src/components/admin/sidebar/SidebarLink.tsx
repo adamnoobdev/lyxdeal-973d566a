@@ -19,14 +19,14 @@ export const SidebarLink: React.FC<SidebarLinkProps> = ({
   isCurrentPath,
 }) => {
   return (
-    <SidebarMenuItem>
+    <SidebarMenuItem asChild active={isCurrentPath}>
       <Link
         to={href}
         className={cn(
-          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors w-full",
+          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
           isCurrentPath 
-            ? "bg-primary/10 text-primary" 
-            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+            ? "bg-primary/10 text-primary font-medium" 
+            : "text-muted-foreground hover:bg-muted hover:text-primary"
         )}
       >
         <Icon

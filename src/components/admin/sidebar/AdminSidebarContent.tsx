@@ -29,17 +29,19 @@ export const AdminSidebarContent = ({ userRole }: AdminSidebarContentProps) => {
   
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-auto p-4 space-y-6">
+      <div className="flex-1 overflow-auto scrollbar-hide p-4 space-y-6">
         {isAdmin && <AdminSidebarLinks />}
         {!isAdmin && <SalonSidebarLinks />}
       </div>
       
       <div className="p-4 mt-auto">
         <Separator className="mb-4" />
-        <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive" onClick={handleLogout}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Logga ut</span>
-        </Button>
+        <div className="space-y-2">
+          <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Logga ut</span>
+          </Button>
+        </div>
       </div>
     </div>
   );

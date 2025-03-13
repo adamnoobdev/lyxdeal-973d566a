@@ -4,7 +4,6 @@ import { DealsTable } from "./DealsTable";
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 interface PendingDealsSectionProps {
   pendingDeals: Deal[];
@@ -40,36 +39,7 @@ export const PendingDealsSection = ({
           onEdit={setEditingDeal}
           onDelete={setDeletingDeal}
           onToggleActive={handleToggleActive}
-          showApprovalActions={true}
-          onApprove={(dealId) => handleStatusChange(dealId, 'approved')}
-          onReject={(dealId) => handleStatusChange(dealId, 'rejected')}
         />
-        
-        <div className="mt-4 flex flex-wrap gap-2">
-          {pendingDeals.map(deal => (
-            <div key={deal.id} className="flex items-center space-x-2 bg-white p-2 rounded-md shadow-sm border border-amber-100">
-              <span className="font-medium text-sm truncate max-w-[150px]">{deal.title}</span>
-              <div className="flex space-x-1">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="h-7 px-2 text-xs border-green-500 text-green-600 hover:bg-green-50"
-                  onClick={() => handleStatusChange(deal.id, 'approved')}
-                >
-                  Godkänn
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="h-7 px-2 text-xs border-red-500 text-red-600 hover:bg-red-50"
-                  onClick={() => handleStatusChange(deal.id, 'rejected')}
-                >
-                  Neka
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
       </CardContent>
     </Card>
   );

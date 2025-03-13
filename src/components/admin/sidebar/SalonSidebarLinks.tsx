@@ -9,25 +9,21 @@ const salonLinks = [
     href: "/salon/dashboard",
     icon: LayoutDashboard,
     label: "Dashboard",
-    exact: false
   },
   {
     href: "/salon/deal",
     icon: Tags,
     label: "Erbjudanden",
-    exact: false
   },
   {
     href: "/salon/customers",
     icon: Users,
     label: "Kunder",
-    exact: false
   },
   {
     href: "/salon/settings",
     icon: Settings,
     label: "Inställningar",
-    exact: false
   },
 ] as const;
 
@@ -45,11 +41,7 @@ export const SalonSidebarLinks = () => {
               href={link.href}
               icon={link.icon}
               label={link.label}
-              isCurrentPath={
-                link.exact
-                  ? location.pathname === link.href
-                  : location.pathname.startsWith(link.href)
-              }
+              isCurrentPath={location.pathname.startsWith(link.href)}
             />
           ))}
         </SidebarMenu>

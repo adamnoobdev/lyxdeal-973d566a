@@ -12,15 +12,9 @@ interface DealActionsProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onToggleActive?: () => void;
-  dealId?: number;
 }
 
-export const DealActions = ({ 
-  onEdit, 
-  onDelete, 
-  onToggleActive, 
-  dealId 
-}: DealActionsProps) => {
+export const DealActions = ({ onEdit, onDelete, onToggleActive }: DealActionsProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -36,10 +30,7 @@ export const DealActions = ({
             Redigera
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem 
-          onClick={() => dealId && window.open(`/deals/${dealId}`, '_blank')} 
-          className="cursor-pointer hover:bg-primary/5"
-        >
+        <DropdownMenuItem onClick={() => window.open(`/deals/1`, '_blank')} className="cursor-pointer hover:bg-primary/5">
           <Eye className="h-4 w-4 mr-2 text-primary" />
           Förhandsgranska
         </DropdownMenuItem>

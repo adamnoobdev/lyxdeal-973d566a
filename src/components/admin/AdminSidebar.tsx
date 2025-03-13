@@ -9,12 +9,17 @@ import { useState, useEffect } from "react";
 export const AdminSidebar = () => {
   const { session } = useSession();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  
+  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
+
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setIsCollapsed(true);
+      }
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -43,12 +48,13 @@ export const AdminSidebar = () => {
 
   return (
     <Sidebar 
-      className="border-r bg-white pt-16 z-10 shadow-sm" 
+      className={`border-r bg-white pt-16 z-10 shadow-sm ${isCollapsed ? 'collapsed' : ''}`} 
       variant="inset" 
-      collapsible={isMobile ? "offcanvas" : "icon"}
+      collapsible="icon"
     >
       <SidebarTrigger 
         className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" 
+        onClick={() => setIsCollapsed(!isCollapsed)}
       />
       <AdminSidebarContent userRole={userData?.role} />
     </Sidebar>

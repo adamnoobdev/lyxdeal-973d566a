@@ -39,68 +39,62 @@ export const DealsTable = ({
   onReject
 }: DealsTableProps) => {
   return (
-    <div className="rounded-lg overflow-hidden border bg-white">
-      <ScrollArea className="w-full max-w-full">
+    <div className="rounded-lg overflow-hidden border border-secondary/10 bg-white">
+      <ScrollArea className="w-full max-w-full overflow-auto">
         <Table>
-          <TableHeader className="bg-gray-50/50">
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[300px] font-medium text-primary">Titel</TableHead>
-              <TableHead className="w-[200px] font-medium text-primary">Salong</TableHead>
-              <TableHead className="w-[120px] font-medium text-primary">Pris</TableHead>
-              <TableHead className="w-[120px] font-medium text-primary">Rabatterat</TableHead>
-              <TableHead className="w-[100px] font-medium text-primary">Status</TableHead>
-              <TableHead className="w-[100px] text-right font-medium text-primary">Åtgärder</TableHead>
+          <TableHeader className="bg-gray-50">
+            <TableRow>
+              <TableHead className="min-w-[250px] font-medium text-primary">Titel</TableHead>
+              <TableHead className="min-w-[120px] font-medium text-primary">Salong</TableHead>
+              <TableHead className="min-w-[100px] font-medium text-primary">Pris</TableHead>
+              <TableHead className="min-w-[120px] font-medium text-primary">Rabatterat</TableHead>
+              <TableHead className="min-w-[80px] font-medium text-primary">Kvar</TableHead>
+              <TableHead className="min-w-[80px] font-medium text-primary">Status</TableHead>
+              <TableHead className="min-w-[80px] text-right font-medium text-primary">Åtgärder</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {deals.map((deal) => (
-              <TableRow 
-                key={deal.id} 
-                className="hover:bg-gray-50/50"
-              >
-                <TableCell>
+              <TableRow key={deal.id} className="border-b border-gray-100">
+                <TableCell className="font-medium">
                   <div className="flex flex-col max-w-[300px]">
-                    <span className="font-medium text-primary">{deal.title}</span>
-                    <span className="text-sm text-gray-500">{deal.category} - {deal.city}</span>
+                    <span className="truncate font-medium">{deal.title}</span>
+                    <span className="text-xs text-muted-foreground">{deal.category} - {deal.city}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-gray-600">{deal.salons?.name || "—"}</TableCell>
+                <TableCell>{deal.salons?.name || "—"}</TableCell>
                 <TableCell>
                   {deal.is_free ? (
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-600">Gratis</Badge>
+                    <Badge variant="secondary">Gratis</Badge>
                   ) : (
-                    <span className="text-gray-600">{formatCurrency(deal.original_price)} kr</span>
+                    <span>{formatCurrency(deal.original_price)} kr</span>
                   )}
                 </TableCell>
                 <TableCell>
                   {deal.is_free ? (
-                    <Badge variant="outline" className="text-gray-400">—</Badge>
+                    <Badge variant="outline">—</Badge>
                   ) : (
                     <span className="text-primary font-medium">{formatCurrency(deal.discounted_price)} kr</span>
                   )}
                 </TableCell>
+                <TableCell>{deal.quantity_left}</TableCell>
                 <TableCell>
-                  <Badge 
-                    variant={
+                  <div className="flex items-center">
+                    <Badge variant={
                       deal.status === 'approved' 
-                        ? (deal.is_active ? 'default' : 'secondary')
+                        ? (deal.is_active ? 'default' : 'outline')
                         : deal.status === 'pending' 
-                          ? 'outline' 
+                          ? 'secondary' 
                           : 'destructive'
-                    }
-                    className={
-                      deal.status === 'approved' && deal.is_active
-                        ? 'bg-green-100 text-green-700 hover:bg-green-100'
-                        : ''
-                    }
-                  >
-                    {deal.status === 'approved' 
-                      ? (deal.is_active ? 'Aktiv' : 'Inaktiv')
-                      : deal.status === 'pending' 
-                        ? 'Väntar' 
-                        : 'Nekad'
-                    }
-                  </Badge>
+                    }>
+                      {deal.status === 'approved' 
+                        ? (deal.is_active ? 'Aktiv' : 'Inaktiv')
+                        : deal.status === 'pending' 
+                          ? 'Väntar' 
+                          : 'Nekad'
+                      }
+                    </Badge>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end gap-2">
@@ -115,7 +109,6 @@ export const DealsTable = ({
                       </Button>
                     )}
                     <DealActions
-                      dealId={deal.id}
                       onEdit={onEdit ? () => onEdit(deal) : undefined}
                       onDelete={onDelete ? () => onDelete(deal) : undefined}
                       onToggleActive={onToggleActive ? () => onToggleActive(deal) : undefined}

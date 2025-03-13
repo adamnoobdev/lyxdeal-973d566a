@@ -2,8 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Tag } from "lucide-react";
 import { PriceDisplay } from "./PriceDisplay";
-import { useState } from "react";
-import { CheckoutDialog } from "./deal/CheckoutDialog";
 
 interface DealInfoProps {
   id: number;
@@ -24,7 +22,6 @@ interface DealInfoProps {
 }
 
 export const DealInfo = ({
-  id,
   title,
   originalPrice,
   discountedPrice,
@@ -33,8 +30,6 @@ export const DealInfo = ({
   isFree = false,
   salon,
 }: DealInfoProps) => {
-  const [showCheckout, setShowCheckout] = useState(false);
-  
   // Format days remaining text
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
   const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
@@ -60,15 +55,11 @@ export const DealInfo = ({
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>{quantityLeft} rabattkoder kvar</span>
+              <span>{quantityLeft} köp kvar till detta pris</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-primary" />
               <span>{timeRemainingText}</span>
-            </div>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="w-2 h-2 rounded-full bg-orange-500" />
-              <span className="text-orange-600 font-medium">Rabattkoden är giltig i 72 timmar</span>
             </div>
           </div>
         </div>
@@ -76,10 +67,9 @@ export const DealInfo = ({
         <Button 
           className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-200 group"
           size="lg"
-          onClick={() => setShowCheckout(true)}
         >
           <Tag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-          Säkra rabattkod
+          Säkra deal
         </Button>
         
         {salon && salon.phone && (
@@ -94,18 +84,9 @@ export const DealInfo = ({
         )}
 
         <p className="text-xs text-center text-gray-500">
-          Besök salongens hemsida för att boka tid och betala direkt hos dem
+          Besök salongens hemsida för att boka tid
         </p>
       </div>
-
-      {/* Checkout Dialog */}
-      <CheckoutDialog 
-        isOpen={showCheckout}
-        onClose={() => setShowCheckout(false)}
-        dealId={id}
-        dealTitle={title}
-        isFree={isFree}
-      />
     </div>
   );
 }

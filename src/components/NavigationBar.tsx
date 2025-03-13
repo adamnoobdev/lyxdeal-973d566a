@@ -70,7 +70,7 @@ const NavigationBar = ({
               userRole={userRole}
               isLoggedIn={!!session?.user}
             />
-            <Logo variant="default" />
+            <Logo />
           </div>
 
           {/* Middle section - Search bar */}

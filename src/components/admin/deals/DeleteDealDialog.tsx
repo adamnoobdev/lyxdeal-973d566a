@@ -1,4 +1,3 @@
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +14,6 @@ interface DeleteDealDialogProps {
   onClose: () => void;
   onConfirm: () => void;
   dealTitle?: string;
-  isSubmitting?: boolean;
 }
 
 export const DeleteDealDialog = ({
@@ -23,35 +21,21 @@ export const DeleteDealDialog = ({
   onClose,
   onConfirm,
   dealTitle,
-  isSubmitting = false,
 }: DeleteDealDialogProps) => {
   return (
-    <AlertDialog 
-      open={isOpen} 
-      onOpenChange={(open) => {
-        if (!open && !isSubmitting) {
-          onClose();
-        }
-      }}
-    >
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Ta bort erbjudande</AlertDialogTitle>
+          <AlertDialogTitle>Är du säker?</AlertDialogTitle>
           <AlertDialogDescription>
-            Är du säker på att du vill ta bort erbjudandet
-            <span className="font-semibold"> {dealTitle}</span>? Detta kan inte
+            Detta kommer permanent ta bort erbjudandet{" "}
+            {dealTitle && <strong>"{dealTitle}"</strong>}. Denna åtgärd kan inte
             ångras.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isSubmitting}>Avbryt</AlertDialogCancel>
-          <AlertDialogAction 
-            onClick={onConfirm} 
-            className="bg-destructive hover:bg-destructive/90"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Tar bort..." : "Ta bort"}
-          </AlertDialogAction>
+          <AlertDialogCancel>Avbryt</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>Ta bort</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

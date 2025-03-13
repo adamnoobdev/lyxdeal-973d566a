@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
@@ -17,8 +18,6 @@ import NavigationBar from "./components/NavigationBar";
 import { useSession } from "./hooks/useSession";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
-import { Footer } from "./components/Footer";
-import Success from "./pages/Success";
 
 const queryClient = new QueryClient();
 
@@ -59,25 +58,19 @@ function AppContent() {
 
   return (
     <Router>
-      <div className="flex min-h-screen flex-col">
-        <NavigationBar userRole={userRole} />
-        <div className="flex-1 pt-16">
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/deal/:id" element={<ProductDetails />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/partner" element={<PartnerPage />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/success" element={<Success />} />
-            <Route path="/admin/*" element={<AdminLayout><Admin /></AdminLayout>} />
-            <Route path="/salon/dashboard" element={<AdminLayout><SalonDashboard /></AdminLayout>} />
-            <Route path="/salon/deal/:dealId" element={<AdminLayout><SalonDetails /></AdminLayout>} />
-          </Routes>
-        </div>
-        <Footer />
-      </div>
+      <NavigationBar userRole={userRole} />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/deal/:id" element={<ProductDetails />} />
+        <Route path="/search" element={<SearchResults />} />
+        <Route path="/partner" element={<PartnerPage />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/admin/*" element={<AdminLayout><Admin /></AdminLayout>} />
+        <Route path="/salon/dashboard" element={<AdminLayout><SalonDashboard /></AdminLayout>} />
+        <Route path="/salon/deal/:dealId" element={<AdminLayout><SalonDetails /></AdminLayout>} />
+      </Routes>
       <Toaster position="top-right" />
     </Router>
   );
