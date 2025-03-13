@@ -41,7 +41,7 @@ export const DealsTable = ({
   return (
     <div className="rounded-lg overflow-hidden border border-secondary/10 bg-white">
       <ScrollArea className="w-full max-w-full overflow-auto">
-        <div className="min-w-max">
+        <div className="min-w-[640px]">
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow>
