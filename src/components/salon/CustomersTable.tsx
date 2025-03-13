@@ -1,213 +1,223 @@
 
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useSession } from "@/hooks/useSession";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Copy, Inbox } from "lucide-react";
+import { formatDistance } from "date-fns";
+import { sv } from "date-fns/locale";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Download, Mail, Phone, Tag } from "lucide-react";
 
-interface Customer {
-  id: number;
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-  code: string;
-  is_used: boolean;
-  used_at: string | null;
-  deal_title?: string;
-}
+export function CustomersTable() {
+  const { session } = useSession();
 
-export const CustomersTable = () => {
-  const { dealId } = useParams();
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: salonData } = useQuery({
+    queryKey: ['salon', session?.user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('salons')
+        .select('id')
+        .eq('user_id', session?.user.id)
+        .single();
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        let query = supabase
-          .from("discount_codes")
-          .select(`
-            *,
-            deals:deal_id (
-              title
-            )
-          `)
-          .not("customer_email", "is", null);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user.id,
+  });
 
-        // Om vi är på en specifik erbjudandesida, filtrera efter deal_id
-        if (dealId) {
-          query = query.eq("deal_id", parseInt(dealId));
-        }
+  const { data: customers, isLoading } = useQuery({
+    queryKey: ['salon-customers', salonData?.id],
+    queryFn: async () => {
+      // Hämta alla rabattkoder som tillhör salongens erbjudanden och som har använts
+      const { data: deals } = await supabase
+        .from('deals')
+        .select('id')
+        .eq('salon_id', salonData?.id);
 
-        const { data, error } = await query;
+      if (!deals?.length) return [];
 
-        if (error) throw error;
+      const dealIds = deals.map(deal => deal.id);
 
-        // Transformera data till rätt format
-        const formattedCustomers = data.map((customer) => ({
-          id: customer.id,
-          customer_name: customer.customer_name || "Okänd",
-          customer_email: customer.customer_email || "",
-          customer_phone: customer.customer_phone || "",
-          code: customer.code,
-          is_used: customer.is_used || false,
-          used_at: customer.used_at,
-          deal_title: customer.deals?.title || "Okänt erbjudande",
-        }));
+      const { data, error } = await supabase
+        .from('discount_codes')
+        .select(`
+          id, 
+          code,
 
-        setCustomers(formattedCustomers);
-      } catch (err: any) {
-        console.error("Fel vid hämtning av kunder:", err);
-        setError(err.message);
-        toast.error("Ett fel uppstod när kundlistan skulle hämtas");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+          customer_name, 
+          customer_email, 
+          customer_phone, 
+          used_at,
+          deals:deal_id(title)
+        `)
+        .in('deal_id', dealIds)
+        .eq('is_used', true)
+        .order('used_at', { ascending: false });
 
-    fetchCustomers();
-  }, [dealId]);
-
-  const handleCopyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast.success("Rabattkoden har kopierats!");
-  };
-
-  // Filtrera kunder baserat på om rabattkoden är använd eller inte
-  const redeemedCodes = customers.filter(customer => customer.is_used);
-  const pendingCodes = customers.filter(customer => !customer.is_used);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!salonData?.id,
+  });
 
   if (isLoading) {
     return (
-      <Card className="p-6">
+      <div className="space-y-4">
+        <div className="h-8 w-full bg-secondary animate-pulse rounded"></div>
         <div className="space-y-2">
-          <div className="h-4 w-36 bg-muted animate-pulse rounded"></div>
-          <div className="h-8 w-full bg-muted animate-pulse rounded"></div>
-          <div className="h-8 w-full bg-muted animate-pulse rounded"></div>
-          <div className="h-8 w-full bg-muted animate-pulse rounded"></div>
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-16 w-full bg-secondary/20 animate-pulse rounded"></div>
+          ))}
         </div>
+      </div>
+    );
+  }
+
+  if (!customers?.length) {
+    return (
+      <Card className="bg-white border border-gray-100">
+        <CardHeader>
+          <CardTitle>Inga kunder ännu</CardTitle>
+          <CardDescription>
+            När kunder säkrar dina erbjudanden kommer de att visas här
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center py-6">
+          <div className="text-center text-muted-foreground">
+            <Tag className="mx-auto h-10 w-10 text-muted-foreground/40 mb-3" />
+            <p>Inga rabattkoder har använts ännu.</p>
+          </div>
+        </CardContent>
       </Card>
     );
   }
 
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>
-          Kunde inte hämta kundlistan: {error}
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  if (customers.length === 0) {
-    return (
-      <Alert>
-        <Inbox className="h-4 w-4 mr-2" />
-        <AlertDescription>
-          Inga kunder har signat upp för erbjudanden ännu.
-        </AlertDescription>
-      </Alert>
-    );
-  }
+  // Exportera kunddata till CSV
+  const exportToCSV = () => {
+    if (!customers) return;
+    
+    const headers = ['Namn', 'E-post', 'Telefon', 'Erbjudande', 'Rabattkod', 'Säkrat datum'];
+    
+    const csvRows = [
+      headers.join(','),
+      ...customers.map(customer => {
+        const values = [
+          customer.customer_name || 'N/A',
+          customer.customer_email || 'N/A',
+          customer.customer_phone || 'N/A',
+          customer.deals?.title || 'N/A',
+          customer.code,
+          new Date(customer.used_at).toLocaleDateString('sv-SE')
+        ];
+        
+        // Escapa värden som innehåller kommatecken
+        const escapedValues = values.map(value => {
+          if (value.includes(',')) {
+            return `"${value}"`;
+          }
+          return value;
+        });
+        
+        return escapedValues.join(',');
+      })
+    ].join('\n');
+    
+    const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `kunder-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
-    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
-      <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="mb-4 mx-4 mt-4 w-full max-w-md bg-secondary/10 border border-secondary/30">
-          <TabsTrigger value="pending" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
-            Outnyttjade koder ({pendingCodes.length})
-          </TabsTrigger>
-          <TabsTrigger value="redeemed" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
-            Använda koder ({redeemedCodes.length})
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="pending" className="px-1">
-          {renderCustomersTable(pendingCodes, handleCopyCode, !dealId)}
-        </TabsContent>
-        
-        <TabsContent value="redeemed" className="px-1">
-          {renderCustomersTable(redeemedCodes, handleCopyCode, !dealId)}
-        </TabsContent>
-      </Tabs>
-    </Card>
-  );
-};
-
-const renderCustomersTable = (
-  customers: Customer[], 
-  onCopyCode: (code: string) => void,
-  showDealColumn: boolean
-) => {
-  if (customers.length === 0) {
-    return (
-      <Alert className="m-4">
-        <Inbox className="h-4 w-4 mr-2" />
-        <AlertDescription>
-          Inga kunder i denna kategori.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  return (
-    <ScrollArea className="h-full max-h-[60vh]">
-      <div className="w-full">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium">Kunder som säkrat erbjudanden</h3>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={exportToCSV}
+          className="text-xs"
+        >
+          <Download className="h-3 w-3 mr-1" />
+          Exportera
+        </Button>
+      </div>
+      
+      <div className="border rounded-md overflow-x-auto">
         <Table>
-          <TableHeader className="bg-primary/5 sticky top-0 z-10">
+          <TableHeader>
             <TableRow>
-              <TableHead className="font-semibold text-primary">Namn</TableHead>
-              <TableHead className="font-semibold text-primary">E-post</TableHead>
-              <TableHead className="font-semibold text-primary">Telefon</TableHead>
-              {showDealColumn && (
-                <TableHead className="font-semibold text-primary">Erbjudande</TableHead>
-              )}
-              <TableHead className="font-semibold text-primary">Rabattkod</TableHead>
-              <TableHead className="font-semibold text-primary w-[100px]">Åtgärder</TableHead>
+              <TableHead>Namn</TableHead>
+              <TableHead>Kontakt</TableHead>
+              <TableHead>Erbjudande</TableHead>
+              <TableHead>Rabattkod</TableHead>
+              <TableHead>Säkrat</TableHead>
+              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {customers.map((customer) => (
-              <TableRow key={customer.id}>
-                <TableCell>{customer.customer_name}</TableCell>
-                <TableCell>{customer.customer_email}</TableCell>
-                <TableCell>{customer.customer_phone}</TableCell>
-                {showDealColumn && (
-                  <TableCell>{customer.deal_title}</TableCell>
-                )}
-                <TableCell className="font-mono">{customer.code}</TableCell>
-                <TableCell>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => onCopyCode(customer.code)}
-                    title="Kopiera kod"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {customers.map((customer) => {
+              const timeAgo = formatDistance(
+                new Date(customer.used_at),
+                new Date(),
+                { addSuffix: true, locale: sv }
+              );
+              
+              const isValid = new Date(customer.used_at).getTime() + (72 * 60 * 60 * 1000) > new Date().getTime();
+              
+              return (
+                <TableRow key={customer.id}>
+                  <TableCell className="font-medium">
+                    {customer.customer_name || 'Anonym'}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      {customer.customer_email && (
+                        <a 
+                          href={`mailto:${customer.customer_email}`} 
+                          className="flex items-center text-xs text-blue-600 hover:underline"
+                        >
+                          <Mail className="h-3 w-3 mr-1" /> {customer.customer_email}
+                        </a>
+                      )}
+                      {customer.customer_phone && (
+                        <a 
+                          href={`tel:${customer.customer_phone}`} 
+                          className="flex items-center text-xs text-blue-600 hover:underline"
+                        >
+                          <Phone className="h-3 w-3 mr-1" /> {customer.customer_phone}
+                        </a>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {customer.deals?.title || 'Okänt erbjudande'}
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {customer.code}
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
+                    {timeAgo}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={isValid ? "outline" : "destructive"} className="text-xs">
+                      {isValid ? 'Giltig' : 'Utgången'}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
-    </ScrollArea>
+    </div>
   );
-};
+}

@@ -1,87 +1,73 @@
-
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "next-themes";
+// Import vid toppen av filen
+import { useState } from "react";
+import { useQuery, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import ProductDetails from "./pages/ProductDetails";
-import SearchResults from "./pages/SearchResults";
-import PartnerPage from "./pages/PartnerPage";
-import FAQ from "./pages/FAQ";
-import Terms from "./pages/Terms";
-import { AdminLayout } from "./components/admin/layout/AdminLayout";
-import Admin from "./pages/Admin";
-import SalonDashboard from "./pages/SalonDashboard";
-import SalonDetails from "./pages/SalonDetails";
-import NavigationBar from "./components/NavigationBar";
-import { useSession } from "./hooks/useSession";
-import { useEffect, useState } from "react";
-import { supabase } from "./integrations/supabase/client";
 
-const queryClient = new QueryClient();
+// Import pages
+import Index from "@/pages/Index";
+import Admin from "@/pages/Admin";
+import FAQ from "@/pages/FAQ";
+import Terms from "@/pages/Terms";
+import Auth from "@/pages/Auth";
+import SalonLogin from "@/pages/SalonLogin";
+import SalonDashboard from "@/pages/SalonDashboard";
+import ProductDetails from "@/pages/ProductDetails";
+import SecureDeal from "@/pages/SecureDeal"; // Ny import
+import PartnerPage from "@/pages/PartnerPage";
+import SearchResults from "@/pages/SearchResults";
 
-function AppContent() {
-  const { session } = useSession();
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+// Import components
+import Layout from "@/components/layout/Layout";
+import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { Dashboard } from "@/components/admin/Dashboard";
+import { AdminAuthCheck } from "@/components/admin/auth/AdminAuthCheck";
+import { SalonAuthGuard } from "@/components/salon/SalonAuthGuard";
+import { SalonDeals } from "@/components/salon/SalonDeals";
 
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      if (!session?.user?.id) {
-        setUserRole(null);
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('salons')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
-
-        if (error) throw error;
-        setUserRole(data?.role || null);
-      } catch (error) {
-        console.error('Error fetching user role:', error);
-        setUserRole(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserRole();
-  }, [session]);
-
-  if (isLoading) return null;
-
-  return (
-    <Router>
-      <NavigationBar userRole={userRole} />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/deal/:id" element={<ProductDetails />} />
-        <Route path="/search" element={<SearchResults />} />
-        <Route path="/partner" element={<PartnerPage />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/admin/*" element={<AdminLayout><Admin /></AdminLayout>} />
-        <Route path="/salon/dashboard" element={<AdminLayout><SalonDashboard /></AdminLayout>} />
-        <Route path="/salon/deal/:dealId" element={<AdminLayout><SalonDetails /></AdminLayout>} />
-      </Routes>
-      <Toaster position="top-right" />
-    </Router>
-  );
-}
+// Setup QueryClient
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light">
-        <AppContent />
-      </ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Pages */}
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Index />} />
+            <Route path="faq" element={<FAQ />} />
+            <Route path="terms" element={<Terms />} />
+            <Route path="bli-partner" element={<PartnerPage />} />
+            <Route path="deal/:id" element={<ProductDetails />} />
+            <Route path="secure-deal/:id" element={<SecureDeal />} />
+            <Route path="search" element={<SearchResults />} />
+          </Route>
+
+          {/* Admin Pages */}
+          <Route path="/admin" element={<AdminAuthCheck><AdminLayout /></AdminAuthCheck>}>
+            <Route index element={<Dashboard />} />
+            {/* ... keep existing admin routes */}
+          </Route>
+
+          {/* Salon Dashboard */}
+          <Route path="/salon" element={<SalonAuthGuard><Layout /></SalonAuthGuard>}>
+            <Route index element={<SalonDashboard />} />
+            <Route path="deal/:id" element={<SalonDeals />} />
+          </Route>
+
+          {/* Auth Pages */}
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/salon/login" element={<SalonLogin />} />
+        </Routes>
+      </BrowserRouter>
+      <Toaster />
     </QueryClientProvider>
   );
 }

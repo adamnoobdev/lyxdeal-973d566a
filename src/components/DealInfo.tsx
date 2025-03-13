@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Tag } from "lucide-react";
 import { PriceDisplay } from "./PriceDisplay";
+import { useNavigate } from "react-router-dom";
 
 interface DealInfoProps {
   id: number;
@@ -22,6 +23,7 @@ interface DealInfoProps {
 }
 
 export const DealInfo = ({
+  id,
   title,
   originalPrice,
   discountedPrice,
@@ -30,9 +32,16 @@ export const DealInfo = ({
   isFree = false,
   salon,
 }: DealInfoProps) => {
+  const navigate = useNavigate();
+  
   // Format days remaining text
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
   const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
+
+  // Funktion för att hantera säkring av erbjudandet
+  const handleSecureDeal = () => {
+    navigate(`/secure-deal/${id}`);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
@@ -67,6 +76,7 @@ export const DealInfo = ({
         <Button 
           className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-200 group"
           size="lg"
+          onClick={handleSecureDeal}
         >
           <Tag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
           Säkra deal
