@@ -79,7 +79,7 @@ export const EditDealDialog = ({
         if (!open) handleClose();
       }}
     >
-      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6 overflow-hidden">
+      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">
         <DialogHeader className="space-y-2">
           <DialogTitle>
             {initialValues ? "Redigera erbjudande" : "Skapa erbjudande"}
@@ -88,7 +88,7 @@ export const EditDealDialog = ({
             Fyll i informationen nedan för att {initialValues ? "uppdatera" : "skapa"} ett erbjudande
           </DialogDescription>
         </DialogHeader>
-        <div className="mt-4 h-[calc(100%-120px)] overflow-auto">
+        <div className="flex-1 overflow-auto">
           <DealForm 
             onSubmit={handleSubmit} 
             initialValues={initialValues} 

@@ -140,7 +140,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 max-h-[calc(85vh-8rem)] overflow-y-auto px-1">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <div className="space-y-4">
           <SalonField form={form} />
           <FormFields 
@@ -154,7 +154,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           <AdditionalFields form={form} />
         </div>
 
-        <div className="sticky bottom-0 pt-4 bg-background">
+        <div className="pt-4 sticky bottom-0 bg-background">
           <Button 
             type="submit" 
             className="w-full" 
