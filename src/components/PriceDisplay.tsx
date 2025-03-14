@@ -1,4 +1,3 @@
-
 import { Tag } from "lucide-react";
 
 interface PriceDisplayProps {
@@ -16,8 +15,8 @@ export function PriceDisplay({
   isFreeOverride = false,
   showZero = false,
 }: PriceDisplayProps) {
-  // Determine if this is a free deal (either explicitly marked as free or has discounted price of 0)
-  // Removed the discountedPrice === 1 condition to fix the issue
+  // All deals are considered free now, but we keep the original logic
+  // for displaying the prices for backward compatibility
   const isFree = isFreeOverride || discountedPrice === 0;
   
   const formatPrice = (price: number) => {

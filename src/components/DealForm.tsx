@@ -10,7 +10,6 @@ import { SalonField } from "./deal-form/SalonField";
 import { QuantityField } from "./deal-form/QuantityField";
 import { AdditionalFields } from "./deal-form/AdditionalFields";
 import { formSchema, FormValues } from "./deal-form/schema";
-import { createStripeProductForDeal } from "@/utils/stripeUtils";
 import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
@@ -106,12 +105,8 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
               const quantityNum = parseInt(values.quantity) || 10;
               const codesGenerated = await generateDiscountCodes(newDeal.id, quantityNum);
               
-              // Skapa Stripe-produkt endast om det inte är ett gratis erbjudande och rabattkoder genererades
-              if (!values.is_free && codesGenerated) {
-                await createStripeProductForDeal(values);
+              if (codesGenerated) {
                 toast.success("Erbjudande och presentkoder har skapats");
-              } else if (codesGenerated) {
-                toast.success("Gratis erbjudande och presentkoder har skapats");
               } else {
                 toast.success("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna");
               }

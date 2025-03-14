@@ -1,7 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
-import Stripe from 'https://esm.sh/stripe@13.10.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,53 +14,21 @@ serve(async (req) => {
   }
 
   try {
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-      apiVersion: '2023-10-16',
-      httpClient: Stripe.createFetchHttpClient(),
-    })
-
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { title, description, discountedPrice, dealId, isFree } = await req.json()
+    const { dealId } = await req.json()
 
-    console.log('Creating Stripe product for deal:', { title, description, discountedPrice, dealId, isFree })
+    console.log('Creating record for deal (no longer using Stripe):', dealId)
 
-    // Create a product in Stripe
-    const product = await stripe.products.create({
-      name: title,
-      description: description,
-    })
-
-    console.log('Created Stripe product:', product.id)
-
-    // Create a price for the product - use 0 for free deals
-    const finalPrice = isFree ? 0 : discountedPrice;
-    const price = await stripe.prices.create({
-      product: product.id,
-      unit_amount: finalPrice * 100, // Convert to cents
-      currency: 'sek',
-    })
-
-    console.log('Created Stripe price:', price.id)
-
-    // Update the deal with the Stripe price ID
-    const { error: updateError } = await supabaseClient
-      .from('deals')
-      .update({ stripe_price_id: price.id })
-      .eq('id', dealId)
-
-    if (updateError) {
-      console.error('Error updating deal with Stripe price ID:', updateError)
-      throw updateError
-    }
-
-    console.log('Successfully updated deal with Stripe price ID')
+    // No longer need to update stripe_price_id as we're not using Stripe
+    
+    console.log('Successfully processed deal')
 
     return new Response(
-      JSON.stringify({ priceId: price.id }),
+      JSON.stringify({ success: true }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,

@@ -49,9 +49,8 @@ export const useDealsAdmin = () => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
-      // Set discounted_price to 0 for free deals
-      // This ensures the display logic works correctly
-      const discountedPrice = values.is_free ? 0 : (parseInt(values.discountedPrice) || 1);
+      // All deals are free now
+      const discountedPrice = 0;
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -63,7 +62,7 @@ export const useDealsAdmin = () => {
         ...values,
         originalPrice,
         discountedPrice,
-        is_free: values.is_free,
+        is_free: true,
         is_active: values.is_active,
         expirationDate: expirationDate
       });
@@ -75,14 +74,14 @@ export const useDealsAdmin = () => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: originalPrice,
-          discounted_price: discountedPrice, // 0 for free deals
+          discounted_price: 0, // All deals are free now
           category: values.category,
           city: values.city,
           time_remaining: timeRemaining,
           expiration_date: expirationDate.toISOString(),
           featured: values.featured,
           salon_id: values.salon_id,
-          is_free: values.is_free || false,
+          is_free: true, // All deals are free now
           is_active: values.is_active,
           quantity_left: parseInt(values.quantity) || 10,
         })
@@ -107,9 +106,8 @@ export const useDealsAdmin = () => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
-      // Set discounted_price to 0 for free deals
-      // This ensures the display logic works correctly
-      const discountedPrice = values.is_free ? 0 : (parseInt(values.discountedPrice) || 1);
+      // All deals are free now
+      const discountedPrice = 0;
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -121,7 +119,7 @@ export const useDealsAdmin = () => {
         ...values,
         originalPrice,
         discountedPrice,
-        is_free: values.is_free,
+        is_free: true,
         is_active: values.is_active !== undefined ? values.is_active : true,
         expirationDate: expirationDate
       });
@@ -133,7 +131,7 @@ export const useDealsAdmin = () => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: originalPrice,
-          discounted_price: discountedPrice, // 0 for free deals
+          discounted_price: 0, // All deals are free now
           category: values.category,
           city: values.city,
           time_remaining: timeRemaining,
@@ -141,7 +139,7 @@ export const useDealsAdmin = () => {
           featured: values.featured,
           salon_id: values.salon_id,
           status: 'pending',
-          is_free: values.is_free || false,
+          is_free: true, // All deals are free now
           is_active: values.is_active !== undefined ? values.is_active : true,
           quantity_left: parseInt(values.quantity) || 10,
         }]);
