@@ -25,10 +25,18 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
   console.log(`Generating ${quantity} discount codes for deal ${dealId}`);
   
   try {
+    // Create a set to ensure unique codes
+    const codeSet = new Set<string>();
+    
+    // Generate unique codes until we have the required quantity
+    while (codeSet.size < quantity) {
+      codeSet.add(generateRandomCode());
+    }
+    
     // Create all codes upfront as an array of objects
-    const codes = Array.from({ length: quantity }, () => ({
+    const codes = Array.from(codeSet).map(code => ({
       deal_id: dealId,
-      code: generateRandomCode(),
+      code,
       is_used: false
     }));
 

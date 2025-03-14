@@ -9,6 +9,7 @@ import {
 import { DiscountCodesTable } from "@/components/discount-codes/DiscountCodesTable";
 import { useDiscountCodes } from "@/hooks/useDiscountCodes";
 import { Deal } from "@/components/admin/types";
+import { useState, useEffect } from "react";
 
 interface DiscountCodesDialogProps {
   isOpen: boolean;
@@ -21,10 +22,35 @@ export const DiscountCodesDialog = ({
   onClose,
   deal,
 }: DiscountCodesDialogProps) => {
-  const { discountCodes, isLoading } = useDiscountCodes(deal?.id);
+  const { discountCodes, isLoading, error } = useDiscountCodes(deal?.id);
+  const [isClosing, setIsClosing] = useState(false);
+
+  // Reset internal state when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
+  // Handle controlled closing to prevent UI freezes
+  const handleClose = () => {
+    setIsClosing(true);
+    // Use a small timeout to allow for smooth transition
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+    }, 100);
+  };
+
+  if (error) {
+    console.error("Error loading discount codes:", error);
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog 
+      open={isOpen && !isClosing} 
+      onOpenChange={(open) => !open && handleClose()}
+    >
       <DialogContent className="w-[95vw] max-w-4xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">
         <DialogHeader className="space-y-2">
           <DialogTitle>Rabattkoder - {deal?.title}</DialogTitle>

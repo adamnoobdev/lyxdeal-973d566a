@@ -14,7 +14,7 @@ import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { addDays, differenceInDays, endOfMonth } from "date-fns";
 
 interface DealFormProps {
@@ -25,7 +25,6 @@ interface DealFormProps {
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
   const [submitting, setSubmitting] = useState(false);
-  const isSubmittingRef = useRef(false);
   
   // Set default expiration date to end of current month if not provided
   const defaultExpirationDate = initialValues?.expirationDate || endOfMonth(new Date());
@@ -54,20 +53,18 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   }, [form]);
 
   const handleSubmit = useCallback(async (values: FormValues) => {
-    // Prevent double form submissions with both state and ref
-    if (submitting || isSubmittingRef.current) {
+    // Prevent double form submissions
+    if (submitting || isSubmitting) {
       console.log("Already submitting, preventing double submission");
       return;
     }
     
     try {
       setSubmitting(true);
-      isSubmittingRef.current = true;
       
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
         setSubmitting(false);
-        isSubmittingRef.current = false;
         return;
       }
       
@@ -78,7 +75,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       
       console.log('Submitting form with values:', values);
 
-      // Asynchronously call onSubmit and wait for result
+      // Call the provided onSubmit handler
       await onSubmit(values);
       console.log("Form submission completed successfully");
 
@@ -128,11 +125,10 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       console.error('Error in form submission:', error);
       toast.error("Något gick fel när erbjudandet skulle sparas.");
     } finally {
-      // Reset submitting flags and form after completion
+      // Reset submitting flag after completion
       setSubmitting(false);
-      isSubmittingRef.current = false;
     }
-  }, [initialValues, onSubmit, submitting]);
+  }, [initialValues, onSubmit, submitting, isSubmitting]);
 
   return (
     <Form {...form}>

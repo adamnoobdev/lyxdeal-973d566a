@@ -14,6 +14,7 @@ export const useDiscountCodes = (dealId: number | undefined) => {
     queryFn: async () => {
       if (!dealId) return [];
 
+      console.log(`Fetching discount codes for deal ID: ${dealId}`);
       const { data, error } = await supabase
         .from("discount_codes")
         .select("*")
@@ -25,9 +26,12 @@ export const useDiscountCodes = (dealId: number | undefined) => {
         throw error;
       }
 
+      console.log(`Retrieved ${data?.length || 0} discount codes`);
       return data as DiscountCode[];
     },
     enabled: !!dealId,
+    staleTime: 60000, // Cache results for 1 minute to prevent excessive refetching
+    gcTime: 300000, // Keep unused data in cache for 5 minutes
   });
 
   return {

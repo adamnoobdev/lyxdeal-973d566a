@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { DealForm } from "@/components/DealForm";
 import { FormValues } from "@/components/deal-form/schema";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 interface EditDealDialogProps {
   isOpen: boolean;
@@ -24,53 +24,41 @@ export const EditDealDialog = ({
   initialValues,
 }: EditDealDialogProps) => {
   const [isClosing, setIsClosing] = useState(false);
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isSubmittingRef = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reset state when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsClosing(false);
+      setIsSubmitting(false);
+    }
+  }, [isOpen]);
 
   // Controlled closing to avoid freezing
   const handleClose = () => {
-    if (isSubmittingRef.current) return;
+    if (isSubmitting) return;
     
     setIsClosing(true);
     
-    // Clear previous timeout if exists
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-    }
-    
     // Delayed closing to allow animation and clean-up
-    closeTimeoutRef.current = setTimeout(() => {
+    setTimeout(() => {
       onClose();
       setIsClosing(false);
-      closeTimeoutRef.current = null;
-    }, 150);
+    }, 100);
   };
 
   // Handle form submission with protection against multiple calls
   const handleSubmit = async (values: FormValues) => {
-    if (isSubmittingRef.current) return;
+    if (isSubmitting) return;
     
     try {
-      isSubmittingRef.current = true;
+      setIsSubmitting(true);
       await onSubmit(values);
+      handleClose();
     } finally {
-      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
-
-  // Reset isClosing if dialog opens again and clear timeout
-  useEffect(() => {
-    if (isOpen) {
-      setIsClosing(false);
-    }
-    
-    // Cleanup function to clear timeout when component unmounts
-    return () => {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-      }
-    };
-  }, [isOpen]);
 
   return (
     <Dialog 
@@ -91,7 +79,8 @@ export const EditDealDialog = ({
         <div className="flex-1 overflow-auto">
           <DealForm 
             onSubmit={handleSubmit} 
-            initialValues={initialValues} 
+            initialValues={initialValues}
+            isSubmitting={isSubmitting}
           />
         </div>
       </DialogContent>
