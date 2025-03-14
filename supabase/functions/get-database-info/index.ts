@@ -50,23 +50,12 @@ serve(async (req) => {
     
     console.log("Connection successful, now querying table information...");
     
-    // Use raw SQL to get table information to avoid type issues with RPC
-    const { data: tablesData, error: sqlError } = await supabaseAdmin
-      .from('_DATABASE_TABLES_')
-      .select('*')
-      .limit(20)
-      .then(async () => {
-        // This is a dummy query that will fail - we just want to use the .then() to chain our real query
-        // Using a direct SQL query instead of RPC to avoid type issues
-        return await supabaseAdmin.rpc('get_tables');
-      })
-      .catch(e => {
-        console.error('Error in SQL chain:', e);
-        return { data: null, error: e };
-      });
+    // Call get_tables directly with error handling
+    const { data: tablesData, error: tablesError } = await supabaseAdmin
+      .rpc('get_tables');
       
-    if (sqlError) {
-      console.error('Error fetching tables with SQL:', sqlError);
+    if (tablesError) {
+      console.error('Error calling get_tables function:', tablesError);
       
       // Fallback: Try a direct SQL query to get at least some info about tables
       const { data: fallbackTables, error: fallbackError } = await supabaseAdmin
@@ -83,7 +72,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: 'Failed to fetch database information', 
-          details: sqlError,
+          details: tablesError,
           canAccessDiscountCodes: !fallbackError 
         }),
         { 
@@ -93,13 +82,9 @@ serve(async (req) => {
       );
     }
 
-    // Transform the tables data to ensure proper types
-    const tables = tablesData ? tablesData.map(table => ({
-      schema_name: String(table.schema_name || ''),
-      table_name: String(table.table_name || ''),
-      row_count: Number(table.row_count || 0)
-    })) : [];
-
+    // Tables data should now have the correct types
+    const tables = tablesData || [];
+    
     console.log(`Successfully retrieved ${tables.length} tables`);
     
     // Hämta exempel på rabattkoder
@@ -116,7 +101,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        tables: tables || [],
+        tables: tables,
         discountCodesCount: discountCodes ? discountCodes.length : 0,
         discountCodeSamples: discountCodes ? discountCodes.slice(0, 5) : []
       }),
