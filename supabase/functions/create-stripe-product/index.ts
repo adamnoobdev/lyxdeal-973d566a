@@ -23,7 +23,32 @@ serve(async (req) => {
 
     console.log('Creating record for deal (no longer using Stripe):', dealId)
 
-    // No longer need to update stripe_price_id as we're not using Stripe
+    // Query for the deal to ensure it exists
+    const { data: deal, error: dealError } = await supabaseClient
+      .from('deals')
+      .select('*')
+      .eq('id', dealId)
+      .single()
+
+    if (dealError) {
+      console.error('Error fetching deal:', dealError)
+      throw new Error('Error fetching deal details')
+    }
+
+    // Update the deal to set is_free to true and discounted_price to 0
+    const { error: updateError } = await supabaseClient
+      .from('deals')
+      .update({ 
+        is_free: true,
+        discounted_price: 0,
+        status: 'approved' 
+      })
+      .eq('id', dealId)
+
+    if (updateError) {
+      console.error('Error updating deal:', updateError)
+      throw new Error('Error updating deal with free status')
+    }
     
     console.log('Successfully processed deal')
 

@@ -12,42 +12,21 @@ interface PriceFieldsProps {
 }
 
 export const PriceFields = ({ form }: PriceFieldsProps) => {
-  const isFree = form.watch("is_free");
-
-  // When "is_free" is toggled, update only the discounted price field
+  // Alla erbjudanden är alltid gratis nu
   useEffect(() => {
-    if (isFree) {
-      // We're setting to 0 for consistency with the rest of the application
-      form.setValue("discountedPrice", "0");
-    } else {
-      // Clear 0 values for discounted price if un-checking free
-      const currentDiscountedPrice = form.getValues("discountedPrice");
-      
-      if (currentDiscountedPrice === "0") {
-        form.setValue("discountedPrice", "");
-      }
-    }
-  }, [isFree, form]);
+    // Sätt is_free till true för alla erbjudanden
+    form.setValue("is_free", true);
+    // Sätt discountedPrice till 0
+    form.setValue("discountedPrice", "0");
+  }, [form]);
 
   return (
     <>
-      <FormField
-        control={form.control}
-        name="is_free"
-        render={({ field }) => (
-          <FormItem className="flex flex-row items-start space-x-3 space-y-0 mb-4">
-            <FormControl>
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </FormControl>
-            <div className="space-y-1 leading-none">
-              <FormLabel>Gratis erbjudande</FormLabel>
-            </div>
-          </FormItem>
-        )}
-      />
+      <div className="p-4 bg-green-50 border border-green-200 rounded-md mb-4">
+        <p className="text-green-700 text-sm">
+          Alla erbjudanden är nu gratis. Betalning sker direkt hos salongen.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
@@ -61,7 +40,6 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
                   type="number" 
                   placeholder="1000" 
                   {...field} 
-                  // Always allow editing the original price
                 />
               </FormControl>
               <FormMessage />
@@ -74,21 +52,29 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
           name="discountedPrice"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Rabatterat pris (SEK)</FormLabel>
+              <FormLabel>Rabatterat pris</FormLabel>
               <FormControl>
                 <Input 
                   type="number" 
-                  placeholder={isFree ? "0" : "750"} 
-                  {...field} 
-                  disabled={isFree}
-                  // This is the visual value (0) shown to the user
+                  value="0"
+                  disabled={true}
+                  readOnly={true}
                 />
               </FormControl>
-              <FormMessage />
+              <p className="text-sm text-muted-foreground">Alla erbjudanden är gratis</p>
             </FormItem>
           )}
         />
       </div>
+
+      {/* Dold is_free field som alltid är true */}
+      <FormField
+        control={form.control}
+        name="is_free"
+        render={({ field }) => (
+          <input type="hidden" {...field} checked={true} />
+        )}
+      />
     </>
   );
 };

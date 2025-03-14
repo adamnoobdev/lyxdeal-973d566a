@@ -49,9 +49,6 @@ export const useDealsAdmin = () => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
-      // All deals are free now
-      const discountedPrice = 0;
-      
       // Calculate days remaining and time remaining text
       const today = new Date();
       const expirationDate = values.expirationDate;
@@ -61,7 +58,7 @@ export const useDealsAdmin = () => {
       console.log('Updating deal with values:', {
         ...values,
         originalPrice,
-        discountedPrice,
+        discountedPrice: 0,
         is_free: true,
         is_active: values.is_active,
         expirationDate: expirationDate
@@ -106,9 +103,6 @@ export const useDealsAdmin = () => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
       
-      // All deals are free now
-      const discountedPrice = 0;
-      
       // Calculate days remaining and time remaining text
       const today = new Date();
       const expirationDate = values.expirationDate;
@@ -118,7 +112,7 @@ export const useDealsAdmin = () => {
       console.log('Creating deal with values:', {
         ...values,
         originalPrice,
-        discountedPrice,
+        discountedPrice: 0,
         is_free: true,
         is_active: values.is_active !== undefined ? values.is_active : true,
         expirationDate: expirationDate
@@ -138,7 +132,7 @@ export const useDealsAdmin = () => {
           expiration_date: expirationDate.toISOString(),
           featured: values.featured,
           salon_id: values.salon_id,
-          status: 'pending',
+          status: 'approved', // Direktgodkänd
           is_free: true, // All deals are free now
           is_active: values.is_active !== undefined ? values.is_active : true,
           quantity_left: parseInt(values.quantity) || 10,
