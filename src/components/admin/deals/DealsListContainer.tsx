@@ -1,3 +1,4 @@
+
 import { useCallback, useState, useRef, useEffect } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
@@ -13,6 +14,7 @@ import { usePendingDealsFunctions } from "./PendingDealsFunctions";
 import { DealsHeader } from "./DealsHeader";
 import { DiscountCodesDialog } from "./DiscountCodesDialog";
 import { Deal } from "@/components/admin/types";
+import { supabase } from "@/integrations/supabase/client"; // Added missing import
 
 export const DealsListContainer = () => {
   const {

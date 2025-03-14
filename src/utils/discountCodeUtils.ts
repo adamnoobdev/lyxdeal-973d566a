@@ -56,16 +56,15 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
     // Verify that codes were actually created
     const { data: verificationData, error: verificationError } = await supabase
       .from('discount_codes')
-      .select('count')
-      .eq('deal_id', dealId)
-      .count();
+      .select('*')
+      .eq('deal_id', dealId);
       
     if (verificationError) {
       console.error('Error verifying discount codes:', verificationError);
       return false;
     }
     
-    const count = verificationData?.[0]?.count || 0;
+    const count = verificationData?.length || 0;
     console.log(`Successfully verified ${count} discount codes for deal ${dealId}`);
     
     return count > 0;
