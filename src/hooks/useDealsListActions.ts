@@ -6,6 +6,8 @@ import { useOperationExclusion } from "@/hooks/useOperationExclusion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { generateDiscountCodes } from "@/utils/discount-codes";
+import { createDeal, updateDeal, deleteDeal } from "@/utils/dealsCrudUtils";
+import { useState } from "react";
 
 /**
  * Hook containing action handlers for the deals list
@@ -25,7 +27,7 @@ export const useDealsListActions = (
       try {
         isDeletingDealRef.current = true;
         console.log("[DealsListActions] Starting deal deletion for ID:", deletingDeal.id);
-        const success = await handleDelete(deletingDeal.id);
+        const success = await deleteDeal(deletingDeal.id);
         
         if (success) {
           console.log("[DealsListActions] Deal deletion successful");
@@ -50,7 +52,7 @@ export const useDealsListActions = (
       try {
         isUpdatingDealRef.current = true;
         console.log("[DealsListActions] Starting deal update for ID:", editingDeal.id);
-        const success = await handleUpdate(values, editingDeal.id);
+        const success = await updateDeal(values, editingDeal.id);
         
         if (success) {
           console.log("[DealsListActions] Deal update successful");
@@ -90,7 +92,7 @@ export const useDealsListActions = (
           justCreatedDeal: null
         });
         
-        const success = await handleCreate(values);
+        const success = await createDeal(values);
         
         if (success) {
           console.log("[DealsListActions] Deal creation successful");
@@ -175,5 +177,3 @@ export const useDealsListActions = (
     isDeletingDealRef
   };
 };
-
-import { useState } from "react";
