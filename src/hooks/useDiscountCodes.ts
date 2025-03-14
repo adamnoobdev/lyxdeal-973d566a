@@ -27,11 +27,14 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
       console.log(`[useDiscountCodes] Fetching discount codes for deal ID: ${dealId}`);
       
       try {
-        // Try with the original dealId first
+        // Normalize the deal ID for database query
+        const normalizedId = normalizeId(dealId);
+        console.log(`[useDiscountCodes] Using normalized deal ID: ${normalizedId}`);
+        
         const { data, error } = await supabase
           .from("discount_codes")
           .select("*")
-          .eq("deal_id", normalizeId(dealId));
+          .eq("deal_id", normalizedId);
 
         if (error) {
           console.error("[useDiscountCodes] Error fetching discount codes:", error);
@@ -42,22 +45,25 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         }
 
         if (!data || data.length === 0) {
-          console.log(`[useDiscountCodes] No discount codes found for deal ID: ${dealId}`);
+          console.log(`[useDiscountCodes] No discount codes found for deal ID: ${dealId} (normalized: ${normalizedId})`);
           
-          // Try with the alternative type if no results found
-          const altDealId = typeof dealId === 'string' ? Number(dealId) : String(dealId);
-          console.log(`[useDiscountCodes] Trying with alternative deal_id type: "${altDealId}"`);
+          // Try with string comparison as fallback
+          console.log(`[useDiscountCodes] Trying with string comparison fallback`);
           
-          const { data: altData, error: altError } = await supabase
+          const { data: allCodes, error: fallbackError } = await supabase
             .from("discount_codes")
-            .select("*")
-            .eq("deal_id", normalizeId(altDealId));
+            .select("*");
             
-          if (altError) {
-            console.error("[useDiscountCodes] Error in alternative type query:", altError);
-          } else if (altData && altData.length > 0) {
-            console.log(`[useDiscountCodes] Found ${altData.length} codes with alternative deal_id type`);
-            return altData as DiscountCode[];
+          if (fallbackError) {
+            console.error("[useDiscountCodes] Error in fallback query:", fallbackError);
+          } else if (allCodes && allCodes.length > 0) {
+            // Filter codes by string comparison
+            const stringMatches = allCodes.filter(code => String(code.deal_id) === String(dealId));
+            
+            if (stringMatches.length > 0) {
+              console.log(`[useDiscountCodes] Found ${stringMatches.length} codes with string comparison`);
+              return stringMatches as DiscountCode[];
+            }
           }
         } else {
           console.log(`[useDiscountCodes] Retrieved ${data.length} discount codes for deal ID: ${dealId}`);

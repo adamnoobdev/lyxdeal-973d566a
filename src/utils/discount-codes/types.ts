@@ -26,7 +26,23 @@ export interface DiscountCodeInspectionResult {
   codeType?: string;
 }
 
-// Add a utility function to help with type handling
-export function normalizeId(id: string | number): string | number {
-  return id;
+/**
+ * Safely converts a deal ID to either string or number based on the database schema
+ * This helps handle type mismatches between string and number IDs
+ */
+export function normalizeId(id: string | number): number {
+  // If id is already a number, return it
+  if (typeof id === 'number') {
+    return id;
+  }
+  
+  // If id is a string that can be parsed as a number, return the parsed number
+  const parsedId = parseInt(id, 10);
+  if (!isNaN(parsedId)) {
+    return parsedId;
+  }
+  
+  // If we can't safely convert to a number, log error and return a fallback
+  console.error(`[normalizeId] Could not normalize ID: ${id}`);
+  return -1; // Fallback invalid ID that won't match anything
 }

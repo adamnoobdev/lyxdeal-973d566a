@@ -13,48 +13,18 @@ export const inspectDiscountCodes = async (dealId: string | number): Promise<Dis
     // Kontrollera deal_id-typ för diagnostik
     console.log(`[inspectDiscountCodes] Deal ID type: ${typeof dealId}, value: ${dealId}`);
     
-    // Try to handle both string and number deal IDs directly
-    // First attempt with the dealId as-is
+    // Normalize the ID for database query
+    const normalizedId = normalizeId(dealId);
+    console.log(`[inspectDiscountCodes] Normalized deal ID: ${normalizedId}`);
+    
+    // Query with the normalized ID
     const { data: codes, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', normalizeId(dealId));
+      .eq('deal_id', normalizedId);
       
     if (error) {
-      console.error('[inspectDiscountCodes] Error querying codes with ID as-is:', error);
-    }
-    
-    // Om inga koder hittades, försök med alternativ typ
-    if (!codes || codes.length === 0) {
-      const altDealId = typeof dealId === 'string' ? Number(dealId) : String(dealId);
-      console.log(`[inspectDiscountCodes] No codes found with original type, trying with: ${altDealId} (${typeof altDealId})`);
-      
-      const { data: altCodes, error: altError } = await supabase
-        .from('discount_codes')
-        .select('*')
-        .eq('deal_id', normalizeId(altDealId));
-        
-      if (altError) {
-        console.error('[inspectDiscountCodes] Error querying codes with alternative ID type:', altError);
-      }
-      
-      if (altCodes && altCodes.length > 0) {
-        console.log(`[inspectDiscountCodes] Found ${altCodes.length} codes with alternative deal_id type`);
-        
-        return { 
-          success: true, 
-          message: `Hittade ${altCodes.length} koder för erbjudande ${dealId} (med alternativ typjämförelse)`, 
-          dealId,
-          codesCount: altCodes.length,
-          sampleCodes: altCodes.slice(0, 5).map(c => ({ 
-            code: c.code, 
-            isUsed: c.is_used,
-            createdAt: c.created_at,
-            dealId: c.deal_id,
-            dealIdType: typeof c.deal_id
-          }))
-        };
-      }
+      console.error('[inspectDiscountCodes] Error querying codes:', error);
     }
     
     // Codes were found, return details
