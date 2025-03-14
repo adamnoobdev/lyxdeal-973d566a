@@ -10,7 +10,7 @@ import { SalonField } from "./deal-form/SalonField";
 import { QuantityField } from "./deal-form/QuantityField";
 import { AdditionalFields } from "./deal-form/AdditionalFields";
 import { formSchema, FormValues } from "./deal-form/schema";
-import { generateDiscountCodes } from "@/utils/discountCodeUtils";
+import { generateDiscountCodes } from "@/utils/discountCodes";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";

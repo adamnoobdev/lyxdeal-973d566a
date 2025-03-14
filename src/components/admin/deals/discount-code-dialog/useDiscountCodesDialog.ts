@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useDiscountCodes } from "@/hooks/useDiscountCodes";
-import { inspectDiscountCodes } from "@/utils/discountCodeUtils";
+import { inspectDiscountCodes } from "@/utils/discountCodes";
 import { toast } from "sonner";
 import { Deal } from "@/components/admin/types";
 

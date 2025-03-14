@@ -1,4 +1,3 @@
-
 import { useCallback, useState, useRef, useEffect } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
@@ -16,7 +15,7 @@ import { DiscountCodesDialog } from "./DiscountCodesDialog";
 import { Deal } from "@/components/admin/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { generateDiscountCodes } from "@/utils/discountCodeUtils";
+import { generateDiscountCodes } from "@/utils/discountCodes";
 
 export const DealsListContainer = () => {
   const {
