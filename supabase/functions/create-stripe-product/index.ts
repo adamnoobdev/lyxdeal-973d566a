@@ -35,8 +35,7 @@ serve(async (req) => {
       throw new Error('Error fetching deal details')
     }
 
-    // Update the deal to set is_free to true and discounted_price to 1
-    // Använd rpc för att undvika Check Constraint
+    // Update the deal to set is_free to true and discounted_price to 0
     const { error: updateError } = await supabaseClient
       .rpc('update_deal_to_free', { 
         deal_id: dealId,

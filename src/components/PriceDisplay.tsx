@@ -16,31 +16,29 @@ export function PriceDisplay({
   isFreeOverride = false,
   showZero = false,
 }: PriceDisplayProps) {
-  // All deals are considered free now
+  // Alla erbjudanden är gratis nu
   const isFree = true;
   
   const formatPrice = (price: number) => {
-    // Special handling for the discounted price when it's a free deal
+    // För att visa det rabatterade (gratis) priset
     if (isFree && (price === discountedPrice)) {
       if (showZero) {
         return new Intl.NumberFormat('sv-SE', {
           style: 'currency',
           currency: 'SEK',
           maximumFractionDigits: 0
-        }).format(0); // Force 0 here to ensure we get "0 kr"
+        }).format(0); // Force 0 här för att visa "0 kr"
       }
       return "GRATIS";
     }
     
+    // För att visa ordinarie pris
     return new Intl.NumberFormat('sv-SE', {
       style: 'currency',
       currency: 'SEK',
       maximumFractionDigits: 0
     }).format(price);
   };
-
-  // Alltid 100% rabatt eftersom allt är gratis
-  const discountPercentage = 100;
 
   return (
     <div className={`space-y-1.5 ${className}`}>
