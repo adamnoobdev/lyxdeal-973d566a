@@ -36,7 +36,7 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
           name="discountedPrice"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Rabatterat pris (SEK)</FormLabel>
+              <FormLabel>Rabatterat pris (SEK) - Ange 0 för gratis</FormLabel>
               <FormControl>
                 <Input 
                   type="number" 

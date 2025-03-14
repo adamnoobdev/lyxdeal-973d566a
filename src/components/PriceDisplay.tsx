@@ -29,11 +29,14 @@ export function PriceDisplay({
     ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) 
     : 0;
 
+  // Check if it's free (either 0 price or override)
+  const isFree = discountedPrice === 0 || isFreeOverride;
+
   return (
     <div className={`space-y-1.5 ${className}`}>
       <div className="flex items-baseline gap-3">
         <span className="text-3xl font-bold text-gray-900">
-          {formatPrice(discountedPrice)}
+          {isFree ? "Gratis" : formatPrice(discountedPrice)}
         </span>
         {discountPercentage > 0 && (
           <span className="text-sm px-2 py-0.5 rounded-full bg-green-50 text-green-600 font-medium">
@@ -41,7 +44,7 @@ export function PriceDisplay({
           </span>
         )}
       </div>
-      {originalPrice > discountedPrice && ( 
+      {originalPrice > (isFree ? 0 : discountedPrice) && ( 
         <div className="flex items-center gap-1.5 text-gray-500">
           <Tag className="h-4 w-4" />
           <span className="text-sm line-through">

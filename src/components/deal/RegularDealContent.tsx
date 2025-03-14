@@ -37,6 +37,9 @@ export const RegularDealContent = ({
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
   const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
 
+  // Check if it's free
+  const isFree = discountedPrice === 0;
+
   return (
     <div className="p-2 flex flex-col h-full justify-between">
       <div className="flex items-start justify-between gap-1 mb-1.5">
@@ -59,7 +62,7 @@ export const RegularDealContent = ({
           <div className="space-y-0.5">
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg font-semibold">
-                {discountedPrice} kr
+                {isFree ? "Gratis" : `${discountedPrice} kr`}
               </span>
               {originalPrice > discountedPrice && (
                 <span className="text-sm line-through text-muted-foreground">

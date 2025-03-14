@@ -68,7 +68,9 @@ export const DealsTable = ({
                     <span>{formatCurrency(deal.original_price)} kr</span>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    <span className="text-primary font-medium">{formatCurrency(deal.discounted_price)} kr</span>
+                    <span className="text-primary font-medium">
+                      {deal.discounted_price === 0 ? "Gratis" : `${formatCurrency(deal.discounted_price)} kr`}
+                    </span>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">{deal.quantity_left}</TableCell>
                   <TableCell>
