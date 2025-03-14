@@ -24,7 +24,7 @@ interface DealFormProps {
 }
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
-  const [submitting, setSubmitting] = useState(false);
+  const [internalSubmitting, setInternalSubmitting] = useState(false);
   
   // Set default expiration date to end of current month if not provided
   const defaultExpirationDate = initialValues?.expirationDate || endOfMonth(new Date());
@@ -54,17 +54,16 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
 
   const handleSubmit = useCallback(async (values: FormValues) => {
     // Prevent double form submissions
-    if (submitting || isSubmitting) {
+    if (internalSubmitting || isSubmitting) {
       console.log("Already submitting, preventing double submission");
       return;
     }
     
     try {
-      setSubmitting(true);
+      setInternalSubmitting(true);
       
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
-        setSubmitting(false);
         return;
       }
       
@@ -126,9 +125,9 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       toast.error("Något gick fel när erbjudandet skulle sparas.");
     } finally {
       // Reset submitting flag after completion
-      setSubmitting(false);
+      setInternalSubmitting(false);
     }
-  }, [initialValues, onSubmit, submitting, isSubmitting]);
+  }, [initialValues, onSubmit, internalSubmitting, isSubmitting]);
 
   return (
     <Form {...form}>
@@ -150,9 +149,9 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={isSubmitting || submitting}
+            disabled={isSubmitting || internalSubmitting}
           >
-            {(isSubmitting || submitting) ? "Sparar..." : "Spara erbjudande"}
+            {(isSubmitting || internalSubmitting) ? "Sparar..." : "Spara erbjudande"}
           </Button>
         </div>
       </form>

@@ -30,8 +30,8 @@ export const useDiscountCodes = (dealId: number | undefined) => {
       return data as DiscountCode[];
     },
     enabled: !!dealId,
-    staleTime: 60000, // Cache results for 1 minute to prevent excessive refetching
-    gcTime: 300000, // Keep unused data in cache for 5 minutes
+    staleTime: 300000, // Cache results for 5 minutes to prevent excessive refetching
+    gcTime: 600000, // Keep unused data in cache for 10 minutes
   });
 
   return {

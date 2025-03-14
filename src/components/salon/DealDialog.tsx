@@ -42,7 +42,7 @@ export const DealDialog = ({
     setTimeout(() => {
       onClose();
       setIsClosing(false);
-    }, 100);
+    }, 300);
   };
 
   // Handle form submission with state tracking

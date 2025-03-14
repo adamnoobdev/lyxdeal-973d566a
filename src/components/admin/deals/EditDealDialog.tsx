@@ -44,7 +44,7 @@ export const EditDealDialog = ({
     setTimeout(() => {
       onClose();
       setIsClosing(false);
-    }, 100);
+    }, 300);
   };
 
   // Handle form submission with protection against multiple calls
