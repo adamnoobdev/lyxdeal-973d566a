@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -84,6 +83,9 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       if (!initialValues) {
         try {
           console.log("Fetching newly created deal ID");
+          // Wait a short moment to ensure the database transaction is complete
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
           // Try to fetch the latest deal from the database
           const { data: newDeal, error } = await supabase
             .from('deals')

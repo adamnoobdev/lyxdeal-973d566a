@@ -50,8 +50,25 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       throw error;
     }
     
-    console.log(`Successfully generated ${quantity} discount codes for deal ${dealId}`);
-    return true;
+    // Wait a short moment to ensure the database transaction is complete
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Verify that codes were actually created
+    const { data: verificationData, error: verificationError } = await supabase
+      .from('discount_codes')
+      .select('count')
+      .eq('deal_id', dealId)
+      .count();
+      
+    if (verificationError) {
+      console.error('Error verifying discount codes:', verificationError);
+      return false;
+    }
+    
+    const count = verificationData?.[0]?.count || 0;
+    console.log(`Successfully verified ${count} discount codes for deal ${dealId}`);
+    
+    return count > 0;
   } catch (error) {
     console.error('Exception when generating discount codes:', error);
     // Return false instead of throwing the error further
@@ -87,13 +104,6 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
   return data[0].code;
 };
 
-/**
- * Marks a discount code as used and records customer information
- * 
- * @param code - The discount code to mark as used
- * @param customerInfo - Information about the customer who used the code
- * @returns Promise<boolean> - Whether the operation was successful
- */
 export const markDiscountCodeAsUsed = async (
   code: string, 
   customerInfo: { name: string; email: string; phone: string }

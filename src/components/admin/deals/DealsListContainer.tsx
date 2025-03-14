@@ -1,5 +1,4 @@
-
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
 import { useDealsDialogs } from "@/hooks/useDealsDialogs";
@@ -45,6 +44,21 @@ export const DealsListContainer = () => {
   const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
   const { runExclusiveOperation } = useOperationExclusion();
   const { handleStatusChange } = usePendingDealsFunctions(refetch);
+  const [isViewingCodes, setIsViewingCodes] = useState(false);
+
+  const lastCreatedDealId = useRef<number | null>(null);
+  const justCreatedDeal = useRef<Deal | null>(null);
+
+  useEffect(() => {
+    if (justCreatedDeal.current && !isCreating && !editingDeal && !deletingDeal && !viewingCodesForDeal) {
+      const timer = setTimeout(() => {
+        setViewingCodesForDeal(justCreatedDeal.current);
+        justCreatedDeal.current = null;
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isCreating, editingDeal, deletingDeal, viewingCodesForDeal]);
 
   const onDelete = useCallback(async () => {
     if (!deletingDeal || isDeletingDealRef.current) return;
@@ -82,7 +96,6 @@ export const DealsListContainer = () => {
         
         if (success) {
           console.log("Deal update successful");
-          // Use timeout to prevent UI freezing
           setTimeout(() => {
             handleCloseDialogs();
           }, 300);
@@ -110,10 +123,22 @@ export const DealsListContainer = () => {
         
         if (success) {
           console.log("Deal creation successful");
-          // Use timeout to prevent UI freezing
-          setTimeout(() => {
+          
+          setTimeout(async () => {
+            const { data: newDeals } = await supabase
+              .from('deals')
+              .select('*')
+              .eq('salon_id', values.salon_id)
+              .order('created_at', { ascending: false })
+              .limit(1);
+              
+            if (newDeals && newDeals.length > 0) {
+              console.log("Found newly created deal:", newDeals[0]);
+              justCreatedDeal.current = newDeals[0] as Deal;
+            }
+            
             handleCloseDialogs();
-          }, 300);
+          }, 1000);
         }
         return success;
       } catch (error) {
@@ -122,12 +147,14 @@ export const DealsListContainer = () => {
       } finally {
         setTimeout(() => {
           isUpdatingDealRef.current = false;
-        }, 600); // Längre timeout för skapande då det också genererar rabattkoder
+        }, 600);
       }
     });
   }, [handleCreate, isUpdatingDealRef, runExclusiveOperation, handleCloseDialogs]);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
+    console.log("Viewing discount codes for deal:", deal);
+    setIsViewingCodes(true);
     setViewingCodesForDeal(deal);
   }, []);
 
@@ -136,6 +163,7 @@ export const DealsListContainer = () => {
     setTimeout(() => {
       setViewingCodesForDeal(null);
       setIsClosingCodesDialog(false);
+      setIsViewingCodes(false);
     }, 300);
   }, []);
 

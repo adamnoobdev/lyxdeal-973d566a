@@ -22,15 +22,18 @@ export const DiscountCodesDialog = ({
   onClose,
   deal,
 }: DiscountCodesDialogProps) => {
-  const { discountCodes, isLoading, error } = useDiscountCodes(isOpen ? deal?.id : undefined);
+  const { discountCodes, isLoading, error, refetch } = useDiscountCodes(isOpen ? deal?.id : undefined);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Reset internal state when dialog opens/closes
+  // Reset internal state when dialog opens/closes and trigger refetch when dialog opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && deal?.id) {
+      console.log("Discount codes dialog opened, triggering refetch for deal ID:", deal.id);
       setIsLoaded(true);
+      // Force a refetch when the dialog opens to get fresh data
+      refetch();
     }
-  }, [isOpen]);
+  }, [isOpen, deal?.id, refetch]);
 
   if (error) {
     console.error("Error loading discount codes:", error);
