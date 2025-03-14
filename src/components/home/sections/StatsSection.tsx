@@ -15,7 +15,7 @@ const STATS = [
   { 
     icon: Star, 
     title: "3. Visa koden", 
-    description: "Besök salongen och visa din kod för att få rabatten" 
+    description: "Använd koden direkt på salongens bokningssida" 
   }
 ] as const;
 
