@@ -22,35 +22,22 @@ export const DiscountCodesDialog = ({
   onClose,
   deal,
 }: DiscountCodesDialogProps) => {
-  const { discountCodes, isLoading, error } = useDiscountCodes(deal?.id);
-  const [isClosing, setIsClosing] = useState(false);
+  const { discountCodes, isLoading, error } = useDiscountCodes(isOpen ? deal?.id : undefined);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Reset internal state when dialog opens
+  // Reset internal state when dialog opens/closes
   useEffect(() => {
     if (isOpen) {
-      setIsClosing(false);
+      setIsLoaded(true);
     }
   }, [isOpen]);
-
-  // Handle controlled closing to prevent UI freezes
-  const handleClose = () => {
-    setIsClosing(true);
-    // Use a small timeout to allow for smooth transition
-    setTimeout(() => {
-      onClose();
-      setIsClosing(false);
-    }, 300); // Längre timeout för bättre prestanda
-  };
 
   if (error) {
     console.error("Error loading discount codes:", error);
   }
 
   return (
-    <Dialog 
-      open={isOpen && !isClosing} 
-      onOpenChange={(open) => !open && handleClose()}
-    >
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-[95vw] max-w-4xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">
         <DialogHeader className="space-y-2">
           <DialogTitle>Rabattkoder - {deal?.title}</DialogTitle>
@@ -59,7 +46,7 @@ export const DiscountCodesDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-auto mt-4">
-          <DiscountCodesTable codes={discountCodes} isLoading={isLoading} />
+          <DiscountCodesTable codes={discountCodes} isLoading={isLoading || !isLoaded} />
         </div>
       </DialogContent>
     </Dialog>

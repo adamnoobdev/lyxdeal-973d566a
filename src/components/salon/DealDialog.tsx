@@ -22,50 +22,27 @@ export const DealDialog = ({
   onSubmit,
   initialValues,
 }: DealDialogProps) => {
-  const [isClosing, setIsClosing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset internal state when dialog opens
   useEffect(() => {
     if (isOpen) {
-      setIsClosing(false);
       setIsSubmitting(false);
     }
   }, [isOpen]);
 
-  // Handle controlled closing to prevent UI freezes
-  const handleClose = () => {
-    if (isSubmitting) return; // Don't close during submission
-    
-    setIsClosing(true);
-    // Use a small timeout to allow for smooth transition
-    setTimeout(() => {
-      onClose();
-      setIsClosing(false);
-    }, 300);
-  };
-
-  // Handle form submission with state tracking
   const handleSubmit = async (values: FormValues) => {
     if (isSubmitting) return;
     
     try {
       setIsSubmitting(true);
       await onSubmit(values);
-      // Don't call handleClose here - this allows the parent component
-      // to control when the dialog actually closes
-    } finally {
-      setTimeout(() => {
-        setIsSubmitting(false);
-      }, 300);
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
   };
 
   return (
-    <Dialog 
-      open={isOpen && !isClosing} 
-      onOpenChange={(open) => !open && handleClose()}
-    >
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>

@@ -29,9 +29,10 @@ export const useDiscountCodes = (dealId: number | undefined) => {
       console.log(`Retrieved ${data?.length || 0} discount codes`);
       return data as DiscountCode[];
     },
-    enabled: !!dealId,
-    staleTime: 600000, // Cache results for 10 minutes to prevent excessive refetching
+    enabled: !!dealId, // Only run query when dealId is provided
+    staleTime: 600000, // Cache results for 10 minutes
     gcTime: 900000, // Keep unused data in cache for 15 minutes
+    retry: 1, // Reduce retry attempts to prevent excessive API calls
   });
 
   return {
