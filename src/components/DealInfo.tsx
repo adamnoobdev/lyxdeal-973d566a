@@ -55,6 +55,7 @@ export const DealInfo = ({
               discountedPrice={discountedPrice}
               className="text-lg"
               isFreeOverride={isFree}
+              showSavedAmount={true}
             />
           </div>
         </div>

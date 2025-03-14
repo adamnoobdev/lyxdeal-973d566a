@@ -41,6 +41,9 @@ export const RegularDealContent = ({
   // Check if it's free (either explicitly set or price is 0)
   const isFreeDeal = isFree || discountedPrice === 0;
 
+  // Calculate saved amount
+  const savedAmount = originalPrice - discountedPrice;
+
   return (
     <div className="p-2 flex flex-col h-full justify-between">
       <div className="flex items-start justify-between gap-1 mb-1.5">

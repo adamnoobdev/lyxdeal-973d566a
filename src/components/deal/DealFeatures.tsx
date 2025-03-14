@@ -1,12 +1,27 @@
+
 import { Check, Clock, Sparkles, Tag } from "lucide-react";
 
 interface DealFeaturesProps {
   discountPercentage: number;
   timeRemaining: string;
   quantityLeft: number;
+  savedAmount?: number;
 }
 
-export const DealFeatures = ({ discountPercentage, timeRemaining, quantityLeft }: DealFeaturesProps) => {
+export const DealFeatures = ({ 
+  discountPercentage, 
+  timeRemaining, 
+  quantityLeft,
+  savedAmount = 0
+}: DealFeaturesProps) => {
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('sv-SE', {
+      style: 'currency',
+      currency: 'SEK',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-fade-up">
       <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-primary-50/50 to-primary-100/50 p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
@@ -17,7 +32,7 @@ export const DealFeatures = ({ discountPercentage, timeRemaining, quantityLeft }
           <div className="space-y-1">
             <h3 className="font-semibold text-foreground">Spara {discountPercentage}%</h3>
             <p className="text-sm text-muted-foreground">
-              Ett exklusivt erbjudande med stor besparing
+              {savedAmount > 0 ? `Du sparar ${formatPrice(savedAmount)}` : 'Ett exklusivt erbjudande med stor besparing'}
             </p>
           </div>
         </div>
