@@ -85,15 +85,15 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           await new Promise(resolve => setTimeout(resolve, 2000));
           
           console.log("[DealForm] Fetching newly created deal ID");
-          const { data: newDeals, error } = await supabase
+          const { data: newDeals, error: fetchError } = await supabase
             .from('deals')
             .select('id, title')
             .eq('salon_id', values.salon_id)
             .order('created_at', { ascending: false })
             .limit(1);
 
-          if (error || !newDeals || newDeals.length === 0) {
-            console.error("[DealForm] ❌ Error fetching new deal:", error);
+          if (fetchError || !newDeals || newDeals.length === 0) {
+            console.error("[DealForm] ❌ Error fetching new deal:", fetchError);
             toast.error("Erbjudandet skapades, men kunde inte hitta det för att generera rabattkoder.", {
               description: "Försök generera rabattkoder manuellt senare."
             });
@@ -138,7 +138,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
         } catch (codeError) {
           console.error("[DealForm] ❌ Error in discount code generation:", codeError);
           toast.error("Erbjudandet har skapats, men det uppstod ett fel med rabattkoderna", {
-            description: error instanceof Error ? error.message : "Ett oväntat fel uppstod"
+            description: codeError instanceof Error ? codeError.message : "Ett oväntat fel uppstod"
           });
         } finally {
           setIsGeneratingCodes(false);

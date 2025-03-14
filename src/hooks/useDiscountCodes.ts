@@ -1,10 +1,9 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DiscountCode } from "@/components/discount-codes/DiscountCodesTable";
 import { toast } from "sonner";
 
-export const useDiscountCodes = (dealId: number | undefined) => {
+export const useDiscountCodes = (dealId: number | string | undefined) => {
   const queryKey = ["discount-codes", dealId];
   
   console.log(`[useDiscountCodes] Initializing hook for deal ID: ${dealId || 'undefined'}`);
