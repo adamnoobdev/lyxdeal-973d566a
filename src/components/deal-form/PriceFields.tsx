@@ -4,29 +4,14 @@ import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "./schema";
-import { useEffect } from "react";
 
 interface PriceFieldsProps {
   form: UseFormReturn<z.infer<typeof formSchema>>;
 }
 
 export const PriceFields = ({ form }: PriceFieldsProps) => {
-  // Alla erbjudanden är alltid gratis nu
-  useEffect(() => {
-    // Sätt is_free till true för alla erbjudanden
-    form.setValue("is_free", true);
-    // Sätt discountedPrice till 0 för visning (i databasen sparas 1)
-    form.setValue("discountedPrice", "0");
-  }, [form]);
-
   return (
     <>
-      <div className="p-4 bg-green-50 border border-green-200 rounded-md mb-4">
-        <p className="text-green-700 text-sm">
-          Alla erbjudanden är nu gratis. Betalning sker direkt hos salongen.
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           control={form.control}
@@ -51,29 +36,27 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
           name="discountedPrice"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Rabatterat pris</FormLabel>
+              <FormLabel>Rabatterat pris (SEK)</FormLabel>
               <FormControl>
                 <Input 
                   type="number" 
-                  value="0"
-                  disabled={true}
-                  readOnly={true}
+                  placeholder="500" 
+                  {...field} 
                 />
               </FormControl>
-              <p className="text-sm text-muted-foreground">Alla erbjudanden är gratis</p>
+              <FormMessage />
             </FormItem>
           )}
         />
       </div>
 
-      {/* Dold is_free field som alltid är true */}
       <FormField
         control={form.control}
         name="is_free"
         render={({ field }) => (
           <input 
             type="hidden" 
-            value="true" 
+            value={field.value ? "true" : "false"} 
             name={field.name}
             ref={field.ref}
             onBlur={field.onBlur}

@@ -31,6 +31,7 @@ export const deleteDeal = async (id: number): Promise<boolean> => {
 export const updateDeal = async (values: FormValues, id: number): Promise<boolean> => {
   try {
     const originalPrice = parseInt(values.originalPrice) || 0;
+    const discountedPrice = parseInt(values.discountedPrice) || 0;
     
     // Calculate days remaining and time remaining text
     const today = new Date();
@@ -41,17 +42,19 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
     console.log('Updating deal with values:', {
       ...values,
       originalPrice,
+      discountedPrice,
       expirationDate: expirationDate
     });
     
-    // Först uppdatera grundläggande information och andra fält än pris via normal uppdatering
-    const { error: basicUpdateError } = await supabase
+    // Update the deal with all information
+    const { error } = await supabase
       .from('deals')
       .update({
         title: values.title,
         description: values.description,
         image_url: values.imageUrl,
         original_price: originalPrice,
+        discounted_price: discountedPrice,
         category: values.category,
         city: values.city,
         time_remaining: timeRemaining,
@@ -60,25 +63,14 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
         salon_id: values.salon_id,
         is_active: values.is_active,
         quantity_left: parseInt(values.quantity) || 10,
-        is_free: true, // Sätt alltid is_free till true
+        is_free: values.is_free || false,
+        status: 'approved' // Always approve deals
       })
       .eq('id', id);
 
-    if (basicUpdateError) {
-      console.error('Database error during basic update:', basicUpdateError);
-      throw basicUpdateError;
-    }
-    
-    // Sedan använd RPC-funktionen för att uppdatera erbjudandets frihetsstatus och sätta discounted_price till 1
-    const { error: freeUpdateError } = await supabase
-      .rpc('update_deal_to_free', { 
-        deal_id: id,
-        deal_status: 'approved' 
-      });
-
-    if (freeUpdateError) {
-      console.error('Error updating deal to free:', freeUpdateError);
-      throw freeUpdateError;
+    if (error) {
+      console.error('Database error during update:', error);
+      throw error;
     }
     
     toast.success("Erbjudandet har uppdaterats");
@@ -96,6 +88,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
 export const createDeal = async (values: FormValues): Promise<boolean> => {
   try {
     const originalPrice = parseInt(values.originalPrice) || 0;
+    const discountedPrice = parseInt(values.discountedPrice) || 0;
     
     // Calculate days remaining and time remaining text
     const today = new Date();
@@ -106,18 +99,19 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
     console.log('Creating deal with values:', {
       ...values,
       originalPrice,
+      discountedPrice,
       expirationDate: expirationDate
     });
     
-    // Skapa ett nytt erbjudande med discounted_price = 1 för att undvika begränsningar
-    const { error, data } = await supabase
+    // Create a new deal
+    const { error } = await supabase
       .from('deals')
       .insert([{
         title: values.title,
         description: values.description,
         image_url: values.imageUrl,
         original_price: originalPrice,
-        discounted_price: 1, // Set to 1 to avoid constraints
+        discounted_price: discountedPrice,
         category: values.category,
         city: values.city,
         time_remaining: timeRemaining,
@@ -125,11 +119,10 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
         featured: values.featured,
         salon_id: values.salon_id,
         status: 'approved', // Direktgodkänd
-        is_free: true, // Alla erbjudanden är nu gratis
+        is_free: values.is_free || false,
         is_active: values.is_active !== undefined ? values.is_active : true,
         quantity_left: parseInt(values.quantity) || 10,
-      }])
-      .select();
+      }]);
 
     if (error) {
       console.error('Database error details:', error);

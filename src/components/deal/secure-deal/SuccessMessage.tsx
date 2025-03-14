@@ -22,7 +22,7 @@ export const SuccessMessage = ({ onReset }: SuccessMessageProps) => {
         className="mt-4" 
         onClick={onReset}
       >
-        Säkra ett annat erbjudande
+        Säkra en annan rabattkod
       </Button>
     </div>
   );

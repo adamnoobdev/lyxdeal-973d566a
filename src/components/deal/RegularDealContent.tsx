@@ -24,14 +24,14 @@ export const RegularDealContent = ({
   city,
   daysRemaining,
   originalPrice,
+  discountedPrice,
   quantityLeft,
   id,
 }: RegularDealContentProps) => {
-  // Alla erbjudanden är alltid gratis nu
-  const isFreeDeal = true;
-  
-  // Alltid 100% rabatt
-  const discountPercentage = 100;
+  // Calculate discount percentage
+  const discountPercentage = originalPrice > 0 
+    ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) 
+    : 0;
 
   // Format days remaining text
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
@@ -59,9 +59,9 @@ export const RegularDealContent = ({
           <div className="space-y-0.5">
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg font-semibold">
-                GRATIS
+                {discountedPrice} kr
               </span>
-              {originalPrice > 0 && (
+              {originalPrice > discountedPrice && (
                 <span className="text-sm line-through text-muted-foreground">
                   {originalPrice} kr
                 </span>
@@ -71,9 +71,11 @@ export const RegularDealContent = ({
               {city} • {quantityLeft} kvar
             </p>
           </div>
-          <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-0.5 rounded-full shadow-sm">
-            -{discountPercentage}%
-          </span>
+          {discountPercentage > 0 && (
+            <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-0.5 rounded-full shadow-sm">
+              -{discountPercentage}%
+            </span>
+          )}
         </div>
         
         {id && (
@@ -85,7 +87,7 @@ export const RegularDealContent = ({
           >
             <Link to={`/deal/${id}`}>
               <Tag className="h-3.5 w-3.5 mr-1" />
-              Säkra deal
+              Säkra rabattkod
             </Link>
           </Button>
         )}

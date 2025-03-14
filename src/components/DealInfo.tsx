@@ -26,6 +26,7 @@ export const DealInfo = ({
   id,
   title,
   originalPrice,
+  discountedPrice,
   daysRemaining,
   quantityLeft,
   salon,
@@ -50,9 +51,7 @@ export const DealInfo = ({
           <div className="space-y-1">
             <PriceDisplay 
               originalPrice={originalPrice} 
-              discountedPrice={0}
-              isFreeOverride={true}
-              showZero={true} // Show 0 kr on the product page
+              discountedPrice={discountedPrice}
               className="text-lg"
             />
           </div>
@@ -77,7 +76,7 @@ export const DealInfo = ({
           onClick={handleSecureDeal}
         >
           <Tag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-          Säkra deal
+          Säkra rabattkod
         </Button>
         
         {salon && salon.phone && (
