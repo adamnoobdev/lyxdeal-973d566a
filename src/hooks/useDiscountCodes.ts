@@ -51,7 +51,8 @@ export const useDiscountCodes = (dealId: number | undefined) => {
           const { data: stringIdData, error: stringIdError } = await supabase
             .from("discount_codes")
             .select("*")
-            .eq("deal_id", stringDealId)
+            // The type casting here ensures TypeScript doesn't complain about string vs number
+            .or(`deal_id.eq.${dealId},deal_id.eq.${stringDealId}`)
             .order("created_at", { ascending: false });
             
           if (stringIdError) {

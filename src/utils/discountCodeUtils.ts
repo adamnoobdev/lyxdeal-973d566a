@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -185,6 +184,31 @@ export const markDiscountCodeAsUsed = async (
 };
 
 /**
+ * Tar bort alla rabattkoder
+ */
+export const removeAllDiscountCodes = async (): Promise<boolean> => {
+  console.log(`[removeAllDiscountCodes] Removing all discount codes from the database`);
+  
+  try {
+    const { error } = await supabase
+      .from('discount_codes')
+      .delete()
+      .neq('id', 0); // This will match all rows since id is always > 0
+      
+    if (error) {
+      console.error('[removeAllDiscountCodes] Error removing discount codes:', error);
+      return false;
+    }
+
+    console.log(`[removeAllDiscountCodes] Successfully removed all discount codes`);
+    return true;
+  } catch (error) {
+    console.error('[removeAllDiscountCodes] Critical exception removing discount codes:', error);
+    return false;
+  }
+};
+
+/**
  * Kontrollerar om rabattkoder existerar för ett specifikt erbjudande
  * Användbart för felsökning av saknade koder
  */
@@ -200,7 +224,7 @@ export const inspectDiscountCodes = async (dealId: number | string) => {
     const { data: codes, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', numericDealId);
+      .or(`deal_id.eq.${numericDealId},deal_id.eq.${String(numericDealId)}`)
       
     if (error) {
       console.error('[inspectDiscountCodes] Error querying codes:', error);
@@ -216,7 +240,7 @@ export const inspectDiscountCodes = async (dealId: number | string) => {
     const { data: stringCodes, error: stringError } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', stringDealId);
+      .eq('deal_id', stringDealId as any) // Using type assertion to bypass TypeScript check
     
     if (stringError) {
       console.error('[inspectDiscountCodes] Error querying string codes:', stringError);
