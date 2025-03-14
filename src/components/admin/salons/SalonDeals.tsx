@@ -35,6 +35,9 @@ export function SalonDeals() {
   } = useSalonDealsManagement(salonId);
 
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
+  const [isClosingEditDialog, setIsClosingEditDialog] = useState(false);
+  const [isClosingDeleteDialog, setIsClosingDeleteDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEdit = useCallback((deal) => {
     setEditingDeal(deal);
@@ -45,11 +48,19 @@ export function SalonDeals() {
   }, [setDeletingDeal]);
 
   const handleClose = useCallback(() => {
-    setEditingDeal(null);
+    setIsClosingEditDialog(true);
+    setTimeout(() => {
+      setEditingDeal(null);
+      setIsClosingEditDialog(false);
+    }, 300);
   }, [setEditingDeal]);
 
   const handleCloseDelete = useCallback(() => {
-    setDeletingDeal(null);
+    setIsClosingDeleteDialog(true);
+    setTimeout(() => {
+      setDeletingDeal(null);
+      setIsClosingDeleteDialog(false);
+    }, 300);
   }, [setDeletingDeal]);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
@@ -59,6 +70,18 @@ export function SalonDeals() {
   const handleCloseDiscountCodesDialog = useCallback(() => {
     setViewingCodesForDeal(null);
   }, []);
+  
+  const handleUpdateSubmit = useCallback(async (values: any) => {
+    if (isSubmitting) return;
+    
+    try {
+      setIsSubmitting(true);
+      await handleUpdate(values);
+      handleClose();
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [handleUpdate, handleClose, isSubmitting]);
   
   // Använd useMemo för att förhindra onödiga beräkningar vid re-renders
   const initialValues = useMemo(() => {
@@ -132,14 +155,14 @@ export function SalonDeals() {
       </Card>
 
       <EditDealDialog
-        isOpen={!!editingDeal}
+        isOpen={!!editingDeal && !isClosingEditDialog}
         onClose={handleClose}
-        onSubmit={handleUpdate}
+        onSubmit={handleUpdateSubmit}
         initialValues={initialValues}
       />
 
       <DeleteDealDialog
-        isOpen={!!deletingDeal}
+        isOpen={!!deletingDeal && !isClosingDeleteDialog}
         onClose={handleCloseDelete}
         onConfirm={handleDeleteDeal}
         dealTitle={deletingDeal?.title}

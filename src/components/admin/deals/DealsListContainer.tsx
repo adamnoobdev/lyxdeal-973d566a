@@ -1,5 +1,5 @@
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
 import { useDealsDialogs } from "@/hooks/useDealsDialogs";
@@ -42,6 +42,7 @@ export const DealsListContainer = () => {
   } = useDealsDialogs();
 
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
+  const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
   const { runExclusiveOperation } = useOperationExclusion();
   const { handleStatusChange } = usePendingDealsFunctions(refetch);
 
@@ -63,7 +64,9 @@ export const DealsListContainer = () => {
         console.error("Error in deal deletion flow:", error);
         return false;
       } finally {
-        isDeletingDealRef.current = false;
+        setTimeout(() => {
+          isDeletingDealRef.current = false;
+        }, 300);
       }
     });
   }, [deletingDeal, handleDelete, isDeletingDealRef, runExclusiveOperation, handleCloseDialogs]);
@@ -79,14 +82,19 @@ export const DealsListContainer = () => {
         
         if (success) {
           console.log("Deal update successful");
-          handleCloseDialogs();
+          // Use timeout to prevent UI freezing
+          setTimeout(() => {
+            handleCloseDialogs();
+          }, 300);
         }
         return success;
       } catch (error) {
         console.error("Error in deal update flow:", error);
         return false;
       } finally {
-        isUpdatingDealRef.current = false;
+        setTimeout(() => {
+          isUpdatingDealRef.current = false;
+        }, 300);
       }
     });
   }, [editingDeal, handleUpdate, isUpdatingDealRef, runExclusiveOperation, handleCloseDialogs]);
@@ -102,14 +110,19 @@ export const DealsListContainer = () => {
         
         if (success) {
           console.log("Deal creation successful");
-          handleCloseDialogs();
+          // Use timeout to prevent UI freezing
+          setTimeout(() => {
+            handleCloseDialogs();
+          }, 300);
         }
         return success;
       } catch (error) {
         console.error("Error in deal creation flow:", error);
         return false;
       } finally {
-        isUpdatingDealRef.current = false;
+        setTimeout(() => {
+          isUpdatingDealRef.current = false;
+        }, 600); // Längre timeout för skapande då det också genererar rabattkoder
       }
     });
   }, [handleCreate, isUpdatingDealRef, runExclusiveOperation, handleCloseDialogs]);
@@ -119,7 +132,11 @@ export const DealsListContainer = () => {
   }, []);
 
   const handleCloseDiscountCodesDialog = useCallback(() => {
-    setViewingCodesForDeal(null);
+    setIsClosingCodesDialog(true);
+    setTimeout(() => {
+      setViewingCodesForDeal(null);
+      setIsClosingCodesDialog(false);
+    }, 300);
   }, []);
 
   if (isLoading) {
@@ -174,7 +191,7 @@ export const DealsListContainer = () => {
       />
 
       <DiscountCodesDialog
-        isOpen={!!viewingCodesForDeal}
+        isOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
         onClose={handleCloseDiscountCodesDialog}
         deal={viewingCodesForDeal}
       />

@@ -14,7 +14,7 @@ import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { CATEGORIES, CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { addDays, differenceInDays, endOfMonth } from "date-fns";
 
 interface DealFormProps {
@@ -25,6 +25,7 @@ interface DealFormProps {
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
   const [internalSubmitting, setInternalSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   
   // Set default expiration date to end of current month if not provided
   const defaultExpirationDate = initialValues?.expirationDate || endOfMonth(new Date());
@@ -53,14 +54,15 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   }, [form]);
 
   const handleSubmit = useCallback(async (values: FormValues) => {
-    // Prevent double form submissions
-    if (internalSubmitting || isSubmitting) {
+    // Prevent double form submissions using both state and ref
+    if (internalSubmitting || isSubmitting || isSubmittingRef.current) {
       console.log("Already submitting, preventing double submission");
       return;
     }
     
     try {
       setInternalSubmitting(true);
+      isSubmittingRef.current = true;
       
       if (!values.salon_id) {
         toast.error("Du måste välja en salong");
@@ -124,8 +126,11 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       console.error('Error in form submission:', error);
       toast.error("Något gick fel när erbjudandet skulle sparas.");
     } finally {
-      // Reset submitting flag after completion
-      setInternalSubmitting(false);
+      // Reset submitting flags after completion
+      setTimeout(() => {
+        setInternalSubmitting(false);
+        isSubmittingRef.current = false;
+      }, 300);
     }
   }, [initialValues, onSubmit, internalSubmitting, isSubmitting]);
 

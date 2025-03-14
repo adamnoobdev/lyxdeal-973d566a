@@ -52,9 +52,12 @@ export const DealDialog = ({
     try {
       setIsSubmitting(true);
       await onSubmit(values);
-      handleClose();
+      // Don't call handleClose here - this allows the parent component
+      // to control when the dialog actually closes
     } finally {
-      setIsSubmitting(false);
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 300);
     }
   };
 

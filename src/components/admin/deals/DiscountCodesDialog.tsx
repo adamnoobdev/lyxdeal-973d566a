@@ -39,7 +39,7 @@ export const DiscountCodesDialog = ({
     setTimeout(() => {
       onClose();
       setIsClosing(false);
-    }, 300); // Longer timeout for better performance
+    }, 300); // Längre timeout för bättre prestanda
   };
 
   if (error) {
