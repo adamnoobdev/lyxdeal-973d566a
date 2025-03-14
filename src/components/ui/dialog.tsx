@@ -44,15 +44,15 @@ const DialogContent = React.forwardRef<
       onPointerDownOutside={(e) => {
         // Prevent accidental double-clicks from closing the dialog
         e.preventDefault();
-        // Allow the parent component to handle the closing logic through onOpenChange
-        if (props.onOpenChange) {
-          props.onOpenChange(false);
+        // Allow the parent component to handle the closing logic
+        if (props.onPointerDownOutside) {
+          props.onPointerDownOutside(e);
         }
       }}
       onEscapeKeyDown={(e) => {
-        // Allow the parent component to handle the closing logic through onOpenChange
-        if (props.onOpenChange) {
-          props.onOpenChange(false);
+        // Allow the parent component to handle the closing logic
+        if (props.onEscapeKeyDown) {
+          props.onEscapeKeyDown(e);
         }
       }}
     >
@@ -60,11 +60,8 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Close 
         className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
         onClick={(e) => {
-          // Prevent the default behavior and let the parent component handle closing
-          e.preventDefault();
-          if (props.onOpenChange) {
-            props.onOpenChange(false);
-          }
+          // Let the Close component handle its own click behavior
+          // which will signal to the Dialog root that it should close
         }}
       >
         <X className="h-4 w-4" />

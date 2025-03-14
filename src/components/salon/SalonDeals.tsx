@@ -28,13 +28,18 @@ export const SalonDeals: React.FC = () => {
   } = useSalonDealsManagement(id);
   
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
+  const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
     setViewingCodesForDeal(deal);
   }, []);
 
   const handleCloseDiscountCodesDialog = useCallback(() => {
-    setViewingCodesForDeal(null);
+    setIsClosingCodesDialog(true);
+    setTimeout(() => {
+      setViewingCodesForDeal(null);
+      setIsClosingCodesDialog(false);
+    }, 300);
   }, []);
 
   if (isLoading) {
@@ -95,7 +100,7 @@ export const SalonDeals: React.FC = () => {
       )}
 
       <DiscountCodesDialog
-        isOpen={!!viewingCodesForDeal}
+        isOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
         onClose={handleCloseDiscountCodesDialog}
         deal={viewingCodesForDeal}
       />
