@@ -22,5 +22,23 @@ export function normalizeId(id: string | number): number {
     throw new Error(`Ogiltigt ID-format: ${id}`);
   }
   
+  console.log(`[normalizeId] Konverterade ${id} (${typeof id}) till ${parsed} (number)`);
   return parsed;
+}
+
+/**
+ * Debug-hjälpfunktion för att kontrollera status på ID-värden
+ */
+export function logIdInfo(prefix: string, id: string | number | undefined): void {
+  if (id === undefined) {
+    console.log(`[${prefix}] ID är undefined`);
+    return;
+  }
+  
+  console.log(`[${prefix}] ID: ${id} (${typeof id})`);
+  
+  if (typeof id === 'string') {
+    const numericValue = parseInt(id, 10);
+    console.log(`[${prefix}] ID som nummer: ${numericValue} (${isNaN(numericValue) ? 'Ogiltig konvertering' : 'Giltig konvertering'})`);
+  }
 }

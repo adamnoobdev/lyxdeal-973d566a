@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { RefreshCcw, Database, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { TestGenerateCodesButton } from "../TestGenerateCodesButton";
+import { logIdInfo } from "@/utils/discount-codes/types";
 
 interface DiscountCodesDialogContentProps {
   isOpen: boolean;
@@ -34,6 +36,11 @@ export const DiscountCodesDialogContent = ({
     getEmptyStateMessage
   } = useDiscountCodesDialog(isOpen, deal);
 
+  // Logga deal-information för felsökning
+  if (deal) {
+    logIdInfo("DiscountCodesDialogContent deal", deal.id);
+  }
+
   // Visa om vi har hittat koder i inspektionen men de visas inte i UI
   const showCodeMismatchWarning = inspectionResult?.success && 
     inspectionResult?.codesCount > 0 && 
@@ -42,8 +49,6 @@ export const DiscountCodesDialogContent = ({
   const dialogTitle = deal?.title 
     ? `Rabattkoder för ${deal.title}` 
     : "Rabattkoder";
-
-  const elapsedTimeText = `Dialog öppnades för ${timeElapsedText}`;
 
   return (
     <>
@@ -115,6 +120,18 @@ export const DiscountCodesDialogContent = ({
             </p>
           </AlertDescription>
         </Alert>
+      )}
+      
+      {deal && discountCodes.length === 0 && !isLoading && !isFetching && (
+        <div className="mb-4">
+          <TestGenerateCodesButton 
+            dealId={deal.id} 
+            onSuccess={handleManualRefresh}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Använd denna knapp för att generera några testkoder och felsöka.
+          </p>
+        </div>
       )}
       
       <div className="flex-1 overflow-auto mt-4">

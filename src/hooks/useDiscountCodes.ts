@@ -3,12 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DiscountCode } from "@/components/discount-codes/DiscountCodesTable";
 import { toast } from "sonner";
-import { normalizeId } from "@/utils/discount-codes/types";
+import { normalizeId, logIdInfo } from "@/utils/discount-codes/types";
 
 export const useDiscountCodes = (dealId: number | string | undefined) => {
   const queryKey = ["discount-codes", dealId];
   
-  console.log(`[useDiscountCodes] Initializing hook for deal ID: ${dealId || 'undefined'} (type: ${dealId ? typeof dealId : 'undefined'})`);
+  logIdInfo("useDiscountCodes", dealId);
   
   const {
     data: discountCodes = [],
@@ -27,10 +27,11 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
       console.log(`[useDiscountCodes] Fetching discount codes for deal ID: ${dealId}`);
       
       try {
-        // Normalize the deal ID for database query (ensuring it's a number)
+        // Normalisera deal ID för databasförfrågan (säkerställ att det är ett nummer)
         const normalizedId = normalizeId(dealId);
-        console.log(`[useDiscountCodes] Using normalized deal ID: ${normalizedId} (type: ${typeof normalizedId})`);
+        logIdInfo("useDiscountCodes normalized", normalizedId);
         
+        // Försök först med exakt ID-match
         const { data, error } = await supabase
           .from("discount_codes")
           .select("*")
@@ -39,45 +40,64 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         if (error) {
           console.error("[useDiscountCodes] Error fetching discount codes:", error);
           toast.error("Kunde inte hämta rabattkoder", {
-            description: "Ett fel uppstod vid hämtning av rabattkoder. Försök igen senare."
+            description: `Databasfel: ${error.message}`
           });
           throw error;
         }
 
-        if (!data || data.length === 0) {
-          console.log(`[useDiscountCodes] No discount codes found for deal ID ${normalizedId}, trying string comparison as fallback`);
+        if (data && data.length > 0) {
+          console.log(`[useDiscountCodes] Retrieved ${data.length} discount codes for deal ID: ${dealId}`);
+          return data as DiscountCode[];
+        }
+        
+        // Om inga resultat, försök med string-jämförelse som fallback
+        console.log(`[useDiscountCodes] No discount codes found with numeric ID ${normalizedId}, trying string comparison`);
+        
+        // Hämta alla koder och filtrera
+        const { data: allCodes, error: fallbackError } = await supabase
+          .from("discount_codes")
+          .select("*");
+            
+        if (fallbackError) {
+          console.error("[useDiscountCodes] Error in fallback query:", fallbackError);
+          return [];
+        }
+        
+        // Om det finns koder, försök matcha med string-jämförelse
+        if (allCodes && allCodes.length > 0) {
+          // Logga befintliga deal_ids för felsökning
+          const dealIdsInDb = [...new Set(allCodes.map(c => c.deal_id))];
+          console.log(`[useDiscountCodes] Available deal_ids in database:`, dealIdsInDb);
+          console.log(`[useDiscountCodes] Types of deal_ids in database:`, 
+            [...new Set(allCodes.map(c => typeof c.deal_id))]);
           
-          // Try with string comparison as fallback
-          const { data: allCodes, error: fallbackError } = await supabase
-            .from("discount_codes")
-            .select("*");
-            
-          if (fallbackError) {
-            console.error("[useDiscountCodes] Error in fallback query:", fallbackError);
-          } else if (allCodes && allCodes.length > 0) {
-            // Filter codes by string comparison
-            const stringDealId = String(dealId);
-            const stringMatches = allCodes.filter(code => String(code.deal_id) === stringDealId);
-            
-            if (stringMatches.length > 0) {
-              console.log(`[useDiscountCodes] Found ${stringMatches.length} codes with string comparison`);
-              return stringMatches as DiscountCode[];
-            }
-            
-            // Additional logging for debug help
-            if (allCodes.length > 0) {
-              const dealIdsInDb = [...new Set(allCodes.map(c => c.deal_id))];
-              console.log(`[useDiscountCodes] Available deal_ids in database:`, dealIdsInDb);
-              console.log(`[useDiscountCodes] Types of deal_ids in database:`, 
-                [...new Set(allCodes.map(c => typeof c.deal_id))]);
-              console.log(`[useDiscountCodes] Sample codes:`, allCodes.slice(0, 3));
-            }
+          // Testa olika jämförelsemetoder
+          const stringDealId = String(dealId);
+          const numericDealId = Number(dealId);
+          
+          // Försöka hitta exakta matchningar eller string-matchningar
+          const directMatches = allCodes.filter(code => code.deal_id === normalizedId);
+          const stringMatches = allCodes.filter(code => String(code.deal_id) === stringDealId);
+          
+          console.log(`[useDiscountCodes] Matching results: direct matches: ${directMatches.length}, string matches: ${stringMatches.length}`);
+          
+          if (directMatches.length > 0) {
+            return directMatches as DiscountCode[];
+          }
+          
+          if (stringMatches.length > 0) {
+            return stringMatches as DiscountCode[];
+          }
+          
+          // Visa exempel på koder för felsökning
+          if (allCodes.length > 0) {
+            console.log(`[useDiscountCodes] Sample codes from database:`, allCodes.slice(0, 3));
           }
         } else {
-          console.log(`[useDiscountCodes] Retrieved ${data.length} discount codes for deal ID: ${dealId}`);
+          console.log(`[useDiscountCodes] No discount codes found in database at all`);
         }
-
-        return data as DiscountCode[];
+        
+        return [];
       } catch (fetchError) {
         console.error("[useDiscountCodes] Critical exception fetching discount codes:", fetchError);
         toast.error("Kunde inte hämta rabattkoder", {
@@ -87,7 +107,7 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
       }
     },
     enabled: !!dealId,
-    staleTime: 0, // Always fetch fresh data
+    staleTime: 0, // Hämta alltid färsk data
     gcTime: 30000,
     refetchOnWindowFocus: false,
     retry: 3,

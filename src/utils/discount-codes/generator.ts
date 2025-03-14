@@ -19,7 +19,7 @@ export const generateRandomCode = (length: number = 8): string => {
  * Genererar unika rabattkoder för ett erbjudande och sparar dem i databasen
  */
 export const generateDiscountCodes = async (dealId: number | string, quantity: number = 10): Promise<boolean> => {
-  console.log(`[generateDiscountCodes] Generating ${quantity} discount codes for deal ${dealId}`);
+  console.log(`[generateDiscountCodes] 🟢 Generating ${quantity} discount codes for deal ${dealId}`);
   
   if (!dealId) {
     console.error('[generateDiscountCodes] Invalid dealId provided:', dealId);
@@ -32,63 +32,46 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
   }
   
   try {
-    // Generera en batch med unika koder
-    const uniqueCodes = new Set<string>();
-    
-    // Konvertera deal_id till numeriskt format
+    // Konvertera deal_id till korrekt numeriskt format
     const numericDealId = normalizeId(dealId);
     
     console.log(`[generateDiscountCodes] Using dealId: ${numericDealId} (${typeof numericDealId})`);
     
-    // Hämta först eventuella befintliga koder för detta erbjudande för att undvika duplikat
-    const { data: existingCodes, error: fetchError } = await supabase
-      .from('discount_codes')
-      .select('code')
-      .eq('deal_id', numericDealId);
+    // Generera en batch med unika koder
+    const codes = [];
+    const generatedCodes = new Set<string>();
     
-    if (fetchError) {
-      console.error('[generateDiscountCodes] Error fetching existing codes:', fetchError);
-    } else if (existingCodes && existingCodes.length > 0) {
-      console.log(`[generateDiscountCodes] Found ${existingCodes.length} existing codes for deal ${numericDealId}`);
-      existingCodes.forEach(item => uniqueCodes.add(item.code));
+    // Generera unika koder
+    for (let i = 0; i < quantity; i++) {
+      let code = generateRandomCode(8);
+      while (generatedCodes.has(code)) {
+        code = generateRandomCode(8);
+      }
+      generatedCodes.add(code);
+      
+      codes.push({
+        deal_id: numericDealId,
+        code,
+        is_used: false
+      });
     }
     
-    const initialSize = uniqueCodes.size;
-    let attempts = 0;
-    const maxAttempts = quantity * 3; // Sätt en gräns för att undvika oändliga loopar
+    console.log(`[generateDiscountCodes] Successfully generated ${codes.length} unique codes for deal ${numericDealId}`, codes);
     
-    // Generera nya unika koder tills vi har tillräckligt många
-    while (uniqueCodes.size < initialSize + quantity && attempts < maxAttempts) {
-      uniqueCodes.add(generateRandomCode(8));
-      attempts++;
-    }
-    
-    // Ta bara de nya koderna (hoppa över de som redan fanns)
-    const newCodes = Array.from(uniqueCodes).slice(initialSize);
-    
-    // Skapa code-objekt för insertion
-    const codes = newCodes.map(code => ({
-      deal_id: numericDealId, // Använd numeriskt värde
-      code,
-      is_used: false
-    }));
-
-    console.log(`[generateDiscountCodes] Generated ${codes.length} unique new codes for deal ${numericDealId}`);
-    
-    if (codes.length === 0) {
-      console.warn(`[generateDiscountCodes] No new codes were generated for deal ${numericDealId}`);
-      return false;
-    }
-    
-    // Insert codes in batches to avoid request size limits
+    // Batchvis spara koder för att undvika begränsningar i förfrågningsstorlek
     const BATCH_SIZE = 20;
     let successCount = 0;
     
     for (let i = 0; i < codes.length; i += BATCH_SIZE) {
       const batch = codes.slice(i, i + BATCH_SIZE);
       
+      // Först, verifiera strukturen på det första objektet för felsökning
+      if (i === 0) {
+        console.log('[generateDiscountCodes] First batch sample:', JSON.stringify(batch[0], null, 2));
+      }
+      
       try {
-        // Insert the batch
+        // Spara batchen
         const { error, data } = await supabase
           .from('discount_codes')
           .insert(batch)
@@ -96,8 +79,9 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
           
         if (error) {
           console.error(`[generateDiscountCodes] Error inserting batch ${i/BATCH_SIZE + 1}:`, error);
+          console.error('[generateDiscountCodes] Error details:', error.details, error.hint, error.message);
         } else {
-          console.log(`[generateDiscountCodes] Successfully inserted batch ${i/BATCH_SIZE + 1} (${batch.length} codes)`, data);
+          console.log(`[generateDiscountCodes] Successfully inserted batch ${i/BATCH_SIZE + 1}:`, data);
           successCount += batch.length;
         }
       } catch (batchError) {
@@ -105,7 +89,7 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
       }
     }
     
-    // Verify codes were actually created after a short delay
+    // Verifiera att koderna faktiskt skapades genom att göra en separat kontroll
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     try {
@@ -113,16 +97,35 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
         .from('discount_codes')
         .select('code, deal_id')
         .eq('deal_id', numericDealId)
-        .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(10);
         
       if (verificationError) {
         console.error('[generateDiscountCodes] Error verifying discount codes:', verificationError);
       } else if (!verificationData || verificationData.length === 0) {
         console.error('[generateDiscountCodes] Verification failed: No codes found for deal', numericDealId);
+        
+        // Försök med sträng-jämförelse
+        const { data: stringVerificationData, error: stringVerificationError } = await supabase
+          .from('discount_codes')
+          .select('code, deal_id')
+          .eq('deal_id', String(dealId))
+          .limit(10);
+          
+        if (stringVerificationError) {
+          console.error('[generateDiscountCodes] Error verifying discount codes with string comparison:', stringVerificationError);
+        } else if (stringVerificationData && stringVerificationData.length > 0) {
+          console.log('[generateDiscountCodes] Found codes with string comparison:', stringVerificationData);
+        }
+        
+        // Hämta alla koder för debugging
+        const { data: allCodes } = await supabase
+          .from('discount_codes')
+          .select('code, deal_id')
+          .limit(20);
+          
+        console.log('[generateDiscountCodes] All codes in database:', allCodes);
       } else {
-        console.log('[generateDiscountCodes] Verified creation with sample codes:', 
-          verificationData.map(c => `${c.code} (deal_id: ${c.deal_id}, type: ${typeof c.deal_id})`).join(', '));
+        console.log('[generateDiscountCodes] Verified creation with sample codes:', verificationData);
       }
     } catch (verifyError) {
       console.error('[generateDiscountCodes] Exception during verification:', verifyError);

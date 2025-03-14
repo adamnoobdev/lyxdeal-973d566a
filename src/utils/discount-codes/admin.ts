@@ -1,27 +1,69 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { removeAllDiscountCodes } from "./removeAllCodes";
 
 /**
- * Tar bort alla rabattkoder
+ * Exportera removeAllDiscountCodes funktionen
  */
-export const removeAllDiscountCodes = async (): Promise<boolean> => {
-  console.log(`[removeAllDiscountCodes] Removing all discount codes from the database`);
+export { removeAllDiscountCodes };
+
+/**
+ * Uppdaterar en rabattkod med ny information
+ */
+export const updateDiscountCode = async (
+  id: number,
+  updates: {
+    is_used?: boolean;
+    customer_name?: string;
+    customer_email?: string;
+    customer_phone?: string;
+  }
+): Promise<boolean> => {
+  console.log(`[updateDiscountCode] Updating discount code with ID ${id}`, updates);
+  
+  try {
+    const { error } = await supabase
+      .from('discount_codes')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id);
+      
+    if (error) {
+      console.error('[updateDiscountCode] Error updating discount code:', error);
+      return false;
+    }
+    
+    console.log('[updateDiscountCode] Discount code updated successfully');
+    return true;
+  } catch (error) {
+    console.error('[updateDiscountCode] Exception updating discount code:', error);
+    return false;
+  }
+};
+
+/**
+ * Tar bort en specifik rabattkod
+ */
+export const deleteDiscountCode = async (id: number): Promise<boolean> => {
+  console.log(`[deleteDiscountCode] Deleting discount code with ID ${id}`);
   
   try {
     const { error } = await supabase
       .from('discount_codes')
       .delete()
-      .neq('id', 0); // This will match all rows since id is always > 0
+      .eq('id', id);
       
     if (error) {
-      console.error('[removeAllDiscountCodes] Error removing discount codes:', error);
+      console.error('[deleteDiscountCode] Error deleting discount code:', error);
       return false;
     }
-
-    console.log(`[removeAllDiscountCodes] Successfully removed all discount codes`);
+    
+    console.log('[deleteDiscountCode] Discount code deleted successfully');
     return true;
   } catch (error) {
-    console.error('[removeAllDiscountCodes] Critical exception removing discount codes:', error);
+    console.error('[deleteDiscountCode] Exception deleting discount code:', error);
     return false;
   }
 };
