@@ -322,6 +322,13 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_deal_to_free: {
+        Args: {
+          deal_id: number
+          deal_status?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       user_role: "admin" | "salon"

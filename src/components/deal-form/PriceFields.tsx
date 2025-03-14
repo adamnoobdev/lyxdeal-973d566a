@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "./schema";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect } from "react";
 
 interface PriceFieldsProps {
@@ -72,15 +71,13 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
         control={form.control}
         name="is_free"
         render={({ field }) => (
-          // Instead of directly rendering input with field spread which causes type incompatibility,
-          // we'll use a hidden input with string value "true"
           <input 
             type="hidden" 
             value="true" 
-            ref={field.ref}
             name={field.name}
-            onChange={field.onChange}
+            ref={field.ref}
             onBlur={field.onBlur}
+            onChange={field.onChange}
           />
         )}
       />
