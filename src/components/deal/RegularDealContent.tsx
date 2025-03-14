@@ -24,19 +24,14 @@ export const RegularDealContent = ({
   city,
   daysRemaining,
   originalPrice,
-  discountedPrice,
   quantityLeft,
-  isFree = false,
   id,
 }: RegularDealContentProps) => {
-  // Check if this is a free deal (either explicitly marked as free or has discounted price of 0)
-  // Removed the discountedPrice === 1 condition to fix the issue
-  const isFreeDeal = isFree || discountedPrice === 0;
+  // Alla erbjudanden är alltid gratis nu
+  const isFreeDeal = true;
   
-  // Calculate discount percentage only if not free
-  const discountPercentage = isFreeDeal ? 100 : Math.round(
-    ((originalPrice - discountedPrice) / originalPrice) * 100
-  );
+  // Alltid 100% rabatt
+  const discountPercentage = 100;
 
   // Format days remaining text
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
@@ -64,9 +59,9 @@ export const RegularDealContent = ({
           <div className="space-y-0.5">
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg font-semibold">
-                {isFreeDeal ? "GRATIS" : `${discountedPrice} kr`}
+                GRATIS
               </span>
-              {originalPrice > 0 && !isFreeDeal && (
+              {originalPrice > 0 && (
                 <span className="text-sm line-through text-muted-foreground">
                   {originalPrice} kr
                 </span>

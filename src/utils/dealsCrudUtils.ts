@@ -60,6 +60,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
         salon_id: values.salon_id,
         is_active: values.is_active,
         quantity_left: parseInt(values.quantity) || 10,
+        is_free: true, // Sätt alltid is_free till true
       })
       .eq('id', id);
 
@@ -68,8 +69,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       throw basicUpdateError;
     }
     
-    // Sedan använd RPC-funktionen för att uppdatera erbjudandets frihetsstatus
-    // Detta hjälper oss att kringgå eventuella begränsningar i databasen
+    // Sedan använd RPC-funktionen för att uppdatera erbjudandets frihetsstatus och sätta discounted_price till 1
     const { error: freeUpdateError } = await supabase
       .rpc('update_deal_to_free', { 
         deal_id: id,
@@ -125,7 +125,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
         featured: values.featured,
         salon_id: values.salon_id,
         status: 'approved', // Direktgodkänd
-        is_free: true, // All deals are free now
+        is_free: true, // Alla erbjudanden är nu gratis
         is_active: values.is_active !== undefined ? values.is_active : true,
         quantity_left: parseInt(values.quantity) || 10,
       }])

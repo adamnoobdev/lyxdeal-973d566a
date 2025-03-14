@@ -15,7 +15,7 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
   useEffect(() => {
     // Sätt is_free till true för alla erbjudanden
     form.setValue("is_free", true);
-    // Sätt discountedPrice till 0
+    // Sätt discountedPrice till 0 för visning (i databasen sparas 1)
     form.setValue("discountedPrice", "0");
   }, [form]);
 

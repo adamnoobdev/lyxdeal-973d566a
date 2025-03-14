@@ -26,10 +26,8 @@ export const DealInfo = ({
   id,
   title,
   originalPrice,
-  discountedPrice,
   daysRemaining,
   quantityLeft,
-  isFree = false,
   salon,
 }: DealInfoProps) => {
   const navigate = useNavigate();
@@ -52,8 +50,8 @@ export const DealInfo = ({
           <div className="space-y-1">
             <PriceDisplay 
               originalPrice={originalPrice} 
-              discountedPrice={discountedPrice}
-              isFreeOverride={isFree}
+              discountedPrice={0}
+              isFreeOverride={true}
               showZero={true} // Show 0 kr on the product page
               className="text-lg"
             />

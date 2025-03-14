@@ -1,3 +1,4 @@
+
 import { Tag } from "lucide-react";
 
 interface PriceDisplayProps {
@@ -15,9 +16,8 @@ export function PriceDisplay({
   isFreeOverride = false,
   showZero = false,
 }: PriceDisplayProps) {
-  // All deals are considered free now, but we keep the original logic
-  // for displaying the prices for backward compatibility
-  const isFree = isFreeOverride || discountedPrice === 0;
+  // All deals are considered free now
+  const isFree = true;
   
   const formatPrice = (price: number) => {
     // Special handling for the discounted price when it's a free deal
@@ -39,26 +39,18 @@ export function PriceDisplay({
     }).format(price);
   };
 
-  const discountPercentage = isFree ? 100 : Math.round(
-    ((originalPrice - discountedPrice) / originalPrice) * 100
-  );
+  // Alltid 100% rabatt eftersom allt är gratis
+  const discountPercentage = 100;
 
   return (
     <div className={`space-y-1.5 ${className}`}>
       <div className="flex items-baseline gap-3">
         <span className="text-3xl font-bold text-gray-900">
-          {formatPrice(discountedPrice)}
+          {formatPrice(0)}
         </span>
-        {!isFree && originalPrice > 0 && (
-          <span className="text-sm px-2 py-0.5 rounded-full bg-red-50 text-red-600 font-medium">
-            -{discountPercentage}%
-          </span>
-        )}
-        {isFree && (
-          <span className="text-sm px-2 py-0.5 rounded-full bg-green-50 text-green-600 font-medium">
-            GRATIS
-          </span>
-        )}
+        <span className="text-sm px-2 py-0.5 rounded-full bg-green-50 text-green-600 font-medium">
+          GRATIS
+        </span>
       </div>
       {originalPrice > 0 && ( 
         <div className="flex items-center gap-1.5 text-gray-500">

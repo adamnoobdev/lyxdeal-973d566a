@@ -21,7 +21,7 @@ serve(async (req) => {
 
     const { dealId } = await req.json()
 
-    console.log('Creating record for deal (no longer using Stripe):', dealId)
+    console.log('Creating free record for deal:', dealId)
 
     // Query for the deal to ensure it exists
     const { data: deal, error: dealError } = await supabaseClient
@@ -35,7 +35,7 @@ serve(async (req) => {
       throw new Error('Error fetching deal details')
     }
 
-    // Update the deal to set is_free to true and discounted_price to 0
+    // Update the deal to set is_free to true and discounted_price to 1
     // Använd rpc för att undvika Check Constraint
     const { error: updateError } = await supabaseClient
       .rpc('update_deal_to_free', { 
@@ -48,7 +48,7 @@ serve(async (req) => {
       throw new Error(`Error updating deal with free status: ${updateError.message}`)
     }
     
-    console.log('Successfully processed deal')
+    console.log('Successfully processed deal as free')
 
     return new Response(
       JSON.stringify({ success: true }),
