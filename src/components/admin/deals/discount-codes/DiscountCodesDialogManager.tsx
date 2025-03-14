@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Deal } from "@/components/admin/types";
 import { DiscountCodesDialog } from "../DiscountCodesDialog";
 
@@ -18,14 +18,23 @@ export const DiscountCodesDialogManager = ({
   const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
   const [isViewingCodes, setIsViewingCodes] = useState(false);
   
-  // Handle opening the dialog for a specific deal
+  // Effect för att automatiskt visa rabattkoder för nyligen skapade erbjudanden
+  useEffect(() => {
+    if (justCreatedDeal && !viewingCodesForDeal && !isClosingCodesDialog && !isViewingCodes) {
+      console.log("[DiscountCodesDialogManager] Auto-showing discount codes for newly created deal:", justCreatedDeal.id);
+      setIsViewingCodes(true);
+      setViewingCodesForDeal(justCreatedDeal);
+    }
+  }, [justCreatedDeal, viewingCodesForDeal, isClosingCodesDialog, isViewingCodes]);
+  
+  // Hantera öppning av dialogen för ett specifikt erbjudande
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
     console.log("[DiscountCodesDialogManager] Viewing discount codes for deal:", deal.id, deal.title);
     setIsViewingCodes(true);
     setViewingCodesForDeal(deal);
   }, []);
   
-  // Handle closing the dialog
+  // Hantera stängning av dialogen
   const handleCloseDiscountCodesDialog = useCallback(() => {
     setIsClosingCodesDialog(true);
     setTimeout(() => {
@@ -36,7 +45,7 @@ export const DiscountCodesDialogManager = ({
     }, 300);
   }, [resetJustCreatedDeal]);
   
-  // Effect to show discount codes for newly created deals
+  // Avgör vilket erbjudande som ska visas (antingen via explicit visning eller auto-visning av nya)
   const activeDeal = viewingCodesForDeal || justCreatedDeal;
   const isDialogOpen = !!activeDeal && !isClosingCodesDialog;
   

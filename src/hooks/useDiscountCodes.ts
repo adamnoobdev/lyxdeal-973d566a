@@ -45,11 +45,9 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         }
 
         if (!data || data.length === 0) {
-          console.log(`[useDiscountCodes] No discount codes found with normalized ID, trying string comparison`);
+          console.log(`[useDiscountCodes] No discount codes found for deal ID ${normalizedId}, trying string comparison as fallback`);
           
           // Try with string comparison as fallback
-          console.log(`[useDiscountCodes] Trying with string comparison fallback`);
-          
           const { data: allCodes, error: fallbackError } = await supabase
             .from("discount_codes")
             .select("*");

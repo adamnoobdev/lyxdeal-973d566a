@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeId } from "./types";
 
 const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
@@ -35,7 +36,7 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
     const uniqueCodes = new Set<string>();
     
     // Konvertera deal_id till numeriskt format
-    const numericDealId = Number(dealId);
+    const numericDealId = normalizeId(dealId);
     
     console.log(`[generateDiscountCodes] Using dealId: ${numericDealId} (${typeof numericDealId})`);
     
