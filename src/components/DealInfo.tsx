@@ -64,7 +64,7 @@ export const DealInfo = ({
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>{quantityLeft} köp kvar till detta pris</span>
+              <span>{quantityLeft} rabattkoder kvar</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-primary" />
