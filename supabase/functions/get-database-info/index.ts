@@ -30,16 +30,16 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-    // För att hämta alla tabeller i databasen använder vi en SQL-fråga istället för RPC
+    // För att hämta alla tabeller i databasen använder vi rätt schema för pg_tables
     const { data: tables, error: tablesError } = await supabaseAdmin
-      .from('pg_tables')
-      .select('schemaname, tablename')
-      .eq('schemaname', 'public');
+      .from('information_schema.tables')
+      .select('table_schema, table_name')
+      .eq('table_schema', 'public');
       
     if (tablesError) {
       console.error('Error fetching tables:', tablesError);
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch database information' }),
+        JSON.stringify({ error: 'Failed to fetch database information', details: tablesError }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 500
