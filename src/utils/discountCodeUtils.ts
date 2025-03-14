@@ -40,11 +40,12 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       is_used: false
     }));
 
+    // Log generated codes for debugging
     console.log(`[generateDiscountCodes] Generated ${codes.length} unique codes for deal ${dealId}:`, 
       codes.map(c => c.code).join(', '));
 
     // Insert all codes in a single database operation
-    const { error } = await supabase
+    const { data: insertData, error } = await supabase
       .from('discount_codes')
       .insert(codes);
 
@@ -53,12 +54,13 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       throw error;
     }
     
-    console.log(`[generateDiscountCodes] Successfully inserted ${codes.length} codes into database`);
+    console.log(`[generateDiscountCodes] Successfully inserted ${codes.length} codes into database. Insert result:`, insertData);
     
     // Wait a short moment to ensure the database transaction is complete
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Verify that codes were actually created
+    console.log('[generateDiscountCodes] Verifying codes were created in database...');
     const { data: verificationData, error: verificationError } = await supabase
       .from('discount_codes')
       .select('*')
@@ -70,7 +72,7 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
     }
     
     const count = verificationData?.length || 0;
-    console.log(`[generateDiscountCodes] Successfully verified ${count} discount codes for deal ${dealId}`);
+    console.log(`[generateDiscountCodes] Verification result: ${count} discount codes found for deal ${dealId}`);
     
     // Log each code for verification purposes
     if (count > 0) {
@@ -78,7 +80,21 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
         verificationData.slice(0, 3).map((c: any) => c.code).join(', '), 
         count > 3 ? `... and ${count - 3} more` : '');
     } else {
-      console.warn('[generateDiscountCodes] No codes were found in verification check!');
+      console.warn('[generateDiscountCodes] ⚠️ CRITICAL: No codes were found in verification check!');
+      console.log('[generateDiscountCodes] Trying again in 3 seconds...');
+      
+      // Last attempt if no codes were found
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      const { data: retryData } = await supabase
+        .from('discount_codes')
+        .select('*')
+        .eq('deal_id', dealId);
+        
+      const retryCount = retryData?.length || 0;
+      console.log(`[generateDiscountCodes] Re-verify attempt: ${retryCount} codes found`);
+      
+      return retryCount > 0;
     }
     
     return count > 0;

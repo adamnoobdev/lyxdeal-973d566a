@@ -49,9 +49,11 @@ export const DealsListContainer = () => {
   const { handleStatusChange } = usePendingDealsFunctions(refetch);
   const [isViewingCodes, setIsViewingCodes] = useState(false);
 
+  // Added a timestamp field to track when the last deal was created
   const lastCreatedDealId = useRef<number | null>(null);
   const justCreatedDeal = useRef<Deal | null>(null);
   const dealCreationTimestamp = useRef<number | null>(null);
+  const findDealAttemptsCounter = useRef<number>(0);
 
   // This effect automatically shows the discount codes dialog after a new deal is created
   useEffect(() => {
@@ -64,6 +66,7 @@ export const DealsListContainer = () => {
         setViewingCodesForDeal(justCreatedDeal.current);
         justCreatedDeal.current = null;
         dealCreationTimestamp.current = null;
+        findDealAttemptsCounter.current = 0;
       }, 1500);
       
       return () => clearTimeout(timer);
@@ -73,10 +76,14 @@ export const DealsListContainer = () => {
   // This effect attempts to find and fetch new deal info for showing discount codes
   useEffect(() => {
     const findNewlyCreatedDeal = async () => {
+      // Max 10 attempts to find the deal
+      const MAX_ATTEMPTS = 10;
+      
       // If we have a timestamp when deal was created, try to find it
-      if (dealCreationTimestamp.current && !justCreatedDeal.current && !isCreating && !editingDeal) {
+      if (dealCreationTimestamp.current && !justCreatedDeal.current && !isCreating && findDealAttemptsCounter.current < MAX_ATTEMPTS) {
         try {
-          console.log("[DealsListContainer] Attempting to find newly created deal");
+          findDealAttemptsCounter.current++;
+          console.log(`[DealsListContainer] Attempting to find newly created deal (attempt ${findDealAttemptsCounter.current}/${MAX_ATTEMPTS})`);
           
           // Query deals created after our timestamp
           const creationTime = new Date(dealCreationTimestamp.current).toISOString();
@@ -92,8 +99,21 @@ export const DealsListContainer = () => {
           } else if (newDeals && newDeals.length > 0) {
             console.log("[DealsListContainer] Found newly created deal:", newDeals[0]);
             justCreatedDeal.current = newDeals[0] as Deal;
+            
+            // Trigger a refetch now to ensure all deals are up to date
+            refetch();
           } else {
-            console.log("[DealsListContainer] No newly created deals found");
+            console.log("[DealsListContainer] No newly created deals found, will retry...");
+            
+            // Schedule another attempt if we haven't reached the max
+            if (findDealAttemptsCounter.current < MAX_ATTEMPTS) {
+              setTimeout(findNewlyCreatedDeal, 1500);
+            } else {
+              console.warn("[DealsListContainer] Failed to find newly created deal after maximum attempts");
+              toast.warning("Kunde inte hitta det nyskapade erbjudandet", {
+                description: "Rabattkoder kan ha genererats men kan inte visas automatiskt. Leta efter erbjudandet i listan och klicka på 'Visa rabattkoder'."
+              });
+            }
           }
         } catch (error) {
           console.error("[DealsListContainer] Exception finding new deal:", error);
@@ -101,9 +121,11 @@ export const DealsListContainer = () => {
       }
     };
     
-    // Run once when component mounts or when isCreating changes
-    findNewlyCreatedDeal();
-  }, [isCreating, editingDeal]);
+    // Run when dealCreationTimestamp changes
+    if (dealCreationTimestamp.current) {
+      findNewlyCreatedDeal();
+    }
+  }, [dealCreationTimestamp.current, isCreating, refetch]);
 
   const onDelete = useCallback(async () => {
     if (!deletingDeal || isDeletingDealRef.current) return;
@@ -165,44 +187,35 @@ export const DealsListContainer = () => {
         isUpdatingDealRef.current = true;
         console.log("[DealsListContainer] Starting deal creation");
         
-        // Store timestamp before creation
+        // Store timestamp before creation - will be used to find the new deal
         dealCreationTimestamp.current = Date.now();
+        findDealAttemptsCounter.current = 0;
+        
+        // Clear any previously stored created deal
+        justCreatedDeal.current = null;
+        
+        console.log("[DealsListContainer] Deal creation timestamp set to:", dealCreationTimestamp.current);
         
         const success = await handleCreate(values);
         
         if (success) {
-          console.log("[DealsListContainer] Deal creation successful, timestamp:", dealCreationTimestamp.current);
+          console.log("[DealsListContainer] Deal creation successful");
           
-          // Attempt to find the newly created deal
-          setTimeout(async () => {
-            try {
-              console.log("[DealsListContainer] Fetching newly created deal");
-              const { data: newDeals } = await supabase
-                .from('deals')
-                .select('*')
-                .eq('salon_id', values.salon_id)
-                .order('created_at', { ascending: false })
-                .limit(1);
-                
-              if (newDeals && newDeals.length > 0) {
-                console.log("[DealsListContainer] Found newly created deal:", newDeals[0]);
-                justCreatedDeal.current = newDeals[0] as Deal;
-                
-                // Wait a bit longer to ensure discount codes are generated
-                setTimeout(() => {
-                  refetch();
-                }, 1000);
-              }
-              
-              handleCloseDialogs();
-              toast.success("Erbjudandet har skapats! Rabattkoder kommer visas automatiskt.");
-            } catch (error) {
-              console.error("[DealsListContainer] Error fetching new deal:", error);
-              handleCloseDialogs();
-            }
+          // Close the dialog immediately on success
+          handleCloseDialogs();
+          
+          // Show toast while we work on finding the deal
+          toast.success("Erbjudandet har skapats!", {
+            description: "Rabattkoder kommer visas automatiskt när de har genererats."
+          });
+          
+          // Trigger refetch - the actual opening of codes dialog is handled by the useEffect
+          setTimeout(() => {
+            refetch();
           }, 1000);
         } else {
           dealCreationTimestamp.current = null;
+          toast.error("Ett fel uppstod när erbjudandet skulle skapas");
         }
         
         return success;
@@ -219,7 +232,7 @@ export const DealsListContainer = () => {
   }, [handleCreate, isUpdatingDealRef, runExclusiveOperation, handleCloseDialogs, refetch]);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
-    console.log("[DealsListContainer] Viewing discount codes for deal:", deal);
+    console.log("[DealsListContainer] Viewing discount codes for deal:", deal.id, deal.title);
     setIsViewingCodes(true);
     setViewingCodesForDeal(deal);
   }, []);

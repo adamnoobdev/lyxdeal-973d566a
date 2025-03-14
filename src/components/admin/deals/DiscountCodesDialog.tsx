@@ -9,9 +9,11 @@ import {
 import { DiscountCodesTable } from "@/components/discount-codes/DiscountCodesTable";
 import { useDiscountCodes } from "@/hooks/useDiscountCodes";
 import { Deal } from "@/components/admin/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface DiscountCodesDialogProps {
   isOpen: boolean;
@@ -24,42 +26,94 @@ export const DiscountCodesDialog = ({
   onClose,
   deal,
 }: DiscountCodesDialogProps) => {
-  const { discountCodes, isLoading, error, refetch } = useDiscountCodes(isOpen ? deal?.id : undefined);
+  console.log(`[DiscountCodesDialog] Rendering with isOpen=${isOpen}, deal=${deal?.id || 'null'}`);
+  
+  const { discountCodes, isLoading, error, refetch, isFetching } = useDiscountCodes(isOpen ? deal?.id : undefined);
   const [isLoaded, setIsLoaded] = useState(false);
   const [refreshAttempts, setRefreshAttempts] = useState(0);
+  const [manualRefreshCount, setManualRefreshCount] = useState(0);
+  
+  // Track dialog opening time for debugging purposes
+  const [dialogOpenedAt, setDialogOpenedAt] = useState<Date | null>(null);
 
   // Reset internal state when dialog opens/closes and trigger refetch when dialog opens
   useEffect(() => {
     if (isOpen && deal?.id) {
-      console.log("[DiscountCodesDialog] Dialog opened for deal ID:", deal.id, "Triggering refetch");
+      const now = new Date();
+      console.log(`[DiscountCodesDialog] Dialog opened at ${now.toISOString()} for deal ID: ${deal.id}, triggering refetch`);
+      setDialogOpenedAt(now);
       setIsLoaded(true);
       setRefreshAttempts(0);
+      setManualRefreshCount(0);
+      
       // Force a refetch when the dialog opens to get fresh data
-      refetch();
+      refetch().then(result => {
+        console.log(`[DiscountCodesDialog] Initial refetch completed with ${result.data?.length || 0} codes`);
+      }).catch(err => {
+        console.error(`[DiscountCodesDialog] Error during initial refetch:`, err);
+      });
+    } else if (!isOpen) {
+      console.log("[DiscountCodesDialog] Dialog closed or no deal selected");
+      setDialogOpenedAt(null);
     }
   }, [isOpen, deal?.id, refetch]);
 
   // Automatically retry fetching if no codes are found on first load
   useEffect(() => {
-    if (isOpen && deal?.id && isLoaded && discountCodes.length === 0 && !isLoading && refreshAttempts < 3) {
+    if (isOpen && deal?.id && isLoaded && discountCodes.length === 0 && !isLoading && refreshAttempts < 5) {
       const timer = setTimeout(() => {
-        console.log(`[DiscountCodesDialog] No codes found, auto-retrying (attempt ${refreshAttempts + 1}/3)`);
-        refetch();
+        console.log(`[DiscountCodesDialog] No codes found, auto-retrying (attempt ${refreshAttempts + 1}/5)`);
+        refetch().then(result => {
+          console.log(`[DiscountCodesDialog] Auto-retry ${refreshAttempts + 1} completed with ${result.data?.length || 0} codes`);
+        });
         setRefreshAttempts(prev => prev + 1);
-      }, 1500); // Wait 1.5 seconds before retrying
+      }, 3000); // Wait 3 seconds before retrying
       
       return () => clearTimeout(timer);
     }
   }, [isOpen, deal?.id, isLoaded, discountCodes.length, isLoading, refreshAttempts, refetch]);
 
-  const handleManualRefresh = () => {
-    console.log("[DiscountCodesDialog] Manual refresh triggered");
-    refetch();
-  };
+  // Display toast notification if we've retried several times without finding codes
+  useEffect(() => {
+    if (refreshAttempts === 5 && discountCodes.length === 0) {
+      toast.warning("Kunde inte hitta några rabattkoder efter flera försök", {
+        description: "Det kan ta en stund innan koderna dyker upp i systemet. Försök ladda om sidan om en liten stund."
+      });
+    }
+  }, [refreshAttempts, discountCodes.length]);
+
+  const handleManualRefresh = useCallback(() => {
+    if (isFetching) return;
+    
+    const newCount = manualRefreshCount + 1;
+    console.log(`[DiscountCodesDialog] Manual refresh #${newCount} triggered`);
+    setManualRefreshCount(newCount);
+    
+    toast.promise(
+      refetch().then(result => {
+        console.log(`[DiscountCodesDialog] Manual refresh returned ${result.data?.length || 0} codes`);
+        return result;
+      }),
+      {
+        loading: 'Uppdaterar rabattkoder...',
+        success: (result) => {
+          const count = result.data?.length || 0;
+          return count > 0 
+            ? `Hittade ${count} rabattkoder` 
+            : "Uppdaterat men inga rabattkoder hittades";
+        },
+        error: 'Kunde inte hämta rabattkoderna'
+      }
+    );
+  }, [refetch, isFetching, manualRefreshCount]);
 
   if (error) {
     console.error("[DiscountCodesDialog] Error loading discount codes:", error);
   }
+
+  // Calculate time elapsed since dialog opened (for debugging)
+  const timeElapsedText = dialogOpenedAt ? 
+    `Dialog opened ${Math.round((new Date().getTime() - dialogOpenedAt.getTime()) / 1000)}s ago` : '';
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -71,10 +125,10 @@ export const DiscountCodesDialog = ({
               variant="outline" 
               size="sm" 
               onClick={handleManualRefresh} 
-              disabled={isLoading}
+              disabled={isFetching}
               className="flex items-center gap-1"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
               <span>Uppdatera</span>
             </Button>
           </div>
@@ -85,16 +139,33 @@ export const DiscountCodesDialog = ({
                 Inga rabattkoder hittades. Använd uppdatera-knappen för att försöka igen.
               </span>
             )}
+            {timeElapsedText && (
+              <span className="block mt-1 text-xs text-muted-foreground opacity-50">
+                {timeElapsedText}
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
+        
+        {error && (
+          <Alert variant="destructive" className="my-2">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Det uppstod ett fel när rabattkoderna skulle hämtas. Försök igen senare.
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div className="flex-1 overflow-auto mt-4">
           <DiscountCodesTable 
             codes={discountCodes} 
-            isLoading={isLoading || !isLoaded} 
+            isLoading={isLoading} 
             emptyStateMessage={
-              refreshAttempts >= 3 
+              refreshAttempts >= 5 
                 ? "Inga rabattkoder hittades efter flera försök. Kontrollera databasen eller generera nya koder."
-                : "Letar efter rabattkoder..."
+                : refreshAttempts > 0
+                  ? `Letar efter rabattkoder... (försök ${refreshAttempts}/5)`
+                  : "Letar efter rabattkoder..."
             }
           />
         </div>

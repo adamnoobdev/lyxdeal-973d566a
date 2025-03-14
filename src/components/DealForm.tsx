@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -87,7 +88,8 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           setIsGeneratingCodes(true);
           
           // Wait to ensure the database transaction is complete
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          console.log("[DealForm] Waiting for database to complete deal creation...");
+          await new Promise(resolve => setTimeout(resolve, 2000));
           
           // Try to fetch the latest deal from the database
           console.log("[DealForm] Fetching newly created deal ID");
@@ -101,7 +103,9 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
 
           if (error || !newDeal) {
             console.error("[DealForm] Error fetching new deal:", error);
-            toast.error("Erbjudandet skapades, men rabattkoder kunde inte genereras.");
+            toast.error("Erbjudandet skapades, men rabattkoder kunde inte genereras.", {
+              description: "Ett fel uppstod när det senaste erbjudandet skulle hämtas. Försök generera rabattkoder manuellt."
+            });
           } else {
             console.log("[DealForm] New deal found, ID:", newDeal.id, "Title:", newDeal.title);
             
@@ -114,19 +118,25 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
               
               if (codesGenerated) {
                 console.log(`[DealForm] Successfully generated ${quantityNum} discount codes for deal ${newDeal.id}`);
-                toast.success("Erbjudande och rabattkoder har skapats");
+                toast.success(`Erbjudande och ${quantityNum} rabattkoder har skapats`);
               } else {
                 console.warn(`[DealForm] Failed to generate discount codes for deal ${newDeal.id}`);
-                toast.success("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna");
+                toast.warning("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna", {
+                  description: "Det kan ta en stund innan koderna dyker upp i systemet. Du kan försöka visa rabattkoderna för erbjudandet om en liten stund."
+                });
               }
             } catch (codeError) {
               console.error("[DealForm] Error in discount code generation:", codeError);
-              toast.success("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna");
+              toast.error("Erbjudandet har skapats, men det uppstod ett fel med rabattkoderna", {
+                description: "Ett tekniskt problem inträffade. Vänligen kontakta support om problemet kvarstår."
+              });
             }
           }
         } catch (dealFetchError) {
           console.error("[DealForm] Exception in deal fetching:", dealFetchError);
-          toast.success("Erbjudandet har skapats, men rabattkoder kunde inte genereras automatiskt");
+          toast.error("Erbjudandet har skapats, men rabattkoder kunde inte genereras automatiskt", {
+            description: "Ett fel uppstod när det senaste erbjudandet skulle hämtas. Försök generera rabattkoder manuellt."
+          });
         } finally {
           setIsGeneratingCodes(false);
         }
@@ -136,7 +146,9 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       }
     } catch (error) {
       console.error('[DealForm] Error in form submission:', error);
-      toast.error("Något gick fel när erbjudandet skulle sparas.");
+      toast.error("Något gick fel när erbjudandet skulle sparas.", {
+        description: error instanceof Error ? error.message : "Ett oväntat fel uppstod"
+      });
     } finally {
       // Reset submitting flags after completion
       setTimeout(() => {
