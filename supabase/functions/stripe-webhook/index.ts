@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from 'https://esm.sh/stripe@14.21.0';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
@@ -48,7 +49,7 @@ serve(async (req) => {
       // Find the deal based on stripe_price_id
       const { data: deals, error: dealError } = await supabaseClient
         .from('deals')
-        .select('id')
+        .select('id, is_free')
         .eq('stripe_price_id', priceId)
         .single();
 
@@ -64,7 +65,8 @@ serve(async (req) => {
           deal_id: deals.id,
           customer_email: session.customer_details?.email || '',
           discount_code: generateRandomCode(),
-          status: 'completed'
+          status: 'completed',
+          price_paid: deals.is_free ? 0 : null // Set price_paid to 0 for free deals
         })
         .select()
         .single();

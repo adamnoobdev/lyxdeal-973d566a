@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
 import Stripe from 'https://esm.sh/stripe@13.10.0'
@@ -24,9 +25,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { title, description, discountedPrice, dealId } = await req.json()
+    const { title, description, discountedPrice, dealId, isFree } = await req.json()
 
-    console.log('Creating Stripe product for deal:', { title, description, discountedPrice, dealId })
+    console.log('Creating Stripe product for deal:', { title, description, discountedPrice, dealId, isFree })
 
     // Create a product in Stripe
     const product = await stripe.products.create({
@@ -36,10 +37,11 @@ serve(async (req) => {
 
     console.log('Created Stripe product:', product.id)
 
-    // Create a price for the product
+    // Create a price for the product - use 0 for free deals
+    const finalPrice = isFree ? 0 : discountedPrice;
     const price = await stripe.prices.create({
       product: product.id,
-      unit_amount: discountedPrice * 100, // Convert to cents
+      unit_amount: finalPrice * 100, // Convert to cents
       currency: 'sek',
     })
 
