@@ -23,6 +23,8 @@ interface DealsTableProps {
   showApprovalActions?: boolean;
   onApprove?: (dealId: number) => void;
   onReject?: (dealId: number) => void;
+  hasViewDetailsAction?: boolean;
+  onViewDetails?: (deal: Deal) => void;
 }
 
 export const DealsTable = ({ 
@@ -33,11 +35,15 @@ export const DealsTable = ({
   onPreview,
   showApprovalActions,
   onApprove,
-  onReject
+  onReject,
+  hasViewDetailsAction,
+  onViewDetails
 }: DealsTableProps) => {
   const handlePreviewDeal = (deal: Deal) => {
     if (onPreview) {
       onPreview(deal);
+    } else if (onViewDetails && hasViewDetailsAction) {
+      onViewDetails(deal);
     } else {
       // Fallback to opening the deal in a new tab
       window.open(`/deals/${deal.id}`, '_blank');

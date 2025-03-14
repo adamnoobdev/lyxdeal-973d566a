@@ -54,9 +54,8 @@ export const DealsSection = ({
         deals={deals} 
         onEdit={onEdit} 
         onDelete={onDelete} 
-        onToggleActive={undefined} // Vi visar inte toggle-knappen i salongsvyn
-        hasViewDetailsAction={!!onViewDetails}
-        onViewDetails={onViewDetails}
+        onToggleActive={undefined}
+        onPreview={onViewDetails}
       />
     </div>
   );
