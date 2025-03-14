@@ -47,10 +47,11 @@ export const useDiscountCodes = (dealId: number | undefined) => {
           
           // För att hjälpa med felsökning, kontrollera om det finns några rabattkoder med 
           // deal_id som är en sträng istället för ett nummer (vanlig konverteringsbugg)
+          const stringDealId = String(dealId);
           const { data: stringIdData, error: stringIdError } = await supabase
             .from("discount_codes")
             .select("*")
-            .eq("deal_id", String(dealId)) // Convert to string explicitly
+            .eq("deal_id", stringDealId)
             .order("created_at", { ascending: false });
             
           if (stringIdError) {

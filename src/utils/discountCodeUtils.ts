@@ -212,10 +212,11 @@ export const inspectDiscountCodes = async (dealId: number | string) => {
     }
     
     // Kontrollera också efter strängar (vanlig konverteringsbugg)
+    const stringDealId = String(numericDealId);
     const { data: stringCodes, error: stringError } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', String(numericDealId));
+      .eq('deal_id', stringDealId);
     
     if (stringError) {
       console.error('[inspectDiscountCodes] Error querying string codes:', stringError);
