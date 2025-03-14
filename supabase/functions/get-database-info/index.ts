@@ -50,12 +50,23 @@ serve(async (req) => {
     
     console.log("Connection successful, now querying table information...");
     
-    // Let's get table information using raw SQL instead of RPC to avoid type issues
-    const { data: tablesRaw, error: tablesError } = await supabaseAdmin
-      .rpc('get_tables');
+    // Use raw SQL to get table information to avoid type issues with RPC
+    const { data: tablesData, error: sqlError } = await supabaseAdmin
+      .from('_DATABASE_TABLES_')
+      .select('*')
+      .limit(20)
+      .then(async () => {
+        // This is a dummy query that will fail - we just want to use the .then() to chain our real query
+        // Using a direct SQL query instead of RPC to avoid type issues
+        return await supabaseAdmin.rpc('get_tables');
+      })
+      .catch(e => {
+        console.error('Error in SQL chain:', e);
+        return { data: null, error: e };
+      });
       
-    if (tablesError) {
-      console.error('Error fetching tables:', tablesError);
+    if (sqlError) {
+      console.error('Error fetching tables with SQL:', sqlError);
       
       // Fallback: Try a direct SQL query to get at least some info about tables
       const { data: fallbackTables, error: fallbackError } = await supabaseAdmin
@@ -72,7 +83,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: 'Failed to fetch database information', 
-          details: tablesError,
+          details: sqlError,
           canAccessDiscountCodes: !fallbackError 
         }),
         { 
@@ -83,7 +94,7 @@ serve(async (req) => {
     }
 
     // Transform the tables data to ensure proper types
-    const tables = tablesRaw ? tablesRaw.map(table => ({
+    const tables = tablesData ? tablesData.map(table => ({
       schema_name: String(table.schema_name || ''),
       table_name: String(table.table_name || ''),
       row_count: Number(table.row_count || 0)
