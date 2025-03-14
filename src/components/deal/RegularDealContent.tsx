@@ -29,8 +29,9 @@ export const RegularDealContent = ({
   isFree = false,
   id,
 }: RegularDealContentProps) => {
-  // Check if this is a free deal (either explicitly marked as free or has discounted price of 0 or 1)
-  const isFreeDeal = isFree || discountedPrice === 0 || discountedPrice === 1;
+  // Check if this is a free deal (either explicitly marked as free or has discounted price of 0)
+  // Removed the discountedPrice === 1 condition to fix the issue
+  const isFreeDeal = isFree || discountedPrice === 0;
   
   // Calculate discount percentage only if not free
   const discountPercentage = isFreeDeal ? 100 : Math.round(

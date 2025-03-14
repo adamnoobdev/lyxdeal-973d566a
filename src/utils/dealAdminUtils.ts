@@ -7,6 +7,7 @@ import { toast } from "sonner";
 export const createDealAdmin = async (values: any) => {
   try {
     const originalPrice = parseInt(values.originalPrice) || 0;
+    // Always set discounted price to 0 for free deals, not 1
     const discountedPrice = values.is_free ? 0 : (parseInt(values.discountedPrice) || 0);
     
     // Calculate days remaining
@@ -47,6 +48,7 @@ export const createDealAdmin = async (values: any) => {
 export const updateDealAdmin = async (values: any, dealId: number) => {
   try {
     const originalPrice = parseInt(values.originalPrice) || 0;
+    // Always set discounted price to 0 for free deals, not 1
     const discountedPrice = values.is_free ? 0 : (parseInt(values.discountedPrice) || 0);
     
     // Calculate days remaining

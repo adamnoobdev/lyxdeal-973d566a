@@ -16,12 +16,13 @@ export function PriceDisplay({
   isFreeOverride = false,
   showZero = false,
 }: PriceDisplayProps) {
-  // Determine if this is a free deal (either explicitly marked as free or has discounted price of 0 or 1)
-  const isFree = isFreeOverride || discountedPrice === 0 || discountedPrice === 1;
+  // Determine if this is a free deal (either explicitly marked as free or has discounted price of 0)
+  // Removed the discountedPrice === 1 condition to fix the issue
+  const isFree = isFreeOverride || discountedPrice === 0;
   
   const formatPrice = (price: number) => {
     // Special handling for the discounted price when it's a free deal
-    if (isFree && (price === discountedPrice || price === 1)) {
+    if (isFree && (price === discountedPrice)) {
       if (showZero) {
         return new Intl.NumberFormat('sv-SE', {
           style: 'currency',
