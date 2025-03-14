@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 
 export interface DiscountCode {
   id: number;
@@ -29,12 +29,14 @@ interface DiscountCodesTableProps {
   codes: DiscountCode[];
   isLoading?: boolean;
   emptyStateMessage?: string;
+  inspectionResult?: any;
 }
 
 export const DiscountCodesTable = ({ 
   codes, 
   isLoading = false,
-  emptyStateMessage = "Inga rabattkoder hittades för detta erbjudande." 
+  emptyStateMessage = "Inga rabattkoder hittades för detta erbjudande.",
+  inspectionResult
 }: DiscountCodesTableProps) => {
   console.log("[DiscountCodesTable] Rendering with", codes.length, "codes, isLoading:", isLoading);
   
@@ -54,10 +56,37 @@ export const DiscountCodesTable = ({
     );
   }
 
+  // Om vi har inspect-resultat men inga synliga koder, visa exempel
+  const hasInspectionCodesMismatch = inspectionResult?.success && 
+    inspectionResult?.codesCount > 0 && 
+    codes.length === 0;
+
   if (!codes.length) {
     return (
       <div className="w-full p-8 text-center">
-        <p className="text-muted-foreground">{emptyStateMessage}</p>
+        <p className="text-muted-foreground mb-4">{emptyStateMessage}</p>
+        
+        {hasInspectionCodesMismatch && inspectionResult.sampleCodes && (
+          <div className="mt-4 border border-yellow-200 bg-yellow-50 p-4 rounded-md max-w-md mx-auto">
+            <div className="flex items-center gap-2 text-yellow-700 font-medium mb-2">
+              <AlertTriangle className="h-5 w-5" />
+              <span>Rabattkoder finns men visas inte</span>
+            </div>
+            <p className="text-yellow-600 text-sm mb-3">
+              Inspektion hittade {inspectionResult.codesCount} koder i databasen. Här är några exempel:
+            </p>
+            <div className="bg-white p-3 rounded border border-yellow-200 text-xs font-mono text-left">
+              {inspectionResult.sampleCodes.map((code: any, i: number) => (
+                <div key={i} className="mb-1 pb-1 border-b border-yellow-100 last:border-0 last:mb-0 last:pb-0">
+                  <div className="flex justify-between">
+                    <span>{code.code}</span>
+                    <span className="text-gray-500">{code.isUsed ? 'Använd' : 'Aktiv'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
