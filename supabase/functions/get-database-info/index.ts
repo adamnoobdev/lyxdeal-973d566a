@@ -50,7 +50,7 @@ serve(async (req) => {
     
     console.log("Connection successful, now querying table information...");
     
-    // Call get_tables directly with error handling
+    // Call get_tables RPC and handle any errors explicitly
     const { data: tablesData, error: tablesError } = await supabaseAdmin
       .rpc('get_tables');
       
@@ -82,7 +82,7 @@ serve(async (req) => {
       );
     }
 
-    // Tables data should now have the correct types
+    // Tables data should now have the correct types from our updated function
     const tables = tablesData || [];
     
     console.log(`Successfully retrieved ${tables.length} tables`);
