@@ -104,7 +104,7 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
       } else if (!verificationData || verificationData.length === 0) {
         console.error('[generateDiscountCodes] Verification failed: No codes found for deal', numericDealId);
         
-        // Försök med sträng-jämförelse
+        // Försök med string-jämförelse
         const { data: stringVerificationData, error: stringVerificationError } = await supabase
           .from('discount_codes')
           .select('code, deal_id')

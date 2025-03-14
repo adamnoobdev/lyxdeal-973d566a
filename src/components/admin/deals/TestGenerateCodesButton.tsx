@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { generateDiscountCodes } from "@/utils/discount-codes";
 import { RefreshCw } from "lucide-react";
+import { normalizeId } from "@/utils/discount-codes/types";
 
 interface TestGenerateCodesButtonProps {
   dealId: number | string;
