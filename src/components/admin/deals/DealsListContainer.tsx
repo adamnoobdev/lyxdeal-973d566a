@@ -1,3 +1,4 @@
+
 import { useCallback, useState, useRef, useEffect } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
@@ -233,18 +234,29 @@ export const DealsListContainer = () => {
         generateDiscountCodes(deal.id, quantity),
         {
           loading: `Genererar ${quantity} rabattkoder...`,
-          success: () => {
-            setTimeout(() => refetch(), 1000);
-            return `${quantity} rabattkoder har genererats för "${deal.title}"`;
+          success: (success) => {
+            if (success) {
+              console.log(`[DealsListContainer] Successfully generated ${quantity} codes for deal ID ${deal.id}`);
+              setTimeout(() => refetch(), 1000);
+              return `${quantity} rabattkoder har genererats för "${deal.title}"`;
+            } else {
+              console.error(`[DealsListContainer] Failed to generate codes for deal ID ${deal.id}`);
+              return "Kunde inte generera alla rabattkoder, försök igen senare";
+            }
           },
-          error: 'Kunde inte generera rabattkoder'
+          error: (err) => {
+            console.error('[DealsListContainer] Error generating discount codes:', err);
+            return 'Ett fel uppstod när rabattkoder skulle genereras';
+          }
         }
       );
     } catch (error) {
       console.error('[DealsListContainer] Error generating discount codes:', error);
       toast.error('Ett fel uppstod när rabattkoder skulle genereras');
     } finally {
-      setIsGeneratingCodes(false);
+      setTimeout(() => {
+        setIsGeneratingCodes(false);
+      }, 1000);
     }
   }, [isGeneratingCodes, refetch]);
 
