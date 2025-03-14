@@ -84,58 +84,71 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       // Only generate discount codes for new deals, not when updating
       if (!initialValues) {
         try {
-          console.log("[DealForm] 🟢 New deal created, preparing to generate discount codes");
+          console.log("[DealForm] 🟢 New deal created, generating discount codes");
           setIsGeneratingCodes(true);
           
-          // Wait longer to ensure the database transaction is complete
+          // Wait to ensure the database transaction for deal creation is complete
           console.log("[DealForm] Waiting for database to complete deal creation...");
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise(resolve => setTimeout(resolve, 2000));
           
-          // Try to fetch the latest deal from the database
+          // Fetch the newly created deal to get its ID
           console.log("[DealForm] Fetching newly created deal ID");
-          const { data: newDeal, error } = await supabase
+          const { data: newDeals, error } = await supabase
             .from('deals')
             .select('id, title')
             .eq('salon_id', values.salon_id)
             .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
+            .limit(1);
 
-          if (error || !newDeal) {
+          if (error || !newDeals || newDeals.length === 0) {
             console.error("[DealForm] ❌ Error fetching new deal:", error);
-            toast.error("Erbjudandet skapades, men rabattkoder kunde inte genereras.", {
-              description: "Ett fel uppstod när det senaste erbjudandet skulle hämtas. Försök generera rabattkoder manuellt."
+            toast.error("Erbjudandet skapades, men kunde inte hitta det för att generera rabattkoder.", {
+              description: "Försök generera rabattkoder manuellt senare."
             });
-          } else {
-            console.log("[DealForm] ✓ New deal found, ID:", newDeal.id, "Title:", newDeal.title);
-            
-            // Generate discount codes in a separate try-catch to not block the rest of the flow
-            try {
-              const quantityNum = parseInt(values.quantity) || 10;
-              console.log(`[DealForm] 🟢 Starting generation of ${quantityNum} discount codes for deal ${newDeal.id}`);
-              
-              const codesGenerated = await generateDiscountCodes(newDeal.id, quantityNum);
-              
-              if (codesGenerated) {
-                console.log(`[DealForm] ✓ Successfully generated ${quantityNum} discount codes for deal ${newDeal.id}`);
-                toast.success(`Erbjudande och ${quantityNum} rabattkoder har skapats`);
-              } else {
-                console.warn(`[DealForm] ⚠️ Failed to generate discount codes for deal ${newDeal.id}`);
-                toast.warning("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna", {
-                  description: "Det kan ta en stund innan koderna dyker upp i systemet. Du kan försöka visa rabattkoderna för erbjudandet om en liten stund."
-                });
-              }
-            } catch (codeError) {
-              console.error("[DealForm] ❌ Error in discount code generation:", codeError);
-              toast.error("Erbjudandet har skapats, men det uppstod ett fel med rabattkoderna", {
-                description: "Ett tekniskt problem inträffade. Vänligen kontakta support om problemet kvarstår."
-              });
-            }
+            return;
           }
-        } catch (dealFetchError) {
-          console.error("[DealForm] ❌ Exception in deal fetching:", dealFetchError);
-          toast.error("Erbjudandet har skapats, men rabattkoder kunde inte genereras automatiskt", {
-            description: "Ett fel uppstod när det senaste erbjudandet skulle hämtas. Försök generera rabattkoder manuellt."
+          
+          const newDeal = newDeals[0];
+          console.log("[DealForm] ✓ New deal found, ID:", newDeal.id, "Title:", newDeal.title);
+          
+          // Generate the discount codes
+          const quantityNum = parseInt(values.quantity) || 10;
+          console.log(`[DealForm] 🟢 Generating ${quantityNum} discount codes for deal ${newDeal.id}`);
+          
+          const success = await generateDiscountCodes(newDeal.id, quantityNum);
+          
+          if (success) {
+            console.log(`[DealForm] ✓ Successfully generated ${quantityNum} rabattkoder for deal ${newDeal.id}`);
+            toast.success(`Erbjudande och ${quantityNum} rabattkoder har skapats`);
+
+            // Verify codes were created by checking the database directly
+            const { data: verificationData, error: verificationError } = await supabase
+              .from('discount_codes')
+              .select('code')
+              .eq('deal_id', newDeal.id)
+              .limit(5);
+
+            if (verificationError) {
+              console.error("[DealForm] ❌ Error verifying discount codes:", verificationError);
+            } else if (!verificationData || verificationData.length === 0) {
+              console.error("[DealForm] ❌ Verification failed: No codes found for deal", newDeal.id);
+              toast.warning("Erbjudandet har skapats, men rabattkoderna kunde inte verifieras", {
+                description: "Kontrollera databasen manuellt eller försök generera rabattkoder senare."
+              });
+            } else {
+              console.log("[DealForm] ✓ Verified creation with sample codes:", 
+                verificationData.map(c => c.code).join(', '));
+            }
+          } else {
+            console.warn(`[DealForm] ⚠️ Failed to generate discount codes for deal ${newDeal.id}`);
+            toast.warning("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna", {
+              description: "Försök generera rabattkoder manuellt senare."
+            });
+          }
+        } catch (codeError) {
+          console.error("[DealForm] ❌ Error in discount code generation:", codeError);
+          toast.error("Erbjudandet har skapats, men det uppstod ett fel med rabattkoderna", {
+            description: "Ett tekniskt problem inträffade. Vänligen kontakta support om problemet kvarstår."
           });
         } finally {
           setIsGeneratingCodes(false);

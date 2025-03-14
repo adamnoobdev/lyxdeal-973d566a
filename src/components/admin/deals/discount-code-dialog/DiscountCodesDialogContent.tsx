@@ -8,11 +8,13 @@ import { useDiscountCodesDialog } from "./useDiscountCodesDialog";
 interface DiscountCodesDialogContentProps {
   isOpen: boolean;
   deal: Deal | null;
+  onGenerateDiscountCodes?: (quantity: number) => Promise<void>;
 }
 
 export const DiscountCodesDialogContent = ({ 
   isOpen, 
-  deal 
+  deal,
+  onGenerateDiscountCodes
 }: DiscountCodesDialogContentProps) => {
   const {
     discountCodes,
@@ -40,6 +42,7 @@ export const DiscountCodesDialogContent = ({
         onManualRefresh={handleManualRefresh}
         onInspectCodes={handleInspectCodes}
         isInspecting={isInspecting}
+        onGenerateDiscountCodes={onGenerateDiscountCodes}
       />
       
       <ErrorAlerts

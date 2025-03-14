@@ -1,71 +1,97 @@
 
-import { DialogHeader as UIDialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Search } from "lucide-react";
+import { RefreshCw, Database, Clock } from "lucide-react";
 
 interface DialogHeaderProps {
   title: string;
   dealTitle?: string;
-  codesCount: number;
+  codesCount?: number;
   isLoading: boolean;
   isFetching: boolean;
   timeElapsedText?: string;
   onManualRefresh: () => void;
   onInspectCodes: () => void;
   isInspecting: boolean;
+  onGenerateDiscountCodes?: (quantity: number) => Promise<void>;
 }
 
 export const DialogHeader = ({
   title,
   dealTitle,
-  codesCount,
+  codesCount = 0,
   isLoading,
   isFetching,
   timeElapsedText,
   onManualRefresh,
   onInspectCodes,
-  isInspecting
+  isInspecting,
+  onGenerateDiscountCodes
 }: DialogHeaderProps) => {
+  const handleGenerateCodes = () => {
+    if (onGenerateDiscountCodes) {
+      onGenerateDiscountCodes(5);
+    }
+  };
+
   return (
-    <UIDialogHeader className="space-y-2">
+    <div className="flex flex-col space-y-1.5 pb-2 border-b">
       <div className="flex items-center justify-between">
-        <DialogTitle>{title} - {dealTitle}</DialogTitle>
-        <div className="flex items-center gap-2">
+        <div>
+          <DialogTitle className="text-xl font-semibold">
+            {title} {dealTitle && `för "${dealTitle}"`}
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isLoading || isFetching 
+              ? "Laddar rabattkoder..." 
+              : codesCount > 0 
+                ? `${codesCount} rabattkoder hittades` 
+                : "Inga rabattkoder hittades"}
+          </p>
+          
+          {timeElapsedText && (
+            <div className="text-xs text-muted-foreground mt-1 flex items-center">
+              <Clock className="h-3 w-3 mr-1 inline" />
+              {timeElapsedText}
+            </div>
+          )}
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          {onGenerateDiscountCodes && (
+            <Button 
+              variant="secondary" 
+              size="sm"
+              onClick={handleGenerateCodes}
+              disabled={isLoading || isFetching}
+            >
+              Generera nya koder
+            </Button>
+          )}
+          
           <Button 
             variant="outline" 
-            size="sm" 
-            onClick={onInspectCodes} 
-            disabled={isInspecting || !dealTitle}
-            className="flex items-center gap-1"
+            size="sm"
+            onClick={onInspectCodes}
+            disabled={isInspecting}
           >
-            <Search className={`h-4 w-4 ${isInspecting ? 'animate-spin' : ''}`} />
-            <span>Inspektera databas</span>
+            <Database className="h-4 w-4 mr-1" />
+            Inspektera databas
           </Button>
+          
           <Button 
             variant="outline" 
-            size="sm" 
-            onClick={onManualRefresh} 
-            disabled={isFetching}
-            className="flex items-center gap-1"
+            size="sm"
+            onClick={onManualRefresh}
+            disabled={isLoading || isFetching}
           >
-            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-            <span>Uppdatera</span>
+            <RefreshCw 
+              className={`h-4 w-4 mr-1 ${(isLoading || isFetching) ? "animate-spin" : ""}`} 
+            />
+            Uppdatera
           </Button>
         </div>
       </div>
-      <DialogDescription>
-        Här ser du alla rabattkoder som genererats för detta erbjudande och deras status.
-        {codesCount === 0 && !isLoading && !isFetching && (
-          <span className="block mt-1 text-amber-500">
-            Inga rabattkoder hittades. Använd uppdatera-knappen för att försöka igen.
-          </span>
-        )}
-        {timeElapsedText && (
-          <span className="block mt-1 text-xs text-muted-foreground opacity-50">
-            {timeElapsedText}
-          </span>
-        )}
-      </DialogDescription>
-    </UIDialogHeader>
+    </div>
   );
 };

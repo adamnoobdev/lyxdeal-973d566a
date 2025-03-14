@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -25,93 +24,75 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
   console.log(`[generateDiscountCodes] 🟢 STARTING generation of ${quantity} discount codes for deal ${dealId}`);
   
   try {
-    // Create a set to ensure unique codes
-    const codeSet = new Set<string>();
+    // Generate a batch of unique codes
+    const codes = [];
+    const uniqueCodes = new Set<string>();
     
-    // Generate unique codes until we have the required quantity
-    while (codeSet.size < quantity) {
-      codeSet.add(generateRandomCode());
+    while (uniqueCodes.size < quantity) {
+      uniqueCodes.add(generateRandomCode(8));
     }
     
-    // Create all codes upfront as an array of objects
-    const codes = Array.from(codeSet).map(code => ({
-      deal_id: dealId,
-      code,
-      is_used: false
-    }));
+    // Create the code objects for insertion
+    for (const code of uniqueCodes) {
+      codes.push({
+        deal_id: dealId,
+        code,
+        is_used: false
+      });
+    }
 
-    console.log(`[generateDiscountCodes] Generated ${codes.length} unique codes for deal ${dealId}:`, 
-      codes.map(c => c.code).join(', '));
-
-    // Insert all codes in a single database operation
-    const { data: insertData, error } = await supabase
-      .from('discount_codes')
-      .insert(codes);
-
-    if (error) {
-      console.error('[generateDiscountCodes] ❌ Error inserting codes:', error);
-      throw error;
+    console.log(`[generateDiscountCodes] Generated ${codes.length} unique codes for deal ${dealId}`);
+    
+    // Insert codes in batches to avoid request size limits
+    const BATCH_SIZE = 20;
+    let successCount = 0;
+    
+    for (let i = 0; i < codes.length; i += BATCH_SIZE) {
+      const batch = codes.slice(i, i + BATCH_SIZE);
+      
+      // Insert the batch
+      const { data, error } = await supabase
+        .from('discount_codes')
+        .insert(batch);
+        
+      if (error) {
+        console.error(`[generateDiscountCodes] ❌ Error inserting batch ${i/BATCH_SIZE + 1}:`, error);
+      } else {
+        console.log(`[generateDiscountCodes] ✓ Successfully inserted batch ${i/BATCH_SIZE + 1} (${batch.length} codes)`);
+        successCount += batch.length;
+      }
     }
     
-    console.log(`[generateDiscountCodes] ✓ Successfully inserted ${codes.length} codes into database.`);
+    // Log success summary
+    console.log(`[generateDiscountCodes] ✓ Created ${successCount} of ${quantity} discount codes for deal ${dealId}`);
     
-    // Wait a longer time to ensure the database transaction is complete
-    console.log('[generateDiscountCodes] Waiting 3 seconds for database synchronization...');
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // Verify codes were actually created
+    const verificationDelay = 1000; // 1 second delay for database consistency
+    await new Promise(resolve => setTimeout(resolve, verificationDelay));
     
-    // Verify that codes were actually created
-    console.log('[generateDiscountCodes] Verifying codes were created in database...');
     const { data: verificationData, error: verificationError } = await supabase
       .from('discount_codes')
-      .select('*')
-      .eq('deal_id', dealId);
+      .select('code')
+      .eq('deal_id', dealId)
+      .limit(5);
       
     if (verificationError) {
       console.error('[generateDiscountCodes] ❌ Error verifying discount codes:', verificationError);
+      return successCount > 0;
+    }
+    
+    if (!verificationData || verificationData.length === 0) {
+      console.error('[generateDiscountCodes] ❌ Verification failed: No codes found for deal', dealId);
       return false;
     }
     
-    const count = verificationData?.length || 0;
-    console.log(`[generateDiscountCodes] Verification result: ${count} discount codes found for deal ${dealId}`);
+    // Log sample codes for verification
+    console.log('[generateDiscountCodes] ✓ Verified creation with sample codes:', 
+      verificationData.map(c => c.code).join(', '));
     
-    // Log each code for verification purposes
-    if (count > 0) {
-      console.log('[generateDiscountCodes] Sample codes:',
-        verificationData.slice(0, 3).map((c: any) => c.code).join(', '), 
-        count > 3 ? `... and ${count - 3} more` : '');
-      return true;
-    } else {
-      console.warn('[generateDiscountCodes] ⚠️ CRITICAL: No codes were found in verification check!');
-      
-      // Try one more time with an even longer delay
-      console.log('[generateDiscountCodes] Trying final verification in 5 seconds...');
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      
-      const { data: retryData, error: retryError } = await supabase
-        .from('discount_codes')
-        .select('*')
-        .eq('deal_id', dealId);
-        
-      if (retryError) {
-        console.error('[generateDiscountCodes] ❌ Error in final verification:', retryError);
-        return false;
-      }
-      
-      const retryCount = retryData?.length || 0;
-      console.log(`[generateDiscountCodes] Final verification: ${retryCount} codes found`);
-      
-      if (retryCount > 0) {
-        console.log('[generateDiscountCodes] ✓ Codes appeared after additional delay');
-        return true;
-      } else {
-        console.error('[generateDiscountCodes] ❌ CRITICAL: No codes found after multiple verification attempts!');
-        return false;
-      }
-    }
+    return successCount > 0;
   } catch (error) {
     console.error('[generateDiscountCodes] ❌❌ CRITICAL EXCEPTION when generating discount codes:', error);
-    // Return false instead of throwing the error further
-    // so that calling code can continue even if code generation fails
     return false;
   }
 };
@@ -267,4 +248,3 @@ export const inspectDiscountCodes = async (dealId: number) => {
     };
   }
 };
-

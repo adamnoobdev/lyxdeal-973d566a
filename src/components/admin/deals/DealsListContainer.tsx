@@ -16,6 +16,7 @@ import { DiscountCodesDialog } from "./DiscountCodesDialog";
 import { Deal } from "@/components/admin/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 
 export const DealsListContainer = () => {
   const {
@@ -48,6 +49,7 @@ export const DealsListContainer = () => {
   const { runExclusiveOperation } = useOperationExclusion();
   const { handleStatusChange } = usePendingDealsFunctions(refetch);
   const [isViewingCodes, setIsViewingCodes] = useState(false);
+  const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
 
   // Added a timestamp field to track when the last deal was created
   const lastCreatedDealId = useRef<number | null>(null);
@@ -237,6 +239,33 @@ export const DealsListContainer = () => {
     setViewingCodesForDeal(deal);
   }, []);
 
+  const handleGenerateDiscountCodes = useCallback(async (deal: Deal, quantity: number = 10) => {
+    if (isGeneratingCodes) return;
+    
+    try {
+      setIsGeneratingCodes(true);
+      console.log(`[DealsListContainer] Manually generating ${quantity} discount codes for deal ID ${deal.id}`);
+      
+      toast.promise(
+        generateDiscountCodes(deal.id, quantity),
+        {
+          loading: `Genererar ${quantity} rabattkoder...`,
+          success: () => {
+            // Refetch to update any UI that might display the codes
+            setTimeout(() => refetch(), 1000);
+            return `${quantity} rabattkoder har genererats för "${deal.title}"`;
+          },
+          error: 'Kunde inte generera rabattkoder'
+        }
+      );
+    } catch (error) {
+      console.error('[DealsListContainer] Error generating discount codes:', error);
+      toast.error('Ett fel uppstod när rabattkoder skulle genereras');
+    } finally {
+      setIsGeneratingCodes(false);
+    }
+  }, [isGeneratingCodes, refetch]);
+
   const handleCloseDiscountCodesDialog = useCallback(() => {
     setIsClosingCodesDialog(true);
     setTimeout(() => {
@@ -284,6 +313,8 @@ export const DealsListContainer = () => {
           setDeletingDeal={handleDeleteDeal}
           handleToggleActive={handleToggleActive}
           onViewDiscountCodes={handleViewDiscountCodes}
+          onGenerateDiscountCodes={handleGenerateDiscountCodes}
+          isGeneratingCodes={isGeneratingCodes}
         />
       </div>
 
@@ -301,6 +332,7 @@ export const DealsListContainer = () => {
         isOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
         onClose={handleCloseDiscountCodesDialog}
         deal={viewingCodesForDeal}
+        onGenerateDiscountCodes={handleGenerateDiscountCodes}
       />
     </div>
   );
