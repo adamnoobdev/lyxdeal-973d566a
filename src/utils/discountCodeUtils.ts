@@ -3,6 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
+/**
+ * Generates a random discount code with the specified length
+ */
 export const generateRandomCode = (length: number = 8): string => {
   let code = '';
   for (let i = 0; i < length; i++) {
@@ -11,17 +14,25 @@ export const generateRandomCode = (length: number = 8): string => {
   return code;
 };
 
-// Optimerad version med bättre felhantering och kontroll
-export const generateDiscountCodes = async (dealId: number, quantity: number = 10) => {
-  // Skapa alla koder på förhand
+/**
+ * Generates unique discount codes for a deal and stores them in the database
+ * 
+ * @param dealId - The ID of the deal to generate codes for
+ * @param quantity - The number of discount codes to generate
+ * @returns Promise<boolean> - Whether the operation was successful
+ */
+export const generateDiscountCodes = async (dealId: number, quantity: number = 10): Promise<boolean> => {
   console.log(`Generating ${quantity} discount codes for deal ${dealId}`);
   
   try {
+    // Create all codes upfront as an array of objects
     const codes = Array.from({ length: quantity }, () => ({
       deal_id: dealId,
       code: generateRandomCode(),
+      is_used: false
     }));
 
+    // Insert all codes in a single database operation
     const { error } = await supabase
       .from('discount_codes')
       .insert(codes);
@@ -35,14 +46,20 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
     return true;
   } catch (error) {
     console.error('Exception when generating discount codes:', error);
-    // Returnera false istället för att kasta vidare felet
-    // så att anropande kod kan fortsätta även vid fel
+    // Return false instead of throwing the error further
+    // so that calling code can continue even if code generation fails
     return false;
   }
 };
 
+/**
+ * Gets an available (unused) discount code for a deal
+ * 
+ * @param dealId - The ID of the deal to get a code for
+ * @returns Promise<string | null> - The discount code or null if none available
+ */
 export const getAvailableDiscountCode = async (dealId: number): Promise<string | null> => {
-  // Hämta en oanvänd rabattkod för ett specifikt erbjudande
+  // Fetch an unused discount code for a specific deal
   const { data, error } = await supabase
     .from('discount_codes')
     .select('id, code')
@@ -56,12 +73,19 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
   }
 
   if (!data || data.length === 0) {
-    return null; // Inga tillgängliga koder
+    return null; // No available codes
   }
 
   return data[0].code;
 };
 
+/**
+ * Marks a discount code as used and records customer information
+ * 
+ * @param code - The discount code to mark as used
+ * @param customerInfo - Information about the customer who used the code
+ * @returns Promise<boolean> - Whether the operation was successful
+ */
 export const markDiscountCodeAsUsed = async (
   code: string, 
   customerInfo: { name: string; email: string; phone: string }

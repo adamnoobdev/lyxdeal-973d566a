@@ -27,18 +27,18 @@ export const EditDealDialog = ({
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isSubmittingRef = useRef(false);
 
-  // Kontrollerad stängning för att undvika frysningar
+  // Controlled closing to avoid freezing
   const handleClose = () => {
     if (isSubmittingRef.current) return;
     
     setIsClosing(true);
     
-    // Rensa tidigare timeout om det finns
+    // Clear previous timeout if exists
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
     }
     
-    // Fördröjd stängning för att tillåta animation och clean-up
+    // Delayed closing to allow animation and clean-up
     closeTimeoutRef.current = setTimeout(() => {
       onClose();
       setIsClosing(false);
@@ -46,7 +46,7 @@ export const EditDealDialog = ({
     }, 150);
   };
 
-  // Hantera formulärinlämning med skydd mot flera anrop
+  // Handle form submission with protection against multiple calls
   const handleSubmit = async (values: FormValues) => {
     if (isSubmittingRef.current) return;
     
@@ -58,13 +58,13 @@ export const EditDealDialog = ({
     }
   };
 
-  // Återställ isClosing om dialogen öppnas igen och rensa timeout
+  // Reset isClosing if dialog opens again and clear timeout
   useEffect(() => {
     if (isOpen) {
       setIsClosing(false);
     }
     
-    // Cleanup-funktion för att rensa timeout när komponenten avmonteras
+    // Cleanup function to clear timeout when component unmounts
     return () => {
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current);

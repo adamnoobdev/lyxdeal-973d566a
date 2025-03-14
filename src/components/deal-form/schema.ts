@@ -38,7 +38,7 @@ export const formSchema = z.object({
     invalid_type_error: "Vänligen välj en salong",
   }),
   quantity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-    message: "Vänligen ange hur många erbjudanden som ska kunna säljas.",
+    message: "Vänligen ange hur många rabattkoder som ska genereras för detta erbjudande.",
   }),
   is_free: z.boolean().default(false),
   is_active: z.boolean().default(true),

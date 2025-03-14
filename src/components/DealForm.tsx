@@ -45,6 +45,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       salon_id: undefined,
       quantity: "10", // Default value for quantity
       is_free: false, // Default value for is_free
+      is_active: true, // Default value for is_active
     },
   });
 
@@ -53,7 +54,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   }, [form]);
 
   const handleSubmit = useCallback(async (values: FormValues) => {
-    // Förhindra dubbla formulärinskick med både state och ref
+    // Prevent double form submissions with both state and ref
     if (submitting || isSubmittingRef.current) {
       console.log("Already submitting, preventing double submission");
       return;
@@ -77,15 +78,15 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       
       console.log('Submitting form with values:', values);
 
-      // Asynkront anropa onSubmit och vänta på resultat
+      // Asynchronously call onSubmit and wait for result
       await onSubmit(values);
       console.log("Form submission completed successfully");
 
-      // Endast generera rabattkoder för nya erbjudanden, inte vid uppdatering
+      // Only generate discount codes for new deals, not when updating
       if (!initialValues) {
         try {
           console.log("Fetching newly created deal ID");
-          // Försök hämta det senaste erbjudandet från databasen
+          // Try to fetch the latest deal from the database
           const { data: newDeal, error } = await supabase
             .from('deals')
             .select('id')
@@ -100,18 +101,18 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           } else {
             console.log("New deal found, ID:", newDeal.id);
             
-            // Generera rabattkoder i en separat try-catch för att inte blockera resten av flödet
+            // Generate discount codes in a separate try-catch to not block the rest of the flow
             try {
               const quantityNum = parseInt(values.quantity) || 10;
               const codesGenerated = await generateDiscountCodes(newDeal.id, quantityNum);
               
               if (codesGenerated) {
-                toast.success("Erbjudande och presentkoder har skapats");
+                toast.success("Erbjudande och rabattkoder har skapats");
               } else {
                 toast.success("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna");
               }
             } catch (codeError) {
-              console.error("Error in rabattkod generation:", codeError);
+              console.error("Error in discount code generation:", codeError);
               toast.success("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna");
             }
           }
@@ -120,14 +121,14 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           toast.success("Erbjudandet har skapats, men rabattkoder kunde inte genereras automatiskt");
         }
       } else {
-        // För uppdateringar, visa endast framgångsmeddelande utan att generera koder
+        // For updates, just show success message without generating codes
         toast.success("Erbjudandet har uppdaterats");
       }
     } catch (error) {
       console.error('Error in form submission:', error);
       toast.error("Något gick fel när erbjudandet skulle sparas.");
     } finally {
-      // Återställ submitting-flaggor och form efter slutfört arbete
+      // Reset submitting flags and form after completion
       setSubmitting(false);
       isSubmittingRef.current = false;
     }
@@ -145,7 +146,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           />
           <PriceFields form={form} />
           <LocationFields form={form} categories={CATEGORIES} cities={CITIES} />
-          <QuantityField form={form} />
+          <QuantityField form={form} readOnly={!!initialValues} />
           <AdditionalFields form={form} />
         </div>
 
