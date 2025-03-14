@@ -1,6 +1,6 @@
 
 import { ErrorAlerts } from "./ErrorAlerts";
-import { DialogHeader } from "./DialogHeader";
+import { DiscountDialogHeader } from "./DialogHeader";
 import { DiscountCodesTable } from "@/components/discount-codes/DiscountCodesTable";
 import { Deal } from "@/components/admin/types";
 import { useDiscountCodesDialog } from "./useDiscountCodesDialog";
@@ -32,7 +32,7 @@ export const DiscountCodesDialogContent = ({
 
   return (
     <>
-      <DialogHeader
+      <DiscountDialogHeader
         title="Rabattkoder"
         dealTitle={deal?.title}
         codesCount={discountCodes.length}

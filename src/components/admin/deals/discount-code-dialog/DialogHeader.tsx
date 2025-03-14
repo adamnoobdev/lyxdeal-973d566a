@@ -68,7 +68,7 @@ const GenerateCodesDialog = ({ onGenerate, isGenerating, onClose }: GenerateCode
   );
 };
 
-interface DialogHeaderProps {
+interface DiscountDialogHeaderProps {
   title: string;
   dealTitle?: string;
   codesCount: number;
@@ -81,7 +81,8 @@ interface DialogHeaderProps {
   onGenerateDiscountCodes?: (quantity: number) => Promise<void>;
 }
 
-export const DialogHeader = ({
+// Ändrade namn från DialogHeader till DiscountDialogHeader för att undvika namnkonflikten
+export const DiscountDialogHeader = ({
   title,
   dealTitle,
   codesCount,
@@ -92,7 +93,7 @@ export const DialogHeader = ({
   onInspectCodes,
   isInspecting,
   onGenerateDiscountCodes
-}: DialogHeaderProps) => {
+}: DiscountDialogHeaderProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateCodes = async (quantity: number) => {
