@@ -23,7 +23,7 @@ export const PurchaseSteps = () => {
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
             <Calendar className="h-6 w-6 text-primary" />
           </div>
-          <h3 className="font-medium text-gray-900">3. Visa koden</h3>
+          <h3 className="font-medium text-gray-900">3. Nyttja rabatten</h3>
           <p className="text-sm text-gray-600">Använd koden direkt på salongens bokningssida på vald behandling</p>
         </div>
       </div>
