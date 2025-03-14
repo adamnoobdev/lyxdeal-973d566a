@@ -39,10 +39,16 @@ export const DiscountCodesDialogContent = ({
     inspectionResult?.codesCount > 0 && 
     discountCodes.length === 0;
 
+  const dialogTitle = deal?.title 
+    ? `Rabattkoder för ${deal.title}` 
+    : "Rabattkoder";
+
+  const elapsedTimeText = `Dialog öppnades för ${timeElapsedText}`;
+
   return (
     <>
       <DiscountDialogHeader
-        title={`Rabattkoder för ${deal?.title || ''}`}
+        title={dialogTitle}
         dealTitle={deal?.title}
         codesCount={discountCodes.length}
         isLoading={isLoading}

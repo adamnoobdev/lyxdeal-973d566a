@@ -5,6 +5,8 @@ import {
 } from "@/components/ui/dialog";
 import { Deal } from "@/components/admin/types";
 import { DiscountCodesDialogContent } from "./discount-code-dialog/DiscountCodesDialogContent";
+import { generateDiscountCodes } from "@/utils/discountCodeUtils";
+import { toast } from "sonner";
 
 interface DiscountCodesDialogProps {
   isOpen: boolean;
@@ -22,8 +24,24 @@ export const DiscountCodesDialog = ({
   console.log(`[DiscountCodesDialog] 🔄 Rendering with isOpen=${isOpen}, deal=${deal?.id || 'null'}`);
   
   const handleGenerateDiscountCodes = async (quantity: number) => {
-    if (deal && onGenerateDiscountCodes) {
-      await onGenerateDiscountCodes(deal, quantity);
+    if (!deal) return;
+    
+    try {
+      if (onGenerateDiscountCodes) {
+        await onGenerateDiscountCodes(deal, quantity);
+      } else {
+        // Use the utility function directly if no callback provided
+        await toast.promise(
+          generateDiscountCodes(deal.id, quantity),
+          {
+            loading: `Genererar ${quantity} rabattkoder...`,
+            success: `${quantity} rabattkoder har genererats`,
+            error: 'Kunde inte generera rabattkoder'
+          }
+        );
+      }
+    } catch (error) {
+      console.error('[DiscountCodesDialog] Error generating codes:', error);
     }
   };
   
@@ -33,7 +51,7 @@ export const DiscountCodesDialog = ({
         <DiscountCodesDialogContent 
           isOpen={isOpen} 
           deal={deal} 
-          onGenerateDiscountCodes={onGenerateDiscountCodes ? handleGenerateDiscountCodes : undefined}
+          onGenerateDiscountCodes={handleGenerateDiscountCodes}
         />
       </DialogContent>
     </Dialog>

@@ -1,11 +1,8 @@
 
-import { X, RefreshCcw, Database, HelpCircle, Plus } from "lucide-react";
-import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { RemoveAllCodesButton } from "./RemoveAllCodesButton";
+import { RefreshCcw, Database, PlusCircle, Trash2, HelpCircle } from "lucide-react";
 import { DiscountCodesGenerationDialog } from "@/components/discount-codes/DiscountCodesGenerationDialog";
-import { useState } from "react";
+import { RemoveAllCodesButton } from "./RemoveAllCodesButton";
 
 interface DiscountDialogHeaderProps {
   title: string;
@@ -15,8 +12,8 @@ interface DiscountDialogHeaderProps {
   isFetching: boolean;
   timeElapsedText?: string;
   onManualRefresh: () => void;
-  onInspectCodes?: () => void;
-  isInspecting?: boolean;
+  onInspectCodes: () => void;
+  isInspecting: boolean;
   onGenerateDiscountCodes?: (quantity: number) => Promise<void>;
 }
 
@@ -32,28 +29,27 @@ export const DiscountDialogHeader = ({
   isInspecting,
   onGenerateDiscountCodes
 }: DiscountDialogHeaderProps) => {
-  const [isGenerationDialogOpen, setIsGenerationDialogOpen] = useState(false);
-  
   return (
-    <DialogHeader className="space-y-4">
-      <div className="flex items-center justify-between">
-        <DialogTitle className="text-xl font-bold">{title}</DialogTitle>
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-2xl font-bold text-primary">{title}</h2>
+        <div className="flex items-center justify-between mt-1">
+          <div className="flex items-center gap-2">
+            <p className="text-muted-foreground text-sm">
+              {dealTitle && dealTitle.length > 0 ? dealTitle : "Erbjudande"} - {codesCount} rabattkoder
+            </p>
+            {timeElapsedText && (
+              <span className="text-xs text-muted-foreground">({timeElapsedText})</span>
+            )}
+          </div>
+        </div>
       </div>
       
-      {dealTitle && (
-        <p className="text-sm text-muted-foreground">
-          {dealTitle} - {codesCount} rabattkoder
-          {timeElapsedText && (
-            <span className="ml-2 text-xs italic">({timeElapsedText})</span>
-          )}
-        </p>
-      )}
-      
-      <div className="flex flex-wrap gap-2 pt-1">
-        <Button 
-          variant="outline" 
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="outline"
           size="sm"
-          className="flex items-center gap-2"
+          className="gap-2"
           onClick={onManualRefresh}
           disabled={isFetching}
         >
@@ -61,68 +57,41 @@ export const DiscountDialogHeader = ({
           <span>Uppdatera</span>
         </Button>
         
-        {onInspectCodes && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex items-center gap-2"
-                  onClick={onInspectCodes}
-                  disabled={isInspecting}
-                >
-                  <Database className="h-4 w-4" />
-                  <span>Inspektera</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Inspektera rabattkoder i databasen</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          onClick={onInspectCodes}
+          disabled={isInspecting}
+        >
+          <Database className={`h-4 w-4 ${isInspecting ? "animate-spin" : ""}`} />
+          <span>Inspektera</span>
+        </Button>
         
         {onGenerateDiscountCodes && (
-          <>
-            <Button 
-              variant="default" 
-              size="sm"
-              className="flex items-center gap-2"
-              onClick={() => setIsGenerationDialogOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-              <span>Generera koder</span>
-            </Button>
-            
-            <DiscountCodesGenerationDialog
-              isOpen={isGenerationDialogOpen}
-              onClose={() => setIsGenerationDialogOpen(false)}
-              onGenerate={onGenerateDiscountCodes}
-            />
-          </>
+          <Button
+            variant="default"
+            size="sm"
+            className="gap-2 bg-purple-900 hover:bg-purple-800"
+            onClick={() => onGenerateDiscountCodes(10)}
+            disabled={isFetching || isLoading}
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span>Generera koder</span>
+          </Button>
         )}
         
-        <RemoveAllCodesButton onSuccess={onManualRefresh} />
+        <RemoveAllCodesButton />
         
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="flex items-center gap-2 ml-auto"
-              >
-                <HelpCircle className="h-4 w-4" />
-                <span>Hjälp</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Rabattkoder används för att kunder ska kunna lösa in erbjudanden</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 ml-auto"
+        >
+          <HelpCircle className="h-4 w-4" />
+          <span>Hjälp</span>
+        </Button>
       </div>
-    </DialogHeader>
+    </div>
   );
 };

@@ -19,10 +19,14 @@ export const ErrorAlerts = ({
   isFetching,
   inspectionResult 
 }: ErrorAlertsProps) => {
+  if (!error && !(codesLength === 0 && refreshAttempts >= 5 && !isLoading && !isFetching) && !inspectionResult) {
+    return null;
+  }
+  
   return (
-    <>
+    <div className="my-3 space-y-3">
       {error && (
-        <Alert variant="destructive" className="my-2">
+        <Alert variant="destructive" className="bg-red-50 border border-red-200">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             Det uppstod ett fel när rabattkoderna skulle hämtas. Försök igen senare.
@@ -31,7 +35,7 @@ export const ErrorAlerts = ({
       )}
       
       {codesLength === 0 && refreshAttempts >= 5 && !isLoading && !isFetching && (
-        <Alert variant="warning" className="my-2">
+        <Alert variant="warning" className="bg-amber-50 border border-amber-200">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Inga rabattkoder hittades efter flera försök. Använd inspektionsverktyget för att kontrollera om det finns koder i databasen.
@@ -42,12 +46,12 @@ export const ErrorAlerts = ({
       {inspectionResult && (
         <Alert 
           variant={inspectionResult.success ? "default" : "warning"} 
-          className="my-2"
+          className={inspectionResult.success ? "bg-yellow-50 border border-yellow-200" : "bg-amber-50 border border-amber-200"}
         >
           <Database className="h-4 w-4" />
           <AlertDescription>
-            <div>
-              <strong>Databasinspektion:</strong> {inspectionResult.message}
+            <div className="font-medium">
+              Databasinspektion: {inspectionResult.message}
             </div>
             {inspectionResult.success && inspectionResult.sampleCodes && (
               <div className="mt-1 text-xs font-mono">
@@ -82,6 +86,6 @@ export const ErrorAlerts = ({
           </AlertDescription>
         </Alert>
       )}
-    </>
+    </div>
   );
 };
