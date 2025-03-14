@@ -7,6 +7,7 @@ import {
   updateSalonDeal, 
   toggleDealActiveStatus 
 } from "@/utils/dealApiUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 export const deleteDeal = async (
   deletingDeal: Deal | null, 
@@ -24,6 +25,21 @@ export const deleteDeal = async (
     isDeletingDeal.current = true;
     console.log(`Deleting deal with ID: ${deletingDeal.id}`);
     
+    // Först tar vi bort alla rabattkoder kopplade till erbjudandet
+    console.log(`Removing discount codes for deal ID: ${deletingDeal.id}`);
+    const { error: discountCodesError } = await supabase
+      .from('discount_codes')
+      .delete()
+      .eq('deal_id', deletingDeal.id);
+      
+    if (discountCodesError) {
+      console.error("Error deleting discount codes:", discountCodesError);
+      // Continue with deal deletion even if code deletion fails
+    } else {
+      console.log(`Successfully removed discount codes for deal ID: ${deletingDeal.id}`);
+    }
+    
+    // Sedan tar vi bort själva erbjudandet
     await deleteSalonDeal(deletingDeal.id);
     toast.success("Erbjudandet har tagits bort");
     
