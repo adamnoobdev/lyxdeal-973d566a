@@ -8,7 +8,7 @@ import { normalizeId } from "@/utils/discount-codes/types";
 export const useDiscountCodes = (dealId: number | string | undefined) => {
   const queryKey = ["discount-codes", dealId];
   
-  console.log(`[useDiscountCodes] Initializing hook for deal ID: ${dealId || 'undefined'}`);
+  console.log(`[useDiscountCodes] Initializing hook for deal ID: ${dealId || 'undefined'} (type: ${dealId ? typeof dealId : 'undefined'})`);
   
   const {
     data: discountCodes = [],
@@ -29,7 +29,7 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
       try {
         // Normalize the deal ID for database query
         const normalizedId = normalizeId(dealId);
-        console.log(`[useDiscountCodes] Using normalized deal ID: ${normalizedId}`);
+        console.log(`[useDiscountCodes] Using normalized deal ID: ${normalizedId} (type: ${typeof normalizedId})`);
         
         const { data, error } = await supabase
           .from("discount_codes")
@@ -45,7 +45,7 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         }
 
         if (!data || data.length === 0) {
-          console.log(`[useDiscountCodes] No discount codes found for deal ID: ${dealId} (normalized: ${normalizedId})`);
+          console.log(`[useDiscountCodes] No discount codes found with normalized ID, trying string comparison`);
           
           // Try with string comparison as fallback
           console.log(`[useDiscountCodes] Trying with string comparison fallback`);
@@ -58,11 +58,21 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
             console.error("[useDiscountCodes] Error in fallback query:", fallbackError);
           } else if (allCodes && allCodes.length > 0) {
             // Filter codes by string comparison
-            const stringMatches = allCodes.filter(code => String(code.deal_id) === String(dealId));
+            const stringDealId = String(dealId);
+            const stringMatches = allCodes.filter(code => String(code.deal_id) === stringDealId);
             
             if (stringMatches.length > 0) {
               console.log(`[useDiscountCodes] Found ${stringMatches.length} codes with string comparison`);
               return stringMatches as DiscountCode[];
+            }
+            
+            // Additional logging for debug help
+            if (allCodes.length > 0) {
+              const dealIdsInDb = [...new Set(allCodes.map(c => c.deal_id))];
+              console.log(`[useDiscountCodes] Available deal_ids in database:`, dealIdsInDb);
+              console.log(`[useDiscountCodes] Types of deal_ids in database:`, 
+                [...new Set(allCodes.map(c => typeof c.deal_id))]);
+              console.log(`[useDiscountCodes] Sample codes:`, allCodes.slice(0, 3));
             }
           }
         } else {

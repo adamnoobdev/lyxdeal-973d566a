@@ -30,8 +30,8 @@ export interface DiscountCodeInspectionResult {
  * Safely converts a deal ID to either string or number based on the database schema
  * This helps handle type mismatches between string and number IDs
  */
-export function normalizeId(id: string | number): number {
-  // If id is already a number, return it
+export function normalizeId(id: string | number): string | number {
+  // If id is already a number, return it as a string to be consistent
   if (typeof id === 'number') {
     return id;
   }
@@ -42,7 +42,7 @@ export function normalizeId(id: string | number): number {
     return parsedId;
   }
   
-  // If we can't safely convert to a number, log error and return a fallback
-  console.error(`[normalizeId] Could not normalize ID: ${id}`);
-  return -1; // Fallback invalid ID that won't match anything
+  // If we can't safely convert to a number, return the original string
+  console.log(`[normalizeId] Returning original ID: ${id} (type: ${typeof id})`);
+  return id;
 }
