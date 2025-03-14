@@ -22,7 +22,7 @@ export const generateRandomCode = (length: number = 8): string => {
  * @returns Promise<boolean> - Whether the operation was successful
  */
 export const generateDiscountCodes = async (dealId: number, quantity: number = 10): Promise<boolean> => {
-  console.log(`Generating ${quantity} discount codes for deal ${dealId}`);
+  console.log(`[generateDiscountCodes] Starting generation of ${quantity} discount codes for deal ${dealId}`);
   
   try {
     // Create a set to ensure unique codes
@@ -40,18 +40,23 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       is_used: false
     }));
 
+    console.log(`[generateDiscountCodes] Generated ${codes.length} unique codes for deal ${dealId}:`, 
+      codes.map(c => c.code).join(', '));
+
     // Insert all codes in a single database operation
     const { error } = await supabase
       .from('discount_codes')
       .insert(codes);
 
     if (error) {
-      console.error('Error generating discount codes:', error);
+      console.error('[generateDiscountCodes] Error inserting codes:', error);
       throw error;
     }
     
+    console.log(`[generateDiscountCodes] Successfully inserted ${codes.length} codes into database`);
+    
     // Wait a short moment to ensure the database transaction is complete
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // Verify that codes were actually created
     const { data: verificationData, error: verificationError } = await supabase
@@ -60,16 +65,25 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       .eq('deal_id', dealId);
       
     if (verificationError) {
-      console.error('Error verifying discount codes:', verificationError);
+      console.error('[generateDiscountCodes] Error verifying discount codes:', verificationError);
       return false;
     }
     
     const count = verificationData?.length || 0;
-    console.log(`Successfully verified ${count} discount codes for deal ${dealId}`);
+    console.log(`[generateDiscountCodes] Successfully verified ${count} discount codes for deal ${dealId}`);
+    
+    // Log each code for verification purposes
+    if (count > 0) {
+      console.log('[generateDiscountCodes] Sample codes:',
+        verificationData.slice(0, 3).map((c: any) => c.code).join(', '), 
+        count > 3 ? `... and ${count - 3} more` : '');
+    } else {
+      console.warn('[generateDiscountCodes] No codes were found in verification check!');
+    }
     
     return count > 0;
   } catch (error) {
-    console.error('Exception when generating discount codes:', error);
+    console.error('[generateDiscountCodes] Exception when generating discount codes:', error);
     // Return false instead of throwing the error further
     // so that calling code can continue even if code generation fails
     return false;
@@ -83,6 +97,8 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
  * @returns Promise<string | null> - The discount code or null if none available
  */
 export const getAvailableDiscountCode = async (dealId: number): Promise<string | null> => {
+  console.log(`[getAvailableDiscountCode] Fetching unused discount code for deal ${dealId}`);
+  
   // Fetch an unused discount code for a specific deal
   const { data, error } = await supabase
     .from('discount_codes')
@@ -92,14 +108,16 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
     .limit(1);
 
   if (error) {
-    console.error('Error fetching discount code:', error);
+    console.error('[getAvailableDiscountCode] Error fetching discount code:', error);
     throw error;
   }
 
   if (!data || data.length === 0) {
+    console.log(`[getAvailableDiscountCode] No available codes found for deal ${dealId}`);
     return null; // No available codes
   }
 
+  console.log(`[getAvailableDiscountCode] Found code: ${data[0].code} for deal ${dealId}`);
   return data[0].code;
 };
 
@@ -107,6 +125,8 @@ export const markDiscountCodeAsUsed = async (
   code: string, 
   customerInfo: { name: string; email: string; phone: string }
 ): Promise<boolean> => {
+  console.log(`[markDiscountCodeAsUsed] Marking code ${code} as used for customer ${customerInfo.name}`);
+  
   const { error } = await supabase
     .from('discount_codes')
     .update({
@@ -119,9 +139,10 @@ export const markDiscountCodeAsUsed = async (
     .eq('code', code);
 
   if (error) {
-    console.error('Error marking discount code as used:', error);
+    console.error('[markDiscountCodeAsUsed] Error marking discount code as used:', error);
     throw error;
   }
 
+  console.log(`[markDiscountCodeAsUsed] Successfully marked code ${code} as used`);
   return true;
 };

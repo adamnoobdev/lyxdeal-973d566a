@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
+import { Loader2 } from "lucide-react";
 
 export interface DiscountCode {
   id: number;
@@ -27,9 +28,16 @@ export interface DiscountCode {
 interface DiscountCodesTableProps {
   codes: DiscountCode[];
   isLoading?: boolean;
+  emptyStateMessage?: string;
 }
 
-export const DiscountCodesTable = ({ codes, isLoading = false }: DiscountCodesTableProps) => {
+export const DiscountCodesTable = ({ 
+  codes, 
+  isLoading = false,
+  emptyStateMessage = "Inga rabattkoder hittades för detta erbjudande." 
+}: DiscountCodesTableProps) => {
+  console.log("[DiscountCodesTable] Rendering with", codes.length, "codes, isLoading:", isLoading);
+  
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "—";
     return format(new Date(dateString), "yyyy-MM-dd HH:mm", { locale: sv });
@@ -38,7 +46,10 @@ export const DiscountCodesTable = ({ codes, isLoading = false }: DiscountCodesTa
   if (isLoading) {
     return (
       <div className="w-full p-8 text-center">
-        <div className="animate-pulse">Laddar rabattkoder...</div>
+        <div className="flex flex-col items-center justify-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="text-muted-foreground">Laddar rabattkoder...</div>
+        </div>
       </div>
     );
   }
@@ -46,7 +57,7 @@ export const DiscountCodesTable = ({ codes, isLoading = false }: DiscountCodesTa
   if (!codes.length) {
     return (
       <div className="w-full p-8 text-center">
-        <p className="text-muted-foreground">Inga rabattkoder hittades för detta erbjudande.</p>
+        <p className="text-muted-foreground">{emptyStateMessage}</p>
       </div>
     );
   }

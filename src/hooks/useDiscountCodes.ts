@@ -12,9 +12,12 @@ export const useDiscountCodes = (dealId: number | undefined) => {
   } = useQuery({
     queryKey: ["discount-codes", dealId],
     queryFn: async () => {
-      if (!dealId) return [];
+      if (!dealId) {
+        console.log('[useDiscountCodes] No dealId provided, returning empty list');
+        return [];
+      }
 
-      console.log(`Fetching discount codes for deal ID: ${dealId}`);
+      console.log(`[useDiscountCodes] Fetching discount codes for deal ID: ${dealId}`);
       const { data, error } = await supabase
         .from("discount_codes")
         .select("*")
@@ -22,17 +25,25 @@ export const useDiscountCodes = (dealId: number | undefined) => {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Error fetching discount codes:", error);
+        console.error("[useDiscountCodes] Error fetching discount codes:", error);
         throw error;
       }
 
-      console.log(`Retrieved ${data?.length || 0} discount codes`);
+      if (!data || data.length === 0) {
+        console.log(`[useDiscountCodes] No discount codes found for deal ID: ${dealId}`);
+      } else {
+        console.log(`[useDiscountCodes] Retrieved ${data.length} discount codes for deal ID: ${dealId}`);
+        console.log('[useDiscountCodes] Sample codes:', 
+          data.slice(0, 3).map(c => c.code).join(', '), 
+          data.length > 3 ? `... and ${data.length - 3} more` : '');
+      }
+
       return data as DiscountCode[];
     },
     enabled: !!dealId, // Only run query when dealId is provided
     staleTime: 0, // Always consider data stale for fresh calls
     gcTime: 60000, // Keep unused data in cache for 1 minute
-    retry: 1, // Reduce retry attempts to prevent excessive API calls
+    retry: 2, // Increase retry attempts for more reliable data fetching
   });
 
   return {

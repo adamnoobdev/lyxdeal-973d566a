@@ -24,6 +24,7 @@ interface DealFormProps {
 
 export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: DealFormProps) => {
   const [internalSubmitting, setInternalSubmitting] = useState(false);
+  const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
   const isSubmittingRef = useRef(false);
   
   // Set default expiration date to end of current month if not provided
@@ -55,7 +56,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   const handleSubmit = useCallback(async (values: FormValues) => {
     // Prevent double form submissions using both state and ref
     if (internalSubmitting || isSubmitting || isSubmittingRef.current) {
-      console.log("Already submitting, preventing double submission");
+      console.log("[DealForm] Already submitting, preventing double submission");
       return;
     }
     
@@ -73,66 +74,75 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       const daysRemaining = differenceInDays(values.expirationDate, today);
       const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
       
-      console.log('Submitting form with values:', values);
+      console.log('[DealForm] Submitting form with values:', values);
 
       // Call the provided onSubmit handler
       await onSubmit(values);
-      console.log("Form submission completed successfully");
+      console.log("[DealForm] Form submission completed successfully");
 
       // Only generate discount codes for new deals, not when updating
       if (!initialValues) {
         try {
-          console.log("Fetching newly created deal ID");
-          // Wait a short moment to ensure the database transaction is complete
-          await new Promise(resolve => setTimeout(resolve, 500));
+          console.log("[DealForm] New deal created, preparing to generate discount codes");
+          setIsGeneratingCodes(true);
+          
+          // Wait to ensure the database transaction is complete
+          await new Promise(resolve => setTimeout(resolve, 1000));
           
           // Try to fetch the latest deal from the database
+          console.log("[DealForm] Fetching newly created deal ID");
           const { data: newDeal, error } = await supabase
             .from('deals')
-            .select('id')
+            .select('id, title')
             .eq('salon_id', values.salon_id)
             .order('created_at', { ascending: false })
             .limit(1)
             .single();
 
           if (error || !newDeal) {
-            console.error("Error fetching new deal:", error);
+            console.error("[DealForm] Error fetching new deal:", error);
             toast.error("Erbjudandet skapades, men rabattkoder kunde inte genereras.");
           } else {
-            console.log("New deal found, ID:", newDeal.id);
+            console.log("[DealForm] New deal found, ID:", newDeal.id, "Title:", newDeal.title);
             
             // Generate discount codes in a separate try-catch to not block the rest of the flow
             try {
               const quantityNum = parseInt(values.quantity) || 10;
+              console.log(`[DealForm] Starting generation of ${quantityNum} discount codes for deal ${newDeal.id}`);
+              
               const codesGenerated = await generateDiscountCodes(newDeal.id, quantityNum);
               
               if (codesGenerated) {
+                console.log(`[DealForm] Successfully generated ${quantityNum} discount codes for deal ${newDeal.id}`);
                 toast.success("Erbjudande och rabattkoder har skapats");
               } else {
+                console.warn(`[DealForm] Failed to generate discount codes for deal ${newDeal.id}`);
                 toast.success("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna");
               }
             } catch (codeError) {
-              console.error("Error in discount code generation:", codeError);
+              console.error("[DealForm] Error in discount code generation:", codeError);
               toast.success("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna");
             }
           }
         } catch (dealFetchError) {
-          console.error("Exception in deal fetching:", dealFetchError);
+          console.error("[DealForm] Exception in deal fetching:", dealFetchError);
           toast.success("Erbjudandet har skapats, men rabattkoder kunde inte genereras automatiskt");
+        } finally {
+          setIsGeneratingCodes(false);
         }
       } else {
         // For updates, just show success message without generating codes
         toast.success("Erbjudandet har uppdaterats");
       }
     } catch (error) {
-      console.error('Error in form submission:', error);
+      console.error('[DealForm] Error in form submission:', error);
       toast.error("Något gick fel när erbjudandet skulle sparas.");
     } finally {
       // Reset submitting flags after completion
       setTimeout(() => {
         setInternalSubmitting(false);
         isSubmittingRef.current = false;
-      }, 300);
+      }, 500);
     }
   }, [initialValues, onSubmit, internalSubmitting, isSubmitting]);
 
@@ -156,9 +166,13 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={isSubmitting || internalSubmitting}
+            disabled={isSubmitting || internalSubmitting || isGeneratingCodes}
           >
-            {(isSubmitting || internalSubmitting) ? "Sparar..." : "Spara erbjudande"}
+            {isGeneratingCodes 
+              ? "Genererar rabattkoder..." 
+              : (isSubmitting || internalSubmitting) 
+                ? "Sparar..." 
+                : "Spara erbjudande"}
           </Button>
         </div>
       </form>
