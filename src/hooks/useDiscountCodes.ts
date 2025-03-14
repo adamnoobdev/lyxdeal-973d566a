@@ -26,8 +26,8 @@ export const useDiscountCodes = (dealId: number | undefined) => {
       console.log(`[useDiscountCodes] Fetching discount codes for deal ID: ${dealId}`);
       
       try {
-        // Explicit query för rabattkoder med tydliga parametrar
-        const { data, error } = await supabase
+        // Först försöker vi med den exakta deal_id:n
+        let { data, error } = await supabase
           .from("discount_codes")
           .select("*")
           .eq("deal_id", dealId)
@@ -43,7 +43,25 @@ export const useDiscountCodes = (dealId: number | undefined) => {
 
         // Logga detaljerad information om resultatet för att hjälpa med felsökning
         if (!data || data.length === 0) {
-          console.log(`[useDiscountCodes] No discount codes found for deal ID: ${dealId}`);
+          console.log(`[useDiscountCodes] No discount codes found for exact deal ID: ${dealId}`);
+          
+          // För att hjälpa med felsökning, kontrollera om det finns några rabattkoder med 
+          // deal_id som är en sträng istället för ett nummer (vanlig konverteringsbugg)
+          const { data: stringIdData, error: stringIdError } = await supabase
+            .from("discount_codes")
+            .select("*")
+            .eq("deal_id", dealId.toString())
+            .order("created_at", { ascending: false });
+            
+          if (stringIdError) {
+            console.error("[useDiscountCodes] Error in string ID query:", stringIdError);
+          } else if (stringIdData && stringIdData.length > 0) {
+            console.log(`[useDiscountCodes] Found ${stringIdData.length} codes with string deal_id "${dealId}"!`);
+            console.log('[useDiscountCodes] First few codes:', stringIdData.slice(0, 3));
+            
+            // Viktigt: returnera dessa koder eftersom vi hittade dem med string-konvertering
+            return stringIdData as DiscountCode[];
+          }
           
           // Verify query function is working correctly at all
           const { data: testData, error: testError } = await supabase
@@ -68,6 +86,8 @@ export const useDiscountCodes = (dealId: number | undefined) => {
               if (anyCodesData && anyCodesData.length > 0) {
                 console.log("[useDiscountCodes] Deal IDs with codes:", 
                   [...new Set(anyCodesData.map(c => c.deal_id))]);
+                console.log("[useDiscountCodes] Types of deal_ids:", 
+                  [...new Set(anyCodesData.map(c => `${c.deal_id} (${typeof c.deal_id})`))]);
               }
             }
           }

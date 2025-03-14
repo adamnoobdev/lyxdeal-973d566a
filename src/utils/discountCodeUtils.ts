@@ -211,6 +211,31 @@ export const inspectDiscountCodes = async (dealId: number) => {
       };
     }
     
+    // Kontrollera också efter strängar (vanlig konverteringsbugg)
+    const { data: stringCodes, error: stringError } = await supabase
+      .from('discount_codes')
+      .select('*')
+      .eq('deal_id', numericDealId.toString());
+    
+    if (stringError) {
+      console.error('[inspectDiscountCodes] Error querying string codes:', stringError);
+    } else if (stringCodes && stringCodes.length > 0) {
+      console.log(`[inspectDiscountCodes] Found ${stringCodes.length} codes with string deal_id "${numericDealId}"`);
+      return {
+        success: true,
+        message: `Hittade ${stringCodes.length} koder för erbjudande ${dealId} (sparade som string)`,
+        dealId,
+        codesCount: stringCodes.length,
+        sampleCodes: stringCodes.slice(0, 5).map(c => ({
+          code: c.code,
+          isUsed: c.is_used,
+          createdAt: c.created_at,
+          dealId: c.deal_id
+        })),
+        codeType: 'string'
+      };
+    }
+    
     // Kontrollera om några koder hittades
     if (!codes || codes.length === 0) {
       console.log(`[inspectDiscountCodes] No codes found for deal ${dealId}`);
@@ -226,6 +251,13 @@ export const inspectDiscountCodes = async (dealId: number) => {
           
           // Om vi har rabattkoder i edge-funktionens svar
           if (response.data && response.data.discountCodeSamples && response.data.discountCodeSamples.length > 0) {
+            // Analysera typen på deal_id i de koder vi hittade
+            const sampleDealIds = response.data.discountCodeSamples.map((c: any) => ({
+              id: c.deal_id,
+              type: typeof c.deal_id
+            }));
+            console.log('[inspectDiscountCodes] Sample deal IDs and types:', sampleDealIds);
+            
             return {
               success: false,
               message: `Hittade ${response.data.discountCodesCount || 0} rabattkoder i databasen men inga för erbjudande ${dealId}`,
@@ -236,7 +268,8 @@ export const inspectDiscountCodes = async (dealId: number) => {
               sampleCodes: response.data.discountCodeSamples.map((code: any) => ({
                 code: code.code,
                 isUsed: code.is_used,
-                dealId: code.deal_id
+                dealId: code.deal_id,
+                dealIdType: typeof code.deal_id
               }))
             };
           }
@@ -288,15 +321,23 @@ export const inspectDiscountCodes = async (dealId: number) => {
       // Visa exempel på koder från andra erbjudanden
       console.log(`[inspectDiscountCodes] Found ${allCodes.length} codes for other deals`);
       
+      // Samla information om typer på deal_id i databasen
+      const dealIdTypes = [...new Set(allCodes.map(c => typeof c.deal_id))];
+      const dealIds = [...new Set(allCodes.map(c => c.deal_id))];
+      console.log('[inspectDiscountCodes] Deal ID types in database:', dealIdTypes);
+      console.log('[inspectDiscountCodes] Deal IDs found:', dealIds);
+      
       return { 
         success: false, 
         message: `Inga koder hittades för erbjudande ${dealId}, men hittade koder för andra erbjudanden`, 
         dealId,
         totalCodesInDatabase: allCodes.length,
-        codesFoundForDeals: [...new Set(allCodes.map(c => c.deal_id))],
+        codesFoundForDeals: dealIds,
+        dealIdTypes: dealIdTypes,
         sampleCodes: allCodes.slice(0, 5).map(c => ({
           code: c.code,
-          dealId: c.deal_id
+          dealId: c.deal_id,
+          dealIdType: typeof c.deal_id
         }))
       };
     }

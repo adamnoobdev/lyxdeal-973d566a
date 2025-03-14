@@ -5,7 +5,7 @@ import { DiscountCodesTable } from "@/components/discount-codes/DiscountCodesTab
 import { Deal } from "@/components/admin/types";
 import { useDiscountCodesDialog } from "./useDiscountCodesDialog";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw } from "lucide-react";
+import { RefreshCcw, Database, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
@@ -73,6 +73,11 @@ export const DiscountCodesDialogContent = ({
             <p className="text-amber-700 mt-1">
               Detta kan bero på att koder finns i databasen men med annat deal_id än {deal?.id}. Koder: {inspectionResult.sampleCodes?.map(c => c.code).join(', ')}
             </p>
+            {inspectionResult.codeType === 'string' && (
+              <p className="text-amber-700 font-semibold mt-1">
+                Din deal_id är lagrad som en sträng istället för ett nummer. Vi har uppdaterad koden för att hantera detta.
+              </p>
+            )}
             <div className="mt-2">
               <Button 
                 size="sm" 
@@ -88,6 +93,23 @@ export const DiscountCodesDialogContent = ({
           </AlertDescription>
         </Alert>
       )}
+
+      {inspectionResult && !inspectionResult.success && inspectionResult.dealIdTypes && (
+        <Alert variant="default" className="bg-blue-50 border border-blue-200 my-3">
+          <Database className="h-4 w-4 text-blue-800" />
+          <AlertDescription>
+            <p className="font-medium text-blue-800">
+              Information om rabattkoder i databasen
+            </p>
+            <p className="text-blue-700 mt-1">
+              Deal ID-typer i databasen: {inspectionResult.dealIdTypes.join(', ')}
+            </p>
+            <p className="text-blue-700">
+              Ditt erbjudande ID ({deal?.id}) är av typen: {typeof deal?.id}
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
       
       <div className="flex-1 overflow-auto mt-4">
         <DiscountCodesTable 
@@ -95,6 +117,9 @@ export const DiscountCodesDialogContent = ({
           isLoading={isLoading || isFetching}
           emptyStateMessage={getEmptyStateMessage()}
           inspectionResult={inspectionResult}
+          dealId={deal?.id}
+          onGenerateDiscountCodes={onGenerateDiscountCodes && deal ? 
+            () => onGenerateDiscountCodes(10) : undefined}
         />
       </div>
     </>

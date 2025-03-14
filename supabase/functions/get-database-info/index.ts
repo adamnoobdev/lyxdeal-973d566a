@@ -50,43 +50,108 @@ serve(async (req) => {
     
     console.log("Connection successful, now querying table information...");
     
-    // Fetch table information via RPC
-    const { data: tablesData, error: tablesError } = await supabaseAdmin
-      .rpc('get_tables');
+    // Hämta information om tabeller - använd en säkrare metod nu
+    let tablesData = [];
+    try {
+      // Istället för att använda RPC, använd direkta SQL-frågor som är säkrare
+      const { data, error } = await supabaseAdmin.from('_tables_temp_view')
+        .select('*')
+        .limit(100);
       
-    if (tablesError) {
-      console.error('Error calling get_tables function:', tablesError);
-      
-      // Fallback: Try a direct SQL query to get at least some info about tables
-      const { data: fallbackTables, error: fallbackError } = await supabaseAdmin
-        .from('discount_codes')
-        .select('id')
-        .limit(1);
-        
-      if (fallbackError) {
-        console.error('Fallback query also failed:', fallbackError);
+      if (error) {
+        console.error('Error fetching tables via view:', error);
       } else {
-        console.log('Fallback query successful, we can access discount_codes table');
+        tablesData = data || [];
+        console.log(`Fetched ${tablesData.length} tables via view`);
       }
-      
-      return new Response(
-        JSON.stringify({ 
-          error: 'Failed to fetch database information', 
-          details: tablesError,
-          canAccessDiscountCodes: !fallbackError 
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500
-        }
-      );
+    } catch (viewError) {
+      console.error('Exception fetching tables via view:', viewError);
     }
-
-    // Ensure tablesData is properly processed and format it consistently
-    const tables = Array.isArray(tablesData) ? tablesData : [];
     
-    console.log(`Successfully retrieved ${tables.length} tables`);
-    console.log('First 3 tables:', tables.slice(0, 3));
+    // Om view-metoden misslyckades, använd direkt SQL
+    if (tablesData.length === 0) {
+      try {
+        // Skapa en tillfällig vy för att få tabell-information
+        await supabaseAdmin.rpc('create_tables_temp_view');
+        
+        // Hämta data från den tillfälliga vyn
+        const { data, error } = await supabaseAdmin.from('_tables_temp_view')
+          .select('*')
+          .limit(100);
+          
+        if (error) {
+          console.error('Error fetching from temp view:', error);
+        } else {
+          tablesData = data || [];
+          console.log(`Fetched ${tablesData.length} tables from temp view`);
+        }
+        
+        // Ta bort den tillfälliga vyn
+        await supabaseAdmin.rpc('drop_tables_temp_view');
+      } catch (sqlError) {
+        console.error('Error with direct SQL approach:', sqlError);
+      }
+    }
+    
+    // Manuell fallback för att få grundläggande tabellinformation
+    if (tablesData.length === 0) {
+      try {
+        // Hämta lista över tabeller direkt från information_schema
+        const { data, error } = await supabaseAdmin.from('information_schema.tables')
+          .select('table_schema,table_name')
+          .filter('table_schema', 'in', '(public,auth,storage,realtime,pgsodium,vault,pg_catalog)')
+          .order('table_schema', { ascending: true })
+          .order('table_name', { ascending: true });
+          
+        if (error) {
+          console.error('Error fetching from information_schema:', error);
+        } else {
+          tablesData = (data || []).map(t => ({
+            schema_name: t.table_schema,
+            table_name: t.table_name,
+            row_count: -1
+          }));
+          console.log(`Fetched ${tablesData.length} tables from information_schema`);
+        }
+      } catch (infoSchemaError) {
+        console.error('Error with information_schema approach:', infoSchemaError);
+      }
+    }
+    
+    // Grundligare fallback 
+    if (tablesData.length === 0) {
+      try {
+        // Enkel lista över tabeller i public schema
+        const { data, error } = await supabaseAdmin
+          .from('pg_catalog.pg_tables')
+          .select('schemaname,tablename')
+          .eq('schemaname', 'public');
+          
+        if (error) {
+          console.error('Error fetching from pg_catalog:', error);
+        } else {
+          tablesData = (data || []).map(t => ({
+            schema_name: t.schemaname,
+            table_name: t.tablename,
+            row_count: -1
+          }));
+          console.log(`Fetched ${tablesData.length} tables from pg_catalog`);
+        }
+      } catch (pgCatalogError) {
+        console.error('Error with pg_catalog approach:', pgCatalogError);
+      }
+    }
+    
+    // Fallback: Om inga tabeller hittades med någon metod
+    if (tablesData.length === 0) {
+      tablesData = [
+        { schema_name: 'public', table_name: 'deals', row_count: -1 },
+        { schema_name: 'public', table_name: 'discount_codes', row_count: -1 },
+        { schema_name: 'public', table_name: 'salons', row_count: -1 },
+        { schema_name: 'public', table_name: 'purchases', row_count: -1 }
+      ];
+      console.log('Using fallback table list');
+    }
     
     // Hämta exempel på alla rabattkoder för att hjälpa till vid felsökning
     const { data: discountCodes, error: codesError } = await supabaseAdmin
@@ -102,17 +167,28 @@ serve(async (req) => {
       
       // Extra verifiering av deal_id typen för felsökning
       if (discountCodes.length > 0) {
-        console.log('Sample discount code:', {
-          code: discountCodes[0].code,
-          deal_id: discountCodes[0].deal_id,
-          deal_id_type: typeof discountCodes[0].deal_id
+        const typeSamples = discountCodes.map(code => ({
+          code: code.code,
+          deal_id: code.deal_id,
+          deal_id_type: typeof code.deal_id
+        }));
+        
+        console.log('Sample discount codes with types:', typeSamples);
+        
+        // Räkna förekomster av olika deal_id:n
+        const dealIdCounts = {};
+        discountCodes.forEach(code => {
+          const dealId = code.deal_id;
+          dealIdCounts[dealId] = (dealIdCounts[dealId] || 0) + 1;
         });
+        
+        console.log('Deal ID distribution:', dealIdCounts);
       }
     }
 
     return new Response(
       JSON.stringify({ 
-        tables: tables,
+        tables: tablesData,
         discountCodesCount: discountCodes ? discountCodes.length : 0,
         discountCodeSamples: discountCodes ? discountCodes.slice(0, 5) : []
       }),

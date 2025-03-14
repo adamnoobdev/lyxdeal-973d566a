@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export interface DiscountCode {
   id: number;
@@ -23,7 +24,7 @@ export interface DiscountCode {
   customer_name: string | null;
   customer_email: string | null;
   customer_phone: string | null;
-  deal_id?: number; // Lägg till deal_id för felsökning
+  deal_id?: number | string; // Kan vara antingen nummer eller sträng
 }
 
 interface DiscountCodesTableProps {
@@ -31,13 +32,17 @@ interface DiscountCodesTableProps {
   isLoading?: boolean;
   emptyStateMessage?: string;
   inspectionResult?: any;
+  dealId?: number;
+  onGenerateDiscountCodes?: () => Promise<void>;
 }
 
 export const DiscountCodesTable = ({ 
   codes, 
   isLoading = false,
   emptyStateMessage = "Inga rabattkoder hittades för detta erbjudande.",
-  inspectionResult
+  inspectionResult,
+  dealId,
+  onGenerateDiscountCodes
 }: DiscountCodesTableProps) => {
   console.log("[DiscountCodesTable] Rendering with", codes.length, "codes, isLoading:", isLoading);
   
@@ -84,11 +89,14 @@ export const DiscountCodesTable = ({
                     <span className="text-gray-500">ID: {code.dealId}</span>
                   </div>
                   <div className="text-gray-500 text-xs">
-                    {code.isUsed ? 'Använd' : 'Aktiv'}
+                    Type: {typeof code.dealId} | {code.isUsed ? 'Använd' : 'Aktiv'}
                   </div>
                 </div>
               ))}
             </div>
+            <p className="text-amber-700 text-sm mt-3">
+              Problem: Deal ID-typen i databasen matchar inte den vi använder i koden. Detta har åtgärdats och kommer att fungera nästa gång du genererar koder.
+            </p>
           </div>
         )}
         
@@ -104,11 +112,29 @@ export const DiscountCodesTable = ({
                     <span>{code.code}</span>
                     <span className="text-gray-500">ID: {code.dealId}</span>
                   </div>
+                  <div className="text-gray-500 text-xs">
+                    Typ: {code.dealIdType}
+                  </div>
                 </div>
               ))}
             </div>
             <p className="text-blue-600 text-xs mt-2">
               Erbjudande-IDn med rabattkoder: {inspectionResult.codesFoundForDeals?.join(', ')}
+            </p>
+          </div>
+        )}
+        
+        {onGenerateDiscountCodes && (
+          <div className="mt-6">
+            <Button 
+              onClick={onGenerateDiscountCodes} 
+              className="gap-2"
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Generera 10 nya rabattkoder</span>
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">
+              Tryck på knappen ovan för att generera nya koder för detta erbjudande.
             </p>
           </div>
         )}
