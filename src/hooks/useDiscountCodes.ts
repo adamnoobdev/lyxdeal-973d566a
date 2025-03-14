@@ -26,11 +26,11 @@ export const useDiscountCodes = (dealId: number | undefined) => {
       console.log(`[useDiscountCodes] Fetching discount codes for deal ID: ${dealId}`);
       
       try {
-        // Försök hämta koder direkt från Supabase
+        // Hämta koder från Supabase, använd explicit konvertering till number för deal_id för säkerhets skull
         const { data, error } = await supabase
           .from("discount_codes")
           .select("*")
-          .eq("deal_id", dealId)
+          .eq("deal_id", Number(dealId))
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -41,8 +41,24 @@ export const useDiscountCodes = (dealId: number | undefined) => {
           throw error;
         }
 
+        // Logga detaljerad information om resultatet för att hjälpa med felsökning
         if (!data || data.length === 0) {
           console.log(`[useDiscountCodes] No discount codes found for deal ID: ${dealId}`);
+          
+          // Dubbelkolla att dealId är korrekt formaterat
+          console.log(`[useDiscountCodes] Deal ID type: ${typeof dealId}`);
+          
+          // Gör en testfråga för att verifiera att vi kan hämta data från discount_codes tabellen
+          const { data: testData, error: testError } = await supabase
+            .from("discount_codes")
+            .select("deal_id, code")
+            .limit(5);
+            
+          if (testError) {
+            console.error("[useDiscountCodes] Test query error:", testError);
+          } else {
+            console.log("[useDiscountCodes] Test query result:", testData);
+          }
         } else {
           console.log(`[useDiscountCodes] Retrieved ${data.length} discount codes for deal ID: ${dealId}`);
           console.log('[useDiscountCodes] Sample codes:', 
@@ -60,7 +76,7 @@ export const useDiscountCodes = (dealId: number | undefined) => {
       }
     },
     enabled: !!dealId,
-    staleTime: 0,
+    staleTime: 0, // Alltid hämta färsk data
     gcTime: 30000,
     refetchOnWindowFocus: false,
     retry: 3,

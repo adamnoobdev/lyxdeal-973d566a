@@ -192,11 +192,15 @@ export const inspectDiscountCodes = async (dealId: number) => {
   console.log(`[inspectDiscountCodes] Inspecting discount codes for deal ${dealId}...`);
   
   try {
+    // Konvertera dealId till nummer för säkerhets skull
+    const numericDealId = Number(dealId);
+    console.log(`[inspectDiscountCodes] Using numeric dealId: ${numericDealId} (original type: ${typeof dealId})`);
+    
     // Kontrollera först med standardfråga
     const { data: codes, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', dealId);
+      .eq('deal_id', numericDealId);
       
     if (error) {
       console.error('[inspectDiscountCodes] Error querying codes:', error);
@@ -210,6 +214,16 @@ export const inspectDiscountCodes = async (dealId: number) => {
     // Kontrollera om några koder hittades
     if (!codes || codes.length === 0) {
       console.log(`[inspectDiscountCodes] No codes found for deal ${dealId}`);
+      
+      // Försök med en testfråga för att se vilka tabeller och data som är tillgängliga
+      const { data: tablesData, error: tablesError } = await supabase
+        .rpc('get_tables');
+        
+      if (tablesError) {
+        console.error('[inspectDiscountCodes] Error checking tables:', tablesError);
+      } else {
+        console.log('[inspectDiscountCodes] Available tables:', tablesData);
+      }
       
       // Försök med en mer generell fråga för att se om några koder överhuvudtaget existerar
       const { data: allCodes, error: allCodesError } = await supabase
@@ -228,11 +242,26 @@ export const inspectDiscountCodes = async (dealId: number) => {
       
       if (!allCodes || allCodes.length === 0) {
         console.log('[inspectDiscountCodes] No discount codes found in the database at all!');
+        
+        // Kontrollera om det finns några deals i databasen
+        const { data: dealsData, error: dealsError } = await supabase
+          .from('deals')
+          .select('id, title')
+          .eq('id', numericDealId)
+          .limit(1);
+          
+        if (dealsError) {
+          console.error('[inspectDiscountCodes] Error checking deal:', dealsError);
+        } else {
+          console.log('[inspectDiscountCodes] Deal check result:', dealsData);
+        }
+        
         return { 
           success: false, 
           message: 'Inga rabattkoder hittades i databasen', 
           dealId,
-          totalCodesInDatabase: 0 
+          totalCodesInDatabase: 0,
+          dealExists: dealsData && dealsData.length > 0
         };
       }
       
@@ -250,6 +279,7 @@ export const inspectDiscountCodes = async (dealId: number) => {
     
     // Koder hittades, returnera detaljer
     console.log(`[inspectDiscountCodes] Found ${codes.length} codes for deal ${dealId}`);
+    console.log('[inspectDiscountCodes] Sample codes:', codes.slice(0, 3).map(c => ({ code: c.code, dealId: c.deal_id })));
     
     return { 
       success: true, 
@@ -259,7 +289,8 @@ export const inspectDiscountCodes = async (dealId: number) => {
       sampleCodes: codes.slice(0, 5).map(c => ({ 
         code: c.code, 
         isUsed: c.is_used,
-        createdAt: c.created_at
+        createdAt: c.created_at,
+        dealId: c.deal_id // Inkludera deal_id för att bekräfta kopplingen
       }))
     };
   } catch (error) {
