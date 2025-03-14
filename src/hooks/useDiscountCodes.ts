@@ -27,7 +27,7 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
       console.log(`[useDiscountCodes] Fetching discount codes for deal ID: ${dealId}`);
       
       try {
-        // Normalize the deal ID for database query
+        // Normalize the deal ID for database query (ensuring it's a number)
         const normalizedId = normalizeId(dealId);
         console.log(`[useDiscountCodes] Using normalized deal ID: ${normalizedId} (type: ${typeof normalizedId})`);
         

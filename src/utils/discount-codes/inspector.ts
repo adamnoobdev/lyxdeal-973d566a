@@ -13,7 +13,7 @@ export const inspectDiscountCodes = async (dealId: string | number): Promise<Dis
     // Kontrollera deal_id-typ för diagnostik
     console.log(`[inspectDiscountCodes] Deal ID type: ${typeof dealId}, value: ${dealId}`);
     
-    // Normalize the ID for database query
+    // Normalize the ID for database query (ensuring it's a number)
     const normalizedId = normalizeId(dealId);
     console.log(`[inspectDiscountCodes] Normalized deal ID: ${normalizedId} (type: ${typeof normalizedId})`);
     

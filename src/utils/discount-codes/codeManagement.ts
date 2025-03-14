@@ -8,11 +8,11 @@ import { CustomerInfo, normalizeId } from "./types";
 export const getAvailableDiscountCode = async (dealId: string | number): Promise<string | null> => {
   console.log(`[getAvailableDiscountCode] Fetching unused discount code for deal ${dealId} (type: ${typeof dealId})`);
   
-  // Convert to normalized ID for database query
+  // Convert to normalized ID for database query (ensuring it's a number)
   const normalizedId = normalizeId(dealId);
   console.log(`[getAvailableDiscountCode] Using normalized ID: ${normalizedId} (type: ${typeof normalizedId})`);
   
-  // Try with the normalized deal ID first
+  // Try with the normalized deal ID first (now guaranteed to be a number)
   let { data, error } = await supabase
     .from('discount_codes')
     .select('id, code')
