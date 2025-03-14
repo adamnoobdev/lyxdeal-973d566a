@@ -71,7 +71,7 @@ export const SalonDeals: React.FC = () => {
             city: editingDeal.city,
             featured: editingDeal.featured,
             salon_id: editingDeal.salon_id,
-            is_free: editingDeal.is_free || false,
+            is_free: editingDeal.is_free || editingDeal.discounted_price === 0,
             is_active: editingDeal.is_active,
             quantity: editingDeal.quantity_left?.toString() || "10",
             expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : new Date(),

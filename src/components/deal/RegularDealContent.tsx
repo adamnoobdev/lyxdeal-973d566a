@@ -26,6 +26,7 @@ export const RegularDealContent = ({
   originalPrice,
   discountedPrice,
   quantityLeft,
+  isFree,
   id,
 }: RegularDealContentProps) => {
   // Calculate discount percentage
@@ -37,8 +38,8 @@ export const RegularDealContent = ({
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
   const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
 
-  // Check if it's free
-  const isFree = discountedPrice === 0;
+  // Check if it's free (either explicitly set or price is 0)
+  const isFreeDeal = isFree || discountedPrice === 0;
 
   return (
     <div className="p-2 flex flex-col h-full justify-between">
@@ -62,7 +63,7 @@ export const RegularDealContent = ({
           <div className="space-y-0.5">
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg font-semibold">
-                {isFree ? "Gratis" : `${discountedPrice} kr`}
+                {isFreeDeal ? "Gratis" : `${discountedPrice} kr`}
               </span>
               {originalPrice > discountedPrice && (
                 <span className="text-sm line-through text-muted-foreground">

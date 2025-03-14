@@ -1,3 +1,4 @@
+
 import { Clock, MapPin } from "lucide-react";
 import { Button } from "../ui/button";
 import { CategoryBadge } from "../CategoryBadge";
@@ -14,6 +15,7 @@ interface FeaturedDealContentProps {
   originalPrice: number;
   discountedPrice: number;
   quantityLeft: number;
+  isFree?: boolean;
 }
 
 export const FeaturedDealContent = ({
@@ -27,6 +29,7 @@ export const FeaturedDealContent = ({
   originalPrice,
   discountedPrice,
   quantityLeft,
+  isFree,
 }: FeaturedDealContentProps) => {
   return (
     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent animate-fade-in">
@@ -71,10 +74,13 @@ export const FeaturedDealContent = ({
                 originalPrice={originalPrice}
                 discountedPrice={discountedPrice}
                 className="text-white text-sm sm:text-lg md:text-xl"
+                isFreeOverride={isFree}
               />
-              <span className="bg-[#ea384c] text-white text-[10px] sm:text-sm px-2 py-0.5 rounded-full font-semibold">
-                -{discountPercentage}%
-              </span>
+              {discountPercentage > 0 && (
+                <span className="bg-[#ea384c] text-white text-[10px] sm:text-sm px-2 py-0.5 rounded-full font-semibold">
+                  -{discountPercentage}%
+                </span>
+              )}
             </div>
             {quantityLeft > 0 && (
               <span className="text-xs sm:text-sm text-emerald-400 transition-all duration-300 hover:scale-105">

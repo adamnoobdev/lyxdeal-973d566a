@@ -65,6 +65,9 @@ export const useDeal = (id: string | undefined) => {
 
         const daysRemaining = calculateDaysRemaining();
 
+        // Determine if the deal is free either by explicit flag or 0 price
+        const isFree = data.is_free || data.discounted_price === 0;
+
         return {
           id: data.id,
           title: data.title,
@@ -78,7 +81,7 @@ export const useDeal = (id: string | undefined) => {
           city: data.city,
           created_at: data.created_at,
           quantityLeft: data.quantity_left,
-          isFree: data.is_free || false,
+          isFree: isFree,
           salon: data.salons ? {
             name: data.salons.name,
             address: data.salons.address,

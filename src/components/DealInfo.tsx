@@ -30,6 +30,7 @@ export const DealInfo = ({
   daysRemaining,
   quantityLeft,
   salon,
+  isFree,
 }: DealInfoProps) => {
   const navigate = useNavigate();
   
@@ -53,6 +54,7 @@ export const DealInfo = ({
               originalPrice={originalPrice} 
               discountedPrice={discountedPrice}
               className="text-lg"
+              isFreeOverride={isFree}
             />
           </div>
         </div>
