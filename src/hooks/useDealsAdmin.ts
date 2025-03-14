@@ -64,6 +64,20 @@ export const useDealsAdmin = () => {
         expirationDate: expirationDate
       });
       
+      // Kontrollera först om det finns några begränsningar på deals-tabellen
+      const { data: dealInfo, error: dealInfoError } = await supabase
+        .from('deals')
+        .select('*')
+        .eq('id', id)
+        .single();
+        
+      if (dealInfoError) {
+        console.error('Error fetching deal info:', dealInfoError);
+      } else {
+        console.log('Current deal info:', dealInfo);
+      }
+      
+      // Uppdatera erbjudandet med korrekta värden
       const { error } = await supabase
         .from('deals')
         .update({
@@ -71,7 +85,7 @@ export const useDealsAdmin = () => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: originalPrice,
-          discounted_price: 0, // All deals are free now
+          discounted_price: 0, // Set all deals as free
           category: values.category,
           city: values.city,
           time_remaining: timeRemaining,

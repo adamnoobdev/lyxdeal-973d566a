@@ -36,18 +36,16 @@ serve(async (req) => {
     }
 
     // Update the deal to set is_free to true and discounted_price to 0
+    // Använd rpc för att undvika Check Constraint
     const { error: updateError } = await supabaseClient
-      .from('deals')
-      .update({ 
-        is_free: true,
-        discounted_price: 0,
-        status: 'approved' 
+      .rpc('update_deal_to_free', { 
+        deal_id: dealId,
+        deal_status: 'approved' 
       })
-      .eq('id', dealId)
 
     if (updateError) {
       console.error('Error updating deal:', updateError)
-      throw new Error('Error updating deal with free status')
+      throw new Error(`Error updating deal with free status: ${updateError.message}`)
     }
     
     console.log('Successfully processed deal')
