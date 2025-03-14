@@ -63,6 +63,25 @@ export const DealActions = ({
     }, 50);
   };
 
+  // Specialhantering för async-funktioner som onGenerateDiscountCodes
+  const handleAsyncAction = (action: () => Promise<void>) => () => {
+    // Prevent double-clicks or multiple rapid actions
+    const now = Date.now();
+    if (now - lastActionTime < 500) {
+      return;
+    }
+    
+    setLastActionTime(now);
+    setIsOpen(false);
+    
+    // Use setTimeout to ensure dropdown closes before action executes
+    setTimeout(() => {
+      action().catch(error => {
+        console.error("Error executing async action:", error);
+      });
+    }, 50);
+  };
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
@@ -86,7 +105,7 @@ export const DealActions = ({
         )}
         {onGenerateDiscountCodes && (
           <DropdownMenuItem 
-            onClick={handleAction(onGenerateDiscountCodes)}
+            onClick={handleAsyncAction(onGenerateDiscountCodes)}
             disabled={isGeneratingCodes}
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -140,3 +159,4 @@ export const DealActions = ({
     </DropdownMenu>
   );
 };
+
