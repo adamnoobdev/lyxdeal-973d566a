@@ -50,7 +50,7 @@ serve(async (req) => {
     
     console.log("Connection successful, now querying table information...");
     
-    // Call get_tables RPC and handle any errors explicitly
+    // Call get_tables RPC with direct access to the data structure
     const { data: tablesData, error: tablesError } = await supabaseAdmin
       .rpc('get_tables');
       
@@ -82,10 +82,11 @@ serve(async (req) => {
       );
     }
 
-    // Tables data should now have the correct types from our updated function
-    const tables = tablesData || [];
+    // Ensure tablesData is properly processed
+    const tables = Array.isArray(tablesData) ? tablesData : [];
     
     console.log(`Successfully retrieved ${tables.length} tables`);
+    console.log('First 3 tables:', tables.slice(0, 3));
     
     // Hämta exempel på rabattkoder
     const { data: discountCodes, error: codesError } = await supabaseAdmin
