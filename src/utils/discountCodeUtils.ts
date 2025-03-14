@@ -37,7 +37,7 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
     const { data: existingCodes, error: fetchError } = await supabase
       .from('discount_codes')
       .select('code')
-      .eq('deal_id', dealId);
+      .or(`deal_id.eq.${dealId},deal_id.eq."${dealId}"`)
     
     if (fetchError) {
       console.error('[generateDiscountCodes] Error fetching existing codes:', fetchError);
@@ -61,7 +61,7 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
     
     // Skapa code-objekt för insertion
     const codes = newCodes.map(code => ({
-      deal_id: dealId,
+      deal_id: dealId, // Ensure this is stored as a number
       code,
       is_used: false
     }));
@@ -216,15 +216,17 @@ export const inspectDiscountCodes = async (dealId: number | string) => {
   console.log(`[inspectDiscountCodes] Inspecting discount codes for deal ${dealId}...`);
   
   try {
-    // Konvertera dealId till nummer för säkerhets skull
+    // Try to handle both string and number deal IDs
     const numericDealId = typeof dealId === 'string' ? parseInt(dealId, 10) : dealId;
-    console.log(`[inspectDiscountCodes] Using numeric dealId: ${numericDealId} (original type: ${typeof dealId})`);
+    const stringDealId = String(dealId);
     
-    // Kontrollera först med standardfråga
+    console.log(`[inspectDiscountCodes] Using both numeric dealId: ${numericDealId} and string dealId: "${stringDealId}" for search`);
+    
+    // Use OR filter to match both string and number types of deal_id
     const { data: codes, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .or(`deal_id.eq.${numericDealId},deal_id.eq.${String(numericDealId)}`)
+      .or(`deal_id.eq.${numericDealId},deal_id.eq."${stringDealId}"`)
       
     if (error) {
       console.error('[inspectDiscountCodes] Error querying codes:', error);
@@ -235,139 +237,71 @@ export const inspectDiscountCodes = async (dealId: number | string) => {
       };
     }
     
-    // Kontrollera också efter strängar (vanlig konverteringsbugg)
-    const stringDealId = String(numericDealId);
-    const { data: stringCodes, error: stringError } = await supabase
-      .from('discount_codes')
-      .select('*')
-      .eq('deal_id', stringDealId as any) // Using type assertion to bypass TypeScript check
-    
-    if (stringError) {
-      console.error('[inspectDiscountCodes] Error querying string codes:', stringError);
-    } else if (stringCodes && stringCodes.length > 0) {
-      console.log(`[inspectDiscountCodes] Found ${stringCodes.length} codes with string deal_id "${numericDealId}"`);
-      return {
-        success: true,
-        message: `Hittade ${stringCodes.length} koder för erbjudande ${dealId} (sparade som string)`,
-        dealId,
-        codesCount: stringCodes.length,
-        sampleCodes: stringCodes.slice(0, 5).map(c => ({
-          code: c.code,
-          isUsed: c.is_used,
-          createdAt: c.created_at,
-          dealId: c.deal_id
-        })),
-        codeType: 'string'
-      };
-    }
-    
-    // Kontrollera om några koder hittades
+    // Check if any codes were found
     if (!codes || codes.length === 0) {
       console.log(`[inspectDiscountCodes] No codes found for deal ${dealId}`);
       
-      // Hämta databasinformation via edge-funktion
+      // Try with a more general query to see if any codes exist at all
       try {
-        console.log('[inspectDiscountCodes] Calling database info function');
-        const response = await supabase.functions.invoke('get-database-info');
-        if (response.error) {
-          console.error('[inspectDiscountCodes] Error calling database info function:', response.error);
-        } else {
-          console.log('[inspectDiscountCodes] Database info:', response.data);
+        console.log('[inspectDiscountCodes] Checking for any discount codes in database');
+        const { data: allCodes, error: allCodesError } = await supabase
+          .from('discount_codes')
+          .select('deal_id, code')
+          .limit(10);
           
-          // Om vi har rabattkoder i edge-funktionens svar
-          if (response.data && response.data.discountCodeSamples && response.data.discountCodeSamples.length > 0) {
-            // Analysera typen på deal_id i de koder vi hittade
-            const sampleDealIds = response.data.discountCodeSamples.map((c: any) => ({
-              id: c.deal_id,
-              type: typeof c.deal_id
-            }));
-            console.log('[inspectDiscountCodes] Sample deal IDs and types:', sampleDealIds);
-            
-            return {
-              success: false,
-              message: `Hittade ${response.data.discountCodesCount || 0} rabattkoder i databasen men inga för erbjudande ${dealId}`,
-              dealId,
-              tables: response.data.tables,
-              codesCount: 0,
-              totalCodesInDatabase: response.data.discountCodesCount || 0,
-              sampleCodes: response.data.discountCodeSamples.map((code: any) => ({
-                code: code.code,
-                isUsed: code.is_used,
-                dealId: code.deal_id,
-                dealIdType: typeof code.deal_id
-              }))
-            };
-          }
+        if (allCodesError) {
+          console.error('[inspectDiscountCodes] Error checking all codes:', allCodesError);
+          return { 
+            success: false, 
+            message: 'Ett fel uppstod vid kontroll av rabattkoder',
+            dealId
+          };
         }
-      } catch (functionError) {
-        console.error('[inspectDiscountCodes] Error invoking database info function:', functionError);
-      }
-      
-      // Försök med en mer generell fråga för att se om några koder överhuvudtaget existerar
-      const { data: allCodes, error: allCodesError } = await supabase
-        .from('discount_codes')
-        .select('deal_id, code')
-        .limit(10);
         
-      if (allCodesError) {
-        console.error('[inspectDiscountCodes] Error checking all codes:', allCodesError);
-        return { 
-          success: false, 
-          message: 'Ett fel uppstod vid kontroll av rabattkoder',
-          dealId
-        };
-      }
-      
-      if (!allCodes || allCodes.length === 0) {
-        console.log('[inspectDiscountCodes] No discount codes found in the database at all!');
-        
-        // Kontrollera om det finns några deals i databasen
-        const { data: dealsData, error: dealsError } = await supabase
-          .from('deals')
-          .select('id, title')
-          .eq('id', numericDealId)
-          .limit(1);
-          
-        if (dealsError) {
-          console.error('[inspectDiscountCodes] Error checking deal:', dealsError);
-        } else {
-          console.log('[inspectDiscountCodes] Deal check result:', dealsData);
+        if (!allCodes || allCodes.length === 0) {
+          console.log('[inspectDiscountCodes] No discount codes found in the database at all!');
+          return { 
+            success: false, 
+            message: 'Inga rabattkoder hittades i databasen', 
+            dealId,
+            totalCodesInDatabase: 0
+          };
         }
+        
+        // Show examples of codes from other deals
+        console.log(`[inspectDiscountCodes] Found ${allCodes.length} codes for other deals`);
+        
+        // Collect information about types of deal_id in the database
+        const dealIdTypes = [...new Set(allCodes.map(c => typeof c.deal_id))];
+        const dealIds = [...new Set(allCodes.map(c => c.deal_id))];
+        console.log('[inspectDiscountCodes] Deal ID types in database:', dealIdTypes);
+        console.log('[inspectDiscountCodes] Deal IDs found:', dealIds);
         
         return { 
           success: false, 
-          message: 'Inga rabattkoder hittades i databasen', 
+          message: `Inga koder hittades för erbjudande ${dealId}, men hittade koder för andra erbjudanden`, 
           dealId,
-          totalCodesInDatabase: 0,
-          dealExists: dealsData && dealsData.length > 0
+          totalCodesInDatabase: allCodes.length,
+          codesFoundForDeals: dealIds,
+          dealIdTypes: dealIdTypes,
+          sampleCodes: allCodes.slice(0, 5).map(c => ({
+            code: c.code,
+            dealId: c.deal_id,
+            dealIdType: typeof c.deal_id
+          }))
         };
+      } catch (error) {
+        console.error('[inspectDiscountCodes] Error checking all codes:', error);
       }
-      
-      // Visa exempel på koder från andra erbjudanden
-      console.log(`[inspectDiscountCodes] Found ${allCodes.length} codes for other deals`);
-      
-      // Samla information om typer på deal_id i databasen
-      const dealIdTypes = [...new Set(allCodes.map(c => typeof c.deal_id))];
-      const dealIds = [...new Set(allCodes.map(c => c.deal_id))];
-      console.log('[inspectDiscountCodes] Deal ID types in database:', dealIdTypes);
-      console.log('[inspectDiscountCodes] Deal IDs found:', dealIds);
       
       return { 
         success: false, 
-        message: `Inga koder hittades för erbjudande ${dealId}, men hittade koder för andra erbjudanden`, 
-        dealId,
-        totalCodesInDatabase: allCodes.length,
-        codesFoundForDeals: dealIds,
-        dealIdTypes: dealIdTypes,
-        sampleCodes: allCodes.slice(0, 5).map(c => ({
-          code: c.code,
-          dealId: c.deal_id,
-          dealIdType: typeof c.deal_id
-        }))
+        message: `Inga rabattkoder hittades för erbjudande ${dealId}`, 
+        dealId
       };
     }
     
-    // Koder hittades, returnera detaljer
+    // Codes were found, return details
     console.log(`[inspectDiscountCodes] Found ${codes.length} codes for deal ${dealId}`);
     console.log('[inspectDiscountCodes] Sample codes:', codes.slice(0, 3).map(c => ({ code: c.code, dealId: c.deal_id })));
     
@@ -380,7 +314,7 @@ export const inspectDiscountCodes = async (dealId: number | string) => {
         code: c.code, 
         isUsed: c.is_used,
         createdAt: c.created_at,
-        dealId: c.deal_id // Inkludera deal_id för att bekräfta kopplingen
+        dealId: c.deal_id
       }))
     };
   } catch (error) {
