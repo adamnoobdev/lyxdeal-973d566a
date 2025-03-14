@@ -50,7 +50,7 @@ export const useDiscountCodes = (dealId: number | undefined) => {
           const { data: stringIdData, error: stringIdError } = await supabase
             .from("discount_codes")
             .select("*")
-            .eq("deal_id", dealId.toString())
+            .eq("deal_id", String(dealId)) // Convert to string explicitly
             .order("created_at", { ascending: false });
             
           if (stringIdError) {

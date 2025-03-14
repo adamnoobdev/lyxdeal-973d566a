@@ -188,12 +188,12 @@ export const markDiscountCodeAsUsed = async (
  * Kontrollerar om rabattkoder existerar för ett specifikt erbjudande
  * Användbart för felsökning av saknade koder
  */
-export const inspectDiscountCodes = async (dealId: number) => {
+export const inspectDiscountCodes = async (dealId: number | string) => {
   console.log(`[inspectDiscountCodes] Inspecting discount codes for deal ${dealId}...`);
   
   try {
     // Konvertera dealId till nummer för säkerhets skull
-    const numericDealId = Number(dealId);
+    const numericDealId = typeof dealId === 'string' ? parseInt(dealId, 10) : dealId;
     console.log(`[inspectDiscountCodes] Using numeric dealId: ${numericDealId} (original type: ${typeof dealId})`);
     
     // Kontrollera först med standardfråga
@@ -215,7 +215,7 @@ export const inspectDiscountCodes = async (dealId: number) => {
     const { data: stringCodes, error: stringError } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', numericDealId.toString());
+      .eq('deal_id', String(numericDealId));
     
     if (stringError) {
       console.error('[inspectDiscountCodes] Error querying string codes:', stringError);
