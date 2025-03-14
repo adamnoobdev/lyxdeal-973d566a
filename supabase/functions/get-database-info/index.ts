@@ -30,11 +30,9 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-    // För att hämta alla tabeller i databasen använder vi rätt schema för pg_tables
+    // Using a direct SQL query to get table information
     const { data: tables, error: tablesError } = await supabaseAdmin
-      .from('information_schema.tables')
-      .select('table_schema, table_name')
-      .eq('table_schema', 'public');
+      .rpc('get_tables');
       
     if (tablesError) {
       console.error('Error fetching tables:', tablesError);

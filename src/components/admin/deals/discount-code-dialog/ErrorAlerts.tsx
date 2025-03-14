@@ -1,6 +1,6 @@
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, AlertCircle } from "lucide-react";
+import { AlertTriangle, AlertCircle, Database } from "lucide-react";
 
 interface ErrorAlertsProps {
   error: any;
@@ -44,7 +44,7 @@ export const ErrorAlerts = ({
           variant={inspectionResult.success ? "default" : "warning"} 
           className="my-2"
         >
-          <AlertCircle className="h-4 w-4" />
+          <Database className="h-4 w-4" />
           <AlertDescription>
             <div>
               <strong>Databasinspektion:</strong> {inspectionResult.message}
@@ -64,6 +64,18 @@ export const ErrorAlerts = ({
             {!inspectionResult.success && inspectionResult.codesFoundForDeals && (
               <div className="mt-1 text-xs">
                 Hittade koder för andra erbjudanden med ID: {inspectionResult.codesFoundForDeals.join(', ')}
+              </div>
+            )}
+            {inspectionResult.tables && (
+              <div className="mt-1 text-xs">
+                <div>Databastabeller:</div>
+                <ul className="list-disc pl-5">
+                  {inspectionResult.tables.map((table: any, i: number) => (
+                    <li key={i}>
+                      {table.table_name || table.tablename} ({table.row_count || '?'} rader)
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </AlertDescription>
