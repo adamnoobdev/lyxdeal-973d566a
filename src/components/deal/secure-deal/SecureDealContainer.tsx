@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getAvailableDiscountCode, markDiscountCodeAsUsed } from "@/utils/discountCodes";
+import { getAvailableDiscountCode, markDiscountCodeAsUsed } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 import { SecureForm, SecureFormValues } from "./SecureForm";
 import { SuccessMessage } from "./SuccessMessage";

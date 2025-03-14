@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { removeAllDiscountCodes } from "@/utils/discountCodes";
+import { removeAllDiscountCodes } from "@/utils/discountCodeUtils";
 
 export const RemoveAllCodesButton = () => {
   const [isRemoving, setIsRemoving] = useState(false);
@@ -48,4 +48,3 @@ export const RemoveAllCodesButton = () => {
     </Button>
   );
 };
-

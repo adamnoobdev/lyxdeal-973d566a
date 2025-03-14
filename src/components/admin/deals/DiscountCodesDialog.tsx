@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/dialog";
 import { Deal } from "@/components/admin/types";
 import { DiscountCodesDialogContent } from "./discount-code-dialog/DiscountCodesDialogContent";
-import { generateDiscountCodes } from "@/utils/discountCodes";
+import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
 
 interface DiscountCodesDialogProps {
