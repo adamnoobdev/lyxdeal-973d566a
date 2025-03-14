@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatCurrency } from "@/utils/dealApiUtils";
 
 interface DealsTableProps {
@@ -20,8 +19,7 @@ interface DealsTableProps {
   onEdit?: (deal: Deal) => void;
   onDelete?: (deal: Deal) => void;
   onToggleActive?: ((deal: Deal) => void) | undefined;
-  hasViewDetailsAction?: boolean;
-  onViewDetails?: (deal: Deal) => void;
+  onPreview?: (deal: Deal) => void;
   showApprovalActions?: boolean;
   onApprove?: (dealId: number) => void;
   onReject?: (dealId: number) => void;
@@ -32,12 +30,20 @@ export const DealsTable = ({
   onEdit, 
   onDelete, 
   onToggleActive,
-  hasViewDetailsAction = false,
-  onViewDetails,
+  onPreview,
   showApprovalActions,
   onApprove,
   onReject
 }: DealsTableProps) => {
+  const handlePreviewDeal = (deal: Deal) => {
+    if (onPreview) {
+      onPreview(deal);
+    } else {
+      // Fallback to opening the deal in a new tab
+      window.open(`/deals/${deal.id}`, '_blank');
+    }
+  };
+
   return (
     <div className="rounded-lg overflow-hidden border border-secondary/10 bg-white">
       <ScrollArea className="w-full max-w-full overflow-auto">
@@ -72,7 +78,18 @@ export const DealsTable = ({
                       {deal.is_free || deal.discounted_price === 0 ? "Gratis" : `${formatCurrency(deal.discounted_price)} kr`}
                     </span>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">{deal.quantity_left}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span>{deal.quantity_left}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Antal rabattkoder kvar</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center">
                       <Badge variant={
@@ -92,22 +109,13 @@ export const DealsTable = ({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex justify-end gap-2">
-                      {hasViewDetailsAction && onViewDetails && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onViewDetails(deal)}
-                          title="Visa detaljer"
-                          className="hidden sm:flex"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      )}
+                    <div className="flex justify-end">
                       <DealActions
                         onEdit={onEdit ? () => onEdit(deal) : undefined}
                         onDelete={onDelete ? () => onDelete(deal) : undefined}
                         onToggleActive={onToggleActive ? () => onToggleActive(deal) : undefined}
+                        isActive={deal.is_active}
+                        onPreview={() => handlePreviewDeal(deal)}
                       />
                     </div>
                   </TableCell>

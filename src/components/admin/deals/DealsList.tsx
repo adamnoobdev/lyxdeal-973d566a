@@ -1,11 +1,13 @@
 
 import { DealsListContainer } from "./DealsListContainer";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const DealsList = () => {
   return (
-    <SidebarProvider defaultOpen={false}>
-      <DealsListContainer />
-    </SidebarProvider>
+    <Card className="border border-secondary/20">
+      <CardContent className="p-6">
+        <DealsListContainer />
+      </CardContent>
+    </Card>
   );
 };

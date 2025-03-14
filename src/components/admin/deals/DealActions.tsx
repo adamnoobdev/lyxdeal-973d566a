@@ -4,18 +4,27 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Eye, PowerIcon } from "lucide-react";
 import { useState, useRef } from "react";
 
 interface DealActionsProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onToggleActive?: () => void;
+  isActive?: boolean;
+  onPreview?: () => void;
 }
 
-export const DealActions = ({ onEdit, onDelete, onToggleActive }: DealActionsProps) => {
+export const DealActions = ({ 
+  onEdit, 
+  onDelete, 
+  onToggleActive, 
+  isActive = true,
+  onPreview 
+}: DealActionsProps) => {
   const [open, setOpen] = useState(false);
   const actionInProgressRef = useRef(false);
   
@@ -40,31 +49,51 @@ export const DealActions = ({ onEdit, onDelete, onToggleActive }: DealActionsPro
           <span className="sr-only">Öppna meny</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40 border-secondary/20">
+      <DropdownMenuContent align="end" className="w-48 border-secondary/20">
         {onEdit && (
           <DropdownMenuItem 
             onClick={() => handleAction(onEdit)} 
             className="cursor-pointer hover:bg-primary/5"
           >
             <Pencil className="h-4 w-4 mr-2 text-primary" />
-            Redigera
+            Redigera erbjudande
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem 
-          onClick={() => window.open(`/deals/1`, '_blank')} 
-          className="cursor-pointer hover:bg-primary/5"
-        >
-          <Eye className="h-4 w-4 mr-2 text-primary" />
-          Förhandsgranska
-        </DropdownMenuItem>
-        {onDelete && (
+        
+        {onPreview && (
           <DropdownMenuItem 
-            onClick={() => handleAction(onDelete)}
-            className="text-destructive focus:text-destructive cursor-pointer"
+            onClick={() => handleAction(onPreview)} 
+            className="cursor-pointer hover:bg-primary/5"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Ta bort
+            <Eye className="h-4 w-4 mr-2 text-primary" />
+            Förhandsgranska
           </DropdownMenuItem>
+        )}
+        
+        {onToggleActive && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => handleAction(onToggleActive)}
+              className="cursor-pointer hover:bg-primary/5"
+            >
+              <PowerIcon className="h-4 w-4 mr-2 text-primary" />
+              {isActive ? "Inaktivera erbjudande" : "Aktivera erbjudande"}
+            </DropdownMenuItem>
+          </>
+        )}
+        
+        {onDelete && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => handleAction(onDelete)}
+              className="text-destructive focus:text-destructive cursor-pointer hover:bg-destructive/5"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Ta bort erbjudande
+            </DropdownMenuItem>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
