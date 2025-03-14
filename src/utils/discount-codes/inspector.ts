@@ -70,15 +70,14 @@ export const inspectDiscountCodes = async (dealId: string | number): Promise<Dis
       // No discount codes found at all
       try {
         // Check if the table exists at all
-        const { data: tables } = await supabase.rpc('get_tables');
-        console.log('[inspectDiscountCodes] Database tables:', tables);
+        const { data: tablesData } = await supabase.rpc('get_tables');
+        console.log('[inspectDiscountCodes] Database tables:', tablesData);
         
         return { 
           success: false, 
           message: 'Inga rabattkoder hittades i databasen', 
           dealId,
-          totalCodesInDatabase: 0,
-          tables
+          totalCodesInDatabase: 0
         };
       } catch (error) {
         console.error('[inspectDiscountCodes] Error checking tables:', error);

@@ -24,6 +24,7 @@ export interface DiscountCodeInspectionResult {
   codesFoundForDeals?: (string | number)[];
   dealIdTypes?: string[];
   codeType?: string;
+  tables?: any[]; // Adding the missing property for database tables info
 }
 
 /**
@@ -31,7 +32,7 @@ export interface DiscountCodeInspectionResult {
  * This helps handle type mismatches between string and number IDs
  */
 export function normalizeId(id: string | number): string | number {
-  // If id is already a number, return it as a string to be consistent
+  // If id is already a number, return it as is
   if (typeof id === 'number') {
     return id;
   }
