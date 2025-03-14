@@ -1,7 +1,11 @@
 
-import { RefreshCcw, Database, Plus } from "lucide-react";
+import { X, RefreshCcw, Database, HelpCircle, Plus } from "lucide-react";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { RemoveAllCodesButton } from "./RemoveAllCodesButton";
+import { DiscountCodesGenerationDialog } from "@/components/discount-codes/DiscountCodesGenerationDialog";
+import { useState } from "react";
 
 interface DiscountDialogHeaderProps {
   title: string;
@@ -11,12 +15,12 @@ interface DiscountDialogHeaderProps {
   isFetching: boolean;
   timeElapsedText?: string;
   onManualRefresh: () => void;
-  onInspectCodes: () => void;
-  isInspecting: boolean;
+  onInspectCodes?: () => void;
+  isInspecting?: boolean;
   onGenerateDiscountCodes?: (quantity: number) => Promise<void>;
 }
 
-export const DiscountDialogHeader = ({ 
+export const DiscountDialogHeader = ({
   title,
   dealTitle,
   codesCount,
@@ -26,71 +30,99 @@ export const DiscountDialogHeader = ({
   onManualRefresh,
   onInspectCodes,
   isInspecting,
-  onGenerateDiscountCodes,
+  onGenerateDiscountCodes
 }: DiscountDialogHeaderProps) => {
-  const handleGenerateClick = () => {
-    if (onGenerateDiscountCodes) {
-      onGenerateDiscountCodes(10);
-    }
-  };
-
+  const [isGenerationDialogOpen, setIsGenerationDialogOpen] = useState(false);
+  
   return (
-    <div className="flex flex-col gap-2">
+    <DialogHeader className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">{title}</h2>
-          <p className="text-sm text-muted-foreground">
-            {isLoading || isFetching ? 
-              "Hämtar rabattkoder..." : 
-              `${codesCount} rabattkoder hittades`
-            }
-            {timeElapsedText && (
-              <span className="text-xs text-muted-foreground ml-2">
-                ({timeElapsedText})
-              </span>
-            )}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="gap-1"
-            onClick={onManualRefresh}
-            disabled={isFetching}
-          >
-            <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-            <span className="hidden md:inline">Uppdatera</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="gap-1"
-            onClick={onInspectCodes}
-            disabled={isInspecting}
-          >
-            <Database className="h-4 w-4" />
-            <span className="hidden md:inline">Felsök</span>
-          </Button>
-
-          {onGenerateDiscountCodes && (
+        <DialogTitle className="text-xl font-bold">{title}</DialogTitle>
+      </div>
+      
+      {dealTitle && (
+        <p className="text-sm text-muted-foreground">
+          {dealTitle} - {codesCount} rabattkoder
+          {timeElapsedText && (
+            <span className="ml-2 text-xs italic">({timeElapsedText})</span>
+          )}
+        </p>
+      )}
+      
+      <div className="flex flex-wrap gap-2 pt-1">
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="flex items-center gap-2"
+          onClick={onManualRefresh}
+          disabled={isFetching}
+        >
+          <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+          <span>Uppdatera</span>
+        </Button>
+        
+        {onInspectCodes && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-2"
+                  onClick={onInspectCodes}
+                  disabled={isInspecting}
+                >
+                  <Database className="h-4 w-4" />
+                  <span>Inspektera</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Inspektera rabattkoder i databasen</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        
+        {onGenerateDiscountCodes && (
+          <>
             <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-1"
-              onClick={handleGenerateClick}
+              variant="default" 
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={() => setIsGenerationDialogOpen(true)}
             >
               <Plus className="h-4 w-4" />
-              <span className="hidden md:inline">Generera koder</span>
+              <span>Generera koder</span>
             </Button>
-          )}
-        </div>
-      </div>
-      <div className="flex justify-end">
+            
+            <DiscountCodesGenerationDialog
+              isOpen={isGenerationDialogOpen}
+              onClose={() => setIsGenerationDialogOpen(false)}
+              onGenerate={onGenerateDiscountCodes}
+            />
+          </>
+        )}
+        
         <RemoveAllCodesButton onSuccess={onManualRefresh} />
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-2 ml-auto"
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span>Hjälp</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Rabattkoder används för att kunder ska kunna lösa in erbjudanden</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
-      <hr className="my-2 border-secondary/30" />
-    </div>
+    </DialogHeader>
   );
 };
