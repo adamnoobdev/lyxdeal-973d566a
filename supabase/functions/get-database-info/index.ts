@@ -30,21 +30,51 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-    // Using SQL query directly instead of RPC since we're having type issues
-    const { data: tables, error: tablesError } = await supabaseAdmin
+    // First check if we can connect to the database
+    console.log("Testing database connection by querying discount_codes...");
+    const { data: testConnection, error: connectionError } = await supabaseAdmin
       .from('discount_codes')
-      .select('count(*)')
-      .limit(1)
-      .then(async () => {
-        // After testing connection, fetch tables with direct SQL
-        const { data, error } = await supabaseAdmin.rpc('get_tables');
-        return { data, error };
-      });
+      .select('count')
+      .limit(1);
+      
+    if (connectionError) {
+      console.error('Error connecting to database:', connectionError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to connect to database', details: connectionError }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
+        }
+      );
+    }
+    
+    console.log("Connection successful, now querying table information...");
+    
+    // Let's get table information using raw SQL instead of RPC to avoid type issues
+    const { data: tablesRaw, error: tablesError } = await supabaseAdmin
+      .rpc('get_tables');
       
     if (tablesError) {
       console.error('Error fetching tables:', tablesError);
+      
+      // Fallback: Try a direct SQL query to get at least some info about tables
+      const { data: fallbackTables, error: fallbackError } = await supabaseAdmin
+        .from('discount_codes')
+        .select('id')
+        .limit(1);
+        
+      if (fallbackError) {
+        console.error('Fallback query also failed:', fallbackError);
+      } else {
+        console.log('Fallback query successful, we can access discount_codes table');
+      }
+      
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch database information', details: tablesError }),
+        JSON.stringify({ 
+          error: 'Failed to fetch database information', 
+          details: tablesError,
+          canAccessDiscountCodes: !fallbackError 
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 500
@@ -52,6 +82,15 @@ serve(async (req) => {
       );
     }
 
+    // Transform the tables data to ensure proper types
+    const tables = tablesRaw ? tablesRaw.map(table => ({
+      schema_name: String(table.schema_name || ''),
+      table_name: String(table.table_name || ''),
+      row_count: Number(table.row_count || 0)
+    })) : [];
+
+    console.log(`Successfully retrieved ${tables.length} tables`);
+    
     // Hämta exempel på rabattkoder
     const { data: discountCodes, error: codesError } = await supabaseAdmin
       .from('discount_codes')
@@ -60,6 +99,8 @@ serve(async (req) => {
       
     if (codesError) {
       console.error('Error fetching discount codes:', codesError);
+    } else {
+      console.log(`Successfully retrieved ${discountCodes?.length || 0} discount codes`);
     }
 
     return new Response(
