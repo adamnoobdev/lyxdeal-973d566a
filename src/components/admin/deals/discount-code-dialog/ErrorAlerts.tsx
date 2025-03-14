@@ -34,8 +34,7 @@ export const ErrorAlerts = ({
         <Alert variant="warning" className="my-2">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Vi har inte hittat några rabattkoder efter flera försök. Det kan bero på att genereringen misslyckades eller att det finns en fördröjning. 
-            Prova att uppdatera sidan eller generera nya rabattkoder för erbjudandet.
+            Inga rabattkoder hittades efter flera försök. Använd inspektionsverktyget för att kontrollera om det finns koder i databasen.
           </AlertDescription>
         </Alert>
       )}

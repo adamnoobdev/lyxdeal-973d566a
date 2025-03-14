@@ -6,6 +6,8 @@ import { Deal } from "@/components/admin/types";
 import { useDiscountCodesDialog } from "./useDiscountCodesDialog";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface DiscountCodesDialogContentProps {
   isOpen: boolean;
@@ -62,26 +64,29 @@ export const DiscountCodesDialogContent = ({
       />
       
       {showCodeMismatchWarning && (
-        <div className="bg-amber-50 border border-amber-200 rounded-md p-3 my-3 text-sm">
-          <p className="font-medium text-amber-800">
-            {inspectionResult.codesCount} rabattkoder hittades i databasen men visas inte här
-          </p>
-          <p className="text-amber-700 mt-1">
-            Detta kan bero på en cachad vy eller att sidan behöver laddas om.
-          </p>
-          <div className="mt-2">
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="gap-1"
-              onClick={handleManualRefresh}
-              disabled={isFetching}
-            >
-              <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-              <span>Uppdatera</span>
-            </Button>
-          </div>
-        </div>
+        <Alert variant="warning" className="bg-amber-50 border border-amber-200 my-3">
+          <AlertCircle className="h-4 w-4 text-amber-800" />
+          <AlertDescription>
+            <p className="font-medium text-amber-800">
+              {inspectionResult.codesCount} rabattkoder hittades i databasen men visas inte här
+            </p>
+            <p className="text-amber-700 mt-1">
+              Detta kan bero på cachad data eller nätverkslatens. Prova att uppdatera.
+            </p>
+            <div className="mt-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="gap-1"
+                onClick={handleManualRefresh}
+                disabled={isFetching}
+              >
+                <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+                <span>Uppdatera</span>
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
       )}
       
       <div className="flex-1 overflow-auto mt-4">
