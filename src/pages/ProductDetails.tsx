@@ -8,7 +8,6 @@ import { useEffect } from "react";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
 import { DealInfo } from "@/components/DealInfo";
 import { PurchaseSteps } from "@/components/deal/PurchaseSteps";
-import { DealFeatures } from "@/components/deal/DealFeatures";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -45,15 +44,6 @@ const ProductDetails = () => {
     );
   }
 
-  // Calculate discount percentage
-  const discountPercentage = deal.originalPrice > 0 
-    ? Math.round(((deal.originalPrice - deal.discountedPrice) / deal.originalPrice) * 100) 
-    : 0;
-
-  // Format days remaining text
-  const daysText = deal.daysRemaining === 1 ? "dag" : "dagar";
-  const timeRemainingText = `${deal.daysRemaining} ${daysText}`;
-
   // Calculate saved amount
   const savedAmount = deal.originalPrice - deal.discountedPrice;
 
@@ -71,13 +61,6 @@ const ProductDetails = () => {
                   className="w-full aspect-[4/3] object-cover"
                 />
               </div>
-
-              <DealFeatures 
-                discountPercentage={discountPercentage}
-                timeRemaining={timeRemainingText}
-                quantityLeft={deal.quantityLeft}
-                savedAmount={savedAmount}
-              />
 
               <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
                 <h2 className="text-xl font-semibold">Det här ingår</h2>

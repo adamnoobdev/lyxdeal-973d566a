@@ -74,21 +74,21 @@ export const DealInfo = ({
         </div>
         
         <Button 
-          className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-200 group"
+          className="w-full bg-primary hover:bg-primary/90 text-white group"
           size="lg"
           onClick={handleSecureDeal}
         >
-          <Tag className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+          <Tag className="mr-2 h-5 w-5" />
           Säkra rabattkod
         </Button>
         
         {salon && salon.phone && (
           <Button 
-            className="w-full bg-white text-primary border border-primary hover:bg-primary/5 transition-all duration-200 group mt-3"
+            className="w-full bg-white text-primary border border-primary hover:bg-primary/5 group mt-3"
             size="lg"
             onClick={() => window.location.href = `tel:${salon.phone}`}
           >
-            <Phone className="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+            <Phone className="mr-2 h-5 w-5" />
             Kontakta salongen
           </Button>
         )}
