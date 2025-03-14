@@ -50,7 +50,7 @@ serve(async (req) => {
     
     console.log("Connection successful, now querying table information...");
     
-    // Call get_tables RPC with direct access to the data structure
+    // Fetch table information via RPC
     const { data: tablesData, error: tablesError } = await supabaseAdmin
       .rpc('get_tables');
       
@@ -82,22 +82,32 @@ serve(async (req) => {
       );
     }
 
-    // Ensure tablesData is properly processed
+    // Ensure tablesData is properly processed and format it consistently
     const tables = Array.isArray(tablesData) ? tablesData : [];
     
     console.log(`Successfully retrieved ${tables.length} tables`);
     console.log('First 3 tables:', tables.slice(0, 3));
     
-    // Hämta exempel på rabattkoder
+    // Hämta exempel på alla rabattkoder för att hjälpa till vid felsökning
     const { data: discountCodes, error: codesError } = await supabaseAdmin
       .from('discount_codes')
       .select('*')
+      .order('created_at', { ascending: false })
       .limit(10);
       
     if (codesError) {
       console.error('Error fetching discount codes:', codesError);
-    } else {
-      console.log(`Successfully retrieved ${discountCodes?.length || 0} discount codes`);
+    } else if (discountCodes) {
+      console.log(`Successfully retrieved ${discountCodes.length} discount codes`);
+      
+      // Extra verifiering av deal_id typen för felsökning
+      if (discountCodes.length > 0) {
+        console.log('Sample discount code:', {
+          code: discountCodes[0].code,
+          deal_id: discountCodes[0].deal_id,
+          deal_id_type: typeof discountCodes[0].deal_id
+        });
+      }
     }
 
     return new Response(

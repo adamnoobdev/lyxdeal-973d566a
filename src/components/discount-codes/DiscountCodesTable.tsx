@@ -23,6 +23,7 @@ export interface DiscountCode {
   customer_name: string | null;
   customer_email: string | null;
   customer_phone: string | null;
+  deal_id?: number; // Lägg till deal_id för felsökning
 }
 
 interface DiscountCodesTableProps {
@@ -80,11 +81,35 @@ export const DiscountCodesTable = ({
                 <div key={i} className="mb-1 pb-1 border-b border-yellow-100 last:border-0 last:mb-0 last:pb-0">
                   <div className="flex justify-between">
                     <span>{code.code}</span>
-                    <span className="text-gray-500">{code.isUsed ? 'Använd' : 'Aktiv'}</span>
+                    <span className="text-gray-500">ID: {code.dealId}</span>
+                  </div>
+                  <div className="text-gray-500 text-xs">
+                    {code.isUsed ? 'Använd' : 'Aktiv'}
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+        )}
+        
+        {inspectionResult && !inspectionResult.success && inspectionResult.sampleCodes && (
+          <div className="mt-4 border border-blue-200 bg-blue-50 p-4 rounded-md max-w-md mx-auto">
+            <p className="text-blue-600 text-sm mb-3">
+              Hittade koder för andra erbjudanden i databasen:
+            </p>
+            <div className="bg-white p-3 rounded border border-blue-200 text-xs font-mono text-left">
+              {inspectionResult.sampleCodes.map((code: any, i: number) => (
+                <div key={i} className="mb-1 pb-1 border-b border-blue-100 last:border-0 last:mb-0 last:pb-0">
+                  <div className="flex justify-between">
+                    <span>{code.code}</span>
+                    <span className="text-gray-500">ID: {code.dealId}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-blue-600 text-xs mt-2">
+              Erbjudande-IDn med rabattkoder: {inspectionResult.codesFoundForDeals?.join(', ')}
+            </p>
           </div>
         )}
       </div>

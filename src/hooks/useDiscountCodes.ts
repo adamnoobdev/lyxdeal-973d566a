@@ -26,11 +26,11 @@ export const useDiscountCodes = (dealId: number | undefined) => {
       console.log(`[useDiscountCodes] Fetching discount codes for deal ID: ${dealId}`);
       
       try {
-        // Hämta koder från Supabase, använd explicit konvertering till number för deal_id för säkerhets skull
+        // Explicit query för rabattkoder med tydliga parametrar
         const { data, error } = await supabase
           .from("discount_codes")
           .select("*")
-          .eq("deal_id", Number(dealId))
+          .eq("deal_id", dealId)
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -45,19 +45,31 @@ export const useDiscountCodes = (dealId: number | undefined) => {
         if (!data || data.length === 0) {
           console.log(`[useDiscountCodes] No discount codes found for deal ID: ${dealId}`);
           
-          // Dubbelkolla att dealId är korrekt formaterat
-          console.log(`[useDiscountCodes] Deal ID type: ${typeof dealId}`);
-          
-          // Gör en testfråga för att verifiera att vi kan hämta data från discount_codes tabellen
+          // Verify query function is working correctly at all
           const { data: testData, error: testError } = await supabase
             .from("discount_codes")
-            .select("deal_id, code")
-            .limit(5);
+            .select("count");
             
           if (testError) {
             console.error("[useDiscountCodes] Test query error:", testError);
           } else {
             console.log("[useDiscountCodes] Test query result:", testData);
+            
+            // Try a more general query to find any codes
+            const { data: anyCodesData, error: anyCodesError } = await supabase
+              .from("discount_codes")
+              .select("deal_id, code")
+              .limit(10);
+              
+            if (anyCodesError) {
+              console.error("[useDiscountCodes] Any codes query error:", anyCodesError);
+            } else {
+              console.log("[useDiscountCodes] Any codes found:", anyCodesData);
+              if (anyCodesData && anyCodesData.length > 0) {
+                console.log("[useDiscountCodes] Deal IDs with codes:", 
+                  [...new Set(anyCodesData.map(c => c.deal_id))]);
+              }
+            }
           }
         } else {
           console.log(`[useDiscountCodes] Retrieved ${data.length} discount codes for deal ID: ${dealId}`);

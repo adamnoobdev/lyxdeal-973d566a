@@ -215,13 +215,31 @@ export const inspectDiscountCodes = async (dealId: number) => {
     if (!codes || codes.length === 0) {
       console.log(`[inspectDiscountCodes] No codes found for deal ${dealId}`);
       
-      // Försök med att hämta databasen tabeller genom edge function
+      // Hämta databasinformation via edge-funktion
       try {
+        console.log('[inspectDiscountCodes] Calling database info function');
         const response = await supabase.functions.invoke('get-database-info');
         if (response.error) {
           console.error('[inspectDiscountCodes] Error calling database info function:', response.error);
         } else {
           console.log('[inspectDiscountCodes] Database info:', response.data);
+          
+          // Om vi har rabattkoder i edge-funktionens svar
+          if (response.data && response.data.discountCodeSamples && response.data.discountCodeSamples.length > 0) {
+            return {
+              success: false,
+              message: `Hittade ${response.data.discountCodesCount || 0} rabattkoder i databasen men inga för erbjudande ${dealId}`,
+              dealId,
+              tables: response.data.tables,
+              codesCount: 0,
+              totalCodesInDatabase: response.data.discountCodesCount || 0,
+              sampleCodes: response.data.discountCodeSamples.map((code: any) => ({
+                code: code.code,
+                isUsed: code.is_used,
+                dealId: code.deal_id
+              }))
+            };
+          }
         }
       } catch (functionError) {
         console.error('[inspectDiscountCodes] Error invoking database info function:', functionError);
@@ -275,7 +293,11 @@ export const inspectDiscountCodes = async (dealId: number) => {
         message: `Inga koder hittades för erbjudande ${dealId}, men hittade koder för andra erbjudanden`, 
         dealId,
         totalCodesInDatabase: allCodes.length,
-        codesFoundForDeals: [...new Set(allCodes.map(c => c.deal_id))]
+        codesFoundForDeals: [...new Set(allCodes.map(c => c.deal_id))],
+        sampleCodes: allCodes.slice(0, 5).map(c => ({
+          code: c.code,
+          dealId: c.deal_id
+        }))
       };
     }
     

@@ -42,7 +42,7 @@ export const DiscountCodesDialogContent = ({
   return (
     <>
       <DiscountDialogHeader
-        title="Rabattkoder"
+        title={`Rabattkoder för ${deal?.title || ''}`}
         dealTitle={deal?.title}
         codesCount={discountCodes.length}
         isLoading={isLoading}
@@ -71,7 +71,7 @@ export const DiscountCodesDialogContent = ({
               {inspectionResult.codesCount} rabattkoder hittades i databasen men visas inte här
             </p>
             <p className="text-amber-700 mt-1">
-              Detta kan bero på cachad data eller nätverkslatens. Prova att uppdatera.
+              Detta kan bero på att koder finns i databasen men med annat deal_id än {deal?.id}. Koder: {inspectionResult.sampleCodes?.map(c => c.code).join(', ')}
             </p>
             <div className="mt-2">
               <Button 
