@@ -215,7 +215,7 @@ export const DiscountCodesDialog = ({
         )}
         
         {discountCodes.length === 0 && refreshAttempts >= 5 && !isLoading && !isFetching && (
-          <Alert variant="warning" className="my-2 border-amber-200 text-amber-800 bg-amber-50">
+          <Alert variant="warning" className="my-2">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               Vi har inte hittat några rabattkoder efter flera försök. Det kan bero på att genereringen misslyckades eller att det finns en fördröjning. 
