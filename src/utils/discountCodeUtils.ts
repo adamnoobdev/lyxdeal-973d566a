@@ -215,14 +215,16 @@ export const inspectDiscountCodes = async (dealId: number) => {
     if (!codes || codes.length === 0) {
       console.log(`[inspectDiscountCodes] No codes found for deal ${dealId}`);
       
-      // Försök med en testfråga för att se vilka tabeller och data som är tillgängliga
-      const { data: tablesData, error: tablesError } = await supabase
-        .rpc('get_tables');
-        
-      if (tablesError) {
-        console.error('[inspectDiscountCodes] Error checking tables:', tablesError);
-      } else {
-        console.log('[inspectDiscountCodes] Available tables:', tablesData);
+      // Försök med att hämta databasen tabeller genom edge function
+      try {
+        const response = await supabase.functions.invoke('get-database-info');
+        if (response.error) {
+          console.error('[inspectDiscountCodes] Error calling database info function:', response.error);
+        } else {
+          console.log('[inspectDiscountCodes] Database info:', response.data);
+        }
+      } catch (functionError) {
+        console.error('[inspectDiscountCodes] Error invoking database info function:', functionError);
       }
       
       // Försök med en mer generell fråga för att se om några koder överhuvudtaget existerar

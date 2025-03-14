@@ -322,6 +322,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_tables: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          schema_name: string
+          table_name: string
+          row_count: number
+        }[]
+      }
       update_deal_to_free: {
         Args: {
           deal_id: number
