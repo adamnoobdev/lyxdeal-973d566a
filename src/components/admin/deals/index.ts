@@ -5,3 +5,4 @@ export { DealsTable } from "./DealsTable";
 export { DealActions } from "./DealActions";
 export { EditDealDialog } from "./EditDealDialog";
 export { DeleteDealDialog } from "./DeleteDealDialog";
+export { DiscountCodesDialogManager } from "./discount-codes/DiscountCodesDialogManager";
