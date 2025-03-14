@@ -22,7 +22,7 @@ export const generateRandomCode = (length: number = 8): string => {
  * @returns Promise<boolean> - Whether the operation was successful
  */
 export const generateDiscountCodes = async (dealId: number, quantity: number = 10): Promise<boolean> => {
-  console.log(`[generateDiscountCodes] Starting generation of ${quantity} discount codes for deal ${dealId}`);
+  console.log(`[generateDiscountCodes] 🟢 STARTING generation of ${quantity} discount codes for deal ${dealId}`);
   
   try {
     // Create a set to ensure unique codes
@@ -40,7 +40,6 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       is_used: false
     }));
 
-    // Log generated codes for debugging
     console.log(`[generateDiscountCodes] Generated ${codes.length} unique codes for deal ${dealId}:`, 
       codes.map(c => c.code).join(', '));
 
@@ -50,14 +49,15 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       .insert(codes);
 
     if (error) {
-      console.error('[generateDiscountCodes] Error inserting codes:', error);
+      console.error('[generateDiscountCodes] ❌ Error inserting codes:', error);
       throw error;
     }
     
-    console.log(`[generateDiscountCodes] Successfully inserted ${codes.length} codes into database. Insert result:`, insertData);
+    console.log(`[generateDiscountCodes] ✓ Successfully inserted ${codes.length} codes into database.`);
     
-    // Wait a short moment to ensure the database transaction is complete
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Wait a longer time to ensure the database transaction is complete
+    console.log('[generateDiscountCodes] Waiting 3 seconds for database synchronization...');
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Verify that codes were actually created
     console.log('[generateDiscountCodes] Verifying codes were created in database...');
@@ -67,7 +67,7 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       .eq('deal_id', dealId);
       
     if (verificationError) {
-      console.error('[generateDiscountCodes] Error verifying discount codes:', verificationError);
+      console.error('[generateDiscountCodes] ❌ Error verifying discount codes:', verificationError);
       return false;
     }
     
@@ -79,27 +79,37 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       console.log('[generateDiscountCodes] Sample codes:',
         verificationData.slice(0, 3).map((c: any) => c.code).join(', '), 
         count > 3 ? `... and ${count - 3} more` : '');
+      return true;
     } else {
       console.warn('[generateDiscountCodes] ⚠️ CRITICAL: No codes were found in verification check!');
-      console.log('[generateDiscountCodes] Trying again in 3 seconds...');
       
-      // Last attempt if no codes were found
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Try one more time with an even longer delay
+      console.log('[generateDiscountCodes] Trying final verification in 5 seconds...');
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
-      const { data: retryData } = await supabase
+      const { data: retryData, error: retryError } = await supabase
         .from('discount_codes')
         .select('*')
         .eq('deal_id', dealId);
         
-      const retryCount = retryData?.length || 0;
-      console.log(`[generateDiscountCodes] Re-verify attempt: ${retryCount} codes found`);
+      if (retryError) {
+        console.error('[generateDiscountCodes] ❌ Error in final verification:', retryError);
+        return false;
+      }
       
-      return retryCount > 0;
+      const retryCount = retryData?.length || 0;
+      console.log(`[generateDiscountCodes] Final verification: ${retryCount} codes found`);
+      
+      if (retryCount > 0) {
+        console.log('[generateDiscountCodes] ✓ Codes appeared after additional delay');
+        return true;
+      } else {
+        console.error('[generateDiscountCodes] ❌ CRITICAL: No codes found after multiple verification attempts!');
+        return false;
+      }
     }
-    
-    return count > 0;
   } catch (error) {
-    console.error('[generateDiscountCodes] Exception when generating discount codes:', error);
+    console.error('[generateDiscountCodes] ❌❌ CRITICAL EXCEPTION when generating discount codes:', error);
     // Return false instead of throwing the error further
     // so that calling code can continue even if code generation fails
     return false;
