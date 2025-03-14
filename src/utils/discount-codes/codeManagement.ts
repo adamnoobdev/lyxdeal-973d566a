@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { CustomerInfo } from "./types";
 
@@ -7,13 +8,11 @@ import { CustomerInfo } from "./types";
 export const getAvailableDiscountCode = async (dealId: number | string): Promise<string | null> => {
   console.log(`[getAvailableDiscountCode] Fetching unused discount code for deal ${dealId}`);
   
-  // Konvertera till numeriskt för konsekvens
-  const numericDealId = Number(dealId);
-  
+  // Try with the deal ID as-is first (whether string or number)
   const { data, error } = await supabase
     .from('discount_codes')
     .select('id, code')
-    .eq('deal_id', numericDealId)
+    .eq('deal_id', dealId)
     .eq('is_used', false)
     .limit(1);
 
@@ -23,29 +22,29 @@ export const getAvailableDiscountCode = async (dealId: number | string): Promise
   }
 
   if (!data || data.length === 0) {
-    // Försök med dealId som string om inget hittades
-    const dealIdStr = String(dealId);
-    console.log(`[getAvailableDiscountCode] No codes found with numeric ID, trying with string ID: "${dealIdStr}"`);
+    // If the original dealId didn't work, try the opposite type (string->number or number->string)
+    const altDealId = typeof dealId === 'string' ? Number(dealId) : String(dealId);
+    console.log(`[getAvailableDiscountCode] No codes found with original ID type, trying with: ${altDealId} (${typeof altDealId})`);
     
-    const { data: strData, error: strError } = await supabase
+    const { data: altData, error: altError } = await supabase
       .from('discount_codes')
       .select('id, code')
-      .eq('deal_id', dealIdStr)
+      .eq('deal_id', altDealId)
       .eq('is_used', false)
       .limit(1);
       
-    if (strError) {
-      console.error('[getAvailableDiscountCode] Error fetching with string ID:', strError);
+    if (altError) {
+      console.error('[getAvailableDiscountCode] Error fetching with alternative ID type:', altError);
       return null;
     }
     
-    if (!strData || strData.length === 0) {
-      console.log(`[getAvailableDiscountCode] No available codes found for deal ${dealId} (tried both number and string)`);
+    if (!altData || altData.length === 0) {
+      console.log(`[getAvailableDiscountCode] No available codes found for deal ${dealId} (tried both types)`);
       return null;
     }
     
-    console.log(`[getAvailableDiscountCode] Found code with string ID: ${strData[0].code}`);
-    return strData[0].code;
+    console.log(`[getAvailableDiscountCode] Found code with alternative ID type: ${altData[0].code}`);
+    return altData[0].code;
   }
 
   console.log(`[getAvailableDiscountCode] Found code: ${data[0].code} for deal ${dealId}`);

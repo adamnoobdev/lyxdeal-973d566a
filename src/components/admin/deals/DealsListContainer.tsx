@@ -15,7 +15,7 @@ import { DiscountCodesDialog } from "./DiscountCodesDialog";
 import { Deal } from "@/components/admin/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { generateDiscountCodes } from "@/utils/discount-codes";
+import { generateDiscountCodes, removeAllDiscountCodes } from "@/utils/discount-codes";
 
 export const DealsListContainer = () => {
   const {

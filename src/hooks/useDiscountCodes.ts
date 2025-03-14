@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DiscountCode } from "@/components/discount-codes/DiscountCodesTable";
@@ -25,11 +26,7 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
       console.log(`[useDiscountCodes] Fetching discount codes for deal ID: ${dealId}`);
       
       try {
-        // Förbättrad sökning som hanterar både numeriska och text deal_id
-        const dealIdStr = String(dealId);
-        
-        console.log(`[useDiscountCodes] Searching for codes with deal_id: ${dealIdStr} (${typeof dealId})`);
-        
+        // Try with the original dealId first
         const { data, error } = await supabase
           .from("discount_codes")
           .select("*")
@@ -46,18 +43,20 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         if (!data || data.length === 0) {
           console.log(`[useDiscountCodes] No discount codes found for deal ID: ${dealId}`);
           
-          // Prova en ytterligare sökning med deal_id som string om inget hittades
-          console.log(`[useDiscountCodes] Trying with stringified deal_id: "${dealIdStr}"`);
-          const { data: strData, error: strError } = await supabase
+          // Try with the alternative type if no results found
+          const altDealId = typeof dealId === 'string' ? Number(dealId) : String(dealId);
+          console.log(`[useDiscountCodes] Trying with alternative deal_id type: "${altDealId}"`);
+          
+          const { data: altData, error: altError } = await supabase
             .from("discount_codes")
             .select("*")
-            .eq("deal_id", dealIdStr);
+            .eq("deal_id", altDealId);
             
-          if (strError) {
-            console.error("[useDiscountCodes] Error in string-based query:", strError);
-          } else if (strData && strData.length > 0) {
-            console.log(`[useDiscountCodes] Found ${strData.length} codes with string deal_id`);
-            return strData as DiscountCode[];
+          if (altError) {
+            console.error("[useDiscountCodes] Error in alternative type query:", altError);
+          } else if (altData && altData.length > 0) {
+            console.log(`[useDiscountCodes] Found ${altData.length} codes with alternative deal_id type`);
+            return altData as DiscountCode[];
           }
         } else {
           console.log(`[useDiscountCodes] Retrieved ${data.length} discount codes for deal ID: ${dealId}`);
