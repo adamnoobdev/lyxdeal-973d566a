@@ -15,6 +15,7 @@ import {
   Tags,
   Trash,
   XCircle,
+  Plus,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -27,6 +28,8 @@ interface DealActionsProps {
   onReject?: () => void;
   isActive?: boolean;
   onViewDiscountCodes?: () => void;
+  onGenerateDiscountCodes?: () => Promise<void>;
+  isGeneratingCodes?: boolean;
 }
 
 export const DealActions = ({
@@ -38,6 +41,8 @@ export const DealActions = ({
   onReject,
   isActive,
   onViewDiscountCodes,
+  onGenerateDiscountCodes,
+  isGeneratingCodes,
 }: DealActionsProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [lastActionTime, setLastActionTime] = useState(0);
@@ -77,6 +82,15 @@ export const DealActions = ({
           <DropdownMenuItem onClick={handleAction(onViewDiscountCodes)}>
             <Tags className="mr-2 h-4 w-4" />
             <span>Visa rabattkoder</span>
+          </DropdownMenuItem>
+        )}
+        {onGenerateDiscountCodes && (
+          <DropdownMenuItem 
+            onClick={handleAction(onGenerateDiscountCodes)}
+            disabled={isGeneratingCodes}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            <span>{isGeneratingCodes ? "Genererar..." : "Generera rabattkoder"}</span>
           </DropdownMenuItem>
         )}
         {onApprove && (
