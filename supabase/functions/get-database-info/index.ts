@@ -30,9 +30,16 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-    // Using a direct SQL query to get table information
+    // Using SQL query directly instead of RPC since we're having type issues
     const { data: tables, error: tablesError } = await supabaseAdmin
-      .rpc('get_tables');
+      .from('discount_codes')
+      .select('count(*)')
+      .limit(1)
+      .then(async () => {
+        // After testing connection, fetch tables with direct SQL
+        const { data, error } = await supabaseAdmin.rpc('get_tables');
+        return { data, error };
+      });
       
     if (tablesError) {
       console.error('Error fetching tables:', tablesError);

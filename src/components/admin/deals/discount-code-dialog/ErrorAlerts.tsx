@@ -72,7 +72,8 @@ export const ErrorAlerts = ({
                 <ul className="list-disc pl-5">
                   {inspectionResult.tables.map((table: any, i: number) => (
                     <li key={i}>
-                      {table.table_name || table.tablename} ({table.row_count || '?'} rader)
+                      {table.schema_name ? `${table.schema_name}.` : ''}{table.table_name || table.tablename} 
+                      {table.row_count !== undefined ? ` (${table.row_count} rader)` : ''}
                     </li>
                   ))}
                 </ul>
