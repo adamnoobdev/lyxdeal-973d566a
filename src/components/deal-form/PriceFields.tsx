@@ -72,7 +72,16 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
         control={form.control}
         name="is_free"
         render={({ field }) => (
-          <input type="hidden" {...field} checked={true} />
+          // Instead of directly rendering input with field spread which causes type incompatibility,
+          // we'll use a hidden input with string value "true"
+          <input 
+            type="hidden" 
+            value="true" 
+            ref={field.ref}
+            name={field.name}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+          />
         )}
       />
     </>
