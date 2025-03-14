@@ -4,18 +4,18 @@ import { QrCode, Star, Percent } from "lucide-react";
 const STATS = [
   { 
     icon: Percent, 
-    title: "1. Välj erbjudande", 
-    description: "Hitta din favoritbehandling med upp till 70% rabatt" 
+    title: "1. Fyll i dina uppgifter och säkra erbjudandet", 
+    description: "Enkelt och snabbt med några få steg" 
   },
   { 
     icon: QrCode, 
-    title: "2. Säkra din rabattkod", 
-    description: "Din digitala rabattkod skickas direkt till din e-post" 
+    title: "2. Du får en unik rabattkod via e-post direkt", 
+    description: "Koden skickas automatiskt till din angivna e-post" 
   },
   { 
     icon: Star, 
-    title: "3. Nyttja rabatten", 
-    description: "Använd koden på salongens bokningssida inom 72 timmar" 
+    title: "3. Visa rabattkoden i salongen inom 72 timmar", 
+    description: "Besök salongen och visa din kod för att få rabatten" 
   }
 ] as const;
 
