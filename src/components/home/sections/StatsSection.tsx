@@ -9,13 +9,13 @@ const STATS = [
   },
   { 
     icon: QrCode, 
-    title: "2. Få din kod", 
+    title: "2. Säkra din rabattkod", 
     description: "Din digitala rabattkod skickas direkt till din e-post" 
   },
   { 
     icon: Star, 
-    title: "3. Boka behandling", 
-    description: "Visa upp koden i salongen och njut av din behandling" 
+    title: "3. Nyttja rabatten", 
+    description: "Använd koden på salongens bokningssida inom 72 timmar" 
   }
 ] as const;
 
