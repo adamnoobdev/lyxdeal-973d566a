@@ -2,11 +2,13 @@
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Deal } from "@/components/admin/types";
 import { DiscountCodesDialogContent } from "./discount-code-dialog/DiscountCodesDialogContent";
 import { generateDiscountCodes } from "@/utils/discountCodeUtils";
 import { toast } from "sonner";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface DiscountCodesDialogProps {
   isOpen: boolean;
@@ -48,6 +50,9 @@ export const DiscountCodesDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="w-[95vw] max-w-4xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">
+        <DialogTitle className="text-lg font-semibold">
+          {deal ? `Rabattkoder för "${deal.title}"` : "Rabattkoder"}
+        </DialogTitle>
         <DiscountCodesDialogContent 
           isOpen={isOpen} 
           deal={deal} 

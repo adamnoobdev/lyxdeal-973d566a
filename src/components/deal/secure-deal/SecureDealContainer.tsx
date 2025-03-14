@@ -24,8 +24,13 @@ export const SecureDealContainer = ({
     setIsSubmitting(true);
     
     try {
+      console.log(`[SecureDealContainer] Securing deal ${dealId} for ${values.email}`);
+      
+      // Konvertera dealId till nummer för konsekvens
+      const numericDealId = Number(dealId);
+      
       // 1. Hämta en tillgänglig rabattkod
-      const code = await getAvailableDiscountCode(dealId);
+      const code = await getAvailableDiscountCode(numericDealId);
       
       if (!code) {
         toast.error("Tyvärr finns det inga fler koder tillgängliga för detta erbjudande.");
@@ -59,7 +64,7 @@ export const SecureDealContainer = ({
         .from("purchases")
         .insert({
           customer_email: values.email,
-          deal_id: dealId,
+          deal_id: numericDealId,
           discount_code: code,
         });
         

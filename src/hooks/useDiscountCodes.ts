@@ -26,15 +26,15 @@ export const useDiscountCodes = (dealId: number | undefined) => {
       console.log(`[useDiscountCodes] Fetching discount codes for deal ID: ${dealId}`);
       
       try {
-        // VIKTIGT: Kontrollera både numeriskt och string-id
-        console.log(`[useDiscountCodes] Running query with dealId=${dealId} (${typeof dealId})`);
+        // Förbättrad sökning som hanterar både numeriska och text deal_id
+        const dealIdStr = String(dealId);
         
-        // Först försök med exakt matchning av antingen nummer eller sträng
+        console.log(`[useDiscountCodes] Searching for codes with deal_id: ${dealIdStr} (${typeof dealId})`);
+        
         const { data, error } = await supabase
           .from("discount_codes")
           .select("*")
-          .or(`deal_id.eq.${dealId},deal_id.eq."${dealId}"`)
-          .order("created_at", { ascending: false });
+          .eq("deal_id", dealId);
 
         if (error) {
           console.error("[useDiscountCodes] Error fetching discount codes:", error);
@@ -44,39 +44,24 @@ export const useDiscountCodes = (dealId: number | undefined) => {
           throw error;
         }
 
-        // Log detailed information about the result for debugging
         if (!data || data.length === 0) {
           console.log(`[useDiscountCodes] No discount codes found for deal ID: ${dealId}`);
           
-          // Försök med en ytterligare sökning utan filter för att se alla rabattkoder
-          const { data: allCodes, error: allCodesError } = await supabase
+          // Prova en ytterligare sökning med deal_id som string om inget hittades
+          console.log(`[useDiscountCodes] Trying with stringified deal_id: "${dealIdStr}"`);
+          const { data: strData, error: strError } = await supabase
             .from("discount_codes")
-            .select("id, code, deal_id")
-            .limit(10);
+            .select("*")
+            .eq("deal_id", dealIdStr);
             
-          if (allCodesError) {
-            console.error("[useDiscountCodes] Error querying all codes:", allCodesError);
-          } else if (allCodes && allCodes.length > 0) {
-            console.log("[useDiscountCodes] Found codes in database, but none for this deal. Sample codes:", allCodes);
-            console.log("[useDiscountCodes] Deal ID types in database:", 
-              [...new Set(allCodes.map(c => `${c.deal_id} (${typeof c.deal_id})`))]
-            );
-            
-            // Kontrollera om det finns koder där deal_id är en sträng men innehåller samma värde
-            const matchingStringCodes = allCodes.filter(c => 
-              (typeof c.deal_id === 'string' && c.deal_id === String(dealId)) || 
-              (typeof c.deal_id === 'number' && c.deal_id === dealId)
-            );
-            
-            if (matchingStringCodes.length > 0) {
-              console.log("[useDiscountCodes] Found codes with matching deal_id but different type:", matchingStringCodes);
-            }
+          if (strError) {
+            console.error("[useDiscountCodes] Error in string-based query:", strError);
+          } else if (strData && strData.length > 0) {
+            console.log(`[useDiscountCodes] Found ${strData.length} codes with string deal_id`);
+            return strData as DiscountCode[];
           }
         } else {
           console.log(`[useDiscountCodes] Retrieved ${data.length} discount codes for deal ID: ${dealId}`);
-          console.log('[useDiscountCodes] Sample codes:', 
-            data.slice(0, 3).map(c => ({ code: c.code, deal_id: c.deal_id, type: typeof c.deal_id }))
-          );
         }
 
         return data as DiscountCode[];

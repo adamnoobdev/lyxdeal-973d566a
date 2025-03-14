@@ -1,10 +1,9 @@
 
-import { useState } from "react";
+import { RefreshCcw, Database, AlertCircle, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw, Database, PlusCircle, Trash2, HelpCircle } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { useState } from "react";
 import { DiscountCodesGenerationDialog } from "@/components/discount-codes/DiscountCodesGenerationDialog";
-import { RemoveAllCodesButton } from "./RemoveAllCodesButton";
-import { toast } from "sonner";
 
 interface DiscountDialogHeaderProps {
   title: string;
@@ -12,7 +11,7 @@ interface DiscountDialogHeaderProps {
   codesCount: number;
   isLoading: boolean;
   isFetching: boolean;
-  timeElapsedText?: string;
+  timeElapsedText: string;
   onManualRefresh: () => void;
   onInspectCodes: () => void;
   isInspecting: boolean;
@@ -31,86 +30,74 @@ export const DiscountDialogHeader = ({
   isInspecting,
   onGenerateDiscountCodes
 }: DiscountDialogHeaderProps) => {
-  const [isGenerationDialogOpen, setIsGenerationDialogOpen] = useState(false);
-
-  const handleOpenGenerationDialog = () => {
-    setIsGenerationDialogOpen(true);
-  };
-
-  const handleCloseGenerationDialog = () => {
-    setIsGenerationDialogOpen(false);
-  };
+  const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl font-bold text-primary">{title}</h2>
-        <div className="flex items-center justify-between mt-1">
-          <div className="flex items-center gap-2">
-            <p className="text-muted-foreground text-sm">
-              {dealTitle && dealTitle.length > 0 ? dealTitle : "Erbjudande"} - {codesCount} rabattkoder
-            </p>
+    <div className="pb-4">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+        <div>
+          <h2 className="text-xl font-bold">{title}</h2>
+          {dealTitle && <p className="text-muted-foreground text-sm">{dealTitle}</p>}
+          
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-sm text-muted-foreground">
+              {codesCount} rabattkoder
+            </span>
             {timeElapsedText && (
-              <span className="text-xs text-muted-foreground">({timeElapsedText})</span>
+              <span className="text-xs text-muted-foreground">
+                ({timeElapsedText})
+              </span>
             )}
           </div>
         </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onManualRefresh}
+            disabled={isFetching}
+            className="gap-2"
+          >
+            <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+            <span>Uppdatera</span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onInspectCodes}
+            disabled={isInspecting}
+            className="gap-2"
+          >
+            <Database className={`h-4 w-4 ${isInspecting ? "animate-spin" : ""}`} />
+            <span>Inspektera DB</span>
+          </Button>
+          
+          {onGenerateDiscountCodes && (
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={() => setIsGeneratorOpen(true)}
+              className="gap-2"
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Generera koder</span>
+            </Button>
+          )}
+        </div>
       </div>
       
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={onManualRefresh}
-          disabled={isFetching}
-        >
-          <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-          <span>Uppdatera</span>
-        </Button>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={onInspectCodes}
-          disabled={isInspecting}
-        >
-          <Database className={`h-4 w-4 ${isInspecting ? "animate-spin" : ""}`} />
-          <span>Inspektera</span>
-        </Button>
-        
-        {onGenerateDiscountCodes && (
-          <Button
-            variant="default"
-            size="sm"
-            className="gap-2 bg-purple-900 hover:bg-purple-800"
-            onClick={handleOpenGenerationDialog}
-            disabled={isFetching || isLoading}
-          >
-            <PlusCircle className="h-4 w-4" />
-            <span>Generera koder</span>
-          </Button>
-        )}
-        
-        <RemoveAllCodesButton />
-        
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2 ml-auto"
-          onClick={() => toast.info("Hjälp-funktion kommer snart")}
-        >
-          <HelpCircle className="h-4 w-4" />
-          <span>Hjälp</span>
-        </Button>
-      </div>
-
+      <Separator className="my-4" />
+      
       {onGenerateDiscountCodes && (
         <DiscountCodesGenerationDialog
-          isOpen={isGenerationDialogOpen}
-          onClose={handleCloseGenerationDialog}
-          onGenerate={onGenerateDiscountCodes}
+          isOpen={isGeneratorOpen}
+          onClose={() => setIsGeneratorOpen(false)}
+          onGenerate={(quantity) => {
+            onGenerateDiscountCodes(quantity);
+            setIsGeneratorOpen(false);
+          }}
           dealTitle={dealTitle}
         />
       )}

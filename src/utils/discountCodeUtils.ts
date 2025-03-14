@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -33,16 +34,21 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
     // Generera en batch med unika koder
     const uniqueCodes = new Set<string>();
     
+    // Konvertera deal_id till numeriskt format
+    const numericDealId = Number(dealId);
+    
+    console.log(`[generateDiscountCodes] Using dealId: ${numericDealId} (${typeof numericDealId})`);
+    
     // Hämta först eventuella befintliga koder för detta erbjudande för att undvika duplikat
     const { data: existingCodes, error: fetchError } = await supabase
       .from('discount_codes')
       .select('code')
-      .or(`deal_id.eq.${dealId},deal_id.eq."${dealId}"`)
+      .eq('deal_id', numericDealId);
     
     if (fetchError) {
       console.error('[generateDiscountCodes] Error fetching existing codes:', fetchError);
     } else if (existingCodes && existingCodes.length > 0) {
-      console.log(`[generateDiscountCodes] Found ${existingCodes.length} existing codes for deal ${dealId}`);
+      console.log(`[generateDiscountCodes] Found ${existingCodes.length} existing codes for deal ${numericDealId}`);
       existingCodes.forEach(item => uniqueCodes.add(item.code));
     }
     
@@ -61,15 +67,15 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
     
     // Skapa code-objekt för insertion
     const codes = newCodes.map(code => ({
-      deal_id: dealId, // Ensure this is stored as a number
+      deal_id: numericDealId, // Använd numeriskt värde
       code,
       is_used: false
     }));
 
-    console.log(`[generateDiscountCodes] Generated ${codes.length} unique new codes for deal ${dealId}`);
+    console.log(`[generateDiscountCodes] Generated ${codes.length} unique new codes for deal ${numericDealId}`);
     
     if (codes.length === 0) {
-      console.warn(`[generateDiscountCodes] No new codes were generated for deal ${dealId}`);
+      console.warn(`[generateDiscountCodes] No new codes were generated for deal ${numericDealId}`);
       return false;
     }
     
@@ -105,14 +111,14 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
       const { data: verificationData, error: verificationError } = await supabase
         .from('discount_codes')
         .select('code, deal_id')
-        .or(`deal_id.eq.${dealId},deal_id.eq."${dealId}"`)
+        .eq('deal_id', numericDealId)
         .order('created_at', { ascending: false })
         .limit(5);
         
       if (verificationError) {
         console.error('[generateDiscountCodes] Error verifying discount codes:', verificationError);
       } else if (!verificationData || verificationData.length === 0) {
-        console.error('[generateDiscountCodes] Verification failed: No codes found for deal', dealId);
+        console.error('[generateDiscountCodes] Verification failed: No codes found for deal', numericDealId);
       } else {
         console.log('[generateDiscountCodes] Verified creation with sample codes:', 
           verificationData.map(c => `${c.code} (deal_id: ${c.deal_id}, type: ${typeof c.deal_id})`).join(', '));
@@ -134,10 +140,13 @@ export const generateDiscountCodes = async (dealId: number, quantity: number = 1
 export const getAvailableDiscountCode = async (dealId: number): Promise<string | null> => {
   console.log(`[getAvailableDiscountCode] Fetching unused discount code for deal ${dealId}`);
   
+  // Konvertera till numeriskt för konsekvens
+  const numericDealId = Number(dealId);
+  
   const { data, error } = await supabase
     .from('discount_codes')
     .select('id, code')
-    .or(`deal_id.eq.${dealId},deal_id.eq."${dealId}"`)
+    .eq('deal_id', numericDealId)
     .eq('is_used', false)
     .limit(1);
 
@@ -147,8 +156,29 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
   }
 
   if (!data || data.length === 0) {
-    console.log(`[getAvailableDiscountCode] No available codes found for deal ${dealId}`);
-    return null;
+    // Försök med dealId som string om inget hittades
+    const dealIdStr = String(dealId);
+    console.log(`[getAvailableDiscountCode] No codes found with numeric ID, trying with string ID: "${dealIdStr}"`);
+    
+    const { data: strData, error: strError } = await supabase
+      .from('discount_codes')
+      .select('id, code')
+      .eq('deal_id', dealIdStr)
+      .eq('is_used', false)
+      .limit(1);
+      
+    if (strError) {
+      console.error('[getAvailableDiscountCode] Error fetching with string ID:', strError);
+      return null;
+    }
+    
+    if (!strData || strData.length === 0) {
+      console.log(`[getAvailableDiscountCode] No available codes found for deal ${dealId} (tried both number and string)`);
+      return null;
+    }
+    
+    console.log(`[getAvailableDiscountCode] Found code with string ID: ${strData[0].code}`);
+    return strData[0].code;
   }
 
   console.log(`[getAvailableDiscountCode] Found code: ${data[0].code} for deal ${dealId}`);
@@ -224,26 +254,53 @@ export const inspectDiscountCodes = async (dealId: number | string) => {
     const numericDealId = typeof dealId === 'string' ? parseInt(dealId, 10) : dealId;
     const stringDealId = String(dealId);
     
-    console.log(`[inspectDiscountCodes] Using both numeric dealId: ${numericDealId} and string dealId: "${stringDealId}" for search`);
+    console.log(`[inspectDiscountCodes] Using numeric dealId: ${numericDealId}`);
     
-    // Use OR filter to match both string and number types of deal_id
+    // Försök först med numeriskt värde
     const { data: codes, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .or(`deal_id.eq.${numericDealId},deal_id.eq."${stringDealId}"`)
+      .eq('deal_id', numericDealId);
       
     if (error) {
-      console.error('[inspectDiscountCodes] Error querying codes:', error);
-      return { 
-        success: false, 
-        error, 
-        message: 'Ett fel uppstod vid hämtning av rabattkoder'
-      };
+      console.error('[inspectDiscountCodes] Error querying codes with numeric ID:', error);
     }
     
-    // Check if any codes were found
+    // Om inga koder hittades, försök med strängvärde
     if (!codes || codes.length === 0) {
-      console.log(`[inspectDiscountCodes] No codes found for deal ${dealId}`);
+      console.log(`[inspectDiscountCodes] No codes found with numeric deal_id, trying with string: "${stringDealId}"`);
+      
+      const { data: strCodes, error: strError } = await supabase
+        .from('discount_codes')
+        .select('*')
+        .eq('deal_id', stringDealId);
+        
+      if (strError) {
+        console.error('[inspectDiscountCodes] Error querying codes with string ID:', strError);
+      }
+      
+      if (strCodes && strCodes.length > 0) {
+        console.log(`[inspectDiscountCodes] Found ${strCodes.length} codes with string deal_id`);
+        
+        return { 
+          success: true, 
+          message: `Hittade ${strCodes.length} koder för erbjudande ${dealId} (med strängjämförelse)`, 
+          dealId,
+          codesCount: strCodes.length,
+          sampleCodes: strCodes.slice(0, 5).map(c => ({ 
+            code: c.code, 
+            isUsed: c.is_used,
+            createdAt: c.created_at,
+            dealId: c.deal_id,
+            dealIdType: typeof c.deal_id
+          }))
+        };
+      }
+    }
+    
+    // Fortsätt med tidigare logik för att kontrollera om några koder hittas
+    if (!codes || codes.length === 0) {
+      console.log(`[inspectDiscountCodes] No codes found for deal ${dealId} (tried both number and string)`);
       
       // Try with a more general query to see if any codes exist at all
       try {
@@ -272,30 +329,28 @@ export const inspectDiscountCodes = async (dealId: number | string) => {
           };
         }
         
-        // Sök efter exakta matchningar mot deal_id-värdet oavsett typ
-        const exactValueMatches = allCodes.filter(c => {
+        // Sök efter matchningar oavsett typ
+        const valueMatches = allCodes.filter(c => {
           const codeId = c.deal_id;
-          const codeIdAsString = String(codeId);
-          const dealIdAsString = String(dealId);
-          return codeIdAsString === dealIdAsString;
+          return String(codeId) === String(dealId);
         });
         
-        if (exactValueMatches.length > 0) {
-          console.log(`[inspectDiscountCodes] Found ${exactValueMatches.length} codes with matching deal_id value but different type:`, 
-            exactValueMatches.map(c => ({ code: c.code, dealId: c.deal_id, dealIdType: typeof c.deal_id })));
+        if (valueMatches.length > 0) {
+          console.log(`[inspectDiscountCodes] Found ${valueMatches.length} codes with matching deal_id value:`, 
+            valueMatches.map(c => ({ code: c.code, dealId: c.deal_id, dealIdType: typeof c.deal_id })));
             
           return {
             success: true,
-            message: `Hittade ${exactValueMatches.length} koder för erbjudande ${dealId} med värdematchning`,
+            message: `Hittade ${valueMatches.length} koder för erbjudande ${dealId} med värdematchning`,
             dealId,
-            codesCount: exactValueMatches.length,
-            sampleCodes: exactValueMatches.slice(0, 5).map(c => ({ 
+            codesCount: valueMatches.length,
+            sampleCodes: valueMatches.slice(0, 5).map(c => ({ 
               code: c.code, 
               isUsed: false,
               dealId: c.deal_id,
               dealIdType: typeof c.deal_id
             })),
-            codeType: typeof exactValueMatches[0].deal_id
+            codeType: typeof valueMatches[0].deal_id
           };
         }
         

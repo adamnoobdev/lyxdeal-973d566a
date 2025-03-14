@@ -93,12 +93,16 @@ serve(async (req) => {
 
     // Generate a discount code directly
     const code = generateRandomCode(8);
+    
+    // Ensure dealId is stored as a number in the database
+    const numericDealId = Number(dealId);
+    console.log(`Using numeric deal ID: ${numericDealId} (${typeof numericDealId})`);
       
     // Create a purchase record
     const { data: purchase, error: purchaseError } = await supabaseAdmin
       .from('purchases')
       .insert({
-        deal_id: dealId,
+        deal_id: numericDealId,
         customer_email: 'pending_claim@example.com', // This will be updated in the UI when user claims
         discount_code: code,
         status: 'completed'
@@ -121,7 +125,7 @@ serve(async (req) => {
     const { error: discountError } = await supabaseAdmin
       .from('discount_codes')
       .insert({
-        deal_id: dealId,
+        deal_id: numericDealId, // Store as number consistently
         code: code,
         purchase_id: purchase.id
       });
