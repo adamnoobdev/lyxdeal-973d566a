@@ -172,3 +172,99 @@ export const markDiscountCodeAsUsed = async (
   console.log(`[markDiscountCodeAsUsed] Successfully marked code ${code} as used`);
   return true;
 };
+
+/**
+ * Checks if discount codes exist for a specific deal
+ * This is useful for troubleshooting missing codes
+ * 
+ * @param dealId - The ID of the deal to check
+ * @returns Promise with information about codes for this deal
+ */
+export const inspectDiscountCodes = async (dealId: number) => {
+  console.log(`[inspectDiscountCodes] 🔍 Inspecting discount codes for deal ${dealId}...`);
+  
+  try {
+    // First try a standard select
+    console.log(`[inspectDiscountCodes] Querying discount_codes table for deal_id=${dealId}`);
+    const { data: codes, error } = await supabase
+      .from('discount_codes')
+      .select('*')
+      .eq('deal_id', dealId);
+      
+    if (error) {
+      console.error('[inspectDiscountCodes] ❌ Error querying codes:', error);
+      return { success: false, error, message: 'Error querying discount codes' };
+    }
+    
+    // Check if any codes were found
+    if (!codes || codes.length === 0) {
+      console.log(`[inspectDiscountCodes] ℹ️ No codes found for deal ${dealId} with standard query`);
+      
+      // Try a more general query to see if any codes exist at all
+      console.log('[inspectDiscountCodes] Checking if any discount codes exist in the database...');
+      const { data: allCodes, error: allCodesError } = await supabase
+        .from('discount_codes')
+        .select('deal_id, code')
+        .limit(10);
+        
+      if (allCodesError) {
+        console.error('[inspectDiscountCodes] ❌ Error checking all codes:', allCodesError);
+        return { 
+          success: false, 
+          error: allCodesError, 
+          message: 'Error checking all discount codes',
+          dealId
+        };
+      }
+      
+      if (!allCodes || allCodes.length === 0) {
+        console.log('[inspectDiscountCodes] ⚠️ No discount codes found in the database at all!');
+        return { 
+          success: false, 
+          message: 'No discount codes found in the database at all', 
+          dealId,
+          totalCodesInDatabase: 0 
+        };
+      }
+      
+      // Show some example codes from other deals
+      console.log(`[inspectDiscountCodes] Found ${allCodes.length} codes for other deals:`, 
+        allCodes.map(c => `deal_id=${c.deal_id}, code=${c.code}`).join('; '));
+      
+      return { 
+        success: false, 
+        message: `No codes found for deal ${dealId}, but found codes for other deals`, 
+        dealId,
+        totalCodesInDatabase: allCodes.length,
+        codesFoundForDeals: [...new Set(allCodes.map(c => c.deal_id))]
+      };
+    }
+    
+    // Codes were found, return details
+    console.log(`[inspectDiscountCodes] ✓ Found ${codes.length} codes for deal ${dealId}`);
+    console.log('[inspectDiscountCodes] Sample codes:', 
+      codes.slice(0, 3).map(c => c.code).join(', '), 
+      codes.length > 3 ? `... and ${codes.length - 3} more` : '');
+    
+    return { 
+      success: true, 
+      message: `Found ${codes.length} codes for deal ${dealId}`, 
+      dealId,
+      codesCount: codes.length,
+      sampleCodes: codes.slice(0, 5).map(c => ({ 
+        code: c.code, 
+        isUsed: c.is_used,
+        createdAt: c.created_at
+      }))
+    };
+  } catch (error) {
+    console.error('[inspectDiscountCodes] ❌❌ CRITICAL EXCEPTION when inspecting codes:', error);
+    return { 
+      success: false, 
+      error, 
+      message: 'Critical exception when inspecting discount codes',
+      dealId
+    };
+  }
+};
+

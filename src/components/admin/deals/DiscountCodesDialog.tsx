@@ -11,10 +11,11 @@ import { useDiscountCodes } from "@/hooks/useDiscountCodes";
 import { Deal } from "@/components/admin/types";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, AlertTriangle, AlertCircle } from "lucide-react";
+import { RefreshCw, AlertTriangle, AlertCircle, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
+import { inspectDiscountCodes } from "@/utils/discountCodeUtils";
 
 interface DiscountCodesDialogProps {
   isOpen: boolean;
@@ -34,6 +35,8 @@ export const DiscountCodesDialog = ({
   const [refreshAttempts, setRefreshAttempts] = useState(0);
   const [manualRefreshCount, setManualRefreshCount] = useState(0);
   const [isManuallyTriggeredFetch, setIsManuallyTriggeredFetch] = useState(false);
+  const [inspectionResult, setInspectionResult] = useState<any>(null);
+  const [isInspecting, setIsInspecting] = useState(false);
   
   // Track dialog opening time for debugging purposes
   const [dialogOpenedAt, setDialogOpenedAt] = useState<Date | null>(null);
@@ -48,6 +51,7 @@ export const DiscountCodesDialog = ({
       setRefreshAttempts(0);
       setManualRefreshCount(0);
       setIsManuallyTriggeredFetch(false);
+      setInspectionResult(null);
       
       // Force a refetch when the dialog opens to get fresh data
       refetch({ cancelRefetch: false })
@@ -156,6 +160,43 @@ export const DiscountCodesDialog = ({
     );
   }, [refetch, isFetching, manualRefreshCount]);
 
+  // Function to directly inspect codes in the database
+  const handleInspectCodes = useCallback(async () => {
+    if (!deal?.id) return;
+    
+    setIsInspecting(true);
+    
+    try {
+      console.log(`[DiscountCodesDialog] 🔍 Manually inspecting codes for deal ${deal.id}`);
+      const result = await inspectDiscountCodes(deal.id);
+      setInspectionResult(result);
+      
+      toast.info(
+        result.success 
+          ? `Hittade ${result.codesCount} rabattkoder i databasen` 
+          : "Kunde inte hitta rabattkoder i databasen",
+        {
+          description: result.message
+        }
+      );
+      
+      // If codes were found but not showing in UI, force a refetch
+      if (result.success && result.codesCount > 0 && discountCodes.length === 0) {
+        console.log('[DiscountCodesDialog] Codes found in inspection but not in UI - forcing refetch');
+        refetch({ cancelRefetch: false });
+      }
+    } catch (err) {
+      console.error('[DiscountCodesDialog] ❌ Error inspecting codes:', err);
+      setInspectionResult({ success: false, error: err, message: 'Ett fel uppstod vid inspektion av rabattkoder' });
+      
+      toast.error('Kunde inte inspektera rabattkoder', {
+        description: 'Ett tekniskt fel uppstod vid inspektionen'
+      });
+    } finally {
+      setIsInspecting(false);
+    }
+  }, [deal?.id, discountCodes.length, refetch]);
+
   if (error) {
     console.error("[DiscountCodesDialog] ❌ Error loading discount codes:", error);
   }
@@ -179,16 +220,28 @@ export const DiscountCodesDialog = ({
         <DialogHeader className="space-y-2">
           <div className="flex items-center justify-between">
             <DialogTitle>Rabattkoder - {deal?.title}</DialogTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleManualRefresh} 
-              disabled={isFetching}
-              className="flex items-center gap-1"
-            >
-              <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-              <span>Uppdatera</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleInspectCodes} 
+                disabled={isInspecting || !deal?.id}
+                className="flex items-center gap-1"
+              >
+                <Search className={`h-4 w-4 ${isInspecting ? 'animate-spin' : ''}`} />
+                <span>Inspektera databas</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleManualRefresh} 
+                disabled={isFetching}
+                className="flex items-center gap-1"
+              >
+                <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+                <span>Uppdatera</span>
+              </Button>
+            </div>
           </div>
           <DialogDescription>
             Här ser du alla rabattkoder som genererats för detta erbjudande och deras status.
@@ -220,6 +273,37 @@ export const DiscountCodesDialog = ({
             <AlertDescription>
               Vi har inte hittat några rabattkoder efter flera försök. Det kan bero på att genereringen misslyckades eller att det finns en fördröjning. 
               Prova att uppdatera sidan eller generera nya rabattkoder för erbjudandet.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {inspectionResult && (
+          <Alert 
+            variant={inspectionResult.success ? "default" : "warning"} 
+            className="my-2"
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <div>
+                <strong>Databasinspektion:</strong> {inspectionResult.message}
+              </div>
+              {inspectionResult.success && inspectionResult.sampleCodes && (
+                <div className="mt-1 text-xs font-mono">
+                  <div>Exempel på koder i databasen:</div>
+                  <ul className="list-disc pl-5">
+                    {inspectionResult.sampleCodes.map((code: any, i: number) => (
+                      <li key={i}>
+                        {code.code} ({code.isUsed ? 'använd' : 'oanvänd'})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {!inspectionResult.success && inspectionResult.codesFoundForDeals && (
+                <div className="mt-1 text-xs">
+                  Hittade koder för andra erbjudanden med ID: {inspectionResult.codesFoundForDeals.join(', ')}
+                </div>
+              )}
             </AlertDescription>
           </Alert>
         )}
