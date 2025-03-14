@@ -11,6 +11,8 @@ interface DealsTabsSectionProps {
   setDeletingDeal: (deal: Deal) => void;
   handleToggleActive: (deal: Deal) => Promise<boolean>;
   onViewDiscountCodes?: (deal: Deal) => void;
+  onGenerateDiscountCodes?: (deal: Deal, quantity?: number) => Promise<void>;
+  isGeneratingCodes?: boolean;
 }
 
 export const DealsTabsSection = ({
@@ -19,7 +21,9 @@ export const DealsTabsSection = ({
   setEditingDeal,
   setDeletingDeal,
   handleToggleActive,
-  onViewDiscountCodes
+  onViewDiscountCodes,
+  onGenerateDiscountCodes,
+  isGeneratingCodes
 }: DealsTabsSectionProps) => {
   return (
     <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-4">
@@ -46,6 +50,8 @@ export const DealsTabsSection = ({
             onDelete={setDeletingDeal}
             onToggleActive={handleToggleActive}
             onViewDiscountCodes={onViewDiscountCodes}
+            onGenerateDiscountCodes={onGenerateDiscountCodes}
+            isGeneratingCodes={isGeneratingCodes}
           />
         </TabsContent>
 
@@ -56,6 +62,8 @@ export const DealsTabsSection = ({
             onDelete={setDeletingDeal}
             onToggleActive={handleToggleActive}
             onViewDiscountCodes={onViewDiscountCodes}
+            onGenerateDiscountCodes={onGenerateDiscountCodes}
+            isGeneratingCodes={isGeneratingCodes}
           />
         </TabsContent>
       </Tabs>

@@ -26,6 +26,8 @@ interface DealsTableProps {
   hasViewDetailsAction?: boolean;
   onViewDetails?: (deal: Deal) => void;
   onViewDiscountCodes?: (deal: Deal) => void;
+  onGenerateDiscountCodes?: (deal: Deal, quantity?: number) => Promise<void>;
+  isGeneratingCodes?: boolean;
 }
 
 export const DealsTable = ({ 
@@ -39,7 +41,9 @@ export const DealsTable = ({
   onReject,
   hasViewDetailsAction,
   onViewDetails,
-  onViewDiscountCodes
+  onViewDiscountCodes,
+  onGenerateDiscountCodes,
+  isGeneratingCodes
 }: DealsTableProps) => {
   const handlePreviewDeal = (deal: Deal) => {
     if (onPreview) {
@@ -125,6 +129,8 @@ export const DealsTable = ({
                         isActive={deal.is_active}
                         onPreview={() => handlePreviewDeal(deal)}
                         onViewDiscountCodes={onViewDiscountCodes ? () => onViewDiscountCodes(deal) : undefined}
+                        onGenerateDiscountCodes={onGenerateDiscountCodes ? () => onGenerateDiscountCodes(deal) : undefined}
+                        isGeneratingCodes={isGeneratingCodes}
                       />
                     </div>
                   </TableCell>

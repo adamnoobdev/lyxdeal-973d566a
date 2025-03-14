@@ -1,4 +1,3 @@
-
 import { useCallback, useState, useRef, useEffect } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
@@ -51,18 +50,15 @@ export const DealsListContainer = () => {
   const [isViewingCodes, setIsViewingCodes] = useState(false);
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
 
-  // Added a timestamp field to track when the last deal was created
   const lastCreatedDealId = useRef<number | null>(null);
   const justCreatedDeal = useRef<Deal | null>(null);
   const dealCreationTimestamp = useRef<number | null>(null);
   const findDealAttemptsCounter = useRef<number>(0);
 
-  // This effect automatically shows the discount codes dialog after a new deal is created
   useEffect(() => {
     if (justCreatedDeal.current && !isCreating && !editingDeal && !deletingDeal && !viewingCodesForDeal) {
       console.log("[DealsListContainer] New deal created, scheduling discount codes dialog to open");
       
-      // Add a delay to ensure database operations complete
       const timer = setTimeout(() => {
         console.log("[DealsListContainer] Opening discount codes dialog for newly created deal:", justCreatedDeal.current?.title);
         setViewingCodesForDeal(justCreatedDeal.current);
@@ -75,19 +71,15 @@ export const DealsListContainer = () => {
     }
   }, [isCreating, editingDeal, deletingDeal, viewingCodesForDeal]);
 
-  // This effect attempts to find and fetch new deal info for showing discount codes
   useEffect(() => {
     const findNewlyCreatedDeal = async () => {
-      // Max 10 attempts to find the deal
       const MAX_ATTEMPTS = 10;
       
-      // If we have a timestamp when deal was created, try to find it
       if (dealCreationTimestamp.current && !justCreatedDeal.current && !isCreating && findDealAttemptsCounter.current < MAX_ATTEMPTS) {
         try {
           findDealAttemptsCounter.current++;
           console.log(`[DealsListContainer] Attempting to find newly created deal (attempt ${findDealAttemptsCounter.current}/${MAX_ATTEMPTS})`);
           
-          // Query deals created after our timestamp
           const creationTime = new Date(dealCreationTimestamp.current).toISOString();
           const { data: newDeals, error } = await supabase
             .from('deals')
@@ -102,12 +94,10 @@ export const DealsListContainer = () => {
             console.log("[DealsListContainer] Found newly created deal:", newDeals[0]);
             justCreatedDeal.current = newDeals[0] as Deal;
             
-            // Trigger a refetch now to ensure all deals are up to date
             refetch();
           } else {
             console.log("[DealsListContainer] No newly created deals found, will retry...");
             
-            // Schedule another attempt if we haven't reached the max
             if (findDealAttemptsCounter.current < MAX_ATTEMPTS) {
               setTimeout(findNewlyCreatedDeal, 1500);
             } else {
@@ -123,7 +113,6 @@ export const DealsListContainer = () => {
       }
     };
     
-    // Run when dealCreationTimestamp changes
     if (dealCreationTimestamp.current) {
       findNewlyCreatedDeal();
     }
@@ -189,11 +178,8 @@ export const DealsListContainer = () => {
         isUpdatingDealRef.current = true;
         console.log("[DealsListContainer] Starting deal creation");
         
-        // Store timestamp before creation - will be used to find the new deal
         dealCreationTimestamp.current = Date.now();
         findDealAttemptsCounter.current = 0;
-        
-        // Clear any previously stored created deal
         justCreatedDeal.current = null;
         
         console.log("[DealsListContainer] Deal creation timestamp set to:", dealCreationTimestamp.current);
@@ -203,15 +189,12 @@ export const DealsListContainer = () => {
         if (success) {
           console.log("[DealsListContainer] Deal creation successful");
           
-          // Close the dialog immediately on success
           handleCloseDialogs();
           
-          // Show toast while we work on finding the deal
           toast.success("Erbjudandet har skapats!", {
             description: "Rabattkoder kommer visas automatiskt när de har genererats."
           });
           
-          // Trigger refetch - the actual opening of codes dialog is handled by the useEffect
           setTimeout(() => {
             refetch();
           }, 1000);
@@ -251,7 +234,6 @@ export const DealsListContainer = () => {
         {
           loading: `Genererar ${quantity} rabattkoder...`,
           success: () => {
-            // Refetch to update any UI that might display the codes
             setTimeout(() => refetch(), 1000);
             return `${quantity} rabattkoder har genererats för "${deal.title}"`;
           },
