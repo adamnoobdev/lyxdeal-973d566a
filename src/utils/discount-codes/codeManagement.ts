@@ -1,18 +1,18 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { CustomerInfo } from "./types";
+import { CustomerInfo, normalizeId } from "./types";
 
 /**
  * Hämtar en tillgänglig (oanvänd) rabattkod för ett erbjudande
  */
-export const getAvailableDiscountCode = async (dealId: number | string): Promise<string | null> => {
+export const getAvailableDiscountCode = async (dealId: string | number): Promise<string | null> => {
   console.log(`[getAvailableDiscountCode] Fetching unused discount code for deal ${dealId}`);
   
-  // Try with the deal ID as-is first (whether string or number)
+  // Try with the deal ID as-is first
   const { data, error } = await supabase
     .from('discount_codes')
     .select('id, code')
-    .eq('deal_id', dealId)
+    .eq('deal_id', normalizeId(dealId))
     .eq('is_used', false)
     .limit(1);
 
@@ -22,14 +22,14 @@ export const getAvailableDiscountCode = async (dealId: number | string): Promise
   }
 
   if (!data || data.length === 0) {
-    // If the original dealId didn't work, try the opposite type (string->number or number->string)
+    // If no results with original ID type, try with the opposite type (string->number or number->string)
     const altDealId = typeof dealId === 'string' ? Number(dealId) : String(dealId);
-    console.log(`[getAvailableDiscountCode] No codes found with original ID type, trying with: ${altDealId} (${typeof altDealId})`);
+    console.log(`[getAvailableDiscountCode] No codes found with original ID type, trying with: ${altDealId}`);
     
     const { data: altData, error: altError } = await supabase
       .from('discount_codes')
       .select('id, code')
-      .eq('deal_id', altDealId)
+      .eq('deal_id', normalizeId(altDealId))
       .eq('is_used', false)
       .limit(1);
       

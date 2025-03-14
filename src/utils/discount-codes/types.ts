@@ -1,29 +1,32 @@
 
-/**
- * Common types for discount code functionality
- */
+import { Database } from "@/integrations/supabase/types";
 
 export interface CustomerInfo {
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
 }
 
 export interface DiscountCodeInspectionResult {
   success: boolean;
   message: string;
-  dealId?: number | string;
+  dealId: string | number;
+  error?: any;
   codesCount?: number;
-  totalCodesInDatabase?: number;
-  codesFoundForDeals?: (number | string)[];
-  dealIdTypes?: string[];
   sampleCodes?: Array<{
     code: string;
     isUsed?: boolean;
     createdAt?: string;
-    dealId?: number | string;
+    dealId?: string | number;
     dealIdType?: string;
   }>;
+  totalCodesInDatabase?: number;
+  codesFoundForDeals?: (string | number)[];
+  dealIdTypes?: string[];
   codeType?: string;
-  error?: any;
+}
+
+// Add a utility function to help with type handling
+export function normalizeId(id: string | number): string | number {
+  return id;
 }

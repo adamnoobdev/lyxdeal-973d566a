@@ -1,12 +1,12 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { DiscountCodeInspectionResult } from "./types";
+import { DiscountCodeInspectionResult, normalizeId } from "./types";
 
 /**
  * Kontrollerar om rabattkoder existerar för ett specifikt erbjudande
  * Användbart för felsökning av saknade koder
  */
-export const inspectDiscountCodes = async (dealId: number | string): Promise<DiscountCodeInspectionResult> => {
+export const inspectDiscountCodes = async (dealId: string | number): Promise<DiscountCodeInspectionResult> => {
   console.log(`[inspectDiscountCodes] Inspecting discount codes for deal ${dealId}...`);
   
   try {
@@ -18,7 +18,7 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<Dis
     const { data: codes, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', dealId);
+      .eq('deal_id', normalizeId(dealId));
       
     if (error) {
       console.error('[inspectDiscountCodes] Error querying codes with ID as-is:', error);
@@ -32,7 +32,7 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<Dis
       const { data: altCodes, error: altError } = await supabase
         .from('discount_codes')
         .select('*')
-        .eq('deal_id', altDealId);
+        .eq('deal_id', normalizeId(altDealId));
         
       if (altError) {
         console.error('[inspectDiscountCodes] Error querying codes with alternative ID type:', altError);
