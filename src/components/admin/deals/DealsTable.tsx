@@ -25,6 +25,7 @@ interface DealsTableProps {
   onReject?: (dealId: number) => void;
   hasViewDetailsAction?: boolean;
   onViewDetails?: (deal: Deal) => void;
+  onViewDiscountCodes?: (deal: Deal) => void;
 }
 
 export const DealsTable = ({ 
@@ -37,7 +38,8 @@ export const DealsTable = ({
   onApprove,
   onReject,
   hasViewDetailsAction,
-  onViewDetails
+  onViewDetails,
+  onViewDiscountCodes
 }: DealsTableProps) => {
   const handlePreviewDeal = (deal: Deal) => {
     if (onPreview) {
@@ -122,6 +124,7 @@ export const DealsTable = ({
                         onToggleActive={onToggleActive ? () => onToggleActive(deal) : undefined}
                         isActive={deal.is_active}
                         onPreview={() => handlePreviewDeal(deal)}
+                        onViewDiscountCodes={onViewDiscountCodes ? () => onViewDiscountCodes(deal) : undefined}
                       />
                     </div>
                   </TableCell>

@@ -1,5 +1,5 @@
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
 import { useDealsDialogs } from "@/hooks/useDealsDialogs";
@@ -12,6 +12,8 @@ import { AlertCircle } from "lucide-react";
 import { DealsDialogs } from "./DealsDialogs";
 import { usePendingDealsFunctions } from "./PendingDealsFunctions";
 import { DealsHeader } from "./DealsHeader";
+import { DiscountCodesDialog } from "./DiscountCodesDialog";
+import { Deal } from "@/components/admin/types";
 
 export const DealsListContainer = () => {
   const {
@@ -39,6 +41,7 @@ export const DealsListContainer = () => {
     handleCloseDialogs
   } = useDealsDialogs();
 
+  const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
   const { runExclusiveOperation } = useOperationExclusion();
   const { handleStatusChange } = usePendingDealsFunctions(refetch);
 
@@ -111,6 +114,14 @@ export const DealsListContainer = () => {
     });
   }, [handleCreate, isUpdatingDealRef, runExclusiveOperation, handleCloseDialogs]);
 
+  const handleViewDiscountCodes = useCallback((deal: Deal) => {
+    setViewingCodesForDeal(deal);
+  }, []);
+
+  const handleCloseDiscountCodesDialog = useCallback(() => {
+    setViewingCodesForDeal(null);
+  }, []);
+
   if (isLoading) {
     return <DealsLoadingSkeleton />;
   }
@@ -138,6 +149,7 @@ export const DealsListContainer = () => {
             setDeletingDeal={handleDeleteDeal}
             handleToggleActive={handleToggleActive}
             handleStatusChange={handleStatusChange}
+            onViewDiscountCodes={handleViewDiscountCodes}
           />
         )}
 
@@ -147,6 +159,7 @@ export const DealsListContainer = () => {
           setEditingDeal={handleEditDeal}
           setDeletingDeal={handleDeleteDeal}
           handleToggleActive={handleToggleActive}
+          onViewDiscountCodes={handleViewDiscountCodes}
         />
       </div>
 
@@ -158,6 +171,12 @@ export const DealsListContainer = () => {
         onUpdate={onUpdate}
         onCreate={onCreate}
         onDelete={onDelete}
+      />
+
+      <DiscountCodesDialog
+        isOpen={!!viewingCodesForDeal}
+        onClose={handleCloseDiscountCodesDialog}
+        deal={viewingCodesForDeal}
       />
     </div>
   );

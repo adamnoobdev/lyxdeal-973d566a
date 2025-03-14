@@ -1,16 +1,15 @@
 
-import { Deal } from "../types";
+import { Deal } from "@/components/admin/types";
 import { DealsTable } from "./DealsTable";
-import { Badge } from "@/components/ui/badge";
-import { Clock } from "lucide-react";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface PendingDealsSectionProps {
   pendingDeals: Deal[];
   setEditingDeal: (deal: Deal) => void;
   setDeletingDeal: (deal: Deal) => void;
-  handleToggleActive: (deal: Deal) => void;
-  handleStatusChange: (dealId: number, newStatus: 'approved' | 'rejected') => void;
+  handleToggleActive: (deal: Deal) => Promise<boolean>;
+  handleStatusChange: (dealId: number, status: string) => Promise<void>;
+  onViewDiscountCodes?: (deal: Deal) => void;
 }
 
 export const PendingDealsSection = ({
@@ -18,27 +17,34 @@ export const PendingDealsSection = ({
   setEditingDeal,
   setDeletingDeal,
   handleToggleActive,
-  handleStatusChange
+  handleStatusChange,
+  onViewDiscountCodes
 }: PendingDealsSectionProps) => {
-  if (!pendingDeals.length) return null;
-  
+  const handleApprove = async (dealId: number) => {
+    await handleStatusChange(dealId, 'approved');
+  };
+
+  const handleReject = async (dealId: number) => {
+    await handleStatusChange(dealId, 'rejected');
+  };
+
   return (
-    <Card className="border-amber-200 bg-amber-50/50 mb-8 shadow-sm">
-      <CardHeader className="pb-2 pt-4">
-        <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-amber-500" />
-          <h2 className="text-lg font-semibold text-amber-800">Väntande godkännande</h2>
-          <Badge variant="outline" className="ml-auto bg-amber-100 text-amber-800 border-amber-200">
-            {pendingDeals.length}
-          </Badge>
-        </div>
+    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
+      <CardHeader className="bg-secondary/10 pb-2">
+        <CardTitle className="text-lg font-medium">
+          Väntande erbjudanden ({pendingDeals.length})
+        </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="p-0">
         <DealsTable
           deals={pendingDeals}
           onEdit={setEditingDeal}
           onDelete={setDeletingDeal}
           onToggleActive={handleToggleActive}
+          showApprovalActions={true}
+          onApprove={(dealId) => handleApprove(dealId)}
+          onReject={(dealId) => handleReject(dealId)}
+          onViewDiscountCodes={onViewDiscountCodes}
         />
       </CardContent>
     </Card>

@@ -7,93 +7,100 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash2, Eye, PowerIcon } from "lucide-react";
-import { useState, useRef } from "react";
+import {
+  Check,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Tags,
+  Trash,
+  XCircle,
+} from "lucide-react";
 
 interface DealActionsProps {
-  onEdit?: () => void;
   onDelete?: () => void;
+  onEdit?: () => void;
   onToggleActive?: () => void;
-  isActive?: boolean;
   onPreview?: () => void;
+  onApprove?: () => void;
+  onReject?: () => void;
+  isActive?: boolean;
+  onViewDiscountCodes?: () => void;
 }
 
-export const DealActions = ({ 
-  onEdit, 
-  onDelete, 
-  onToggleActive, 
-  isActive = true,
-  onPreview 
+export const DealActions = ({
+  onDelete,
+  onEdit,
+  onToggleActive,
+  onPreview,
+  onApprove,
+  onReject,
+  isActive,
+  onViewDiscountCodes,
 }: DealActionsProps) => {
-  const [open, setOpen] = useState(false);
-  const actionInProgressRef = useRef(false);
-  
-  const handleAction = (action: (() => void) | undefined) => {
-    if (!action || actionInProgressRef.current) return;
-    
-    actionInProgressRef.current = true;
-    setOpen(false);
-    
-    // Short delay to ensure dropdown closes first
-    setTimeout(() => {
-      action();
-      actionInProgressRef.current = false;
-    }, 100);
-  };
-
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-primary/10">
-          <MoreHorizontal className="h-4 w-4 text-primary/80" />
+        <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+          <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">Öppna meny</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 border-secondary/20">
-        {onEdit && (
-          <DropdownMenuItem 
-            onClick={() => handleAction(onEdit)} 
-            className="cursor-pointer hover:bg-primary/5"
-          >
-            <Pencil className="h-4 w-4 mr-2 text-primary" />
-            Redigera erbjudande
-          </DropdownMenuItem>
-        )}
-        
+      <DropdownMenuContent align="end">
         {onPreview && (
-          <DropdownMenuItem 
-            onClick={() => handleAction(onPreview)} 
-            className="cursor-pointer hover:bg-primary/5"
-          >
-            <Eye className="h-4 w-4 mr-2 text-primary" />
-            Förhandsgranska
+          <DropdownMenuItem onClick={onPreview}>
+            <Eye className="mr-2 h-4 w-4" />
+            <span>Förhandsgranska</span>
           </DropdownMenuItem>
         )}
-        
-        {onToggleActive && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => handleAction(onToggleActive)}
-              className="cursor-pointer hover:bg-primary/5"
-            >
-              <PowerIcon className="h-4 w-4 mr-2 text-primary" />
-              {isActive ? "Inaktivera erbjudande" : "Aktivera erbjudande"}
-            </DropdownMenuItem>
-          </>
+        {onViewDiscountCodes && (
+          <DropdownMenuItem onClick={onViewDiscountCodes}>
+            <Tags className="mr-2 h-4 w-4" />
+            <span>Visa rabattkoder</span>
+          </DropdownMenuItem>
         )}
-        
+        {onApprove && (
+          <DropdownMenuItem onClick={onApprove}>
+            <Check className="mr-2 h-4 w-4" />
+            <span>Godkänn</span>
+          </DropdownMenuItem>
+        )}
+        {onReject && (
+          <DropdownMenuItem onClick={onReject}>
+            <XCircle className="mr-2 h-4 w-4" />
+            <span>Neka</span>
+          </DropdownMenuItem>
+        )}
+        {(onEdit || onDelete || onToggleActive) && <DropdownMenuSeparator />}
+        {onEdit && (
+          <DropdownMenuItem onClick={onEdit}>
+            <Edit className="mr-2 h-4 w-4" />
+            <span>Redigera</span>
+          </DropdownMenuItem>
+        )}
+        {onToggleActive && (
+          <DropdownMenuItem onClick={onToggleActive}>
+            {isActive ? (
+              <>
+                <XCircle className="mr-2 h-4 w-4" />
+                <span>Inaktivera</span>
+              </>
+            ) : (
+              <>
+                <Check className="mr-2 h-4 w-4" />
+                <span>Aktivera</span>
+              </>
+            )}
+          </DropdownMenuItem>
+        )}
         {onDelete && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => handleAction(onDelete)}
-              className="text-destructive focus:text-destructive cursor-pointer hover:bg-destructive/5"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Ta bort erbjudande
-            </DropdownMenuItem>
-          </>
+          <DropdownMenuItem
+            onClick={onDelete}
+            className="text-destructive focus:bg-destructive/10"
+          >
+            <Trash className="mr-2 h-4 w-4" />
+            <span>Ta bort</span>
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

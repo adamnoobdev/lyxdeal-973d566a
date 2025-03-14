@@ -1,16 +1,22 @@
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSalonDealsManagement } from '@/hooks/useSalonDealsManagement';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SalonDealsError } from '@/components/admin/salons/SalonDealsError';
 import { DealDialog } from './DealDialog';
+import { Deal } from '@/components/admin/types';
+import { DiscountCodesDialog } from '@/components/admin/deals/DiscountCodesDialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DealsTable } from '@/components/admin/deals/DealsTable';
 
 export const SalonDeals: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { 
     deals, 
+    activeDeals,
+    inactiveDeals,
     isLoading, 
     error,
     editingDeal,
@@ -21,8 +27,15 @@ export const SalonDeals: React.FC = () => {
     handleUpdate
   } = useSalonDealsManagement(id);
   
-  // Use the first deal for display if available
-  const currentDeal = deals && deals.length > 0 ? deals[0] : null;
+  const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
+
+  const handleViewDiscountCodes = useCallback((deal: Deal) => {
+    setViewingCodesForDeal(deal);
+  }, []);
+
+  const handleCloseDiscountCodesDialog = useCallback(() => {
+    setViewingCodesForDeal(null);
+  }, []);
 
   if (isLoading) {
     return (
@@ -44,17 +57,19 @@ export const SalonDeals: React.FC = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Hantera Erbjudande</h1>
       
-      {currentDeal && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold mb-2">{currentDeal.title}</h2>
-          <p className="text-gray-600 mb-4">{currentDeal.description}</p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <Button variant="outline" onClick={() => setEditingDeal(currentDeal)}>Redigera erbjudande</Button>
-            <Button variant="destructive" onClick={() => setDeletingDeal(currentDeal)}>Ta bort erbjudande</Button>
-          </div>
-        </div>
-      )}
+      <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-4 mb-6">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-lg">Dina erbjudanden</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <DealsTable
+            deals={deals}
+            onEdit={(deal) => setEditingDeal(deal)}
+            onDelete={(deal) => setDeletingDeal(deal)}
+            onViewDiscountCodes={handleViewDiscountCodes}
+          />
+        </CardContent>
+      </Card>
 
       {editingDeal && (
         <DealDialog
@@ -78,6 +93,12 @@ export const SalonDeals: React.FC = () => {
           }}
         />
       )}
+
+      <DiscountCodesDialog
+        isOpen={!!viewingCodesForDeal}
+        onClose={handleCloseDiscountCodesDialog}
+        deal={viewingCodesForDeal}
+      />
     </div>
   );
 };

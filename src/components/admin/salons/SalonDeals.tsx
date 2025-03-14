@@ -10,7 +10,9 @@ import { useSalonDealsManagement } from "@/hooks/useSalonDealsManagement";
 import { endOfMonth } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { useCallback, memo, useMemo } from "react";
+import { useCallback, memo, useMemo, useState } from "react";
+import { Deal } from "@/components/admin/types";
+import { DiscountCodesDialog } from "../deals/DiscountCodesDialog";
 
 // Memoize the component to prevent unnecessary re-renders
 const MemoizedDealsTable = memo(DealsTable);
@@ -32,6 +34,8 @@ export function SalonDeals() {
     handleToggleActive,
   } = useSalonDealsManagement(salonId);
 
+  const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
+
   const handleEdit = useCallback((deal) => {
     setEditingDeal(deal);
   }, [setEditingDeal]);
@@ -47,6 +51,14 @@ export function SalonDeals() {
   const handleCloseDelete = useCallback(() => {
     setDeletingDeal(null);
   }, [setDeletingDeal]);
+
+  const handleViewDiscountCodes = useCallback((deal: Deal) => {
+    setViewingCodesForDeal(deal);
+  }, []);
+
+  const handleCloseDiscountCodesDialog = useCallback(() => {
+    setViewingCodesForDeal(null);
+  }, []);
   
   // Använd useMemo för att förhindra onödiga beräkningar vid re-renders
   const initialValues = useMemo(() => {
@@ -103,6 +115,7 @@ export function SalonDeals() {
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
               onToggleActive={handleToggleActive}
+              onViewDiscountCodes={handleViewDiscountCodes}
             />
           </TabsContent>
           
@@ -112,6 +125,7 @@ export function SalonDeals() {
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
               onToggleActive={handleToggleActive}
+              onViewDiscountCodes={handleViewDiscountCodes}
             />
           </TabsContent>
         </Tabs>
@@ -129,6 +143,12 @@ export function SalonDeals() {
         onClose={handleCloseDelete}
         onConfirm={handleDeleteDeal}
         dealTitle={deletingDeal?.title}
+      />
+
+      <DiscountCodesDialog
+        isOpen={!!viewingCodesForDeal}
+        onClose={handleCloseDiscountCodesDialog}
+        deal={viewingCodesForDeal}
       />
     </>
   );
