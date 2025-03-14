@@ -146,10 +146,13 @@ serve(async (req) => {
       console.error('Error updating quantity:', updateError);
     }
 
-    // Return the free deal response with the code
+    // Determine if the deal is free based on is_free flag or discounted_price
+    const isFree = deal.is_free || deal.discounted_price <= 1;
+
+    // Return the response with the code
     return new Response(
       JSON.stringify({ 
-        free: true, 
+        free: isFree, 
         code: code,
         redirect_url: `${req.headers.get('origin')}/success?deal_id=${dealId}&code=${code}`
       }),

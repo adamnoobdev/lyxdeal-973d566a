@@ -30,7 +30,7 @@ export const useSalonDeals = (salonId: number | undefined) => {
       // Transform the data to include required properties and add default values
       const transformedDeals = deals.map(deal => ({
         ...deal,
-        is_free: true, // Treat all deals as free
+        is_free: deal.is_free || deal.discounted_price === 0, // Ensure is_free is set correctly
         expiration_date: deal.expiration_date || new Date().toISOString()
       }));
 
@@ -43,9 +43,11 @@ export const useSalonDeals = (salonId: number | undefined) => {
   const createDeal = async (values: FormValues) => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
+      const discountedPriceVal = parseInt(values.discountedPrice) || 0;
+      const isFree = discountedPriceVal === 0;
       
-      // Always set deals as free and discounted_price to 0
-      const discountedPrice = 0;
+      // For free deals, set discounted_price to 1 to avoid database constraint
+      const discountedPrice = isFree ? 1 : discountedPriceVal;
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -57,7 +59,7 @@ export const useSalonDeals = (salonId: number | undefined) => {
         ...values,
         originalPrice,
         discountedPrice,
-        is_free: true,
+        is_free: isFree,
         expirationDate: expirationDate
       });
       
@@ -66,7 +68,7 @@ export const useSalonDeals = (salonId: number | undefined) => {
         description: values.description,
         image_url: values.imageUrl,
         original_price: originalPrice,
-        discounted_price: 0, // All deals are free
+        discounted_price: discountedPrice, // Set to 1 for free deals
         category: values.category,
         city: values.city,
         time_remaining: timeRemaining,
@@ -74,7 +76,7 @@ export const useSalonDeals = (salonId: number | undefined) => {
         featured: values.featured,
         salon_id: salonId,
         status: 'pending',
-        is_free: true, // All deals are now free
+        is_free: isFree, // Set is_free flag for free deals
         quantity_left: parseInt(values.quantity) || 10,
       });
 
@@ -96,9 +98,11 @@ export const useSalonDeals = (salonId: number | undefined) => {
   const updateDeal = async (values: FormValues, dealId: number) => {
     try {
       const originalPrice = parseInt(values.originalPrice) || 0;
+      const discountedPriceVal = parseInt(values.discountedPrice) || 0;
+      const isFree = discountedPriceVal === 0;
       
-      // Always set deals as free and discounted_price to 0
-      const discountedPrice = 0;
+      // For free deals, set discounted_price to 1 to avoid database constraint
+      const discountedPrice = isFree ? 1 : discountedPriceVal;
       
       // Calculate days remaining and time remaining text
       const today = new Date();
@@ -110,7 +114,7 @@ export const useSalonDeals = (salonId: number | undefined) => {
         ...values,
         originalPrice,
         discountedPrice,
-        is_free: true,
+        is_free: isFree,
         expirationDate: expirationDate
       });
       
@@ -121,14 +125,14 @@ export const useSalonDeals = (salonId: number | undefined) => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: originalPrice,
-          discounted_price: 0, // All deals are free
+          discounted_price: discountedPrice, // Set to 1 for free deals
           category: values.category,
           city: values.city,
           time_remaining: timeRemaining,
           expiration_date: expirationDate.toISOString(),
           featured: values.featured,
           status: 'pending',
-          is_free: true, // All deals are now free
+          is_free: isFree, // Set is_free flag for free deals
           quantity_left: parseInt(values.quantity) || 10,
         })
         .eq('id', dealId);

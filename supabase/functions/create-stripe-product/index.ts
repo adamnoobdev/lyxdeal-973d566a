@@ -35,7 +35,10 @@ serve(async (req) => {
       throw new Error('Error fetching deal details')
     }
 
-    // Update the deal to set is_free to true and discounted_price to 0
+    // Check if the deal should be marked as free
+    const isFree = deal.is_free || deal.discounted_price === 0
+
+    // Update the deal
     const { error: updateError } = await supabaseClient
       .rpc('update_deal_to_free', { 
         deal_id: dealId,
@@ -50,7 +53,7 @@ serve(async (req) => {
     console.log('Successfully processed deal as free')
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ success: true, isFree: isFree }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,

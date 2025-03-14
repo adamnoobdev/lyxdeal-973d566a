@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
 import { toast } from "sonner";
@@ -31,7 +30,14 @@ export const deleteDeal = async (id: number): Promise<boolean> => {
 export const updateDeal = async (values: FormValues, id: number): Promise<boolean> => {
   try {
     const originalPrice = parseInt(values.originalPrice) || 0;
-    const discountedPrice = parseInt(values.discountedPrice) || 0;
+    let discountedPrice = parseInt(values.discountedPrice) || 0;
+    const isFree = discountedPrice === 0;
+    
+    // For free deals, set discounted_price to 1 to avoid database constraint
+    // but keep is_free flag as true
+    if (isFree) {
+      discountedPrice = 1;
+    }
     
     // Calculate days remaining and time remaining text
     const today = new Date();
@@ -54,7 +60,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
         description: values.description,
         image_url: values.imageUrl,
         original_price: originalPrice,
-        discounted_price: discountedPrice,
+        discounted_price: discountedPrice, // Set to 1 for free deals
         category: values.category,
         city: values.city,
         time_remaining: timeRemaining,
@@ -63,7 +69,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
         salon_id: values.salon_id,
         is_active: values.is_active,
         quantity_left: parseInt(values.quantity) || 10,
-        is_free: values.is_free || false,
+        is_free: isFree, // Set is_free based on original discounted price
         status: 'approved' // Always approve deals
       })
       .eq('id', id);
@@ -88,7 +94,14 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
 export const createDeal = async (values: FormValues): Promise<boolean> => {
   try {
     const originalPrice = parseInt(values.originalPrice) || 0;
-    const discountedPrice = parseInt(values.discountedPrice) || 0;
+    let discountedPrice = parseInt(values.discountedPrice) || 0;
+    const isFree = discountedPrice === 0;
+    
+    // For free deals, set discounted_price to 1 to avoid database constraint
+    // but keep is_free flag as true
+    if (isFree) {
+      discountedPrice = 1;
+    }
     
     // Calculate days remaining and time remaining text
     const today = new Date();
@@ -100,6 +113,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       ...values,
       originalPrice,
       discountedPrice,
+      isFree,
       expirationDate: expirationDate
     });
     
@@ -111,7 +125,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
         description: values.description,
         image_url: values.imageUrl,
         original_price: originalPrice,
-        discounted_price: discountedPrice,
+        discounted_price: discountedPrice, // Set to 1 for free deals
         category: values.category,
         city: values.city,
         time_remaining: timeRemaining,
@@ -119,7 +133,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
         featured: values.featured,
         salon_id: values.salon_id,
         status: 'approved', // Direktgodkänd
-        is_free: values.is_free || false,
+        is_free: isFree, // Set is_free based on original discounted price
         is_active: values.is_active !== undefined ? values.is_active : true,
         quantity_left: parseInt(values.quantity) || 10,
       }]);
