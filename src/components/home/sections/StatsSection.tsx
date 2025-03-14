@@ -4,17 +4,17 @@ import { QrCode, Star, Percent } from "lucide-react";
 const STATS = [
   { 
     icon: Percent, 
-    title: "1. Fyll i dina uppgifter och säkra erbjudandet", 
+    title: "1. Säkra erbjudandet", 
     description: "Enkelt och snabbt med några få steg" 
   },
   { 
     icon: QrCode, 
-    title: "2. Du får en unik rabattkod via e-post direkt", 
+    title: "2. Få rabattkoden", 
     description: "Koden skickas automatiskt till din angivna e-post" 
   },
   { 
     icon: Star, 
-    title: "3. Visa rabattkoden i salongen inom 72 timmar", 
+    title: "3. Visa koden", 
     description: "Besök salongen och visa din kod för att få rabatten" 
   }
 ] as const;
