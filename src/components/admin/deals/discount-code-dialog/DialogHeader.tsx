@@ -1,8 +1,10 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw, Database, PlusCircle, Trash2, HelpCircle } from "lucide-react";
 import { DiscountCodesGenerationDialog } from "@/components/discount-codes/DiscountCodesGenerationDialog";
 import { RemoveAllCodesButton } from "./RemoveAllCodesButton";
+import { toast } from "sonner";
 
 interface DiscountDialogHeaderProps {
   title: string;
@@ -29,6 +31,16 @@ export const DiscountDialogHeader = ({
   isInspecting,
   onGenerateDiscountCodes
 }: DiscountDialogHeaderProps) => {
+  const [isGenerationDialogOpen, setIsGenerationDialogOpen] = useState(false);
+
+  const handleOpenGenerationDialog = () => {
+    setIsGenerationDialogOpen(true);
+  };
+
+  const handleCloseGenerationDialog = () => {
+    setIsGenerationDialogOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -73,7 +85,7 @@ export const DiscountDialogHeader = ({
             variant="default"
             size="sm"
             className="gap-2 bg-purple-900 hover:bg-purple-800"
-            onClick={() => onGenerateDiscountCodes(10)}
+            onClick={handleOpenGenerationDialog}
             disabled={isFetching || isLoading}
           >
             <PlusCircle className="h-4 w-4" />
@@ -87,11 +99,21 @@ export const DiscountDialogHeader = ({
           variant="outline"
           size="sm"
           className="gap-2 ml-auto"
+          onClick={() => toast.info("Hjälp-funktion kommer snart")}
         >
           <HelpCircle className="h-4 w-4" />
           <span>Hjälp</span>
         </Button>
       </div>
+
+      {onGenerateDiscountCodes && (
+        <DiscountCodesGenerationDialog
+          isOpen={isGenerationDialogOpen}
+          onClose={handleCloseGenerationDialog}
+          onGenerate={onGenerateDiscountCodes}
+          dealTitle={dealTitle}
+        />
+      )}
     </div>
   );
 };

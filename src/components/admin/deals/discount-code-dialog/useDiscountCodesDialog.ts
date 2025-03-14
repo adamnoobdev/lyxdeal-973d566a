@@ -24,6 +24,7 @@ export const useDiscountCodesDialog = (isOpen: boolean, deal: Deal | null) => {
       setInspectionResult(null);
       
       // Tvinga en refetch när dialogen öppnas för att få färsk data
+      console.log(`[DiscountCodesDialog] Forcing initial refetch for deal ID ${deal.id}`);
       refetch({ cancelRefetch: false });
     } else if (!isOpen) {
       setDialogOpenedAt(null);
@@ -34,7 +35,7 @@ export const useDiscountCodesDialog = (isOpen: boolean, deal: Deal | null) => {
   useEffect(() => {
     if (isOpen && deal?.id && discountCodes.length === 0 && !isLoading && !isFetching && refreshAttempts < 5) {
       const timer = setTimeout(() => {
-        console.log(`[DiscountCodesDialog] Auto-retry (attempt ${refreshAttempts + 1}/5)`);
+        console.log(`[DiscountCodesDialog] Auto-retry (attempt ${refreshAttempts + 1}/5) for deal ID ${deal.id}`);
         refetch({ cancelRefetch: false })
           .then(() => {
             if (!isManuallyTriggeredFetch) {
@@ -57,6 +58,7 @@ export const useDiscountCodesDialog = (isOpen: boolean, deal: Deal | null) => {
       
       // Utför automatisk inspektion när vi inte hittat koder efter flera försök
       if (deal?.id) {
+        console.log(`[DiscountCodesDialog] Auto-inspection after 5 attempts for deal ID ${deal.id}`);
         handleInspectCodes();
       }
     }
@@ -80,7 +82,7 @@ export const useDiscountCodesDialog = (isOpen: boolean, deal: Deal | null) => {
         error: 'Kunde inte hämta rabattkoderna'
       }
     );
-  }, [refetch, isFetching]);
+  }, [refetch, isFetching, deal?.id]);
 
   // Funktion för att direkt inspektera koder i databasen
   const handleInspectCodes = useCallback(async () => {
@@ -125,7 +127,7 @@ export const useDiscountCodesDialog = (isOpen: boolean, deal: Deal | null) => {
 
   const getEmptyStateMessage = useCallback(() => {
     if (refreshAttempts >= 5) {
-      return "Inga rabattkoder hittades efter flera försök. Använd inspektionsfunktionen för att kontrollera databasen.";
+      return "Inga rabattkoder hittades efter flera försök. Använd inspektionsfunktionen för att kontrollera databasen eller generera nya.";
     } else if (refreshAttempts > 0) {
       return `Letar efter rabattkoder... (försök ${refreshAttempts}/5)`;
     }

@@ -79,9 +79,9 @@ export const DiscountCodesDialogContent = ({
             <p className="text-amber-700 mt-1">
               Detta kan bero på att koder finns i databasen men med annat deal_id än {deal?.id}. Koder: {inspectionResult.sampleCodes?.map(c => c.code).join(', ')}
             </p>
-            {inspectionResult.codeType === 'string' && (
+            {inspectionResult.codeType && (
               <p className="text-amber-700 font-semibold mt-1">
-                Din deal_id är lagrad som en sträng istället för ett nummer. Vi har uppdaterad koden för att hantera detta.
+                Din deal_id är lagrad som en {inspectionResult.codeType} istället för {typeof deal?.id}. Vi har uppdaterad koden för att hantera detta.
               </p>
             )}
             <div className="mt-2">
