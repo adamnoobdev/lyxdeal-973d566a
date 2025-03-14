@@ -147,7 +147,7 @@ serve(async (req) => {
     }
 
     // Determine if the deal is free based on is_free flag or discounted_price
-    const isFree = deal.is_free || deal.discounted_price <= 1;
+    const isFree = deal.is_free || deal.discounted_price <= 0;
 
     // Return the response with the code
     return new Response(

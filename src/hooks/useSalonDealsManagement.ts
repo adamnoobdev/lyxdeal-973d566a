@@ -118,16 +118,20 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
       isUpdatingDeal.current = true;
       console.log(`Updating deal with ID: ${editingDeal.id}`);
       
+      // Check if discounted price is 0 and explicitly set is_free flag
+      const discountedPrice = parseInt(values.discountedPrice) || 0;
+      const isFree = discountedPrice === 0;
+      
       const updateValues: DealUpdateValues = {
         title: values.title,
         description: values.description,
         imageUrl: values.imageUrl,
         originalPrice: parseInt(values.originalPrice) || 0,
-        discountedPrice: values.is_free ? 0 : parseInt(values.discountedPrice) || 0,
+        discountedPrice: discountedPrice,
         category: values.category,
         city: values.city,
         featured: values.featured,
-        is_free: values.is_free || false,
+        is_free: isFree, // Explicitly set based on discounted price
         is_active: values.is_active !== undefined ? values.is_active : editingDeal.is_active,
         quantity: parseInt(values.quantity) || 10,
         expirationDate: values.expirationDate,
@@ -147,11 +151,11 @@ export const useSalonDealsManagement = (salonId: string | undefined) => {
           description: values.description,
           image_url: values.imageUrl,
           original_price: parseInt(values.originalPrice) || 0,
-          discounted_price: values.is_free ? 0 : parseInt(values.discountedPrice) || 0,
+          discounted_price: isFree ? 0 : discountedPrice, // Store 0 for free deals in local state
           category: values.category,
           city: values.city,
           featured: values.featured,
-          is_free: values.is_free || false,
+          is_free: isFree,
           is_active: values.is_active !== undefined ? values.is_active : editingDeal.is_active,
           quantity_left: parseInt(values.quantity) || 10,
           expiration_date: values.expirationDate.toISOString()

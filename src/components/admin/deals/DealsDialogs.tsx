@@ -38,7 +38,8 @@ const DealsDialogsComponent = ({
                 description: editingDeal.description,
                 imageUrl: editingDeal.image_url,
                 originalPrice: editingDeal.original_price.toString(),
-                discountedPrice: editingDeal.discounted_price.toString(),
+                // Set discounted price to "0" for free deals regardless of actual stored value
+                discountedPrice: editingDeal.is_free ? "0" : editingDeal.discounted_price.toString(),
                 category: editingDeal.category,
                 city: editingDeal.city,
                 featured: editingDeal.featured,
