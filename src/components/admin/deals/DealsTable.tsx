@@ -1,4 +1,3 @@
-
 import { Deal } from "@/components/admin/types";
 import { DealActions } from "./DealActions";
 import {

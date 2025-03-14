@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Deal } from "@/components/admin/types";
 import { DiscountCodesDialogContent } from "./discount-code-dialog/DiscountCodesDialogContent";
-import { generateDiscountCodes } from "@/utils/discountCodeUtils";
+import { generateDiscountCodes } from "@/utils/discount-codes";
 import { toast } from "sonner";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
