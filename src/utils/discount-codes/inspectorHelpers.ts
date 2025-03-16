@@ -84,10 +84,18 @@ export async function searchExactMatches(dealId: number) {
  */
 export async function searchStringMatches(stringDealId: string) {
   try {
+    // Konvertera string till number för att undvika TypeScript-fel
+    const numericId = Number(stringDealId);
+    
+    if (isNaN(numericId)) {
+      console.error(`[searchStringMatches] Invalid numeric conversion for: ${stringDealId}`);
+      return { success: false, error: new Error("Invalid numeric ID") };
+    }
+    
     const { data, error } = await supabase
       .from("discount_codes")
       .select("*")
-      .eq("deal_id", stringDealId)
+      .eq("deal_id", numericId)
       .limit(10);
       
     if (error) {

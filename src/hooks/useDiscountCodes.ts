@@ -93,18 +93,23 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         }
         
         // Steg 3: Försök med string-ID
-        let { data: stringMatches, error: stringError } = await supabase
-          .from("discount_codes")
-          .select("*")
-          .eq("deal_id", stringId);
-          
-        if (stringError) {
-          console.error("[useDiscountCodes] Error using string ID:", stringError);
-        } else if (stringMatches && stringMatches.length > 0) {
-          console.log(`[useDiscountCodes] Found ${stringMatches.length} codes using string ID ${stringId}`);
-          return stringMatches as DiscountCode[];
-        } else {
-          console.log(`[useDiscountCodes] No codes found using string ID ${stringId}`);
+        // Konvertera först till nummer för att undvika TypeScript-fel
+        const stringIdAsNumber = Number(stringId);
+        
+        if (!isNaN(stringIdAsNumber)) {
+          let { data: stringMatches, error: stringError } = await supabase
+            .from("discount_codes")
+            .select("*")
+            .eq("deal_id", stringIdAsNumber);
+            
+          if (stringError) {
+            console.error("[useDiscountCodes] Error using string ID as number:", stringError);
+          } else if (stringMatches && stringMatches.length > 0) {
+            console.log(`[useDiscountCodes] Found ${stringMatches.length} codes using string ID ${stringId} as number`);
+            return stringMatches as DiscountCode[];
+          } else {
+            console.log(`[useDiscountCodes] No codes found using string ID ${stringId} as number`);
+          }
         }
         
         // Steg 4: Hämta alla koder och filtrera manuellt som absolut sista utväg
