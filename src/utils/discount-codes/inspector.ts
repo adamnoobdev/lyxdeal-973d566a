@@ -12,7 +12,19 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
     
     // Normalisera deal ID för konsekvens (men håll reda på original för jämförelse)
     const originalDealId = dealId;
-    const numericDealId = normalizeId(dealId);
+    
+    // Använd try-catch för att hantera normaliseringsproblem
+    let numericDealId: number;
+    try {
+      numericDealId = normalizeId(dealId);
+    } catch (error) {
+      console.error(`[inspectDiscountCodes] Failed to normalize ID: ${error}`);
+      numericDealId = typeof dealId === 'number' ? dealId : parseInt(String(dealId), 10);
+      if (isNaN(numericDealId)) {
+        numericDealId = 0; // Fallback till ett default värde
+      }
+    }
+    
     const stringDealId = String(dealId);
     
     console.log(`[inspectDiscountCodes] Original deal ID: ${originalDealId} (${typeof originalDealId})`);
@@ -50,7 +62,8 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
     if (allCheckError) {
       console.error(`[inspectDiscountCodes] Error checking all codes:`, allCheckError);
     } else {
-      console.log(`[inspectDiscountCodes] Total codes in database: ${allCodesCheck.count || 0}`);
+      // Säkra åtkomst till count-egenskapen med typchecking
+      console.log(`[inspectDiscountCodes] Total codes in database: ${allCodesCheck && typeof allCodesCheck === 'object' && 'count' in allCodesCheck ? allCodesCheck.count : 0}`);
     }
     
     // Försök med olika metoder att hitta rabattkoder
@@ -68,17 +81,19 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
       console.log(`[inspectDiscountCodes] Found ${exactMatches?.length || 0} exact matches`);
     }
     
-    // 2. Exakt match på original-ID
-    const { data: originalMatches, error: originalError } = await supabase
-      .from("discount_codes")
-      .select("*")
-      .eq("deal_id", originalDealId)
-      .limit(10);
-      
-    if (originalError) {
-      console.error(`[inspectDiscountCodes] Error checking for original ID matches:`, originalError);
-    } else {
-      console.log(`[inspectDiscountCodes] Found ${originalMatches?.length || 0} original matches`);
+    // 2. Exakt match på original-ID (säkerställ att det är jämförbart)
+    if (typeof originalDealId === 'number' || !isNaN(Number(originalDealId))) {
+      const { data: originalMatches, error: originalError } = await supabase
+        .from("discount_codes")
+        .select("*")
+        .eq("deal_id", originalDealId)
+        .limit(10);
+        
+      if (originalError) {
+        console.error(`[inspectDiscountCodes] Error checking for original ID matches:`, originalError);
+      } else {
+        console.log(`[inspectDiscountCodes] Found ${originalMatches?.length || 0} original matches`);
+      }
     }
     
     // 3. Exakt match på string-ID

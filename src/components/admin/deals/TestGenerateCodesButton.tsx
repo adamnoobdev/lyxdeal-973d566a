@@ -1,10 +1,10 @@
-
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { generateDiscountCodes, testDiscountCodeGeneration, inspectDiscountCodes } from "@/utils/discount-codes";
 import { RefreshCw, Bug, Search, AlertCircle, Database } from "lucide-react";
 import { normalizeId, compareIds } from "@/utils/discount-codes/types";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TestGenerateCodesButtonProps {
   dealId: number | string;

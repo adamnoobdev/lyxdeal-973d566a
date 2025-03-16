@@ -31,7 +31,18 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         const originalId = dealId;
         
         // Normalisera ID till olika format för att testa olika sökmetoder
-        const numericId = normalizeId(dealId);
+        // Använd try-catch för att fånga eventuella fel vid normalisering
+        let numericId: number;
+        try {
+          numericId = normalizeId(dealId);
+        } catch (error) {
+          console.error(`[useDiscountCodes] Failed to normalize ID: ${error}`);
+          numericId = typeof dealId === 'number' ? dealId : parseInt(String(dealId), 10);
+          if (isNaN(numericId)) {
+            numericId = 0; // Fallback till ett default värde
+          }
+        }
+        
         const stringId = String(dealId);
         
         console.log(`[useDiscountCodes] Original ID: ${originalId} (${typeof originalId})`);
@@ -55,19 +66,22 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         }
         
         // Steg 2: Försök med originalID (som det är, utan konvertering)
-        let { data: originalMatches, error: originalError } = await supabase
-          .from("discount_codes")
-          .select("*")
-          .eq("deal_id", originalId);
-          
-        if (originalError) {
-          console.error("[useDiscountCodes] Error using original ID:", originalError);
-          // Fortsätt till nästa försök
-        } else if (originalMatches && originalMatches.length > 0) {
-          console.log(`[useDiscountCodes] Found ${originalMatches.length} codes using original ID ${originalId}`);
-          return originalMatches as DiscountCode[];
-        } else {
-          console.log(`[useDiscountCodes] No codes found using original ID ${originalId}`);
+        // Här kontrollerar vi typ av originalId för att undvika typfel
+        if (typeof originalId === 'number' || !isNaN(Number(originalId))) {
+          let { data: originalMatches, error: originalError } = await supabase
+            .from("discount_codes")
+            .select("*")
+            .eq("deal_id", originalId);
+            
+          if (originalError) {
+            console.error("[useDiscountCodes] Error using original ID:", originalError);
+            // Fortsätt till nästa försök
+          } else if (originalMatches && originalMatches.length > 0) {
+            console.log(`[useDiscountCodes] Found ${originalMatches.length} codes using original ID ${originalId}`);
+            return originalMatches as DiscountCode[];
+          } else {
+            console.log(`[useDiscountCodes] No codes found using original ID ${originalId}`);
+          }
         }
         
         // Steg 3: Försök med string-ID
