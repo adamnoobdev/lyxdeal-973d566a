@@ -21,9 +21,13 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
       setIsGenerating(true);
       console.log(`[TestGenerateCodesButton] Generating test codes for deal ID: ${dealId}`);
       
+      // Ensure we're using a normalized ID
+      const normalizedId = normalizeId(dealId);
+      console.log(`[TestGenerateCodesButton] Using normalized deal ID: ${normalizedId} (${typeof normalizedId})`);
+      
       // Anropa API för att generera koder
       const result = await toast.promise(
-        generateDiscountCodes(dealId, 5),
+        generateDiscountCodes(normalizedId, 5),
         {
           loading: "Genererar 5 testkoder...",
           success: "5 testkoder genererades",

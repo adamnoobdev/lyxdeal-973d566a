@@ -56,7 +56,7 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
       });
     }
     
-    console.log(`[generateDiscountCodes] Successfully generated ${codes.length} unique codes for deal ${numericDealId}`, codes);
+    console.log(`[generateDiscountCodes] Successfully generated ${codes.length} unique codes for deal ${numericDealId}`);
     
     // Batchvis spara koder för att undvika begränsningar i förfrågningsstorlek
     const BATCH_SIZE = 20;
@@ -81,7 +81,7 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
           console.error(`[generateDiscountCodes] Error inserting batch ${i/BATCH_SIZE + 1}:`, error);
           console.error('[generateDiscountCodes] Error details:', error.details, error.hint, error.message);
         } else {
-          console.log(`[generateDiscountCodes] Successfully inserted batch ${i/BATCH_SIZE + 1}:`, data);
+          console.log(`[generateDiscountCodes] Successfully inserted batch ${i/BATCH_SIZE + 1}`);
           successCount += batch.length;
         }
       } catch (batchError) {

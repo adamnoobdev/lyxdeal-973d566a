@@ -1,7 +1,6 @@
 
-// Re-export all functions from the modules
-export * from './types';
-export * from './generator';
-export * from './codeManagement';
-export * from './admin';
-export * from './inspector';
+export { generateDiscountCodes, generateRandomCode } from './generator';
+export { getAvailableDiscountCode, markDiscountCodeAsUsed } from './codeManagement';
+export { listAllDiscountCodes, removeAllDiscountCodes, countDiscountCodes } from './debug';
+export { normalizeId, logIdInfo } from './types';
+export type { CustomerInfo } from './types';

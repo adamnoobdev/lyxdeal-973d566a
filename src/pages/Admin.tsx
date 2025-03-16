@@ -1,33 +1,40 @@
 
-import { Routes, Route } from "react-router-dom";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
-import { AdminAuthCheck } from "@/components/admin/auth/AdminAuthCheck";
-import { DealsList } from "@/components/admin/deals";
-import { SalonsList } from "@/components/admin/salons/SalonsList";
-import { SalonDeals } from "@/components/admin/salons/SalonDeals";
-import { Dashboard } from "@/components/admin/Dashboard";
-import NavigationBar from "@/components/NavigationBar";
-import { Footer } from "@/components/Footer";
+import React, { useEffect, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { AdminLayout } from '@/components/admin/layout/AdminLayout';
+import { Dashboard } from '@/components/admin/Dashboard';
+import { DealsListContainer } from '@/components/admin/deals/DealsListContainer';
+import { SalonsList } from '@/components/admin/salons/SalonsList';
+import { AdminAuthCheck } from '@/components/admin/auth/AdminAuthCheck';
+import { DebugPanel } from '@/components/admin/debug/DebugPanel';
 
-export default function Admin() {
+const Admin = () => {
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
+  
+  // Check if we should show debug panel based on query params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const debug = urlParams.get('debug');
+    setShowDebugPanel(debug === 'true');
+  }, []);
+  
   return (
-    <div className="min-h-screen flex flex-col">
-      <NavigationBar userRole="admin" />
-      <div className="flex-1">
-        <AdminAuthCheck>
-          <AdminLayout>
-            <div className="p-4 md:p-6 lg:p-8">
-              <Routes>
-                <Route index element={<Dashboard />} />
-                <Route path="deals" element={<DealsList />} />
-                <Route path="salons" element={<SalonsList />} />
-                <Route path="salons/:salonId/deals" element={<SalonDeals />} />
-              </Routes>
-            </div>
-          </AdminLayout>
-        </AdminAuthCheck>
-      </div>
-      <Footer />
-    </div>
+    <AdminAuthCheck>
+      <AdminLayout>
+        <Routes>
+          <Route index element={
+            <>
+              <Dashboard />
+              {showDebugPanel && <div className="mt-6"><DebugPanel /></div>}
+            </>
+          } />
+          <Route path="deals/*" element={<DealsListContainer />} />
+          <Route path="salons/*" element={<SalonsList />} />
+          <Route path="debug" element={<DebugPanel />} />
+        </Routes>
+      </AdminLayout>
+    </AdminAuthCheck>
   );
 };
+
+export default Admin;
