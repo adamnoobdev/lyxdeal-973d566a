@@ -43,12 +43,12 @@ export const DiscountCodesDialogContent = ({
     discountCodes.length === 0;
 
   // Handlera generering av rabattkoder via användarinteraktion
-  const handleGenerateDiscountCodes = () => {
+  const handleGenerateDiscountCodes = async () => {
     if (deal && onGenerateDiscountCodes) {
-      onGenerateDiscountCodes(deal, 10).then(() => {
-        handleManualRefresh();
-      });
+      await onGenerateDiscountCodes(deal, 10);
+      handleManualRefresh();
     }
+    return Promise.resolve(); // Explicit Promise return to match expected type
   };
 
   return (
