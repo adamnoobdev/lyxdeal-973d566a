@@ -67,13 +67,23 @@ export const fetchSalonDeals = async (salonId: string | undefined): Promise<Deal
 /**
  * Deletes a deal by ID
  */
-export const deleteSalonDeal = async (dealId: number): Promise<void> => {
-  const { error } = await supabase
-    .from("deals")
-    .delete()
-    .eq("id", dealId);
+export const deleteSalonDeal = async (dealId: number): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from("deals")
+      .delete()
+      .eq("id", dealId);
 
-  if (error) throw error;
+    if (error) {
+      console.error('Error deleting deal:', error);
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting deal:', error);
+    return false;
+  }
 };
 
 /**
