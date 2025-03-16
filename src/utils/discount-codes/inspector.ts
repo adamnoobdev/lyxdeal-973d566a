@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeId } from "./types";
 import { getTableInfo } from "./tableManagement";
@@ -67,6 +66,7 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
     }
     
     // Försök med olika metoder att hitta rabattkoder
+    const tables = await getTableInfo();
     
     // 1. Exakt match på normaliserad ID
     const exactMatchesResult = await searchExactMatches(numericDealId);

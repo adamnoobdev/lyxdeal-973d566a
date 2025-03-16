@@ -5,4 +5,13 @@ export { listAllDiscountCodes, removeAllDiscountCodes, countDiscountCodes, testD
 export { inspectDiscountCodes } from './inspector';
 export { normalizeId, logIdInfo, compareIds } from './types';
 export { searchDiscountCodesWithMultipleMethods } from './searchHelpers';
+export { 
+  getTableAccess, 
+  countAllCodesInDatabase, 
+  searchExactMatches, 
+  searchStringMatches, 
+  getAllCodesForInspection 
+} from './databaseAccess';
+export { analyzeCodesAndFindMatches } from './analysisUtils';
+export { prepareSuccessResponse, prepareErrorResponse } from './responseFormatters';
 export type { CustomerInfo } from './types';
