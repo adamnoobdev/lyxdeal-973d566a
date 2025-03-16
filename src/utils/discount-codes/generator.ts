@@ -108,7 +108,7 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
         const { data: stringVerificationData, error: stringVerificationError } = await supabase
           .from('discount_codes')
           .select('code, deal_id')
-          .eq('deal_id', String(dealId))
+          .eq('deal_id', String(numericDealId))
           .limit(10);
           
         if (stringVerificationError) {
