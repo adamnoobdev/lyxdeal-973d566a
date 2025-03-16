@@ -50,7 +50,7 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
       };
     }
     
-    // Om inga exakta träffar, försök med string-jämförelse
+    // Hämta alla koder för att inspektera och analysera
     const { data: allCodes, error: allCodesError } = await supabase
       .from("discount_codes")
       .select("*")
@@ -68,14 +68,17 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
     
     // Om det finns koder, försök identifiera problem
     if (allCodes && allCodes.length > 0) {
-      // Samla alla unika deal_ids
+      // Samla alla unika deal_ids och deras typer
       const dealIds = [...new Set(allCodes.map(c => c.deal_id))];
       const dealIdTypes = [...new Set(allCodes.map(c => typeof c.deal_id))];
       
-      console.log(`[inspectDiscountCodes] Found ${allCodes.length} total codes with deal_ids: ${dealIds.join(', ')}`);
+      console.log(`[inspectDiscountCodes] Found ${allCodes.length} total codes with deal_ids:`, dealIds);
       console.log(`[inspectDiscountCodes] Deal ID types in database: ${dealIdTypes.join(', ')}`);
       
-      // För string-jämförelse
+      // Visa exempel på några koder för debugging
+      console.log(`[inspectDiscountCodes] Sample codes:`, allCodes.slice(0, 3));
+      
+      // Försök med string-jämförelse som fallback
       const stringDealId = String(dealId);
       const stringMatches = allCodes.filter(code => String(code.deal_id) === stringDealId);
       
@@ -91,7 +94,8 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
           })),
           codeType: typeof stringMatches[0].deal_id,
           tables,
-          dealIdTypes
+          dealIdTypes,
+          dealIdsInDatabase: dealIds
         };
       }
       
@@ -101,9 +105,10 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
         message: `Hittade ${allCodes.length} rabattkoder men ingen för erbjudande ${dealId}`,
         codesCount: 0,
         codesFoundForDeals: dealIds,
-        sample: allCodes.slice(0, 2),
+        sample: allCodes.slice(0, 3),
         tables,
-        dealIdTypes
+        dealIdTypes,
+        dealIdsInDatabase: dealIds
       };
     }
     

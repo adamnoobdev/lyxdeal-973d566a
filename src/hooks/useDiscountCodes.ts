@@ -32,38 +32,40 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         logIdInfo("useDiscountCodes normalized", normalizedId);
         
         // Försök först med exakt ID-match
-        const { data, error } = await supabase
+        let { data: exactMatches, error: exactError } = await supabase
           .from("discount_codes")
           .select("*")
           .eq("deal_id", normalizedId);
 
-        if (error) {
-          console.error("[useDiscountCodes] Error fetching discount codes:", error);
+        if (exactError) {
+          console.error("[useDiscountCodes] Error fetching discount codes:", exactError);
           toast.error("Kunde inte hämta rabattkoder", {
-            description: `Databasfel: ${error.message}`
+            description: `Databasfel: ${exactError.message}`
           });
-          throw error;
+          throw exactError;
         }
 
-        if (data && data.length > 0) {
-          console.log(`[useDiscountCodes] Retrieved ${data.length} discount codes for deal ID: ${dealId}`);
-          return data as DiscountCode[];
+        if (exactMatches && exactMatches.length > 0) {
+          console.log(`[useDiscountCodes] Retrieved ${exactMatches.length} discount codes for deal ID: ${dealId} with exact match`);
+          return exactMatches as DiscountCode[];
         }
         
-        // Om inga resultat, försök med string-jämförelse som fallback
-        console.log(`[useDiscountCodes] No discount codes found with numeric ID ${normalizedId}, trying string comparison`);
+        // Om inga resultat med normaliserat ID, försök med string-jämförelse som fallback
+        console.log(`[useDiscountCodes] No discount codes found with normalized ID ${normalizedId}, trying string comparison`);
+        const stringDealId = String(dealId);
         
-        // Hämta alla koder och filtrera
+        // Hämta alla koder och filtrera i klienten som fallback
         const { data: allCodes, error: fallbackError } = await supabase
           .from("discount_codes")
-          .select("*");
+          .select("*")
+          .limit(100);  // Öka gränsen för att säkerställa att vi får alla koder
             
         if (fallbackError) {
           console.error("[useDiscountCodes] Error in fallback query:", fallbackError);
           return [];
         }
         
-        // Om det finns koder, försök matcha med string-jämförelse
+        // Om det finns koder, försök matcha med olika metoder
         if (allCodes && allCodes.length > 0) {
           // Logga befintliga deal_ids för felsökning
           const dealIdsInDb = [...new Set(allCodes.map(c => c.deal_id))];
@@ -71,28 +73,35 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
           console.log(`[useDiscountCodes] Types of deal_ids in database:`, 
             [...new Set(allCodes.map(c => typeof c.deal_id))]);
           
-          // Testa olika jämförelsemetoder
-          const stringDealId = String(dealId);
-          const numericDealId = Number(dealId);
+          // Visa exempel på koder för mer detaljerad felsökning
+          console.log("[useDiscountCodes] Sample codes from database:", allCodes.slice(0, 3));
           
-          // Försöka hitta exakta matchningar eller string-matchningar
-          const directMatches = allCodes.filter(code => code.deal_id === normalizedId);
+          // Försök med olika jämförelsemetoder
           const stringMatches = allCodes.filter(code => String(code.deal_id) === stringDealId);
           
-          console.log(`[useDiscountCodes] Matching results: direct matches: ${directMatches.length}, string matches: ${stringMatches.length}`);
-          
-          if (directMatches.length > 0) {
-            return directMatches as DiscountCode[];
-          }
-          
           if (stringMatches.length > 0) {
+            console.log(`[useDiscountCodes] Found ${stringMatches.length} codes with string comparison`);
             return stringMatches as DiscountCode[];
           }
           
-          // Visa exempel på koder för felsökning
-          if (allCodes.length > 0) {
-            console.log(`[useDiscountCodes] Sample codes from database:`, allCodes.slice(0, 3));
+          // Försök specifikt leta efter om det finns någon deal_id = null
+          const nullDeals = allCodes.filter(code => code.deal_id === null);
+          if (nullDeals.length > 0) {
+            console.log(`[useDiscountCodes] Found ${nullDeals.length} codes with NULL deal_id`);
           }
+          
+          // Om vi fortfarande inte hittar något, testa om deal_id är lagrat som string eller number
+          // Försök med både string och number konvertering
+          const numericIdMatches = allCodes.filter(code => 
+            Number(code.deal_id) === Number(dealId)
+          );
+          
+          if (numericIdMatches.length > 0) {
+            console.log(`[useDiscountCodes] Found ${numericIdMatches.length} codes with numeric ID conversion`);
+            return numericIdMatches as DiscountCode[];
+          }
+          
+          console.log(`[useDiscountCodes] No matching codes found after all attempts`);
         } else {
           console.log(`[useDiscountCodes] No discount codes found in database at all`);
         }

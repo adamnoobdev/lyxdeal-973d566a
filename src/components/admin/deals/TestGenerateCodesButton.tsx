@@ -2,8 +2,8 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { generateDiscountCodes, testDiscountCodeGeneration } from "@/utils/discount-codes";
-import { RefreshCw, Bug } from "lucide-react";
+import { generateDiscountCodes, testDiscountCodeGeneration, inspectDiscountCodes } from "@/utils/discount-codes";
+import { RefreshCw, Bug, Search } from "lucide-react";
 import { normalizeId } from "@/utils/discount-codes/types";
 
 interface TestGenerateCodesButtonProps {
@@ -14,6 +14,7 @@ interface TestGenerateCodesButtonProps {
 export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodesButtonProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
+  const [isInspecting, setIsInspecting] = useState(false);
   
   const handleGenerateTestCodes = useCallback(async () => {
     if (isGenerating) return;
@@ -82,13 +83,50 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
     }
   }, [dealId, isTesting]);
   
+  const handleDetailedInspection = useCallback(async () => {
+    if (isInspecting) return;
+    
+    try {
+      setIsInspecting(true);
+      toast.info("Inspekterar databas och rabattkoder i detalj...");
+      
+      const normalizedId = normalizeId(dealId);
+      const result = await inspectDiscountCodes(normalizedId);
+      
+      if (result.success) {
+        toast.success(`Hittade ${result.codesCount} rabattkoder i databasen`, {
+          description: `Kodtyp: ${result.codeType}, exempel: ${result.sampleCodes?.map((c: any) => c.code).join(', ')}`
+        });
+      } else if (result.codesFoundForDeals) {
+        toast.warning("Hittade rabattkoder men inte för detta erbjudande", {
+          description: `Koder finns för erbjudanden: ${result.codesFoundForDeals.join(', ')}`
+        });
+      } else {
+        toast.warning(result.message, {
+          description: "Kontrollera loggen för mer information"
+        });
+      }
+      
+      // Visa detaljerad information i konsolen för felsökning
+      console.log("[TestGenerateCodesButton] Detailed inspection result:", result);
+      
+    } catch (error) {
+      console.error("Detaljerad inspektion misslyckades:", error);
+      toast.error("Inspektion misslyckades", {
+        description: "Ett oväntat fel uppstod vid inspektionen."
+      });
+    } finally {
+      setIsInspecting(false);
+    }
+  }, [dealId, isInspecting]);
+  
   return (
     <div className="space-y-2">
       <Button
         variant="outline"
         size="sm"
         onClick={handleGenerateTestCodes}
-        disabled={isGenerating || isTesting}
+        disabled={isGenerating || isTesting || isInspecting}
         className="gap-2 w-full"
       >
         <RefreshCw className={`h-4 w-4 ${isGenerating ? "animate-spin" : ""}`} />
@@ -99,11 +137,22 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
         variant="secondary"
         size="sm"
         onClick={handleDiagnoseDatabase}
-        disabled={isGenerating || isTesting}
+        disabled={isGenerating || isTesting || isInspecting}
         className="gap-2 w-full"
       >
         <Bug className={`h-4 w-4 ${isTesting ? "animate-spin" : ""}`} />
         <span>Diagnostisera databasanslutning</span>
+      </Button>
+      
+      <Button
+        variant="default"
+        size="sm"
+        onClick={handleDetailedInspection}
+        disabled={isGenerating || isTesting || isInspecting}
+        className="gap-2 w-full"
+      >
+        <Search className={`h-4 w-4 ${isInspecting ? "animate-spin" : ""}`} />
+        <span>Detaljerad databasinspektion</span>
       </Button>
     </div>
   );

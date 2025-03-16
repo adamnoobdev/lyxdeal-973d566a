@@ -65,15 +65,37 @@ export const ErrorAlerts = ({
                 </ul>
               </div>
             )}
+            {inspectionResult.dealIdsInDatabase && (
+              <div className="mt-1 text-xs">
+                <div>Deal IDs i databasen:</div>
+                <ul className="list-disc pl-5">
+                  {inspectionResult.dealIdsInDatabase.map((id: any, i: number) => (
+                    <li key={i}>{id} (typ: {typeof id})</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {!inspectionResult.success && inspectionResult.codesFoundForDeals && (
               <div className="mt-1 text-xs">
                 Hittade koder för andra erbjudanden med ID: {inspectionResult.codesFoundForDeals.join(', ')}
               </div>
             )}
-            {inspectionResult.tables && (
+            {inspectionResult.sample && (
+              <div className="mt-1 text-xs font-mono">
+                <div>Exempel på koder i databasen:</div>
+                <ul className="list-disc pl-5">
+                  {inspectionResult.sample.map((code: any, i: number) => (
+                    <li key={i}>
+                      {code.code} (deal_id: {code.deal_id}, typ: {typeof code.deal_id})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {inspectionResult.tables && inspectionResult.tables.length > 0 && (
               <div className="mt-1 text-xs">
                 <div>Databastabeller:</div>
-                <ul className="list-disc pl-5">
+                <ul className="list-disc pl-5 max-h-32 overflow-y-auto">
                   {inspectionResult.tables.map((table: any, i: number) => (
                     <li key={i}>
                       {table.schema_name ? `${table.schema_name}.` : ''}{table.table_name || table.tablename} 
