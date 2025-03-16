@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeId } from "./types";
 
@@ -44,7 +43,7 @@ export async function countAllCodesInDatabase() {
     
     // Säkra åtkomst till count-egenskapen med typchecking
     const count = allCodesCheck && typeof allCodesCheck === 'object' && 'count' in allCodesCheck 
-      ? allCodesCheck.count 
+      ? Number(allCodesCheck.count) 
       : 0;
       
     console.log(`[countAllCodesInDatabase] Total codes in database: ${count}`);
