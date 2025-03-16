@@ -30,6 +30,7 @@ export async function getTableAccess() {
  */
 export async function countAllCodesInDatabase() {
   try {
+    // Use count() to get the exact count of rows
     const { count, error: countError } = await supabase
       .from("discount_codes")
       .select("*", { count: "exact", head: true });
@@ -39,8 +40,10 @@ export async function countAllCodesInDatabase() {
       return { success: false, error: countError };
     } 
     
-    console.log(`[countAllCodesInDatabase] Total codes in database: ${count}`);
-    return { success: true, count: count || 0 };
+    // Handle the count result properly
+    const totalCount = count || 0;
+    console.log(`[countAllCodesInDatabase] Total codes in database: ${totalCount}`);
+    return { success: true, count: totalCount };
   } catch (error) {
     console.error(`[countAllCodesInDatabase] Exception while counting codes:`, error);
     return { success: false, error };
