@@ -104,17 +104,22 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
       } else if (!verificationData || verificationData.length === 0) {
         console.error('[generateDiscountCodes] Verification failed: No codes found for deal', numericDealId);
         
-        // Försök med string-jämförelse
-        const { data: stringVerificationData, error: stringVerificationError } = await supabase
-          .from('discount_codes')
-          .select('code, deal_id')
-          .eq('deal_id', String(numericDealId))
-          .limit(10);
-          
-        if (stringVerificationError) {
-          console.error('[generateDiscountCodes] Error verifying discount codes with string comparison:', stringVerificationError);
-        } else if (stringVerificationData && stringVerificationData.length > 0) {
-          console.log('[generateDiscountCodes] Found codes with string comparison:', stringVerificationData);
+        // Försök med en alternativ metod för att verifiera koderna i databasen
+        try {
+          // Observera: Vi gör en separat förfrågan utan att konvertera till string här
+          const { data: altVerificationData, error: altVerificationError } = await supabase
+            .from('discount_codes')
+            .select('code, deal_id')
+            .filter('deal_id', 'eq', numericDealId)
+            .limit(10);
+            
+          if (altVerificationError) {
+            console.error('[generateDiscountCodes] Error in alternative verification:', altVerificationError);
+          } else if (altVerificationData && altVerificationData.length > 0) {
+            console.log('[generateDiscountCodes] Found codes with alternative query:', altVerificationData);
+          }
+        } catch (altVerifyError) {
+          console.error('[generateDiscountCodes] Exception during alternative verification:', altVerifyError);
         }
         
         // Hämta alla koder för debugging
