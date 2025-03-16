@@ -42,3 +42,30 @@ export function logIdInfo(prefix: string, id: string | number | undefined): void
     console.log(`[${prefix}] ID som nummer: ${numericValue} (${isNaN(numericValue) ? 'Ogiltig konvertering' : 'Giltig konvertering'})`);
   }
 }
+
+/**
+ * Försöker jämföra två deal IDs med flexibel typhantering
+ * Returnerar true om IDs matchar oavsett typ
+ */
+export function compareIds(id1: string | number | null | undefined, id2: string | number | null | undefined): boolean {
+  // Om båda är null/undefined
+  if (id1 == null && id2 == null) return true;
+  
+  // Om bara en är null/undefined
+  if (id1 == null || id2 == null) return false;
+  
+  // Direkt jämförelse
+  if (id1 === id2) return true;
+  
+  // String-jämförelse
+  if (String(id1) === String(id2)) return true;
+  
+  // Numerisk jämförelse
+  try {
+    if (Number(id1) === Number(id2)) return true;
+  } catch (e) {
+    // Ignorera fel vid konvertering
+  }
+  
+  return false;
+}

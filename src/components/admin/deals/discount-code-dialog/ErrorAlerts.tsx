@@ -53,18 +53,22 @@ export const ErrorAlerts = ({
             <div className="font-medium">
               Databasinspektion: {inspectionResult.message}
             </div>
+            
             {inspectionResult.success && inspectionResult.sampleCodes && (
               <div className="mt-1 text-xs font-mono">
                 <div>Exempel på koder i databasen:</div>
                 <ul className="list-disc pl-5">
                   {inspectionResult.sampleCodes.map((code: any, i: number) => (
                     <li key={i}>
-                      {code.code} ({code.isUsed ? 'använd' : 'oanvänd'})
+                      {code.code} 
+                      {code.dealId !== undefined && ` (deal_id: ${code.dealId}, typ: ${code.dealIdType})`}
+                      {code.isUsed !== undefined && ` (${code.isUsed ? 'använd' : 'oanvänd'})`}
                     </li>
                   ))}
                 </ul>
               </div>
             )}
+            
             {inspectionResult.dealIdsInDatabase && (
               <div className="mt-1 text-xs">
                 <div>Deal IDs i databasen:</div>
@@ -75,34 +79,66 @@ export const ErrorAlerts = ({
                 </ul>
               </div>
             )}
+            
+            {inspectionResult.dealIdTypes && (
+              <div className="mt-1 text-xs">
+                <div>Typer för deal_id i databasen: {inspectionResult.dealIdTypes.join(', ')}</div>
+              </div>
+            )}
+            
+            {inspectionResult.searchAttempts && (
+              <div className="mt-1 text-xs border-t border-amber-100 pt-1">
+                <div className="font-medium mb-1">Sökförsök:</div>
+                <ul className="list-disc pl-5 space-y-1">
+                  {Object.entries(inspectionResult.searchAttempts).map(([key, data]: [string, any], i: number) => (
+                    <li key={i}>
+                      {key}: {data.id} (typ: {data.type}) - {data.matches} träffar
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
             {!inspectionResult.success && inspectionResult.codesFoundForDeals && (
               <div className="mt-1 text-xs">
                 Hittade koder för andra erbjudanden med ID: {inspectionResult.codesFoundForDeals.join(', ')}
               </div>
             )}
+            
             {inspectionResult.sample && (
               <div className="mt-1 text-xs font-mono">
                 <div>Exempel på koder i databasen:</div>
                 <ul className="list-disc pl-5">
                   {inspectionResult.sample.map((code: any, i: number) => (
                     <li key={i}>
-                      {code.code} (deal_id: {code.deal_id}, typ: {typeof code.deal_id})
+                      {code.code} (deal_id: {code.dealId}, typ: {code.dealIdType})
                     </li>
                   ))}
                 </ul>
               </div>
             )}
+            
             {inspectionResult.tables && inspectionResult.tables.length > 0 && (
               <div className="mt-1 text-xs">
                 <div>Databastabeller:</div>
-                <ul className="list-disc pl-5 max-h-32 overflow-y-auto">
-                  {inspectionResult.tables.map((table: any, i: number) => (
-                    <li key={i}>
-                      {table.schema_name ? `${table.schema_name}.` : ''}{table.table_name || table.tablename} 
-                      {table.row_count !== undefined ? ` (${table.row_count} rader)` : ''}
-                    </li>
-                  ))}
-                </ul>
+                <div className="max-h-32 overflow-y-auto">
+                  <ul className="list-disc pl-5">
+                    {inspectionResult.tables
+                      .sort((a: any, b: any) => {
+                        // Sortera så att discount_codes kommer först
+                        if (a.table_name === 'discount_codes') return -1;
+                        if (b.table_name === 'discount_codes') return 1;
+                        return 0;
+                      })
+                      .map((table: any, i: number) => (
+                        <li key={i} className={table.table_name === 'discount_codes' ? 'font-semibold' : ''}>
+                          {table.schema_name ? `${table.schema_name}.` : ''}{table.table_name || table.tablename} 
+                          {table.row_count !== undefined ? ` (${table.row_count} rader)` : ''}
+                        </li>
+                      ))
+                    }
+                  </ul>
+                </div>
               </div>
             )}
           </AlertDescription>

@@ -3,8 +3,8 @@ import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { generateDiscountCodes, testDiscountCodeGeneration, inspectDiscountCodes } from "@/utils/discount-codes";
-import { RefreshCw, Bug, Search } from "lucide-react";
-import { normalizeId } from "@/utils/discount-codes/types";
+import { RefreshCw, Bug, Search, AlertCircle, Database } from "lucide-react";
+import { normalizeId, compareIds } from "@/utils/discount-codes/types";
 
 interface TestGenerateCodesButtonProps {
   dealId: number | string;
@@ -15,6 +15,7 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
   const [isGenerating, setIsGenerating] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isInspecting, setIsInspecting] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   
   const handleGenerateTestCodes = useCallback(async () => {
     if (isGenerating) return;
@@ -90,12 +91,12 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
       setIsInspecting(true);
       toast.info("Inspekterar databas och rabattkoder i detalj...");
       
-      const normalizedId = normalizeId(dealId);
-      const result = await inspectDiscountCodes(normalizedId);
+      // Använd original dealId för att bevara typ
+      const result = await inspectDiscountCodes(dealId);
       
       if (result.success) {
         toast.success(`Hittade ${result.codesCount} rabattkoder i databasen`, {
-          description: `Kodtyp: ${result.codeType}, exempel: ${result.sampleCodes?.map((c: any) => c.code).join(', ')}`
+          description: `Kodtyp: ${result.codeType || 'varierande'}, exempel: ${result.sampleCodes?.map((c: any) => c.code).join(', ')}`
         });
       } else if (result.codesFoundForDeals) {
         toast.warning("Hittade rabattkoder men inte för detta erbjudande", {
@@ -119,6 +120,87 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
       setIsInspecting(false);
     }
   }, [dealId, isInspecting]);
+
+  const handleDeepDatabaseAnalysis = useCallback(async () => {
+    if (isAnalyzing) return;
+    
+    try {
+      setIsAnalyzing(true);
+      toast.info("Utför djupgående databasanalys...", {
+        description: "Detta kan ta några sekunder"
+      });
+      
+      // Använd båda ID-formaten för jämförelse
+      const originalId = dealId;
+      const numericId = normalizeId(dealId);
+      const stringId = String(dealId);
+      
+      console.log(`[DeepAnalysis] Original ID: ${originalId} (${typeof originalId})`);
+      console.log(`[DeepAnalysis] Numeric ID: ${numericId} (${typeof numericId})`);
+      console.log(`[DeepAnalysis] String ID: ${stringId} (${typeof stringId})`);
+      
+      // Hämta alla koder först
+      const { data: allCodes, error: codesError } = await supabase
+        .from("discount_codes")
+        .select("*")
+        .limit(100);
+      
+      if (codesError) {
+        console.error("[DeepAnalysis] Error fetching codes:", codesError);
+        toast.error("Kunde inte hämta rabattkoder från databasen");
+        return;
+      }
+      
+      if (!allCodes || allCodes.length === 0) {
+        toast.warning("Inga rabattkoder hittades i databasen");
+        return;
+      }
+      
+      console.log(`[DeepAnalysis] Found ${allCodes.length} codes in database`);
+      
+      // Visa exempel på koder
+      console.log("[DeepAnalysis] First 5 codes:", allCodes.slice(0, 5));
+      
+      // Samla alla unika deal_ids och deras typer
+      const dealIds = [...new Set(allCodes.map(c => c.deal_id))];
+      const dealIdTypes = [...new Set(allCodes.map(c => typeof c.deal_id))];
+      
+      // Testa manuell jämförelse
+      const matchingCodes = allCodes.filter(code => {
+        return compareIds(code.deal_id, dealId);
+      });
+      
+      if (matchingCodes.length > 0) {
+        console.log(`[DeepAnalysis] Found ${matchingCodes.length} matching codes using flexible comparison`);
+        
+        // Visa exempel på matchande koder
+        console.log("[DeepAnalysis] Matching codes:", matchingCodes.slice(0, 5));
+        
+        toast.success(`Hittade ${matchingCodes.length} rabattkoder med flexibel jämförelse`, {
+          description: "Koder finns i databasen men matchning behöver förbättras."
+        });
+      } else {
+        console.log(`[DeepAnalysis] No matching codes found with flexible comparison`);
+        
+        toast.warning("Inga matchande rabattkoder hittades med flexibel jämförelse", {
+          description: `Alla deal_ids i databasen: ${dealIds.join(', ')}`
+        });
+      }
+      
+      // Visa detaljerad analytics
+      toast.info("Databasanalys slutförd", {
+        description: `Databastyper: ${dealIdTypes.join(', ')}, Din ID-typ: ${typeof dealId}`
+      });
+      
+    } catch (error) {
+      console.error("Djupgående analys misslyckades:", error);
+      toast.error("Databasanalys misslyckades", {
+        description: "Ett oväntat fel uppstod vid analysen."
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [dealId, isAnalyzing]);
   
   return (
     <div className="space-y-2">
@@ -126,7 +208,7 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
         variant="outline"
         size="sm"
         onClick={handleGenerateTestCodes}
-        disabled={isGenerating || isTesting || isInspecting}
+        disabled={isGenerating || isTesting || isInspecting || isAnalyzing}
         className="gap-2 w-full"
       >
         <RefreshCw className={`h-4 w-4 ${isGenerating ? "animate-spin" : ""}`} />
@@ -137,7 +219,7 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
         variant="secondary"
         size="sm"
         onClick={handleDiagnoseDatabase}
-        disabled={isGenerating || isTesting || isInspecting}
+        disabled={isGenerating || isTesting || isInspecting || isAnalyzing}
         className="gap-2 w-full"
       >
         <Bug className={`h-4 w-4 ${isTesting ? "animate-spin" : ""}`} />
@@ -148,11 +230,22 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
         variant="default"
         size="sm"
         onClick={handleDetailedInspection}
-        disabled={isGenerating || isTesting || isInspecting}
+        disabled={isGenerating || isTesting || isInspecting || isAnalyzing}
         className="gap-2 w-full"
       >
         <Search className={`h-4 w-4 ${isInspecting ? "animate-spin" : ""}`} />
         <span>Detaljerad databasinspektion</span>
+      </Button>
+      
+      <Button
+        variant="destructive"
+        size="sm"
+        onClick={handleDeepDatabaseAnalysis}
+        disabled={isGenerating || isTesting || isInspecting || isAnalyzing}
+        className="gap-2 w-full bg-amber-600 hover:bg-amber-700"
+      >
+        <Database className={`h-4 w-4 ${isAnalyzing ? "animate-spin" : ""}`} />
+        <span>Djupgående databasanalys</span>
       </Button>
     </div>
   );
