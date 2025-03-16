@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeId } from "./types";
 
 /**
  * Listar alla rabattkoder för felsökning
@@ -31,8 +32,9 @@ export const removeAllDiscountCodes = async (dealId?: number | string): Promise<
     let query = supabase.from("discount_codes").delete();
     
     if (dealId) {
-      query = query.eq("deal_id", dealId);
-      console.log(`[removeAllDiscountCodes] Removing all codes for deal ${dealId}`);
+      const normalizedId = normalizeId(dealId);
+      query = query.eq("deal_id", normalizedId);
+      console.log(`[removeAllDiscountCodes] Removing all codes for deal ${normalizedId}`);
     } else {
       console.log("[removeAllDiscountCodes] Removing ALL discount codes from database");
     }
@@ -57,13 +59,14 @@ export const removeAllDiscountCodes = async (dealId?: number | string): Promise<
  */
 export const countDiscountCodes = async (dealId: number | string): Promise<number> => {
   try {
+    const normalizedId = normalizeId(dealId);
     const { data, error, count } = await supabase
       .from("discount_codes")
       .select("*", { count: "exact" })
-      .eq("deal_id", dealId);
+      .eq("deal_id", normalizedId);
       
     if (error) {
-      console.error(`[countDiscountCodes] Error counting codes for deal ${dealId}:`, error);
+      console.error(`[countDiscountCodes] Error counting codes for deal ${normalizedId}:`, error);
       return 0;
     }
     
