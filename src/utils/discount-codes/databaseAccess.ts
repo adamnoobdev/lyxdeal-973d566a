@@ -33,7 +33,7 @@ export async function countAllCodesInDatabase() {
   try {
     const { data: allCodesCheck, error: allCheckError } = await supabase
       .from("discount_codes")
-      .select("count(*)")
+      .select("count")
       .single();
       
     if (allCheckError) {
@@ -41,8 +41,8 @@ export async function countAllCodesInDatabase() {
       return { success: false, error: allCheckError };
     } 
     
-    // Fix TypeScript error by properly checking for null
-    const count = allCodesCheck && allCodesCheck.count !== null 
+    // Fix TypeScript error by properly type checking and safely accessing the count property
+    const count = allCodesCheck && typeof allCodesCheck === 'object' && 'count' in allCodesCheck
       ? Number(allCodesCheck.count) 
       : 0;
       
