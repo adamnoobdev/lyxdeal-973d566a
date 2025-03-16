@@ -9,9 +9,8 @@ export async function getTableAccess() {
     // Testa först rabattkoder-tabellen specifikt för att verifiera att den är åtkomlig
     const { data: testAccess, error: testError } = await supabase
       .from("discount_codes")
-      .select("count(*)")
-      .limit(1)
-      .single();
+      .select("code")
+      .limit(1);
       
     if (testError) {
       console.error(`[getTableAccess] Error accessing discount_codes table:`, testError);
