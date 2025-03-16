@@ -30,23 +30,17 @@ export async function getTableAccess() {
  */
 export async function countAllCodesInDatabase() {
   try {
-    const { data: allCodesCheck, error: allCheckError } = await supabase
+    const { count, error: countError } = await supabase
       .from("discount_codes")
-      .select("count")
-      .single();
+      .select("*", { count: "exact", head: true });
       
-    if (allCheckError) {
-      console.error(`[countAllCodesInDatabase] Error checking all codes:`, allCheckError);
-      return { success: false, error: allCheckError };
+    if (countError) {
+      console.error(`[countAllCodesInDatabase] Error counting codes:`, countError);
+      return { success: false, error: countError };
     } 
     
-    // Fix TypeScript error by properly type checking and safely accessing the count property
-    const count = allCodesCheck && typeof allCodesCheck === 'object' && 'count' in allCodesCheck
-      ? Number(allCodesCheck.count) 
-      : 0;
-      
     console.log(`[countAllCodesInDatabase] Total codes in database: ${count}`);
-    return { success: true, count };
+    return { success: true, count: count || 0 };
   } catch (error) {
     console.error(`[countAllCodesInDatabase] Exception while counting codes:`, error);
     return { success: false, error };
@@ -58,6 +52,8 @@ export async function countAllCodesInDatabase() {
  */
 export async function searchExactMatches(dealId: number) {
   try {
+    console.log(`[searchExactMatches] Searching for codes with deal_id=${dealId} (type: ${typeof dealId})`);
+    
     const { data, error } = await supabase
       .from("discount_codes")
       .select("*")
@@ -69,7 +65,7 @@ export async function searchExactMatches(dealId: number) {
       return { success: false, error };
     }
     
-    console.log(`[searchExactMatches] Found ${data?.length || 0} exact matches`);
+    console.log(`[searchExactMatches] Found ${data?.length || 0} exact matches for deal_id=${dealId}`);
     return { success: true, data: data || [] };
   } catch (error) {
     console.error(`[searchExactMatches] Exception during search:`, error);
@@ -90,6 +86,8 @@ export async function searchStringMatches(stringDealId: string) {
       return { success: false, error: new Error("Invalid numeric ID") };
     }
     
+    console.log(`[searchStringMatches] Searching for codes with deal_id=${numericId} (converted from string: ${stringDealId})`);
+    
     const { data, error } = await supabase
       .from("discount_codes")
       .select("*")
@@ -101,7 +99,7 @@ export async function searchStringMatches(stringDealId: string) {
       return { success: false, error };
     }
     
-    console.log(`[searchStringMatches] Found ${data?.length || 0} string matches`);
+    console.log(`[searchStringMatches] Found ${data?.length || 0} string matches for deal_id=${numericId}`);
     return { success: true, data: data || [] };
   } catch (error) {
     console.error(`[searchStringMatches] Exception during search:`, error);
@@ -125,6 +123,13 @@ export async function getAllCodesForInspection(limit = 50) {
     }
     
     console.log(`[getAllCodesForInspection] Found ${data?.length || 0} total codes in database`);
+    
+    // Logga alla unika deal_ids för att hjälpa med felsökning
+    if (data && data.length > 0) {
+      const uniqueDealIds = [...new Set(data.map(code => code.deal_id))];
+      console.log(`[getAllCodesForInspection] Unique deal_ids in database: ${JSON.stringify(uniqueDealIds)}`);
+    }
+    
     return { success: true, data: data || [] };
   } catch (error) {
     console.error(`[getAllCodesForInspection] Exception during fetch:`, error);

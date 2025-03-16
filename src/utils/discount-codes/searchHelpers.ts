@@ -239,6 +239,19 @@ export async function searchDiscountCodesWithMultipleMethods(
     // Logga sökförsök för felsökning
     logSearchAttempt('searchDiscountCodes', originalId, numericId, stringId);
     
+    // Hämta även alla rabattkoder för felsökning
+    const { data: allCodes } = await supabase
+      .from("discount_codes")
+      .select("*")
+      .limit(10);
+      
+    if (allCodes && allCodes.length > 0) {
+      const uniqueDealIds = [...new Set(allCodes.map(c => c.deal_id))];
+      console.log(`[searchDiscountCodes] First 10 codes in database have deal_ids: ${JSON.stringify(uniqueDealIds)}`);
+    } else {
+      console.log(`[searchDiscountCodes] No codes found in first 10 records`);
+    }
+    
     // Steg 1: Försök med exakt numerisk match först (mest troligt)
     const numericMatches = await searchWithNumericId(numericId, 'searchDiscountCodes');
     if (numericMatches.length > 0) {
@@ -261,6 +274,22 @@ export async function searchDiscountCodesWithMultipleMethods(
     const manualMatches = await getAllCodesAndFilter(originalId, numericId, stringId, 'searchDiscountCodes');
     if (manualMatches.length > 0) {
       return manualMatches;
+    }
+    
+    // Försök med en mer direkt sökning för att dubbelkolla
+    console.log(`[searchDiscountCodes] Trying one last direct query with numeric ID ${numericId}`);
+    const { data: directMatches, error: directError } = await supabase
+      .from("discount_codes")
+      .select("*")
+      .eq("deal_id", numericId);
+      
+    if (directError) {
+      console.error(`[searchDiscountCodes] Error in direct query:`, directError);
+    } else if (directMatches && directMatches.length > 0) {
+      console.log(`[searchDiscountCodes] Found ${directMatches.length} matches in direct query`);
+      return directMatches as DiscountCode[];
+    } else {
+      console.log(`[searchDiscountCodes] No matches found in direct query either`);
     }
     
     // Logga ett detaljerat meddelande om vi inte hittade några koder

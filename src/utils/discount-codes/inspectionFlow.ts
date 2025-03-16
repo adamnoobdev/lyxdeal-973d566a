@@ -16,6 +16,7 @@ import { prepareSearchIds } from "./idNormalizer";
  */
 export async function performStandardSearch(numericDealId: number, originalDealId: string | number, stringDealId: string) {
   // 1. Exakt match på normaliserad ID
+  console.log(`[performStandardSearch] Searching with numericDealId: ${numericDealId}`);
   const exactMatchesResult = await searchExactMatches(numericDealId);
   const exactMatches = exactMatchesResult.success ? exactMatchesResult.data : [];
   
@@ -28,6 +29,7 @@ export async function performStandardSearch(numericDealId: number, originalDealI
         : Number(originalDealId);
         
       if (!isNaN(originalIdAsNumber)) {
+        console.log(`[performStandardSearch] Searching with originalIdAsNumber: ${originalIdAsNumber}`);
         const originalMatchesResult = await searchExactMatches(originalIdAsNumber);
         originalMatches = originalMatchesResult.success ? originalMatchesResult.data : [];
       }
@@ -38,8 +40,12 @@ export async function performStandardSearch(numericDealId: number, originalDealI
   }
   
   // 3. Exakt match på string-ID
+  console.log(`[performStandardSearch] Searching with stringDealId: ${stringDealId}`);
   const stringMatchesResult = await searchStringMatches(stringDealId);
   const stringMatches = stringMatchesResult.success ? stringMatchesResult.data : [];
+  
+  // Logga resultaten för varje sökmetod
+  console.log(`[performStandardSearch] Results - exactMatches: ${exactMatches?.length || 0}, originalMatches: ${originalMatches?.length || 0}, stringMatches: ${stringMatches?.length || 0}`);
   
   // Kombinera resultaten 
   const foundCodes = exactMatches?.length ? exactMatches : 
@@ -89,6 +95,9 @@ export async function runInspectionProcess(dealId: number | string) {
       };
     }
     
+    // Visa information om totalt antal rabattkoder
+    console.log(`[runInspectionProcess] Total discount codes in database: ${countResult.count}`);
+    
     // Steg 5: Försök med olika standardmetoder att hitta rabattkoder
     const { foundCodes, exactMatches, stringMatches } = await performStandardSearch(
       numericDealId, 
@@ -114,6 +123,22 @@ export async function runInspectionProcess(dealId: number | string) {
     }
     
     const allCodes = allCodesResult.data;
+    
+    // Logga detaljerad information om alla koder för diagnos
+    if (allCodes.length > 0) {
+      const dealIdsInDb = [...new Set(allCodes.map(c => c.deal_id))].filter(id => id !== null);
+      console.log(`[runInspectionProcess] All deal_ids in database: ${JSON.stringify(dealIdsInDb)}`);
+      console.log(`[runInspectionProcess] Looking for dealId: ${numericDealId}, but found: ${dealIdsInDb.join(', ')}`);
+      
+      // Kontrollera om deal_id-värden är strängar eller nummer
+      const dealIdTypes = new Set(allCodes.map(c => typeof c.deal_id));
+      console.log(`[runInspectionProcess] Types of deal_id in database: ${[...dealIdTypes].join(', ')}`);
+      
+      // Logga några exempel på koder för diagnos
+      console.log(`[runInspectionProcess] Sample codes:`, allCodes.slice(0, 3));
+    } else {
+      console.log(`[runInspectionProcess] No codes found in database at all`);
+    }
     
     // Steg 7: Analysera alla koder och försök hitta matchningar manuellt
     const analysisResult = analyzeCodesAndFindMatches(allCodes, originalDealId, numericDealId, stringDealId);
