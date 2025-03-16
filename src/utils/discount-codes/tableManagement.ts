@@ -23,11 +23,12 @@ export const ensureDiscountCodesTable = async (): Promise<boolean> => {
     
     console.log("[ensureDiscountCodesTable] Table exists and is accessible");
     
-    // Kontrollera att det finns ett index på deal_id för optimering
-    const { data: indexData, error: indexError } = await supabase.rpc(
-      'get_table_indices',
-      { table_name: 'discount_codes' }
-    );
+    // Försök hämta information om index direkt från information_schema istället för en procedur
+    const { data: indexData, error: indexError } = await supabase
+      .from('pg_indexes')
+      .select('indexname, tablename')
+      .eq('tablename', 'discount_codes')
+      .limit(10);
     
     if (indexError) {
       console.log("[ensureDiscountCodesTable] Could not check indices:", indexError);
@@ -88,16 +89,15 @@ export const runDiscountCodesDiagnostics = async (): Promise<void> => {
       console.log(`[runDiscountCodesDiagnostics] deal_id type: ${typeof sampleData[0].deal_id}`);
     }
     
-    // Kontrollera tabellstrukturen
-    const { data: tableInfo, error: tableError } = await supabase.rpc(
-      'get_table_info',
-      { table_name: 'discount_codes' }
+    // Hämta information om tabeller från den befintliga funktionen get_tables
+    const { data: tablesInfo, error: tablesError } = await supabase.rpc(
+      'get_tables'
     );
     
-    if (tableError) {
-      console.log("[runDiscountCodesDiagnostics] Could not get table info:", tableError);
+    if (tablesError) {
+      console.log("[runDiscountCodesDiagnostics] Could not get table info:", tablesError);
     } else {
-      console.log("[runDiscountCodesDiagnostics] Table structure:", tableInfo);
+      console.log("[runDiscountCodesDiagnostics] Table structure:", tablesInfo);
     }
   } catch (error) {
     console.error("[runDiscountCodesDiagnostics] Exception during diagnostics:", error);
@@ -105,24 +105,23 @@ export const runDiscountCodesDiagnostics = async (): Promise<void> => {
 };
 
 /**
- * Hämtar alla index för en viss tabell
- * OBS: Denna funktion behöver motsvarande RPC-funktion i databasen
+ * Hämtar information om tabeller i databasen
  */
-export const getTableIndices = async (tableName: string): Promise<any[]> => {
+export const getTableInfo = async (): Promise<any[]> => {
   try {
     const { data, error } = await supabase.rpc(
-      'get_table_indices',
-      { table_name: tableName }
+      'get_tables'
     );
     
     if (error) {
-      console.error(`[getTableIndices] Error fetching indices for ${tableName}:`, error);
+      console.error(`[getTableInfo] Error fetching table info:`, error);
       return [];
     }
     
     return data || [];
   } catch (error) {
-    console.error(`[getTableIndices] Exception fetching indices for ${tableName}:`, error);
+    console.error(`[getTableInfo] Exception fetching table info:`, error);
     return [];
   }
 };
+

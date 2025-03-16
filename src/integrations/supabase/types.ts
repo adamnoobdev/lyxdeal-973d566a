@@ -94,6 +94,7 @@ export type Database = {
           id: number
           is_used: boolean | null
           purchase_id: number | null
+          updated_at: string | null
           used_at: string | null
         }
         Insert: {
@@ -106,6 +107,7 @@ export type Database = {
           id?: number
           is_used?: boolean | null
           purchase_id?: number | null
+          updated_at?: string | null
           used_at?: string | null
         }
         Update: {
@@ -118,6 +120,7 @@ export type Database = {
           id?: number
           is_used?: boolean | null
           purchase_id?: number | null
+          updated_at?: string | null
           used_at?: string | null
         }
         Relationships: [
