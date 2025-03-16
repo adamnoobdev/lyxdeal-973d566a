@@ -22,6 +22,19 @@ export const ensureDiscountCodesTable = async (): Promise<boolean> => {
     }
     
     console.log("[ensureDiscountCodesTable] Table exists and is accessible");
+    
+    // Kontrollera att det finns ett index på deal_id för optimering
+    const { data: indexData, error: indexError } = await supabase.rpc(
+      'get_table_indices',
+      { table_name: 'discount_codes' }
+    );
+    
+    if (indexError) {
+      console.log("[ensureDiscountCodesTable] Could not check indices:", indexError);
+    } else {
+      console.log("[ensureDiscountCodesTable] Table indices:", indexData);
+    }
+    
     return true;
   } catch (error) {
     console.error("[ensureDiscountCodesTable] Exception checking table:", error);
@@ -74,7 +87,42 @@ export const runDiscountCodesDiagnostics = async (): Promise<void> => {
       console.log("[runDiscountCodesDiagnostics] Sample code:", sampleData[0]);
       console.log(`[runDiscountCodesDiagnostics] deal_id type: ${typeof sampleData[0].deal_id}`);
     }
+    
+    // Kontrollera tabellstrukturen
+    const { data: tableInfo, error: tableError } = await supabase.rpc(
+      'get_table_info',
+      { table_name: 'discount_codes' }
+    );
+    
+    if (tableError) {
+      console.log("[runDiscountCodesDiagnostics] Could not get table info:", tableError);
+    } else {
+      console.log("[runDiscountCodesDiagnostics] Table structure:", tableInfo);
+    }
   } catch (error) {
     console.error("[runDiscountCodesDiagnostics] Exception during diagnostics:", error);
+  }
+};
+
+/**
+ * Hämtar alla index för en viss tabell
+ * OBS: Denna funktion behöver motsvarande RPC-funktion i databasen
+ */
+export const getTableIndices = async (tableName: string): Promise<any[]> => {
+  try {
+    const { data, error } = await supabase.rpc(
+      'get_table_indices',
+      { table_name: tableName }
+    );
+    
+    if (error) {
+      console.error(`[getTableIndices] Error fetching indices for ${tableName}:`, error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error(`[getTableIndices] Exception fetching indices for ${tableName}:`, error);
+    return [];
   }
 };

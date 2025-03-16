@@ -2,8 +2,8 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { generateDiscountCodes } from "@/utils/discount-codes";
-import { RefreshCw } from "lucide-react";
+import { generateDiscountCodes, testDiscountCodeGeneration } from "@/utils/discount-codes";
+import { RefreshCw, Bug } from "lucide-react";
 import { normalizeId } from "@/utils/discount-codes/types";
 
 interface TestGenerateCodesButtonProps {
@@ -13,6 +13,7 @@ interface TestGenerateCodesButtonProps {
 
 export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodesButtonProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   
   const handleGenerateTestCodes = useCallback(async () => {
     if (isGenerating) return;
@@ -49,17 +50,61 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
       setIsGenerating(false);
     }
   }, [dealId, isGenerating, onSuccess]);
+
+  const handleDiagnoseDatabase = useCallback(async () => {
+    if (isTesting) return;
+    
+    try {
+      setIsTesting(true);
+      const normalizedId = normalizeId(dealId);
+      
+      toast.info("Diagnostiserar databaskoppling...");
+      
+      const result = await testDiscountCodeGeneration(normalizedId);
+      
+      if (result) {
+        toast.success("Databastest lyckades! Det går att skapa och ta bort koder.", {
+          description: "Problemet ligger troligen i annan kod eller så behövs fler försök."
+        });
+      } else {
+        toast.error("Databastest misslyckades!", {
+          description: "Det verkar finnas problem med att skriva till discount_codes tabellen."
+        });
+      }
+      
+    } catch (error) {
+      console.error("Diagnostik misslyckades:", error);
+      toast.error("Diagnostik misslyckades", {
+        description: "Ett oväntat fel uppstod vid testet."
+      });
+    } finally {
+      setIsTesting(false);
+    }
+  }, [dealId, isTesting]);
   
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={handleGenerateTestCodes}
-      disabled={isGenerating}
-      className="gap-2"
-    >
-      <RefreshCw className={`h-4 w-4 ${isGenerating ? "animate-spin" : ""}`} />
-      <span>Generera 5 testkoder</span>
-    </Button>
+    <div className="space-y-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleGenerateTestCodes}
+        disabled={isGenerating || isTesting}
+        className="gap-2 w-full"
+      >
+        <RefreshCw className={`h-4 w-4 ${isGenerating ? "animate-spin" : ""}`} />
+        <span>Generera 5 testkoder</span>
+      </Button>
+      
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={handleDiagnoseDatabase}
+        disabled={isGenerating || isTesting}
+        className="gap-2 w-full"
+      >
+        <Bug className={`h-4 w-4 ${isTesting ? "animate-spin" : ""}`} />
+        <span>Diagnostisera databasanslutning</span>
+      </Button>
+    </div>
   );
 };

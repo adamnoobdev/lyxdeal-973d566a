@@ -58,6 +58,18 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
     
     console.log(`[generateDiscountCodes] Successfully generated ${codes.length} unique codes for deal ${numericDealId}`);
     
+    // Kontrollera att tabellen finns och är tillgänglig innan vi fortsätter
+    const { error: tableCheckError } = await supabase
+      .from('discount_codes')
+      .select('id')
+      .limit(1);
+      
+    if (tableCheckError) {
+      console.error('[generateDiscountCodes] Error accessing discount_codes table:', tableCheckError);
+      console.error('[generateDiscountCodes] This might indicate permission issues or table does not exist.');
+      return false;
+    }
+    
     // Batchvis spara koder för att undvika begränsningar i förfrågningsstorlek
     const BATCH_SIZE = 20;
     let successCount = 0;
@@ -81,7 +93,7 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
           console.error(`[generateDiscountCodes] Error inserting batch ${i/BATCH_SIZE + 1}:`, error);
           console.error('[generateDiscountCodes] Error details:', error.details, error.hint, error.message);
         } else {
-          console.log(`[generateDiscountCodes] Successfully inserted batch ${i/BATCH_SIZE + 1}`);
+          console.log(`[generateDiscountCodes] Successfully inserted batch ${i/BATCH_SIZE + 1} with ${data?.length || 0} codes`);
           successCount += batch.length;
         }
       } catch (batchError) {
@@ -106,7 +118,7 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
         
         // Försök med en alternativ metod för att verifiera koderna i databasen
         try {
-          // Observera: Vi gör en separat förfrågan utan att konvertera till string här
+          // Använd filter istället för eq för att se om det ger andra resultat
           const { data: altVerificationData, error: altVerificationError } = await supabase
             .from('discount_codes')
             .select('code, deal_id')
@@ -122,13 +134,25 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
           console.error('[generateDiscountCodes] Exception during alternative verification:', altVerifyError);
         }
         
-        // Hämta alla koder för debugging
-        const { data: allCodes } = await supabase
-          .from('discount_codes')
-          .select('code, deal_id')
-          .limit(20);
+        // Försök ytterligare ett sätt - hämta alla koder och filtrera manuellt
+        try {
+          const { data: allCodes, error: allCodesError } = await supabase
+            .from('discount_codes')
+            .select('*')
+            .limit(50);
+            
+          console.log('[generateDiscountCodes] All codes in database:', allCodes?.length || 0);
           
-        console.log('[generateDiscountCodes] All codes in database:', allCodes);
+          if (allCodes && allCodes.length > 0) {
+            const matchingCodes = allCodes.filter(code => 
+              Number(code.deal_id) === numericDealId || 
+              String(code.deal_id) === String(numericDealId)
+            );
+            console.log('[generateDiscountCodes] Manually filtered matching codes:', matchingCodes.length);
+          }
+        } catch (allCodesError) {
+          console.error('[generateDiscountCodes] Error getting all codes:', allCodesError);
+        }
       } else {
         console.log('[generateDiscountCodes] Verified creation with sample codes:', verificationData);
       }
