@@ -4,7 +4,7 @@ export { getAvailableDiscountCode, markDiscountCodeAsUsed } from './codeManageme
 export { listAllDiscountCodes, removeAllDiscountCodes, countDiscountCodes, testDiscountCodeGeneration } from './debug';
 export { inspectDiscountCodes } from './inspector';
 export { normalizeId, logIdInfo, compareIds } from './types';
-export { searchDiscountCodesWithMultipleMethods } from './searchHelpers';
+export { searchDiscountCodesWithMultipleMethods } from './search/multiSearch';
 export { 
   getTableAccess, 
   countAllCodesInDatabase, 
