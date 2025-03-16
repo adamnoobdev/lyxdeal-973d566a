@@ -23,17 +23,19 @@ export const ensureDiscountCodesTable = async (): Promise<boolean> => {
     
     console.log("[ensureDiscountCodesTable] Table exists and is accessible");
     
-    // Försök hämta information om index direkt från information_schema istället för en procedur
-    const { data: indexData, error: indexError } = await supabase
-      .from('pg_indexes')
-      .select('indexname, tablename')
-      .eq('tablename', 'discount_codes')
-      .limit(10);
+    // Hämta tabellinfo via get_tables funktionen som finns tillgänglig
+    const { data: tablesInfo, error: tablesError } = await supabase.rpc(
+      'get_tables'
+    );
     
-    if (indexError) {
-      console.log("[ensureDiscountCodesTable] Could not check indices:", indexError);
+    if (tablesError) {
+      console.error("[ensureDiscountCodesTable] Could not get table info:", tablesError);
     } else {
-      console.log("[ensureDiscountCodesTable] Table indices:", indexData);
+      // Filtrera för att hitta discount_codes tabellen
+      const discountCodesTable = tablesInfo?.find(table => 
+        table.table_name === 'discount_codes' && table.schema_name === 'public'
+      );
+      console.log("[ensureDiscountCodesTable] Table info:", discountCodesTable);
     }
     
     return true;
@@ -124,4 +126,3 @@ export const getTableInfo = async (): Promise<any[]> => {
     return [];
   }
 };
-
