@@ -42,7 +42,7 @@ export async function countAllCodesInDatabase() {
     } 
     
     // Fix TypeScript error by properly checking for null
-    const count = allCodesCheck && typeof allCodesCheck === 'object' && 'count' in allCodesCheck 
+    const count = allCodesCheck && allCodesCheck.count !== null 
       ? Number(allCodesCheck.count) 
       : 0;
       

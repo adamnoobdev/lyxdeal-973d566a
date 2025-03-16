@@ -14,4 +14,6 @@ export {
 } from './databaseAccess';
 export { analyzeCodesAndFindMatches } from './analysisUtils';
 export { prepareSuccessResponse, prepareErrorResponse } from './responseFormatters';
+export { prepareSearchIds } from './idNormalizer';
+export { runInspectionProcess, performStandardSearch } from './inspectionFlow';
 export type { CustomerInfo } from './types';
