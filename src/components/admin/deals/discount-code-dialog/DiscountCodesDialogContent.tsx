@@ -12,11 +12,13 @@ import { logIdInfo } from "@/utils/discount-codes/types";
 interface DiscountCodesDialogContentProps {
   isOpen: boolean;
   deal: Deal | null;
+  onGenerateDiscountCodes?: (deal: Deal, quantity: number) => Promise<void>;
 }
 
 export const DiscountCodesDialogContent = ({ 
   isOpen, 
-  deal
+  deal,
+  onGenerateDiscountCodes
 }: DiscountCodesDialogContentProps) => {
   const {
     discountCodes,
@@ -40,14 +42,19 @@ export const DiscountCodesDialogContent = ({
     inspectionResult?.codesCount > 0 && 
     discountCodes.length === 0;
 
-  const dialogTitle = deal?.title 
-    ? `Rabattkoder för "${deal.title}"` 
-    : "Rabattkoder";
+  // Handlera generering av rabattkoder via användarinteraktion
+  const handleGenerateDiscountCodes = () => {
+    if (deal && onGenerateDiscountCodes) {
+      onGenerateDiscountCodes(deal, 10).then(() => {
+        handleManualRefresh();
+      });
+    }
+  };
 
   return (
     <>
       <DiscountDialogHeader
-        title={dialogTitle}
+        title={deal?.title || "Rabattkoder"}
         codesCount={discountCodes.length}
         isLoading={isLoading}
         isFetching={isFetching}
@@ -102,6 +109,7 @@ export const DiscountCodesDialogContent = ({
           emptyStateMessage={getEmptyStateMessage()}
           inspectionResult={inspectionResult}
           dealId={deal?.id}
+          onGenerateDiscountCodes={deal && onGenerateDiscountCodes ? handleGenerateDiscountCodes : undefined}
         />
       </div>
     </>

@@ -12,12 +12,14 @@ interface DiscountCodesDialogProps {
   isOpen: boolean;
   onClose: () => void;
   deal: Deal | null;
+  onGenerateDiscountCodes?: (deal: Deal, quantity: number) => Promise<void>;
 }
 
 export const DiscountCodesDialog = ({
   isOpen,
   onClose,
-  deal
+  deal,
+  onGenerateDiscountCodes
 }: DiscountCodesDialogProps) => {
   console.log(`[DiscountCodesDialog] 🔄 Rendering with isOpen=${isOpen}, deal=${deal?.id || 'null'}`);
   
@@ -27,6 +29,7 @@ export const DiscountCodesDialog = ({
         <DiscountCodesDialogContent 
           isOpen={isOpen} 
           deal={deal} 
+          onGenerateDiscountCodes={onGenerateDiscountCodes}
         />
       </DialogContent>
     </Dialog>
