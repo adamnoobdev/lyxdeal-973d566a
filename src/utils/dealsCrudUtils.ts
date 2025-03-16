@@ -30,7 +30,11 @@ export const deleteDeal = async (id: number): Promise<boolean> => {
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error deleting deal:', error);
+      throw error;
+    }
+    
     toast.success("Erbjudandet har tagits bort");
     return true;
   } catch (error) {

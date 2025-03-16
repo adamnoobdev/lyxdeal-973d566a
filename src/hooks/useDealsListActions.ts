@@ -1,4 +1,3 @@
-
 import { useCallback, useRef } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { Deal } from "@/components/admin/types";
@@ -20,30 +19,27 @@ export const useDealsListActions = (
   const isDeletingDealRef = useRef(false);
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
 
-  const onDelete = useCallback(async (deletingDeal: Deal | null) => {
+  const onDelete = useCallback(async (deletingDeal: Deal | null): Promise<void> => {
     if (!deletingDeal || isDeletingDealRef.current) return;
 
-    await runExclusiveOperation(async () => {
-      try {
-        isDeletingDealRef.current = true;
-        console.log("[DealsListActions] Starting deal deletion for ID:", deletingDeal.id);
-        const success = await deleteDeal(deletingDeal.id);
-        
-        if (success) {
-          console.log("[DealsListActions] Deal deletion successful");
-          return true;
-        }
-        return false;
-      } catch (error) {
-        console.error("[DealsListActions] Error in deal deletion flow:", error);
-        return false;
-      } finally {
-        setTimeout(() => {
-          isDeletingDealRef.current = false;
-        }, 300);
+    try {
+      isDeletingDealRef.current = true;
+      console.log("[DealsListActions] Starting deal deletion for ID:", deletingDeal.id);
+      
+      const success = await deleteDeal(deletingDeal.id);
+      
+      if (success) {
+        console.log("[DealsListActions] Deal deletion successful");
+        await refetch();
+      } else {
+        console.error("[DealsListActions] Deal deletion failed");
       }
-    });
-  }, [runExclusiveOperation]);
+    } catch (error) {
+      console.error("[DealsListActions] Error in deal deletion flow:", error);
+    } finally {
+      isDeletingDealRef.current = false;
+    }
+  }, [refetch]);
 
   const onUpdate = useCallback(async (values: FormValues, editingDeal: Deal | null) => {
     if (!editingDeal || isUpdatingDealRef.current) return;

@@ -14,7 +14,7 @@ import {
 interface DeleteDealDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
   dealTitle?: string;
 }
 
@@ -53,11 +53,12 @@ export const DeleteDealDialog = ({
     try {
       setIsDeleting(true);
       await onConfirm();
-      // Don't call handleClose here - let the parent control when to close
+      // Efter lyckad borttagning stänger vi dialogen
+      handleClose();
+    } catch (error) {
+      console.error("Error during delete:", error);
     } finally {
-      setTimeout(() => {
-        setIsDeleting(false);
-      }, 300);
+      setIsDeleting(false);
     }
   };
 
@@ -76,7 +77,7 @@ export const DeleteDealDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleClose}>Avbryt</AlertDialogCancel>
+          <AlertDialogCancel onClick={handleClose} disabled={isDeleting}>Avbryt</AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleDelete}
             disabled={isDeleting}

@@ -1,4 +1,3 @@
-
 import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";
 import { DealUpdateValues } from "./dealTypes";
@@ -40,7 +39,12 @@ export const deleteDeal = async (
     }
     
     // Sedan tar vi bort själva erbjudandet
-    await deleteSalonDeal(deletingDeal.id);
+    const success = await deleteSalonDeal(deletingDeal.id);
+    
+    if (!success) {
+      throw new Error(`Failed to delete deal with ID: ${deletingDeal.id}`);
+    }
+    
     toast.success("Erbjudandet har tagits bort");
     
     if (isMountedRef.current) {
@@ -52,7 +56,9 @@ export const deleteDeal = async (
     console.error("Error deleting deal:", err);
     toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
   } finally {
-    isDeletingDeal.current = false;
+    if (isMountedRef.current) {
+      isDeletingDeal.current = false;
+    }
   }
 };
 
