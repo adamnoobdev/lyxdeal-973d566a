@@ -24,11 +24,9 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
       setIsGenerating(true);
       console.log(`[TestGenerateCodesButton] Generating test codes for deal ID: ${dealId}`);
       
-      // Ensure we're using a normalized ID
       const normalizedId = normalizeId(dealId);
       console.log(`[TestGenerateCodesButton] Using normalized deal ID: ${normalizedId} (${typeof normalizedId})`);
       
-      // Anropa API för att generera koder
       const result = await toast.promise(
         generateDiscountCodes(normalizedId, 5),
         {
@@ -91,7 +89,6 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
       setIsInspecting(true);
       toast.info("Inspekterar databas och rabattkoder i detalj...");
       
-      // Använd original dealId för att bevara typ
       const result = await inspectDiscountCodes(dealId);
       
       if (result.success) {
@@ -108,7 +105,6 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
         });
       }
       
-      // Visa detaljerad information i konsolen för felsökning
       console.log("[TestGenerateCodesButton] Detailed inspection result:", result);
       
     } catch (error) {
@@ -130,7 +126,6 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
         description: "Detta kan ta några sekunder"
       });
       
-      // Använd båda ID-formaten för jämförelse
       const originalId = dealId;
       const numericId = normalizeId(dealId);
       const stringId = String(dealId);
@@ -139,7 +134,6 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
       console.log(`[DeepAnalysis] Numeric ID: ${numericId} (${typeof numericId})`);
       console.log(`[DeepAnalysis] String ID: ${stringId} (${typeof stringId})`);
       
-      // Hämta alla koder först
       const { data: allCodes, error: codesError } = await supabase
         .from("discount_codes")
         .select("*")
@@ -158,14 +152,9 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
       
       console.log(`[DeepAnalysis] Found ${allCodes.length} codes in database`);
       
-      // Visa exempel på koder
-      console.log("[DeepAnalysis] First 5 codes:", allCodes.slice(0, 5));
-      
-      // Samla alla unika deal_ids och deras typer
       const dealIds = [...new Set(allCodes.map(c => c.deal_id))];
       const dealIdTypes = [...new Set(allCodes.map(c => typeof c.deal_id))];
       
-      // Testa manuell jämförelse
       const matchingCodes = allCodes.filter(code => {
         return compareIds(code.deal_id, dealId);
       });
@@ -173,7 +162,6 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
       if (matchingCodes.length > 0) {
         console.log(`[DeepAnalysis] Found ${matchingCodes.length} matching codes using flexible comparison`);
         
-        // Visa exempel på matchande koder
         console.log("[DeepAnalysis] Matching codes:", matchingCodes.slice(0, 5));
         
         toast.success(`Hittade ${matchingCodes.length} rabattkoder med flexibel jämförelse`, {
@@ -187,7 +175,6 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
         });
       }
       
-      // Visa detaljerad analytics
       toast.info("Databasanalys slutförd", {
         description: `Databastyper: ${dealIdTypes.join(', ')}, Din ID-typ: ${typeof dealId}`
       });

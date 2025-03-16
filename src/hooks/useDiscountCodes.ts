@@ -68,19 +68,27 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
         // Steg 2: Försök med originalID (som det är, utan konvertering)
         // Här kontrollerar vi typ av originalId för att undvika typfel
         if (typeof originalId === 'number' || !isNaN(Number(originalId))) {
-          let { data: originalMatches, error: originalError } = await supabase
-            .from("discount_codes")
-            .select("*")
-            .eq("deal_id", originalId);
+          // Vi behöver konvertera originalId till number om det inte redan är det
+          // för att undvika TypeScript-fel
+          const originalIdAsNumber = typeof originalId === 'number' 
+            ? originalId 
+            : Number(originalId);
             
-          if (originalError) {
-            console.error("[useDiscountCodes] Error using original ID:", originalError);
-            // Fortsätt till nästa försök
-          } else if (originalMatches && originalMatches.length > 0) {
-            console.log(`[useDiscountCodes] Found ${originalMatches.length} codes using original ID ${originalId}`);
-            return originalMatches as DiscountCode[];
-          } else {
-            console.log(`[useDiscountCodes] No codes found using original ID ${originalId}`);
+          if (!isNaN(originalIdAsNumber)) {
+            let { data: originalMatches, error: originalError } = await supabase
+              .from("discount_codes")
+              .select("*")
+              .eq("deal_id", originalIdAsNumber);
+              
+            if (originalError) {
+              console.error("[useDiscountCodes] Error using original ID:", originalError);
+              // Fortsätt till nästa försök
+            } else if (originalMatches && originalMatches.length > 0) {
+              console.log(`[useDiscountCodes] Found ${originalMatches.length} codes using original ID ${originalId}`);
+              return originalMatches as DiscountCode[];
+            } else {
+              console.log(`[useDiscountCodes] No codes found using original ID ${originalId}`);
+            }
           }
         }
         

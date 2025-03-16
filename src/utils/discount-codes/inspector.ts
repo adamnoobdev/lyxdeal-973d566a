@@ -2,6 +2,16 @@
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeId } from "./types";
 import { getTableInfo } from "./tableManagement";
+import {
+  getTableAccess,
+  countAllCodesInDatabase,
+  searchExactMatches,
+  searchStringMatches,
+  getAllCodesForInspection,
+  analyzeCodesAndFindMatches,
+  prepareSuccessResponse,
+  prepareErrorResponse
+} from "./inspectorHelpers";
 
 /**
  * Inspekterar rabattkoder för ett erbjudande och försöker hitta problem
@@ -34,80 +44,58 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
     // Inspektera tabellstruktur
     const tables = await getTableInfo();
     
-    // Testa först rabattkoder-tabellen specifikt för att verifiera att den är åtkomlig
-    const { data: testAccess, error: testError } = await supabase
-      .from("discount_codes")
-      .select("count(*)")
-      .limit(1)
-      .single();
-      
-    if (testError) {
-      console.error(`[inspectDiscountCodes] Error accessing discount_codes table:`, testError);
+    // Testa åtkomst till rabattkoder-tabellen
+    const tableAccessResult = await getTableAccess();
+    if (!tableAccessResult.success) {
       return {
         success: false,
         message: "Problem med åtkomst till rabattkodstabellen",
-        error: testError,
+        error: tableAccessResult.error,
         tables
       };
     }
     
-    console.log(`[inspectDiscountCodes] Successfully accessed discount_codes table`);
-    
-    // DIREKT VERIFIERING: Sök efter ALLA koder först för att se om tabellen innehåller data
-    const { data: allCodesCheck, error: allCheckError } = await supabase
-      .from("discount_codes")
-      .select("count(*)")
-      .single();
-      
-    if (allCheckError) {
-      console.error(`[inspectDiscountCodes] Error checking all codes:`, allCheckError);
-    } else {
-      // Säkra åtkomst till count-egenskapen med typchecking
-      console.log(`[inspectDiscountCodes] Total codes in database: ${allCodesCheck && typeof allCodesCheck === 'object' && 'count' in allCodesCheck ? allCodesCheck.count : 0}`);
+    // Kontrollera total antal rabattkoder i databasen
+    const countResult = await countAllCodesInDatabase();
+    if (!countResult.success) {
+      return {
+        success: false,
+        message: "Problem med att räkna rabattkoder",
+        error: countResult.error,
+        tables
+      };
     }
     
     // Försök med olika metoder att hitta rabattkoder
     
     // 1. Exakt match på normaliserad ID
-    const { data: exactMatches, error: exactError } = await supabase
-      .from("discount_codes")
-      .select("*")
-      .eq("deal_id", numericDealId)
-      .limit(10);
-      
-    if (exactError) {
-      console.error(`[inspectDiscountCodes] Error checking for exact matches:`, exactError);
-    } else {
-      console.log(`[inspectDiscountCodes] Found ${exactMatches?.length || 0} exact matches`);
-    }
+    const exactMatchesResult = await searchExactMatches(numericDealId);
+    const exactMatches = exactMatchesResult.success ? exactMatchesResult.data : [];
     
     // 2. Exakt match på original-ID (säkerställ att det är jämförbart)
+    let originalMatches: any[] = [];
     if (typeof originalDealId === 'number' || !isNaN(Number(originalDealId))) {
-      const { data: originalMatches, error: originalError } = await supabase
-        .from("discount_codes")
-        .select("*")
-        .eq("deal_id", originalDealId)
-        .limit(10);
-        
-      if (originalError) {
-        console.error(`[inspectDiscountCodes] Error checking for original ID matches:`, originalError);
-      } else {
-        console.log(`[inspectDiscountCodes] Found ${originalMatches?.length || 0} original matches`);
+      // Vi måste använda originalDealId direkt här eftersom searchExactMatches förväntar sig ett number
+      // och vi har inget sätt att veta om originalDealId redan är ett number eller inte
+      try {
+        // Om det är ett number eller kan konverteras till ett number utan problem, använd searchExactMatches
+        const originalIdAsNumber = typeof originalDealId === 'number' 
+          ? originalDealId 
+          : Number(originalDealId);
+          
+        if (!isNaN(originalIdAsNumber)) {
+          const originalMatchesResult = await searchExactMatches(originalIdAsNumber);
+          originalMatches = originalMatchesResult.success ? originalMatchesResult.data : [];
+        }
+      } catch (error) {
+        console.error(`[inspectDiscountCodes] Error searching with original ID:`, error);
+        originalMatches = [];
       }
     }
     
     // 3. Exakt match på string-ID
-    const { data: stringMatches, error: stringError } = await supabase
-      .from("discount_codes")
-      .select("*")
-      .eq("deal_id", stringDealId)
-      .limit(10);
-      
-    if (stringError) {
-      console.error(`[inspectDiscountCodes] Error checking for string matches:`, stringError);
-    } else {
-      console.log(`[inspectDiscountCodes] Found ${stringMatches?.length || 0} string matches`);
-    }
+    const stringMatchesResult = await searchStringMatches(stringDealId);
+    const stringMatches = stringMatchesResult.success ? stringMatchesResult.data : [];
     
     // Om vi hittade något med någon av metoderna, använd den
     const foundCodes = exactMatches?.length ? exactMatches : 
@@ -116,114 +104,45 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<any
     
     if (foundCodes.length > 0) {
       console.log(`[inspectDiscountCodes] Found ${foundCodes.length} codes with standard search methods`);
-      return {
-        success: true,
-        message: `Hittade ${foundCodes.length} rabattkoder med standardsökningsmetoder`,
-        codesCount: foundCodes.length,
-        sampleCodes: foundCodes.slice(0, 3).map(code => ({
-          code: code.code,
-          isUsed: code.is_used,
-          dealId: code.deal_id,
-          dealIdType: typeof code.deal_id
-        })),
-        tables
-      };
+      return prepareSuccessResponse(foundCodes, "standardsökningsmetoder", tables);
     }
     
     // Hämta alla koder för att inspektera och analysera manuellt
-    const { data: allCodes, error: allCodesError } = await supabase
-      .from("discount_codes")
-      .select("*")
-      .limit(50);
-      
-    if (allCodesError) {
-      console.error(`[inspectDiscountCodes] Error fetching all codes:`, allCodesError);
+    const allCodesResult = await getAllCodesForInspection();
+    if (!allCodesResult.success) {
       return { 
         success: false, 
         message: "Ett fel uppstod vid hämtning av alla rabattkoder",
-        error: allCodesError,
+        error: allCodesResult.error,
         tables
       };
     }
     
-    // Om inga koder alls hittades i databasen
-    if (!allCodes || allCodes.length === 0) {
-      console.log(`[inspectDiscountCodes] No discount codes found in database`);
-      return {
-        success: false,
-        message: "Inga rabattkoder hittades i databasen",
-        codesCount: 0,
+    const allCodes = allCodesResult.data;
+    
+    // Analysera alla koder och försök hitta matchningar manuellt
+    const analysisResult = analyzeCodesAndFindMatches(allCodes, originalDealId, numericDealId, stringDealId);
+    
+    if (analysisResult.success) {
+      return prepareSuccessResponse(
+        analysisResult.manualMatches, 
+        "manuell jämförelse", 
         tables
-      };
-    }
-    
-    console.log(`[inspectDiscountCodes] Found ${allCodes.length} total codes in database`);
-    
-    // Detaljerad analys av alla deal_ids i databasen
-    const dealIds = [...new Set(allCodes.map(c => c.deal_id))];
-    const dealIdTypes = [...new Set(allCodes.map(c => typeof c.deal_id))];
-    
-    console.log(`[inspectDiscountCodes] Found the following deal_ids:`, dealIds);
-    console.log(`[inspectDiscountCodes] Deal ID types in database: ${dealIdTypes.join(', ')}`);
-    
-    // Försök via manuell jämförelse (javascript sida) som absolut fallback
-    const manualMatches = allCodes.filter(code => {
-      const codeId = code.deal_id;
-      return  String(codeId) === stringDealId || 
-              Number(codeId) === numericDealId || 
-              codeId === originalDealId;
-    });
-    
-    if (manualMatches.length > 0) {
-      console.log(`[inspectDiscountCodes] Found ${manualMatches.length} codes with manual comparison`);
-      return {
-        success: true,
-        message: `Hittade ${manualMatches.length} rabattkoder genom manuell jämförelse`,
-        codesCount: manualMatches.length,
-        sampleCodes: manualMatches.slice(0, 3).map(code => ({
-          code: code.code,
-          isUsed: code.is_used,
-          dealId: code.deal_id,
-          dealIdType: typeof code.deal_id
-        })),
-        searchMethod: "manual",
-        tables
-      };
+      );
     }
     
     // Visa detaljerad felrapport om vi inte hittade några matchande koder
-    return {
-      success: false,
-      message: `Hittade ${allCodes.length} rabattkoder men ingen för erbjudande ${dealId}`,
-      codesCount: 0,
-      codesFoundForDeals: dealIds,
-      dealIdTypes,
-      searchAttempts: {
-        originalId: {
-          id: originalDealId,
-          type: typeof originalDealId,
-          matches: originalMatches?.length || 0
-        },
-        numericId: {
-          id: numericDealId,
-          type: typeof numericDealId,
-          matches: exactMatches?.length || 0
-        },
-        stringId: {
-          id: stringDealId,
-          type: typeof stringDealId,
-          matches: stringMatches?.length || 0
-        }
-      },
-      sample: allCodes.slice(0, 5).map(code => ({
-        id: code.id,
-        code: code.code,
-        dealId: code.deal_id,
-        dealIdType: typeof code.deal_id,
-        isUsed: code.is_used
-      })),
-      tables
-    };
+    return prepareErrorResponse(
+      dealId,
+      numericDealId,
+      stringDealId,
+      allCodes,
+      analysisResult.dealIds,
+      analysisResult.dealIdTypes,
+      tables,
+      exactMatches,
+      stringMatches
+    );
   } catch (error) {
     console.error(`[inspectDiscountCodes] Exception during inspection:`, error);
     return {
