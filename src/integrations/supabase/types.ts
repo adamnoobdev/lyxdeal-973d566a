@@ -333,6 +333,12 @@ export type Database = {
           row_count: number
         }[]
       }
+      is_admin_or_salon_owner: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
       update_deal_to_free: {
         Args: {
           deal_id: number

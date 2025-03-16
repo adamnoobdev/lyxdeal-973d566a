@@ -4,8 +4,6 @@ import { DiscountDialogHeader } from "./DialogHeader";
 import { DiscountCodesTable } from "@/components/discount-codes/DiscountCodesTable";
 import { Deal } from "@/components/admin/types";
 import { useDiscountCodesDialog } from "./useDiscountCodesDialog";
-import { Button } from "@/components/ui/button";
-import { RefreshCcw, Database, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { TestGenerateCodesButton } from "../TestGenerateCodesButton";
@@ -30,9 +28,7 @@ export const DiscountCodesDialogContent = ({
     refreshAttempts,
     inspectionResult,
     timeElapsedText,
-    isInspecting,
     handleManualRefresh,
-    handleInspectCodes,
     getEmptyStateMessage
   } = useDiscountCodesDialog(isOpen, deal);
 
@@ -60,8 +56,6 @@ export const DiscountCodesDialogContent = ({
         isFetching={isFetching}
         timeElapsedText={timeElapsedText}
         onManualRefresh={handleManualRefresh}
-        onInspectCodes={handleInspectCodes}
-        isInspecting={isInspecting}
         onGenerateDiscountCodes={onGenerateDiscountCodes}
       />
       
@@ -89,35 +83,6 @@ export const DiscountCodesDialogContent = ({
                 Din deal_id är lagrad som en {inspectionResult.codeType} istället för {typeof deal?.id}. Vi har uppdaterad koden för att hantera detta.
               </p>
             )}
-            <div className="mt-2">
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="gap-1"
-                onClick={handleManualRefresh}
-                disabled={isFetching}
-              >
-                <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-                <span>Uppdatera</span>
-              </Button>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {inspectionResult && !inspectionResult.success && inspectionResult.dealIdTypes && (
-        <Alert variant="default" className="bg-blue-50 border border-blue-200 my-3">
-          <Database className="h-4 w-4 text-blue-800" />
-          <AlertDescription>
-            <p className="font-medium text-blue-800">
-              Information om rabattkoder i databasen
-            </p>
-            <p className="text-blue-700 mt-1">
-              Deal ID-typer i databasen: {inspectionResult.dealIdTypes.join(', ')}
-            </p>
-            <p className="text-blue-700">
-              Ditt erbjudande ID ({deal?.id}) är av typen: {typeof deal?.id}
-            </p>
           </AlertDescription>
         </Alert>
       )}
@@ -129,7 +94,7 @@ export const DiscountCodesDialogContent = ({
             onSuccess={handleManualRefresh}
           />
           <p className="text-xs text-muted-foreground mt-1">
-            Använd denna knapp för att generera några testkoder och felsöka.
+            Använd denna knapp för att generera några testkoder.
           </p>
         </div>
       )}

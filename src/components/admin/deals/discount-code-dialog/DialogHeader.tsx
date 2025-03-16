@@ -1,5 +1,5 @@
 
-import { RefreshCcw, Database, AlertCircle, PlusCircle } from "lucide-react";
+import { RefreshCcw, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
@@ -13,8 +13,6 @@ interface DiscountDialogHeaderProps {
   isFetching: boolean;
   timeElapsedText: string;
   onManualRefresh: () => void;
-  onInspectCodes: () => void;
-  isInspecting: boolean;
   onGenerateDiscountCodes?: (quantity: number) => Promise<void>;
 }
 
@@ -26,8 +24,6 @@ export const DiscountDialogHeader = ({
   isFetching,
   timeElapsedText,
   onManualRefresh,
-  onInspectCodes,
-  isInspecting,
   onGenerateDiscountCodes
 }: DiscountDialogHeaderProps) => {
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
@@ -61,17 +57,6 @@ export const DiscountDialogHeader = ({
           >
             <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
             <span>Uppdatera</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onInspectCodes}
-            disabled={isInspecting}
-            className="gap-2"
-          >
-            <Database className={`h-4 w-4 ${isInspecting ? "animate-spin" : ""}`} />
-            <span>Inspektera DB</span>
           </Button>
           
           {onGenerateDiscountCodes && (
