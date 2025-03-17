@@ -7,7 +7,7 @@ interface PendingDealsSectionProps {
   pendingDeals: Deal[];
   setEditingDeal: (deal: Deal) => void;
   setDeletingDeal: (deal: Deal) => void;
-  handleToggleActive: (deal: Deal) => Promise<boolean | void>;
+  handleToggleActive: (deal: Deal) => Promise<void>;
   handleStatusChange: (dealId: number, status: string) => Promise<void>;
   onViewDiscountCodes?: (deal: Deal) => void;
 }

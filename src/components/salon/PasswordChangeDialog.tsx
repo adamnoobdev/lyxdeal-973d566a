@@ -59,13 +59,22 @@ export const PasswordChangeDialog = ({ isOpen, onClose }: PasswordChangeDialogPr
 
       if (error) throw error;
 
-      // Uppdatera first_login-status
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      
+      if (!userId) {
+        throw new Error("Kunde inte hitta användar-ID");
+      }
+
+      // Uppdatera first_login-status 
       const { error: updateError } = await supabase
         .from("salon_user_status")
         .update({ first_login: false })
-        .eq("user_id", (await supabase.auth.getUser()).data.user?.id);
+        .eq("user_id", userId);
 
       if (updateError) throw updateError;
+
+      // Spara även i localStorage för att undvika upprepade dialoger i samma session
+      localStorage.setItem(`salon_first_login_${userId}`, 'false');
 
       toast.success("Lösenordet har uppdaterats framgångsrikt!");
       onClose();

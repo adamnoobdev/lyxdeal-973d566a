@@ -35,11 +35,11 @@ export const useFirstLogin = () => {
 
         if (error) throw error;
         
-        // Om vi inte hittar någon rad, anta att det är första inloggningen
-        const isFirst = data?.first_login !== false;
+        // Om vi inte hittar någon rad eller first_login är true, anta att det är första inloggningen
+        const isFirst = !data || data.first_login === true;
         setIsFirstLogin(isFirst);
         
-        // Store the result in localStorage to avoid checking again
+        // Store the result in localStorage to avoid checking again in this session
         if (!isFirst) {
           localStorage.setItem(localStatusKey, 'false');
         }

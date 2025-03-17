@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -117,6 +118,16 @@ serve(async (req) => {
         }
       );
     }
+
+    // Create user status record for first login tracking
+    await supabaseClient
+      .from("salon_user_status")
+      .insert([
+        {
+          user_id: userData.user.id,
+          first_login: true
+        },
+      ]);
 
     return new Response(
       JSON.stringify({
