@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { FormValues } from './schema';
 
 interface DealFormContextType {
@@ -35,7 +35,7 @@ export const DealFormProvider: React.FC<DealFormProviderProps> = ({
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
 
   // If externalIsSubmitting changes, update internal state
-  React.useEffect(() => {
+  useEffect(() => {
     if (externalIsSubmitting !== isSubmitting) {
       setIsSubmitting(externalIsSubmitting);
     }

@@ -54,12 +54,11 @@ export const EditDealDialog = ({
     try {
       setIsSubmitting(true);
       await onSubmit(values);
-      // Allow parent to control closing
+      // Only close after successful submission
       handleClose();
-    } finally {
-      setTimeout(() => {
-        setIsSubmitting(false);
-      }, 300);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setIsSubmitting(false);
     }
   };
 

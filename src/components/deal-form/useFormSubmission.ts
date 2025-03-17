@@ -26,6 +26,7 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
     }
     
     try {
+      console.log("[DealForm] Starting form submission");
       setInternalSubmitting(true);
       setIsSubmitting(true);
       isSubmittingRef.current = true;
@@ -34,10 +35,6 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
         toast.error("Du måste välja en salong");
         return;
       }
-      
-      const today = new Date();
-      const daysRemaining = differenceInDays(values.expirationDate, today);
-      const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
       
       console.log('[DealForm] 🟢 Submitting form with values:', values);
 
@@ -79,24 +76,6 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
           if (success) {
             console.log(`[DealForm] ✓ Successfully generated ${quantityNum} rabattkoder for deal ${newDeal.id}`);
             toast.success(`Erbjudande och ${quantityNum} rabattkoder har skapats`);
-
-            const { data: verificationData, error: verificationError } = await supabase
-              .from('discount_codes')
-              .select('code')
-              .eq('deal_id', newDeal.id)
-              .limit(5);
-
-            if (verificationError) {
-              console.error("[DealForm] ❌ Error verifying discount codes:", verificationError);
-            } else if (!verificationData || verificationData.length === 0) {
-              console.error("[DealForm] ❌ Verification failed: No codes found for deal", newDeal.id);
-              toast.warning("Erbjudandet har skapats, men rabattkoderna kunde inte verifieras", {
-                description: "Kontrollera databasen manuellt eller försök generera rabattkoder senare."
-              });
-            } else {
-              console.log("[DealForm] ✓ Verified creation with sample codes:", 
-                verificationData.map(c => c.code).join(', '));
-            }
           } else {
             console.warn(`[DealForm] ⚠️ Failed to generate discount codes for deal ${newDeal.id}`);
             toast.warning("Erbjudandet har skapats, men det uppstod ett problem med rabattkoderna", {
@@ -126,7 +105,16 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
         isSubmittingRef.current = false;
       }, 500);
     }
-  }, [initialValues, onSubmit, internalSubmitting, contextIsSubmitting, externalIsSubmitting, isGeneratingCodes, setIsGeneratingCodes, setIsSubmitting]);
+  }, [
+    initialValues, 
+    onSubmit, 
+    internalSubmitting, 
+    contextIsSubmitting, 
+    externalIsSubmitting, 
+    isGeneratingCodes, 
+    setIsGeneratingCodes, 
+    setIsSubmitting
+  ]);
 
   return { handleSubmit };
 };

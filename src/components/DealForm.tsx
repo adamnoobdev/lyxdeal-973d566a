@@ -47,10 +47,13 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
     form.setValue("imageUrl", imageUrl);
   }, [form]);
 
+  // Create a handler that passes form values to parent onSubmit
+  const handleFormSubmit = useFormSubmission(onSubmit, isSubmitting).handleSubmit;
+
   return (
     <DealFormProvider initialValues={initialValues} externalIsSubmitting={isSubmitting}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(useFormSubmission(onSubmit, isSubmitting).handleSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="space-y-4">
             <SalonField form={form} />
             <FormFields 
