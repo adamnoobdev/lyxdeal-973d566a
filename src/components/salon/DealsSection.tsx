@@ -13,6 +13,7 @@ interface DealsSectionProps {
   onEdit: (deal: Deal) => void;
   onDelete: (deal: Deal) => void;
   onViewDetails?: (deal: Deal) => void;
+  onViewDiscountCodes?: (deal: Deal) => void;
 }
 
 export const DealsSection = ({
@@ -23,6 +24,7 @@ export const DealsSection = ({
   onEdit,
   onDelete,
   onViewDetails,
+  onViewDiscountCodes,
 }: DealsSectionProps) => {
   if (!deals.length) return null;
 
@@ -56,6 +58,8 @@ export const DealsSection = ({
         onDelete={onDelete} 
         onToggleActive={undefined}
         onPreview={onViewDetails}
+        onViewDiscountCodes={onViewDiscountCodes}
+        isSalonView={title === "Aktiva erbjudanden" && !!onViewDiscountCodes}
       />
     </div>
   );

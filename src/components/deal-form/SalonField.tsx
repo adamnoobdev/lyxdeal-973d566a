@@ -1,6 +1,7 @@
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   FormField,
   FormItem,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "./schema";
+import { useSession } from "@/hooks/useSession";
 
 interface SalonFieldProps {
   form: UseFormReturn<FormValues>;
@@ -17,6 +19,34 @@ interface SalonFieldProps {
 
 export const SalonField = ({ form }: SalonFieldProps) => {
   const queryClient = useQueryClient();
+  const { user } = useSession();
+  const [userSalonId, setUserSalonId] = useState<number | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Fetch salon info for logged in user (if any)
+  useEffect(() => {
+    if (user?.id) {
+      const fetchUserSalon = async () => {
+        const { data, error } = await supabase
+          .from('salons')
+          .select('id, role')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (!error && data) {
+          setUserSalonId(data.id);
+          setIsAdmin(data.role === 'admin');
+          
+          // If user is a salon owner, automatically set the salon_id field
+          if (data.role === 'salon_owner') {
+            form.setValue('salon_id', data.id);
+          }
+        }
+      };
+      
+      fetchUserSalon();
+    }
+  }, [user?.id, form]);
 
   const { data: salons = [], isLoading: isSalonsLoading } = useQuery({
     queryKey: ["salons"],
@@ -69,11 +99,16 @@ export const SalonField = ({ form }: SalonFieldProps) => {
               {...field}
               onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
               value={field.value || ""}
+              disabled={!isAdmin && userSalonId !== null}
             >
               <option value="">Välj salong...</option>
               {salons?.map((salon) => (
-                <option key={salon.id} value={salon.id}>
-                  {salon.name}
+                <option 
+                  key={salon.id} 
+                  value={salon.id}
+                  disabled={!isAdmin && userSalonId !== salon.id}
+                >
+                  {salon.name} {!isAdmin && userSalonId === salon.id ? '(Din salong)' : ''}
                 </option>
               ))}
             </select>

@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
+import { DiscountCodesDialog } from "@/components/admin/deals/DiscountCodesDialog";
 
 export default function SalonDashboard() {
   const { session } = useSession();
@@ -27,8 +28,10 @@ export default function SalonDashboard() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
+  const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
   const navigate = useNavigate();
 
   const { data: salonData } = useQuery({
@@ -83,6 +86,18 @@ export default function SalonDashboard() {
     setDeletingDeal(deal);
   };
 
+  const handleViewDiscountCodes = (deal: Deal) => {
+    setViewingCodesForDeal(deal);
+  };
+
+  const handleCloseDiscountCodesDialog = () => {
+    setIsClosingCodesDialog(true);
+    setTimeout(() => {
+      setViewingCodesForDeal(null);
+      setIsClosingCodesDialog(false);
+    }, 300);
+  };
+
   const handleViewDealDetails = (deal: Deal) => {
     navigate(`/salon/deal/${deal.id}`);
   };
@@ -127,6 +142,7 @@ export default function SalonDashboard() {
             onEdit={handleEditDeal}
             onDelete={handleDeleteDeal}
             onViewDetails={handleViewDealDetails}
+            onViewDiscountCodes={handleViewDiscountCodes}
           />
 
           <DealsSection
@@ -135,6 +151,7 @@ export default function SalonDashboard() {
             onEdit={handleEditDeal}
             onDelete={handleDeleteDeal}
             onViewDetails={handleViewDealDetails}
+            onViewDiscountCodes={handleViewDiscountCodes}
           />
 
           <DealsSection
@@ -190,6 +207,12 @@ export default function SalonDashboard() {
       <PasswordChangeDialog
         isOpen={showPasswordDialog}
         onClose={() => setShowPasswordDialog(false)}
+      />
+
+      <DiscountCodesDialog
+        isOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
+        onClose={handleCloseDiscountCodesDialog}
+        deal={viewingCodesForDeal}
       />
     </div>
   );

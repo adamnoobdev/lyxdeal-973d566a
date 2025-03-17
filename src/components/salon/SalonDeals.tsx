@@ -106,6 +106,7 @@ export const SalonDeals: React.FC = () => {
             onEdit={handleEditDeal}
             onDelete={(deal) => setDeletingDeal(deal)}
             onViewDiscountCodes={handleViewDiscountCodes}
+            isSalonView={true}
           />
         </CardContent>
       </Card>
