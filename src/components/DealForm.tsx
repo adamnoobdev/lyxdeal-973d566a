@@ -11,7 +11,6 @@ import { AdditionalFields } from "./deal-form/AdditionalFields";
 import { formSchema, FormValues } from "./deal-form/schema";
 import { useCallback } from "react";
 import { endOfMonth } from "date-fns";
-import { DealFormProvider } from "./deal-form/DealFormContext";
 import { useFormSubmission } from "./deal-form/useFormSubmission";
 import { DealFormSubmitButton } from "./deal-form/DealFormSubmitButton";
 
@@ -51,26 +50,24 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   const handleFormSubmit = useFormSubmission(onSubmit, isSubmitting).handleSubmit;
 
   return (
-    <DealFormProvider initialValues={initialValues} externalIsSubmitting={isSubmitting}>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
-          <div className="space-y-4">
-            <SalonField form={form} />
-            <FormFields 
-              form={form} 
-              handleImageSelected={handleImageSelected} 
-              initialImageUrl={initialValues?.imageUrl}
-            />
-            <PriceFields form={form} />
-            <LocationFields form={form} categories={["Hårvård", "Nagelvård", "Ansiktsbehandling", "Massage", "Makeup", "Ögonfransar & Bryn", "Kroppsvård", "Fotvård", "Hudvård", "Annat"]} 
-                           cities={["Stockholm", "Göteborg", "Malmö", "Uppsala", "Västerås", "Örebro", "Linköping", "Helsingborg", "Jönköping", "Norrköping"]} />
-            <QuantityField form={form} readOnly={!!initialValues} />
-            <AdditionalFields form={form} />
-          </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
+        <div className="space-y-4">
+          <SalonField form={form} />
+          <FormFields 
+            form={form} 
+            handleImageSelected={handleImageSelected} 
+            initialImageUrl={initialValues?.imageUrl}
+          />
+          <PriceFields form={form} />
+          <LocationFields form={form} categories={["Hårvård", "Nagelvård", "Ansiktsbehandling", "Massage", "Makeup", "Ögonfransar & Bryn", "Kroppsvård", "Fotvård", "Hudvård", "Annat"]} 
+                         cities={["Stockholm", "Göteborg", "Malmö", "Uppsala", "Västerås", "Örebro", "Linköping", "Helsingborg", "Jönköping", "Norrköping"]} />
+          <QuantityField form={form} readOnly={!!initialValues} />
+          <AdditionalFields form={form} />
+        </div>
 
-          <DealFormSubmitButton />
-        </form>
-      </Form>
-    </DealFormProvider>
+        <DealFormSubmitButton />
+      </form>
+    </Form>
   );
 };

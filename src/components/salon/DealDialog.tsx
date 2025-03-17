@@ -8,6 +8,7 @@ import {
 import { DealForm } from "@/components/DealForm";
 import { FormValues } from "@/components/deal-form/schema";
 import { useState, useEffect } from "react";
+import { DealFormProvider } from "@/components/deal-form/DealFormContext";
 
 interface DealDialogProps {
   isOpen: boolean;
@@ -74,11 +75,13 @@ export const DealDialog = ({
           </DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-auto">
-          <DealForm 
-            onSubmit={handleSubmit} 
-            initialValues={initialValues}
-            isSubmitting={isSubmitting}
-          />
+          <DealFormProvider initialValues={initialValues} externalIsSubmitting={isSubmitting}>
+            <DealForm 
+              onSubmit={handleSubmit} 
+              initialValues={initialValues}
+              isSubmitting={isSubmitting}
+            />
+          </DealFormProvider>
         </div>
       </DialogContent>
     </Dialog>

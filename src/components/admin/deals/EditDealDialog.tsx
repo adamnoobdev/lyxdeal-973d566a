@@ -9,6 +9,7 @@ import {
 import { DealForm } from "@/components/DealForm";
 import { FormValues } from "@/components/deal-form/schema";
 import { useEffect, useState } from "react";
+import { DealFormProvider } from "@/components/deal-form/DealFormContext";
 
 interface EditDealDialogProps {
   isOpen: boolean;
@@ -49,15 +50,19 @@ export const EditDealDialog = ({
 
   // Handle form submission with protection against multiple calls
   const handleSubmit = async (values: FormValues) => {
-    if (isSubmitting) return;
+    if (isSubmitting) {
+      console.log("[EditDealDialog] Submission already in progress, ignoring");
+      return;
+    }
     
     try {
       setIsSubmitting(true);
+      console.log("[EditDealDialog] Starting submission");
       await onSubmit(values);
-      // Only close after successful submission
+      console.log("[EditDealDialog] Submission successful, closing dialog");
       handleClose();
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("[EditDealDialog] Error submitting form:", error);
       setIsSubmitting(false);
     }
   };
@@ -79,11 +84,13 @@ export const EditDealDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-auto">
-          <DealForm 
-            onSubmit={handleSubmit} 
-            initialValues={initialValues}
-            isSubmitting={isSubmitting}
-          />
+          <DealFormProvider initialValues={initialValues} externalIsSubmitting={isSubmitting}>
+            <DealForm 
+              onSubmit={handleSubmit} 
+              initialValues={initialValues}
+              isSubmitting={isSubmitting}
+            />
+          </DealFormProvider>
         </div>
       </DialogContent>
     </Dialog>

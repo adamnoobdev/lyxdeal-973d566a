@@ -10,13 +10,29 @@ import { useDealFormContext } from "./DealFormContext";
 export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void>, externalIsSubmitting?: boolean) => {
   const [internalSubmitting, setInternalSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
+  
+  // Access context, but handle the case where it might not be available
+  let contextValues;
+  try {
+    contextValues = useDealFormContext();
+  } catch (error) {
+    // If context is not available, use fallback values
+    console.warn("[useFormSubmission] DealFormContext not available, using fallback values");
+    contextValues = {
+      isSubmitting: externalIsSubmitting || false,
+      setIsSubmitting: () => {},
+      isGeneratingCodes: false,
+      setIsGeneratingCodes: () => {},
+    };
+  }
+  
   const { 
     isSubmitting: contextIsSubmitting, 
     setIsSubmitting, 
     isGeneratingCodes, 
     setIsGeneratingCodes,
     initialValues
-  } = useDealFormContext();
+  } = contextValues;
 
   const handleSubmit = useCallback(async (values: FormValues) => {
     // Check all submitting states to prevent multiple submissions
@@ -28,7 +44,7 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
     try {
       console.log("[DealForm] Starting form submission");
       setInternalSubmitting(true);
-      setIsSubmitting(true);
+      if (setIsSubmitting) setIsSubmitting(true);
       isSubmittingRef.current = true;
       
       if (!values.salon_id) {
@@ -44,7 +60,7 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
       if (!initialValues) {
         try {
           console.log("[DealForm] 🟢 New deal created, generating discount codes");
-          setIsGeneratingCodes(true);
+          if (setIsGeneratingCodes) setIsGeneratingCodes(true);
           
           console.log("[DealForm] Waiting for database to complete deal creation...");
           await new Promise(resolve => setTimeout(resolve, 2000));
@@ -88,7 +104,7 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
             description: codeError instanceof Error ? codeError.message : "Ett oväntat fel uppstod"
           });
         } finally {
-          setIsGeneratingCodes(false);
+          if (setIsGeneratingCodes) setIsGeneratingCodes(false);
         }
       } else {
         toast.success("Erbjudandet har uppdaterats");
@@ -101,7 +117,7 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
     } finally {
       setTimeout(() => {
         setInternalSubmitting(false);
-        setIsSubmitting(false);
+        if (setIsSubmitting) setIsSubmitting(false);
         isSubmittingRef.current = false;
       }, 500);
     }
