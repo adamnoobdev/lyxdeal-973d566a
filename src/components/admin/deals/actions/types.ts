@@ -3,6 +3,8 @@ export interface BaseActionProps {
   onClick?: () => void;
   disabled?: boolean;
   title?: string;
+  onEdit?: () => void;
+  onPreview?: () => void;
 }
 
 export interface ToggleActiveActionProps extends BaseActionProps {
