@@ -1,6 +1,7 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { format } from "date-fns";
-import { sv } from "date-fns/locale";
+
+import { PurchasesTableContent } from './purchases/PurchasesTableContent';
+import { PurchasesTableSkeleton } from './purchases/PurchasesTableSkeleton';
+import { EmptyPurchasesList } from './purchases/EmptyPurchasesList';
 
 interface Purchase {
   id: number;
@@ -14,33 +15,17 @@ interface Purchase {
 
 interface PurchasesTableProps {
   purchases: Purchase[];
+  isLoading?: boolean;
 }
 
-export const PurchasesTable = ({ purchases }: PurchasesTableProps) => {
-  return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Erbjudande</TableHead>
-            <TableHead>Kund</TableHead>
-            <TableHead>Rabattkod</TableHead>
-            <TableHead>Datum</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {purchases.map((purchase) => (
-            <TableRow key={purchase.id}>
-              <TableCell>{purchase.deals?.title}</TableCell>
-              <TableCell>{purchase.customer_email}</TableCell>
-              <TableCell className="font-mono">{purchase.discount_code}</TableCell>
-              <TableCell>
-                {format(new Date(purchase.created_at), "d MMMM yyyy", { locale: sv })}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
+export const PurchasesTable = ({ purchases, isLoading }: PurchasesTableProps) => {
+  if (isLoading) {
+    return <PurchasesTableSkeleton />;
+  }
+
+  if (!purchases?.length) {
+    return <EmptyPurchasesList />;
+  }
+
+  return <PurchasesTableContent purchases={purchases} />;
 };
