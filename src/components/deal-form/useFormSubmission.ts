@@ -7,11 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { generateDiscountCodes } from "@/utils/discount-codes";
 import { useDealFormContext } from "./DealFormContext";
 
-export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void>) => {
+export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void>, externalIsSubmitting?: boolean) => {
   const [internalSubmitting, setInternalSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
   const { 
-    isSubmitting: externalSubmitting, 
+    isSubmitting: contextIsSubmitting, 
     setIsSubmitting, 
     isGeneratingCodes, 
     setIsGeneratingCodes,
@@ -19,7 +19,8 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
   } = useDealFormContext();
 
   const handleSubmit = useCallback(async (values: FormValues) => {
-    if (internalSubmitting || externalSubmitting || isSubmittingRef.current || isGeneratingCodes) {
+    // Check all submitting states to prevent multiple submissions
+    if (internalSubmitting || contextIsSubmitting || externalIsSubmitting || isSubmittingRef.current || isGeneratingCodes) {
       console.log("[DealForm] Already submitting, preventing double submission");
       return;
     }
@@ -125,7 +126,7 @@ export const useFormSubmission = (onSubmit: (values: FormValues) => Promise<void
         isSubmittingRef.current = false;
       }, 500);
     }
-  }, [initialValues, onSubmit, internalSubmitting, externalSubmitting, isGeneratingCodes, setIsGeneratingCodes, setIsSubmitting]);
+  }, [initialValues, onSubmit, internalSubmitting, contextIsSubmitting, externalIsSubmitting, isGeneratingCodes, setIsGeneratingCodes, setIsSubmitting]);
 
   return { handleSubmit };
 };

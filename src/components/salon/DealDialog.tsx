@@ -36,8 +36,11 @@ export const DealDialog = ({
     try {
       setIsSubmitting(true);
       await onSubmit(values);
+      onClose(); // Close dialog after successful submission
     } catch (error) {
       console.error("Error submitting form:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

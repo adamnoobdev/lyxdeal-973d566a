@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useDealFormContext } from "./DealFormContext";
 
 export const DealFormSubmitButton = () => {
-  const { isSubmitting, isGeneratingCodes } = useDealFormContext();
+  const { isSubmitting, isGeneratingCodes, initialValues } = useDealFormContext();
   
   return (
     <div className="pt-4 sticky bottom-0 bg-background">
@@ -16,7 +16,7 @@ export const DealFormSubmitButton = () => {
           ? "Genererar rabattkoder..." 
           : isSubmitting 
             ? "Sparar..." 
-            : "Spara erbjudande"}
+            : initialValues ? "Uppdatera erbjudande" : "Skapa erbjudande"}
       </Button>
     </div>
   );
