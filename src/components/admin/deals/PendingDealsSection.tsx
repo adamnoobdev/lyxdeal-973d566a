@@ -7,7 +7,7 @@ interface PendingDealsSectionProps {
   pendingDeals: Deal[];
   setEditingDeal: (deal: Deal) => void;
   setDeletingDeal: (deal: Deal) => void;
-  handleToggleActive: (deal: Deal) => Promise<boolean>;
+  handleToggleActive: (deal: Deal) => Promise<boolean | void>;
   handleStatusChange: (dealId: number, status: string) => Promise<void>;
   onViewDiscountCodes?: (deal: Deal) => void;
 }
@@ -42,8 +42,8 @@ export const PendingDealsSection = ({
           onDelete={setDeletingDeal}
           onToggleActive={handleToggleActive}
           showApprovalActions={true}
-          onApprove={(dealId) => handleApprove(dealId)}
-          onReject={(dealId) => handleReject(dealId)}
+          onApprove={handleApprove}
+          onReject={handleReject}
           onViewDiscountCodes={onViewDiscountCodes}
         />
       </CardContent>

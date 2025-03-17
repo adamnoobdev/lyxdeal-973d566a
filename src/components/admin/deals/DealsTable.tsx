@@ -1,3 +1,4 @@
+
 import { Deal } from "@/components/admin/types";
 import { DealActions } from "./DealActions";
 import {
@@ -17,11 +18,11 @@ interface DealsTableProps {
   deals: Deal[];
   onEdit?: (deal: Deal) => void;
   onDelete?: (deal: Deal) => void;
-  onToggleActive?: ((deal: Deal) => void) | undefined;
+  onToggleActive?: ((deal: Deal) => Promise<void>) | undefined;
   onPreview?: (deal: Deal) => void;
   showApprovalActions?: boolean;
-  onApprove?: (dealId: number) => void;
-  onReject?: (dealId: number) => void;
+  onApprove?: (dealId: number) => Promise<void>;
+  onReject?: (dealId: number) => Promise<void>;
   hasViewDetailsAction?: boolean;
   onViewDetails?: (deal: Deal) => void;
   onViewDiscountCodes?: (deal: Deal) => void;
@@ -127,6 +128,8 @@ export const DealsTable = ({
                         onToggleActive={onToggleActive ? () => onToggleActive(deal) : undefined}
                         isActive={deal.is_active}
                         onPreview={() => handlePreviewDeal(deal)}
+                        onApprove={showApprovalActions && onApprove ? () => onApprove(deal.id) : undefined}
+                        onReject={showApprovalActions && onReject ? () => onReject(deal.id) : undefined}
                         onViewDiscountCodes={onViewDiscountCodes ? () => onViewDiscountCodes(deal) : undefined}
                         onGenerateDiscountCodes={onGenerateDiscountCodes ? () => onGenerateDiscountCodes(deal) : undefined}
                         isGeneratingCodes={isGeneratingCodes}
