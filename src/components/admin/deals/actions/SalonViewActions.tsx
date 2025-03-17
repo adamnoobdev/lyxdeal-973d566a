@@ -1,5 +1,5 @@
 
-import { Download, Edit, Eye, Tag } from "lucide-react";
+import { Download, Edit, Eye, Plus, Tag } from "lucide-react";
 import { DiscountCodeActionProps } from "./types";
 import { ActionButton } from "./ActionButton";
 
@@ -7,6 +7,7 @@ export const SalonViewActions = ({
   onEdit, 
   onPreview, 
   onViewDiscountCodes,
+  onGenerateDiscountCodes,
   isGeneratingCodes
 }: DiscountCodeActionProps) => {
   return (
@@ -35,6 +36,18 @@ export const SalonViewActions = ({
       >
         <Tag className="h-4 w-4" />
       </ActionButton>
+
+      {onGenerateDiscountCodes && (
+        <ActionButton
+          onClick={onGenerateDiscountCodes}
+          title="Generera nya rabattkoder"
+          className="h-8 w-8"
+          loading={isGeneratingCodes}
+          variant="secondary"
+        >
+          <Plus className="h-4 w-4" />
+        </ActionButton>
+      )}
     </div>
   );
 };

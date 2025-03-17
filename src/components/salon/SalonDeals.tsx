@@ -10,6 +10,8 @@ import { Deal } from '@/components/admin/types';
 import { DiscountCodesDialog } from '@/components/admin/deals/DiscountCodesDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DealsTable } from '@/components/admin/deals/DealsTable';
+import { generateDiscountCodes } from '@/utils/discount-codes';
+import { toast } from 'sonner';
 
 export const SalonDeals: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +33,7 @@ export const SalonDeals: React.FC = () => {
   const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
   const [isClosingEditDialog, setIsClosingEditDialog] = useState(false);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
+  const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
     if (isProcessingAction) return;
@@ -76,6 +79,28 @@ export const SalonDeals: React.FC = () => {
     }
   }, [handleUpdate, handleCloseDealDialog, isProcessingAction]);
 
+  const handleGenerateDiscountCodes = useCallback(async (deal: Deal, quantity: number) => {
+    if (isGeneratingCodes) return Promise.reject(new Error("Redan genererar koder"));
+    
+    try {
+      setIsGeneratingCodes(true);
+      await toast.promise(
+        generateDiscountCodes(deal.id, quantity),
+        {
+          loading: `Genererar ${quantity} rabattkoder...`,
+          success: `${quantity} rabattkoder genererades för "${deal.title}"`,
+          error: 'Kunde inte generera rabattkoder'
+        }
+      );
+      return Promise.resolve();
+    } catch (error) {
+      console.error("[SalonDeals] Error generating discount codes:", error);
+      return Promise.reject(error);
+    } finally {
+      setIsGeneratingCodes(false);
+    }
+  }, [isGeneratingCodes]);
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-6 space-y-6">
@@ -106,6 +131,8 @@ export const SalonDeals: React.FC = () => {
             onEdit={handleEditDeal}
             onDelete={(deal) => setDeletingDeal(deal)}
             onViewDiscountCodes={handleViewDiscountCodes}
+            onGenerateDiscountCodes={handleGenerateDiscountCodes}
+            isGeneratingCodes={isGeneratingCodes}
             isSalonView={true}
           />
         </CardContent>
@@ -138,6 +165,7 @@ export const SalonDeals: React.FC = () => {
         isOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
         onClose={handleCloseDiscountCodesDialog}
         deal={viewingCodesForDeal}
+        onGenerateDiscountCodes={handleGenerateDiscountCodes}
       />
     </div>
   );

@@ -5,9 +5,10 @@ import { DiscountCodesTable } from "@/components/discount-codes/DiscountCodesTab
 import { Deal } from "@/components/admin/types";
 import { useDiscountCodesDialog } from "./useDiscountCodesDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, PlusCircle } from "lucide-react";
 import { TestGenerateCodesButton } from "../TestGenerateCodesButton";
 import { logIdInfo } from "@/utils/discount-codes/types";
+import { Button } from "@/components/ui/button";
 
 interface DiscountCodesDialogContentProps {
   isOpen: boolean;
@@ -29,7 +30,9 @@ export const DiscountCodesDialogContent = ({
     inspectionResult,
     timeElapsedText,
     handleManualRefresh,
-    getEmptyStateMessage
+    handleInspectCodes,
+    getEmptyStateMessage,
+    isInspecting
   } = useDiscountCodesDialog(isOpen, deal);
 
   // Logga deal-information för felsökning
@@ -91,14 +94,36 @@ export const DiscountCodesDialogContent = ({
       )}
       
       {deal && discountCodes.length === 0 && !isLoading && !isFetching && (
-        <div className="mb-4">
-          <TestGenerateCodesButton 
-            dealId={deal.id} 
-            onSuccess={handleManualRefresh}
-          />
-          <p className="text-xs text-muted-foreground mt-1">
-            Använd denna knapp för att generera några testkoder.
+        <div className="mb-4 space-y-3">
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              onClick={handleGenerateDiscountCodes} 
+              className="gap-2"
+              disabled={isLoading || isFetching}
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Generera 10 nya rabattkoder</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={handleInspectCodes}
+              className="gap-2"
+              disabled={isLoading || isFetching || isInspecting}
+            >
+              <AlertCircle className={`h-4 w-4 ${isInspecting ? "animate-spin" : ""}`} />
+              <span>Inspektera databas</span>
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Använd knapparna ovan för att generera nya koder eller inspektera existerande koder i databasen.
           </p>
+          {deal && (
+            <TestGenerateCodesButton 
+              dealId={deal.id} 
+              onSuccess={handleManualRefresh}
+            />
+          )}
         </div>
       )}
       
