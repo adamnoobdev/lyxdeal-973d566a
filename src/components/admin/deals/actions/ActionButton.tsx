@@ -24,6 +24,7 @@ export const ActionButton = ({
   title,
   children,
 }: ActionButtonProps) => {
+  // Om loading-egenskapen är definierad, använd LoadingButton-komponenten
   if (loading !== undefined) {
     return (
       <LoadingButton
@@ -31,7 +32,7 @@ export const ActionButton = ({
         size={size}
         onClick={onClick}
         loading={loading}
-        disabled={disabled}
+        disabled={disabled || loading}
         className={className}
         title={title}
       >
@@ -40,6 +41,7 @@ export const ActionButton = ({
     );
   }
 
+  // Annars, använd en vanlig Button-komponent
   return (
     <Button
       variant={variant}
