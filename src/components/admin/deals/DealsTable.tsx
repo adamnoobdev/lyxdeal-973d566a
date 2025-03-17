@@ -18,7 +18,7 @@ interface DealsTableProps {
   deals: Deal[];
   onEdit?: (deal: Deal) => void;
   onDelete?: (deal: Deal) => void;
-  onToggleActive?: ((deal: Deal) => Promise<void>) | undefined;
+  onToggleActive?: ((deal: Deal) => Promise<boolean | void>) | undefined;
   onPreview?: (deal: Deal) => void;
   showApprovalActions?: boolean;
   onApprove?: (dealId: number) => Promise<void>;

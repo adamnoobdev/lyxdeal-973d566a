@@ -9,7 +9,7 @@ interface DealsTabsSectionProps {
   inactiveDeals: Deal[];
   setEditingDeal: (deal: Deal) => void;
   setDeletingDeal: (deal: Deal) => void;
-  handleToggleActive: (deal: Deal) => Promise<boolean>;
+  handleToggleActive: (deal: Deal) => Promise<boolean | void>;
   onViewDiscountCodes?: (deal: Deal) => void;
   onGenerateDiscountCodes?: (deal: Deal, quantity?: number) => Promise<void>;
   isGeneratingCodes?: boolean;
