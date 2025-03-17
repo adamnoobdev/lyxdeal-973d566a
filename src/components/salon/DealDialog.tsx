@@ -24,6 +24,7 @@ export const DealDialog = ({
 }: DealDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Reset state when dialog opens
   useEffect(() => {
     if (isOpen) {
       setIsSubmitting(false);

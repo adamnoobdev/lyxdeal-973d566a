@@ -48,7 +48,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   }, [form]);
 
   return (
-    <DealFormProvider initialValues={initialValues}>
+    <DealFormProvider initialValues={initialValues} externalIsSubmitting={isSubmitting}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(useFormSubmission(onSubmit, isSubmitting).handleSubmit)} className="space-y-4">
           <div className="space-y-4">
