@@ -36,10 +36,9 @@ export const DealFormProvider: React.FC<DealFormProviderProps> = ({
 
   // If externalIsSubmitting changes, update internal state
   useEffect(() => {
-    if (externalIsSubmitting !== isSubmitting) {
-      setIsSubmitting(externalIsSubmitting);
-    }
-  }, [externalIsSubmitting, isSubmitting]);
+    console.log('DealFormProvider: externalIsSubmitting changed to', externalIsSubmitting);
+    setIsSubmitting(externalIsSubmitting);
+  }, [externalIsSubmitting]);
 
   return (
     <DealFormContext.Provider

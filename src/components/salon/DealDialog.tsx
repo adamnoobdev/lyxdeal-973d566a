@@ -45,7 +45,10 @@ export const DealDialog = ({
   };
 
   const handleSubmit = async (values: FormValues) => {
-    if (isSubmitting) return;
+    if (isSubmitting) {
+      console.log("[DealDialog] Submission already in progress, ignoring");
+      return;
+    }
     
     try {
       setIsSubmitting(true);
