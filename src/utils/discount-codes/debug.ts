@@ -1,11 +1,10 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeId } from "./types";
 
 /**
  * Listar alla rabattkoder för felsökning
  */
-export const listAllDiscountCodes = async (): Promise<void> => {
+export const listAllDiscountCodes = async (): Promise<any[]> => {
   try {
     const { data, error } = await supabase
       .from("discount_codes")
@@ -14,7 +13,7 @@ export const listAllDiscountCodes = async (): Promise<void> => {
       
     if (error) {
       console.error("[listAllDiscountCodes] Error fetching codes:", error);
-      return;
+      return [];
     }
     
     console.log("[listAllDiscountCodes] Found codes:", data?.length || 0);
@@ -25,8 +24,11 @@ export const listAllDiscountCodes = async (): Promise<void> => {
       console.log("[listAllDiscountCodes] Sample deal_id types:", 
         data.slice(0, 5).map(code => `${code.deal_id} (${typeof code.deal_id})`).join(', '));
     }
+    
+    return data || [];
   } catch (error) {
     console.error("[listAllDiscountCodes] Exception:", error);
+    return [];
   }
 };
 

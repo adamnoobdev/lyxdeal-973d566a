@@ -26,7 +26,7 @@ export const DebugPanel = () => {
   const handleListAllCodes = async () => {
     setLastAction("Lista alla koder");
     const codes = await listAllDiscountCodes();
-    setLastResult(`Hittade ${codes?.length || 0} rabattkoder totalt`);
+    setLastResult(`Hittade ${codes.length || 0} rabattkoder totalt`);
     toast.success("Se konsolen för lista över alla rabattkoder");
   };
   
