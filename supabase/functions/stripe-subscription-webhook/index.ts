@@ -108,7 +108,10 @@ serve(async (req) => {
               name: session.metadata.business_name,
               email: session.metadata.email,
               role: "salon_owner",
-              user_id: userData.user.id
+              user_id: userData.user.id,
+              subscription_plan: session.metadata.plan_title,
+              subscription_type: session.metadata.plan_type,
+              stripe_customer_id: session.customer
             }
           ])
           .select();

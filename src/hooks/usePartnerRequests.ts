@@ -38,22 +38,24 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
     // Create Stripe checkout session for the subscription
     if (data.plan_price && data.plan_price > 0) {
       // Call Stripe checkout function
-      const { success: stripeSuccess, url, error: stripeError } = await createStripeCheckout({
-        planTitle: data.plan_title || 'Salongspartner',
-        planType: data.plan_payment_type || 'monthly',
-        price: data.plan_price,
-        email: data.email,
-        businessName: data.business_name
+      const { data: stripeData, error: stripeError } = await supabase.functions.invoke('create-salon-subscription', {
+        body: {
+          planTitle: data.plan_title || 'Salongspartner',
+          planType: data.plan_payment_type || 'monthly',
+          price: data.plan_price,
+          email: data.email,
+          businessName: data.business_name
+        }
       });
       
-      if (!stripeSuccess) {
-        throw new Error(stripeError || 'Failed to create payment session');
+      if (stripeError) {
+        throw new Error(stripeError.message || 'Failed to create payment session');
       }
       
       // Return success with redirect URL
       return { 
         success: true, 
-        redirectUrl: url 
+        redirectUrl: stripeData.url 
       };
     }
     
@@ -66,35 +68,3 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
     };
   }
 };
-
-interface StripeCheckoutParams {
-  planTitle: string;
-  planType: string;
-  price: number;
-  email: string;
-  businessName: string;
-}
-
-export const createStripeCheckout = async (params: StripeCheckoutParams) => {
-  try {
-    const response = await supabase.functions.invoke('create-salon-subscription', {
-      body: params
-    });
-
-    if (response.error) {
-      throw new Error(response.error.message);
-    }
-
-    return {
-      success: true,
-      url: response.data.url
-    };
-  } catch (error) {
-    console.error('Error creating Stripe checkout:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
-    };
-  }
-};
-

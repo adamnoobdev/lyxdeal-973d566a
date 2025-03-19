@@ -164,7 +164,6 @@ export const ContactSection = () => {
                     rows={5}
                     value={formData.message}
                     onChange={handleChange}
-                    required
                   />
                 </div>
                 <LoadingButton 
