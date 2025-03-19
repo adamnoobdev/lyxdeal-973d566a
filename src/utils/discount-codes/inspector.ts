@@ -73,10 +73,9 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<Ins
       };
     }
     
-    // Använd normalizeId för att säkerställa att dealId hanteras korrekt
-    // numericDealId är garanterat en siffra här eftersom vi konverterat det ovan
-    // och kontrollerat med isNaN
-    const normalizedId = normalizeId(numericDealId); // Fix: numericDealId is now guaranteed to be a number
+    // The error was in this line - we need to ensure numericDealId is treated as a number
+    // after our earlier conversion and validation
+    const normalizedId = normalizeId(numericDealId);
     
     // Sök efter koder med liknande ID för att hjälpa till med felsökning
     const { data: allCodes, error: allCodesError } = await supabase
