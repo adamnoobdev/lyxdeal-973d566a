@@ -14,16 +14,23 @@ type InspectionResult = {
  * Inspekterar rabattkoder i databasen för ett specifikt erbjudande-ID
  * För att hjälpa till med felsökning när rabattkoder inte visas korrekt
  */
-export const inspectDiscountCodes = async (dealId: number): Promise<InspectionResult> => {
+export const inspectDiscountCodes = async (dealId: number | string): Promise<InspectionResult> => {
   try {
-    logIdInfo("inspectDiscountCodes", dealId);
-    console.log(`[Inspector] Inspecting discount codes for deal ID: ${dealId}`);
+    // Konvertera dealId till nummer för konsekvens
+    const numericDealId = typeof dealId === 'string' ? parseInt(dealId, 10) : dealId;
+    
+    if (isNaN(numericDealId)) {
+      throw new Error(`Invalid deal ID format: ${dealId}`);
+    }
+    
+    logIdInfo("inspectDiscountCodes", numericDealId);
+    console.log(`[Inspector] Inspecting discount codes for deal ID: ${numericDealId}`);
     
     // Kontrollera om koder finns med exakt matchning av deal_id
     const { data: exactMatchCodes, error: exactMatchError } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', dealId)
+      .eq('deal_id', numericDealId)
       .limit(10);
       
     if (exactMatchError) {
@@ -37,13 +44,13 @@ export const inspectDiscountCodes = async (dealId: number): Promise<InspectionRe
       return {
         success: true,
         codesCount: exactMatchCodes.length,
-        message: `Hittade ${exactMatchCodes.length} rabattkoder med deal_id = ${dealId}`,
+        message: `Hittade ${exactMatchCodes.length} rabattkoder med deal_id = ${numericDealId}`,
         sampleCodes: exactMatchCodes.slice(0, 3)
       };
     }
     
     // Kontrollera om koden finns lagrat som en sträng istället för ett nummer
-    const stringId = dealId.toString();
+    const stringId = numericDealId.toString();
     const { data: stringMatchCodes, error: stringMatchError } = await supabase
       .from('discount_codes')
       .select('*')
@@ -67,7 +74,7 @@ export const inspectDiscountCodes = async (dealId: number): Promise<InspectionRe
     }
     
     // Kontrollera om deal_id lagras i annat format
-    const normalizedId = normalizeId(dealId);
+    const normalizedId = normalizeId(numericDealId);
     
     // Sök efter koder med liknande ID för att hjälpa till med felsökning
     const { data: allCodes, error: allCodesError } = await supabase
@@ -85,7 +92,7 @@ export const inspectDiscountCodes = async (dealId: number): Promise<InspectionRe
     return {
       success: false,
       codesCount: 0,
-      message: `Inga rabattkoder hittades för erbjudande ${dealId}. Senaste koder i systemet har deal_id = ${allCodes?.length ? allCodes.map(c => c.deal_id).join(', ') : 'ingen'}`,
+      message: `Inga rabattkoder hittades för erbjudande ${numericDealId}. Senaste koder i systemet har deal_id = ${allCodes?.length ? allCodes.map(c => c.deal_id).join(', ') : 'ingen'}`,
       sampleCodes: allCodes || []
     };
   } catch (error) {
