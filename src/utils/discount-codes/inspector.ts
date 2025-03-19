@@ -50,7 +50,7 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<Ins
     }
     
     // Kontrollera om koden finns lagrat som en sträng istället för ett nummer
-    const stringId = numericDealId.toString();
+    const stringId = String(numericDealId);
     const { data: stringMatchCodes, error: stringMatchError } = await supabase
       .from('discount_codes')
       .select('*')
@@ -73,7 +73,7 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<Ins
       };
     }
     
-    // Make sure normalizeId receives the correct type
+    // Ensure we pass a number to normalizeId
     const normalizedId = normalizeId(numericDealId);
     
     // Sök efter koder med liknande ID för att hjälpa till med felsökning

@@ -11,7 +11,11 @@ export function prepareSearchIds(dealId: number | string) {
   // Normalisera deal ID för konsekvens (men håll reda på original för jämförelse)
   let numericDealId: number;
   try {
-    numericDealId = normalizeId(dealId);
+    numericDealId = typeof dealId === 'number' ? dealId : parseInt(String(dealId), 10);
+    if (isNaN(numericDealId)) {
+      console.warn(`[prepareSearchIds] Could not parse dealId: ${dealId}, defaulting to 0`);
+      numericDealId = 0;
+    }
   } catch (error) {
     console.error(`[prepareSearchIds] Failed to normalize ID: ${error}`);
     numericDealId = typeof dealId === 'number' ? dealId : parseInt(String(dealId), 10);
