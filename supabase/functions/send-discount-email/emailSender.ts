@@ -25,35 +25,49 @@ export async function sendDiscountEmail(payload: RequestPayload) {
   
   console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
   
-  const { data, error } = await resend.emails.send({
-    from: "Lyxdeal <noreply@lyxdeal.se>",
-    to: email,
-    subject: `Din rabattkod för "${dealTitle}"`,
-    html: emailContent,
-    reply_to: "info@lyxdeal.se"
-  });
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "Lyxdeal <noreply@lyxdeal.se>",
+      to: email,
+      subject: `Din rabattkod för "${dealTitle}"`,
+      html: emailContent,
+      reply_to: "info@lyxdeal.se"
+    });
 
-  if (error) {
-    console.error("Resend API Error:", error);
+    if (error) {
+      console.error("Resend API Error:", error);
+      return new Response(
+        JSON.stringify({ error: "Failed to send email", details: error }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    console.log(`Successfully sent email to ${email}`, data);
     return new Response(
-      JSON.stringify({ error: "Failed to send email", details: error }),
+      JSON.stringify({ 
+        success: true, 
+        data,
+        message: `Rabattkod skickad till ${email}`
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
+  } catch (err) {
+    console.error("Error sending email:", err);
+    return new Response(
+      JSON.stringify({ 
+        error: "Exception when sending email", 
+        details: err instanceof Error ? err.message : String(err) 
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
   }
-
-  console.log(`Successfully sent email to ${email}`, data);
-  return new Response(
-    JSON.stringify({ 
-      success: true, 
-      data,
-      message: `Rabattkod skickad till ${email}`
-    }),
-    {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    }
-  );
 }
