@@ -73,7 +73,7 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<Ins
       };
     }
     
-    // Since normalizeId accepts both string and number, we can pass numericDealId directly
+    // Now normalizeId accepts both string and number types
     const normalizedId = normalizeId(numericDealId);
     
     // Sök efter koder med liknande ID för att hjälpa till med felsökning

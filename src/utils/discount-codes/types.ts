@@ -10,7 +10,7 @@ export interface CustomerInfo {
  * Normalize deal ID to ensure consistent comparison
  * Can handle string or number input and return a number
  */
-export function normalizeId(id: number | string): number {
+export function normalizeId(id: string | number): number {
   if (typeof id === 'string') {
     return parseInt(id, 10);
   }
