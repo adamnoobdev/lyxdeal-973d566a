@@ -49,7 +49,7 @@ export const ContactSection = () => {
     
     try {
       // Use the custom function to submit partner request
-      const { success, error } = await submitPartnerRequest({
+      const { success, error, redirectUrl } = await submitPartnerRequest({
         name: formData.name,
         business_name: formData.business,
         email: formData.email,
@@ -63,18 +63,25 @@ export const ContactSection = () => {
       
       if (!success) throw new Error(error);
       
-      toast.success("Tack för din förfrågan! Vi kontaktar dig inom kort.");
-      setFormData({
-        name: "",
-        business: "",
-        email: "",
-        phone: "",
-        message: ""
-      });
-      
-      // Clear selected plan
-      localStorage.removeItem('selectedPlan');
-      setSelectedPlan(null);
+      if (redirectUrl) {
+        // Redirect to Stripe checkout
+        toast.success("Du skickas nu till betalningssidan");
+        window.location.href = redirectUrl;
+      } else {
+        // If no payment required (free plan)
+        toast.success("Tack för din förfrågan! Vi kontaktar dig inom kort.");
+        setFormData({
+          name: "",
+          business: "",
+          email: "",
+          phone: "",
+          message: ""
+        });
+        
+        // Clear selected plan
+        localStorage.removeItem('selectedPlan');
+        setSelectedPlan(null);
+      }
     } catch (error) {
       console.error("Error submitting partner request:", error);
       toast.error("Ett fel uppstod. Försök igen senare.");
@@ -165,7 +172,7 @@ export const ContactSection = () => {
                   className="w-full"
                   loading={isSubmitting}
                 >
-                  {selectedPlan ? 'Skicka förfrågan om partnerskap' : 'Skicka meddelande'}
+                  {selectedPlan ? 'Skicka förfrågan och gå till betalning' : 'Skicka meddelande'}
                 </LoadingButton>
               </form>
             </CardContent>

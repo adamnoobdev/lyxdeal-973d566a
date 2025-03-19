@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -14,6 +13,7 @@ import PartnerPage from './pages/PartnerPage';
 import FAQ from './pages/FAQ';
 import Terms from './pages/Terms';
 import SecureDeal from './pages/SecureDeal';
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import { SalonDeals } from './components/salon/SalonDeals';
 
 function App() {
@@ -32,9 +32,9 @@ function App() {
           <Route path="partner" element={<PartnerPage />} />
           <Route path="bli-partner" element={<PartnerPage />} />
           <Route path="salons/:id" element={<SalonDetails />} />
+          <Route path="/subscription-success" element={<SubscriptionSuccess />} />
         </Route>
         
-        {/* Använd "*" för att fånga alla undervägar för admin */}
         <Route path="/admin/*" element={<Admin />} />
         
         <Route path="/salon">
