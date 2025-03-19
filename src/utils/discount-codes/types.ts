@@ -12,7 +12,12 @@ export interface CustomerInfo {
  */
 export function normalizeId(id: string | number): number {
   if (typeof id === 'string') {
-    return parseInt(id, 10);
+    const parsed = parseInt(id, 10);
+    if (isNaN(parsed)) {
+      console.warn(`[normalizeId] Could not parse ID: ${id}, defaulting to 0`);
+      return 0;
+    }
+    return parsed;
   }
   return id;
 }

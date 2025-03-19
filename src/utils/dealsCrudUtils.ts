@@ -1,9 +1,9 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
 import { toast } from "sonner";
 import { differenceInDays } from "date-fns";
 import { FormValues } from "@/components/deal-form/schema";
+import { generateDiscountCodes } from "@/utils/discount-codes";
 
 /**
  * Tar bort ett erbjudande från databasen
@@ -116,6 +116,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
     const originalPrice = parseInt(values.originalPrice) || 0;
     let discountedPrice = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPrice === 0;
+    const quantity = parseInt(values.quantity) || 10;
     
     // For free deals, set discounted_price to 1 to avoid database constraint
     // but keep is_free flag as true
@@ -134,11 +135,12 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       originalPrice,
       discountedPrice,
       isFree,
-      expirationDate: expirationDate
+      expirationDate: expirationDate,
+      quantity
     });
     
     // Create a new deal
-    const { error } = await supabase
+    const { data: newDeal, error } = await supabase
       .from('deals')
       .insert([{
         title: values.title,
@@ -155,12 +157,34 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
         status: 'approved', // Direktgodkänd
         is_free: isFree, // Set is_free based on original discounted price
         is_active: values.is_active !== undefined ? values.is_active : true,
-        quantity_left: parseInt(values.quantity) || 10,
-      }]);
+        quantity_left: quantity,
+      }])
+      .select();
 
     if (error) {
       console.error('Database error details:', error);
       throw error;
+    }
+
+    // Om vi fick tillbaka ett ID, generera rabattkoder
+    if (newDeal && newDeal.length > 0) {
+      const dealId = newDeal[0].id;
+      console.log(`Automatically generating ${quantity} discount codes for new deal ID: ${dealId}`);
+      
+      try {
+        // Generera rabattkoder i bakgrunden
+        setTimeout(async () => {
+          try {
+            await generateDiscountCodes(dealId, quantity);
+            console.log(`Successfully generated ${quantity} discount codes for deal ID: ${dealId}`);
+          } catch (genError) {
+            console.error(`Error generating discount codes for deal ID: ${dealId}:`, genError);
+          }
+        }, 500);
+      } catch (genError) {
+        console.error('Error starting discount code generation:', genError);
+        // Fortsätt utan att blockera eftersom erbjudandet skapades korrekt
+      }
     }
     
     toast.success("Erbjudandet har skapats");
