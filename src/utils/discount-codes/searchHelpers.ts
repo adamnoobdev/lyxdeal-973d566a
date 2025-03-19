@@ -17,10 +17,6 @@ export {
 } from "./search/numericSearch";
 
 export {
-  searchWithOriginalId
-} from "./search/originalIdSearch";
-
-export {
   searchWithStringId
 } from "./search/stringSearch";
 
