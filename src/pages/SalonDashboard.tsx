@@ -5,7 +5,7 @@ import { useSession } from "@/hooks/useSession";
 import { useState, useEffect } from "react";
 import { Deal } from "@/types/deal";
 import { useNavigate } from "react-router-dom";
-import { useSalonDeals } from "@/hooks/useSalonDeals";
+import { useSalonDeals } from "@/hooks/salon-deals";
 import { FormValues } from "@/components/deal-form/schema";
 import { useFirstLogin } from "@/hooks/useFirstLogin";
 import { DealStatistics } from "@/components/salon/DealStatistics";
