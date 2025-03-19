@@ -10,7 +10,7 @@ export {
 
 export { 
   logSearchAttempt 
-} from "./search/loggers";
+} from "./types";
 
 export {
   searchWithNumericId

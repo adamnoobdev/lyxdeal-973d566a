@@ -50,3 +50,23 @@ export async function multiSearch(dealId: string | number) {
     };
   }
 }
+
+/**
+ * Search discount codes with multiple methods and return the first successful result
+ */
+export async function searchDiscountCodesWithMultipleMethods(dealId: string | number | undefined) {
+  if (!dealId) {
+    console.log("[searchDiscountCodesWithMultipleMethods] No dealId provided");
+    return [];
+  }
+  
+  try {
+    console.log(`[searchDiscountCodesWithMultipleMethods] Searching for codes with dealId: ${dealId} (type: ${typeof dealId})`);
+    
+    const result = await multiSearch(dealId);
+    return result.success ? result.codes : [];
+  } catch (error) {
+    console.error("[searchDiscountCodesWithMultipleMethods] Error:", error);
+    return [];
+  }
+}

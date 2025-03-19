@@ -13,7 +13,12 @@ export {
   getAllCodesForInspection 
 } from './databaseAccess';
 export { analyzeCodesAndFindMatches } from './analysisUtils';
-export { prepareSuccessResponse, prepareErrorResponse } from './responseFormatters';
+export { 
+  formatCodesResponse, 
+  formatErrorResponse,
+  prepareSuccessResponse, 
+  prepareErrorResponse 
+} from './responseFormatters';
 export { prepareSearchIds } from './idNormalizer';
 export { runInspectionProcess, performStandardSearch } from './inspectionFlow';
 export type { CustomerInfo } from './types';

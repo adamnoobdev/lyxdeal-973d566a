@@ -31,3 +31,17 @@ export async function numericSearch(dealId: number) {
     };
   }
 }
+
+/**
+ * Search with numeric ID (exported for backwards compatibility)
+ */
+export async function searchWithNumericId(dealId: number, methodName = "searchWithNumericId"): Promise<any[]> {
+  try {
+    console.log(`[${methodName}] Searching with numeric ID: ${dealId}`);
+    const result = await numericSearch(dealId);
+    return result.success ? result.codes : [];
+  } catch (error) {
+    console.error(`[${methodName}] Error:`, error);
+    return [];
+  }
+}

@@ -24,10 +24,13 @@ export async function loadSalonDeals(
   try {
     console.log(`[loadSalonDeals] Loading deals for salon ${salonId} (attempt ${loadAttempts.current + 1})`);
     
+    // Convert salonId to number if it's a string
+    const numericSalonId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    
     const { data, error } = await supabase
       .from('deals')
       .select('*')
-      .eq('salon_id', salonId);
+      .eq('salon_id', numericSalonId);
     
     // Only update state if the component is still mounted
     if (isMountedRef.current) {

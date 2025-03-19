@@ -9,6 +9,7 @@ export async function directSearch(dealId: string | number) {
   try {
     logSearchAttempt("directSearch", dealId, true);
     
+    // Use the value as-is, without type conversion
     const { data, error } = await supabase
       .from('discount_codes')
       .select('*')
