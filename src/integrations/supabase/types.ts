@@ -147,6 +147,51 @@ export type Database = {
           },
         ]
       }
+      partner_requests: {
+        Row: {
+          business_name: string
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string
+          plan_deal_count: number | null
+          plan_payment_type: string | null
+          plan_price: number | null
+          plan_title: string | null
+          status: string
+        }
+        Insert: {
+          business_name: string
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone: string
+          plan_deal_count?: number | null
+          plan_payment_type?: string | null
+          plan_price?: number | null
+          plan_title?: string | null
+          status?: string
+        }
+        Update: {
+          business_name?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string
+          plan_deal_count?: number | null
+          plan_payment_type?: string | null
+          plan_price?: number | null
+          plan_title?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       purchases: {
         Row: {
           created_at: string

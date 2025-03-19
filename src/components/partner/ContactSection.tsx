@@ -5,8 +5,8 @@ import { Textarea } from "../ui/textarea";
 import { Card, CardContent } from "../ui/card";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { LoadingButton } from "../ui/loading-button";
+import { submitPartnerRequest } from "@/hooks/usePartnerRequests";
 
 interface SelectedPlan {
   title: string;
@@ -48,24 +48,20 @@ export const ContactSection = () => {
     setIsSubmitting(true);
     
     try {
-      // Create partner request in database
-      const { error } = await supabase
-        .from('partner_requests')
-        .insert([
-          { 
-            name: formData.name,
-            business_name: formData.business,
-            email: formData.email,
-            phone: formData.phone,
-            message: formData.message,
-            plan_title: selectedPlan?.title || null,
-            plan_payment_type: selectedPlan?.paymentType || null,
-            plan_price: selectedPlan?.price || null,
-            plan_deal_count: selectedPlan?.dealCount || null
-          }
-        ]);
+      // Use the custom function to submit partner request
+      const { success, error } = await submitPartnerRequest({
+        name: formData.name,
+        business_name: formData.business,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        plan_title: selectedPlan?.title,
+        plan_payment_type: selectedPlan?.paymentType,
+        plan_price: selectedPlan?.price,
+        plan_deal_count: selectedPlan?.dealCount
+      });
       
-      if (error) throw error;
+      if (!success) throw new Error(error);
       
       toast.success("Tack för din förfrågan! Vi kontaktar dig inom kort.");
       setFormData({
