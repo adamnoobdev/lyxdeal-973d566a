@@ -13,10 +13,12 @@ export const SecureDealForm = ({
   onSuccess 
 }: SecureDealFormProps) => {
   return (
-    <SecureDealContainer
-      dealId={dealId}
-      dealTitle={dealTitle}
-      onSuccess={onSuccess}
-    />
+    <div className="w-full">
+      <SecureDealContainer
+        dealId={dealId}
+        dealTitle={dealTitle}
+        onSuccess={onSuccess}
+      />
+    </div>
   );
 };

@@ -58,8 +58,8 @@ const SecureDeal = () => {
           </Button>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h1 className="text-2xl font-bold mb-4">{deal.title}</h1>
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+              <h1 className="text-xl md:text-2xl font-bold mb-4">{deal.title}</h1>
               
               <div className="aspect-[4/3] overflow-hidden rounded-lg mb-6">
                 <ResponsiveImage
@@ -69,13 +69,13 @@ const SecureDeal = () => {
                 />
               </div>
               
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                 <PriceDisplay
                   originalPrice={deal.originalPrice}
                   discountedPrice={deal.discountedPrice}
                   className="text-lg"
                 />
-                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm w-fit">
                   {deal.daysRemaining} dagar kvar
                 </span>
               </div>
@@ -100,7 +100,7 @@ const SecureDeal = () => {
                 onSuccess={() => {}}
               />
               
-              <div className="mt-6 bg-white p-6 rounded-lg shadow-sm">
+              <div className="mt-6 bg-white p-4 md:p-6 rounded-lg shadow-sm">
                 <h3 className="text-lg font-semibold mb-4">Så här fungerar det:</h3>
                 <ol className="space-y-4">
                   <li className="flex items-start gap-3">

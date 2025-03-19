@@ -19,6 +19,7 @@ export const SecureDealContainer = ({
 }: SecureDealContainerProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [emailSent, setEmailSent] = useState<string | null>(null);
 
   const handleSubmit = async (values: SecureFormValues) => {
     setIsSubmitting(true);
@@ -26,11 +27,8 @@ export const SecureDealContainer = ({
     try {
       console.log(`[SecureDealContainer] Securing deal ${dealId} for ${values.email}`);
       
-      // Konvertera dealId till nummer för konsekvens
-      const numericDealId = Number(dealId);
-      
       // 1. Hämta en tillgänglig rabattkod
-      const code = await getAvailableDiscountCode(numericDealId);
+      const code = await getAvailableDiscountCode(dealId);
       
       if (!code) {
         toast.error("Tyvärr finns det inga fler koder tillgängliga för detta erbjudande.");
@@ -38,14 +36,19 @@ export const SecureDealContainer = ({
       }
       
       // 2. Markera koden som använd och koppla till kundinformation
-      await markDiscountCodeAsUsed(code, {
+      const codeUpdated = await markDiscountCodeAsUsed(code, {
         name: values.name,
         email: values.email,
         phone: values.phone
       });
       
+      if (!codeUpdated) {
+        toast.error("Ett fel uppstod när rabattkoden skulle kopplas till din profil.");
+        return;
+      }
+      
       // 3. Skicka e-post med rabattkoden
-      const { error } = await supabase.functions.invoke("send-discount-email", {
+      const { data, error } = await supabase.functions.invoke("send-discount-email", {
         body: {
           email: values.email,
           name: values.name,
@@ -56,7 +59,11 @@ export const SecureDealContainer = ({
       });
       
       if (error) {
-        throw new Error(`Fel vid sändning av e-post: ${error.message}`);
+        console.error("Error sending email:", error);
+        toast.error("Rabattkoden har reserverats men det gick inte att skicka e-postmeddelandet.");
+        // Vi fortsätter ändå eftersom rabattkoden har markerats som använd
+      } else {
+        console.log("Email sent successfully:", data);
       }
       
       // 4. Skapa en purchase-post i databasen
@@ -64,7 +71,7 @@ export const SecureDealContainer = ({
         .from("purchases")
         .insert({
           customer_email: values.email,
-          deal_id: numericDealId,
+          deal_id: dealId,
           discount_code: code,
         });
         
@@ -75,6 +82,7 @@ export const SecureDealContainer = ({
       
       // 5. Visa bekräftelse
       toast.success("Grattis! Din rabattkod har skickats till din e-post.");
+      setEmailSent(values.email);
       setIsSuccess(true);
       
       // 6. Anropa success callback om tillhandahållen
@@ -92,12 +100,13 @@ export const SecureDealContainer = ({
 
   const handleReset = () => {
     setIsSuccess(false);
+    setEmailSent(null);
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       {isSuccess ? (
-        <SuccessMessage onReset={handleReset} />
+        <SuccessMessage onReset={handleReset} email={emailSent} />
       ) : (
         <SecureForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       )}
