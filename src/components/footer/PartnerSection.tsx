@@ -12,7 +12,7 @@ export const PartnerSection = ({ onNavigate }: PartnerSectionProps) => {
       <ul className="space-y-2">
         <li>
           <button
-            onClick={() => onNavigate("/bli-partner")}
+            onClick={() => onNavigate("/partner")}
             className="text-gray-600 hover:text-primary transition-colors"
           >
             Bli salongspartner

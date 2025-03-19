@@ -30,6 +30,7 @@ function App() {
           <Route path="faq" element={<FAQ />} />
           <Route path="terms" element={<Terms />} />
           <Route path="partner" element={<PartnerPage />} />
+          <Route path="bli-partner" element={<PartnerPage />} />
           <Route path="salons/:id" element={<SalonDetails />} />
         </Route>
         

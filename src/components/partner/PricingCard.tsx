@@ -21,6 +21,14 @@ export const PricingCard = ({
   features,
   isPopular = false,
 }: PricingCardProps) => {
+  const handleContactClick = () => {
+    // Navigera till kontaktformuläret längre ner på sidan
+    const contactSection = document.getElementById('contact-section');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className={`
       p-6 rounded-lg border shadow-md flex flex-col h-full
@@ -72,10 +80,10 @@ export const PricingCard = ({
       </div>
       
       <div className="space-y-2 mt-auto">
-        <Button className="w-full" variant="default">
+        <Button className="w-full" variant="default" onClick={handleContactClick}>
           Betala månadsvis
         </Button>
-        <Button className="w-full" variant="outline">
+        <Button className="w-full" variant="outline" onClick={handleContactClick}>
           Betala årsvis
         </Button>
       </div>

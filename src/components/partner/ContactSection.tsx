@@ -3,10 +3,44 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Card, CardContent } from "../ui/card";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const ContactSection = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    business: "",
+    email: "",
+    phone: "",
+    message: ""
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulera en förfrågan
+    setTimeout(() => {
+      toast.success("Tack för din förfrågan! Vi kontaktar dig inom kort.");
+      setFormData({
+        name: "",
+        business: "",
+        email: "",
+        phone: "",
+        message: ""
+      });
+      setIsSubmitting(false);
+    }, 1000);
+  };
+
   return (
-    <div className="py-16 bg-white">
+    <div id="contact-section" className="py-16 bg-white">
       <div className="container px-4 md:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -18,30 +52,68 @@ export const ContactSection = () => {
 
           <Card>
             <CardContent className="p-6">
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm font-medium">Namn</label>
-                    <Input id="name" placeholder="Ditt namn" />
+                    <Input 
+                      id="name" 
+                      placeholder="Ditt namn" 
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="business" className="text-sm font-medium">Företagsnamn</label>
-                    <Input id="business" placeholder="Ditt företag" />
+                    <Input 
+                      id="business" 
+                      placeholder="Ditt företag" 
+                      value={formData.business}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="email" className="text-sm font-medium">E-post</label>
-                    <Input id="email" type="email" placeholder="din@email.com" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="din@email.com" 
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="phone" className="text-sm font-medium">Telefon</label>
-                    <Input id="phone" placeholder="Ditt telefonnummer" />
+                    <Input 
+                      id="phone" 
+                      placeholder="Ditt telefonnummer" 
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="message" className="text-sm font-medium">Meddelande</label>
-                  <Textarea id="message" placeholder="Skriv ditt meddelande här..." rows={5} />
+                  <Textarea 
+                    id="message" 
+                    placeholder="Skriv ditt meddelande här..." 
+                    rows={5}
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
-                <Button type="submit" className="w-full">Skicka meddelande</Button>
+                <Button 
+                  type="submit" 
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Skickar..." : "Skicka meddelande"}
+                </Button>
               </form>
             </CardContent>
           </Card>
