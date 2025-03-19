@@ -10,6 +10,7 @@ import { DealForm } from "@/components/DealForm";
 import { FormValues } from "@/components/deal-form/schema";
 import { useEffect, useState } from "react";
 import { DealFormProvider } from "@/components/deal-form/DealFormContext";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 interface EditDealDialogProps {
   isOpen: boolean;
@@ -25,6 +26,13 @@ export const EditDealDialog = ({
   initialValues,
 }: EditDealDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Säkerställ att komponenten är monterad innan den visas
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   // Reset state when dialog opens
   useEffect(() => {
@@ -51,15 +59,48 @@ export const EditDealDialog = ({
     }
   };
 
+  if (!isMounted) return null;
+
+  // Använd Sheet på mobil för bättre UX
+  const isMobile = window.innerWidth < 768;
+
+  if (isMobile) {
+    return (
+      <Sheet 
+        open={isOpen} 
+        onOpenChange={(open) => {
+          if (!open && !isSubmitting) onClose();
+        }}
+      >
+        <SheetContent className="w-full h-[90vh] p-4 overflow-auto flex flex-col">
+          <SheetHeader className="space-y-2">
+            <SheetTitle>
+              {initialValues ? "Redigera erbjudande" : "Skapa erbjudande"}
+            </SheetTitle>
+            <SheetDescription>
+              Fyll i informationen nedan för att {initialValues ? "uppdatera" : "skapa"} ett erbjudande
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 overflow-auto mt-4">
+            <DealFormProvider initialValues={initialValues} externalIsSubmitting={isSubmitting}>
+              <DealForm 
+                onSubmit={handleSubmit} 
+                initialValues={initialValues}
+                isSubmitting={isSubmitting}
+              />
+            </DealFormProvider>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
   return (
     <Dialog 
       open={isOpen} 
       onOpenChange={(open) => {
-        if (!open) {
-          // Allow React to finish its current rendering cycle before changing state
-          setTimeout(() => {
-            onClose();
-          }, 0);
+        if (!open && !isSubmitting) {
+          onClose();
         }
       }}
     >

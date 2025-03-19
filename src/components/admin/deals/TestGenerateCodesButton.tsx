@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { testDiscountCodeGeneration } from "@/utils/discount-codes/debug";
 import { toast } from "sonner";
@@ -11,13 +11,21 @@ interface TestGenerateCodesButtonProps {
 
 export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodesButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   const handleClick = async () => {
     if (isLoading) return;
     
     try {
       setIsLoading(true);
+      console.log(`[TestGenerateCodesButton] Starting test generation for deal ${dealId}`);
       const result = await testDiscountCodeGeneration(dealId);
+      
       if (result) {
         toast.success("Testgenereringsprocess genomförd");
         if (onSuccess) onSuccess();
@@ -32,7 +40,7 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
     }
   };
 
-  if (process.env.NODE_ENV !== "development") {
+  if (!isMounted || process.env.NODE_ENV !== "development") {
     return null;
   }
 

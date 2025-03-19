@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +25,20 @@ export const DeleteDealDialog = ({
   dealTitle,
 }: DeleteDealDialogProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Säkerställ att komponenten är monterad innan den visas
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+  
+  // Reset isDeleting when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsDeleting(false);
+    }
+  }, [isOpen]);
   
   // Controlled delete with state tracking
   const handleDelete = async () => {
@@ -37,22 +51,18 @@ export const DeleteDealDialog = ({
       console.error("Error during delete:", error);
     } finally {
       setIsDeleting(false);
-      // Use setTimeout to delay state update to next event loop
-      setTimeout(() => {
-        onClose();
-      }, 0);
+      onClose();
     }
   };
+
+  if (!isMounted) return null;
 
   return (
     <AlertDialog 
       open={isOpen} 
       onOpenChange={(open) => {
-        if (!open) {
-          // Use setTimeout to delay state update to next event loop
-          setTimeout(() => {
-            onClose();
-          }, 0);
+        if (!open && !isDeleting) {
+          onClose();
         }
       }}
     >
@@ -66,12 +76,14 @@ export const DeleteDealDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => {
-            // Use setTimeout to delay state update to next event loop
-            setTimeout(() => {
-              onClose();
-            }, 0);
-          }} disabled={isDeleting}>Avbryt</AlertDialogCancel>
+          <AlertDialogCancel 
+            onClick={() => {
+              if (!isDeleting) onClose();
+            }} 
+            disabled={isDeleting}
+          >
+            Avbryt
+          </AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleDelete}
             disabled={isDeleting}
