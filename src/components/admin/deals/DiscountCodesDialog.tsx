@@ -1,14 +1,7 @@
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Deal } from "@/components/admin/types";
 import { DiscountCodesDialogContent } from "./discount-code-dialog/DiscountCodesDialogContent";
-import { generateDiscountCodes } from "@/utils/discount-codes";
-import { toast } from "sonner";
 
 interface DiscountCodesDialogProps {
   isOpen: boolean;
@@ -23,51 +16,32 @@ export const DiscountCodesDialog = ({
   deal,
   onGenerateDiscountCodes
 }: DiscountCodesDialogProps) => {
-  console.log(`[DiscountCodesDialog] 🔄 Rendering with isOpen=${isOpen}, deal=${deal?.id || 'null'}`);
-  
-  // Om ingen extern handler för generering av koder skickats, använd standardimplementeringen
-  const handleGenerateDiscountCodes = async (dealToUpdate: Deal, quantity: number) => {
-    if (!onGenerateDiscountCodes) {
-      try {
-        await toast.promise(
-          generateDiscountCodes(dealToUpdate.id, quantity), 
-          {
-            loading: `Genererar ${quantity} rabattkoder...`,
-            success: `${quantity} rabattkoder genererades`,
-            error: 'Kunde inte generera rabattkoder'
-          }
-        );
-        return Promise.resolve();
-      } catch (error) {
-        console.error("[DiscountCodesDialog] Error generating codes:", error);
-        return Promise.reject(error);
-      }
-    } else {
-      return onGenerateDiscountCodes(dealToUpdate, quantity);
-    }
-  };
-  
   return (
     <Dialog 
       open={isOpen} 
       onOpenChange={(open) => {
         if (!open) {
-          // Allow React to finish its current rendering cycle before changing state
+          // Delay state update to next event loop to avoid React state issues
           setTimeout(() => {
             onClose();
-          }, 0);
+          }, 300);
         }
       }}
     >
-      <DialogContent className="w-[95vw] max-w-4xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Rabattkoder för erbjudande</DialogTitle>
-        </DialogHeader>
-        <DiscountCodesDialogContent 
-          isOpen={isOpen} 
-          deal={deal} 
-          onGenerateDiscountCodes={handleGenerateDiscountCodes}
-        />
+      <DialogContent 
+        className="w-[95vw] max-w-3xl h-[90vh] p-6 overflow-hidden flex flex-col"
+        onInteractOutside={(e) => {
+          // Prevent closing when clicking outside if there's an active operation
+          e.preventDefault();
+        }}
+      >
+        {deal && (
+          <DiscountCodesDialogContent 
+            isOpen={isOpen} 
+            deal={deal}
+            onGenerateDiscountCodes={onGenerateDiscountCodes}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

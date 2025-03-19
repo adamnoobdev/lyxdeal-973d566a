@@ -1,77 +1,25 @@
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Deal } from "@/components/admin/types";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { Deal } from "@/types/deal";
+
+type DealCreationState = {
+  timestamp: number | null;
+  attempts: number;
+  justCreatedDeal: Deal | null;
+};
 
 /**
- * Hook to track and find newly created deals
+ * Hook för att spåra nyligen skapade erbjudanden och hitta dem i databasen
  */
-export const useNewDealTracking = (
-  refetch: () => Promise<unknown>
-) => {
-  const [dealCreationState, setDealCreationState] = useState<{
-    timestamp: number | null;
-    attempts: number;
-    justCreatedDeal: Deal | null;
-  }>({
+export const useNewDealTracking = (refetch: () => Promise<unknown>) => {
+  const [dealCreationState, setDealCreationState] = useState<DealCreationState>({
     timestamp: null,
     attempts: 0,
     justCreatedDeal: null
   });
 
-  // Find the newly created deal after creation
-  useEffect(() => {
-    const findNewlyCreatedDeal = async () => {
-      const MAX_ATTEMPTS = 10;
-      
-      if (dealCreationState.timestamp && !dealCreationState.justCreatedDeal && 
-          dealCreationState.attempts < MAX_ATTEMPTS) {
-        try {
-          const newAttempts = dealCreationState.attempts + 1;
-          setDealCreationState(prev => ({ ...prev, attempts: newAttempts }));
-          
-          console.log(`[useNewDealTracking] Attempting to find newly created deal (attempt ${newAttempts}/${MAX_ATTEMPTS})`);
-          
-          const creationTime = new Date(dealCreationState.timestamp).toISOString();
-          const { data: newDeals, error } = await supabase
-            .from('deals')
-            .select('*')
-            .gte('created_at', creationTime)
-            .order('created_at', { ascending: false })
-            .limit(1);
-            
-          if (error) {
-            console.error("[useNewDealTracking] Error finding new deal:", error);
-          } else if (newDeals && newDeals.length > 0) {
-            console.log("[useNewDealTracking] Found newly created deal:", newDeals[0]);
-            setDealCreationState(prev => ({ ...prev, justCreatedDeal: newDeals[0] as Deal }));
-            
-            refetch();
-          } else {
-            console.log("[useNewDealTracking] No newly created deals found, will retry...");
-            
-            if (newAttempts < MAX_ATTEMPTS) {
-              setTimeout(findNewlyCreatedDeal, 1500);
-            } else {
-              console.warn("[useNewDealTracking] Failed to find newly created deal after maximum attempts");
-              toast.warning("Kunde inte hitta det nyskapade erbjudandet", {
-                description: "Rabattkoder kan ha genererats men kan inte visas automatiskt. Leta efter erbjudandet i listan och klicka på 'Visa rabattkoder'."
-              });
-              setDealCreationState({ timestamp: null, attempts: 0, justCreatedDeal: null });
-            }
-          }
-        } catch (error) {
-          console.error("[useNewDealTracking] Exception finding new deal:", error);
-        }
-      }
-    };
-    
-    if (dealCreationState.timestamp) {
-      findNewlyCreatedDeal();
-    }
-  }, [dealCreationState.timestamp, dealCreationState.justCreatedDeal, dealCreationState.attempts, refetch]);
-
+  // Återställ skapandetillståndet
   const resetDealCreationState = useCallback(() => {
     setDealCreationState({
       timestamp: null,
@@ -79,6 +27,60 @@ export const useNewDealTracking = (
       justCreatedDeal: null
     });
   }, []);
+
+  // Titta efter det nyligen skapade erbjudandet baserat på tidsstämpel
+  useEffect(() => {
+    if (!dealCreationState.timestamp || dealCreationState.attempts >= 5 || dealCreationState.justCreatedDeal) {
+      return;
+    }
+
+    const getNewlyCreatedDeal = async () => {
+      try {
+        console.log(`[useNewDealTracking] Looking for newly created deal, attempt ${dealCreationState.attempts + 1}`);
+        
+        // Hämta det senaste erbjudandet, skapat efter tidsstämpeln
+        const { data, error } = await supabase
+          .from('deals')
+          .select('*')
+          .gt('created_at', new Date(dealCreationState.timestamp - 5000).toISOString())
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (error) {
+          console.error("[useNewDealTracking] Error finding newly created deal:", error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const newDeal = data[0] as Deal;
+          console.log("[useNewDealTracking] Found newly created deal:", newDeal);
+          
+          setDealCreationState(prev => ({
+            ...prev,
+            justCreatedDeal: newDeal
+          }));
+          
+          // Kör en extra refetch för att säkerställa att listan är uppdaterad
+          refetch();
+        } else {
+          // Försök igen om vi inte har hittat erbjudandet än
+          setDealCreationState(prev => ({
+            ...prev,
+            attempts: prev.attempts + 1
+          }));
+        }
+      } catch (error) {
+        console.error("[useNewDealTracking] Error in deal tracking:", error);
+      }
+    };
+
+    // Vänta en kort stund innan sökning efter nytt erbjudande
+    const timer = setTimeout(() => {
+      getNewlyCreatedDeal();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [dealCreationState, refetch]);
 
   return {
     dealCreationState,

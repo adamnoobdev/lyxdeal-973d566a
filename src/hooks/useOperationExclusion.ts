@@ -1,25 +1,60 @@
 
-import { useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 
+/**
+ * Hook för att hantera exklusiva operationer som inte ska kunna köras samtidigt
+ */
 export const useOperationExclusion = () => {
-  const operationInProgressRef = useRef(false);
-  
-  const runExclusiveOperation = useCallback(async (operation: () => Promise<boolean>): Promise<boolean> => {
-    if (operationInProgressRef.current) {
-      console.log("Operation already in progress, ignoring request");
-      return false;
-    }
+  const [isOperationInProgress, setIsOperationInProgress] = useState(false);
+  const operationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    try {
-      operationInProgressRef.current = true;
-      return await operation();
-    } finally {
-      // Säkerställ att flaggan återställs även vid fel
-      setTimeout(() => {
-        operationInProgressRef.current = false;
-      }, 300);
+  const clearOperationTimeout = useCallback(() => {
+    if (operationTimeoutRef.current) {
+      clearTimeout(operationTimeoutRef.current);
+      operationTimeoutRef.current = null;
     }
   }, []);
 
-  return { runExclusiveOperation, operationInProgressRef };
+  /**
+   * Kör en operation exklusivt, vilket förhindrar att andra operationer startas
+   * medan den här körs
+   */
+  const runExclusiveOperation = useCallback(async <T>(
+    operation: () => Promise<T>,
+    timeoutMs: number = 5000
+  ): Promise<T | null> => {
+    if (isOperationInProgress) {
+      console.log("Operation already in progress, ignoring new operation");
+      return null;
+    }
+
+    try {
+      setIsOperationInProgress(true);
+      clearOperationTimeout();
+
+      // Sätt en timeout för att återställa flaggan om operationen hänger sig
+      operationTimeoutRef.current = setTimeout(() => {
+        console.warn("Operation timed out, resetting flag");
+        setIsOperationInProgress(false);
+      }, timeoutMs);
+
+      const result = await operation();
+      return result;
+    } catch (error) {
+      console.error("Error in exclusive operation:", error);
+      return null;
+    } finally {
+      clearOperationTimeout();
+      
+      // Liten fördröjning för att förhindra snabba upprepade klick
+      setTimeout(() => {
+        setIsOperationInProgress(false);
+      }, 300);
+    }
+  }, [isOperationInProgress, clearOperationTimeout]);
+
+  return {
+    isOperationInProgress,
+    runExclusiveOperation
+  };
 };
