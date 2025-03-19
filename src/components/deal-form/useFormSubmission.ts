@@ -55,11 +55,11 @@ export const useFormSubmission = (
       } catch (error) {
         console.error("[useFormSubmission] Error during form submission:", error);
         toast.error("Ett fel uppstod när erbjudandet skulle sparas");
+        // Viktig förändring: återställ isSubmitting även vid fel
+        setCurrentlySubmitting(false);
       } finally {
-        if (isContextAvailable) {
-          // Don't reset isSubmitting immediately for context
-          // Because we might want to control closing dialogs
-        } else {
+        if (!isContextAvailable) {
+          // Om vi inte använder context, återställ direkt
           setLocalIsSubmitting(false);
         }
       }

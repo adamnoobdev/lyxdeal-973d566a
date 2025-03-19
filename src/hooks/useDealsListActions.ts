@@ -1,3 +1,4 @@
+
 import { useCallback, useRef } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { Deal } from "@/components/admin/types";
@@ -52,6 +53,7 @@ export const useDealsListActions = (
         
         if (success) {
           console.log("[DealsListActions] Deal update successful");
+          await refetch();
           return success;
         }
         return false;
@@ -64,7 +66,7 @@ export const useDealsListActions = (
         }, 300);
       }
     });
-  }, [runExclusiveOperation]);
+  }, [runExclusiveOperation, refetch]);
 
   const onCreate = useCallback(async (
     values: FormValues, 
@@ -100,6 +102,8 @@ export const useDealsListActions = (
           setTimeout(() => {
             refetch();
           }, 1000);
+          
+          return success;
         } else {
           setDealCreationState({
             timestamp: null,
@@ -107,9 +111,8 @@ export const useDealsListActions = (
             justCreatedDeal: null
           });
           toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+          return false;
         }
-        
-        return success;
       } catch (error) {
         console.error("[DealsListActions] Error in deal creation flow:", error);
         setDealCreationState({

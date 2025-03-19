@@ -1,54 +1,30 @@
 
-export type ValidDealId = number | string;
+import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Customer information type for discount code usage
+ * Normaliserar ett ID till ett nummer för konsekvens
+ * Hanterar både heltal och strängvärden av ID
  */
-export interface CustomerInfo {
-  name: string;
-  email: string;
-  phone?: string;
-}
-
-/**
- * Normaliserar ett ID till ett nummer
- */
-export function normalizeId(id: string | number): number {
+export const normalizeId = (id: number | string): number => {
+  // Om id redan är ett nummer, returnera det direkt
   if (typeof id === 'number') {
     return id;
   }
   
-  if (typeof id === 'string') {
-    // Ta bort eventuella icke-numeriska tecken och konvertera till nummer
-    const numericId = Number(id.replace(/[^0-9]/g, ''));
-    
-    if (isNaN(numericId)) {
-      throw new Error(`Could not convert ID to number: ${id}`);
-    }
-    
-    return numericId;
-  }
-  
-  throw new Error(`Invalid ID type: ${typeof id}`);
-}
+  // Annars konvertera till nummer
+  const numId = parseInt(id, 10);
+  return isNaN(numId) ? 0 : numId;
+};
 
 /**
- * Loggar ID-information för felsökning
+ * Loggar information om ID-värdet för felsökning
  */
-export function logIdInfo(context: string, id: any) {
-  console.log(`[${context}] ID: ${id} (${typeof id})`);
-}
-
-/**
- * Jämför två ID:n för likhet efter normalisering
- */
-export function compareIds(id1: ValidDealId, id2: ValidDealId): boolean {
-  try {
-    const normalizedId1 = normalizeId(id1);
-    const normalizedId2 = normalizeId(id2);
-    return normalizedId1 === normalizedId2;
-  } catch (error) {
-    console.error(`[compareIds] Error comparing IDs ${id1} and ${id2}:`, error);
-    return false;
-  }
-}
+export const logIdInfo = (contextName: string, id: number | string): void => {
+  console.log(`[${contextName}] ID info:`, {
+    value: id,
+    type: typeof id,
+    isNumber: typeof id === 'number',
+    asNumber: typeof id === 'string' ? parseInt(id, 10) : id,
+    isNaN: typeof id === 'string' ? isNaN(parseInt(id, 10)) : isNaN(id as number)
+  });
+};

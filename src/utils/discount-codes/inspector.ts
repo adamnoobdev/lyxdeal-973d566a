@@ -73,10 +73,8 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<Ins
       };
     }
     
-    // Här är källan till typfelet - normalizeId förväntar sig en number-parameter,
-    // men vi använder numericDealId som enligt funktionsparametern kan vara number eller string.
-    // Eftersom vi redan konverterat till nummer i början av funktionen, kan vi säkert använda numericDealId här.
-    // Vi har garanterat att numericDealId är en number vid det här laget.
+    // Eftersom vi redan konverterat dealId till numericDealId som är av typen number,
+    // kan vi använda normalizeId här utan problem med typerna
     const normalizedId = normalizeId(numericDealId);
     
     // Sök efter koder med liknande ID för att hjälpa till med felsökning
