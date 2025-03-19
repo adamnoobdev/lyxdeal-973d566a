@@ -73,8 +73,8 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<Ins
       };
     }
     
-    // Vi har redan konverterat till number tidigare i numericDealId, så använd det för normalizeId
-    // Denna rad orsakade felet eftersom normalizeId förväntar sig en number
+    // Vi har redan konverterat till number tidigare i numericDealId
+    // Fixa typen genom att använda den numericDealId som vi vet är en number
     const normalizedId = normalizeId(numericDealId);
     
     // Sök efter koder med liknande ID för att hjälpa till med felsökning
