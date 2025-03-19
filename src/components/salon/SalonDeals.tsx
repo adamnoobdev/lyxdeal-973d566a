@@ -30,8 +30,6 @@ export const SalonDeals: React.FC = () => {
   } = useSalonDealsManagement(id);
   
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
-  const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
-  const [isClosingEditDialog, setIsClosingEditDialog] = useState(false);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
 
@@ -42,12 +40,7 @@ export const SalonDeals: React.FC = () => {
 
   const handleCloseDiscountCodesDialog = useCallback(() => {
     if (isProcessingAction) return;
-    
-    setIsClosingCodesDialog(true);
-    setTimeout(() => {
-      setViewingCodesForDeal(null);
-      setIsClosingCodesDialog(false);
-    }, 300);
+    setViewingCodesForDeal(null);
   }, [isProcessingAction]);
   
   const handleEditDeal = useCallback((deal: Deal) => {
@@ -57,12 +50,7 @@ export const SalonDeals: React.FC = () => {
   
   const handleCloseDealDialog = useCallback(() => {
     if (isProcessingAction) return;
-    
-    setIsClosingEditDialog(true);
-    setTimeout(() => {
-      setEditingDeal(null);
-      setIsClosingEditDialog(false);
-    }, 300);
+    setEditingDeal(null);
   }, [setEditingDeal, isProcessingAction]);
   
   const handleUpdateDeal = useCallback(async (values: any) => {
@@ -71,11 +59,12 @@ export const SalonDeals: React.FC = () => {
     try {
       setIsProcessingAction(true);
       await handleUpdate(values);
-      handleCloseDealDialog();
     } finally {
+      setIsProcessingAction(false);
+      // Use setTimeout to delay state update to next event loop
       setTimeout(() => {
-        setIsProcessingAction(false);
-      }, 500);
+        handleCloseDealDialog();
+      }, 0);
     }
   }, [handleUpdate, handleCloseDealDialog, isProcessingAction]);
 
@@ -140,7 +129,7 @@ export const SalonDeals: React.FC = () => {
 
       {editingDeal && (
         <DealDialog
-          isOpen={!!editingDeal && !isClosingEditDialog}
+          isOpen={!!editingDeal}
           onClose={handleCloseDealDialog}
           onSubmit={handleUpdateDeal}
           initialValues={{
@@ -162,7 +151,7 @@ export const SalonDeals: React.FC = () => {
       )}
 
       <DiscountCodesDialog
-        isOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
+        isOpen={!!viewingCodesForDeal}
         onClose={handleCloseDiscountCodesDialog}
         deal={viewingCodesForDeal}
         onGenerateDiscountCodes={handleGenerateDiscountCodes}

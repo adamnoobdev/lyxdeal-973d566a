@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,27 +24,7 @@ export const DeleteDealDialog = ({
   onConfirm,
   dealTitle,
 }: DeleteDealDialogProps) => {
-  const [isClosing, setIsClosing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
-  // Reset state when dialog opens/closes
-  useEffect(() => {
-    if (isOpen) {
-      setIsClosing(false);
-      setIsDeleting(false);
-    }
-  }, [isOpen]);
-  
-  // Controlled closing to prevent UI freezes
-  const handleClose = () => {
-    if (isDeleting) return;
-    
-    setIsClosing(true);
-    setTimeout(() => {
-      onClose();
-      setIsClosing(false);
-    }, 300);
-  };
   
   // Controlled delete with state tracking
   const handleDelete = async () => {
@@ -53,19 +33,28 @@ export const DeleteDealDialog = ({
     try {
       setIsDeleting(true);
       await onConfirm();
-      // Efter lyckad borttagning stänger vi dialogen
-      handleClose();
     } catch (error) {
       console.error("Error during delete:", error);
     } finally {
       setIsDeleting(false);
+      // Use setTimeout to delay state update to next event loop
+      setTimeout(() => {
+        onClose();
+      }, 0);
     }
   };
 
   return (
     <AlertDialog 
-      open={isOpen && !isClosing}
-      onOpenChange={(open) => !open && handleClose()}
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open) {
+          // Use setTimeout to delay state update to next event loop
+          setTimeout(() => {
+            onClose();
+          }, 0);
+        }
+      }}
     >
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -77,7 +66,12 @@ export const DeleteDealDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleClose} disabled={isDeleting}>Avbryt</AlertDialogCancel>
+          <AlertDialogCancel onClick={() => {
+            // Use setTimeout to delay state update to next event loop
+            setTimeout(() => {
+              onClose();
+            }, 0);
+          }} disabled={isDeleting}>Avbryt</AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleDelete}
             disabled={isDeleting}

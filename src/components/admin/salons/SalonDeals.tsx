@@ -35,8 +35,6 @@ export function SalonDeals() {
   } = useSalonDealsManagement(salonId);
 
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
-  const [isClosingEditDialog, setIsClosingEditDialog] = useState(false);
-  const [isClosingDeleteDialog, setIsClosingDeleteDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEdit = useCallback((deal) => {
@@ -48,19 +46,11 @@ export function SalonDeals() {
   }, [setDeletingDeal]);
 
   const handleClose = useCallback(() => {
-    setIsClosingEditDialog(true);
-    setTimeout(() => {
-      setEditingDeal(null);
-      setIsClosingEditDialog(false);
-    }, 300);
+    setEditingDeal(null);
   }, [setEditingDeal]);
 
   const handleCloseDelete = useCallback(() => {
-    setIsClosingDeleteDialog(true);
-    setTimeout(() => {
-      setDeletingDeal(null);
-      setIsClosingDeleteDialog(false);
-    }, 300);
+    setDeletingDeal(null);
   }, [setDeletingDeal]);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
@@ -77,9 +67,12 @@ export function SalonDeals() {
     try {
       setIsSubmitting(true);
       await handleUpdate(values);
-      handleClose();
     } finally {
       setIsSubmitting(false);
+      // Use setTimeout to delay state update to next event loop
+      setTimeout(() => {
+        handleClose();
+      }, 0);
     }
   }, [handleUpdate, handleClose, isSubmitting]);
   
@@ -155,14 +148,14 @@ export function SalonDeals() {
       </Card>
 
       <EditDealDialog
-        isOpen={!!editingDeal && !isClosingEditDialog}
+        isOpen={!!editingDeal}
         onClose={handleClose}
         onSubmit={handleUpdateSubmit}
         initialValues={initialValues}
       />
 
       <DeleteDealDialog
-        isOpen={!!deletingDeal && !isClosingDeleteDialog}
+        isOpen={!!deletingDeal}
         onClose={handleCloseDelete}
         onConfirm={handleDeleteDeal}
         dealTitle={deletingDeal?.title}
@@ -175,4 +168,4 @@ export function SalonDeals() {
       />
     </>
   );
-};
+}

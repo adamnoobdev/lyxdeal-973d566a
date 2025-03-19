@@ -24,31 +24,15 @@ export const EditDealDialog = ({
   onSubmit,
   initialValues,
 }: EditDealDialogProps) => {
-  const [isClosing, setIsClosing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset state when dialog opens
   useEffect(() => {
     if (isOpen) {
-      setIsClosing(false);
       setIsSubmitting(false);
     }
   }, [isOpen]);
 
-  // Controlled closing to avoid freezing
-  const handleClose = () => {
-    if (isSubmitting) return;
-    
-    setIsClosing(true);
-    
-    // Delayed closing to allow animation and clean-up
-    setTimeout(() => {
-      onClose();
-      setIsClosing(false);
-    }, 300);
-  };
-
-  // Handle form submission with protection against multiple calls
   const handleSubmit = async (values: FormValues) => {
     if (isSubmitting) {
       console.log("[EditDealDialog] Submission already in progress, ignoring");
@@ -59,19 +43,24 @@ export const EditDealDialog = ({
       setIsSubmitting(true);
       console.log("[EditDealDialog] Starting submission");
       await onSubmit(values);
-      console.log("[EditDealDialog] Submission successful, closing dialog");
-      handleClose();
+      console.log("[EditDealDialog] Submission successful");
     } catch (error) {
       console.error("[EditDealDialog] Error submitting form:", error);
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
     <Dialog 
-      open={isOpen && !isClosing} 
+      open={isOpen} 
       onOpenChange={(open) => {
-        if (!open) handleClose();
+        if (!open) {
+          // Allow React to finish its current rendering cycle before changing state
+          setTimeout(() => {
+            onClose();
+          }, 0);
+        }
       }}
     >
       <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">

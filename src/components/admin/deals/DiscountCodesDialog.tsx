@@ -2,6 +2,8 @@
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Deal } from "@/components/admin/types";
 import { DiscountCodesDialogContent } from "./discount-code-dialog/DiscountCodesDialogContent";
@@ -46,8 +48,21 @@ export const DiscountCodesDialog = ({
   };
   
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open) {
+          // Allow React to finish its current rendering cycle before changing state
+          setTimeout(() => {
+            onClose();
+          }, 0);
+        }
+      }}
+    >
       <DialogContent className="w-[95vw] max-w-4xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Rabattkoder för erbjudande</DialogTitle>
+        </DialogHeader>
         <DiscountCodesDialogContent 
           isOpen={isOpen} 
           deal={deal} 
