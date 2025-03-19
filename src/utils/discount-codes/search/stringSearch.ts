@@ -9,18 +9,21 @@ export async function stringSearch(dealId: string) {
   try {
     logSearchAttempt("stringSearch", dealId, true);
     
-    // Try with the string value as-is
+    // Ensure dealId is a string
+    const stringDealId = String(dealId);
+    
     const { data, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', dealId.toString());
+      .eq('deal_id', stringDealId);
       
     if (error) throw error;
     
     return {
       success: true,
       codes: data || [],
-      method: "string"
+      method: "string",
+      codesCount: data?.length || 0
     };
   } catch (error) {
     console.error("[stringSearch] Error:", error);
@@ -28,7 +31,8 @@ export async function stringSearch(dealId: string) {
       success: false,
       codes: [],
       method: "string",
-      error
+      error,
+      codesCount: 0
     };
   }
 }

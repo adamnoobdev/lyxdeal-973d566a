@@ -21,9 +21,9 @@ export const SuccessMessage = ({ onReset, email }: SuccessMessageProps) => {
         </p>
         
         {email && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100 inline-flex items-center gap-2 text-blue-700">
-            <Mail className="h-4 w-4" />
-            <span className="font-medium">{email}</span>
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100 inline-flex items-center gap-2 text-blue-700 max-w-full overflow-hidden">
+            <Mail className="h-4 w-4 flex-shrink-0" />
+            <span className="font-medium text-sm sm:text-base truncate">{email}</span>
           </div>
         )}
       </div>
@@ -36,7 +36,7 @@ export const SuccessMessage = ({ onReset, email }: SuccessMessageProps) => {
         <Button 
           variant="outline" 
           onClick={onReset}
-          className="mt-4 inline-flex items-center gap-2"
+          className="mt-4 inline-flex items-center gap-2 w-full sm:w-auto"
         >
           <RotateCcw className="h-4 w-4" />
           Säkra en till rabattkod

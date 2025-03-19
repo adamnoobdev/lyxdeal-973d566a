@@ -71,7 +71,7 @@ export const SecureDealContainer = ({
         .from("purchases")
         .insert({
           customer_email: values.email,
-          deal_id: dealId,
+          deal_id: String(dealId), // Convert to string to avoid type issues
           discount_code: code,
         });
         

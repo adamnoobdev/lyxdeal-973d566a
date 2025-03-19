@@ -9,17 +9,21 @@ export async function numericSearch(dealId: number) {
   try {
     logSearchAttempt("numericSearch", dealId, true);
     
+    // Convert to string for consistency with other search methods
+    const stringDealId = String(dealId);
+    
     const { data, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', dealId);
+      .eq('deal_id', stringDealId);
       
     if (error) throw error;
     
     return {
       success: true,
       codes: data || [],
-      method: "numeric"
+      method: "numeric",
+      codesCount: data?.length || 0
     };
   } catch (error) {
     console.error("[numericSearch] Error:", error);
@@ -27,7 +31,8 @@ export async function numericSearch(dealId: number) {
       success: false,
       codes: [],
       method: "numeric",
-      error
+      error,
+      codesCount: 0
     };
   }
 }

@@ -9,19 +9,21 @@ export async function directSearch(dealId: string | number) {
   try {
     logSearchAttempt("directSearch", dealId, true);
     
-    // Convert the parameter to string for Supabase query
-    // This allows Supabase to handle type conversion internally
+    // Convert the dealId to string for Supabase query to handle type correctly
+    const stringDealId = String(dealId);
+    
     const { data, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', dealId.toString());
+      .eq('deal_id', stringDealId);
       
     if (error) throw error;
     
     return {
       success: true,
       codes: data || [],
-      method: "direct"
+      method: "direct",
+      codesCount: data?.length || 0
     };
   } catch (error) {
     console.error("[directSearch] Error:", error);
@@ -29,7 +31,8 @@ export async function directSearch(dealId: string | number) {
       success: false,
       codes: [],
       method: "direct",
-      error
+      error,
+      codesCount: 0
     };
   }
 }

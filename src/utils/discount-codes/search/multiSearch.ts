@@ -9,12 +9,11 @@ export async function multiSearch(dealId: string | number) {
   try {
     logSearchAttempt("multiSearch", dealId, true);
     
-    // Try multiple variations of the ID
+    // Try multiple variations of the ID, but always convert to string for the query
     const variations = [
-      dealId,
-      String(dealId),
-      typeof dealId === 'string' ? parseInt(dealId, 10) : dealId,
-      `${dealId}`
+      String(dealId), // Main approach: convert to string
+      `${dealId}`,    // Template literal conversion
+      dealId.toString() // Explicit toString conversion
     ];
     
     let foundCodes = [];
@@ -25,7 +24,7 @@ export async function multiSearch(dealId: string | number) {
       const { data, error } = await supabase
         .from('discount_codes')
         .select('*')
-        .eq('deal_id', variation.toString());
+        .eq('deal_id', variation);
         
       if (!error && data && data.length > 0) {
         foundCodes = data;
@@ -38,7 +37,8 @@ export async function multiSearch(dealId: string | number) {
       success: true,
       codes: foundCodes,
       method: "multi",
-      foundType
+      foundType,
+      codesCount: foundCodes.length
     };
   } catch (error) {
     console.error("[multiSearch] Error:", error);
@@ -46,7 +46,8 @@ export async function multiSearch(dealId: string | number) {
       success: false,
       codes: [],
       method: "multi",
-      error
+      error,
+      codesCount: 0
     };
   }
 }
