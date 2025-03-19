@@ -1,33 +1,33 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { DiscountCode } from "@/components/discount-codes/DiscountCodesTable";
-import { logSearchResults } from "./loggers";
+import { logSearchAttempt } from "../types";
 
 /**
- * Söker efter rabattkoder med exakt nummer-ID
+ * Search for discount codes using a numeric ID approach
  */
-export async function searchWithNumericId(
-  numericId: number,
-  methodName: string
-): Promise<DiscountCode[]> {
+export async function numericSearch(dealId: number) {
   try {
-    console.log(`[${methodName}] Trying with numeric ID: ${numericId}`);
+    logSearchAttempt("numericSearch", dealId, true);
     
-    const { data: numericMatches, error: numericError } = await supabase
-      .from("discount_codes")
-      .select("*")
-      .eq("deal_id", numericId);
-
-    if (numericError) {
-      console.error(`[${methodName}] Error using numeric ID:`, numericError);
-      return [];
-    } 
+    const { data, error } = await supabase
+      .from('discount_codes')
+      .select('*')
+      .eq('deal_id', dealId);
+      
+    if (error) throw error;
     
-    logSearchResults(methodName, numericId, numericMatches);
-    
-    return (numericMatches || []) as DiscountCode[];
+    return {
+      success: true,
+      codes: data || [],
+      method: "numeric"
+    };
   } catch (error) {
-    console.error(`[${methodName}] Exception searching with numeric ID:`, error);
-    return [];
+    console.error("[numericSearch] Error:", error);
+    return {
+      success: false,
+      codes: [],
+      method: "numeric",
+      error
+    };
   }
 }

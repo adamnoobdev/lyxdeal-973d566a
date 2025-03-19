@@ -38,3 +38,10 @@ export function compareIds(id1: string | number | undefined, id2: string | numbe
 export function logIdInfo(context: string, id: string | number): void {
   console.log(`[${context}] ID: ${id}, Type: ${typeof id}`);
 }
+
+/**
+ * Log search attempt information for debugging
+ */
+export function logSearchAttempt(method: string, id: string | number, result: boolean): void {
+  console.log(`[Search] Method: ${method}, ID: ${id}, Success: ${result}`);
+}

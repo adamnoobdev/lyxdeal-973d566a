@@ -42,7 +42,15 @@ export async function loadSalonDeals(
           });
         }
       } else {
-        setDeals(data || []);
+        // Transform the data to ensure it matches the Deal type
+        const typedDeals = data?.map(deal => ({
+          ...deal,
+          status: (deal.status as "pending" | "approved" | "rejected") || "pending",
+          is_free: deal.is_free || false,
+          is_active: deal.is_active || false
+        })) as Deal[];
+        
+        setDeals(typedDeals || []);
         setError(null);
         console.log(`[loadSalonDeals] Successfully loaded ${data?.length || 0} deals for salon ${salonId}`);
       }

@@ -1,36 +1,33 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { DiscountCode } from "@/components/discount-codes/DiscountCodesTable";
+import { logSearchAttempt } from "../types";
 
 /**
- * Genomför en sista direkt sökning som fallback
+ * Directly search for discount codes without type conversion
  */
-export async function performDirectSearch(
-  numericId: number,
-  methodName: string
-): Promise<DiscountCode[]> {
+export async function directSearch(dealId: string | number) {
   try {
-    console.log(`[${methodName}] Trying one last direct query with numeric ID ${numericId}`);
+    logSearchAttempt("directSearch", dealId, true);
     
-    const { data: directMatches, error: directError } = await supabase
-      .from("discount_codes")
-      .select("*")
-      .eq("deal_id", numericId);
+    const { data, error } = await supabase
+      .from('discount_codes')
+      .select('*')
+      .eq('deal_id', dealId);
       
-    if (directError) {
-      console.error(`[${methodName}] Error in direct query:`, directError);
-      return [];
-    } 
+    if (error) throw error;
     
-    if (directMatches && directMatches.length > 0) {
-      console.log(`[${methodName}] Found ${directMatches.length} matches in direct query`);
-      return directMatches as DiscountCode[];
-    }
-    
-    console.log(`[${methodName}] No matches found in direct query either`);
-    return [];
+    return {
+      success: true,
+      codes: data || [],
+      method: "direct"
+    };
   } catch (error) {
-    console.error(`[${methodName}] Exception in direct query:`, error);
-    return [];
+    console.error("[directSearch] Error:", error);
+    return {
+      success: false,
+      codes: [],
+      method: "direct",
+      error
+    };
   }
 }

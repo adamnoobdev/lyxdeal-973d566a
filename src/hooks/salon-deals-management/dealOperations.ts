@@ -75,8 +75,7 @@ export async function updateDeal(
 
   try {
     // Transform form values to match database structure
-    const updatedDeal = {
-      ...editingDeal,
+    const updatedDealData = {
       title: values.title,
       description: values.description,
       original_price: parseInt(values.originalPrice),
@@ -86,15 +85,15 @@ export async function updateDeal(
       city: values.city,
       featured: values.featured,
       is_free: parseInt(values.discountedPrice) === 0,
-      status: 'pending', // Reset to pending for admin review
+      status: 'pending' as const, // Explicitly type as a literal
       expiration_date: values.expirationDate.toISOString(),
       quantity_left: parseInt(values.quantity) || editingDeal.quantity_left,
     };
 
-    // Update the deal in the database
+    // Update the deal in the database - without including the id in the payload
     const { error } = await supabase
       .from('deals')
-      .update(updatedDeal)
+      .update(updatedDealData)
       .eq('id', editingDeal.id);
 
     if (error) throw error;
@@ -103,7 +102,7 @@ export async function updateDeal(
     if (isMountedRef.current) {
       setDeals(prevDeals => 
         prevDeals.map(deal => 
-          deal.id === editingDeal.id ? { ...deal, ...updatedDeal } : deal
+          deal.id === editingDeal.id ? { ...deal, ...updatedDealData } : deal
         )
       );
       setEditingDeal(null);
