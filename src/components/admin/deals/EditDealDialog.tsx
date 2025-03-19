@@ -56,10 +56,9 @@ export const EditDealDialog = ({
       console.error("[EditDealDialog] Error submitting form:", error);
     } finally {
       setIsSubmitting(false);
-      // Hantera stängning efter submit
-      setTimeout(() => {
-        onClose();
-      }, 300);
+      console.log("[EditDealDialog] Closing dialog after submission");
+      // Ensure dialog closes after submission completes
+      onClose();
     }
   };
 
