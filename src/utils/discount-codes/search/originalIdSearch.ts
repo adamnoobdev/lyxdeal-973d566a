@@ -16,15 +16,15 @@ export async function searchWithOriginalId(
       return [];
     }
     
-    // Always convert to string for database query
-    const stringDealId = String(originalId);
+    // Convert to number for database query
+    const numericDealId = Number(originalId);
       
-    console.log(`[${methodName}] Trying with original ID as string: ${stringDealId}`);
+    console.log(`[${methodName}] Trying with original ID as number: ${numericDealId}`);
     
     const { data: originalMatches, error: originalError } = await supabase
       .from("discount_codes")
       .select("*")
-      .eq("deal_id", stringDealId);
+      .eq("deal_id", numericDealId);
       
     if (originalError) {
       console.error(`[${methodName}] Error using original ID:`, originalError);

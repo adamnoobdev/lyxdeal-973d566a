@@ -9,13 +9,13 @@ export async function numericSearch(dealId: number) {
   try {
     logSearchAttempt("numericSearch", dealId, true);
     
-    // Convert to string for consistency with other search methods
-    const stringDealId = String(dealId);
+    // Ensure dealId is a number for the query
+    const numericDealId = Number(dealId);
     
     const { data, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', stringDealId);
+      .eq('deal_id', numericDealId);
       
     if (error) throw error;
     

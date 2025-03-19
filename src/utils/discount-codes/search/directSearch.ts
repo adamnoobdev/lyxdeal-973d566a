@@ -15,7 +15,7 @@ export async function directSearch(dealId: string | number) {
     const { data, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', stringDealId);
+      .eq('deal_id', Number(stringDealId));
       
     if (error) throw error;
     
