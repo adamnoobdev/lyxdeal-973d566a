@@ -76,10 +76,13 @@ serve(async (req) => {
       case "checkout.session.completed": {
         const session = event.data.object;
         
+        console.log("Checkout session completed:", session);
+        
         // Generate a random password
         const password = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
         
         // Create a new salon account with the details from the checkout session
+        console.log("Creating user account for:", session.metadata.email);
         const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
           email: session.metadata.email,
           password,
@@ -101,6 +104,7 @@ serve(async (req) => {
         }
 
         // Create salon record
+        console.log("Creating salon record for:", session.metadata.business_name);
         const { data: salonData, error: salonError } = await supabaseAdmin
           .from("salons")
           .insert([
@@ -131,6 +135,7 @@ serve(async (req) => {
         }
 
         // Update partner request status
+        console.log("Updating partner request status for:", session.metadata.email);
         const { error: updateError } = await supabaseAdmin
           .from("partner_requests")
           .update({ status: "approved" })
@@ -142,7 +147,8 @@ serve(async (req) => {
 
         // Send email with temporary password
         try {
-          await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-salon-welcome`, {
+          console.log("Sending welcome email to:", session.metadata.email);
+          const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-salon-welcome`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -154,6 +160,14 @@ serve(async (req) => {
               temporary_password: password
             }),
           });
+          
+          if (!emailResponse.ok) {
+            const emailErrorData = await emailResponse.json();
+            console.error("Email API error:", emailErrorData);
+            throw new Error("Failed to send welcome email");
+          }
+          
+          console.log("Welcome email sent successfully");
         } catch (emailError) {
           console.error("Error sending welcome email:", emailError);
         }

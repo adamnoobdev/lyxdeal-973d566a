@@ -47,26 +47,7 @@ export const SecureDealContainer = ({
         return;
       }
       
-      // 3. Skicka e-post med rabattkoden
-      const { data, error } = await supabase.functions.invoke("send-discount-email", {
-        body: {
-          email: values.email,
-          name: values.name,
-          phone: values.phone,
-          code: code,
-          dealTitle: dealTitle
-        },
-      });
-      
-      if (error) {
-        console.error("Error sending email:", error);
-        toast.error("Rabattkoden har reserverats men det gick inte att skicka e-postmeddelandet.");
-        // Vi fortsätter ändå eftersom rabattkoden har markerats som använd
-      } else {
-        console.log("Email sent successfully:", data);
-      }
-      
-      // 4. Skapa en purchase-post i databasen
+      // 3. Skapa en purchase-post i databasen
       // Säkerställer att deal_id är ett nummer
       const { error: purchaseError } = await supabase
         .from("purchases")
@@ -78,11 +59,35 @@ export const SecureDealContainer = ({
         
       if (purchaseError) {
         console.error("Error creating purchase record:", purchaseError);
-        // Vi fortsätter ändå eftersom rabattkoden redan är genererad och skickad
+        // Vi fortsätter ändå eftersom rabattkoden redan är genererad
+      }
+      
+      // 4. Skicka e-post med rabattkoden
+      try {
+        const { data, error } = await supabase.functions.invoke("send-discount-email", {
+          body: {
+            email: values.email,
+            name: values.name,
+            phone: values.phone,
+            code: code,
+            dealTitle: dealTitle
+          },
+        });
+        
+        if (error) {
+          console.error("Error sending email:", error);
+          toast.warning("Rabattkoden har reserverats men det gick inte att skicka e-postmeddelandet. Kontakta kundtjänst för att få din kod.");
+          // Vi fortsätter ändå eftersom rabattkoden har markerats som använd
+        } else {
+          console.log("Email sent successfully:", data);
+        }
+      } catch (emailError) {
+        console.error("Exception sending email:", emailError);
+        toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Din kod är: " + code);
       }
       
       // 5. Visa bekräftelse
-      toast.success("Grattis! Din rabattkod har skickats till din e-post.");
+      toast.success("Grattis! Din rabattkod har registrerats.");
       setEmailSent(values.email);
       setIsSuccess(true);
       

@@ -31,8 +31,10 @@ serve(async (req) => {
       );
     }
 
+    console.log(`Sending welcome email to new salon: ${business_name} (${email})`);
+
     const { data, error } = await resend.emails.send({
-      from: "Lyxdeal <onboarding@resend.dev>",
+      from: "Lyxdeal <noreply@lyxdeal.se>",
       to: [email],
       subject: "Välkommen till Lyxdeal som salongspartner!",
       html: `
@@ -64,7 +66,7 @@ serve(async (req) => {
     if (error) {
       console.error("Error sending email:", error);
       return new Response(
-        JSON.stringify({ error: "Failed to send email" }),
+        JSON.stringify({ error: "Failed to send email", details: error }),
         {
           status: 500,
           headers: {
@@ -75,8 +77,9 @@ serve(async (req) => {
       );
     }
 
+    console.log("Successfully sent salon welcome email:", data);
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ success: true, data }),
       {
         status: 200,
         headers: {

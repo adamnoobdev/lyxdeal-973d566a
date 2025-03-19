@@ -2,8 +2,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Resend } from "npm:resend@3.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY") || "");
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -165,6 +163,8 @@ serve(async (req) => {
       );
     }
 
+    const resend = new Resend(Deno.env.get("RESEND_API_KEY") || "");
+    
     console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
     const emailContent = createEmailContent(name, code, dealTitle);
 
