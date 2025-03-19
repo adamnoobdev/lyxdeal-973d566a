@@ -3,11 +3,21 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Card, CardContent } from "../ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { LoadingButton } from "../ui/loading-button";
+
+interface SelectedPlan {
+  title: string;
+  paymentType: 'monthly' | 'yearly';
+  price: number;
+  dealCount: number;
+}
 
 export const ContactSection = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     business: "",
@@ -16,17 +26,47 @@ export const ContactSection = () => {
     message: ""
   });
 
+  // Load selected plan from localStorage
+  useEffect(() => {
+    const storedPlan = localStorage.getItem('selectedPlan');
+    if (storedPlan) {
+      try {
+        setSelectedPlan(JSON.parse(storedPlan));
+      } catch (e) {
+        console.error("Error parsing stored plan:", e);
+      }
+    }
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulera en förfrågan
-    setTimeout(() => {
+    try {
+      // Create partner request in database
+      const { error } = await supabase
+        .from('partner_requests')
+        .insert([
+          { 
+            name: formData.name,
+            business_name: formData.business,
+            email: formData.email,
+            phone: formData.phone,
+            message: formData.message,
+            plan_title: selectedPlan?.title || null,
+            plan_payment_type: selectedPlan?.paymentType || null,
+            plan_price: selectedPlan?.price || null,
+            plan_deal_count: selectedPlan?.dealCount || null
+          }
+        ]);
+      
+      if (error) throw error;
+      
       toast.success("Tack för din förfrågan! Vi kontaktar dig inom kort.");
       setFormData({
         name: "",
@@ -35,8 +75,16 @@ export const ContactSection = () => {
         phone: "",
         message: ""
       });
+      
+      // Clear selected plan
+      localStorage.removeItem('selectedPlan');
+      setSelectedPlan(null);
+    } catch (error) {
+      console.error("Error submitting partner request:", error);
+      toast.error("Ett fel uppstod. Försök igen senare.");
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -48,6 +96,15 @@ export const ContactSection = () => {
             <p className="text-gray-600 max-w-2xl mx-auto">
               Kontakta oss gärna om du har frågor om att bli salongspartner eller om du vill ha mer information om våra paket.
             </p>
+            {selectedPlan && (
+              <div className="mt-4 p-3 bg-primary-50 border border-primary/20 rounded-md inline-block">
+                <p className="font-medium">Du har valt: {selectedPlan.title}</p>
+                <p className="text-sm text-gray-600">
+                  {selectedPlan.paymentType === 'monthly' ? 'Månadsbetalning' : 'Årsbetalning'}: 
+                  {' '}{selectedPlan.price} SEK
+                </p>
+              </div>
+            )}
           </div>
 
           <Card>
@@ -107,13 +164,13 @@ export const ContactSection = () => {
                     required
                   />
                 </div>
-                <Button 
+                <LoadingButton 
                   type="submit" 
                   className="w-full"
-                  disabled={isSubmitting}
+                  loading={isSubmitting}
                 >
-                  {isSubmitting ? "Skickar..." : "Skicka meddelande"}
-                </Button>
+                  {selectedPlan ? 'Skicka förfrågan om partnerskap' : 'Skicka meddelande'}
+                </LoadingButton>
               </form>
             </CardContent>
           </Card>

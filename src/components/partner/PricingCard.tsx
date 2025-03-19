@@ -21,10 +21,18 @@ export const PricingCard = ({
   features,
   isPopular = false,
 }: PricingCardProps) => {
-  const handleContactClick = () => {
+  const handleContactClick = (paymentType: 'monthly' | 'yearly') => {
     // Navigera till kontaktformuläret längre ner på sidan
     const contactSection = document.getElementById('contact-section');
     if (contactSection) {
+      // Set selected plan in localStorage for the contact form to use
+      localStorage.setItem('selectedPlan', JSON.stringify({
+        title,
+        paymentType,
+        price: paymentType === 'monthly' ? monthlyPrice : yearlyPrice,
+        dealCount
+      }));
+      
       contactSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
@@ -80,10 +88,18 @@ export const PricingCard = ({
       </div>
       
       <div className="space-y-2 mt-auto">
-        <Button className="w-full" variant="default" onClick={handleContactClick}>
+        <Button 
+          className="w-full" 
+          variant="default" 
+          onClick={() => handleContactClick('monthly')}
+        >
           Betala månadsvis
         </Button>
-        <Button className="w-full" variant="outline" onClick={handleContactClick}>
+        <Button 
+          className="w-full" 
+          variant="outline" 
+          onClick={() => handleContactClick('yearly')}
+        >
           Betala årsvis
         </Button>
       </div>
