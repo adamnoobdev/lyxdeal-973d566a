@@ -57,8 +57,9 @@ export const useFormSubmission = (
         toast.error("Ett fel uppstod när erbjudandet skulle sparas");
       } finally {
         // Viktig förändring: återställ isSubmitting oavsett resultat
+        console.log("[useFormSubmission] Resetting submission state");
         setCurrentlySubmitting(false);
-        console.log("[useFormSubmission] Submission complete, resetting state");
+        console.log("[useFormSubmission] Submission complete, state reset");
       }
     },
     [onSubmit, isSubmitting, setIsSubmitting, localIsSubmitting, isContextAvailable]

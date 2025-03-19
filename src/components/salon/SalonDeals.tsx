@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSalonDealsManagement } from '@/hooks/useSalonDealsManagement';
 import { Button } from '@/components/ui/button';
@@ -26,47 +26,68 @@ export const SalonDeals: React.FC = () => {
     setEditingDeal,
     setDeletingDeal,
     handleDelete,
-    handleUpdate
+    handleUpdate,
+    refetch
   } = useSalonDealsManagement(id);
   
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Säkerställ att dialoger stängs korrekt mellan renders
+  useEffect(() => {
+    if (!editingDeal && isDialogOpen) {
+      setIsDialogOpen(false);
+    } else if (editingDeal && !isDialogOpen) {
+      setIsDialogOpen(true);
+    }
+  }, [editingDeal, isDialogOpen]);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
     if (isProcessingAction) return;
+    console.log("[SalonDeals] Opening discount codes dialog for deal:", deal.id);
     setViewingCodesForDeal(deal);
   }, [isProcessingAction]);
 
   const handleCloseDiscountCodesDialog = useCallback(() => {
     if (isProcessingAction) return;
+    console.log("[SalonDeals] Closing discount codes dialog");
     setViewingCodesForDeal(null);
   }, [isProcessingAction]);
   
   const handleEditDeal = useCallback((deal: Deal) => {
     if (isProcessingAction) return;
+    console.log("[SalonDeals] Opening edit deal dialog for deal:", deal.id);
     setEditingDeal(deal);
+    setIsDialogOpen(true);
   }, [setEditingDeal, isProcessingAction]);
   
   const handleCloseDealDialog = useCallback(() => {
     if (isProcessingAction) return;
-    setEditingDeal(null);
+    console.log("[SalonDeals] Closing deal dialog");
+    setIsDialogOpen(false);
+    setTimeout(() => {
+      setEditingDeal(null);
+    }, 100);
   }, [setEditingDeal, isProcessingAction]);
   
   const handleUpdateDeal = useCallback(async (values: any) => {
     if (isProcessingAction) return;
     
     try {
+      console.log("[SalonDeals] Starting deal update");
       setIsProcessingAction(true);
       await handleUpdate(values);
+      await refetch();
+    } catch (error) {
+      console.error("[SalonDeals] Error updating deal:", error);
     } finally {
       setIsProcessingAction(false);
-      // Use setTimeout to delay state update to next event loop
-      setTimeout(() => {
-        handleCloseDealDialog();
-      }, 0);
+      console.log("[SalonDeals] Finished deal update, closing dialog");
+      handleCloseDealDialog();
     }
-  }, [handleUpdate, handleCloseDealDialog, isProcessingAction]);
+  }, [handleUpdate, handleCloseDealDialog, isProcessingAction, refetch]);
 
   const handleGenerateDiscountCodes = useCallback(async (deal: Deal, quantity: number) => {
     if (isGeneratingCodes) return Promise.reject(new Error("Redan genererar koder"));
@@ -127,9 +148,9 @@ export const SalonDeals: React.FC = () => {
         </CardContent>
       </Card>
 
-      {editingDeal && (
+      {editingDeal && isDialogOpen && (
         <DealDialog
-          isOpen={!!editingDeal}
+          isOpen={isDialogOpen}
           onClose={handleCloseDealDialog}
           onSubmit={handleUpdateDeal}
           initialValues={{

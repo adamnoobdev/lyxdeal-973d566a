@@ -56,9 +56,17 @@ export const EditDealDialog = ({
       console.error("[EditDealDialog] Error submitting form:", error);
     } finally {
       setIsSubmitting(false);
-      console.log("[EditDealDialog] Closing dialog after submission");
-      // Ensure dialog closes after submission completes
+      console.log("[EditDealDialog] Finished submission, will close dialog");
+    }
+  };
+
+  // Safe close function that checks submission state
+  const handleClose = () => {
+    if (!isSubmitting) {
+      console.log("[EditDealDialog] Closing dialog");
       onClose();
+    } else {
+      console.log("[EditDealDialog] Cannot close during submission");
     }
   };
 
@@ -72,7 +80,7 @@ export const EditDealDialog = ({
       <Sheet 
         open={isOpen} 
         onOpenChange={(open) => {
-          if (!open && !isSubmitting) onClose();
+          if (!open) handleClose();
         }}
       >
         <SheetContent className="w-full h-[90vh] p-4 overflow-auto flex flex-col">
@@ -102,9 +110,7 @@ export const EditDealDialog = ({
     <Dialog 
       open={isOpen} 
       onOpenChange={(open) => {
-        if (!open && !isSubmitting) {
-          onClose();
-        }
+        if (!open) handleClose();
       }}
     >
       <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">

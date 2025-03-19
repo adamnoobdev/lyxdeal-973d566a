@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Deal } from "@/components/admin/types";
 import { DiscountCodesDialogContent } from "./discount-code-dialog/DiscountCodesDialogContent";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -19,12 +19,25 @@ export const DiscountCodesDialog = ({
   onGenerateDiscountCodes
 }: DiscountCodesDialogProps) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   
   // Säkerställ att komponenten är monterad innan den visas
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
+  
+  // Säker stängningsfunktion
+  const handleClose = () => {
+    if (isClosing) return;
+    
+    console.log("[DiscountCodesDialog] Handling close");
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+    }, 100);
+  };
   
   // Använd sheet på mobil för bättre upplevelse
   const isMobile = window.innerWidth < 768;
@@ -34,12 +47,15 @@ export const DiscountCodesDialog = ({
   if (isMobile) {
     return (
       <Sheet 
-        open={isOpen} 
+        open={isOpen && !isClosing} 
         onOpenChange={(open) => {
-          if (!open) onClose();
+          if (!open) handleClose();
         }}
       >
         <SheetContent className="w-full h-[90vh] overflow-auto p-4">
+          <DialogTitle className="text-xl font-semibold mb-4">
+            Rabattkoder
+          </DialogTitle>
           {deal && (
             <DiscountCodesDialogContent 
               isOpen={isOpen} 
@@ -54,9 +70,9 @@ export const DiscountCodesDialog = ({
 
   return (
     <Dialog 
-      open={isOpen} 
+      open={isOpen && !isClosing} 
       onOpenChange={(open) => {
-        if (!open) onClose();
+        if (!open) handleClose();
       }}
     >
       <DialogContent 
@@ -68,6 +84,9 @@ export const DiscountCodesDialog = ({
           }
         }}
       >
+        <DialogTitle className="text-xl font-semibold mb-4">
+          Rabattkoder
+        </DialogTitle>
         {deal && (
           <DiscountCodesDialogContent 
             isOpen={isOpen} 

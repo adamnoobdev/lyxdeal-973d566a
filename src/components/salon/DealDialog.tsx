@@ -32,6 +32,16 @@ export const DealDialog = ({
     }
   }, [isOpen]);
 
+  // Safe close function that checks submission state
+  const handleClose = () => {
+    if (!isSubmitting) {
+      console.log("[DealDialog] Closing dialog");
+      onClose();
+    } else {
+      console.log("[DealDialog] Cannot close during submission");
+    }
+  };
+
   const handleSubmit = async (values: FormValues) => {
     if (isSubmitting) {
       console.log("[DealDialog] Submission already in progress, ignoring");
@@ -47,10 +57,8 @@ export const DealDialog = ({
       console.error("[DealDialog] Error submitting form:", error);
     } finally {
       setIsSubmitting(false);
-      // Use setTimeout to delay state update to next event loop
-      setTimeout(() => {
-        onClose();
-      }, 0);
+      console.log("[DealDialog] Finished submission, will close dialog");
+      handleClose();
     }
   };
 
@@ -58,12 +66,7 @@ export const DealDialog = ({
     <Dialog 
       open={isOpen} 
       onOpenChange={(open) => {
-        if (!open) {
-          // Use setTimeout to delay state update to next event loop
-          setTimeout(() => {
-            onClose();
-          }, 0);
-        }
+        if (!open) handleClose();
       }}
     >
       <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
