@@ -150,10 +150,12 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Received request to send-discount-email function");
     const payload: RequestPayload = await req.json();
     const { email, name, code, dealTitle, phone } = payload;
 
     if (!email || !name || !code || !dealTitle) {
+      console.error("Missing required fields", { email, name, code, dealTitle });
       return new Response(
         JSON.stringify({ error: "Missing required fields", fields: { email, name, code, dealTitle } }),
         {
@@ -165,6 +167,19 @@ serve(async (req) => {
 
     console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
     const emailContent = createEmailContent(name, code, dealTitle);
+
+    // Kontrollera om RESEND_API_KEY är konfigurerad
+    const apiKey = Deno.env.get("RESEND_API_KEY");
+    if (!apiKey) {
+      console.error("RESEND_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "RESEND_API_KEY is not configured" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     const { data, error } = await resend.emails.send({
       from: "Lyxdeal <noreply@lyxdeal.se>",
