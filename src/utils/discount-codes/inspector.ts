@@ -73,8 +73,8 @@ export const inspectDiscountCodes = async (dealId: number | string): Promise<Ins
       };
     }
     
-    // The error was in this line - we need to ensure numericDealId is treated as a number
-    // after our earlier conversion and validation
+    // numericDealId is already converted to a number type above
+    // so we can safely pass it to normalizeId which expects a number
     const normalizedId = normalizeId(numericDealId);
     
     // Sök efter koder med liknande ID för att hjälpa till med felsökning
