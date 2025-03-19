@@ -1,46 +1,35 @@
 
-import { supabase } from "@/integrations/supabase/client";
-
-/**
- * Customer information interface used when marking discount codes as used
- */
+// CustomerInfo interface for consistent customer data handling
 export interface CustomerInfo {
-  name: string;
-  email: string;
-  phone: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
 }
 
 /**
- * Normaliserar ett ID till ett nummer för konsekvens
- * Hanterar både heltal och strängvärden av ID
+ * Normalize deal ID to ensure consistent comparison
+ * Can handle string or number input and return a number
  */
-export const normalizeId = (id: number | string): number => {
-  // Om id redan är ett nummer, returnera det direkt
-  if (typeof id === 'number') {
-    return id;
+export function normalizeId(id: number | string): number {
+  if (typeof id === 'string') {
+    return parseInt(id, 10);
   }
+  return id;
+}
+
+/**
+ * Compare two IDs (string or number) for equality
+ */
+export function compareIds(id1: string | number | undefined, id2: string | number | undefined): boolean {
+  if (id1 === undefined || id2 === undefined) return false;
   
-  // Annars konvertera till nummer
-  const numId = parseInt(id, 10);
-  return isNaN(numId) ? 0 : numId;
-};
+  // Convert both to strings for comparison to handle different types
+  return String(id1) === String(id2);
+}
 
 /**
- * Jämför två ID-värden för equality efter normalisering
+ * Log information about an ID for debugging
  */
-export const compareIds = (id1: number | string, id2: number | string): boolean => {
-  return normalizeId(id1) === normalizeId(id2);
-};
-
-/**
- * Loggar information om ID-värdet för felsökning
- */
-export const logIdInfo = (contextName: string, id: number | string): void => {
-  console.log(`[${contextName}] ID info:`, {
-    value: id,
-    type: typeof id,
-    isNumber: typeof id === 'number',
-    asNumber: typeof id === 'string' ? parseInt(id, 10) : id,
-    isNaN: typeof id === 'string' ? isNaN(parseInt(id, 10)) : isNaN(id as number)
-  });
-};
+export function logIdInfo(context: string, id: string | number): void {
+  console.log(`[${context}] ID: ${id}, Type: ${typeof id}`);
+}

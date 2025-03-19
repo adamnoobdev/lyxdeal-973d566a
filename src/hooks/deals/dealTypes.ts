@@ -30,4 +30,5 @@ export interface UseSalonDealsReturn {
   handleDelete: () => Promise<void>;
   handleUpdate: (values: any) => Promise<void>;
   handleToggleActive: (deal: Deal) => Promise<void>;
+  refetch: () => Promise<void>; // Added the missing refetch function
 }

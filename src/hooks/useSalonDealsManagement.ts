@@ -33,6 +33,14 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     );
   }, [salonId]);
 
+  // Explicit refetch function to expose to consumers
+  const refetch = useCallback(async () => {
+    console.log("[useSalonDealsManagement] Refetching deals");
+    // Reset attempt counter to ensure we can refetch even after previous failures
+    loadAttempts.current = 0;
+    await fetchSalonDeals();
+  }, [fetchSalonDeals]);
+
   // Handler for deleting a deal
   const handleDeleteDeal = useCallback(async () => {
     await deleteDeal(
@@ -95,5 +103,6 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     handleDelete: handleDeleteDeal,
     handleUpdate,
     handleToggleActive,
+    refetch, // Add the refetch function to the return object
   };
 };
