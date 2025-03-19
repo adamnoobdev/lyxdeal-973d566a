@@ -1,7 +1,6 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSalonDealsManagement } from '@/hooks/useSalonDealsManagement';
+import { useSalonDealsManagement } from '@/hooks/salon-deals-management';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SalonDealsError } from '@/components/admin/salons/SalonDealsError';
@@ -35,7 +34,6 @@ export const SalonDeals: React.FC = () => {
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Säkerställ att dialoger stängs korrekt mellan renders
   useEffect(() => {
     if (!editingDeal && isDialogOpen) {
       setIsDialogOpen(false);

@@ -1,106 +1,75 @@
 
+// This file contains utility functions for inspecting discount codes in the database
 import { supabase } from "@/integrations/supabase/client";
-import { logIdInfo, normalizeId } from "./types";
-
-type InspectionResult = {
-  success: boolean;
-  codesCount: number;
-  message: string;
-  codeType?: string;
-  sampleCodes?: any[];
-};
+import { logIdInfo, logSearchAttempt } from "./types";
+import { stringSearch } from "./search/stringSearch";
+import { multiSearch } from "./search/multiSearch";
+import { numericSearch } from "./search/numericSearch";
+import { directSearch } from "./search/directSearch";
+import { formatCodesResponse, formatErrorResponse } from "./responseFormatters";
 
 /**
- * Inspekterar rabattkoder i databasen för ett specifikt erbjudande-ID
- * För att hjälpa till med felsökning när rabattkoder inte visas korrekt
+ * Normalizes a deal ID to ensure consistent handling of IDs that might be
+ * stored in different formats across the database.
  */
-export const inspectDiscountCodes = async (dealId: number | string): Promise<InspectionResult> => {
-  try {
-    // Konvertera dealId till nummer för konsekvens
-    const numericDealId = typeof dealId === 'string' ? parseInt(dealId, 10) : dealId;
-    
-    if (isNaN(numericDealId)) {
-      throw new Error(`Invalid deal ID format: ${dealId}`);
-    }
-    
-    logIdInfo("inspectDiscountCodes", numericDealId);
-    console.log(`[Inspector] Inspecting discount codes for deal ID: ${numericDealId}`);
-    
-    // Kontrollera om koder finns med exakt matchning av deal_id
-    const { data: exactMatchCodes, error: exactMatchError } = await supabase
-      .from('discount_codes')
-      .select('*')
-      .eq('deal_id', numericDealId)
-      .limit(10);
-      
-    if (exactMatchError) {
-      throw new Error(`Error inspecting exact match codes: ${exactMatchError.message}`);
-    }
-    
-    console.log(`[Inspector] Found ${exactMatchCodes?.length || 0} codes with exact match of deal_id`);
-    
-    // Om vi hittade koder med exakt matchning, returnera resultatet
-    if (exactMatchCodes && exactMatchCodes.length > 0) {
-      return {
-        success: true,
-        codesCount: exactMatchCodes.length,
-        message: `Hittade ${exactMatchCodes.length} rabattkoder med deal_id = ${numericDealId}`,
-        sampleCodes: exactMatchCodes.slice(0, 3)
-      };
-    }
-    
-    // Kontrollera om koden finns lagrat som en sträng istället för ett nummer
-    const stringId = String(numericDealId);
-    const { data: stringMatchCodes, error: stringMatchError } = await supabase
-      .from('discount_codes')
-      .select('*')
-      .eq('deal_id', stringId)
-      .limit(10);
-      
-    if (stringMatchError) {
-      throw new Error(`Error inspecting string match codes: ${stringMatchError.message}`);
-    }
-    
-    console.log(`[Inspector] Found ${stringMatchCodes?.length || 0} codes with string deal_id match`);
-    
-    if (stringMatchCodes && stringMatchCodes.length > 0) {
-      return {
-        success: true,
-        codesCount: stringMatchCodes.length,
-        message: `Hittade ${stringMatchCodes.length} rabattkoder med deal_id som sträng ('${stringId}')`,
-        codeType: 'string',
-        sampleCodes: stringMatchCodes.slice(0, 3)
-      };
-    }
-    
-    // Pass numericDealId to normalizeId (which is already a number, so it's type-safe)
-    const normalizedId = normalizeId(numericDealId);
-    
-    // Sök efter koder med liknande ID för att hjälpa till med felsökning
-    const { data: allCodes, error: allCodesError } = await supabase
-      .from('discount_codes')
-      .select('*')
-      .limit(5)
-      .order('created_at', { ascending: false });
-      
-    if (allCodesError) {
-      throw new Error(`Error inspecting all codes: ${allCodesError.message}`);
-    }
-    
-    console.log(`[Inspector] Sample of recent codes:`, allCodes);
-    
-    return {
-      success: false,
-      codesCount: 0,
-      message: `Inga rabattkoder hittades för erbjudande ${numericDealId}. Senaste koder i systemet har deal_id = ${allCodes?.length ? allCodes.map(c => c.deal_id).join(', ') : 'ingen'}`,
-      sampleCodes: allCodes || []
-    };
-  } catch (error) {
-    console.error("[Inspector] Error during inspection:", error);
-    return {
-      success: false,
-      codesCount: 0,
-      message: `Fel vid inspektion: ${error instanceof Error ? error.message : 'Okänt fel'}`
-    };
+export function normalizeId(dealId: number | string): number {
+  if (typeof dealId === 'string') {
+    return parseInt(dealId, 10);
   }
-};
+  return dealId;
+}
+
+/**
+ * Main function to inspect discount codes for a deal in the database.
+ * This is useful for debugging when codes aren't showing up in the UI.
+ */
+export async function inspectDiscountCodes(dealId: number | string) {
+  try {
+    console.log(`[inspectDiscountCodes] Inspecting discount codes for deal ${dealId}`);
+    logIdInfo("inspectDiscountCodes initial", dealId);
+
+    // First attempt: direct search with the id as-is
+    const directResult = await directSearch(dealId);
+    if (directResult.success && directResult.codes.length > 0) {
+      return formatCodesResponse(directResult.codes, "Direct search found codes.");
+    }
+
+    // Second attempt: numeric search (convert to number)
+    const normalizedId = normalizeId(dealId);
+    logIdInfo("inspectDiscountCodes normalized", normalizedId);
+    const numericResult = await numericSearch(normalizedId);
+    if (numericResult.success && numericResult.codes.length > 0) {
+      return formatCodesResponse(numericResult.codes, "Numeric search found codes.");
+    }
+
+    // Third attempt: string search (convert to string)
+    const stringResult = await stringSearch(normalizedId.toString());
+    if (stringResult.success && stringResult.codes.length > 0) {
+      // Detected string ID storage
+      return formatCodesResponse(
+        stringResult.codes, 
+        "String search found codes. The deal_id is stored as a string in the database.",
+        "string"
+      );
+    }
+
+    // Final attempt: multi-search (try different variations)
+    const multiResult = await multiSearch(dealId);
+    if (multiResult.success && multiResult.codes.length > 0) {
+      return formatCodesResponse(
+        multiResult.codes, 
+        `Multi-search found codes with type ${multiResult.foundType}.`,
+        multiResult.foundType
+      );
+    }
+
+    // No codes found after all attempts
+    console.log(`[inspectDiscountCodes] No codes found for deal ${dealId} after all search attempts`);
+    return formatErrorResponse("No discount codes found for this deal after trying multiple search methods.");
+  } catch (error) {
+    console.error(`[inspectDiscountCodes] Error inspecting codes for deal ${dealId}:`, error);
+    return formatErrorResponse(
+      `Error inspecting discount codes: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}

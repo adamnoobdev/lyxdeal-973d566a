@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { DealsTable } from "../deals/DealsTable";
 import { EditDealDialog } from "../deals/EditDealDialog";
@@ -6,7 +5,7 @@ import { DeleteDealDialog } from "../deals/DeleteDealDialog";
 import { DealsLoadingSkeleton } from "../deals/DealsLoadingSkeleton";
 import { SalonDealsError } from "./SalonDealsError";
 import { SalonDealsEmpty } from "./SalonDealsEmpty";
-import { useSalonDealsManagement } from "@/hooks/useSalonDealsManagement";
+import { useSalonDealsManagement } from "@/hooks/salon-deals-management";
 import { endOfMonth } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";

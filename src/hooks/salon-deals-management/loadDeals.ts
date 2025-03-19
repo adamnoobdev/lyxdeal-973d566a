@@ -1,0 +1,69 @@
+
+import { useState, useRef } from "react";
+import { Deal } from "@/components/admin/types";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+export async function loadSalonDeals(
+  salonId: string | undefined,
+  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  isLoadingDeals: React.MutableRefObject<boolean>,
+  isMountedRef: React.MutableRefObject<boolean>,
+  loadAttempts: React.MutableRefObject<number>
+): Promise<void> {
+  // Don't attempt to load if there's no salonId or we're already loading
+  if (!salonId || isLoadingDeals.current) {
+    return;
+  }
+
+  // Prevent multiple concurrent loading attempts
+  isLoadingDeals.current = true;
+  
+  try {
+    console.log(`[loadSalonDeals] Loading deals for salon ${salonId} (attempt ${loadAttempts.current + 1})`);
+    
+    const { data, error } = await supabase
+      .from('deals')
+      .select('*')
+      .eq('salon_id', salonId);
+    
+    // Only update state if the component is still mounted
+    if (isMountedRef.current) {
+      if (error) {
+        console.error('Error loading salon deals:', error);
+        setError(`Failed to load deals: ${error.message}`);
+        
+        // After 3 failed attempts, show a toast
+        if (loadAttempts.current >= 2) {
+          toast.error('Problem med att hämta erbjudanden', {
+            description: 'Vi kunde inte hämta dina erbjudanden. Försök igen senare.'
+          });
+        }
+      } else {
+        setDeals(data || []);
+        setError(null);
+        console.log(`[loadSalonDeals] Successfully loaded ${data?.length || 0} deals for salon ${salonId}`);
+      }
+      
+      setIsLoading(false);
+    }
+  } catch (err) {
+    console.error('Unexpected error in loadSalonDeals:', err);
+    
+    if (isMountedRef.current) {
+      setError(`An unexpected error occurred: ${err instanceof Error ? err.message : String(err)}`);
+      setIsLoading(false);
+      
+      if (loadAttempts.current >= 2) {
+        toast.error('Problem med att hämta erbjudanden', {
+          description: 'Ett oväntat fel uppstod. Försök igen senare.'
+        });
+      }
+    }
+  } finally {
+    loadAttempts.current += 1;
+    isLoadingDeals.current = false;
+  }
+}
