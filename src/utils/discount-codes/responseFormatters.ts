@@ -1,74 +1,75 @@
 
 /**
- * Format a successful response with discount codes
+ * Format the response for found discount codes
  */
-export function formatCodesResponse(codes: any[], message: string, foundType?: string) {
+export function formatCodesResponse(codes, message, foundType = null) {
   return {
     success: true,
     codes,
+    codesCount: codes.length,
     message,
-    foundType,
-    codesCount: codes.length
+    foundType
   };
 }
 
 /**
- * Format an error response
+ * Format an error response when no codes are found
  */
-export function formatErrorResponse(errorMessage: string) {
+export function formatErrorResponse(message) {
   return {
     success: false,
     codes: [],
-    message: errorMessage,
-    codesCount: 0
+    codesCount: 0,
+    message
   };
 }
 
 /**
  * Prepare a success response with detailed information
  */
-export function prepareSuccessResponse(codes: any[], method: string, tables?: any) {
+export function prepareSuccessResponse(codes, method, tables) {
   return {
     success: true,
     codes,
-    message: `Hittade ${codes.length} rabattkoder med ${method}`,
     codesCount: codes.length,
-    method,
+    message: `Hittade ${codes.length} rabattkoder med ${method}.`,
     tables,
-    sampleCodes: codes.slice(0, 3)
+    foundWith: method
   };
 }
 
 /**
- * Prepare a detailed error response
+ * Prepare a detailed error response for debugging
  */
 export function prepareErrorResponse(
-  dealId: string | number,
-  numericDealId: number,
-  stringDealId: string,
-  allCodes: any[],
-  dealIds?: any[],
-  dealIdTypes?: Set<string>,
-  tables?: any,
-  exactMatches?: any[],
-  stringMatches?: any[]
+  originalDealId,
+  numericDealId,
+  stringDealId,
+  allCodes,
+  dealIds,
+  dealIdTypes,
+  tables,
+  exactMatches,
+  stringMatches
 ) {
   return {
     success: false,
-    codes: [],
     codesCount: 0,
-    message: `Kunde inte hitta rabattkoder för erbjudande ${dealId}`,
-    searchedIds: {
-      originalId: dealId,
-      numericId: numericDealId,
-      stringId: stringDealId
+    message: `Kunde inte hitta rabattkoder för erbjudande ID: ${originalDealId}`,
+    debug: {
+      searchedFor: {
+        originalDealId,
+        numericDealId,
+        stringDealId
+      },
+      dbInfo: {
+        totalCodes: allCodes.length,
+        uniqueDealIds: dealIds,
+        dealIdTypes: [...dealIdTypes],
+        exactMatchesFound: exactMatches?.length || 0,
+        stringMatchesFound: stringMatches?.length || 0
+      }
     },
-    totalCodesInDatabase: allCodes.length,
-    dealIds,
-    dealIdTypes: dealIdTypes ? Array.from(dealIdTypes) : [],
-    tables,
-    exactMatches,
-    stringMatches,
-    sampleCodes: allCodes.slice(0, 3)
+    tables
   };
 }
