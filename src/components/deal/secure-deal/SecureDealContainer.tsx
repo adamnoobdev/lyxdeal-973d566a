@@ -67,11 +67,12 @@ export const SecureDealContainer = ({
       }
       
       // 4. Skapa en purchase-post i databasen
+      // Säkerställer att deal_id är ett nummer
       const { error: purchaseError } = await supabase
         .from("purchases")
         .insert({
           customer_email: values.email,
-          deal_id: dealId, // Make sure dealId is a number here
+          deal_id: Number(dealId), // Explicit konvertering till nummer
           discount_code: code,
         });
         
