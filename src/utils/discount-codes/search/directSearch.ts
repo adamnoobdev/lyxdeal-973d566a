@@ -9,11 +9,12 @@ export async function directSearch(dealId: string | number) {
   try {
     logSearchAttempt("directSearch", dealId, true);
     
-    // Use the value as-is, without type conversion
+    // Convert the parameter to string for Supabase query
+    // This allows Supabase to handle type conversion internally
     const { data, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', dealId);
+      .eq('deal_id', dealId.toString());
       
     if (error) throw error;
     

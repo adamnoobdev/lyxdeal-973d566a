@@ -13,7 +13,7 @@ export async function stringSearch(dealId: string) {
     const { data, error } = await supabase
       .from('discount_codes')
       .select('*')
-      .eq('deal_id', dealId);
+      .eq('deal_id', dealId.toString());
       
     if (error) throw error;
     

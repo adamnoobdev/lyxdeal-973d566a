@@ -25,7 +25,7 @@ export async function multiSearch(dealId: string | number) {
       const { data, error } = await supabase
         .from('discount_codes')
         .select('*')
-        .eq('deal_id', variation);
+        .eq('deal_id', variation.toString());
         
       if (!error && data && data.length > 0) {
         foundCodes = data;
