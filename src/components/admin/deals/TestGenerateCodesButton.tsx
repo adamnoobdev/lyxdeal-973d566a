@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { testGenerateCodesFromDebug } from "@/utils/discount-codes/debug";
+import { testDiscountCodeGeneration } from "@/utils/discount-codes/debug";
 import { toast } from "sonner";
 
 interface TestGenerateCodesButtonProps {
@@ -17,7 +17,7 @@ export const TestGenerateCodesButton = ({ dealId, onSuccess }: TestGenerateCodes
     
     try {
       setIsLoading(true);
-      const result = await testGenerateCodesFromDebug(dealId);
+      const result = await testDiscountCodeGeneration(dealId);
       if (result) {
         toast.success("Testgenereringsprocess genomförd");
         if (onSuccess) onSuccess();

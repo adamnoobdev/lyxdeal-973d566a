@@ -93,8 +93,7 @@ export const inspectDiscountCodes = async (dealId: number): Promise<InspectionRe
     return {
       success: false,
       codesCount: 0,
-      message: `Fel vid inspektion: ${error instanceof Error ? error.message : 'Okänt fel'}`,
-      error
+      message: `Fel vid inspektion: ${error instanceof Error ? error.message : 'Okänt fel'}`
     };
   }
 };
