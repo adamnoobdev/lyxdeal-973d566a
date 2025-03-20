@@ -76,7 +76,7 @@ serve(async (req) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Lyxdeal <onboarding@resend.dev>", // Using Resend's verified domain
+        from: "Lyxdeal <info@lyxdeal.se>", // Using verified domain
         to: [email],
         subject: "Välkommen till Lyxdeal som salongspartner!",
         html: htmlContent,
