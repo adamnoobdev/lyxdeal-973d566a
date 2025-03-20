@@ -20,6 +20,40 @@ export const SecureDealContainer = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [emailSent, setEmailSent] = useState<string | null>(null);
+  const [discountCode, setDiscountCode] = useState<string | null>(null);
+
+  // Funktion för att generera en slumpmässig rabattkod
+  const generateRandomCode = (length = 8): string => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < length; i++) {
+      code += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return code;
+  };
+
+  // Funktion för att skapa en ny rabattkod i databasen
+  const createNewDiscountCode = async (code: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from("discount_codes")
+        .insert({
+          deal_id: dealId,
+          code: code,
+          is_used: false
+        });
+        
+      if (error) {
+        console.error("Error creating discount code:", error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Exception creating discount code:", error);
+      return false;
+    }
+  };
 
   const handleSubmit = async (values: SecureFormValues) => {
     setIsSubmitting(true);
@@ -27,12 +61,22 @@ export const SecureDealContainer = ({
     try {
       console.log(`[SecureDealContainer] Securing deal ${dealId} for ${values.email}`);
       
-      // 1. Hämta en tillgänglig rabattkod
-      const code = await getAvailableDiscountCode(dealId);
+      // 1. Försök hämta en tillgänglig rabattkod
+      let code = await getAvailableDiscountCode(dealId);
       
+      // Om ingen rabattkod finns, skapa en ny
       if (!code) {
-        toast.error("Tyvärr finns det inga fler koder tillgängliga för detta erbjudande.");
-        return;
+        console.log("No discount code available, generating a new one");
+        const newCode = generateRandomCode();
+        const codeCreated = await createNewDiscountCode(newCode);
+        
+        if (!codeCreated) {
+          toast.error("Ett fel uppstod när en ny rabattkod skulle skapas.");
+          setIsSubmitting(false);
+          return;
+        }
+        
+        code = newCode;
       }
       
       // 2. Markera koden som använd och koppla till kundinformation
@@ -44,6 +88,7 @@ export const SecureDealContainer = ({
       
       if (!codeUpdated) {
         toast.error("Ett fel uppstod när rabattkoden skulle kopplas till din profil.");
+        setIsSubmitting(false);
         return;
       }
       
@@ -76,19 +121,23 @@ export const SecureDealContainer = ({
         
         if (error) {
           console.error("Error sending email:", error);
-          toast.warning("Rabattkoden har reserverats men det gick inte att skicka e-postmeddelandet. Kontakta kundtjänst för att få din kod.");
-          // Vi fortsätter ändå eftersom rabattkoden har markerats som använd
+          toast.warning("Rabattkoden har reserverats men det gick inte att skicka e-postmeddelandet. Din kod är: " + code);
+          // Spara koden för att visa den till användaren
+          setDiscountCode(code);
         } else {
           console.log("Email sent successfully:", data);
         }
       } catch (emailError) {
         console.error("Exception sending email:", emailError);
         toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Din kod är: " + code);
+        // Spara koden för att visa den till användaren
+        setDiscountCode(code);
       }
       
       // 5. Visa bekräftelse
       toast.success("Grattis! Din rabattkod har registrerats.");
       setEmailSent(values.email);
+      setDiscountCode(code);
       setIsSuccess(true);
       
       // 6. Anropa success callback om tillhandahållen
@@ -107,12 +156,13 @@ export const SecureDealContainer = ({
   const handleReset = () => {
     setIsSuccess(false);
     setEmailSent(null);
+    setDiscountCode(null);
   };
 
   return (
     <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       {isSuccess ? (
-        <SuccessMessage onReset={handleReset} email={emailSent} />
+        <SuccessMessage onReset={handleReset} email={emailSent} code={discountCode} />
       ) : (
         <SecureForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       )}
