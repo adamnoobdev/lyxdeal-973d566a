@@ -26,20 +26,31 @@ export async function sendDiscountEmail(payload: RequestPayload) {
   console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
   
   try {
-    // Using the onboarding@resend.dev email which is guaranteed to work
+    // For testing, send to verified email - in production this should be changed
+    // to use a verified domain with proper "from" address
+    const testingMode = !Deno.env.get("PRODUCTION_MODE");
+    const verifiedEmail = Deno.env.get("VERIFIED_EMAIL") || "adam@larlid.com";
+    
+    const emailConfig = {
+      from: "Lyxdeal <onboarding@resend.dev>", // Using Resend's default verified sender
+      // In testing mode, always send to the verified email
+      to: testingMode ? verifiedEmail : email,
+      subject: `Din rabattkod för "${dealTitle}"`,
+      html: emailContent,
+      reply_to: "info@lyxdeal.se"
+    };
+    
+    if (testingMode && email !== verifiedEmail) {
+      console.log(`TESTING MODE: Redirecting email from ${email} to verified email ${verifiedEmail}`);
+    }
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        from: "Lyxdeal <onboarding@resend.dev>", // Using Resend's default verified sender
-        to: email,
-        subject: `Din rabattkod för "${dealTitle}"`,
-        html: emailContent,
-        reply_to: "info@lyxdeal.se"
-      })
+      body: JSON.stringify(emailConfig)
     });
 
     const responseData = await response.json();
@@ -55,12 +66,19 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       );
     }
 
-    console.log(`Successfully sent email to ${email}`, responseData);
+    // Add note in response if we're in testing mode
+    let message = `Rabattkod skickad till ${email}`;
+    if (testingMode && email !== verifiedEmail) {
+      message = `TESTLÄGE: Rabattkod som skulle skickats till ${email} skickades istället till ${verifiedEmail}`;
+    }
+
+    console.log(`Successfully sent email`, responseData);
     return new Response(
       JSON.stringify({ 
         success: true, 
         data: responseData,
-        message: `Rabattkod skickad till ${email}`
+        message: message,
+        testingMode: testingMode
       }),
       {
         status: 200,
