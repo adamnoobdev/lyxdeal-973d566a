@@ -1,5 +1,5 @@
 
-// Vi ersätter Resend-npm-paketet med en enkel fetch-implementation
+// We replace Resend-npm-package with a simple fetch-implementation
 import { createEmailContent } from "./emailTemplate.ts";
 import { RequestPayload } from "./types.ts";
 import { corsHeaders } from "./corsConfig.ts";
@@ -26,7 +26,8 @@ export async function sendDiscountEmail(payload: RequestPayload) {
   console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
   
   try {
-    // Använd fetch för att anropa Resend API istället för npm-paketet
+    // Use the Resend default domain (onboarding@resend.dev) as a fallback
+    // This works without domain verification while you set up your domain
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -34,11 +35,11 @@ export async function sendDiscountEmail(payload: RequestPayload) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Lyxdeal <noreply@lyxdeal.se>",
+        from: "Lyxdeal <onboarding@resend.dev>", // Using Resend's verified domain
         to: email,
         subject: `Din rabattkod för "${dealTitle}"`,
         html: emailContent,
-        reply_to: "info@lyxdeal.se"
+        reply_to: "info@lyxdeal.se" // This doesn't require domain verification
       })
     });
 

@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,7 +14,18 @@ serve(async (req) => {
   }
 
   try {
-    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+    const apiKey = Deno.env.get("RESEND_API_KEY");
+    if (!apiKey) {
+      console.error("RESEND_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "RESEND_API_KEY is not configured" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const { email, business_name, temporary_password } = await req.json();
 
     if (!email || !business_name || !temporary_password) {
@@ -33,40 +43,53 @@ serve(async (req) => {
 
     console.log(`Sending welcome email to new salon: ${business_name} (${email})`);
 
-    const { data, error } = await resend.emails.send({
-      from: "Lyxdeal <noreply@lyxdeal.se>",
-      to: [email],
-      subject: "Välkommen till Lyxdeal som salongspartner!",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #3b82f6; margin-bottom: 24px;">Välkommen till Lyxdeal!</h1>
-          
-          <p>Hej ${business_name},</p>
-          
-          <p>Tack för att du registrerade dig som partner på Lyxdeal! Vi är glada att ha dig med ombord.</p>
-          
-          <p>Här är dina inloggningsuppgifter till ditt salongskonto:</p>
-          
-          <div style="background-color: #f3f4f6; padding: 16px; border-radius: 4px; margin: 20px 0;">
-            <p><strong>E-post:</strong> ${email}</p>
-            <p><strong>Temporärt lösenord:</strong> ${temporary_password}</p>
-          </div>
-          
-          <p>Vi rekommenderar att du ändrar ditt lösenord första gången du loggar in.</p>
-          
-          <a href="${Deno.env.get("PUBLIC_SITE_URL") || "https://lyxdeal.se"}/salon-login" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; margin-top: 20px;">Logga in på ditt konto</a>
-          
-          <p style="margin-top: 40px;">Om du har några frågor eller behöver hjälp, tveka inte att kontakta oss.</p>
-          
-          <p>Med vänliga hälsningar,<br>Lyxdeal-teamet</p>
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #3b82f6; margin-bottom: 24px;">Välkommen till Lyxdeal!</h1>
+        
+        <p>Hej ${business_name},</p>
+        
+        <p>Tack för att du registrerade dig som partner på Lyxdeal! Vi är glada att ha dig med ombord.</p>
+        
+        <p>Här är dina inloggningsuppgifter till ditt salongskonto:</p>
+        
+        <div style="background-color: #f3f4f6; padding: 16px; border-radius: 4px; margin: 20px 0;">
+          <p><strong>E-post:</strong> ${email}</p>
+          <p><strong>Temporärt lösenord:</strong> ${temporary_password}</p>
         </div>
-      `,
+        
+        <p>Vi rekommenderar att du ändrar ditt lösenord första gången du loggar in.</p>
+        
+        <a href="${Deno.env.get("PUBLIC_SITE_URL") || "https://lyxdeal.se"}/salon-login" style="display: inline-block; background-color: #3b82f6; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; margin-top: 20px;">Logga in på ditt konto</a>
+        
+        <p style="margin-top: 40px;">Om du har några frågor eller behöver hjälp, tveka inte att kontakta oss.</p>
+        
+        <p>Med vänliga hälsningar,<br>Lyxdeal-teamet</p>
+      </div>
+    `;
+
+    // Use direct fetch to Resend API instead of the npm package
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Lyxdeal <onboarding@resend.dev>", // Using Resend's verified domain
+        to: [email],
+        subject: "Välkommen till Lyxdeal som salongspartner!",
+        html: htmlContent,
+        reply_to: "info@lyxdeal.se"
+      })
     });
 
-    if (error) {
-      console.error("Error sending email:", error);
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Error sending email:", data);
       return new Response(
-        JSON.stringify({ error: "Failed to send email", details: error }),
+        JSON.stringify({ error: "Failed to send email", details: data }),
         {
           status: 500,
           headers: {
