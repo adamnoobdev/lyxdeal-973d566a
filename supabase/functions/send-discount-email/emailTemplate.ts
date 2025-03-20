@@ -1,17 +1,19 @@
 
-// Email template generator
+// Email template generator - ren HTML-implementation utan externa beroenden
 export const createEmailContent = (name: string, code: string, dealTitle: string): string => {
   // Calculate expiry time (72 hours from now)
   const expiryDate = new Date();
   expiryDate.setHours(expiryDate.getHours() + 72);
-  const formattedDate = expiryDate.toLocaleDateString('sv-SE', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
+  
+  // Formatera datum manuellt istället för att använda Intl
+  const day = expiryDate.getDate();
+  const month = expiryDate.getMonth() + 1;
+  const year = expiryDate.getFullYear();
+  const hours = expiryDate.getHours().toString().padStart(2, '0');
+  const minutes = expiryDate.getMinutes().toString().padStart(2, '0');
+  
+  const formattedDate = `${day} ${getMonthName(month)} ${year}, ${hours}:${minutes}`;
+  
   return `
     <!DOCTYPE html>
     <html>
@@ -125,3 +127,12 @@ export const createEmailContent = (name: string, code: string, dealTitle: string
     </html>
   `;
 };
+
+// Hjälpfunktion för att få månadsnamn på svenska
+function getMonthName(monthNumber: number): string {
+  const months = [
+    "januari", "februari", "mars", "april", "maj", "juni", 
+    "juli", "augusti", "september", "oktober", "november", "december"
+  ];
+  return months[monthNumber - 1];
+}

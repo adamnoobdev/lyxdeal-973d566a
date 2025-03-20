@@ -1,5 +1,5 @@
 
-import { Resend } from "npm:resend@3.0.0";
+// Vi ersätter Resend-npm-paketet med en enkel fetch-implementation
 import { createEmailContent } from "./emailTemplate.ts";
 import { RequestPayload } from "./types.ts";
 import { corsHeaders } from "./corsConfig.ts";
@@ -20,24 +20,34 @@ export async function sendDiscountEmail(payload: RequestPayload) {
     );
   }
 
-  const resend = new Resend(apiKey);
+  // Skapa e-postinnehållet med vår rena HTML-funktion
   const emailContent = createEmailContent(name, code, dealTitle);
   
   console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
   
   try {
-    const { data, error } = await resend.emails.send({
-      from: "Lyxdeal <noreply@lyxdeal.se>",
-      to: email,
-      subject: `Din rabattkod för "${dealTitle}"`,
-      html: emailContent,
-      reply_to: "info@lyxdeal.se"
+    // Använd fetch för att anropa Resend API istället för npm-paketet
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Lyxdeal <noreply@lyxdeal.se>",
+        to: email,
+        subject: `Din rabattkod för "${dealTitle}"`,
+        html: emailContent,
+        reply_to: "info@lyxdeal.se"
+      })
     });
 
-    if (error) {
-      console.error("Resend API Error:", error);
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      console.error("Resend API Error:", responseData);
       return new Response(
-        JSON.stringify({ error: "Failed to send email", details: error }),
+        JSON.stringify({ error: "Failed to send email", details: responseData }),
         {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -45,11 +55,11 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       );
     }
 
-    console.log(`Successfully sent email to ${email}`, data);
+    console.log(`Successfully sent email to ${email}`, responseData);
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data,
+        data: responseData,
         message: `Rabattkod skickad till ${email}`
       }),
       {
