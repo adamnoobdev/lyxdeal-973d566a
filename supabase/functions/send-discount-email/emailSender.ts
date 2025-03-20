@@ -26,7 +26,7 @@ export async function sendDiscountEmail(payload: RequestPayload) {
   console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
   
   try {
-    // Now using the verified info.lyxdeal.se domain
+    // Using the onboarding@resend.dev email which is guaranteed to work
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -34,7 +34,7 @@ export async function sendDiscountEmail(payload: RequestPayload) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Lyxdeal <info@lyxdeal.se>", // Using verified domain
+        from: "Lyxdeal <onboarding@resend.dev>", // Using Resend's default verified sender
         to: email,
         subject: `Din rabattkod för "${dealTitle}"`,
         html: emailContent,

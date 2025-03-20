@@ -68,7 +68,7 @@ serve(async (req) => {
       </div>
     `;
 
-    // Use direct fetch to Resend API instead of the npm package
+    // Using Resend's default verified sender domain
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -76,7 +76,7 @@ serve(async (req) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: "Lyxdeal <info@lyxdeal.se>", // Using verified domain
+        from: "Lyxdeal <onboarding@resend.dev>", // Using Resend's default verified sender
         to: [email],
         subject: "Välkommen till Lyxdeal som salongspartner!",
         html: htmlContent,
