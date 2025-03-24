@@ -1,6 +1,7 @@
 
 import { Check } from "lucide-react";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface PricingCardProps {
   title: string;
@@ -21,20 +22,13 @@ export const PricingCard = ({
   features,
   isPopular = false,
 }: PricingCardProps) => {
-  const handleContactClick = (paymentType: 'monthly' | 'yearly') => {
-    // Navigera till kontaktformuläret längre ner på sidan
-    const contactSection = document.getElementById('contact-section');
-    if (contactSection) {
-      // Set selected plan in localStorage for the contact form to use
-      localStorage.setItem('selectedPlan', JSON.stringify({
-        title,
-        paymentType,
-        price: paymentType === 'monthly' ? monthlyPrice : yearlyPrice,
-        dealCount
-      }));
-      
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
+  const navigate = useNavigate();
+
+  const handleSignupClick = (paymentType: 'monthly' | 'yearly') => {
+    const price = paymentType === 'monthly' ? monthlyPrice : yearlyPrice;
+    
+    // Navigate to signup page with plan information as query parameters
+    navigate(`/partner/signup?plan=${encodeURIComponent(title)}&type=${paymentType}&price=${price}&deals=${dealCount}`);
   };
 
   return (
@@ -91,14 +85,14 @@ export const PricingCard = ({
         <Button 
           className="w-full" 
           variant="default" 
-          onClick={() => handleContactClick('monthly')}
+          onClick={() => handleSignupClick('monthly')}
         >
           Betala månadsvis
         </Button>
         <Button 
           className="w-full" 
           variant="outline" 
-          onClick={() => handleContactClick('yearly')}
+          onClick={() => handleSignupClick('yearly')}
         >
           Betala årsvis
         </Button>

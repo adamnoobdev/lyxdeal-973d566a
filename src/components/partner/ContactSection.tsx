@@ -2,22 +2,14 @@
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import { Card, CardContent } from "../ui/card";
-import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { useState } from "react";
 import { toast } from "sonner";
 import { LoadingButton } from "../ui/loading-button";
 import { submitPartnerRequest } from "@/hooks/usePartnerRequests";
 
-interface SelectedPlan {
-  title: string;
-  paymentType: 'monthly' | 'yearly';
-  price: number;
-  dealCount: number;
-}
-
 export const ContactSection = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     business: "",
@@ -25,18 +17,6 @@ export const ContactSection = () => {
     phone: "",
     message: ""
   });
-
-  // Load selected plan from localStorage
-  useEffect(() => {
-    const storedPlan = localStorage.getItem('selectedPlan');
-    if (storedPlan) {
-      try {
-        setSelectedPlan(JSON.parse(storedPlan));
-      } catch (e) {
-        console.error("Error parsing stored plan:", e);
-      }
-    }
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -48,42 +28,30 @@ export const ContactSection = () => {
     setIsSubmitting(true);
     
     try {
-      // Use the custom function to submit partner request
-      const { success, error, redirectUrl } = await submitPartnerRequest({
+      // Use the custom function to submit partner request (without plan data)
+      const { success, error } = await submitPartnerRequest({
         name: formData.name,
         business_name: formData.business,
         email: formData.email,
         phone: formData.phone,
-        message: formData.message,
-        plan_title: selectedPlan?.title,
-        plan_payment_type: selectedPlan?.paymentType,
-        plan_price: selectedPlan?.price,
-        plan_deal_count: selectedPlan?.dealCount
+        message: formData.message
       });
       
       if (!success) throw new Error(error);
       
-      if (redirectUrl) {
-        // Redirect to Stripe checkout
-        toast.success("Du skickas nu till betalningssidan");
-        window.location.href = redirectUrl;
-      } else {
-        // If no payment required (free plan)
-        toast.success("Tack för din förfrågan! Vi kontaktar dig inom kort.");
-        setFormData({
-          name: "",
-          business: "",
-          email: "",
-          phone: "",
-          message: ""
-        });
-        
-        // Clear selected plan
-        localStorage.removeItem('selectedPlan');
-        setSelectedPlan(null);
-      }
+      // Show success message
+      toast.success("Tack för ditt meddelande! Vi kontaktar dig inom kort.");
+      
+      // Reset form
+      setFormData({
+        name: "",
+        business: "",
+        email: "",
+        phone: "",
+        message: ""
+      });
     } catch (error) {
-      console.error("Error submitting partner request:", error);
+      console.error("Error submitting contact form:", error);
       toast.error("Ett fel uppstod. Försök igen senare.");
     } finally {
       setIsSubmitting(false);
@@ -99,18 +67,12 @@ export const ContactSection = () => {
             <p className="text-gray-600 max-w-2xl mx-auto">
               Kontakta oss gärna om du har frågor om att bli salongspartner eller om du vill ha mer information om våra paket.
             </p>
-            {selectedPlan && (
-              <div className="mt-4 p-3 bg-primary-50 border border-primary/20 rounded-md inline-block">
-                <p className="font-medium">Du har valt: {selectedPlan.title}</p>
-                <p className="text-sm text-gray-600">
-                  {selectedPlan.paymentType === 'monthly' ? 'Månadsbetalning' : 'Årsbetalning'}: 
-                  {' '}{selectedPlan.price} SEK
-                </p>
-              </div>
-            )}
           </div>
 
           <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">Kontaktformulär</CardTitle>
+            </CardHeader>
             <CardContent className="p-6">
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -164,6 +126,7 @@ export const ContactSection = () => {
                     rows={5}
                     value={formData.message}
                     onChange={handleChange}
+                    required
                   />
                 </div>
                 <LoadingButton 
@@ -171,7 +134,7 @@ export const ContactSection = () => {
                   className="w-full"
                   loading={isSubmitting}
                 >
-                  {selectedPlan ? 'Skicka förfrågan och gå till betalning' : 'Skicka meddelande'}
+                  Skicka meddelande
                 </LoadingButton>
               </form>
             </CardContent>
