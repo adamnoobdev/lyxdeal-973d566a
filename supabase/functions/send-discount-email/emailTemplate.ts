@@ -32,6 +32,11 @@ export function createEmailContent(name: string, code: string, dealTitle: string
             padding: 30px 20px;
             text-align: center;
           }
+          .header img {
+            width: 150px;
+            height: auto;
+            margin-bottom: 15px;
+          }
           .header h1 {
             margin: 0;
             font-size: 24px;
@@ -101,7 +106,7 @@ export function createEmailContent(name: string, code: string, dealTitle: string
       <body>
         <div class="container">
           <div class="header">
-            <a href="https://lyxdeal.se" class="logo">LYXDEAL</a>
+            <img src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets//Lyxdeal-logo.svg" alt="Lyxdeal" />
             <h1>Din rabattkod är här!</h1>
           </div>
           <div class="content">
