@@ -17,6 +17,7 @@ serve(async (req) => {
 
   try {
     // Initialize Stripe with secret key from environment variables
+    // Använder STRIPE_SECRET_KEY (live nyckel om den finns, annars test nyckel)
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2022-11-15",
     });

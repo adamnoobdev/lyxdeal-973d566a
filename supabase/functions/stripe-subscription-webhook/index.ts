@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@12.11.0";
@@ -17,6 +16,7 @@ serve(async (req) => {
 
   try {
     // Initialize Stripe with secret key from environment variables
+    // Använder produktionsnyckeln från miljövariabler
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2022-11-15",
     });
