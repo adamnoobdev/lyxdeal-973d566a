@@ -61,14 +61,14 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         
         console.log("Calling Supabase edge function with data:", functionPayload);
         
-        // Använd vanlig fetch istället för supabase.functions.invoke för att undvika eventuella autentiseringsproblem
+        // Använd direkta anrop med full URL för bättre kontroll
         const functionResponse = await fetch(
           "https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/create-salon-subscription",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${supabase.auth.getSession().then(({ data }) => data.session?.access_token || "")}`,
+              "Authorization": `Bearer ${await supabase.auth.getSession().then(({ data }) => data.session?.access_token || "")}`,
             },
             body: JSON.stringify(functionPayload)
           }
@@ -106,6 +106,15 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
       } catch (stripeError) {
         console.error("Error creating Stripe checkout:", stripeError);
         toast.error("Ett fel uppstod vid betalningsförberedelsen. Vänligen försök igen senare.");
+        
+        // Lägg till en fallback - låt användaren klicka på en länk
+        toast.error("Klicka här för att försöka igen", {
+          action: {
+            label: "Försök igen",
+            onClick: () => window.location.reload()
+          }
+        });
+        
         throw stripeError;
       }
     }

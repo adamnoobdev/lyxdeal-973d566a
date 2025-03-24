@@ -107,16 +107,20 @@ serve(async (req) => {
       );
     }
 
-    // Create a checkout session (without the 'appearance' parameter which was causing errors)
-    console.log("Creating checkout session");
-    // Determine the origin for redirects
-    const origin = req.headers.get("origin") || "https://www.lyxdeal.se";
+    // Determine the origin for redirects - säkerställ att detta är korrekt
+    let origin = req.headers.get("origin") || "https://www.lyxdeal.se";
+    
+    // Fixa problem där origin ibland kommer från localhost eller testmiljö
+    if (origin.includes("localhost") || origin.includes("lovableproject.com")) {
+      origin = "https://www.lyxdeal.se";
+    }
+    
     console.log("Using origin for redirects:", origin);
     
     let session;
     try {
-      // Lägg till ett debugmeddelande för att verifiera priskonstruktionen
-      console.log("Creating price with amount:", Math.round(price * 100));
+      // VIKTIGT: Vi skapar nu Stripe checkout utan den anpassade appearance som kan orsaka problem
+      console.log("Creating checkout session with amount:", Math.round(price * 100));
       
       session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -146,20 +150,13 @@ serve(async (req) => {
           plan_title: planTitle,
           plan_type: planType,
         },
-        // Anpassad text för Stripe checkout
-        custom_text: {
-          submit: {
-            message: "Lyxdeal hanterar dina betalningar säkert via Stripe.",
-          },
-        },
-        // Anpassad beskrivning av betalningen
-        payment_intent_data: {
-          description: `Lyxdeal salongspartner - ${planTitle}`,
-        },
-        // OBS: Ingen 'appearance' parameter för att undvika fel
+        // Skapa standardiserade betalningsformuläret utan anpassningar
+        locale: "sv",
+        allow_promotion_codes: true,
+        billing_address_collection: "auto",
       });
 
-      console.log("Checkout session created:", session.id);
+      console.log("Checkout session created successfully:", session.id);
       console.log("Checkout URL:", session.url);
       
       if (!session.url) {

@@ -18,6 +18,7 @@ interface SelectedPlan {
 
 const PartnerSignup = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
@@ -44,6 +45,14 @@ const PartnerSignup = () => {
     }
   }, [searchParams, navigate]);
   
+  // Effekt för att hantera omdirigering om URL finns
+  useEffect(() => {
+    if (redirectUrl) {
+      console.log("Attempting redirect in useEffect to:", redirectUrl);
+      performRedirect(redirectUrl);
+    }
+  }, [redirectUrl]);
+  
   const [formData, setFormData] = useState({
     name: "",
     business: "",
@@ -57,37 +66,54 @@ const PartnerSignup = () => {
   };
 
   const performRedirect = (url: string) => {
-    console.log("Attempting redirect to:", url);
+    console.log("Performing redirect to:", url);
     
-    // Metod 1: Traditionell omdirigering
-    toast.success("Omdirigerar till Stripe...");
+    // Visa toast innan omdirigering
+    toast.success("Omdirigerar till betalning...");
     
     try {
-      // Metod 2: Öppna direkt med window.location för att garantera redirect på alla enheter
+      // Metod 1: Öppna i samma fönster
       window.location.href = url;
       
-      // Säkerhetskopia 1: Försök med timeout efter en kort fördröjning
+      // Metod 2: Fallback efter kort fördröjning
       setTimeout(() => {
-        console.log("Försöker med timeout redirect");
+        console.log("Fallback redirect method 1");
         window.location.replace(url);
-      }, 500);
+      }, 1000);
       
-      // Säkerhetskopia 2: Skapa en länk och klicka på den
+      // Metod 3: Andra fallback med window.open
       setTimeout(() => {
-        console.log("Försöker med länk-klick redirect");
+        console.log("Fallback redirect method 2");
+        window.open(url, "_self");
+      }, 2000);
+      
+      // Metod 4: Skapa och klicka på en länk som sista utväg
+      setTimeout(() => {
+        console.log("Fallback redirect method 3 - creating a link");
         const link = document.createElement('a');
         link.href = url;
         link.target = "_self";
+        link.style.display = "none";
+        document.body.appendChild(link);
         link.click();
-      }, 1000);
+      }, 3000);
     } catch (error) {
-      console.error("Fel vid omdirigering:", error);
-      toast.error("Kunde inte omdirigera. Vänligen klicka här", {
+      console.error("Error during redirect:", error);
+      
+      // Visa en manuell knapp som användaren kan klicka på
+      toast.error("Kunde inte omdirigera automatiskt. Klicka på knappen nedan.", {
+        duration: 10000,
         action: {
           label: "Gå till betalning",
-          onClick: () => window.open(url, "_self")
+          onClick: () => window.open(url, "_blank")
         }
       });
+      
+      // Visa betalnings-URL i konsolen så att vi kan felsöka
+      console.log("Payment URL (for manual navigation):", url);
+      
+      // Visa fallback-knapp på sidan
+      setRedirectUrl(url);
     }
   };
 
@@ -149,7 +175,10 @@ const PartnerSignup = () => {
       }
       
       if (result.redirectUrl) {
-        // Redirect to Stripe checkout
+        // Spara URL för att hantera i useEffect
+        setRedirectUrl(result.redirectUrl);
+        
+        // Redirect to Stripe checkout direkt
         console.log("Redirecting to Stripe:", result.redirectUrl);
         toast.success("Du skickas nu till betalningssidan");
         
@@ -268,6 +297,21 @@ const PartnerSignup = () => {
                     </Button>
                   </div>
                 </form>
+                
+                {/* Manuell omdirigering om automatisk omdirigering misslyckas */}
+                {redirectUrl && (
+                  <div className="mt-6 p-4 border border-orange-300 bg-orange-50 rounded-md">
+                    <p className="text-orange-800 mb-3">
+                      Om du inte omdirigeras automatiskt, klicka på knappen nedan för att fortsätta till betalning:
+                    </p>
+                    <Button 
+                      onClick={() => window.open(redirectUrl, "_blank")}
+                      className="w-full bg-orange-500 hover:bg-orange-600"
+                    >
+                      Fortsätt till betalning manuellt
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
