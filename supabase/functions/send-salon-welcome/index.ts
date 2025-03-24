@@ -68,12 +68,15 @@ serve(async (req) => {
       </div>
     `;
 
-    // For testing, send to verified email - in production this should be changed
+    // Check if we're in production mode
     const testingMode = !Deno.env.get("PRODUCTION_MODE");
     const verifiedEmail = Deno.env.get("VERIFIED_EMAIL") || "adam@larlid.com";
     
     const emailConfig = {
-      from: "Lyxdeal <onboarding@resend.dev>", // Using Resend's default verified sender
+      // In production, use the verified domain. In testing, use Resend's default
+      from: testingMode 
+        ? "Lyxdeal <onboarding@resend.dev>" 
+        : "Lyxdeal <info@lyxdeal.se>",
       // In testing mode, always send to the verified email
       to: testingMode ? [verifiedEmail] : [email],
       subject: "Välkommen till Lyxdeal som salongspartner!",
