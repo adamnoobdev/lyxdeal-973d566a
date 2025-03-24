@@ -1,3 +1,4 @@
+
 import { FC } from "react";
 
 interface CustomerServiceSectionProps {
@@ -12,7 +13,8 @@ export const CustomerServiceSection: FC<CustomerServiceSectionProps> = ({ onNavi
         <li>
           <button 
             onClick={() => onNavigate('/faq')} 
-            className="text-gray-600 hover:text-gray-900"
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+            aria-label="Visa vanliga frågor"
           >
             Vanliga frågor
           </button>
@@ -20,7 +22,8 @@ export const CustomerServiceSection: FC<CustomerServiceSectionProps> = ({ onNavi
         <li>
           <button 
             onClick={() => onNavigate('/terms')} 
-            className="text-gray-600 hover:text-gray-900"
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+            aria-label="Visa allmänna villkor"
           >
             Allmänna villkor
           </button>

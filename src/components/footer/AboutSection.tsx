@@ -11,24 +11,9 @@ export const AboutSection: FC<AboutSectionProps> = ({ onNavigate }) => {
       <ul className="space-y-2">
         <li>
           <button 
-            onClick={() => onNavigate('/about')} 
-            className="text-gray-600 hover:text-gray-900"
-          >
-            Om företaget
-          </button>
-        </li>
-        <li>
-          <button 
-            onClick={() => onNavigate('/contact')} 
-            className="text-gray-600 hover:text-gray-900"
-          >
-            Kontakta oss
-          </button>
-        </li>
-        <li>
-          <button 
             onClick={() => onNavigate('/admin')} 
-            className="text-gray-600 hover:text-gray-900"
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+            aria-label="Gå till adminsidan"
           >
             Adminsida
           </button>

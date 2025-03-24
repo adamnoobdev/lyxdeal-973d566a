@@ -54,10 +54,13 @@ const PartnerSignup = () => {
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-4">Bli salongspartner</h1>
               
-              <PlanSummary plan={selectedPlan} />
+              <PlanSummary 
+                plan={selectedPlan} 
+                className="mx-auto transition-all duration-300 animate-fade-up" 
+              />
             </div>
 
-            <Card>
+            <Card className="shadow-lg animate-fade-up" style={{ animationDelay: "100ms" }}>
               <CardHeader>
                 <CardTitle className="text-xl">Fyll i dina uppgifter</CardTitle>
               </CardHeader>

@@ -43,7 +43,11 @@ const NavigationBar = ({
   const dashboardPath = userRole === 'admin' ? '/admin' : '/salon/dashboard';
 
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 transition-colors duration-200 ${isScrolled ? 'bg-white shadow-sm' : 'bg-white/95 backdrop-blur-sm'}`}>
+    <header 
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-200 ${
+        isScrolled ? 'bg-white shadow-sm' : 'bg-white/95 backdrop-blur-sm'
+      }`}
+    >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left section - Logo and hamburger menu */}

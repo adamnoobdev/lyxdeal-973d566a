@@ -22,8 +22,8 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
   const { formData, isSubmitting, handleChange, handleSubmit } = usePartnerForm(selectedPlan);
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form className="space-y-6" onSubmit={handleSubmit} aria-label="Partner registreringsformulär">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <div className="space-y-2">
           <label htmlFor="name" className="text-sm font-medium">Namn</label>
           <Input 
@@ -32,6 +32,8 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
             value={formData.name}
             onChange={handleChange}
             required
+            aria-required="true"
+            className="w-full"
           />
         </div>
         <div className="space-y-2">
@@ -42,6 +44,8 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
             value={formData.business}
             onChange={handleChange}
             required
+            aria-required="true"
+            className="w-full"
           />
         </div>
         <div className="space-y-2">
@@ -53,6 +57,9 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
             value={formData.email}
             onChange={handleChange}
             required
+            aria-required="true"
+            className="w-full"
+            inputMode="email"
           />
         </div>
         <div className="space-y-2">
@@ -63,6 +70,9 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
             value={formData.phone}
             onChange={handleChange}
             required
+            aria-required="true"
+            className="w-full"
+            inputMode="tel"
           />
         </div>
       </div>
@@ -70,8 +80,9 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
       <div className="flex flex-col sm:flex-row gap-4 pt-4">
         <LoadingButton 
           type="submit" 
-          className="flex-1"
+          className="flex-1 w-full"
           loading={isSubmitting}
+          aria-label={isSubmitting ? "Skickar din information..." : "Fortsätt till betalning"}
         >
           Fortsätt till betalning
         </LoadingButton>
@@ -79,8 +90,9 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
         <Button 
           type="button" 
           variant="outline" 
-          className="flex-1"
+          className="flex-1 w-full"
           onClick={() => navigate('/partner')}
+          aria-label="Avbryt registrering"
         >
           Avbryt
         </Button>

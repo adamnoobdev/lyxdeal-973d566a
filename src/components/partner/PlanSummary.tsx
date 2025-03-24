@@ -1,5 +1,6 @@
 
 import React from "react";
+import { cn } from "@/lib/utils";
 
 interface SelectedPlan {
   title: string;
@@ -10,13 +11,17 @@ interface SelectedPlan {
 
 interface PlanSummaryProps {
   plan: SelectedPlan | null;
+  className?: string;
 }
 
-export const PlanSummary: React.FC<PlanSummaryProps> = ({ plan }) => {
+export const PlanSummary: React.FC<PlanSummaryProps> = ({ plan, className }) => {
   if (!plan) return null;
 
   return (
-    <div className="mt-4 p-4 bg-primary-50 border border-primary/20 rounded-md inline-block">
+    <div className={cn(
+      "mt-4 p-4 bg-primary-50 border border-primary/20 rounded-md inline-block shadow-sm transition-all hover:shadow-md",
+      className
+    )}>
       <h2 className="font-semibold text-xl text-primary-700">
         {plan.title}
       </h2>

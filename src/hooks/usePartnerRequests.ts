@@ -1,5 +1,4 @@
 
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export interface PartnerRequestData {
@@ -39,7 +38,6 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Failed to submit partner request:", errorText);
-      toast.error("Kunde inte skicka ansökan: " + errorText);
       throw new Error(`Failed to submit partner request: ${errorText}`);
     }
     
@@ -71,14 +69,12 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         if (!functionResponse.ok) {
           const stripeErrorText = await functionResponse.text();
           console.error("Stripe error from edge function:", stripeErrorText);
-          toast.error("Kunde inte skapa betalningssession. Vänligen försök igen.");
           throw new Error(`Failed to create payment session: ${stripeErrorText}`);
         }
         
         const stripeData = await functionResponse.json();
         
         if (!stripeData || !stripeData.url) {
-          toast.error("Ingen checkout-URL returnerades. Vänligen försök igen.");
           throw new Error('No checkout URL returned from payment provider');
         }
         
@@ -89,16 +85,6 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         };
       } catch (stripeError) {
         console.error("Error creating Stripe checkout:", stripeError);
-        toast.error("Ett fel uppstod vid betalningsförberedelsen. Vänligen försök igen senare.");
-        
-        // Lägg till en fallback - låt användaren klicka på en länk
-        toast.error("Klicka här för att försöka igen", {
-          action: {
-            label: "Försök igen",
-            onClick: () => window.location.reload()
-          }
-        });
-        
         throw stripeError;
       }
     }
