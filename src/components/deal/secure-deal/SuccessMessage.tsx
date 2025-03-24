@@ -1,46 +1,40 @@
 
 import { Button } from "@/components/ui/button";
-import { Check, MailCheck } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
 interface SuccessMessageProps {
   onReset: () => void;
   email: string | null;
-  code?: string | null;
 }
 
 export const SuccessMessage = ({ onReset, email }: SuccessMessageProps) => {
   return (
-    <div className="text-center space-y-6">
-      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-        <Check className="h-8 w-8 text-green-600" />
+    <div className="flex flex-col items-center text-center space-y-6">
+      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-100">
+        <CheckCircle className="h-8 w-8 text-green-600" />
       </div>
       
-      <h2 className="text-2xl font-semibold text-gray-800">Erbjudande säkrat!</h2>
+      <h3 className="text-xl font-semibold text-gray-800">
+        Erbjudandet är säkrat!
+      </h3>
       
-      {email ? (
-        <div className="bg-blue-50 p-4 rounded-lg text-left">
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5">
-              <MailCheck className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-700">
-                En rabattkod har skickats till <strong>{email}</strong>
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Kolla din inkorg och skräppost om du inte hittar e-postmeddelandet
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <div className="space-y-3">
+        <p className="text-gray-600">
+          Din rabattkod har skickats till <strong>{email}</strong>
+        </p>
+        
+        <p className="text-sm text-gray-500">
+          Koden är giltig i 72 timmar och kan användas hos salongen.
+          Om du inte hittar e-postmeddelandet, kolla din skräppost.
+        </p>
+      </div>
       
-      <p className="text-sm text-gray-600">
-        Tack för att du använder Lyxdeal! Din rabattkod har skickats till din e-post och gäller i 72 timmar. Visa rabattkoden när du besöker salongen.
-      </p>
-      
-      <div className="pt-4">
-        <Button onClick={onReset} variant="outline" className="mr-2">
+      <div className="pt-4 border-t border-gray-200 w-full flex flex-col gap-3">
+        <Button 
+          onClick={onReset}
+          variant="outline"
+          className="w-full"
+        >
           Säkra ett annat erbjudande
         </Button>
       </div>

@@ -114,6 +114,7 @@ export const SecureDealContainer = ({
       
       // 4. Skicka e-post med rabattkoden
       let emailSent = false;
+      let emailResponse;
       try {
         const { data, error } = await supabase.functions.invoke("send-discount-email", {
           body: {
@@ -129,6 +130,7 @@ export const SecureDealContainer = ({
           console.error("Error sending email:", error);
         } else {
           console.log("Email sent successfully:", data);
+          emailResponse = data;
           emailSent = true;
         }
       } catch (emailError) {
@@ -137,7 +139,12 @@ export const SecureDealContainer = ({
       
       // 5. Visa bekräftelse oavsett om e-post skickades eller inte
       if (emailSent) {
-        toast.success("Grattis! Din rabattkod har skickats till din e-post.");
+        // Check if we're in testing mode and emails are being redirected
+        if (emailResponse && emailResponse.productionMode === false) {
+          toast.success("Rabattkoden har genererats, men vi är i testläge så e-post skickades till en testadress.");
+        } else {
+          toast.success("Grattis! Din rabattkod har skickats till din e-post.");
+        }
       } else {
         toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Kontakta kundtjänst om du inte får din kod.");
       }

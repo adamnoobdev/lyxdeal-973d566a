@@ -26,28 +26,32 @@ export async function sendDiscountEmail(payload: RequestPayload) {
   console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
   
   try {
-    // Check if we're in production mode
-    const testingMode = !Deno.env.get("PRODUCTION_MODE");
+    // Get the production mode setting from environment
+    const productionMode = Deno.env.get("PRODUCTION_MODE") === "true";
+    
+    // In production mode, use the actual recipient's email
+    // In non-production mode, redirect to the verified email
     const verifiedEmail = Deno.env.get("VERIFIED_EMAIL") || "adam@larlid.com";
+    const recipient = productionMode ? email : verifiedEmail;
     
     const emailConfig = {
       // In production, use the verified domain. In testing, use Resend's default
-      from: testingMode 
-        ? "Lyxdeal <onboarding@resend.dev>" 
-        : "Lyxdeal <info@lyxdeal.se>",
-      // In testing mode, always send to the verified email
-      to: testingMode ? verifiedEmail : email,
+      from: productionMode 
+        ? "Lyxdeal <info@lyxdeal.se>" 
+        : "Lyxdeal <onboarding@resend.dev>",
+      to: recipient,
       subject: `Din rabattkod för "${dealTitle}"`,
       html: emailContent,
       reply_to: "info@lyxdeal.se"
     };
     
-    if (testingMode && email !== verifiedEmail) {
+    // Log if we're redirecting emails in non-production mode
+    if (!productionMode && email !== verifiedEmail) {
       console.log(`TESTING MODE: Redirecting email from ${email} to verified email ${verifiedEmail}`);
     }
 
-    // More detailed logging before API call
-    console.log("Preparing to send email with config:", JSON.stringify({
+    // Detailed logging before API call
+    console.log("Sending email with config:", JSON.stringify({
       ...emailConfig,
       html: "[HTML content omitted for brevity]"
     }));
@@ -81,9 +85,9 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       );
     }
 
-    // Add note in response if we're in testing mode
+    // Add information in response about where the email was sent
     let message = `Rabattkod skickad till ${email}`;
-    if (testingMode && email !== verifiedEmail) {
+    if (!productionMode && email !== verifiedEmail) {
       message = `TESTLÄGE: Rabattkod som skulle skickats till ${email} skickades istället till ${verifiedEmail}`;
     }
 
@@ -93,7 +97,8 @@ export async function sendDiscountEmail(payload: RequestPayload) {
         success: true, 
         data: responseData,
         message: message,
-        testingMode: testingMode
+        productionMode: productionMode,
+        actualRecipient: recipient
       }),
       {
         status: 200,
