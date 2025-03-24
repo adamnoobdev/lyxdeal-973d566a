@@ -24,7 +24,7 @@ export const PartnerHero = () => {
           <p className="text-lg md:text-xl text-white/90 max-w-3xl mb-8">
             Nå nya kunder, öka din försäljning och stärk ditt varumärke genom att bli en av våra värdefulla salongspartners.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 relative">
             <Button 
               size="lg" 
               className="bg-white text-primary hover:bg-white/90"
@@ -32,14 +32,16 @@ export const PartnerHero = () => {
             >
               Bli partner idag
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-white text-white hover:bg-white/10"
-              onClick={() => navigate("/salon/login")}
-            >
-              Logga in som partner
-            </Button>
+            <div className="group relative">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-white text-white opacity-0 absolute inset-0 sm:static sm:opacity-100 sm:invisible group-hover:visible group-hover:opacity-100 transition-all duration-300 hover:bg-white/10"
+                onClick={() => navigate("/salon/login")}
+              >
+                Logga in som partner
+              </Button>
+            </div>
           </div>
         </div>
       </div>
