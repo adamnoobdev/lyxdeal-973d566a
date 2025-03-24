@@ -18,30 +18,28 @@ export const PartnerHero = () => {
       <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-10"></div>
       <div className="container px-4 md:px-8 relative z-10">
         <div className="py-16 md:py-24 flex flex-col items-center text-center">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
             Väx din salongsverksamhet med Lyxdeal
           </h1>
-          <p className="text-lg md:text-xl text-white/90 max-w-3xl mb-8">
+          <p className="text-base md:text-xl text-white/90 max-w-3xl mb-8">
             Nå nya kunder, öka din försäljning och stärk ditt varumärke genom att bli en av våra värdefulla salongspartners.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 relative">
+          <div className="flex flex-col sm:flex-row gap-4 relative w-full sm:w-auto">
             <Button 
               size="lg" 
-              className="bg-white text-primary hover:bg-white/90"
+              className="bg-white text-primary hover:bg-white/90 w-full sm:w-auto"
               onClick={handleContactClick}
             >
               Bli partner idag
             </Button>
-            <div className="group relative">
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white text-white opacity-0 absolute inset-0 sm:static sm:opacity-100 sm:invisible group-hover:visible group-hover:opacity-100 transition-all duration-300 hover:bg-white/10"
-                onClick={() => navigate("/salon/login")}
-              >
-                Logga in som partner
-              </Button>
-            </div>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="border-white text-white hover:bg-white/10 w-full sm:w-auto"
+              onClick={() => navigate("/salon/login")}
+            >
+              Logga in som partner
+            </Button>
           </div>
         </div>
       </div>

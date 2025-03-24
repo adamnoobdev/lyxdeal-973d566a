@@ -14,10 +14,10 @@ const ResponsiveGridComponent = ({ children, className = "" }: ResponsiveGridPro
   if (isMobile) {
     return (
       <div className="w-full -mx-4">
-        <ScrollArea className="pb-4">
-          <div className={`flex space-x-4 px-4 py-2 ${className}`}>
+        <ScrollArea className="pb-4 scrollbar-hide">
+          <div className={`flex space-x-4 px-4 py-2 w-max min-w-full ${className}`}>
             {React.Children.map(children, (child) => (
-              <div className="min-w-[210px] max-w-[210px] flex-shrink-0">
+              <div className="min-w-[220px] max-w-[220px] flex-shrink-0">
                 {child}
               </div>
             ))}

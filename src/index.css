@@ -111,6 +111,11 @@
   .admin-container {
     @apply p-4 md:p-6 lg:p-8;
   }
+
+  /* Touch manipulation for better mobile performance */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
 }
 
 @layer utilities {
@@ -129,5 +134,13 @@
     .xs\:table-cell {
       display: table-cell;
     }
+    .xs\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Better tap targets for mobile */
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
   }
 }

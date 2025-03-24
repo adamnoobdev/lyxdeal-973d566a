@@ -57,18 +57,32 @@ export default function SearchResults() {
 
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
+    const newParams = new URLSearchParams(searchParams);
+    if (category !== "Alla Erbjudanden") {
+      newParams.set("category", category);
+    } else {
+      newParams.delete("category");
+    }
+    setSearchParams(newParams);
   };
 
   const handleCitySelect = (city: string) => {
     setSelectedCity(city);
+    const newParams = new URLSearchParams(searchParams);
+    if (city !== "Alla Städer") {
+      newParams.set("city", city);
+    } else {
+      newParams.delete("city");
+    }
+    setSearchParams(newParams);
   };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="container mx-auto p-4 md:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-64 bg-gray-200 rounded animate-pulse" />
+            <div key={i} className="h-48 bg-gray-200 rounded-lg animate-pulse" />
           ))}
         </div>
       </div>
@@ -76,7 +90,7 @@ export default function SearchResults() {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-4 md:p-6">
       <div className="space-y-6">
         <Link to="/">
           <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">

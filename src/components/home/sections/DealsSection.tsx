@@ -15,9 +15,9 @@ const DealsSectionComponent = ({ selectedCategory, selectedCity }: DealsSectionP
   const { data: deals, isLoading, error } = useDeals(selectedCategory, selectedCity);
 
   return (
-    <div className="space-y-8 md:space-y-12">
+    <div className="space-y-8 md:space-y-12 px-4 md:px-0">
       <section className="space-y-4 md:space-y-6">
-        <div className="flex items-center gap-2 px-4 md:px-0">
+        <div className="flex items-center gap-2">
           <Star className="h-5 w-5 text-primary" />
           <h2 className="text-xl md:text-2xl font-semibold">Utvalda erbjudanden</h2>
         </div>
@@ -25,24 +25,24 @@ const DealsSectionComponent = ({ selectedCategory, selectedCity }: DealsSectionP
       </section>
 
       <section className="space-y-4 md:space-y-6">
-        <div className="flex items-center gap-2 px-4 md:px-0">
+        <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary" />
           <h2 className="text-xl md:text-2xl font-semibold">Alla erbjudanden</h2>
         </div>
         
         {error ? (
-          <Alert variant="destructive" className="mx-4 md:mx-0">
+          <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               Det gick inte att hämta erbjudanden. Försök igen senare.
             </AlertDescription>
           </Alert>
         ) : isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 md:px-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
               <div 
                 key={i} 
-                className="h-64 bg-accent/5 rounded-lg animate-pulse"
+                className="h-48 md:h-64 bg-accent/5 rounded-lg animate-pulse"
               />
             ))}
           </div>
