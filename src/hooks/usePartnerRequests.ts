@@ -82,6 +82,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         };
       } catch (stripeError) {
         console.error("Error creating Stripe checkout:", stripeError);
+        toast.error("Ett fel uppstod vid betalningsförberedelsen. Vänligen försök igen.");
         throw stripeError;
       }
     }

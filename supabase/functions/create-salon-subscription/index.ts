@@ -104,7 +104,7 @@ serve(async (req) => {
       );
     }
 
-    // Create a checkout session with customized appearance
+    // Create a checkout session (without the 'appearance' parameter which was causing errors)
     console.log("Creating checkout session");
     const origin = req.headers.get("origin") || "https://www.lyxdeal.se";
     
@@ -138,43 +138,17 @@ serve(async (req) => {
           plan_title: planTitle,
           plan_type: planType,
         },
-        // Anpassad design som matchar Lyxdeal's tema
+        // Anpassad text för Stripe checkout
         custom_text: {
           submit: {
             message: "Lyxdeal hanterar dina betalningar säkert via Stripe.",
           },
         },
-        // Anpassa färger och utseende enligt Lyxdeal's tema
+        // Anpassad beskrivning av betalningen
         payment_intent_data: {
           description: `Lyxdeal salongspartner - ${planTitle}`,
         },
-        // Custom branding och färgtema
-        appearance: {
-          theme: 'stripe',
-          variables: {
-            colorPrimary: '#520053',
-            colorBackground: '#ffffff',
-            colorText: '#520053',
-            colorDanger: '#EF4444',
-            fontFamily: 'Outfit, sans-serif',
-            spacingUnit: '4px',
-            borderRadius: '4px',
-          },
-          rules: {
-            '.Input': {
-              border: '1px solid #E5E7EB',
-            },
-            '.Button': {
-              backgroundColor: '#520053',
-              color: 'white',
-              fontWeight: 'bold',
-              borderRadius: '4px',
-            },
-            '.Button:hover': {
-              backgroundColor: '#470047',
-            }
-          }
-        },
+        // Notera: 'appearance' parametern har tagits bort eftersom den orsakade fel
       });
 
       console.log("Checkout session created:", session.id);

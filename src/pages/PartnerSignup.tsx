@@ -67,6 +67,13 @@ const PartnerSignup = () => {
         return;
       }
       
+      // Validera formulärdata
+      if (!formData.name || !formData.business || !formData.email || !formData.phone) {
+        toast.error("Vänligen fyll i alla fält");
+        setIsSubmitting(false);
+        return;
+      }
+      
       console.log("Submitting form data:", {
         ...formData,
         plan: selectedPlan
@@ -96,11 +103,10 @@ const PartnerSignup = () => {
         console.log("Redirecting to Stripe:", result.redirectUrl);
         toast.success("Du skickas nu till betalningssidan");
         
-        // Use timeout to ensure toast is visible before redirect
+        // Viktigt: Använd window.location.href för att säkerställa att det fungerar på både mobil och desktop
         setTimeout(() => {
-          // Force a full page navigation to the Stripe URL
           window.location.href = result.redirectUrl;
-        }, 1000);
+        }, 1500); // Ge toast tid att visas
       } else {
         // If no payment required (free plan)
         toast.success("Tack för din registrering! Vi kontaktar dig inom kort.");
