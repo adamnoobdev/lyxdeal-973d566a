@@ -16,8 +16,6 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Creating salon subscription - request received");
-    
     // Initialize Stripe with secret key from environment variables
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {
@@ -43,7 +41,6 @@ serve(async (req) => {
     let requestData;
     try {
       requestData = await req.json();
-      console.log("Request data received:", JSON.stringify(requestData));
     } catch (error) {
       console.error("Error parsing request JSON:", error);
       return new Response(
@@ -78,7 +75,6 @@ serve(async (req) => {
     }
 
     // Create a customer in Stripe
-    console.log("Creating Stripe customer for:", email);
     let customer;
     try {
       customer = await stripe.customers.create({
@@ -89,7 +85,6 @@ serve(async (req) => {
           plan_type: planType,
         },
       });
-      console.log("Customer created:", customer.id);
     } catch (error) {
       console.error("Error creating Stripe customer:", error);
       return new Response(
@@ -107,7 +102,7 @@ serve(async (req) => {
       );
     }
 
-    // Determine the origin for redirects - säkerställ att detta är korrekt
+    // Determine the origin for redirects
     let origin = req.headers.get("origin") || "https://www.lyxdeal.se";
     
     // Fixa problem där origin ibland kommer från localhost eller testmiljö
@@ -115,13 +110,8 @@ serve(async (req) => {
       origin = "https://www.lyxdeal.se";
     }
     
-    console.log("Using origin for redirects:", origin);
-    
     let session;
     try {
-      // VIKTIGT: Vi skapar nu Stripe checkout utan den anpassade appearance som kan orsaka problem
-      console.log("Creating checkout session with amount:", Math.round(price * 100));
-      
       session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         customer: customer.id,
@@ -150,15 +140,11 @@ serve(async (req) => {
           plan_title: planTitle,
           plan_type: planType,
         },
-        // Skapa standardiserade betalningsformuläret utan anpassningar
         locale: "sv",
         allow_promotion_codes: true,
         billing_address_collection: "auto",
       });
 
-      console.log("Checkout session created successfully:", session.id);
-      console.log("Checkout URL:", session.url);
-      
       if (!session.url) {
         throw new Error("No checkout URL returned from Stripe");
       }
@@ -180,7 +166,6 @@ serve(async (req) => {
     }
 
     // Return the checkout URL as JSON
-    console.log("Returning response with URL:", session.url);
     return new Response(
       JSON.stringify({ 
         url: session.url,

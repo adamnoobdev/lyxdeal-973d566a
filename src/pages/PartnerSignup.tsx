@@ -18,7 +18,6 @@ interface SelectedPlan {
 
 const PartnerSignup = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
@@ -45,14 +44,6 @@ const PartnerSignup = () => {
     }
   }, [searchParams, navigate]);
   
-  // Effekt för att hantera omdirigering om URL finns
-  useEffect(() => {
-    if (redirectUrl) {
-      console.log("Attempting redirect in useEffect to:", redirectUrl);
-      performRedirect(redirectUrl);
-    }
-  }, [redirectUrl]);
-  
   const [formData, setFormData] = useState({
     name: "",
     business: "",
@@ -63,49 +54,6 @@ const PartnerSignup = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
-  };
-
-  const performRedirect = (url: string) => {
-    console.log("Performing redirect to:", url);
-    
-    // VIKTIG ÄNDRING: Förbättrad loggning för debugging
-    console.log("URL är giltigt:", Boolean(url));
-    console.log("URL längd:", url.length);
-    console.log("URL första tecken:", url.substring(0, 10));
-    console.log("URL host:", new URL(url).host);
-    
-    // Visa toast innan omdirigering
-    toast.success("Omdirigerar till betalning...");
-    
-    // NY METOD: Öppna i nytt fönster eller flik
-    // Detta fungerar mer konsekvent över olika webbläsare och enheter
-    try {
-      console.log("Attempting window.open first");
-      window.open(url, "_blank");
-      
-      // Fallback: Öppna i samma fönster efter kort fördröjning
-      setTimeout(() => {
-        console.log("Fallback to location.href after delay");
-        window.location.href = url;
-      }, 1000);
-    } catch (error) {
-      console.error("Error during redirect:", error);
-      
-      // Visa en manuell knapp som användaren kan klicka på
-      toast.error("Kunde inte omdirigera automatiskt. Klicka på knappen nedan.", {
-        duration: 10000,
-        action: {
-          label: "Gå till betalning",
-          onClick: () => window.open(url, "_blank")
-        }
-      });
-      
-      // Visa betalnings-URL i konsolen så att vi kan felsöka
-      console.log("Payment URL (for manual navigation):", url);
-      
-      // Visa fallback-knapp på sidan
-      setRedirectUrl(url);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -141,11 +89,6 @@ const PartnerSignup = () => {
         return;
       }
       
-      console.log("Submitting form data:", {
-        ...formData,
-        plan: selectedPlan
-      });
-      
       // Submit partner request
       const result = await submitPartnerRequest({
         name: formData.name,
@@ -159,21 +102,13 @@ const PartnerSignup = () => {
         plan_deal_count: selectedPlan.dealCount
       });
       
-      console.log("Partner request result:", result);
-      
       if (!result.success) {
         throw new Error(result.error || "Ett fel uppstod");
       }
       
       if (result.redirectUrl) {
-        // Spara URL för att hantera i useEffect
-        setRedirectUrl(result.redirectUrl);
-        
-        // Redirect to Stripe checkout direkt
-        console.log("Redirecting to Stripe:", result.redirectUrl);
+        // Öppna betalningssidan i nytt fönster/flik
         toast.success("Du skickas nu till betalningssidan");
-        
-        // Öppna i nytt fönster/flik direkt
         window.open(result.redirectUrl, "_blank");
         
         // Visa också en knapp som användaren kan klicka på om automatisk omdirigering misslyckas
@@ -295,21 +230,6 @@ const PartnerSignup = () => {
                     </Button>
                   </div>
                 </form>
-                
-                {/* Manuell omdirigering om automatisk omdirigering misslyckas */}
-                {redirectUrl && (
-                  <div className="mt-6 p-4 border border-orange-300 bg-orange-50 rounded-md">
-                    <p className="text-orange-800 mb-3">
-                      Om du inte omdirigeras automatiskt, klicka på knappen nedan för att fortsätta till betalning:
-                    </p>
-                    <Button 
-                      onClick={() => window.open(redirectUrl, "_blank")}
-                      className="w-full bg-orange-500 hover:bg-orange-600"
-                    >
-                      Fortsätt till betalning manuellt
-                    </Button>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>

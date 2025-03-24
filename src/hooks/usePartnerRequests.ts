@@ -16,8 +16,6 @@ export interface PartnerRequestData {
 
 export const submitPartnerRequest = async (data: PartnerRequestData) => {
   try {
-    console.log("Starting partner request submission");
-    
     // Kontrollera att vi har all nödvändig data
     if (!data.name || !data.business_name || !data.email || !data.phone) {
       toast.error("Vänligen fyll i alla obligatoriska fält");
@@ -45,8 +43,6 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
       throw new Error(`Failed to submit partner request: ${errorText}`);
     }
     
-    console.log("Partner request submitted successfully, now creating Stripe checkout session");
-    
     // Create Stripe checkout session for the subscription only if we have a plan price
     if (data.plan_price && data.plan_price > 0) {
       try {
@@ -59,17 +55,13 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
           businessName: data.business_name
         };
         
-        console.log("Calling Supabase edge function with data:", functionPayload);
-        
-        // KEY CHANGE: Using public anon key instead of trying to get a session token
-        // This works because the edge function is set to allow public access
+        // Using public anon key for edge function access
         const functionResponse = await fetch(
           "https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/create-salon-subscription",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              // Use the public anon key - IMPORTANT: the edge function must be configured to allow anonymous access
               "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs`
             },
             body: JSON.stringify(functionPayload)
@@ -84,21 +76,11 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         }
         
         const stripeData = await functionResponse.json();
-        console.log("Response from edge function:", stripeData);
         
-        if (!stripeData) {
-          console.error("No data returned from Stripe edge function");
-          toast.error("Fick inget svar från betalningsservern. Vänligen försök igen.");
-          throw new Error('No response data from payment provider');
-        }
-        
-        if (!stripeData.url) {
-          console.error("No URL returned from Stripe edge function:", stripeData);
+        if (!stripeData || !stripeData.url) {
           toast.error("Ingen checkout-URL returnerades. Vänligen försök igen.");
           throw new Error('No checkout URL returned from payment provider');
         }
-        
-        console.log("Stripe checkout URL received:", stripeData.url);
         
         // Return success with redirect URL
         return { 
