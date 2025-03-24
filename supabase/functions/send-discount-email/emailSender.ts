@@ -26,8 +26,9 @@ export async function sendDiscountEmail(payload: RequestPayload) {
   console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
   
   try {
-    // Get the production mode setting from environment
-    const productionMode = Deno.env.get("PRODUCTION_MODE") === "true";
+    // Set production mode to true by default
+    // Only override with environment variable if explicitly set to false
+    const productionMode = Deno.env.get("PRODUCTION_MODE") !== "false";
     
     // In production mode, use the actual recipient's email
     // In non-production mode, redirect to the verified email
