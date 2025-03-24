@@ -16,16 +16,51 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Creating salon subscription - request received");
+    
     // Initialize Stripe with secret key from environment variables
-    // Använder STRIPE_SECRET_KEY (live nyckel om den finns, annars test nyckel)
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeSecretKey) {
+      console.error("STRIPE_SECRET_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "STRIPE_SECRET_KEY is not configured" }),
+        {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+    
+    // Initialize Stripe
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2022-11-15",
     });
 
     // Get request data
-    const { planTitle, planType, price, email, businessName } = await req.json();
+    const requestData = await req.json();
+    console.log("Request data:", JSON.stringify(requestData));
+    
+    const { planTitle, planType, price, email, businessName } = requestData;
+    
+    if (!planTitle || !planType || !price || !email || !businessName) {
+      console.error("Missing required fields in request:", requestData);
+      return new Response(
+        JSON.stringify({ error: "Missing required fields in request" }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
 
     // Create a customer in Stripe
+    console.log("Creating Stripe customer for:", email);
     const customer = await stripe.customers.create({
       email,
       name: businessName,
@@ -34,8 +69,12 @@ serve(async (req) => {
         plan_type: planType,
       },
     });
+    console.log("Customer created:", customer.id);
 
     // Create a checkout session with customized appearance
+    console.log("Creating checkout session");
+    const origin = req.headers.get("origin") || "https://www.lyxdeal.se";
+    
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       customer: customer.id,
@@ -56,8 +95,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/partner`,
+      success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/partner`,
       metadata: {
         business_name: businessName,
         email,
@@ -102,6 +141,9 @@ serve(async (req) => {
         }
       },
     });
+
+    console.log("Checkout session created:", session.id);
+    console.log("Checkout URL:", session.url);
 
     return new Response(
       JSON.stringify({ url: session.url }),

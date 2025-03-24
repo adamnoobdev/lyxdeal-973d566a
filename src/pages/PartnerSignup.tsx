@@ -60,10 +60,19 @@ const PartnerSignup = () => {
     setIsSubmitting(true);
     
     try {
-      if (!selectedPlan) throw new Error("Inget paket valt");
+      if (!selectedPlan) {
+        toast.error("Inget paket valt");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      console.log("Submitting form data:", {
+        ...formData,
+        plan: selectedPlan
+      });
       
       // Submit partner request
-      const { success, error, redirectUrl } = await submitPartnerRequest({
+      const result = await submitPartnerRequest({
         name: formData.name,
         business_name: formData.business,
         email: formData.email,
@@ -75,12 +84,19 @@ const PartnerSignup = () => {
         plan_deal_count: selectedPlan.dealCount
       });
       
-      if (!success) throw new Error(error);
+      console.log("Partner request result:", result);
       
-      if (redirectUrl) {
+      if (!result.success) {
+        throw new Error(result.error || "Ett fel uppstod");
+      }
+      
+      if (result.redirectUrl) {
         // Redirect to Stripe checkout
+        console.log("Redirecting to Stripe:", result.redirectUrl);
         toast.success("Du skickas nu till betalningssidan");
-        window.location.href = redirectUrl;
+        
+        // Använd window.location.href för att garantera en full sidladdning och omdirigering
+        window.location.href = result.redirectUrl;
       } else {
         // If no payment required (free plan)
         toast.success("Tack för din registrering! Vi kontaktar dig inom kort.");
@@ -88,7 +104,7 @@ const PartnerSignup = () => {
       }
     } catch (error) {
       console.error("Error submitting partner request:", error);
-      toast.error("Ett fel uppstod. Försök igen senare.");
+      toast.error(error instanceof Error ? error.message : "Ett fel uppstod. Försök igen senare.");
     } finally {
       setIsSubmitting(false);
     }

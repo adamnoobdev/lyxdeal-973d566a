@@ -35,28 +35,51 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
       throw new Error(`Failed to submit partner request: ${errorText}`);
     }
     
+    console.log("Partner request submitted successfully, now creating Stripe checkout session");
+    
     // Create Stripe checkout session for the subscription
     if (data.plan_price && data.plan_price > 0) {
-      // Call Stripe checkout function
-      const { data: stripeData, error: stripeError } = await supabase.functions.invoke('create-salon-subscription', {
-        body: {
-          planTitle: data.plan_title || 'Salongspartner',
-          planType: data.plan_payment_type || 'monthly',
+      try {
+        // Call Stripe checkout function with more debugging
+        console.log("Calling Supabase function with data:", {
+          planTitle: data.plan_title,
+          planType: data.plan_payment_type,
           price: data.plan_price,
           email: data.email,
           businessName: data.business_name
+        });
+        
+        const { data: stripeData, error: stripeError } = await supabase.functions.invoke('create-salon-subscription', {
+          body: {
+            planTitle: data.plan_title || 'Salongspartner',
+            planType: data.plan_payment_type || 'monthly',
+            price: data.plan_price,
+            email: data.email,
+            businessName: data.business_name
+          }
+        });
+        
+        if (stripeError) {
+          console.error("Stripe error:", stripeError);
+          throw new Error(stripeError.message || 'Failed to create payment session');
         }
-      });
-      
-      if (stripeError) {
-        throw new Error(stripeError.message || 'Failed to create payment session');
+        
+        if (!stripeData || !stripeData.url) {
+          console.error("No URL returned from Stripe:", stripeData);
+          throw new Error('No checkout URL returned from payment provider');
+        }
+        
+        console.log("Stripe checkout URL received:", stripeData.url);
+        
+        // Return success with redirect URL
+        return { 
+          success: true, 
+          redirectUrl: stripeData.url 
+        };
+      } catch (stripeError) {
+        console.error("Error creating Stripe checkout:", stripeError);
+        throw stripeError;
       }
-      
-      // Return success with redirect URL
-      return { 
-        success: true, 
-        redirectUrl: stripeData.url 
-      };
     }
     
     return { success: true };
