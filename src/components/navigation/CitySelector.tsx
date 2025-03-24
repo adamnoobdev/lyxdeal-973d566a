@@ -8,16 +8,18 @@ import { City, CITIES } from '@/constants/app-constants';
 interface CitySelectorProps {
   selectedCity: City;
   setSelectedCity: (city: City) => void;
+  className?: string; // Added className as optional prop
 }
 
 const CitySelector: React.FC<CitySelectorProps> = ({
   selectedCity,
-  setSelectedCity
+  setSelectedCity,
+  className = '' // Default to empty string if not provided
 }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="hidden md:inline-flex">
+        <Button variant="ghost" size="sm" className={`hidden md:inline-flex ${className}`}>
           <MapPin className="mr-1 h-4 w-4" /> {selectedCity} <ChevronDown className="ml-1 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>

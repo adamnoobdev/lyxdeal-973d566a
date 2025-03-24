@@ -13,13 +13,15 @@ interface UserMenuProps {
   hasDashboard: boolean;
   dashboardPath: string;
   userRole?: string | null;
+  className?: string; // Added className as optional prop
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({
   session,
   hasDashboard,
   dashboardPath,
-  userRole
+  userRole,
+  className = '' // Default to empty string if not provided
 }) => {
   const navigate = useNavigate();
   
@@ -47,7 +49,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-9 w-9">
+          <Button variant="ghost" size="icon" className={`h-9 w-9 ${className}`}>
             <User className="h-5 w-5" />
             <span className="sr-only">User menu</span>
           </Button>
@@ -65,7 +67,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
   }
 
   return (
-    <Button size="sm" asChild>
+    <Button size="sm" asChild className={className}>
       <Link to="/auth">Logga in</Link>
     </Button>
   );
