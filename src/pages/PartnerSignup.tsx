@@ -74,6 +74,21 @@ const PartnerSignup = () => {
         return;
       }
       
+      // Validera e-postformatet
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        toast.error("Vänligen ange en giltig e-postadress");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Validera telefonnummerformat (grundläggande kontroll)
+      if (formData.phone.length < 7) {
+        toast.error("Vänligen ange ett giltigt telefonnummer");
+        setIsSubmitting(false);
+        return;
+      }
+      
       console.log("Submitting form data:", {
         ...formData,
         plan: selectedPlan
@@ -104,9 +119,16 @@ const PartnerSignup = () => {
         toast.success("Du skickas nu till betalningssidan");
         
         // Viktigt: Använd window.location.href för att säkerställa att det fungerar på både mobil och desktop
+        // Lägg till en fördröjning så toasten hinner visas
         setTimeout(() => {
-          window.location.href = result.redirectUrl;
-        }, 1500); // Ge toast tid att visas
+          // Försök med ett nytt fönster först (för att kringgå eventuella pop-up blockerare)
+          const newWindow = window.open(result.redirectUrl, "_self");
+          
+          // Om det inte fungerade, använd direkt omdirigering
+          if (!newWindow) {
+            window.location.href = result.redirectUrl;
+          }
+        }, 2000); // Ge toast tid att visas
       } else {
         // If no payment required (free plan)
         toast.success("Tack för din registrering! Vi kontaktar dig inom kort.");

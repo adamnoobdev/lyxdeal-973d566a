@@ -60,16 +60,21 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         
         if (stripeError) {
           console.error("Stripe error from edge function:", stripeError);
+          toast.error("Kunde inte skapa betalningssession. Vänligen försök igen.");
           throw new Error(stripeError.message || 'Failed to create payment session');
         }
         
+        console.log("Response from edge function:", stripeData);
+        
         if (!stripeData) {
           console.error("No data returned from Stripe edge function");
+          toast.error("Fick inget svar från betalningsservern. Vänligen försök igen.");
           throw new Error('No response data from payment provider');
         }
         
         if (!stripeData.url) {
           console.error("No URL returned from Stripe edge function:", stripeData);
+          toast.error("Ingen checkout-URL returnerades. Vänligen försök igen.");
           throw new Error('No checkout URL returned from payment provider');
         }
         

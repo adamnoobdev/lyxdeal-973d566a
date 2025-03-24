@@ -93,7 +93,10 @@ serve(async (req) => {
     } catch (error) {
       console.error("Error creating Stripe customer:", error);
       return new Response(
-        JSON.stringify({ error: "Failed to create Stripe customer" }),
+        JSON.stringify({ 
+          error: "Failed to create Stripe customer",
+          details: error.message
+        }),
         {
           status: 500,
           headers: {
@@ -110,6 +113,9 @@ serve(async (req) => {
     
     let session;
     try {
+      // Lägg till ett debugmeddelande för att verifiera priskonstruktionen
+      console.log("Creating price with amount:", Math.round(price * 100));
+      
       session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         customer: customer.id,
@@ -148,11 +154,15 @@ serve(async (req) => {
         payment_intent_data: {
           description: `Lyxdeal salongspartner - ${planTitle}`,
         },
-        // Notera: 'appearance' parametern har tagits bort eftersom den orsakade fel
+        // OBS: Ingen 'appearance' parameter för att undvika fel
       });
 
       console.log("Checkout session created:", session.id);
       console.log("Checkout URL:", session.url);
+      
+      if (!session.url) {
+        throw new Error("No checkout URL returned from Stripe");
+      }
     } catch (error) {
       console.error("Error creating Stripe checkout session:", error);
       return new Response(
@@ -171,8 +181,12 @@ serve(async (req) => {
     }
 
     // Return the checkout URL as JSON
+    console.log("Returning response with URL:", session.url);
     return new Response(
-      JSON.stringify({ url: session.url }),
+      JSON.stringify({ 
+        url: session.url,
+        success: true 
+      }),
       {
         status: 200,
         headers: {
