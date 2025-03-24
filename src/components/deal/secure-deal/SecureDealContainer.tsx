@@ -139,10 +139,14 @@ export const SecureDealContainer = ({
       if (emailSent) {
         toast.success("Grattis! Din rabattkod har skickats till din e-post.");
       } else {
-        toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Din kod är: " + code);
+        toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Kontakta kundtjänst om du inte får din kod.");
       }
       
+      // Store email for confirmation message
       setEmailSent(values.email);
+      
+      // We still store the discount code in state for debugging purposes, 
+      // but we won't display it in the UI
       setDiscountCode(code);
       setIsSuccess(true);
       
@@ -168,7 +172,7 @@ export const SecureDealContainer = ({
   return (
     <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       {isSuccess ? (
-        <SuccessMessage onReset={handleReset} email={emailSent} code={discountCode} />
+        <SuccessMessage onReset={handleReset} email={emailSent} />
       ) : (
         <SecureForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       )}
