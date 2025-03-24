@@ -61,14 +61,16 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         
         console.log("Calling Supabase edge function with data:", functionPayload);
         
-        // Använd direkta anrop med full URL för bättre kontroll
+        // KEY CHANGE: Using public anon key instead of trying to get a session token
+        // This works because the edge function is set to allow public access
         const functionResponse = await fetch(
           "https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/create-salon-subscription",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${await supabase.auth.getSession().then(({ data }) => data.session?.access_token || "")}`,
+              // Use the public anon key - IMPORTANT: the edge function must be configured to allow anonymous access
+              "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs`
             },
             body: JSON.stringify(functionPayload)
           }

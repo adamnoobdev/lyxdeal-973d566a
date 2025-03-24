@@ -68,35 +68,26 @@ const PartnerSignup = () => {
   const performRedirect = (url: string) => {
     console.log("Performing redirect to:", url);
     
+    // VIKTIG ÄNDRING: Förbättrad loggning för debugging
+    console.log("URL är giltigt:", Boolean(url));
+    console.log("URL längd:", url.length);
+    console.log("URL första tecken:", url.substring(0, 10));
+    console.log("URL host:", new URL(url).host);
+    
     // Visa toast innan omdirigering
     toast.success("Omdirigerar till betalning...");
     
+    // NY METOD: Öppna i nytt fönster eller flik
+    // Detta fungerar mer konsekvent över olika webbläsare och enheter
     try {
-      // Metod 1: Öppna i samma fönster
-      window.location.href = url;
+      console.log("Attempting window.open first");
+      window.open(url, "_blank");
       
-      // Metod 2: Fallback efter kort fördröjning
+      // Fallback: Öppna i samma fönster efter kort fördröjning
       setTimeout(() => {
-        console.log("Fallback redirect method 1");
-        window.location.replace(url);
+        console.log("Fallback to location.href after delay");
+        window.location.href = url;
       }, 1000);
-      
-      // Metod 3: Andra fallback med window.open
-      setTimeout(() => {
-        console.log("Fallback redirect method 2");
-        window.open(url, "_self");
-      }, 2000);
-      
-      // Metod 4: Skapa och klicka på en länk som sista utväg
-      setTimeout(() => {
-        console.log("Fallback redirect method 3 - creating a link");
-        const link = document.createElement('a');
-        link.href = url;
-        link.target = "_self";
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-      }, 3000);
     } catch (error) {
       console.error("Error during redirect:", error);
       
@@ -182,10 +173,17 @@ const PartnerSignup = () => {
         console.log("Redirecting to Stripe:", result.redirectUrl);
         toast.success("Du skickas nu till betalningssidan");
         
-        // Vänta en sekund så toast hinner visas
-        setTimeout(() => {
-          performRedirect(result.redirectUrl!);
-        }, 1000);
+        // Öppna i nytt fönster/flik direkt
+        window.open(result.redirectUrl, "_blank");
+        
+        // Visa också en knapp som användaren kan klicka på om automatisk omdirigering misslyckas
+        toast.success("Om du inte omdirigeras automatiskt, klicka här", {
+          duration: 10000,
+          action: {
+            label: "Gå till betalning",
+            onClick: () => window.open(result.redirectUrl!, "_blank")
+          }
+        });
       } else {
         // If no payment required (free plan)
         toast.success("Tack för din registrering! Vi kontaktar dig inom kort.");
