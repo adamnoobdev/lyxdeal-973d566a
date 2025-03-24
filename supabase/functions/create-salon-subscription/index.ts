@@ -109,7 +109,9 @@ serve(async (req) => {
 
     // Create a checkout session (without the 'appearance' parameter which was causing errors)
     console.log("Creating checkout session");
+    // Determine the origin for redirects
     const origin = req.headers.get("origin") || "https://www.lyxdeal.se";
+    console.log("Using origin for redirects:", origin);
     
     let session;
     try {

@@ -56,6 +56,41 @@ const PartnerSignup = () => {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
+  const performRedirect = (url: string) => {
+    console.log("Attempting redirect to:", url);
+    
+    // Metod 1: Traditionell omdirigering
+    toast.success("Omdirigerar till Stripe...");
+    
+    try {
+      // Metod 2: Öppna direkt med window.location för att garantera redirect på alla enheter
+      window.location.href = url;
+      
+      // Säkerhetskopia 1: Försök med timeout efter en kort fördröjning
+      setTimeout(() => {
+        console.log("Försöker med timeout redirect");
+        window.location.replace(url);
+      }, 500);
+      
+      // Säkerhetskopia 2: Skapa en länk och klicka på den
+      setTimeout(() => {
+        console.log("Försöker med länk-klick redirect");
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = "_self";
+        link.click();
+      }, 1000);
+    } catch (error) {
+      console.error("Fel vid omdirigering:", error);
+      toast.error("Kunde inte omdirigera. Vänligen klicka här", {
+        action: {
+          label: "Gå till betalning",
+          onClick: () => window.open(url, "_self")
+        }
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -118,17 +153,10 @@ const PartnerSignup = () => {
         console.log("Redirecting to Stripe:", result.redirectUrl);
         toast.success("Du skickas nu till betalningssidan");
         
-        // Viktigt: Använd window.location.href för att säkerställa att det fungerar på både mobil och desktop
-        // Lägg till en fördröjning så toasten hinner visas
+        // Vänta en sekund så toast hinner visas
         setTimeout(() => {
-          // Försök med ett nytt fönster först (för att kringgå eventuella pop-up blockerare)
-          const newWindow = window.open(result.redirectUrl, "_self");
-          
-          // Om det inte fungerade, använd direkt omdirigering
-          if (!newWindow) {
-            window.location.href = result.redirectUrl;
-          }
-        }, 2000); // Ge toast tid att visas
+          performRedirect(result.redirectUrl!);
+        }, 1000);
       } else {
         // If no payment required (free plan)
         toast.success("Tack för din registrering! Vi kontaktar dig inom kort.");

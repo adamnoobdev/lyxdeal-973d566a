@@ -18,6 +18,12 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
   try {
     console.log("Starting partner request submission");
     
+    // Kontrollera att vi har all nödvändig data
+    if (!data.name || !data.business_name || !data.email || !data.phone) {
+      toast.error("Vänligen fyll i alla obligatoriska fält");
+      return { success: false, error: "Ofullständiga uppgifter" };
+    }
+    
     // Use the REST API to insert directly without type checking
     const response = await fetch(
       "https://gmqeqhlhqhyrjquzhuzg.supabase.co/rest/v1/partner_requests",
@@ -35,6 +41,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Failed to submit partner request:", errorText);
+      toast.error("Kunde inte skicka ansökan: " + errorText);
       throw new Error(`Failed to submit partner request: ${errorText}`);
     }
     
@@ -54,16 +61,27 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         
         console.log("Calling Supabase edge function with data:", functionPayload);
         
-        const { data: stripeData, error: stripeError } = await supabase.functions.invoke('create-salon-subscription', {
-          body: functionPayload
-        });
+        // Använd vanlig fetch istället för supabase.functions.invoke för att undvika eventuella autentiseringsproblem
+        const functionResponse = await fetch(
+          "https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/create-salon-subscription",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${supabase.auth.getSession().then(({ data }) => data.session?.access_token || "")}`,
+            },
+            body: JSON.stringify(functionPayload)
+          }
+        );
         
-        if (stripeError) {
-          console.error("Stripe error from edge function:", stripeError);
+        if (!functionResponse.ok) {
+          const stripeErrorText = await functionResponse.text();
+          console.error("Stripe error from edge function:", stripeErrorText);
           toast.error("Kunde inte skapa betalningssession. Vänligen försök igen.");
-          throw new Error(stripeError.message || 'Failed to create payment session');
+          throw new Error(`Failed to create payment session: ${stripeErrorText}`);
         }
         
+        const stripeData = await functionResponse.json();
         console.log("Response from edge function:", stripeData);
         
         if (!stripeData) {
@@ -87,7 +105,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         };
       } catch (stripeError) {
         console.error("Error creating Stripe checkout:", stripeError);
-        toast.error("Ett fel uppstod vid betalningsförberedelsen. Vänligen försök igen.");
+        toast.error("Ett fel uppstod vid betalningsförberedelsen. Vänligen försök igen senare.");
         throw stripeError;
       }
     }
