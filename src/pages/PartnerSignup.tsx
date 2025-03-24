@@ -39,6 +39,7 @@ const PartnerSignup = () => {
       });
     } else {
       // If no valid plan info, redirect back to partner page
+      toast.error("Inget paket valdes. Vänligen försök igen.");
       navigate('/partner');
     }
   }, [searchParams, navigate]);
@@ -95,8 +96,11 @@ const PartnerSignup = () => {
         console.log("Redirecting to Stripe:", result.redirectUrl);
         toast.success("Du skickas nu till betalningssidan");
         
-        // Använd window.location.href för att garantera en full sidladdning och omdirigering
-        window.location.href = result.redirectUrl;
+        // Use timeout to ensure toast is visible before redirect
+        setTimeout(() => {
+          // Force a full page navigation to the Stripe URL
+          window.location.href = result.redirectUrl;
+        }, 1000);
       } else {
         // If no payment required (free plan)
         toast.success("Tack för din registrering! Vi kontaktar dig inom kort.");

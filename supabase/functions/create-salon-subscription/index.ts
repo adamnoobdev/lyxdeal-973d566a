@@ -40,15 +40,33 @@ serve(async (req) => {
     });
 
     // Get request data
-    const requestData = await req.json();
-    console.log("Request data:", JSON.stringify(requestData));
+    let requestData;
+    try {
+      requestData = await req.json();
+      console.log("Request data received:", JSON.stringify(requestData));
+    } catch (error) {
+      console.error("Error parsing request JSON:", error);
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON in request body" }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
     
     const { planTitle, planType, price, email, businessName } = requestData;
     
     if (!planTitle || !planType || !price || !email || !businessName) {
       console.error("Missing required fields in request:", requestData);
       return new Response(
-        JSON.stringify({ error: "Missing required fields in request" }),
+        JSON.stringify({ 
+          error: "Missing required fields in request",
+          receivedData: requestData 
+        }),
         {
           status: 400,
           headers: {
@@ -61,90 +79,124 @@ serve(async (req) => {
 
     // Create a customer in Stripe
     console.log("Creating Stripe customer for:", email);
-    const customer = await stripe.customers.create({
-      email,
-      name: businessName,
-      metadata: {
-        plan_title: planTitle,
-        plan_type: planType,
-      },
-    });
-    console.log("Customer created:", customer.id);
+    let customer;
+    try {
+      customer = await stripe.customers.create({
+        email,
+        name: businessName,
+        metadata: {
+          plan_title: planTitle,
+          plan_type: planType,
+        },
+      });
+      console.log("Customer created:", customer.id);
+    } catch (error) {
+      console.error("Error creating Stripe customer:", error);
+      return new Response(
+        JSON.stringify({ error: "Failed to create Stripe customer" }),
+        {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
 
     // Create a checkout session with customized appearance
     console.log("Creating checkout session");
     const origin = req.headers.get("origin") || "https://www.lyxdeal.se";
     
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      customer: customer.id,
-      line_items: [
-        {
-          price_data: {
-            currency: "sek",
-            product_data: {
-              name: `${planTitle} - ${planType === "yearly" ? "Årsbetalning" : "Månadsbetalning"}`,
-              description: `Prenumeration på ${planTitle} med ${planType === "yearly" ? "årsbetalning" : "månadsbetalning"}`,
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        customer: customer.id,
+        line_items: [
+          {
+            price_data: {
+              currency: "sek",
+              product_data: {
+                name: `${planTitle} - ${planType === "yearly" ? "Årsbetalning" : "Månadsbetalning"}`,
+                description: `Prenumeration på ${planTitle} med ${planType === "yearly" ? "årsbetalning" : "månadsbetalning"}`,
+              },
+              unit_amount: Math.round(price * 100), // Convert to cents, ensure integer
+              recurring: {
+                interval: planType === "yearly" ? "year" : "month",
+              },
             },
-            unit_amount: price * 100, // Convert to cents
-            recurring: {
-              interval: planType === "yearly" ? "year" : "month",
-            },
+            quantity: 1,
           },
-          quantity: 1,
+        ],
+        mode: "subscription",
+        success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/partner`,
+        metadata: {
+          business_name: businessName,
+          email,
+          plan_title: planTitle,
+          plan_type: planType,
         },
-      ],
-      mode: "subscription",
-      success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/partner`,
-      metadata: {
-        business_name: businessName,
-        email,
-        plan_title: planTitle,
-        plan_type: planType,
-      },
-      // Anpassad design som matchar Lyxdeal's tema
-      custom_text: {
-        submit: {
-          message: "Lyxdeal hanterar dina betalningar säkert via Stripe.",
-        },
-      },
-      // Anpassa färger och utseende enligt Lyxdeal's tema
-      payment_intent_data: {
-        description: `Lyxdeal salongspartner - ${planTitle}`,
-      },
-      // Custom branding och färgtema
-      appearance: {
-        theme: 'stripe',
-        variables: {
-          colorPrimary: '#520053',
-          colorBackground: '#ffffff',
-          colorText: '#520053',
-          colorDanger: '#EF4444',
-          fontFamily: 'Outfit, sans-serif',
-          spacingUnit: '4px',
-          borderRadius: '4px',
-        },
-        rules: {
-          '.Input': {
-            border: '1px solid #E5E7EB',
+        // Anpassad design som matchar Lyxdeal's tema
+        custom_text: {
+          submit: {
+            message: "Lyxdeal hanterar dina betalningar säkert via Stripe.",
           },
-          '.Button': {
-            backgroundColor: '#520053',
-            color: 'white',
-            fontWeight: 'bold',
+        },
+        // Anpassa färger och utseende enligt Lyxdeal's tema
+        payment_intent_data: {
+          description: `Lyxdeal salongspartner - ${planTitle}`,
+        },
+        // Custom branding och färgtema
+        appearance: {
+          theme: 'stripe',
+          variables: {
+            colorPrimary: '#520053',
+            colorBackground: '#ffffff',
+            colorText: '#520053',
+            colorDanger: '#EF4444',
+            fontFamily: 'Outfit, sans-serif',
+            spacingUnit: '4px',
             borderRadius: '4px',
           },
-          '.Button:hover': {
-            backgroundColor: '#470047',
+          rules: {
+            '.Input': {
+              border: '1px solid #E5E7EB',
+            },
+            '.Button': {
+              backgroundColor: '#520053',
+              color: 'white',
+              fontWeight: 'bold',
+              borderRadius: '4px',
+            },
+            '.Button:hover': {
+              backgroundColor: '#470047',
+            }
           }
+        },
+      });
+
+      console.log("Checkout session created:", session.id);
+      console.log("Checkout URL:", session.url);
+    } catch (error) {
+      console.error("Error creating Stripe checkout session:", error);
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to create Stripe checkout session",
+          details: error.message 
+        }),
+        {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
         }
-      },
-    });
+      );
+    }
 
-    console.log("Checkout session created:", session.id);
-    console.log("Checkout URL:", session.url);
-
+    // Return the checkout URL as JSON
     return new Response(
       JSON.stringify({ url: session.url }),
       {
@@ -156,9 +208,13 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error creating checkout session:", error);
+    console.error("Unhandled error in creating checkout session:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: "Error creating checkout session",
+        message: error.message,
+        stack: error.stack
+      }),
       {
         status: 500,
         headers: {

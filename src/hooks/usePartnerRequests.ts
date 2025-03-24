@@ -16,6 +16,8 @@ export interface PartnerRequestData {
 
 export const submitPartnerRequest = async (data: PartnerRequestData) => {
   try {
+    console.log("Starting partner request submission");
+    
     // Use the REST API to insert directly without type checking
     const response = await fetch(
       "https://gmqeqhlhqhyrjquzhuzg.supabase.co/rest/v1/partner_requests",
@@ -32,40 +34,42 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
     
     if (!response.ok) {
       const errorText = await response.text();
+      console.error("Failed to submit partner request:", errorText);
       throw new Error(`Failed to submit partner request: ${errorText}`);
     }
     
     console.log("Partner request submitted successfully, now creating Stripe checkout session");
     
-    // Create Stripe checkout session for the subscription
+    // Create Stripe checkout session for the subscription only if we have a plan price
     if (data.plan_price && data.plan_price > 0) {
       try {
-        // Call Stripe checkout function with more debugging
-        console.log("Calling Supabase function with data:", {
-          planTitle: data.plan_title,
-          planType: data.plan_payment_type,
+        // Prepare function payload with all required fields
+        const functionPayload = {
+          planTitle: data.plan_title || 'Salongspartner',
+          planType: data.plan_payment_type || 'monthly',
           price: data.plan_price,
           email: data.email,
           businessName: data.business_name
-        });
+        };
+        
+        console.log("Calling Supabase edge function with data:", functionPayload);
         
         const { data: stripeData, error: stripeError } = await supabase.functions.invoke('create-salon-subscription', {
-          body: {
-            planTitle: data.plan_title || 'Salongspartner',
-            planType: data.plan_payment_type || 'monthly',
-            price: data.plan_price,
-            email: data.email,
-            businessName: data.business_name
-          }
+          body: functionPayload
         });
         
         if (stripeError) {
-          console.error("Stripe error:", stripeError);
+          console.error("Stripe error from edge function:", stripeError);
           throw new Error(stripeError.message || 'Failed to create payment session');
         }
         
-        if (!stripeData || !stripeData.url) {
-          console.error("No URL returned from Stripe:", stripeData);
+        if (!stripeData) {
+          console.error("No data returned from Stripe edge function");
+          throw new Error('No response data from payment provider');
+        }
+        
+        if (!stripeData.url) {
+          console.error("No URL returned from Stripe edge function:", stripeData);
           throw new Error('No checkout URL returned from payment provider');
         }
         
