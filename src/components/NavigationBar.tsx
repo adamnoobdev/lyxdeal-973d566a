@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '@/hooks/useSession';
+import { useScroll } from '@/hooks/useScroll';
 
 // Import custom components
 import Logo from './navigation/Logo';
@@ -22,25 +23,12 @@ interface NavigationBarProps {
 const NavigationBar = ({
   userRole
 }: NavigationBarProps) => {
-  const [showBg, setShowBg] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState<City>('Alla Städer');
   const [selectedCategory, setSelectedCategory] = useState<Category>('Alla Erbjudanden');
   const { session } = useSession();
   const navigate = useNavigate();
-
-  // Handle scroll background effect
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setShowBg(true);
-      } else {
-        setShowBg(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const { isScrolled } = useScroll();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,11 +43,11 @@ const NavigationBar = ({
   const dashboardPath = userRole === 'admin' ? '/admin' : '/salon/dashboard';
 
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${showBg ? 'bg-white shadow-sm' : 'bg-white/80 backdrop-blur-sm'}`}>
+    <header className={`fixed top-0 left-0 w-full z-50 transition-colors duration-200 ${isScrolled ? 'bg-white shadow-sm' : 'bg-white/95 backdrop-blur-sm'}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left section - Logo and hamburger menu */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <MobileMenu 
               selectedCity={selectedCity}
               setSelectedCity={setSelectedCity}
@@ -87,12 +75,14 @@ const NavigationBar = ({
             <CitySelector 
               selectedCity={selectedCity}
               setSelectedCity={setSelectedCity}
+              className="hidden md:flex"
             />
 
             <DashboardLink 
               hasDashboard={hasDashboard}
               dashboardPath={dashboardPath}
               userRole={userRole}
+              className="hidden md:flex"
             />
 
             <UserMenu 
@@ -100,10 +90,11 @@ const NavigationBar = ({
               hasDashboard={hasDashboard}
               dashboardPath={dashboardPath}
               userRole={userRole}
+              className="hidden md:flex"
             />
 
-            {/* Mobile search */}
-            <div className="flex md:hidden">
+            {/* Mobile search and actions */}
+            <div className="flex md:hidden items-center">
               <MobileSearch 
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}

@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
@@ -11,6 +12,7 @@ import {
 import { ScrollArea } from "../ui/scroll-area";
 import { CategorySelector } from "../CategorySelector";
 import { CitySelector } from "../CitySelector";
+import { Separator } from "../ui/separator";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -43,13 +45,13 @@ export const MobileNav = ({
       </SheetTrigger>
       <SheetContent 
         side="right" 
-        className="w-full sm:w-[300px] p-0"
+        className="w-[85vw] max-w-[300px] p-0"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <ScrollArea className="h-full">
           <div className="flex flex-col h-full">
             <SheetHeader className="p-4 border-b">
-              <SheetTitle className="text-lg">Meny</SheetTitle>
+              <SheetTitle className="text-lg">Filtrera</SheetTitle>
             </SheetHeader>
 
             <div className="flex-1 p-4 space-y-6">
@@ -61,6 +63,8 @@ export const MobileNav = ({
                   variant="mobile"
                 />
               </div>
+
+              <Separator />
 
               <div>
                 <h3 className="font-medium mb-3 text-sm text-muted-foreground">Kategorier</h3>

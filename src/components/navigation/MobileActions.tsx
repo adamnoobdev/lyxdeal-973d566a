@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { LogOut, UserRound, LayoutDashboard } from "lucide-react";
 import { MobileNav } from "./MobileNav";
@@ -27,40 +28,38 @@ export const MobileActions = ({
   userRole,
   onDashboard
 }: MobileActionsProps) => (
-  <div className="flex flex-1 items-center justify-end gap-2 md:hidden">
+  <div className="flex flex-1 items-center justify-end gap-1 md:hidden">
     {session ? (
       <>
         {(userRole === 'salon_owner' || userRole === 'admin') && (
           <Button
             variant="ghost"
-            size="sm"
-            className="gap-2"
+            size="icon"
+            className="hover:bg-primary/10"
             onClick={onDashboard}
+            aria-label={userRole === 'admin' ? 'Admin' : 'Portal'}
           >
-            <LayoutDashboard className="h-4 w-4" />
-            <span className="sr-only">
-              {userRole === 'admin' ? 'Admin' : 'Portal'}
-            </span>
+            <LayoutDashboard className="h-5 w-5" />
           </Button>
         )}
         <Button
           variant="ghost"
-          size="sm"
-          className="gap-2"
+          size="icon"
+          className="hover:bg-primary/10"
           onClick={onLogout}
+          aria-label="Logga ut"
         >
-          <LogOut className="h-4 w-4" />
-          <span className="sr-only">Logga ut</span>
+          <LogOut className="h-5 w-5" />
         </Button>
       </>
     ) : (
       <Button
         variant="ghost"
         size="sm"
-        className="gap-2"
+        className="gap-2 hover:bg-primary/10"
         onClick={onLogin}
       >
-        <UserRound className="h-4 w-4" />
+        <UserRound className="h-5 w-5" />
         <span className="hidden xs:inline">Logga in</span>
       </Button>
     )}
