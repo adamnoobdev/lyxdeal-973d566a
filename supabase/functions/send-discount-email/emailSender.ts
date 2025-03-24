@@ -46,6 +46,12 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       console.log(`TESTING MODE: Redirecting email from ${email} to verified email ${verifiedEmail}`);
     }
 
+    // More detailed logging before API call
+    console.log("Preparing to send email with config:", JSON.stringify({
+      ...emailConfig,
+      html: "[HTML content omitted for brevity]"
+    }));
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -55,7 +61,14 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       body: JSON.stringify(emailConfig)
     });
 
-    const responseData = await response.json();
+    // Log the full response for debugging
+    const responseText = await response.text();
+    console.log(`Resend API Response (${response.status}):`, responseText);
+    
+    // Parse the response back to JSON
+    const responseData = response.status === 200 || response.status === 201 
+      ? JSON.parse(responseText) 
+      : { error: responseText };
 
     if (!response.ok) {
       console.error("Resend API Error:", responseData);
