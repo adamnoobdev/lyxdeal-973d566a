@@ -59,8 +59,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         
         console.log("Creating Stripe checkout session with payload:", functionPayload);
         
-        // VIKTIGT: Explicit ange både Authorization-header OCH API-nyckel som båda innehåller samma värde
-        // Detta ger större chans att minst en av dem går igenom eventuella proxys och middlewares
+        // Förbättrad hantering av headers för att ge bättre spårbarhet
         const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs";
         
         const functionResponse = await fetch(
@@ -70,43 +69,70 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
             headers: {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${anonKey}`,
-              "apikey": anonKey, // Lägg till apikey också som fallback
-              "x-client-info": `web/1.0` // Lägg till klientinfo för bättre loggning
+              "apikey": anonKey,
+              "x-client-info": `web/1.0/partner-signup/${data.plan_title || 'standard'}` // Förbättrad spårning
             },
             body: JSON.stringify(functionPayload)
           }
         );
         
+        const responseStatus = functionResponse.status;
+        console.log(`Stripe function response status: ${responseStatus}`);
+        
+        let responseBody;
+        try {
+          responseBody = await functionResponse.text();
+          console.log("Raw response from Edge Function:", responseBody);
+        } catch (e) {
+          console.error("Could not read response body:", e);
+        }
+        
         if (!functionResponse.ok) {
-          const stripeErrorText = await functionResponse.text();
-          console.error("Stripe error from edge function:", stripeErrorText);
+          console.error("Stripe error from edge function. Status:", responseStatus);
+          console.error("Error response body:", responseBody);
           
           // Försök att tolka felmeddelandet för användaren
           let userFriendlyError = "Det gick inte att skapa betalningssessionen";
           try {
-            const errorObj = JSON.parse(stripeErrorText);
+            const errorObj = JSON.parse(responseBody);
             if (errorObj.message) {
               userFriendlyError = `Betalningsfel: ${errorObj.message}`;
+            } else if (errorObj.error) {
+              userFriendlyError = `Betalningsfel: ${errorObj.error}`;
             }
           } catch (e) {
             // Om det inte går att tolka JSON, använd originaltexten
-            userFriendlyError = `Betalningsfel: ${stripeErrorText.substring(0, 100)}...`;
+            userFriendlyError = `Betalningsfel: ${responseBody.substring(0, 100)}...`;
           }
           
+          toast.error(userFriendlyError);
           throw new Error(userFriendlyError);
         }
         
-        const stripeData = await functionResponse.json();
-        console.log("Received Stripe checkout session data:", stripeData);
+        // Försök att tolka svaret som JSON
+        let stripeData;
+        try {
+          stripeData = JSON.parse(responseBody);
+          console.log("Parsed Stripe checkout session data:", stripeData);
+        } catch (e) {
+          console.error("Failed to parse JSON response:", e);
+          throw new Error("Ogiltig respons från betalningstjänsten");
+        }
         
         if (!stripeData || !stripeData.url) {
+          console.error("No URL returned in the response:", stripeData);
           throw new Error('Ingen betalnings-URL returnerades från betalningsleverantören');
         }
+        
+        // Visa mer information för användaren
+        toast.success("Du skickas nu till betalningssidan");
+        console.log("Redirecting to Stripe checkout URL:", stripeData.url);
         
         // Return success with redirect URL
         return { 
           success: true, 
-          redirectUrl: stripeData.url 
+          redirectUrl: stripeData.url,
+          sessionId: stripeData.session_id
         };
       } catch (stripeError) {
         console.error("Error creating Stripe checkout:", stripeError);
