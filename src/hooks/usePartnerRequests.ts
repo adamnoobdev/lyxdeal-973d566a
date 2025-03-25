@@ -15,6 +15,8 @@ export interface PartnerRequestData {
 
 export const submitPartnerRequest = async (data: PartnerRequestData) => {
   try {
+    console.log("Starting partner request submission with data:", data);
+    
     // Kontrollera att vi har all nödvändig data
     if (!data.name || !data.business_name || !data.email || !data.phone) {
       toast.error("Vänligen fyll i alla obligatoriska fält");
@@ -41,6 +43,8 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
       throw new Error(`Failed to submit partner request: ${errorText}`);
     }
     
+    console.log("Partner request submitted successfully, proceeding to create checkout session");
+    
     // Create Stripe checkout session for the subscription only if we have a plan price
     if (data.plan_price && data.plan_price > 0) {
       try {
@@ -52,6 +56,8 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
           email: data.email,
           businessName: data.business_name
         };
+        
+        console.log("Creating Stripe checkout session with payload:", functionPayload);
         
         // Using public anon key for edge function access
         const functionResponse = await fetch(
@@ -73,6 +79,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         }
         
         const stripeData = await functionResponse.json();
+        console.log("Received Stripe checkout session data:", stripeData);
         
         if (!stripeData || !stripeData.url) {
           throw new Error('No checkout URL returned from payment provider');

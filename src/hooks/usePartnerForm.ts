@@ -72,6 +72,11 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
         return;
       }
       
+      console.log("Submitting partner request with data:", {
+        ...formData,
+        plan: selectedPlan
+      });
+      
       // Submit partner request
       const result = await submitPartnerRequest({
         name: formData.name,
@@ -85,23 +90,27 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
         plan_deal_count: selectedPlan.dealCount
       });
       
+      console.log("Partner request submission result:", result);
+      
       if (!result.success) {
         throw new Error(result.error || "Ett fel uppstod");
       }
       
       if (result.redirectUrl) {
+        console.log("Redirecting to payment URL:", result.redirectUrl);
+        
         // Add promo code information to toast message
         toast.success("Du skickas nu till betalningssidan. Använd rabattkoden 'provmanad' för en gratis provmånad!");
         
-        // Open payment page in new window/tab
-        window.open(result.redirectUrl, "_blank");
+        // Redirect to payment page directly in the same tab
+        window.location.href = result.redirectUrl;
         
-        // Also show a button that user can click if automatic redirection fails
+        // Show a backup button in case redirect doesn't work automatically
         toast.success("Om du inte omdirigeras automatiskt, klicka här", {
           duration: 10000,
           action: {
             label: "Gå till betalning",
-            onClick: () => window.open(result.redirectUrl!, "_blank")
+            onClick: () => window.location.href = result.redirectUrl!
           }
         });
       } else {

@@ -82,9 +82,10 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
           type="submit" 
           className="flex-1 w-full"
           loading={isSubmitting}
+          disabled={isSubmitting}
           aria-label={isSubmitting ? "Skickar din information..." : "Fortsätt till betalning"}
         >
-          Fortsätt till betalning
+          {isSubmitting ? "Bearbetar..." : "Fortsätt till betalning"}
         </LoadingButton>
         
         <Button 
@@ -92,10 +93,18 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
           variant="outline" 
           className="flex-1 w-full"
           onClick={() => navigate('/partner')}
+          disabled={isSubmitting}
           aria-label="Avbryt registrering"
         >
           Avbryt
         </Button>
+      </div>
+      
+      <div className="mt-4 p-3 bg-muted rounded-md">
+        <p className="text-sm text-muted-foreground">
+          Efter registrering kommer du att skickas till vår betalningspartner för att slutföra din prenumeration. 
+          <strong className="font-medium"> Kom ihåg att använda rabattkoden "provmanad" för att få din första månad gratis!</strong>
+        </p>
       </div>
     </form>
   );

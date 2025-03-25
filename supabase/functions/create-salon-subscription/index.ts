@@ -16,6 +16,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Starting create-salon-subscription function");
+    
     // Initialize Stripe with secret key from environment variables
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {
@@ -41,6 +43,7 @@ serve(async (req) => {
     let requestData;
     try {
       requestData = await req.json();
+      console.log("Request data received:", JSON.stringify(requestData));
     } catch (error) {
       console.error("Error parsing request JSON:", error);
       return new Response(
@@ -77,6 +80,7 @@ serve(async (req) => {
     // Create a customer in Stripe
     let customer;
     try {
+      console.log("Creating Stripe customer for:", email);
       customer = await stripe.customers.create({
         email,
         name: businessName,
@@ -85,6 +89,7 @@ serve(async (req) => {
           plan_type: planType,
         },
       });
+      console.log("Created Stripe customer:", customer.id);
     } catch (error) {
       console.error("Error creating Stripe customer:", error);
       return new Response(
@@ -104,15 +109,18 @@ serve(async (req) => {
 
     // Determine the origin for redirects
     let origin = req.headers.get("origin") || "https://www.lyxdeal.se";
+    console.log("Origin header:", origin);
     
-    // Fixa problem där origin ibland kommer från localhost eller testmiljö
-    if (origin.includes("localhost") || origin.includes("lovableproject.com")) {
+    // Fix issues where origin sometimes comes from localhost or test environment
+    if (origin.includes("localhost") || origin.includes("lovableproject")) {
       origin = "https://www.lyxdeal.se";
+      console.log("Corrected origin to:", origin);
     }
     
     // Create or retrieve the 'provmanad' promotion code
     let promoCode;
     try {
+      console.log("Setting up promotion code");
       // Check if the promotion code already exists
       const existingPromoCodes = await stripe.promotionCodes.list({
         code: 'provmanad',
@@ -130,6 +138,7 @@ serve(async (req) => {
           percent_off: 100,
           name: 'Gratis provmånad',
         });
+        console.log("Created new coupon:", coupon.id);
 
         // Create a promotion code for the coupon
         promoCode = await stripe.promotionCodes.create({
@@ -149,7 +158,8 @@ serve(async (req) => {
     
     let session;
     try {
-      session = await stripe.checkout.sessions.create({
+      console.log("Creating Stripe checkout session");
+      const sessionParams = {
         payment_method_types: ["card"],
         customer: customer.id,
         line_items: [
@@ -180,16 +190,26 @@ serve(async (req) => {
         locale: "sv",
         allow_promotion_codes: true, // Enable promotion codes
         billing_address_collection: "auto",
-        discounts: promoCode ? [
+      };
+      
+      // Only apply discount if we have a valid promo code
+      if (promoCode) {
+        sessionParams.discounts = [
           {
             promotion_code: promoCode.id,
           }
-        ] : undefined, // Apply promotion code if exists
-      });
+        ];
+      }
+      
+      console.log("Session parameters:", JSON.stringify(sessionParams));
+      session = await stripe.checkout.sessions.create(sessionParams);
+      console.log("Created checkout session:", session.id);
 
       if (!session.url) {
         throw new Error("No checkout URL returned from Stripe");
       }
+      
+      console.log("Checkout URL:", session.url);
     } catch (error) {
       console.error("Error creating Stripe checkout session:", error);
       return new Response(
