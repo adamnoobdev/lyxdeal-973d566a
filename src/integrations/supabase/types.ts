@@ -161,6 +161,7 @@ export type Database = {
           plan_price: number | null
           plan_title: string | null
           status: string
+          stripe_session_id: string | null
         }
         Insert: {
           business_name: string
@@ -175,6 +176,7 @@ export type Database = {
           plan_price?: number | null
           plan_title?: string | null
           status?: string
+          stripe_session_id?: string | null
         }
         Update: {
           business_name?: string
@@ -189,6 +191,7 @@ export type Database = {
           plan_price?: number | null
           plan_title?: string | null
           status?: string
+          stripe_session_id?: string | null
         }
         Relationships: []
       }

@@ -11,6 +11,7 @@ export interface PurchaseDetails {
   plan_payment_type?: string;
   status?: string;
   created_at?: string;
+  stripe_session_id?: string;
 }
 
 export interface SalonAccount {
@@ -43,14 +44,59 @@ export const useSubscriptionDetails = (sessionId: string | null) => {
       console.warn("No session ID found in URL");
       setError("Inget sessionID hittades");
       setLoading(false);
-      return;
+      return false;
     }
 
     try {
       console.log("Fetching purchase details for session:", sessionId);
       console.log("Retry count:", retryCount);
       
-      // Try to find the most recent partner request that's been approved
+      // First try: Look for partner request with this session ID
+      const { data: sessionData, error: sessionError } = await supabase
+        .from("partner_requests")
+        .select("*")
+        .eq("stripe_session_id", sessionId)
+        .limit(1);
+        
+      if (sessionError) {
+        console.error("Error checking session data:", sessionError);
+        throw sessionError;
+      }
+      
+      if (sessionData && sessionData.length > 0) {
+        console.log("Found session data:", sessionData[0]);
+        setPurchaseDetails(sessionData[0]);
+        
+        // Now check if this email has a salon account
+        if (sessionData[0].email) {
+          console.log("Checking for salon account with email:", sessionData[0].email);
+          
+          const { data: salonData, error: salonError } = await supabase
+            .from("salons")
+            .select("id, email, name")
+            .eq("email", sessionData[0].email)
+            .limit(1);
+            
+          if (salonError) {
+            console.error("Error checking salon account:", salonError);
+          } else if (salonData && salonData.length > 0) {
+            console.log("Found salon account:", salonData[0]);
+            // Only extract the fields we need for SalonAccount
+            setSalonAccount({
+              id: salonData[0].id,
+              email: salonData[0].email,
+              name: salonData[0].name
+            });
+            toast.success("Ditt salongskonto har skapats!");
+            return true;
+          } else {
+            console.log("No salon account found yet with email:", sessionData[0].email);
+            return false; // Signal to retry
+          }
+        }
+      }
+      
+      // Second try: Look for recently approved partner requests
       const { data: partnerRequests, error: partnerError } = await supabase
         .from("partner_requests")
         .select("*")
@@ -78,14 +124,14 @@ export const useSubscriptionDetails = (sessionId: string | null) => {
           // Try to find a matching salon with the email
           const { data: salonData, error: salonError } = await supabase
             .from("salons")
-            .select("*")
+            .select("id, email, name")
             .eq("email", mostRecent.email)
             .limit(1);
             
           if (salonError) {
             console.error("Error checking salon account:", salonError);
           } else if (salonData && salonData.length > 0) {
-            console.log("Found salon account:", salonData[0].id);
+            console.log("Found salon account:", salonData[0]);
             // Extract only the fields we need for SalonAccount
             setSalonAccount({
               id: salonData[0].id,
@@ -93,77 +139,16 @@ export const useSubscriptionDetails = (sessionId: string | null) => {
               name: salonData[0].name
             });
             toast.success("Ditt salongskonto har skapats!");
+            return true;
           } else {
             console.log("No salon account found yet with email:", mostRecent.email);
-            
-            // Extra check - check if there's any partner request with this session ID
-            console.log("Checking for partner request with session ID:", sessionId);
-            const { data: sessionData, error: sessionError } = await supabase
-              .from("partner_requests")
-              .select("*")
-              .eq("stripe_session_id", sessionId)
-              .limit(1);
-              
-            if (sessionError) {
-              console.error("Error checking session data:", sessionError);
-            } else if (sessionData && sessionData.length > 0) {
-              console.log("Found session data:", sessionData[0]);
-              // Update our purchase details if we found a match
-              setPurchaseDetails(sessionData[0]);
-            } else {
-              console.log("No partner request found with this session ID");
-            }
-            
             return false; // Signal to retry
           }
         }
-      } else {
-        console.log("No approved partner requests found. Retry count:", retryCount);
-        
-        // Extra check - try to find any partner request with this session ID
-        console.log("Checking for any partner request with session ID:", sessionId);
-        const { data: sessionData, error: sessionError } = await supabase
-          .from("partner_requests")
-          .select("*")
-          .eq("stripe_session_id", sessionId)
-          .limit(1);
-          
-        if (sessionError) {
-          console.error("Error checking session data:", sessionError);
-        } else if (sessionData && sessionData.length > 0) {
-          console.log("Found session data:", sessionData[0]);
-          // Update our purchase details
-          setPurchaseDetails(sessionData[0]);
-          
-          // Check if this email has a salon account already
-          if (sessionData[0].email) {
-            const { data: salonCheck, error: salonCheckError } = await supabase
-              .from("salons")
-              .select("*")
-              .eq("email", sessionData[0].email)
-              .limit(1);
-              
-            if (salonCheckError) {
-              console.error("Error checking salon account:", salonCheckError);
-            } else if (salonCheck && salonCheck.length > 0) {
-              console.log("Found salon account:", salonCheck[0].id);
-              setSalonAccount({
-                id: salonCheck[0].id,
-                email: salonCheck[0].email,
-                name: salonCheck[0].name
-              });
-              toast.success("Ditt salongskonto har skapats!");
-              return true; // Success!
-            }
-          }
-        } else {
-          console.log("No partner request found with this session ID either");
-        }
-        
-        return false; // Signal to retry
       }
       
-      return true; // Success, no need to retry
+      console.log("No matching partner request or salon account found. Retry count:", retryCount);
+      return false; // Signal to retry
     } catch (err) {
       console.error("Error fetching purchase details:", err);
       setError("Kunde inte hämta detaljer om din prenumeration");
