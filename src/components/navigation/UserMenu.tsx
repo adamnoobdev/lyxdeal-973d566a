@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Session } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
-import { User, Scissors, Store } from 'lucide-react';
+import { User, Store } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -69,7 +69,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
   return (
     <Button size="sm" asChild className={className}>
       <Link to="/auth">
-        <Scissors className="h-4 w-4 mr-2" />
+        <Store className="h-4 w-4 mr-2" />
         <span className="xs:inline">Salongspartner</span>
       </Link>
     </Button>

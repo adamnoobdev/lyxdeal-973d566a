@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Scissors } from "lucide-react";
+import { ArrowLeft, Store } from "lucide-react";
 import { SalonLoginForm } from "@/components/salon/LoginForm";
 import { toast } from "sonner";
 
@@ -26,7 +26,7 @@ export default function SalonLogin() {
         <div className="max-w-md mx-auto">
           <div className="mb-8 text-center">
             <div className="flex justify-center mb-4">
-              <Scissors className="h-8 w-8 text-primary" />
+              <Store className="h-8 w-8 text-primary" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Salongsinloggning</h1>
             <p className="text-gray-600 mb-4">
