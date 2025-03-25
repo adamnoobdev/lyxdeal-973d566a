@@ -44,7 +44,7 @@ export const markDiscountCodeAsUsed = async (
   customerInfo: CustomerInfo
 ): Promise<boolean> => {
   try {
-    console.log(`[markDiscountCodeAsUsed] Marking code ${code} as used`);
+    console.log(`[markDiscountCodeAsUsed] Marking code ${code} as used by ${customerInfo.email}`);
     
     const { error } = await supabase
       .from("discount_codes")
@@ -78,20 +78,24 @@ export const generateDiscountCode = async (dealId: number | string): Promise<str
     const numericDealId = normalizeId(dealId);
     const code = generateRandomCode();
     
-    const { error } = await supabase
+    console.log(`[generateDiscountCode] Creating new code ${code} for deal ${numericDealId}`);
+    
+    const { error, data } = await supabase
       .from("discount_codes")
       .insert({
         deal_id: numericDealId,
         code: code,
         is_used: false
-      });
+      })
+      .select();
       
     if (error) {
       console.error("[generateDiscountCode] Error creating code:", error);
+      console.error("[generateDiscountCode] Error details:", error.details, error.message);
       return null;
     }
     
-    console.log(`[generateDiscountCode] Successfully created code ${code} for deal ${numericDealId}`);
+    console.log(`[generateDiscountCode] Successfully created code ${code} for deal ${numericDealId}`, data);
     return code;
   } catch (error) {
     console.error("[generateDiscountCode] Exception:", error);

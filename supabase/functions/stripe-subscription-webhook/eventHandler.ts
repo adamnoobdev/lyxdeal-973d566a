@@ -20,14 +20,20 @@ export async function handleWebhookEvent(signature: string, body: string) {
     );
     
     console.log(`Processing webhook event type: ${event.type}, id: ${event.id}`);
+    console.log(`Event data: ${JSON.stringify(event.data.object, null, 2)}`);
     
     // Handle the event
     switch (event.type) {
       case "checkout.session.completed":
         console.log("Processing checkout.session.completed event");
-        const result = await handleCheckoutCompleted(event.data.object);
-        console.log("Checkout session processing result:", result);
-        break;
+        try {
+          const result = await handleCheckoutCompleted(event.data.object);
+          console.log("Checkout session processing result:", result);
+          return { success: true, eventType: event.type, result };
+        } catch (error) {
+          console.error("Failed to handle checkout.session.completed:", error);
+          throw new Error(`Checkout session handling failed: ${error.message}`);
+        }
       default:
         console.log(`Unhandled event type ${event.type}`);
     }

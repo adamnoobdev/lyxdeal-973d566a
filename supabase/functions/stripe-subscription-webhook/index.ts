@@ -17,7 +17,10 @@ serve(async (req) => {
     if (!signature) {
       console.error("No Stripe signature found in request headers");
       return new Response(
-        JSON.stringify({ error: "No Stripe signature found" }),
+        JSON.stringify({ 
+          error: "No Stripe signature found",
+          headers: Object.fromEntries(req.headers.entries())
+        }),
         {
           status: 400,
           headers: {
@@ -28,9 +31,9 @@ serve(async (req) => {
       );
     }
 
-    // Get the request body
+    // Get the request body and log its size for debugging
     const body = await req.text();
-    console.log("Webhook payload received, processing event...");
+    console.log(`Webhook payload received, size: ${body.length} bytes`);
     
     // Process webhook event
     const result = await handleWebhookEvent(signature, body);
@@ -44,10 +47,20 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
+    // Enhanced error logging
     console.error("Error in subscription webhook:", error);
+    console.error("Stack trace:", error.stack);
+    
+    // Try to determine the specific part of the process that failed
+    let errorSource = "unknown";
+    if (error.message.includes("signature")) errorSource = "signature_verification";
+    else if (error.message.includes("account")) errorSource = "account_creation";
+    else if (error.message.includes("email")) errorSource = "email_sending";
+    
     return new Response(
       JSON.stringify({ 
         error: error.message,
+        errorSource,
         stack: error.stack,
         timestamp: new Date().toISOString()
       }),
