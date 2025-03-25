@@ -29,6 +29,8 @@ export default function SubscriptionSuccess() {
       }
 
       try {
+        console.log("Fetching purchase details for session:", sessionId);
+        
         // Hämta partnerförfrågan som är associerad med detta köp
         const { data: partnerRequests, error: partnerError } = await supabase
           .from("partner_requests")
@@ -46,9 +48,9 @@ export default function SubscriptionSuccess() {
           setPurchaseDetails(partnerRequests[0]);
           console.log("Hittade partnerförfrågan:", partnerRequests[0]);
         } else {
-          console.log("Inga godkända partnerförfrågningar hittades");
+          console.log("Inga godkända partnerförfrågningar hittades. Retry count:", retryCount);
           // Om vi inte har någon godkänd förfrågan ännu och är under max försök, försök igen
-          if (retryCount < 3) {
+          if (retryCount < 5) {
             const timer = setTimeout(() => {
               setRetryCount(prev => prev + 1);
             }, 3000); // Vänta 3 sekunder mellan försök
@@ -56,6 +58,25 @@ export default function SubscriptionSuccess() {
           } else {
             // Efter max försök, fortsätt ändå men visa info om att detaljerna inte kunde hämtas
             toast.info("Kunde inte hämta alla detaljer om din prenumeration, men din betalning har gått igenom.");
+          }
+        }
+        
+        // Check directly for salon account as well (double verification)
+        if (partnerRequests?.[0]?.email) {
+          console.log("Checking for salon account with email:", partnerRequests[0].email);
+          const { data: salonData, error: salonError } = await supabase
+            .from("salons")
+            .select("*")
+            .eq("email", partnerRequests[0].email)
+            .single();
+            
+          if (salonError && !salonError.message.includes("No rows found")) {
+            console.error("Error checking salon account:", salonError);
+          } else if (salonData) {
+            console.log("Found salon account:", salonData.id);
+            toast.success("Ditt salongskonto har skapats!");
+          } else {
+            console.log("No salon account found yet, will retry");
           }
         }
       } catch (err) {

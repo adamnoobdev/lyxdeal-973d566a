@@ -10,5 +10,10 @@ export const getSupabaseAdmin = () => {
     throw new Error("Supabase credentials are not configured");
   }
   
-  return createClient(supabaseUrl, supabaseServiceRoleKey);
+  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  });
 };
