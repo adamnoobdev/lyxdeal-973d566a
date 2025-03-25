@@ -19,7 +19,7 @@ export const Footer = () => {
     <footer className="mt-16 bg-secondary-50 py-8">
       <div className="container px-4 md:px-8">
         <Separator className="mb-8" />
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-y-8 gap-x-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <AboutSection onNavigate={handleNavigation} />
           <CustomerServiceSection onNavigate={handleNavigation} />
           <PartnerSection onNavigate={handleNavigation} />

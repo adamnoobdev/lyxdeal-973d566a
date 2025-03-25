@@ -7,7 +7,7 @@ interface PartnerSectionProps {
 
 export const PartnerSection = ({ onNavigate }: PartnerSectionProps) => {
   return (
-    <div className="space-y-4">
+    <div className="text-center sm:text-left space-y-4">
       <h3 className="font-semibold text-lg">För företag</h3>
       <ul className="space-y-2">
         <li>
