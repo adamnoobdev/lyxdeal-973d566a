@@ -110,6 +110,43 @@ serve(async (req) => {
       origin = "https://www.lyxdeal.se";
     }
     
+    // Create or retrieve the 'provmanad' promotion code
+    let promoCode;
+    try {
+      // Check if the promotion code already exists
+      const existingPromoCodes = await stripe.promotionCodes.list({
+        code: 'provmanad',
+        active: true,
+        limit: 1
+      });
+
+      if (existingPromoCodes.data.length > 0) {
+        promoCode = existingPromoCodes.data[0];
+        console.log("Using existing promo code:", promoCode.id);
+      } else {
+        // Create a coupon for 100% off first month
+        const coupon = await stripe.coupons.create({
+          duration: 'once',
+          percent_off: 100,
+          name: 'Gratis provmånad',
+        });
+
+        // Create a promotion code for the coupon
+        promoCode = await stripe.promotionCodes.create({
+          coupon: coupon.id,
+          code: 'provmanad',
+          active: true,
+          metadata: {
+            description: 'Gratis provmånad för nya salongspartners'
+          }
+        });
+        console.log("Created new promo code:", promoCode.id);
+      }
+    } catch (error) {
+      console.error("Error with promotion code:", error);
+      // Continue even if promo code creation failed
+    }
+    
     let session;
     try {
       session = await stripe.checkout.sessions.create({
@@ -141,8 +178,13 @@ serve(async (req) => {
           plan_type: planType,
         },
         locale: "sv",
-        allow_promotion_codes: true,
+        allow_promotion_codes: true, // Enable promotion codes
         billing_address_collection: "auto",
+        discounts: promoCode ? [
+          {
+            promotion_code: promoCode.id,
+          }
+        ] : undefined, // Apply promotion code if exists
       });
 
       if (!session.url) {

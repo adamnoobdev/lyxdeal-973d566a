@@ -90,11 +90,13 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
       }
       
       if (result.redirectUrl) {
-        // Öppna betalningssidan i nytt fönster/flik
-        toast.success("Du skickas nu till betalningssidan");
+        // Add promo code information to toast message
+        toast.success("Du skickas nu till betalningssidan. Använd rabattkoden 'provmanad' för en gratis provmånad!");
+        
+        // Open payment page in new window/tab
         window.open(result.redirectUrl, "_blank");
         
-        // Visa också en knapp som användaren kan klicka på om automatisk omdirigering misslyckas
+        // Also show a button that user can click if automatic redirection fails
         toast.success("Om du inte omdirigeras automatiskt, klicka här", {
           duration: 10000,
           action: {
