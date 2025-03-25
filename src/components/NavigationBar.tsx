@@ -51,7 +51,7 @@ const NavigationBar = ({
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left section - Logo and hamburger menu */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <MobileMenu 
               selectedCity={selectedCity}
               setSelectedCity={setSelectedCity}
@@ -62,7 +62,9 @@ const NavigationBar = ({
               userRole={userRole}
               isLoggedIn={!!session?.user}
             />
-            <Logo />
+            <div className="ml-0">
+              <Logo />
+            </div>
           </div>
 
           {/* Middle section - Search bar */}
