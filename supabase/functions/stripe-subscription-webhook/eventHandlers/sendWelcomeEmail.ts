@@ -23,15 +23,30 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
       }),
     });
     
+    // Log the complete response for debugging
+    const emailResponseStatus = emailResponse.status;
+    const emailResponseText = await emailResponse.text();
+    console.log(`Welcome email API response status: ${emailResponseStatus}`);
+    console.log(`Welcome email API response: ${emailResponseText}`);
+    
+    // Try to parse the response as JSON if possible
+    let emailResponseData;
+    try {
+      emailResponseData = JSON.parse(emailResponseText);
+    } catch (parseError) {
+      console.error("Error parsing email response:", parseError);
+    }
+    
     if (!emailResponse.ok) {
-      const emailErrorData = await emailResponse.json();
-      console.error("Email API error:", emailErrorData);
-      throw new Error("Failed to send welcome email");
+      console.error("Email API error:", emailResponseData || emailResponseText);
+      throw new Error(`Failed to send welcome email: ${emailResponseText}`);
     }
     
     console.log("Welcome email sent successfully");
+    return { success: true, message: "Welcome email sent successfully" };
   } catch (emailError) {
     console.error("Error sending welcome email:", emailError);
     // Non-blocking error - log but don't throw
+    return { success: false, error: emailError.message };
   }
 }

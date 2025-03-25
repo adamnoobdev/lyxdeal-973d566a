@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
@@ -10,7 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 export default function SubscriptionSuccess() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(15);
   const [purchaseDetails, setPurchaseDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,15 +52,6 @@ export default function SubscriptionSuccess() {
 
     fetchPurchaseDetails();
   }, [sessionId]);
-
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
-      navigate("/salon-login");
-    }
-  }, [countdown, navigate]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('sv-SE');
@@ -124,15 +114,11 @@ export default function SubscriptionSuccess() {
             </p>
             
             {!loading && renderPurchaseDetails()}
-            
-            <p className="text-gray-700 mt-4">
-              Du kommer automatiskt att omdirigeras till inloggningssidan om {countdown} sekunder.
-            </p>
           </div>
 
           <div className="flex flex-col space-y-2">
             <Button 
-              onClick={() => navigate("/salon-login")}
+              onClick={() => navigate("/salon/login")}
               className="w-full"
             >
               Gå till inloggning

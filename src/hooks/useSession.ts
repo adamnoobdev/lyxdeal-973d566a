@@ -8,9 +8,12 @@ export const useSession = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log("useSession hook initialized or dependencies changed");
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, currentSession) => {
+      (event, currentSession) => {
+        console.log(`Auth state changed: ${event}`, currentSession ? "Session exists" : "No session");
         setSession(currentSession);
         setIsLoading(false);
       }
@@ -19,10 +22,12 @@ export const useSession = () => {
     // THEN check for existing session
     const initSession = async () => {
       try {
+        console.log("Checking for existing session...");
         const { data, error } = await supabase.auth.getSession();
         if (error) {
           console.error("Session initialization error:", error);
         } else {
+          console.log("Session check complete:", data.session ? "Session found" : "No session found");
           setSession(data.session);
         }
       } catch (error) {
@@ -36,6 +41,7 @@ export const useSession = () => {
 
     // Cleanup subscription
     return () => {
+      console.log("Cleaning up auth subscription");
       subscription.unsubscribe();
     };
   }, []);

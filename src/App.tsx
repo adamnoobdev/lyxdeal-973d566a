@@ -26,9 +26,27 @@ function App() {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession();
       console.log("Initial auth check:", data.session ? "User is logged in" : "No session found");
+      
+      if (data.session) {
+        console.log("Auth: User signed in, checking role:", data.session.user.id);
+      }
     };
     
     checkAuth();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log(`Auth state changed in App.tsx: ${event}`, session ? "Session exists" : "No session");
+      
+      if (session) {
+        console.log("Auth: User signed in, checking role:", session.user.id);
+      }
+    });
+    
+    // Clean up subscription
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (

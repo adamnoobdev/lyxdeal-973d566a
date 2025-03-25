@@ -30,7 +30,7 @@ serve(async (req) => {
 
     if (!email || !business_name || !temporary_password) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
+        JSON.stringify({ error: "Missing required fields", receivedFields: { email, business_name, hasPassword: !!temporary_password } }),
         {
           status: 400,
           headers: {
@@ -41,7 +41,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Sending welcome email to new salon: ${business_name} (${email})`);
+    console.log(`Sending welcome email to new salon: ${business_name} (${email}) with password: ${temporary_password.substring(0, 3)}***`);
     
     // Formatera datum för tydligare visning
     const formatDate = (dateString) => {
@@ -84,7 +84,7 @@ serve(async (req) => {
           
           <p>Din prenumeration ger dig tillgång till alla funktioner i Lyxdeal-plattformen. Du kan när som helst hantera din prenumeration från din kontrollpanel.</p>
           
-          <a href="${Deno.env.get("PUBLIC_SITE_URL") || "https://lyxdeal.se"}/salon-login" style="display: inline-block; background-color: #520053; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; margin-top: 20px;">Logga in på ditt konto</a>
+          <a href="${Deno.env.get("PUBLIC_SITE_URL") || "https://lyxdeal.se"}/salon/login" style="display: inline-block; background-color: #520053; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; margin-top: 20px;">Logga in på ditt konto</a>
           
           <p style="margin-top: 40px;">Om du har några frågor eller behöver hjälp, tveka inte att kontakta oss på info@lyxdeal.se.</p>
           
@@ -118,6 +118,14 @@ serve(async (req) => {
       console.log(`TESTING MODE: Redirecting email from ${email} to verified email ${verifiedEmail}`);
     }
 
+    // Create detailed log of what we're about to send
+    console.log(`Sending email with config:`, JSON.stringify({
+      from: emailConfig.from,
+      to: emailConfig.to,
+      subject: emailConfig.subject,
+      testingMode: testingMode
+    }));
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -127,12 +135,16 @@ serve(async (req) => {
       body: JSON.stringify(emailConfig)
     });
 
+    const responseStatus = response.status;
     const data = await response.json();
+
+    console.log(`Resend API response status: ${responseStatus}`);
+    console.log(`Resend API response:`, JSON.stringify(data));
 
     if (!response.ok) {
       console.error("Error sending email:", data);
       return new Response(
-        JSON.stringify({ error: "Failed to send email", details: data }),
+        JSON.stringify({ error: "Failed to send email", details: data, status: responseStatus }),
         {
           status: 500,
           headers: {
@@ -168,7 +180,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in send-salon-welcome function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message, stack: error.stack }),
       {
         status: 500,
         headers: {
