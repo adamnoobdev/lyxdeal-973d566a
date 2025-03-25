@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet";
 import { toast } from "sonner";
-import { separator } from "@/components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 
 export default function SubscriptionSuccess() {
   const [searchParams] = useSearchParams();
