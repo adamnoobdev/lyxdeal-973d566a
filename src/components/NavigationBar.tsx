@@ -44,7 +44,7 @@ const NavigationBar = ({
 
   return (
     <header 
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-200 ${
+      className={`fixed top-8 left-0 w-full z-50 transition-all duration-200 ${
         isScrolled ? 'bg-white shadow-sm' : 'bg-white/95 backdrop-blur-sm'
       }`}
     >

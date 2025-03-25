@@ -19,7 +19,7 @@ const Layout: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       <TopBar />
       <NavigationBar />
-      <main className="flex-1 pt-24 mt-4">
+      <main className="flex-1 pt-28">
         <Outlet />
       </main>
       <Footer />
