@@ -3,7 +3,8 @@ import { useSubscriptionPolling } from "./useSubscriptionPolling";
 import { useElapsedTime } from "./useElapsedTime";
 import { SubscriptionDetailsHook } from "./types";
 
-export { PurchaseDetails, SalonAccount } from "./types";
+// Exportera typerna på ett sätt som stöds av TypeScript med isolatedModules
+export type { PurchaseDetails, SalonAccount } from "./types";
 export { formatDate } from "./formatUtils";
 
 export const useSubscriptionDetails = (sessionId: string | null): SubscriptionDetailsHook => {
