@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@12.11.0";
@@ -78,6 +79,15 @@ serve(async (req) => {
         
         console.log("Checkout session completed:", session);
         
+        // Hämta prenumerationsinformation från Stripe
+        let subscription;
+        try {
+          subscription = await stripe.subscriptions.retrieve(session.subscription);
+          console.log("Subscription details:", subscription);
+        } catch (subscriptionError) {
+          console.error("Error retrieving subscription:", subscriptionError);
+        }
+        
         // Generate a random password
         const password = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
         
@@ -103,6 +113,19 @@ serve(async (req) => {
           );
         }
 
+        // Spara prenumerationsinformation
+        const subscriptionData = {
+          stripe_subscription_id: subscription?.id || "",
+          stripe_customer_id: session.customer,
+          plan_title: session.metadata.plan_title,
+          plan_type: session.metadata.plan_type,
+          status: subscription?.status || "active",
+          current_period_end: subscription?.current_period_end 
+            ? new Date(subscription.current_period_end * 1000).toISOString() 
+            : null,
+          cancel_at_period_end: subscription?.cancel_at_period_end || false
+        };
+
         // Create salon record
         console.log("Creating salon record for:", session.metadata.business_name);
         const { data: salonData, error: salonError } = await supabaseAdmin
@@ -115,7 +138,8 @@ serve(async (req) => {
               user_id: userData.user.id,
               subscription_plan: session.metadata.plan_title,
               subscription_type: session.metadata.plan_type,
-              stripe_customer_id: session.customer
+              stripe_customer_id: session.customer,
+              ...subscriptionData
             }
           ])
           .select();
@@ -157,7 +181,15 @@ serve(async (req) => {
             body: JSON.stringify({
               email: session.metadata.email,
               business_name: session.metadata.business_name,
-              temporary_password: password
+              temporary_password: password,
+              subscription_info: {
+                plan: session.metadata.plan_title,
+                type: session.metadata.plan_type,
+                start_date: new Date().toISOString(),
+                next_billing_date: subscription?.current_period_end 
+                  ? new Date(subscription.current_period_end * 1000).toISOString() 
+                  : null
+              }
             }),
           });
           

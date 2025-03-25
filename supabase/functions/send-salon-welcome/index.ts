@@ -26,7 +26,7 @@ serve(async (req) => {
       );
     }
 
-    const { email, business_name, temporary_password } = await req.json();
+    const { email, business_name, temporary_password, subscription_info } = await req.json();
 
     if (!email || !business_name || !temporary_password) {
       return new Response(
@@ -42,6 +42,16 @@ serve(async (req) => {
     }
 
     console.log(`Sending welcome email to new salon: ${business_name} (${email})`);
+    
+    // Formatera datum för tydligare visning
+    const formatDate = (dateString) => {
+      if (!dateString) return "Inte tillgängligt";
+      const date = new Date(dateString);
+      return date.toLocaleDateString('sv-SE');
+    };
+    
+    const startDate = formatDate(subscription_info?.start_date);
+    const nextBillingDate = formatDate(subscription_info?.next_billing_date);
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -64,9 +74,19 @@ serve(async (req) => {
           
           <p>Vi rekommenderar att du ändrar ditt lösenord första gången du loggar in.</p>
           
+          <div style="background-color: #f3f4f6; padding: 16px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #520053;">
+            <h3 style="margin-top: 0; color: #520053;">Din prenumeration</h3>
+            <p><strong>Plan:</strong> ${subscription_info?.plan || 'Standard'}</p>
+            <p><strong>Typ:</strong> ${subscription_info?.type === 'yearly' ? 'Årsvis' : 'Månadsvis'}</p>
+            <p><strong>Startdatum:</strong> ${startDate}</p>
+            <p><strong>Nästa faktureringsdag:</strong> ${nextBillingDate}</p>
+          </div>
+          
+          <p>Din prenumeration ger dig tillgång till alla funktioner i Lyxdeal-plattformen. Du kan när som helst hantera din prenumeration från din kontrollpanel.</p>
+          
           <a href="${Deno.env.get("PUBLIC_SITE_URL") || "https://lyxdeal.se"}/salon-login" style="display: inline-block; background-color: #520053; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; margin-top: 20px;">Logga in på ditt konto</a>
           
-          <p style="margin-top: 40px;">Om du har några frågor eller behöver hjälp, tveka inte att kontakta oss.</p>
+          <p style="margin-top: 40px;">Om du har några frågor eller behöver hjälp, tveka inte att kontakta oss på info@lyxdeal.se.</p>
           
           <p>Med vänliga hälsningar,<br>Lyxdeal-teamet</p>
         </div>
