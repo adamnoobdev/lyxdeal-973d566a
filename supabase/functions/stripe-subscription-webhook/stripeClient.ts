@@ -94,13 +94,22 @@ export async function verifyWebhookConfiguration() {
       console.log("STRIPE_WEBHOOK_SECRET är korrekt konfigurerad");
     }
     
+    // Safely determine environment
+    let environment = "UNKNOWN";
+    try {
+      const apiKey = stripe?.apiKey || '';
+      environment = apiKey.startsWith("sk_live") ? "LIVE" : "TEST";
+    } catch (err) {
+      console.error("Error determining environment:", err.message);
+    }
+    
     return {
       id: subscriptionWebhook.id,
       url: subscriptionWebhook.url,
       status: subscriptionWebhook.status,
       eventsConfigured: hasCheckoutEvent,
       secretConfigured: secretConfigured,
-      environment: stripeInstance?.apiKey.startsWith("sk_live") ? "LIVE" : "TEST",
+      environment: environment,
       suggestions: !hasCheckoutEvent ? ["Add 'checkout.session.completed' to enabled events"] : 
                    !secretConfigured ? ["Configure STRIPE_WEBHOOK_SECRET in Edge Function settings"] : []
     };

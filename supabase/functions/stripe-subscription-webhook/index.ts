@@ -30,9 +30,11 @@ serve(async (req) => {
   // Verifiera att vi använder live-miljö i produktion
   try {
     const stripeClient = getStripeClient();
-    if (!stripeClient.apiKey.startsWith("sk_live")) {
+    const apiKey = stripeClient?.apiKey || '';
+    
+    if (!apiKey.startsWith("sk_live")) {
       console.error("VARNING: Använder TEST-nyckel i produktionsmiljö!");
-      console.error("Nyckeltyp:", stripeClient.apiKey.startsWith("sk_test") ? "TEST" : "ANNAN");
+      console.error("Nyckeltyp:", apiKey.startsWith("sk_test") ? "TEST" : "ANNAN");
     } else {
       console.log("Använder korrekt LIVE Stripe-nyckel");
     }
@@ -122,12 +124,22 @@ serve(async (req) => {
       // För icke-webhook anrop med giltig auth, hantera det som ett vanligt API-anrop
       console.log("Non-webhook authorized request received");
       
+      // Safely determine environment
+      let environment = "UNKNOWN";
+      try {
+        const stripeClient = getStripeClient();
+        const apiKey = stripeClient?.apiKey || '';
+        environment = apiKey.startsWith("sk_live") ? "LIVE" : "TEST";
+      } catch (err) {
+        console.error("Error determining environment:", err.message);
+      }
+      
       return new Response(
         JSON.stringify({ 
           message: "API endpoint running - use Stripe webhooks to trigger events", 
           timestamp: new Date().toISOString(),
           webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET"),
-          environment: getStripeClient().apiKey.startsWith("sk_live") ? "LIVE" : "TEST"
+          environment: environment
         }),
         { 
           status: 200, 
