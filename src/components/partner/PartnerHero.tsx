@@ -34,8 +34,7 @@ export const PartnerHero = () => {
             </Button>
             <Button 
               size="lg" 
-              variant="outline" 
-              className="border-white text-white hover:bg-white/10 w-full sm:w-auto"
+              className="bg-white text-primary hover:bg-white/90 w-full sm:w-auto"
               onClick={() => navigate("/salon/login")}
             >
               Logga in som partner
