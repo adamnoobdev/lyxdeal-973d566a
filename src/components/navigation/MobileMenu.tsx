@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, ChevronDown, Home, Gift, HelpCircle, User } from 'lucide-react';
+import { Menu, ChevronDown, Home, Gift, HelpCircle, User, Store } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { City, Category, CITIES, CATEGORIES } from '@/constants/app-constants';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -115,7 +115,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               </div>
             ) : (
               <Link to="/auth" className="flex items-center justify-center px-4 py-2 bg-secondary text-primary hover:bg-secondary/90 rounded-md text-sm font-medium">
-                Logga in
+                <Store className="h-4 w-4 mr-2" />
+                Salongspartner
               </Link>
             )}
           </div>
