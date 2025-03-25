@@ -11,6 +11,7 @@ serve(async (req) => {
 
   try {
     console.log("Received webhook request");
+    console.log("Headers:", Object.fromEntries(req.headers.entries()));
     
     // Get the signature from the headers
     const signature = req.headers.get("stripe-signature");
@@ -31,9 +32,27 @@ serve(async (req) => {
       );
     }
 
-    // Get the request body and log its size for debugging
+    // Get the request body and log its contents for debugging
     const body = await req.text();
     console.log(`Webhook payload received, size: ${body.length} bytes`);
+    
+    // Log a sample of the payload for debugging (first 500 chars)
+    if (body.length > 0) {
+      console.log(`Payload sample: ${body.substring(0, Math.min(500, body.length))}...`);
+      
+      try {
+        // Try to parse as JSON to see structure
+        const jsonSample = JSON.parse(body);
+        console.log("Event type from payload:", jsonSample.type);
+        console.log("Event ID from payload:", jsonSample.id);
+        
+        if (jsonSample.data && jsonSample.data.object) {
+          console.log("Event object type:", jsonSample.data.object.object);
+        }
+      } catch (parseError) {
+        console.error("Could not parse webhook body as JSON for logging:", parseError.message);
+      }
+    }
     
     // Process webhook event
     const result = await handleWebhookEvent(signature, body);

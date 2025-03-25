@@ -8,6 +8,7 @@ export async function handleWebhookEvent(signature: string, body: string) {
   // Verify webhook signature
   const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
   if (!webhookSecret) {
+    console.error("Stripe webhook secret is not configured in environment variables");
     throw new Error("Stripe webhook secret is not configured");
   }
   
@@ -20,6 +21,8 @@ export async function handleWebhookEvent(signature: string, body: string) {
     );
     
     console.log(`Processing webhook event type: ${event.type}, id: ${event.id}`);
+    
+    // Log the entire event object for debugging
     console.log(`Event data: ${JSON.stringify(event.data.object, null, 2)}`);
     
     // Handle the event
@@ -27,11 +30,17 @@ export async function handleWebhookEvent(signature: string, body: string) {
       case "checkout.session.completed":
         console.log("Processing checkout.session.completed event");
         try {
-          const result = await handleCheckoutCompleted(event.data.object);
+          const session = event.data.object;
+          console.log("Session metadata:", session.metadata);
+          console.log("Session customer:", session.customer);
+          console.log("Session subscription:", session.subscription);
+          
+          const result = await handleCheckoutCompleted(session);
           console.log("Checkout session processing result:", result);
           return { success: true, eventType: event.type, result };
         } catch (error) {
           console.error("Failed to handle checkout.session.completed:", error);
+          console.error("Error stack:", error.stack);
           throw new Error(`Checkout session handling failed: ${error.message}`);
         }
       default:
@@ -41,6 +50,7 @@ export async function handleWebhookEvent(signature: string, body: string) {
     return { success: true, eventType: event.type };
   } catch (err) {
     console.error(`Webhook error:`, err);
+    console.error(`Webhook error stack:`, err.stack);
     throw new Error(`Webhook error: ${err.message}`);
   }
 }

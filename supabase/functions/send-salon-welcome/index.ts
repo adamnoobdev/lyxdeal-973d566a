@@ -31,7 +31,7 @@ serve(async (req) => {
     // Initialize Resend with API key
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {
-      console.error("RESEND_API_KEY is not configured");
+      console.error("RESEND_API_KEY is not configured in environment variables");
       throw new Error("RESEND_API_KEY is not configured");
     }
     
@@ -40,13 +40,31 @@ serve(async (req) => {
     // Parse request body
     let data: WelcomeEmailRequest;
     try {
-      data = await req.json();
-      console.log("Request payload received:", JSON.stringify(data, null, 2));
-    } catch (error) {
-      console.error("Error parsing request JSON:", error);
+      const rawData = await req.text();
+      console.log("Raw request body:", rawData);
+      
+      try {
+        data = JSON.parse(rawData);
+        console.log("Request payload received:", JSON.stringify(data, null, 2));
+      } catch (jsonError) {
+        console.error("JSON parsing error:", jsonError);
+        return new Response(
+          JSON.stringify({ 
+            error: "Invalid JSON in request body",
+            rawData 
+          }),
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, "Content-Type": "application/json" } 
+          }
+        );
+      }
+    } catch (bodyError) {
+      console.error("Error reading request body:", bodyError);
       return new Response(
         JSON.stringify({ 
-          error: "Invalid JSON in request body" 
+          error: "Error reading request body",
+          details: bodyError.message
         }),
         { 
           status: 400, 
@@ -216,30 +234,48 @@ serve(async (req) => {
     `;
 
     console.log("Sending welcome email to:", data.email);
+    console.log("Using Resend API with key starting with:", resendApiKey.substring(0, 5) + "...");
 
     // Send email using Resend
-    const emailResponse = await resend.emails.send({
-      from: "Lyxdeal <no-reply@lyxdeal.se>",
-      to: [data.email],
-      subject: "Välkommen till Lyxdeal - Din inloggningsinformation",
-      html: htmlContent,
-    });
+    try {
+      const emailResponse = await resend.emails.send({
+        from: "Lyxdeal <no-reply@lyxdeal.se>",
+        to: [data.email],
+        subject: "Välkommen till Lyxdeal - Din inloggningsinformation",
+        html: htmlContent,
+      });
 
-    console.log("Email sending response:", emailResponse);
+      console.log("Email sending response:", emailResponse);
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: "Welcome email sent successfully",
-        data: emailResponse
-      }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      }
-    );
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Welcome email sent successfully",
+          data: emailResponse
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    } catch (resendError) {
+      console.error("Resend API error:", resendError);
+      console.error("Resend error details:", resendError.message);
+      
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to send email via Resend API",
+          details: resendError.message
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
   } catch (error) {
     console.error("Error in send-salon-welcome function:", error);
+    console.error("Error stack:", error.stack);
     return new Response(
       JSON.stringify({ 
         error: error.message,
