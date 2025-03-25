@@ -1,3 +1,4 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -9,6 +10,7 @@ import { ContactFields } from "../admin/salons/form/ContactFields";
 import { PasswordField } from "../admin/salons/form/PasswordField";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Namnet måste vara minst 2 tecken"),
@@ -18,7 +20,7 @@ const profileSchema = z.object({
   password: z.string().min(6, "Lösenordet måste vara minst 6 tecken").optional(),
 });
 
-interface ProfileSettingsProps {
+export interface ProfileSettingsProps {
   salon: {
     id: number;
     name: string;
@@ -31,6 +33,8 @@ interface ProfileSettingsProps {
 }
 
 export const ProfileSettings = ({ salon, onUpdate }: ProfileSettingsProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -43,6 +47,7 @@ export const ProfileSettings = ({ salon, onUpdate }: ProfileSettingsProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
+    setIsSubmitting(true);
     try {
       // If a new password is provided, update it
       if (values.password && salon.user_id) {
@@ -71,6 +76,8 @@ export const ProfileSettings = ({ salon, onUpdate }: ProfileSettingsProps) => {
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Kunde inte uppdatera profilen");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -88,7 +95,16 @@ export const ProfileSettings = ({ salon, onUpdate }: ProfileSettingsProps) => {
             <BasicInfoFields form={form} />
             <ContactFields form={form} />
             <PasswordField form={form} />
-            <Button type="submit">Spara ändringar</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <span className="flex items-center">
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Sparar...
+                </span>
+              ) : (
+                "Spara ändringar"
+              )}
+            </Button>
           </form>
         </Form>
       </CardContent>

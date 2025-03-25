@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState as useLoadingState } from "react";
 
 interface SubscriptionInfo {
   plan_title: string;
@@ -25,6 +26,9 @@ export function ManageSubscription() {
   const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isReactivating, setIsReactivating] = useLoadingState(false);
+  const [isCancelling, setIsCancelling] = useLoadingState(false);
+  const [isManagingBilling, setIsManagingBilling] = useLoadingState(false);
 
   // Hämta användarens prenumerationsinformation
   useEffect(() => {
@@ -53,13 +57,13 @@ export function ManageSubscription() {
         }
         
         setSubscriptionInfo({
-          plan_title: salons.subscription_plan,
-          subscription_type: salons.subscription_type,
-          stripe_customer_id: salons.stripe_customer_id,
-          stripe_subscription_id: salons.stripe_subscription_id,
+          plan_title: salons.subscription_plan || 'Standard',
+          subscription_type: salons.subscription_type || 'monthly',
+          stripe_customer_id: salons.stripe_customer_id || '',
+          stripe_subscription_id: salons.stripe_subscription_id || '',
           current_period_end: salons.current_period_end,
-          status: salons.status,
-          cancel_at_period_end: salons.cancel_at_period_end
+          status: salons.status || 'inactive',
+          cancel_at_period_end: salons.cancel_at_period_end || false
         });
         
       } catch (err) {
@@ -85,24 +89,17 @@ export function ManageSubscription() {
     }
     
     try {
-      setCancelLoading(true);
+      setIsCancelling(true);
       
       // Anropa en edge-funktion för att avsluta prenumerationen
-      // OBS: Denna funktion behöver implementeras separat
-      const result = await fetch(`${supabase.supabaseUrl}/functions/v1/cancel-subscription`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${supabase.supabaseKey}`
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke("cancel-subscription", {
+        body: {
           subscription_id: subscriptionInfo.stripe_subscription_id
-        })
+        }
       });
       
-      if (!result.ok) {
-        const errorData = await result.json();
-        throw new Error(errorData.error || "Kunde inte avsluta prenumerationen");
+      if (error) {
+        throw new Error(error.message || "Kunde inte avsluta prenumerationen");
       }
       
       // Uppdatera prenumerationsstatus lokalt
@@ -125,7 +122,7 @@ export function ManageSubscription() {
         variant: "destructive"
       });
     } finally {
-      setCancelLoading(false);
+      setIsCancelling(false);
     }
   };
 
@@ -141,24 +138,17 @@ export function ManageSubscription() {
     }
     
     try {
-      setCancelLoading(true);
+      setIsReactivating(true);
       
       // Anropa en edge-funktion för att återaktivera prenumerationen
-      // OBS: Denna funktion behöver implementeras separat
-      const result = await fetch(`${supabase.supabaseUrl}/functions/v1/reactivate-subscription`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${supabase.supabaseKey}`
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke("reactivate-subscription", {
+        body: {
           subscription_id: subscriptionInfo.stripe_subscription_id
-        })
+        }
       });
       
-      if (!result.ok) {
-        const errorData = await result.json();
-        throw new Error(errorData.error || "Kunde inte återaktivera prenumerationen");
+      if (error) {
+        throw new Error(error.message || "Kunde inte återaktivera prenumerationen");
       }
       
       // Uppdatera prenumerationsstatus lokalt
@@ -181,7 +171,7 @@ export function ManageSubscription() {
         variant: "destructive"
       });
     } finally {
-      setCancelLoading(false);
+      setIsReactivating(false);
     }
   };
 
@@ -197,28 +187,21 @@ export function ManageSubscription() {
     }
     
     try {
+      setIsManagingBilling(true);
+      
       // Anropa en edge-funktion för att skapa en session till Stripe kundportal
-      // OBS: Denna funktion behöver implementeras separat
-      const result = await fetch(`${supabase.supabaseUrl}/functions/v1/create-billing-portal-session`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${supabase.supabaseKey}`
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke("create-billing-portal-session", {
+        body: {
           customer_id: subscriptionInfo.stripe_customer_id
-        })
+        }
       });
       
-      if (!result.ok) {
-        const errorData = await result.json();
-        throw new Error(errorData.error || "Kunde inte öppna fakturahantering");
+      if (error) {
+        throw new Error(error.message || "Kunde inte öppna fakturahantering");
       }
       
-      const { url } = await result.json();
-      
       // Omdirigera till Stripe kundportal
-      window.location.href = url;
+      window.location.href = data.url;
       
     } catch (err) {
       console.error("Fel vid öppning av fakturahantering:", err);
@@ -227,6 +210,8 @@ export function ManageSubscription() {
         description: err instanceof Error ? err.message : "Ett fel uppstod när fakturahanteringen skulle öppnas",
         variant: "destructive"
       });
+    } finally {
+      setIsManagingBilling(false);
     }
   };
 
@@ -363,31 +348,57 @@ export function ManageSubscription() {
             onClick={handleManageBilling}
             variant="outline"
             className="flex-1"
+            disabled={isManagingBilling}
           >
-            <CreditCard className="mr-2 h-4 w-4" />
-            Hantera fakturor
+            {isManagingBilling ? (
+              <span className="flex items-center">
+                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                Laddar...
+              </span>
+            ) : (
+              <>
+                <CreditCard className="mr-2 h-4 w-4" />
+                Hantera fakturor
+              </>
+            )}
           </Button>
           
           {subscriptionInfo.cancel_at_period_end ? (
             <Button 
               onClick={handleReactivateSubscription}
               className="flex-1"
-              loading={cancelLoading}
-              disabled={cancelLoading}
+              disabled={isReactivating}
             >
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Återaktivera prenumeration
+              {isReactivating ? (
+                <span className="flex items-center">
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Laddar...
+                </span>
+              ) : (
+                <>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Återaktivera prenumeration
+                </>
+              )}
             </Button>
           ) : (
             <Button 
               onClick={handleCancelSubscription}
               variant="destructive"
               className="flex-1"
-              loading={cancelLoading}
-              disabled={cancelLoading}
+              disabled={isCancelling}
             >
-              <XCircle className="mr-2 h-4 w-4" />
-              Avsluta prenumeration
+              {isCancelling ? (
+                <span className="flex items-center">
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Laddar...
+                </span>
+              ) : (
+                <>
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Avsluta prenumeration
+                </>
+              )}
             </Button>
           )}
         </div>

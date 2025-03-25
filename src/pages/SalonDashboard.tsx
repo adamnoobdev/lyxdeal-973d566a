@@ -104,16 +104,8 @@ export default function SalonDashboard() {
         <DealStatistics salonId={salonData?.id} />
       </div>
 
-      {/* Tabs för att växla mellan olika vyer */}
-      <MainTabs
-        pendingDeals={pendingDeals}
-        approvedDeals={approvedDeals}
-        rejectedDeals={rejectedDeals}
-        onEdit={handleEditDeal}
-        onDelete={handleDeleteDeal}
-        onViewDetails={handleViewDealDetails}
-        onViewDiscountCodes={handleViewDiscountCodes}
-      />
+      {/* MainTabs component without passing props */}
+      <MainTabs />
 
       {/* Dialoger */}
       <DashboardDialogs

@@ -300,32 +300,53 @@ export type Database = {
       salons: {
         Row: {
           address: string | null
+          cancel_at_period_end: boolean | null
           created_at: string
+          current_period_end: string | null
           email: string
           id: number
           name: string
           phone: string | null
           role: string
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_plan: string | null
+          subscription_type: string | null
           user_id: string | null
         }
         Insert: {
           address?: string | null
+          cancel_at_period_end?: boolean | null
           created_at?: string
+          current_period_end?: string | null
           email: string
           id?: number
           name: string
           phone?: string | null
           role?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_plan?: string | null
+          subscription_type?: string | null
           user_id?: string | null
         }
         Update: {
           address?: string | null
+          cancel_at_period_end?: boolean | null
           created_at?: string
+          current_period_end?: string | null
           email?: string
           id?: number
           name?: string
           phone?: string | null
           role?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_plan?: string | null
+          subscription_type?: string | null
           user_id?: string | null
         }
         Relationships: []
