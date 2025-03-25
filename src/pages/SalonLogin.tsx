@@ -26,9 +26,14 @@ export default function SalonLogin() {
         <div className="max-w-md mx-auto">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Salongsinloggning</h1>
-            <p className="text-gray-600">
-              Logga in för att hantera dina erbjudanden
+            <p className="text-gray-600 mb-4">
+              Denna inloggning är endast för salongspartners.
             </p>
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-4">
+              <p className="text-sm text-green-800">
+                Vill du bli salongspartner? <a href="/bli-partner" className="font-medium underline">Registrera dig här</a> och få en gratis provmånad med kod <span className="font-bold">provmanad</span>!
+              </p>
+            </div>
           </div>
 
           <div className="bg-white shadow-sm rounded-lg p-6">
