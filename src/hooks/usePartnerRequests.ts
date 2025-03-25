@@ -79,22 +79,23 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         const responseStatus = functionResponse.status;
         console.log(`Stripe function response status: ${responseStatus}`);
         
-        let responseBody;
+        // Förbättrad hantering av svar från servern
+        let responseText = "";
         try {
-          responseBody = await functionResponse.text();
-          console.log("Raw response from Edge Function:", responseBody);
+          responseText = await functionResponse.text();
+          console.log("Raw response from Edge Function:", responseText);
         } catch (e) {
           console.error("Could not read response body:", e);
         }
         
         if (!functionResponse.ok) {
           console.error("Stripe error from edge function. Status:", responseStatus);
-          console.error("Error response body:", responseBody);
+          console.error("Error response body:", responseText);
           
           // Försök att tolka felmeddelandet för användaren
           let userFriendlyError = "Det gick inte att skapa betalningssessionen";
           try {
-            const errorObj = JSON.parse(responseBody);
+            const errorObj = JSON.parse(responseText);
             if (errorObj.message) {
               userFriendlyError = `Betalningsfel: ${errorObj.message}`;
             } else if (errorObj.error) {
@@ -102,7 +103,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
             }
           } catch (e) {
             // Om det inte går att tolka JSON, använd originaltexten
-            userFriendlyError = `Betalningsfel: ${responseBody.substring(0, 100)}...`;
+            userFriendlyError = `Betalningsfel: ${responseText.substring(0, 100)}...`;
           }
           
           toast.error(userFriendlyError);
@@ -112,7 +113,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         // Försök att tolka svaret som JSON
         let stripeData;
         try {
-          stripeData = JSON.parse(responseBody);
+          stripeData = JSON.parse(responseText);
           console.log("Parsed Stripe checkout session data:", stripeData);
         } catch (e) {
           console.error("Failed to parse JSON response:", e);

@@ -105,8 +105,8 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
         // Redirect to payment page directly
         window.location.href = result.redirectUrl;
         
-        // If for some reason the redirect doesn't occur immediately, show a backup button
-        setTimeout(() => {
+        // Om omdirigering inte sker omedelbart, visa en säkerhetsknapp efter 3 sekunder
+        const timeoutId = setTimeout(() => {
           if (document.visibilityState !== 'hidden') {
             toast.success("Om du inte omdirigeras automatiskt, klicka här", {
               duration: 10000,
@@ -117,6 +117,8 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
             });
           }
         }, 3000);
+        
+        return () => clearTimeout(timeoutId);
       } else {
         // If no payment required (free plan)
         toast.success("Tack för din registrering! Vi kontaktar dig inom kort.");

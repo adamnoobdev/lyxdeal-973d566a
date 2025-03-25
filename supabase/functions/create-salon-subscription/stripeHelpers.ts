@@ -51,6 +51,7 @@ export async function createCheckoutSession(
       console.log("Använder korrekt LIVE Stripe-nyckel");
     }
     
+    // Förbättrad konfiguration av checkout session med fler detaljer
     const sessionParams = {
       payment_method_types: ["card"],
       customer: customer.id,
@@ -82,6 +83,12 @@ export async function createCheckoutSession(
       locale: "sv",
       allow_promotion_codes: true, // Enable promotion codes directly in Stripe UI
       billing_address_collection: "auto",
+      payment_method_collection: "always", // Säkerställ att betalningsmetod alltid samlas in
+      custom_text: {
+        submit: {
+          message: "Vi kommer att skapa ditt salongskonto efter betalningen är genomförd."
+        }
+      }
     };
     
     console.log("Creating Stripe checkout session");
