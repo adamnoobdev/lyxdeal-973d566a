@@ -55,6 +55,9 @@ export async function handleCheckoutCompleted(session: any) {
     const password = generatePassword();
     console.log(`Generated secure password of length: ${password.length}`);
     
+    // Begin transaction - we'll try to create everything in a consistent manner
+    console.log("Beginning account creation process for:", session.metadata.email);
+    
     // Create a new salon account
     console.log("Creating salon account for:", session.metadata.email);
     const userData = await createSalonAccount(supabaseAdmin, session, password);
@@ -120,6 +123,22 @@ export async function handleCheckoutCompleted(session: any) {
       }
       
       console.log("Salon record created successfully:", salonData[0].id);
+      
+      // Verify the salon was actually created and has the right user_id
+      const { data: verifyData, error: verifyError } = await supabaseAdmin
+        .from("salons")
+        .select("*")
+        .eq("user_id", userData.user.id)
+        .single();
+        
+      if (verifyError) {
+        console.error("Error verifying salon creation:", verifyError);
+      } else if (verifyData) {
+        console.log("Salon verification successful:", verifyData.id);
+      } else {
+        console.error("Salon verification failed: No salon found with user_id:", userData.user.id);
+      }
+      
     } catch (salonCreationError) {
       console.error("Exception during salon creation:", salonCreationError);
       console.error("Salon creation error stack:", salonCreationError.stack);
@@ -154,11 +173,29 @@ export async function handleCheckoutCompleted(session: any) {
       // Non-blocking - continue with account creation
     }
     
+    // Check for first login tracking
+    try {
+      console.log("Setting up first login tracking for user:", userData.user.id);
+      const { error: firstLoginError } = await supabaseAdmin
+        .from("salon_user_status")
+        .insert([{ user_id: userData.user.id, first_login: true }]);
+        
+      if (firstLoginError) {
+        console.error("Error setting first login status:", firstLoginError);
+      } else {
+        console.log("First login status set successfully");
+      }
+    } catch (firstLoginError) {
+      console.error("Exception setting first login status:", firstLoginError);
+      // Non-blocking - continue with account creation
+    }
+    
     return { 
       success: true, 
       userId: userData.user.id,
       salonCreated: true,
-      emailSent: emailResult?.success || false
+      emailSent: emailResult?.success || false,
+      email: session.metadata.email
     };
   } catch (error) {
     console.error("Critical error in handleCheckoutCompleted:", error);

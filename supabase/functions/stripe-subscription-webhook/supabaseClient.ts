@@ -18,10 +18,30 @@ export const getSupabaseAdmin = () => {
   
   console.log(`Creating Supabase admin client with URL: ${supabaseUrl}`);
   
-  return createClient(supabaseUrl, supabaseServiceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false
+  try {
+    // Create the Supabase client with explicit auth settings
+    const client = createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        debug: true
+      },
+      global: {
+        headers: {
+          'x-client-info': 'stripe-webhook'
+        }
+      }
+    });
+    
+    // Verify the client was created correctly
+    if (!client) {
+      throw new Error("Failed to create Supabase client");
     }
-  });
+    
+    console.log("Supabase admin client created successfully");
+    return client;
+  } catch (error) {
+    console.error("Error creating Supabase client:", error);
+    throw new Error(`Failed to create Supabase client: ${error.message}`);
+  }
 };

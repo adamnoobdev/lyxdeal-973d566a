@@ -1,113 +1,177 @@
 
+import { Resend } from "https://esm.sh/resend@1.1.0";
+
 export async function sendWelcomeEmail(session: any, password: string, subscription: any) {
   try {
-    if (!session || !session.metadata || !session.metadata.email) {
-      console.error("Missing required session data for email:", JSON.stringify(session || {}, null, 2));
-      return { success: false, error: "Missing required session data" };
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    
+    if (!resendApiKey) {
+      console.error("RESEND_API_KEY is not configured in environment");
+      return { success: false, error: "Email service API key not configured" };
     }
     
-    if (!password) {
-      console.error("Missing required password for welcome email");
-      return { success: false, error: "Missing required password" };
+    if (!session.metadata || !session.metadata.email || !session.metadata.business_name) {
+      console.error("Missing required metadata for email:", JSON.stringify(session.metadata || {}, null, 2));
+      return { success: false, error: "Missing required metadata for email" };
     }
     
-    console.log("Sending welcome email to:", session.metadata.email);
-    console.log("Data to be sent:", {
-      email: session.metadata.email,
-      business_name: session.metadata.business_name,
-      passwordLength: password ? password.length : 0,
-      hasSubscription: Boolean(subscription)
+    console.log(`Preparing to send welcome email to ${session.metadata.email}`);
+    
+    const resend = new Resend(resendApiKey);
+    
+    // Format the current date as day month year
+    const formattedDate = new Date().toLocaleDateString('sv-SE');
+    
+    // Determine subscription end date if available
+    let subscriptionEndDate = "Not available";
+    if (subscription && subscription.current_period_end) {
+      subscriptionEndDate = new Date(subscription.current_period_end * 1000).toLocaleDateString('sv-SE');
+    }
+    
+    // Format subscription details
+    const planTitle = session.metadata.plan_title || "Standard";
+    const planType = session.metadata.plan_type === 'yearly' ? 'Årsvis' : 'Månadsvis';
+    
+    // Create the email HTML
+    const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Välkommen till Lyxdeal!</title>
+      <style>
+        body { 
+          font-family: Arial, sans-serif; 
+          line-height: 1.6;
+          color: #333;
+          margin: 0;
+          padding: 0;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background-color: #6366f1;
+          color: white;
+          padding: 20px;
+          text-align: center;
+        }
+        .content {
+          padding: 20px;
+          background-color: #f9fafb;
+        }
+        .details {
+          background-color: white;
+          padding: 15px;
+          border-radius: 5px;
+          margin: 20px 0;
+          border: 1px solid #eee;
+        }
+        .button {
+          display: inline-block;
+          background-color: #6366f1;
+          color: white !important;
+          text-decoration: none;
+          padding: 10px 20px;
+          border-radius: 5px;
+          margin-top: 15px;
+          font-weight: bold;
+        }
+        .footer {
+          margin-top: 20px;
+          text-align: center;
+          font-size: 12px;
+          color: #666;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Välkommen till Lyxdeal!</h1>
+        </div>
+        <div class="content">
+          <p>Hej ${session.metadata.business_name}!</p>
+          
+          <p>Tack för att du registrerade dig hos oss. Ditt konto har skapats och du kan nu börja använda vår plattform.</p>
+          
+          <div class="details">
+            <h3>Dina inloggningsuppgifter:</h3>
+            <p><strong>E-post:</strong> ${session.metadata.email}</p>
+            <p><strong>Lösenord:</strong> ${password}</p>
+            <p><small>För din säkerhet, vänligen ändra ditt lösenord vid första inloggningen.</small></p>
+          </div>
+          
+          <div class="details">
+            <h3>Din prenumeration:</h3>
+            <p><strong>Plan:</strong> ${planTitle}</p>
+            <p><strong>Betalningstyp:</strong> ${planType}</p>
+            <p><strong>Startdatum:</strong> ${formattedDate}</p>
+            <p><strong>Nästa betalning:</strong> ${subscriptionEndDate}</p>
+          </div>
+          
+          <p>För att komma igång, klicka på knappen nedan för att logga in på vår plattform:</p>
+          
+          <a href="https://lyxdeal.se/salon/login" class="button">Logga in nu</a>
+          
+          <p>Om du har några frågor eller behöver hjälp, kontakta oss på <a href="mailto:info@lyxdeal.se">info@lyxdeal.se</a>.</p>
+          
+          <p>Med vänliga hälsningar,<br>Lyxdeal-teamet</p>
+        </div>
+        <div class="footer">
+          <p>Detta är ett automatiskt meddelande, vänligen svara inte på detta e-postmeddelande.</p>
+          <p>&copy; 2023 Lyxdeal. Alla rättigheter förbehållna.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+    `;
+    
+    console.log("Sending email with Resend API...");
+    
+    // Set production mode flag for testing/debugging
+    const isProduction = true;
+    
+    // Determine the recipient email based on production mode
+    let recipientEmail = session.metadata.email;
+    
+    // Log email details before sending
+    console.log(`Sending welcome email: 
+      From: Lyxdeal <noreply@lyxdeal.se>
+      To: ${recipientEmail}
+      Subject: Välkommen till Lyxdeal - Din salonginformation
+      Production mode: ${isProduction ? 'Yes' : 'No'}
+    `);
+    
+    const emailResponse = await resend.emails.send({
+      from: "Lyxdeal <noreply@lyxdeal.se>",
+      to: [recipientEmail],
+      subject: "Välkommen till Lyxdeal - Din salonginformation",
+      html: emailHtml,
     });
     
-    // Get the Supabase URL and anon key from environment variables
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    console.log("Email response from Resend:", emailResponse);
     
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.error("Missing Supabase URL or anon key in environment variables");
-      return { success: false, error: "Missing Supabase configuration" };
-    }
-    
-    // Prepare the payload with all required data
-    const emailPayload = {
-      email: session.metadata.email,
-      business_name: session.metadata.business_name,
-      temporary_password: password,
-      subscription_info: {
-        plan: session.metadata.plan_title || "Standardplan",
-        type: session.metadata.plan_payment_type || "monthly",
-        start_date: new Date().toISOString(),
-        next_billing_date: subscription?.current_period_end 
-          ? new Date(subscription.current_period_end * 1000).toISOString() 
-          : null
-      }
-    };
-    
-    console.log("Calling send-salon-welcome edge function with payload:", JSON.stringify(emailPayload, null, 2));
-    
-    // Call the send-salon-welcome edge function
-    try {
-      const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-salon-welcome`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${supabaseAnonKey}`,
-        },
-        body: JSON.stringify(emailPayload),
-      });
-      
-      // Log the complete response for debugging
-      const emailResponseStatus = emailResponse.status;
-      console.log(`Welcome email API response status: ${emailResponseStatus}`);
-      
-      // Get response text
-      let emailResponseText;
-      try {
-        emailResponseText = await emailResponse.text();
-        console.log(`Welcome email API response: ${emailResponseText}`);
-      } catch (textError) {
-        console.error("Error getting response text:", textError);
-        return { success: false, error: "Failed to read email response" };
-      }
-      
-      // Try to parse the response as JSON if possible
-      let emailResponseData;
-      try {
-        emailResponseData = JSON.parse(emailResponseText);
-      } catch (parseError) {
-        console.error("Error parsing email response:", parseError);
-        // Continue without parsed data
-      }
-      
-      if (!emailResponse.ok) {
-        console.error("Email API error:", emailResponseData || emailResponseText);
-        return { 
-          success: false, 
-          error: `Failed to send welcome email: ${emailResponseText}`,
-          status: emailResponseStatus
-        };
-      }
-      
-      console.log("Welcome email sent successfully");
+    if (emailResponse.error) {
+      console.error("Resend API error:", emailResponse.error);
       return { 
-        success: true, 
-        message: "Welcome email sent successfully",
-        data: emailResponseData
+        success: false, 
+        error: `Email service error: ${emailResponse.error}`,
+        raw: emailResponse
       };
-    } catch (fetchError) {
-      console.error("Fetch error sending welcome email:", fetchError);
-      console.error("Fetch error message:", fetchError.message);
-      console.error("Fetch error stack:", fetchError.stack);
-      return { success: false, error: `Fetch error: ${fetchError.message}` };
     }
-  } catch (emailError) {
-    console.error("Error sending welcome email:", emailError);
-    console.error("Email error stack:", emailError.stack);
-    // Non-blocking error - log but don't throw
+    
     return { 
-      success: false, 
-      error: emailError.message, 
-      timestamp: new Date().toISOString()
+      success: true, 
+      messageId: emailResponse.id,
+      productionMode: isProduction,
+      recipient: recipientEmail
     };
+  } catch (error) {
+    console.error("Exception in sendWelcomeEmail:", error);
+    console.error("Error stack:", error.stack);
+    return { success: false, error: `Exception: ${error.message}` };
   }
 }

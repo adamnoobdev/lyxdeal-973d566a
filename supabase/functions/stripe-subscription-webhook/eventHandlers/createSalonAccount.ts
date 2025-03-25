@@ -1,98 +1,80 @@
 
 export async function createSalonAccount(supabaseAdmin: any, session: any, password: string) {
-  if (!password || password.length < 8) {
-    console.error("Invalid password provided:", password ? password.length : 0);
-    throw new Error("Invalid password: Password must be at least 8 characters");
+  if (!session.metadata || !session.metadata.email) {
+    console.error("Missing email in session metadata");
+    throw new Error("Email is required for account creation");
   }
 
-  if (!session?.metadata?.email) {
-    console.error("Missing email in session metadata:", session?.metadata);
-    throw new Error("Missing email in session metadata");
-  }
-
-  console.log("Creating user account for:", session.metadata.email);
-  console.log("Password length:", password.length);
-  
   try {
-    // Check if user already exists to avoid duplicates
-    console.log("Checking if user already exists...");
-    const { data: existingUser, error: userCheckError } = await supabaseAdmin.auth.admin.getUserByEmail(
-      session.metadata.email
-    );
+    console.log(`Creating salon account for email: ${session.metadata.email}`);
     
-    if (userCheckError) {
-      console.error("Error checking for existing user:", userCheckError);
-      console.error("Error message:", userCheckError.message);
-      throw new Error(`Error checking for existing user: ${userCheckError.message}`);
+    // First check if the user already exists
+    const { data: existingUsers, error: findError } = await supabaseAdmin.auth.admin
+      .listUsers({
+        filter: {
+          email: session.metadata.email
+        }
+      });
+      
+    if (findError) {
+      console.error("Error checking for existing account:", findError);
+      throw new Error(`Failed to check existing account: ${findError.message}`);
     }
     
-    if (existingUser?.user) {
-      console.log("User already exists with email:", session.metadata.email);
-      console.log("User ID:", existingUser.user.id);
-      return { user: existingUser.user };
+    // If user already exists, return it
+    if (existingUsers && existingUsers.users && existingUsers.users.length > 0) {
+      console.log(`User already exists with email ${session.metadata.email}, id: ${existingUsers.users[0].id}`);
+      
+      // Update the user's password for security
+      try {
+        const { data: updatedUser, error: updateError } = await supabaseAdmin.auth.admin
+          .updateUserById(existingUsers.users[0].id, {
+            password: password,
+            email_confirm: true
+          });
+          
+        if (updateError) {
+          console.error("Error updating existing user password:", updateError);
+        } else {
+          console.log("Updated existing user password successfully");
+        }
+      } catch (passwordError) {
+        console.error("Exception updating existing user password:", passwordError);
+      }
+      
+      return { user: existingUsers.users[0], isExisting: true };
     }
     
-    // Create new user - with improved error handling
-    console.log("No existing user found, creating new user account");
-    console.log("Account details:", {
+    // Create a new user
+    console.log(`Creating new user for email: ${session.metadata.email}`);
+    
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email: session.metadata.email,
-      passwordLength: password.length,
-      metadata: {
+      password: password,
+      email_confirm: true, // Skip email verification
+      app_metadata: {
+        role: 'salon_owner'
+      },
+      user_metadata: {
         business_name: session.metadata.business_name,
-        plan_title: session.metadata.plan_title,
-        plan_type: session.metadata.plan_type
+        subscription_plan: session.metadata.plan_title || "Standard"
       }
     });
     
-    try {
-      const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
-        email: session.metadata.email,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          business_name: session.metadata.business_name,
-          plan_title: session.metadata.plan_title,
-          plan_type: session.metadata.plan_type
-        }
-      });
-
-      if (userError) {
-        console.error("Error creating user:", userError);
-        console.error("Error message:", userError.message);
-        console.error("Error status:", userError.status);
-        throw new Error(`Failed to create user account: ${userError.message}`);
-      }
-      
-      if (!userData || !userData.user) {
-        console.error("No user data returned after account creation");
-        throw new Error("Failed to create user: No user data returned");
-      }
-      
-      console.log("User created successfully with ID:", userData.user.id);
-      
-      // Create user status record for first login tracking
-      console.log("Creating user status record for first login tracking");
-      const { error: statusError } = await supabaseAdmin
-        .from("salon_user_status")
-        .insert([{ 
-          user_id: userData.user.id,
-          first_login: true
-        }]);
-        
-      if (statusError) {
-        console.warn("Failed to create user status record:", statusError);
-        console.warn("Status error message:", statusError.message);
-        // Non-blocking - continue with user creation
-      } else {
-        console.log("User status record created successfully");
-      }
-      
-      return userData;
-    } catch (createError) {
-      console.error("Exception in createUser call:", createError);
-      console.error("Create user error stack:", createError.stack);
-      throw createError;
+    if (error) {
+      console.error("Error creating user:", error);
+      console.error("Error message:", error.message);
+      throw new Error(`Failed to create user: ${error.message}`);
     }
+    
+    if (!data || !data.user) {
+      console.error("No user data returned from createUser");
+      throw new Error("Failed to create user: No user data returned");
+    }
+    
+    console.log(`Successfully created user with id: ${data.user.id}`);
+    
+    return data;
   } catch (error) {
     console.error("Exception in createSalonAccount:", error);
     console.error("Error stack:", error.stack);

@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { CheckCircle, AlertTriangle, RefreshCw } from "lucide-react";
+import { CheckCircle, AlertTriangle, RefreshCw, Loader2, MoveRight } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet";
 import { toast } from "sonner";
+import { separator } from "@/components/ui/separator";
 
 export default function SubscriptionSuccess() {
   const [searchParams] = useSearchParams();
@@ -18,18 +19,32 @@ export default function SubscriptionSuccess() {
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
   const [salonAccount, setSalonAccount] = useState<any>(null);
+  const [timeElapsed, setTimeElapsed] = useState(0);
 
   const sessionId = searchParams.get("session_id");
+  const maxRetries = 20; // Allow more retries
+  const retryDelay = 3000; // 3 seconds between retries
 
   const manualRetry = () => {
     setIsRetrying(true);
     setRetryCount(prev => prev + 1);
+    toast.info("Kontrollerar kontostatus...");
   };
+
+  // Start a timer to show time elapsed since page load
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeElapsed(prev => prev + 1);
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
 
   // Hämta information om köpet från partner_requests
   useEffect(() => {
     const fetchPurchaseDetails = async () => {
       if (!sessionId) {
+        console.warn("No session ID found in URL");
         setError("Inget sessionID hittades");
         setLoading(false);
         return;
@@ -39,16 +54,16 @@ export default function SubscriptionSuccess() {
         console.log("Fetching purchase details for session:", sessionId);
         console.log("Retry count:", retryCount);
         
-        // Hämta partnerförfrågan som är associerad med detta köp
+        // Try to find the most recent partner request that's been approved
         const { data: partnerRequests, error: partnerError } = await supabase
           .from("partner_requests")
           .select("*")
           .eq("status", "approved")
           .order("created_at", { ascending: false })
-          .limit(5);
+          .limit(10);
 
         if (partnerError) {
-          console.error("Fel vid hämtning av partnerförfrågan:", partnerError);
+          console.error("Error fetching partner requests:", partnerError);
           throw partnerError;
         }
 
@@ -58,51 +73,58 @@ export default function SubscriptionSuccess() {
           // Find the most recently approved partner request
           const mostRecent = partnerRequests[0];
           setPurchaseDetails(mostRecent);
-          console.log("Hittade partnerförfrågan:", mostRecent);
+          console.log("Found partner request:", mostRecent);
           
           // Check if a salon account exists for this email
           if (mostRecent.email) {
             console.log("Checking for salon account with email:", mostRecent.email);
+            
+            // Try to find a matching salon with the email
             const { data: salonData, error: salonError } = await supabase
               .from("salons")
               .select("*")
               .eq("email", mostRecent.email)
-              .maybeSingle();
+              .limit(1);
               
-            if (salonError && !salonError.message.includes("No rows found")) {
+            if (salonError) {
               console.error("Error checking salon account:", salonError);
-            } else if (salonData) {
-              console.log("Found salon account:", salonData.id);
-              setSalonAccount(salonData);
+            } else if (salonData && salonData.length > 0) {
+              console.log("Found salon account:", salonData[0].id);
+              setSalonAccount(salonData[0]);
               toast.success("Ditt salongskonto har skapats!");
             } else {
-              console.log("No salon account found yet");
-              if (retryCount < 10) {
-                // Schedule another retry
+              console.log("No salon account found yet with email:", mostRecent.email);
+              
+              // If we haven't found a salon yet and haven't exceeded max retries, try again
+              if (retryCount < maxRetries) {
                 const timer = setTimeout(() => {
                   setRetryCount(prev => prev + 1);
-                }, 3000); // Retry every 3 seconds
+                  setIsRetrying(false);
+                }, retryDelay);
                 return () => clearTimeout(timer);
               } else {
-                toast.info("Kunde inte hitta ditt salongskonto ännu. Det kan ta några minuter innan det skapas.");
+                console.warn("Max retries reached, still no salon account found");
+                toast.error("Kunde inte hitta ditt salongskonto efter flera försök. Vänligen kontakta kundtjänst.");
               }
             }
           }
         } else {
-          console.log("Inga godkända partnerförfrågningar hittades. Retry count:", retryCount);
-          // Om vi inte har någon godkänd förfrågan ännu och är under max försök, försök igen
-          if (retryCount < 10) {
+          console.log("No approved partner requests found. Retry count:", retryCount);
+          
+          // If we don't have any approved requests yet and haven't exceeded max retries, try again
+          if (retryCount < maxRetries / 2) { // Use fewer retries for this initial check
             const timer = setTimeout(() => {
               setRetryCount(prev => prev + 1);
-            }, 3000); // Vänta 3 sekunder mellan försök
+              setIsRetrying(false);
+            }, retryDelay);
             return () => clearTimeout(timer);
           } else {
-            // Efter max försök, fortsätt ändå men visa info om att detaljerna inte kunde hämtas
+            // After max retries, continue anyway but show info that details couldn't be retrieved
             toast.info("Kunde inte hämta alla detaljer om din prenumeration, men din betalning har gått igenom.");
           }
         }
       } catch (err) {
-        console.error("Fel vid hämtning av köpdetaljer:", err);
+        console.error("Error fetching purchase details:", err);
         setError("Kunde inte hämta detaljer om din prenumeration");
       } finally {
         setLoading(false);
@@ -110,8 +132,10 @@ export default function SubscriptionSuccess() {
       }
     };
 
-    fetchPurchaseDetails();
-  }, [sessionId, retryCount]);
+    if (loading || isRetrying || (retryCount > 0 && !salonAccount)) {
+      fetchPurchaseDetails();
+    }
+  }, [sessionId, retryCount, loading, isRetrying, salonAccount]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('sv-SE');
@@ -150,6 +174,7 @@ export default function SubscriptionSuccess() {
         
         {salonAccount ? (
           <Alert className="mt-4 bg-green-50 border-green-200">
+            <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertTitle className="text-green-800">Konto skapat!</AlertTitle>
             <AlertDescription className="text-green-700">
               Ditt salongskonto har skapats framgångsrikt. Du kan nu logga in med den e-post och det lösenord som skickats till din e-postadress.
@@ -163,7 +188,8 @@ export default function SubscriptionSuccess() {
                 Kontoskapande pågår
               </AlertTitle>
               <AlertDescription className="text-yellow-700">
-                Ditt konto håller på att skapas. Detta kan ta upp till några minuter. Du kommer att få ett e-postmeddelande med inloggningsuppgifter.
+                <p>Ditt konto håller på att skapas. Detta kan ta upp till några minuter. Du kommer att få ett e-postmeddelande med inloggningsuppgifter.</p>
+                <p className="mt-1 text-xs">Tid som passerat: {timeElapsed} sekunder</p>
               </AlertDescription>
             </Alert>
             
@@ -176,7 +202,7 @@ export default function SubscriptionSuccess() {
               >
                 {isRetrying ? (
                   <>
-                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Kontrollerar...
                   </>
                 ) : (
@@ -235,7 +261,7 @@ export default function SubscriptionSuccess() {
               {loading ? (
                 <div className="py-4 text-center">
                   <div className="flex justify-center mb-2">
-                    <RefreshCw className="h-8 w-8 text-purple-500 animate-spin" />
+                    <Loader2 className="h-8 w-8 text-purple-500 animate-spin" />
                   </div>
                   <p className="text-sm text-gray-500">Hämtar prenumerationsdetaljer...</p>
                 </div>
@@ -248,9 +274,10 @@ export default function SubscriptionSuccess() {
           <CardFooter className="flex flex-col space-y-2 pt-2">
             <Button 
               onClick={() => navigate("/salon/login")}
-              className="w-full"
+              className="w-full flex items-center justify-center gap-2"
             >
-              Gå till inloggning
+              <span>Gå till inloggning</span>
+              <MoveRight className="h-4 w-4" />
             </Button>
             
             <Button 
