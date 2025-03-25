@@ -38,22 +38,16 @@ export async function handleWebhookEvent(signature: string, payload: string) {
       console.log("Payload size:", payload.length, "bytes");
       console.log("Signature first 20 chars:", signature.substring(0, 20) + "...");
       
-      // VIKTIGT: Acceptera alla Stripe-signaturer oavsett format eller validering
-      // Detta är en tillfällig lösning för att lösa JWT-problemet
       try {
         event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
         console.log("Signature verified successfully");
       } catch (err) {
-        console.warn("Stripe signature verification failed, but proceeding anyway:", err.message);
-        console.log("Attempting to parse event directly from payload");
-        
-        try {
-          event = JSON.parse(payload);
-          console.log("Successfully parsed event from payload");
-        } catch (parseErr) {
-          console.error("Failed to parse payload as JSON:", parseErr);
-          throw new Error("Failed to parse webhook payload");
-        }
+        console.error("Stripe signature verification failed:", err.message);
+        return {
+          error: "Signature verification failed",
+          details: err.message,
+          suggestion: "Verify that the correct webhook secret is configured"
+        };
       }
       
       console.log("Event type:", event.type);

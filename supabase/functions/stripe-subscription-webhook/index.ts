@@ -27,6 +27,19 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
   
+  // Verifiera att vi använder live-miljö i produktion
+  try {
+    const stripeClient = getStripeClient();
+    if (!stripeClient.apiKey.startsWith("sk_live")) {
+      console.error("VARNING: Använder TEST-nyckel i produktionsmiljö!");
+      console.error("Nyckeltyp:", stripeClient.apiKey.startsWith("sk_test") ? "TEST" : "ANNAN");
+    } else {
+      console.log("Använder korrekt LIVE Stripe-nyckel");
+    }
+  } catch (e) {
+    console.error("Kunde inte verifiera Stripe-nyckel:", e.message);
+  }
+  
   // Lägg till en special path för att testa om webhook-endpointen fungerar
   const url = new URL(req.url);
   if (url.pathname.endsWith("/test")) {
@@ -39,7 +52,8 @@ serve(async (req) => {
           message: "Webhook test endpoint reached successfully", 
           webhook_config: webhookConfig,
           timestamp: new Date().toISOString(),
-          webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET")
+          webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET"),
+          environment: webhookConfig.environment || "UNKNOWN"
         }),
         { 
           status: 200, 
@@ -71,14 +85,15 @@ serve(async (req) => {
     console.log("Stripe signature present:", !!signature, signature ? signature.substring(0, 20) + "..." : "none");
     console.log("Auth header present:", !!authHeader, authHeader ? authHeader.substring(0, 15) + "..." : "none");
     
-    // VIKTIGT: För Stripe webhook-anrop, acceptera ALLA anrop som har Stripe-signatur
-    // Detta är nyckeln till att lösa problemet med JWT-validering
+    // För Stripe webhook-anrop, verifiera signatur
     if (signature) {
       console.log("Processing request with Stripe signature");
-      console.log("Full signature for debug:", signature);
       
-      // För Stripe webhooks behöver vi inte validera mer än att signaturen finns
-      // Den verkliga valideringen sker i handleWebhookEvent med constructEvent
+      // Kontrollera signaturens format
+      if (!validateStripeWebhook(signature)) {
+        console.error("Invalid Stripe signature format");
+        return handleUnauthorized(headersMap);
+      }
       
       // Få raw request body som text
       const payload = await req.text();
@@ -111,7 +126,8 @@ serve(async (req) => {
         JSON.stringify({ 
           message: "API endpoint running - use Stripe webhooks to trigger events", 
           timestamp: new Date().toISOString(),
-          webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET")
+          webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET"),
+          environment: getStripeClient().apiKey.startsWith("sk_live") ? "LIVE" : "TEST"
         }),
         { 
           status: 200, 

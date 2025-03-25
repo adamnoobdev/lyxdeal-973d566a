@@ -61,8 +61,13 @@ serve(async (req) => {
       );
     }
     
-    // Logga vilken typ av nyckel som används (live eller test)
-    console.log("Using Stripe key type:", stripeSecretKey.startsWith("sk_live") ? "LIVE" : "TEST");
+    // Verifiera att live-nycklar används i produktionsmiljö
+    if (!stripeSecretKey.startsWith("sk_live")) {
+      console.error("VARNING: Använder TEST-nyckel i produktionsmiljö!");
+      console.error("Nyckeltyp:", stripeSecretKey.startsWith("sk_test") ? "TEST" : "ANNAN");
+    } else {
+      console.log("Använder korrekt LIVE Stripe-nyckel");
+    }
     
     // Kontrollera att webhook-hemligheten finns
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");

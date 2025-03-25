@@ -44,6 +44,13 @@ export async function createCheckoutSession(
   origin: string
 ) {
   try {
+    // Verifiera att live-miljö används i produktion
+    if (!stripe.apiKey.startsWith("sk_live")) {
+      console.warn("VARNING: Använder TEST-nyckel för Stripe i produktionsmiljö!");
+    } else {
+      console.log("Använder korrekt LIVE Stripe-nyckel");
+    }
+    
     const sessionParams = {
       payment_method_types: ["card"],
       customer: customer.id,
@@ -110,6 +117,12 @@ export async function createCheckoutSession(
 export async function setupPromoCode(stripe: Stripe) {
   try {
     console.log("Checking for existing promo code");
+    
+    // Verifiera att live-miljö används i produktion
+    if (!stripe.apiKey.startsWith("sk_live")) {
+      console.warn("VARNING: Använder TEST-nyckel för Stripe i produktionsmiljö!");
+    }
+    
     // Check if the promotion code already exists
     const existingPromoCodes = await stripe.promotionCodes.list({
       code: 'provmanad',

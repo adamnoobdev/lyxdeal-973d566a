@@ -28,7 +28,7 @@ export async function getStripeWebhookSecret() {
   
   console.log("Attempting to get webhook secret");
   
-  // First try from environment variable (preferred)
+  // Try from environment variable (preferred)
   try {
     const envSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
     if (envSecret) {
@@ -43,16 +43,6 @@ export async function getStripeWebhookSecret() {
   }
   
   console.log("No webhook secret found in environment variables");
-  
-  // Fallback till hårdkodad värde om det finns i miljön
-  // VIKTIGT: Detta används bara för test och utveckling, i produktion ska detta tas bort
-  const hardcodedSecret = "we_1R6W1ZAnoE4OXImFAtTyeJLn";
-  if (hardcodedSecret) {
-    console.log("Using hardcoded webhook secret (dev mode only!)");
-    cachedWebhookSecret = hardcodedSecret;
-    return hardcodedSecret;
-  }
-  
-  console.error("Could not find webhook secret anywhere!");
+  console.error("KRITISKT FEL: Webhook-hemlighet saknas i live-miljön!");
   return null;
 }

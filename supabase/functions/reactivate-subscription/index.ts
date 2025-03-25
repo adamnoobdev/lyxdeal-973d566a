@@ -16,8 +16,11 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Reactivate subscription request received", new Date().toISOString());
+    
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
+      console.error("STRIPE_SECRET_KEY is not configured");
       return new Response(
         JSON.stringify({ error: "Stripe API key is not configured" }),
         {
@@ -25,6 +28,14 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
+    }
+    
+    // Verifiera att live-nycklar används i produktionsmiljö
+    if (!stripeKey.startsWith("sk_live")) {
+      console.error("VARNING: Använder TEST-nyckel i produktionsmiljö!");
+      console.error("Nyckeltyp:", stripeKey.startsWith("sk_test") ? "TEST" : "ANNAN");
+    } else {
+      console.log("Använder korrekt LIVE Stripe-nyckel");
     }
 
     const stripe = new Stripe(stripeKey, {
@@ -75,7 +86,8 @@ serve(async (req) => {
         success: true, 
         subscription_id: subscription.id,
         current_period_end: subscription.current_period_end,
-        cancel_at_period_end: subscription.cancel_at_period_end
+        cancel_at_period_end: subscription.cancel_at_period_end,
+        environment: stripeKey.startsWith("sk_live") ? "LIVE" : "TEST"
       }),
       {
         status: 200,

@@ -11,12 +11,19 @@ export function getStripeClient(): Stripe {
 
   const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
   if (!stripeSecretKey) {
-    console.error("CRITICAL ERROR: STRIPE_SECRET_KEY is not configured");
+    console.error("KRITISKT FEL: STRIPE_SECRET_KEY är inte konfigurerad i live-miljön");
     throw new Error("STRIPE_SECRET_KEY is not configured");
   }
   
   console.log("Initializing new Stripe client");
-  console.log("Using key type:", stripeSecretKey.startsWith("sk_live") ? "LIVE" : "TEST");
+  
+  // Verifiera att live-nycklar används i produktionsmiljö
+  if (!stripeSecretKey.startsWith("sk_live")) {
+    console.error("VARNING: Använder TEST-nyckel i produktionsmiljö!");
+    console.error("Nyckeltyp:", stripeSecretKey.startsWith("sk_test") ? "TEST" : "ANNAN");
+  } else {
+    console.log("Använder korrekt LIVE Stripe-nyckel");
+  }
   
   try {
     stripeInstance = new Stripe(stripeSecretKey, {
@@ -74,12 +81,18 @@ export async function verifyWebhookConfiguration() {
     
     const hasCheckoutEvent = subscriptionWebhook.enabled_events.includes('checkout.session.completed');
     if (!hasCheckoutEvent) {
-      console.warn("Warning: Webhook is missing checkout.session.completed event");
+      console.warn("VARNING: Webhook saknar checkout.session.completed event!");
     }
     
     // Verifiera att webhook secret finns konfigurerat
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
     const secretConfigured = !!webhookSecret;
+    
+    if (!secretConfigured) {
+      console.error("KRITISKT FEL: STRIPE_WEBHOOK_SECRET är inte konfigurerad i live-miljön");
+    } else {
+      console.log("STRIPE_WEBHOOK_SECRET är korrekt konfigurerad");
+    }
     
     return {
       id: subscriptionWebhook.id,
@@ -87,6 +100,7 @@ export async function verifyWebhookConfiguration() {
       status: subscriptionWebhook.status,
       eventsConfigured: hasCheckoutEvent,
       secretConfigured: secretConfigured,
+      environment: stripeInstance?.apiKey.startsWith("sk_live") ? "LIVE" : "TEST",
       suggestions: !hasCheckoutEvent ? ["Add 'checkout.session.completed' to enabled events"] : 
                    !secretConfigured ? ["Configure STRIPE_WEBHOOK_SECRET in Edge Function settings"] : []
     };

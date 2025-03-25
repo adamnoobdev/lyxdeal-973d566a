@@ -70,7 +70,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${anonKey}`,
               "apikey": anonKey,
-              "x-client-info": `web/1.0/partner-signup/${data.plan_title || 'standard'}` // Förbättrad spårning
+              "x-client-info": `web/1.0/partner-signup/${data.plan_title || 'standard'}`
             },
             body: JSON.stringify(functionPayload)
           }
