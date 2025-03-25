@@ -59,14 +59,19 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         
         console.log("Creating Stripe checkout session with payload:", functionPayload);
         
-        // Säkerställ att vi inkluderar anon API key som Authorization-header
+        // VIKTIGT: Explicit ange både Authorization-header OCH API-nyckel som båda innehåller samma värde
+        // Detta ger större chans att minst en av dem går igenom eventuella proxys och middlewares
+        const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs";
+        
         const functionResponse = await fetch(
           "https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/create-salon-subscription",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs`
+              "Authorization": `Bearer ${anonKey}`,
+              "apikey": anonKey, // Lägg till apikey också som fallback
+              "x-client-info": `web/1.0` // Lägg till klientinfo för bättre loggning
             },
             body: JSON.stringify(functionPayload)
           }
@@ -75,14 +80,27 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         if (!functionResponse.ok) {
           const stripeErrorText = await functionResponse.text();
           console.error("Stripe error from edge function:", stripeErrorText);
-          throw new Error(`Failed to create payment session: ${stripeErrorText}`);
+          
+          // Försök att tolka felmeddelandet för användaren
+          let userFriendlyError = "Det gick inte att skapa betalningssessionen";
+          try {
+            const errorObj = JSON.parse(stripeErrorText);
+            if (errorObj.message) {
+              userFriendlyError = `Betalningsfel: ${errorObj.message}`;
+            }
+          } catch (e) {
+            // Om det inte går att tolka JSON, använd originaltexten
+            userFriendlyError = `Betalningsfel: ${stripeErrorText.substring(0, 100)}...`;
+          }
+          
+          throw new Error(userFriendlyError);
         }
         
         const stripeData = await functionResponse.json();
         console.log("Received Stripe checkout session data:", stripeData);
         
         if (!stripeData || !stripeData.url) {
-          throw new Error('No checkout URL returned from payment provider');
+          throw new Error('Ingen betalnings-URL returnerades från betalningsleverantören');
         }
         
         // Return success with redirect URL
@@ -92,6 +110,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         };
       } catch (stripeError) {
         console.error("Error creating Stripe checkout:", stripeError);
+        toast.error("Kunde inte skapa betalningssession. Försök igen senare eller kontakta support.");
         throw stripeError;
       }
     }
