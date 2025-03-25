@@ -7,6 +7,8 @@ import { ManageSubscription } from "@/components/salon/ManageSubscription";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
+import { useSalonDeals } from "@/hooks/salon-deals";
+import { Deal } from "@/types/deal";
 
 export function MainTabs() {
   const { session } = useSession();
@@ -51,6 +53,12 @@ export function MainTabs() {
     }
   };
 
+  // Get deals for the salon
+  const salonId = salonData?.id;
+  
+  // Default empty state for deals
+  const emptyDeals: Deal[] = [];
+
   return (
     <Tabs defaultValue="deals" className="w-full">
       <TabsList className="grid grid-cols-4 w-full max-w-2xl mb-8">
@@ -63,7 +71,7 @@ export function MainTabs() {
       <TabsContent value="deals" className="space-y-6">
         <DealsSection 
           title="Dina erbjudanden"
-          deals={[]} 
+          deals={emptyDeals} 
           onEdit={() => {}} 
           onDelete={() => {}}
         />

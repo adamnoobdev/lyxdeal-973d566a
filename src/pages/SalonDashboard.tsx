@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 import { Deal } from "@/types/deal";
 import { useNavigate } from "react-router-dom";
 import { useSalonDeals } from "@/hooks/salon-deals";
-import { FormValues } from "@/components/deal-form/schema";
 import { useFirstLogin } from "@/hooks/useFirstLogin";
 import { DealStatistics } from "@/components/salon/DealStatistics";
 import { DashboardHeader } from "@/components/salon/dashboard/Header";
@@ -56,12 +55,12 @@ export default function SalonDashboard() {
     }
   }, [isFirstLogin, checkingFirstLogin]);
 
-  const handleCreate = async (values: FormValues): Promise<void> => {
+  const handleCreate = async (values: any): Promise<void> => {
     await createDeal(values);
     setIsCreateDialogOpen(false);
   };
 
-  const handleUpdate = async (values: FormValues): Promise<void> => {
+  const handleUpdate = async (values: any): Promise<void> => {
     if (editingDeal) {
       await updateDeal(values, editingDeal.id);
       setEditingDeal(null);
@@ -104,7 +103,7 @@ export default function SalonDashboard() {
         <DealStatistics salonId={salonData?.id} />
       </div>
 
-      {/* MainTabs component without passing props */}
+      {/* MainTabs component */}
       <MainTabs />
 
       {/* Dialoger */}

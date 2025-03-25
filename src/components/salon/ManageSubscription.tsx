@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState as useLoadingState } from "react";
+import { LoadingButton } from "@/components/ui/loading-button";
 
 interface SubscriptionInfo {
   plan_title: string;
@@ -24,11 +24,10 @@ export function ManageSubscription() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo | null>(null);
-  const [cancelLoading, setCancelLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isReactivating, setIsReactivating] = useLoadingState(false);
-  const [isCancelling, setIsCancelling] = useLoadingState(false);
-  const [isManagingBilling, setIsManagingBilling] = useLoadingState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [isManagingBilling, setIsManagingBilling] = useState(false);
 
   // Hämta användarens prenumerationsinformation
   useEffect(() => {
@@ -344,62 +343,38 @@ export function ManageSubscription() {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2 pt-4">
-          <Button 
+          <LoadingButton 
             onClick={handleManageBilling}
             variant="outline"
             className="flex-1"
+            loading={isManagingBilling}
             disabled={isManagingBilling}
           >
-            {isManagingBilling ? (
-              <span className="flex items-center">
-                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                Laddar...
-              </span>
-            ) : (
-              <>
-                <CreditCard className="mr-2 h-4 w-4" />
-                Hantera fakturor
-              </>
-            )}
-          </Button>
+            <CreditCard className="mr-2 h-4 w-4" />
+            Hantera fakturor
+          </LoadingButton>
           
           {subscriptionInfo.cancel_at_period_end ? (
-            <Button 
+            <LoadingButton 
               onClick={handleReactivateSubscription}
               className="flex-1"
+              loading={isReactivating}
               disabled={isReactivating}
             >
-              {isReactivating ? (
-                <span className="flex items-center">
-                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Laddar...
-                </span>
-              ) : (
-                <>
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Återaktivera prenumeration
-                </>
-              )}
-            </Button>
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Återaktivera prenumeration
+            </LoadingButton>
           ) : (
-            <Button 
+            <LoadingButton 
               onClick={handleCancelSubscription}
               variant="destructive"
               className="flex-1"
+              loading={isCancelling}
               disabled={isCancelling}
             >
-              {isCancelling ? (
-                <span className="flex items-center">
-                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Laddar...
-                </span>
-              ) : (
-                <>
-                  <XCircle className="mr-2 h-4 w-4" />
-                  Avsluta prenumeration
-                </>
-              )}
-            </Button>
+              <XCircle className="mr-2 h-4 w-4" />
+              Avsluta prenumeration
+            </LoadingButton>
           )}
         </div>
       </CardContent>
