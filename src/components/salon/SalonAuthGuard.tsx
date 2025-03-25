@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,16 +11,20 @@ interface SalonAuthGuardProps {
 export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
   const { session, isLoading } = useSession();
   const navigate = useNavigate();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
     const checkSalonPermission = async () => {
+      if (isLoading) return;
+      
       if (!session?.user) {
         navigate("/salon/login");
         return;
       }
 
       try {
-        // Kolla om användaren är kopplad till en salong
+        // Check if user is linked to a salon
         const { data, error } = await supabase
           .from("salons")
           .select("id, role")
@@ -28,23 +32,20 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
           .single();
 
         if (error || !data) {
-          // Om användaren inte är kopplad till en salong, logga ut dem
-          console.error("Ingen salongdata hittades:", error);
+          console.error("No salon data found:", error);
           await supabase.auth.signOut();
           navigate("/salon/login");
           return;
         }
 
         if (data.role !== "salon_owner" && data.role !== "admin") {
-          // Om användaren inte har rätt roll, logga ut dem
-          console.error("Användaren har inte behörighet:", data.role);
+          console.error("User doesn't have permission:", data.role);
           await supabase.auth.signOut();
           navigate("/salon/login");
           return;
         }
 
-        // Om användaren har korrekt roll, kontrollera om det är första inloggningen
-        // för att säkerställa att vi har en status-rad för användaren
+        // Check if it's the first login
         const { data: statusData, error: statusError } = await supabase
           .from("salon_user_status")
           .select("first_login")
@@ -52,32 +53,38 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
           .maybeSingle();
 
         if (statusError && statusError.code !== "PGRST116") {
-          console.error("Fel vid kontroll av användarstatus:", statusError);
+          console.error("Error checking user status:", statusError);
         }
 
-        // Om vi inte har en status-rad för användaren, skapa en med first_login=true
+        // If no status row exists for the user, create one with first_login=true
         if (!statusData) {
           await supabase
             .from("salon_user_status")
             .insert([{ user_id: session.user.id, first_login: true }]);
         }
+        
+        setIsAuthorized(true);
       } catch (error) {
-        console.error("Fel vid kontroll av salongsrättigheter:", error);
+        console.error("Error checking salon permissions:", error);
         navigate("/salon/login");
+      } finally {
+        setIsCheckingAuth(false);
       }
     };
 
-    if (!isLoading) {
-      checkSalonPermission();
-    }
+    checkSalonPermission();
   }, [session, isLoading, navigate]);
 
-  if (isLoading) {
+  if (isLoading || isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
+  }
+
+  if (!isAuthorized) {
+    return null;
   }
 
   return <>{children}</>;

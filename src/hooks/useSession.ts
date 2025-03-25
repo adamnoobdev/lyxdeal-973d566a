@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,11 +8,23 @@ export const useSession = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initial session check
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, currentSession) => {
+        setSession(currentSession);
+        setIsLoading(false);
+      }
+    );
+
+    // THEN check for existing session
     const initSession = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
-        setSession(data.session);
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Session initialization error:", error);
+        } else {
+          setSession(data.session);
+        }
       } catch (error) {
         console.error("Session initialization error:", error);
       } finally {
@@ -21,11 +34,7 @@ export const useSession = () => {
 
     initSession();
 
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
+    // Cleanup subscription
     return () => {
       subscription.unsubscribe();
     };

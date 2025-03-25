@@ -14,46 +14,68 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const {
-      data: {
-        subscription
+    // First check if user is already logged in
+    const checkExistingSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        handleAuthStateChange('SIGNED_IN', data.session);
       }
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        try {
-          const {
-            data: salon,
-            error
-          } = await supabase.from('salons').select('role').eq('user_id', session.user.id).maybeSingle();
-          if (error) throw error;
-          if (salon) {
-            if (salon.role === 'admin') {
-              navigate('/admin');
-            } else {
-              navigate('/salon/dashboard');
-            }
-          } else {
-            navigate('/');
-          }
-        } catch (error) {
+    };
+    
+    checkExistingSession();
+    
+    // Then set up auth state change listener
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange(handleAuthStateChange);
+    
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+  
+  const handleAuthStateChange = async (event: string, session: any) => {
+    if (event === 'SIGNED_IN' && session) {
+      try {
+        console.log("Auth: User signed in, checking role:", session.user.id);
+        const {
+          data: salon,
+          error
+        } = await supabase.from('salons').select('role').eq('user_id', session.user.id).maybeSingle();
+        
+        if (error) {
           console.error('Error checking user role:', error);
+          throw error;
+        }
+        
+        if (salon) {
+          console.log("Auth: Found salon role:", salon.role);
+          if (salon.role === 'admin') {
+            navigate('/admin');
+          } else {
+            navigate('/salon/dashboard');
+          }
+        } else {
+          console.log("Auth: No salon found for user, redirecting to home");
           navigate('/');
         }
+      } catch (error) {
+        console.error('Error checking user role:', error);
+        navigate('/');
       }
-      if (event === 'USER_UPDATED') {
-        const {
-          error
-        } = await supabase.auth.getSession();
+    }
+    if (event === 'USER_UPDATED') {
+      try {
+        const { error } = await supabase.auth.getSession();
         if (error) {
           setErrorMessage(getErrorMessage(error));
         }
+      } catch (error) {
+        console.error('Error getting session after user update:', error);
       }
-      if (event === 'SIGNED_OUT') {
-        setErrorMessage("");
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    }
+    if (event === 'SIGNED_OUT') {
+      setErrorMessage("");
+    }
+  };
 
   const getErrorMessage = (error: AuthError) => {
     if (error instanceof AuthApiError) {
@@ -73,7 +95,8 @@ export default function Auth() {
     return error.message;
   };
 
-  return <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-primary/5">
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-primary/5">
       <Card className="w-full max-w-md p-8 space-y-6 border border-primary shadow-none">
         <div className="space-y-3 text-center">
           <div className="flex justify-center mb-4">
@@ -169,5 +192,6 @@ export default function Auth() {
           redirectTo={window.location.origin}
         />
       </Card>
-    </div>;
+    </div>
+  );
 }

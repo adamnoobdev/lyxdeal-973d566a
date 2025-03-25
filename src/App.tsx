@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import Index from './pages/Index';
@@ -16,8 +17,20 @@ import Terms from './pages/Terms';
 import SecureDeal from './pages/SecureDeal';
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import { SalonDeals } from './components/salon/SalonDeals';
+import { supabase } from '@/integrations/supabase/client';
 
 function App() {
+  // Säkerställ att supabase-klienten är korrekt konfigurerad för session-hantering
+  useEffect(() => {
+    // Logga eventuell auth-status när appen laddas
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      console.log("Initial auth check:", data.session ? "User is logged in" : "No session found");
+    };
+    
+    checkAuth();
+  }, []);
+
   return (
     <Router>
       <Routes>
