@@ -26,6 +26,12 @@ export default function SubscriptionSuccess() {
     manualRetry
   } = useSubscriptionDetails(sessionId);
 
+  console.log("Rendering SubscriptionSuccess with session ID:", sessionId);
+  console.log("Purchase details:", purchaseDetails);
+  console.log("Salon account:", salonAccount);
+  console.log("Loading state:", loading);
+  console.log("Error state:", error);
+
   return (
     <>
       <Helmet>

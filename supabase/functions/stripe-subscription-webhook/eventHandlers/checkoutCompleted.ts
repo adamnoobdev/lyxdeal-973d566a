@@ -18,6 +18,28 @@ export async function handleCheckoutCompleted(session: any) {
   const supabaseAdmin = getSupabaseAdmin();
   
   try {
+    // First, update the partner request with the session ID
+    try {
+      console.log("Updating partner request with session ID:", session.id);
+      const { data: updateData, error: updateError } = await supabaseAdmin
+        .from("partner_requests")
+        .update({ 
+          stripe_session_id: session.id,
+          status: "approved"
+        })
+        .eq("email", session.metadata.email)
+        .select();
+        
+      if (updateError) {
+        console.error("Error updating partner request with session ID:", updateError);
+      } else {
+        console.log("Partner request updated with session ID:", updateData);
+      }
+    } catch (updateError) {
+      console.error("Exception updating partner request:", updateError);
+      // Continue despite error
+    }
+    
     // Retrieve subscription information from Stripe
     let subscription;
     try {

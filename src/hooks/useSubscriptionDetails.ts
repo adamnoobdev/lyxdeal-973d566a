@@ -95,11 +95,71 @@ export const useSubscriptionDetails = (sessionId: string | null) => {
             toast.success("Ditt salongskonto har skapats!");
           } else {
             console.log("No salon account found yet with email:", mostRecent.email);
+            
+            // Extra check - check if there's any partner request with this session ID
+            console.log("Checking for partner request with session ID:", sessionId);
+            const { data: sessionData, error: sessionError } = await supabase
+              .from("partner_requests")
+              .select("*")
+              .eq("stripe_session_id", sessionId)
+              .limit(1);
+              
+            if (sessionError) {
+              console.error("Error checking session data:", sessionError);
+            } else if (sessionData && sessionData.length > 0) {
+              console.log("Found session data:", sessionData[0]);
+              // Update our purchase details if we found a match
+              setPurchaseDetails(sessionData[0]);
+            } else {
+              console.log("No partner request found with this session ID");
+            }
+            
             return false; // Signal to retry
           }
         }
       } else {
         console.log("No approved partner requests found. Retry count:", retryCount);
+        
+        // Extra check - try to find any partner request with this session ID
+        console.log("Checking for any partner request with session ID:", sessionId);
+        const { data: sessionData, error: sessionError } = await supabase
+          .from("partner_requests")
+          .select("*")
+          .eq("stripe_session_id", sessionId)
+          .limit(1);
+          
+        if (sessionError) {
+          console.error("Error checking session data:", sessionError);
+        } else if (sessionData && sessionData.length > 0) {
+          console.log("Found session data:", sessionData[0]);
+          // Update our purchase details
+          setPurchaseDetails(sessionData[0]);
+          
+          // Check if this email has a salon account already
+          if (sessionData[0].email) {
+            const { data: salonCheck, error: salonCheckError } = await supabase
+              .from("salons")
+              .select("*")
+              .eq("email", sessionData[0].email)
+              .limit(1);
+              
+            if (salonCheckError) {
+              console.error("Error checking salon account:", salonCheckError);
+            } else if (salonCheck && salonCheck.length > 0) {
+              console.log("Found salon account:", salonCheck[0].id);
+              setSalonAccount({
+                id: salonCheck[0].id,
+                email: salonCheck[0].email,
+                name: salonCheck[0].name
+              });
+              toast.success("Ditt salongskonto har skapats!");
+              return true; // Success!
+            }
+          }
+        } else {
+          console.log("No partner request found with this session ID either");
+        }
+        
         return false; // Signal to retry
       }
       

@@ -203,6 +203,32 @@ serve(async (req) => {
       }
       
       console.log("Checkout URL:", session.url);
+      
+      // Update the partner request with the session ID
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL");
+        const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+        
+        if (supabaseUrl && supabaseKey) {
+          const supabase = createClient(supabaseUrl, supabaseKey);
+          
+          const { data, error } = await supabase
+            .from("partner_requests")
+            .update({ stripe_session_id: session.id })
+            .eq("email", email)
+            .select();
+            
+          if (error) {
+            console.error("Error updating partner request with session ID:", error);
+          } else {
+            console.log("Updated partner request with session ID:", session.id);
+          }
+        }
+      } catch (updateError) {
+        console.error("Failed to update partner request with session ID:", updateError);
+        // Continue despite error
+      }
+      
     } catch (error) {
       console.error("Error creating Stripe checkout session:", error);
       return new Response(
