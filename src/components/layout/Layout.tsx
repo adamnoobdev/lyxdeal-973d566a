@@ -8,13 +8,6 @@ import TopBar from './TopBar';
 const Layout: React.FC = () => {
   const location = useLocation();
   
-  // Admin-sidor hanteras separat med egen layout
-  const isAdminRoute = location.pathname.startsWith('/admin');
-  
-  if (isAdminRoute) {
-    return <Outlet />;
-  }
-  
   return (
     <div className="flex flex-col min-h-screen">
       <TopBar />

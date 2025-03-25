@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -36,17 +35,15 @@ function App() {
           <Route path="bli-partner" element={<PartnerPage />} />
           <Route path="salons/:id" element={<SalonDetails />} />
           <Route path="/subscription-success" element={<SubscriptionSuccess />} />
-        </Route>
-        
-        <Route path="/admin/*" element={<Admin />} />
-        
-        <Route path="/salon">
-          <Route path="login" element={<SalonLogin />} />
-          <Route path="dashboard" element={<SalonDashboard />} />
-          <Route path="deal" element={<SalonDeals />} />
-          <Route path="deals" element={<SalonDeals />} />
-          <Route path="customers" element={<SalonDashboard />} />
-          <Route path="settings" element={<SalonDashboard />} />
+          
+          <Route path="/admin/*" element={<Admin />} />
+          
+          <Route path="/salon/login" element={<SalonLogin />} />
+          <Route path="/salon/dashboard" element={<SalonDashboard />} />
+          <Route path="/salon/deal" element={<SalonDeals />} />
+          <Route path="/salon/deals" element={<SalonDeals />} />
+          <Route path="/salon/customers" element={<SalonDashboard />} />
+          <Route path="/salon/settings" element={<SalonDashboard />} />
         </Route>
       </Routes>
     </Router>
