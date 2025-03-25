@@ -14,7 +14,7 @@ export interface PurchaseDetails {
 }
 
 export interface SalonAccount {
-  id: string;
+  id: number; // Changed from string to number to match the database structure
   email: string;
   name?: string;
 }
@@ -86,7 +86,12 @@ export const useSubscriptionDetails = (sessionId: string | null) => {
             console.error("Error checking salon account:", salonError);
           } else if (salonData && salonData.length > 0) {
             console.log("Found salon account:", salonData[0].id);
-            setSalonAccount(salonData[0]);
+            // Extract only the fields we need for SalonAccount
+            setSalonAccount({
+              id: salonData[0].id,
+              email: salonData[0].email,
+              name: salonData[0].name
+            });
             toast.success("Ditt salongskonto har skapats!");
           } else {
             console.log("No salon account found yet with email:", mostRecent.email);
