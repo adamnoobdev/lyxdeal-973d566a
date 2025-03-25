@@ -68,7 +68,7 @@ serve(async (req) => {
       }
     }
     
-    // Innan vi försöker bearbeta webhook, kontrollera att vi har alla miljövariabler
+    // Kontrollera att vi har alla miljövariabler
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");

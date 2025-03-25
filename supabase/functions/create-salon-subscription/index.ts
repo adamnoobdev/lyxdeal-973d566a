@@ -24,6 +24,27 @@ serve(async (req) => {
   try {
     console.log("Starting create-salon-subscription function");
     
+    // Verifiera authorization header
+    const authHeader = req.headers.get("authorization");
+    console.log("Authorization header present:", !!authHeader);
+    
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.error("Missing or invalid authorization header");
+      return new Response(
+        JSON.stringify({ 
+          error: "Missing or invalid authorization header",
+          headers: Object.fromEntries(req.headers.entries())
+        }),
+        {
+          status: 401,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+    
     // Initialize Stripe with secret key from environment variables
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeSecretKey) {

@@ -59,7 +59,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         
         console.log("Creating Stripe checkout session with payload:", functionPayload);
         
-        // Using public anon key for edge function access
+        // Fixa - Se till att vi inkluderar Authorization-header korrekt
         const functionResponse = await fetch(
           "https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/create-salon-subscription",
           {
