@@ -2,6 +2,7 @@
 // Main entry point for the Stripe subscription webhook
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { handleWebhookEvent } from "./eventHandler.ts";
+import { validateStripeWebhook, validateAuthHeader, handleUnauthorized } from "./authUtils.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,6 +14,7 @@ serve(async (req) => {
     // Log the request for debugging
     console.log("Stripe webhook request received:", new Date().toISOString());
     console.log("HTTP Method:", req.method);
+    console.log("URL:", req.url);
     
     // Handle CORS preflight requests
     if (req.method === "OPTIONS") {
@@ -21,23 +23,38 @@ serve(async (req) => {
     
     // Extract the stripe signature from the headers
     const signature = req.headers.get("stripe-signature");
-    if (!signature) {
-      console.error("Missing stripe-signature header");
-      return new Response(
-        JSON.stringify({ error: "Missing stripe-signature header" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
+    const authHeader = req.headers.get("authorization");
     
-    // Log headers for debugging
+    // Log headers for debugging - ta bort känsliga uppgifter i produktion
     console.log("Headers received:", Object.fromEntries(req.headers.entries()));
-    console.log("Stripe signature found:", signature.substring(0, 20) + "...");
+    
+    // För Stripe webhooks kräver vi en giltig stripe-signature header
+    if (signature) {
+      console.log("Processing as Stripe webhook with signature:", signature.substring(0, 20) + "...");
+      
+      if (!validateStripeWebhook(signature)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid stripe-signature format" }),
+          { 
+            status: 400, 
+            headers: { 
+              "Content-Type": "application/json",
+              ...corsHeaders 
+            } 
+          }
+        );
+      }
+    } else if (!validateAuthHeader(authHeader, signature)) {
+      // För andra anrop kräver vi standard auth
+      return handleUnauthorized(Object.fromEntries(req.headers.entries()));
+    }
     
     // Get the raw request body as a string for webhook verification
     const bodyText = await req.text();
+    console.log("Request body size:", bodyText.length, "bytes");
     
     // Handle the webhook event
-    const result = await handleWebhookEvent(signature, bodyText);
+    const result = await handleWebhookEvent(signature || "", bodyText);
     
     return new Response(
       JSON.stringify(result),
