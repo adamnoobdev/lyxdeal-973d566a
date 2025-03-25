@@ -50,9 +50,8 @@ const NavigationBar = ({
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Left section - Logo and hamburger menu */}
-          <div className="flex items-center">
-            <Logo />
+          {/* Left section - Mobile menu */}
+          <div className="md:hidden">
             <MobileMenu 
               selectedCity={selectedCity}
               setSelectedCity={setSelectedCity}
@@ -65,7 +64,12 @@ const NavigationBar = ({
             />
           </div>
 
-          {/* Middle section - Search bar */}
+          {/* Center logo for mobile, left for desktop */}
+          <div className="flex items-center md:flex-none flex-1 md:flex-initial justify-center md:justify-start">
+            <Logo />
+          </div>
+
+          {/* Middle section - Search bar (desktop only) */}
           <div className="hidden md:flex flex-1 max-w-xl mx-6">
             <SearchBar 
               searchQuery={searchQuery}
