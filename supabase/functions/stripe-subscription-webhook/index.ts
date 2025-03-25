@@ -1,150 +1,69 @@
 
+// Main entry point for the Stripe subscription webhook
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { handleWebhookEvent } from "./eventHandler.ts";
-import { corsHeaders } from "./corsConfig.ts";
 
-// Log all requests for better debugging
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
+};
+
 serve(async (req) => {
-  console.log("===============================================");
-  console.log("Stripe webhook request received:", new Date().toISOString());
-  console.log("HTTP Method:", req.method);
-  console.log("Headers:", Object.fromEntries(req.headers.entries()));
-  
   try {
-    // CORS preflight handler
+    // Log the request for debugging
+    console.log("Stripe webhook request received:", new Date().toISOString());
+    console.log("HTTP Method:", req.method);
+    
+    // Handle CORS preflight requests
     if (req.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders
-      });
+      return new Response(null, { headers: corsHeaders });
     }
     
-    // Validate content type - Stripe sends application/json for webhooks
-    const contentType = req.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      console.error("Invalid content type:", contentType);
-      return new Response(
-        JSON.stringify({ 
-          error: "Invalid content type, expected application/json",
-          received: contentType
-        }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-    }
-    
-    // Get the signature from headers
+    // Extract the stripe signature from the headers
     const signature = req.headers.get("stripe-signature");
     if (!signature) {
-      console.error("Missing Stripe signature header");
+      console.error("Missing stripe-signature header");
       return new Response(
-        JSON.stringify({ 
-          error: "Missing Stripe signature header",
-          headers: Object.fromEntries(req.headers.entries())
-        }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json"
-          }
-        }
+        JSON.stringify({ error: "Missing stripe-signature header" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
     
-    console.log("Stripe signature present:", signature.substring(0, 20) + "...");
+    // Log headers for debugging
+    console.log("Headers received:", Object.fromEntries(req.headers.entries()));
+    console.log("Stripe signature found:", signature.substring(0, 20) + "...");
     
-    // Get the raw request body
-    let body: string;
-    try {
-      // NOTE: Stripe requires the RAW body string for signature verification
-      body = await req.text();
-      console.log("Request body received, length:", body.length);
-      
-      // Log part of the body for debugging (don't log sensitive data)
-      if (body.length > 0) {
-        const previewLength = Math.min(100, body.length);
-        console.log(`Body preview: ${body.substring(0, previewLength)}...`);
-      }
-    } catch (error) {
-      console.error("Error reading request body:", error);
-      return new Response(
-        JSON.stringify({ error: "Could not read request body" }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-    }
+    // Get the raw request body as a string for webhook verification
+    const bodyText = await req.text();
     
     // Handle the webhook event
-    try {
-      const result = await handleWebhookEvent(signature, body);
-      console.log("Webhook event handled successfully:", result);
-      console.log("===============================================");
-      
-      return new Response(
-        JSON.stringify({ 
-          received: true,
-          success: true,
-          result: result 
-        }),
-        {
-          status: 200,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-    } catch (error) {
-      console.error("Error handling webhook event:", error);
-      console.error("Error stack:", error.stack);
-      console.error("===============================================");
-      
-      // Return a specific status code for signature verification failures
-      const statusCode = error.message?.includes("signature") ? 401 : 500;
-      
-      return new Response(
-        JSON.stringify({
-          received: true,
-          success: false,
-          error: error.message,
-          stack: error.stack
-        }),
-        {
-          status: statusCode,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-    }
-  } catch (error) {
-    console.error("Unhandled exception in webhook handler:", error);
-    console.error("Error stack:", error.stack);
-    console.error("===============================================");
+    const result = await handleWebhookEvent(signature, bodyText);
     
     return new Response(
-      JSON.stringify({
-        error: "Internal server error", 
+      JSON.stringify(result),
+      { 
+        status: 200,
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders
+        }
+      }
+    );
+  } catch (error) {
+    console.error("Error processing webhook:", error);
+    console.error("Error stack:", error.stack);
+    
+    return new Response(
+      JSON.stringify({ 
+        error: "Error processing webhook", 
         message: error.message,
-        stack: error.stack
+        stack: error.stack 
       }),
-      {
+      { 
         status: 500,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json"
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders
         }
       }
     );

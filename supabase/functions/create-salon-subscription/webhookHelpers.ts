@@ -1,69 +1,44 @@
 
-import Stripe from "https://esm.sh/stripe@12.11.0";
+import { Stripe } from "https://esm.sh/stripe@12.11.0";
 
 export async function checkWebhookEndpoints(stripe: Stripe) {
   try {
-    // Check webhook endpoints
-    console.log("Checking Stripe webhook endpoints...");
-    const webhooks = await stripe.webhookEndpoints.list({ limit: 10 });
-    console.log(`Found ${webhooks.data.length} webhook endpoints`);
+    console.log("Checking webhook endpoints...");
     
-    // Log all webhook endpoints for diagnostics
-    webhooks.data.forEach((webhook, index) => {
-      console.log(`Webhook #${index + 1}:`);
-      console.log(`  ID: ${webhook.id}`);
-      console.log(`  URL: ${webhook.url}`);
-      console.log(`  Status: ${webhook.status}`);
-      console.log(`  Events: ${webhook.enabled_events?.join(', ') || 'none'}`);
-      console.log(`  API Version: ${webhook.api_version}`);
-    });
-    
-    // Check if we have a webhook for checkout.session.completed
-    const hasCheckoutWebhook = webhooks.data.some(webhook => 
-      webhook.enabled_events?.includes('checkout.session.completed') || 
-      webhook.enabled_events?.includes('*')
-    );
-    
-    // Verify that the webhook has the correct endpoints
+    // Check if the webhookSecret exists
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
     if (!webhookSecret) {
-      console.warn("WARNING: STRIPE_WEBHOOK_SECRET environment variable is not set!");
-      console.warn("Webhook signature verification will fail without this secret.");
+      console.warn("WARNING: STRIPE_WEBHOOK_SECRET is not configured");
+      console.warn("Webhooks will not function correctly without this!");
     } else {
-      console.log("STRIPE_WEBHOOK_SECRET is configured");
+      console.log("STRIPE_WEBHOOK_SECRET is properly configured");
     }
     
-    if (!hasCheckoutWebhook) {
-      console.warn("WARNING: No webhook found for checkout.session.completed events!");
-      console.warn("You need to configure this in the Stripe dashboard.");
-    }
+    // List webhook endpoints to see if they're properly configured
+    const webhooks = await stripe.webhookEndpoints.list({
+      limit: 10,
+    });
     
-    // Check for webhooks pointing to our subscription-webhook endpoint
-    const subscriptionWebhookUrl = webhooks.data.find(webhook => 
-      webhook.url.includes("stripe-subscription-webhook")
-    );
-    
-    if (!subscriptionWebhookUrl) {
-      console.warn("WARNING: No webhook pointing to stripe-subscription-webhook function!");
-      console.warn("You need to create this webhook in the Stripe dashboard.");
+    if (webhooks.data.length === 0) {
+      console.warn("WARNING: No webhook endpoints found in Stripe");
+      console.warn("You need to set up a webhook endpoint in the Stripe dashboard");
     } else {
-      console.log("Found webhook for subscription-webhook function:", subscriptionWebhookUrl.url);
+      console.log(`Found ${webhooks.data.length} webhook endpoints`);
+      
+      // Check for subscription webhook
+      const subscriptionWebhook = webhooks.data.find(webhook => 
+        webhook.enabled_events?.includes("checkout.session.completed")
+      );
+      
+      if (subscriptionWebhook) {
+        console.log("Subscription webhook found:", subscriptionWebhook.url);
+        console.log("Webhook is " + (subscriptionWebhook.status === "enabled" ? "enabled" : "disabled"));
+      } else {
+        console.warn("WARNING: No webhook for checkout.session.completed events found");
+      }
     }
-    
-    return { 
-      success: true, 
-      hasCheckoutWebhook,
-      hasWebhookSecret: !!webhookSecret,
-      webhookCount: webhooks.data.length,
-      subscriptionWebhookConfigured: !!subscriptionWebhookUrl
-    };
-  } catch (webhookError) {
-    console.error("Error checking webhooks:", webhookError);
-    // Continue despite error - this is just diagnostics
-    return { 
-      success: false, 
-      error: webhookError.message,
-      stack: webhookError.stack
-    };
+  } catch (error) {
+    console.error("Error checking webhook endpoints:", error);
+    // Non-blocking - we don't want to stop the main flow if this check fails
   }
 }
