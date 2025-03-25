@@ -25,7 +25,8 @@ export async function handleWebhookEvent(signature: string, payload: string) {
       return { error: "Webhook secret not configured", suggestion: "Check Edge Function environment variables" };
     }
     
-    console.log("Webhook secret retrieved successfully");
+    console.log("Webhook secret retrieved successfully, length:", webhookSecret.length);
+    console.log("First few characters of secret:", webhookSecret.substring(0, 5) + "...");
     
     // Initialize Stripe
     const stripe = getStripeClient();
@@ -53,6 +54,7 @@ export async function handleWebhookEvent(signature: string, payload: string) {
           payloadLength: payload?.length || 0,
           signaturePreview: signature?.substring(0, 20) + "...",
           webhookSecretConfigured: !!webhookSecret,
+          webhookSecretLength: webhookSecret?.length || 0,
           timestamp: new Date().toISOString()
         }
       };

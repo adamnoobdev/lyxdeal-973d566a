@@ -13,6 +13,7 @@ export function validateStripeWebhook(signature: string): boolean {
   // Verkliga signaturer ser ut som: t=1642...,v1=5678...
   if (signature.includes("t=") && signature.includes("v1=")) {
     console.log("Stripe signature format looks valid");
+    console.log("Signature preview:", signature.substring(0, 40) + "...");
     return true;
   }
   

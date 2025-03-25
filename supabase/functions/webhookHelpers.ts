@@ -50,6 +50,8 @@ export async function checkWebhookEndpoints(stripe: Stripe) {
       const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
       if (webhookSecret) {
         console.log("STRIPE_WEBHOOK_SECRET is configured in environment variables");
+        console.log("Secret length:", webhookSecret.length, "characters");
+        console.log("First few characters:", webhookSecret.substring(0, 5) + "...");
       } else {
         console.warn("STRIPE_WEBHOOK_SECRET is not configured in environment variables");
         console.warn("This is required for webhook signature validation");
@@ -57,12 +59,12 @@ export async function checkWebhookEndpoints(stripe: Stripe) {
       }
     } catch (err) {
       console.error("Error checking webhook secret:", err);
-      return { error: "Error checking webhook secret" };
+      return { error: "Error checking webhook secret", details: err.message };
     }
     
     return { success: true, webhook: subscriptionWebhook.id };
   } catch (error) {
     console.error("Error checking webhook endpoints:", error);
-    return { error: "Failed to check webhook endpoints" };
+    return { error: "Failed to check webhook endpoints", details: error.message, stack: error.stack };
   }
 }
