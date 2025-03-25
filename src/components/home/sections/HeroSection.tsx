@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { CATEGORIES } from "@/constants/app-constants";
@@ -27,10 +28,10 @@ export function HeroSection() {
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 md:space-y-8 py-12 md:py-16">
           <div className="space-y-4">
             <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white leading-tight drop-shadow-lg px-4">
-              Skönhetsbehandlingar till Bästa Pris
+              Upptäck Sveriges Bästa Skönhetserbjudanden
             </h1>
             <p className="text-lg md:text-xl lg:text-2xl text-white/90 max-w-2xl mx-auto font-medium drop-shadow px-4">
-              Upp till 70% rabatt på Sveriges främsta salonger
+              Exklusiva erbjudanden från Sveriges främsta skönhetssalonger
             </p>
           </div>
           
