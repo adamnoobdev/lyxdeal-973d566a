@@ -52,6 +52,7 @@ const NavigationBar = ({
         <div className="flex items-center justify-between h-16">
           {/* Left section - Logo and hamburger menu */}
           <div className="flex items-center">
+            <Logo />
             <MobileMenu 
               selectedCity={selectedCity}
               setSelectedCity={setSelectedCity}
@@ -62,9 +63,6 @@ const NavigationBar = ({
               userRole={userRole}
               isLoggedIn={!!session?.user}
             />
-            <div className="ml-0">
-              <Logo />
-            </div>
           </div>
 
           {/* Middle section - Search bar */}

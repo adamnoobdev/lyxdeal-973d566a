@@ -32,7 +32,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden mr-2 hover:bg-primary/10">
+        <Button variant="ghost" size="icon" className="md:hidden ml-2 hover:bg-primary/10">
           <Menu className="h-5 w-5" />
           <span className="sr-only">Menu</span>
         </Button>
