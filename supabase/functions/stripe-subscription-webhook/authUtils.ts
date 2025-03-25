@@ -22,10 +22,10 @@ export function validateStripeWebhook(signature: string | null): boolean {
 }
 
 export function validateAuthHeader(authHeader: string | null, stripeSignature: string | null): boolean {
-  // Om vi har en Stripe-signatur, skippa vanlig auth-validering
+  // För Stripe webhook-anrop, använd endast stripe-signature validering
   if (stripeSignature) {
-    console.log("Stripe signature present, skipping regular auth validation");
-    return true;
+    console.log("Stripe signature present, using webhook validation");
+    return validateStripeWebhook(stripeSignature);
   }
   
   // För icke-Stripe-begäran, validera standard auth-header

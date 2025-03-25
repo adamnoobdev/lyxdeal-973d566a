@@ -4,6 +4,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getStripeClient } from "./stripeClient.ts";
 import { getStripeWebhookSecret } from "./supabaseClient.ts";
 import { corsHeaders } from "./corsHeaders.ts";
+import { validateStripeWebhook, handleUnauthorized } from "./authUtils.ts";
 
 /**
  * Primary webhook handler function that processes Stripe webhook events
@@ -45,6 +46,22 @@ serve(async (req) => {
       );
     }
 
+    // Validera Stripe signatur - förenklad version som bara kontrollerar formattering
+    if (!validateStripeWebhook(signature)) {
+      console.error("CRITICAL ERROR: Invalid Stripe signature format");
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid stripe-signature format",
+          format_expected: "t=timestamp,v1=signature",
+          timestamp: new Date().toISOString()
+        }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    
     // Get the raw request body as text
     const payload = await req.text();
     console.log("Request payload size:", payload.length, "bytes");
