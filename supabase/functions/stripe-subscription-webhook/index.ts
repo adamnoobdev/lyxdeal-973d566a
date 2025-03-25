@@ -35,8 +35,9 @@ serve(async (req) => {
     console.log("Stripe signature present:", !!signature, signature ? signature.substring(0, 20) + "..." : "none");
     console.log("Auth header present:", !!authHeader, authHeader ? authHeader.substring(0, 15) + "..." : "none");
     
-    // VIKTIG ÄNDRING: För Stripe webhook-anrop, acceptera förfrågan även utan auth-header
+    // VIKTIG ÄNDRING: För Stripe webhook-anrop, acceptera alla anrop med Stripe-signatur
     if (signature) {
+      console.log("Processing request with Stripe signature");
       // För Stripe webhooks, kontrollera bara signaturformatet
       if (!validateStripeWebhook(signature)) {
         console.error("Invalid Stripe signature format");
@@ -52,8 +53,12 @@ serve(async (req) => {
           }
         );
       }
+      
+      // Även om signaturen verkar giltig, logga lite mer information för debugging
+      console.log("Stripe signature validation passed, proceeding with request");
     } else if (!validateAuthHeader(authHeader, signature)) {
       // För icke-Stripe anrop, kräv auth-header
+      console.error("Request failed authentication check - no valid auth header or stripe signature");
       return handleUnauthorized(headersMap);
     }
     
@@ -64,6 +69,7 @@ serve(async (req) => {
     // För Stripe webhook-anrop, hantera eventet
     if (signature) {
       console.log("Processing Stripe webhook event...");
+      console.log("Using Live Stripe API keys");
       const result = await handleWebhookEvent(signature, payload);
       
       console.log("Webhook processing complete with result:", JSON.stringify(result));

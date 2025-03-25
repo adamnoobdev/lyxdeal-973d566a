@@ -16,6 +16,7 @@ export function getStripeClient(): Stripe {
   }
   
   console.log("Initializing new Stripe client");
+  console.log("Using key type:", stripeSecretKey.startsWith("sk_live") ? "LIVE" : "TEST");
   
   try {
     stripeInstance = new Stripe(stripeSecretKey, {
