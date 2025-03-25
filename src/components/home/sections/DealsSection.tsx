@@ -25,7 +25,7 @@ const DealsSectionComponent = ({ selectedCategory, selectedCity }: DealsSectionP
         </div>
         
         <Tabs defaultValue={activeCity} onValueChange={setActiveCity} className="w-full">
-          <TabsList className="w-full flex overflow-x-auto mb-6 justify-start md:justify-center">
+          <TabsList className="w-full flex flex-wrap gap-2 mb-6 justify-center">
             {CITIES.filter(city => city !== "Alla Städer").map((city) => (
               <TabsTrigger 
                 key={city} 
