@@ -7,6 +7,7 @@ export async function checkWebhookEndpoints(stripe: Stripe) {
     
     // Get all webhook endpoints
     const webhooks = await stripe.webhookEndpoints.list();
+    console.log(`Found ${webhooks.data.length} webhooks in total`);
     
     // Look for our subscription webhook
     const subscriptionWebhook = webhooks.data.find(
@@ -17,7 +18,14 @@ export async function checkWebhookEndpoints(stripe: Stripe) {
       console.log("No subscription webhook found. You should create one in the Stripe dashboard.");
       console.log("URL should be: https://[your-project-id].functions.supabase.co/stripe-subscription-webhook");
       console.log("Events should include: checkout.session.completed");
-      return null;
+      
+      // For debugging - list all webhook URLs
+      console.log("Available webhook URLs:");
+      webhooks.data.forEach(hook => {
+        console.log(`- ${hook.url} (${hook.status})`);
+      });
+      
+      return { error: "No subscription webhook found" };
     }
     
     console.log("Found subscription webhook:", subscriptionWebhook.id);
@@ -30,6 +38,7 @@ export async function checkWebhookEndpoints(stripe: Stripe) {
     
     if (!hasCheckoutEvent) {
       console.warn("Warning: Webhook doesn't have checkout.session.completed event enabled");
+      return { warning: "Missing checkout.session.completed event" };
     }
     
     // Check webhook secret
@@ -40,14 +49,16 @@ export async function checkWebhookEndpoints(stripe: Stripe) {
       } else {
         console.warn("STRIPE_WEBHOOK_SECRET is not configured in environment variables");
         console.warn("This is required for webhook signature validation");
+        return { warning: "Webhook secret not configured" };
       }
     } catch (err) {
       console.error("Error checking webhook secret:", err);
+      return { error: "Error checking webhook secret" };
     }
     
-    return subscriptionWebhook;
+    return { success: true, webhook: subscriptionWebhook.id };
   } catch (error) {
     console.error("Error checking webhook endpoints:", error);
-    return null;
+    return { error: "Failed to check webhook endpoints" };
   }
 }

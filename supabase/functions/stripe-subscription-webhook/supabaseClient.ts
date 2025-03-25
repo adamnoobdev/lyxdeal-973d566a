@@ -8,6 +8,10 @@ export async function getSupabaseAdmin() {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
   
+  if (!supabaseUrl || !supabaseKey) {
+    console.error("Missing Supabase credentials. URL present:", !!supabaseUrl, "Key present:", !!supabaseKey);
+  }
+  
   return createClient(supabaseUrl, supabaseKey, {
     auth: {
       persistSession: false,
@@ -22,41 +26,66 @@ export async function getStripeWebhookSecret() {
     return cachedWebhookSecret;
   }
   
-  console.log("Fetching webhook secret...");
+  console.log("Attempting to get webhook secret");
   
-  // Try to get from environment variable first (preferred method)
-  const envSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-  if (envSecret) {
-    console.log("Found webhook secret in environment variables");
-    cachedWebhookSecret = envSecret;
-    return envSecret;
+  // First try from environment variable (preferred)
+  try {
+    const envSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    if (envSecret) {
+      console.log("Found webhook secret in environment variables");
+      cachedWebhookSecret = envSecret;
+      return envSecret;
+    }
+  } catch (e) {
+    console.error("Error checking environment variable:", e.message);
   }
   
-  console.log("No webhook secret in environment variables, trying Supabase secrets");
+  console.log("No webhook secret found in environment variables");
   
+  // Then try from Supabase secrets
   try {
-    // Fallback: try to get from Supabase secrets
+    const supabaseAdmin = await getSupabaseAdmin();
+    const { data, error } = await supabaseAdmin.functions.invoke('get-secret', {
+      body: { name: 'STRIPE_WEBHOOK_SECRET' }
+    });
+    
+    if (error) {
+      console.error("Error invoking get-secret function:", error);
+      return null;
+    }
+    
+    if (data && data.value) {
+      console.log("Found webhook secret from secrets function");
+      cachedWebhookSecret = data.value;
+      return data.value;
+    }
+  } catch (e) {
+    console.error("Error getting secret from function:", e.message);
+  }
+  
+  // Last resort: try direct DB access for secrets
+  // This is not recommended but might work if all else fails
+  try {
+    console.log("Attempting direct access to secrets");
     const supabaseAdmin = await getSupabaseAdmin();
     const { data, error } = await supabaseAdmin.rpc('get_secret', {
       name: 'STRIPE_WEBHOOK_SECRET'
     });
     
     if (error) {
-      console.error("Error fetching webhook secret from Supabase:", error);
+      console.error("Error getting secret from RPC:", error);
       return null;
     }
     
-    if (!data) {
-      console.error("No webhook secret found in Supabase");
-      return null;
+    if (data) {
+      console.log("Found webhook secret via RPC");
+      cachedWebhookSecret = data;
+      return data;
     }
-    
-    console.log("Found webhook secret in Supabase secrets");
-    cachedWebhookSecret = data;
-    return data;
-  } catch (err) {
-    console.error("Exception fetching webhook secret:", err);
-    console.error("Error details:", err.message);
-    return null;
+  } catch (e) {
+    console.error("Error with RPC call:", e.message);
   }
+  
+  console.error("Could not find webhook secret anywhere!");
+  return null;
 }

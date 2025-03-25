@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@12.11.0";
@@ -54,7 +53,7 @@ serve(async (req) => {
       console.error("STRIPE_WEBHOOK_SECRET is not configured");
       console.log("This is critical for webhook validation!");
     } else {
-      console.log("STRIPE_WEBHOOK_SECRET is configured");
+      console.log("STRIPE_WEBHOOK_SECRET is configured, value length:", webhookSecret.length);
     }
     
     // Initialize Stripe
@@ -113,8 +112,9 @@ serve(async (req) => {
       console.log("Corrected origin to:", origin);
     }
     
-    // Verifiera webhook endpoint
-    await checkWebhookEndpoints(stripe);
+    // Verifiera webhook endpoint och konfiguration
+    const webhookCheck = await checkWebhookEndpoints(stripe);
+    console.log("Webhook check result:", webhookCheck);
     
     // Create promo code if it doesn't exist
     await setupPromoCode(stripe);
