@@ -1,44 +1,40 @@
 
-import { Stripe } from "https://esm.sh/stripe@12.11.0";
+import Stripe from "https://esm.sh/stripe@12.11.0";
 
 export async function checkWebhookEndpoints(stripe: Stripe) {
   try {
-    console.log("Checking webhook endpoints...");
+    console.log("Checking webhook endpoints configuration");
     
-    // Check if the webhookSecret exists
-    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-    if (!webhookSecret) {
-      console.warn("WARNING: STRIPE_WEBHOOK_SECRET is not configured");
-      console.warn("Webhooks will not function correctly without this!");
-    } else {
-      console.log("STRIPE_WEBHOOK_SECRET is properly configured");
+    // Get all webhook endpoints
+    const webhooks = await stripe.webhookEndpoints.list();
+    
+    // Look for our subscription webhook
+    const subscriptionWebhook = webhooks.data.find(
+      webhook => webhook.url.includes('stripe-subscription-webhook')
+    );
+    
+    if (!subscriptionWebhook) {
+      console.log("No subscription webhook found. You should create one in the Stripe dashboard.");
+      console.log("URL should be: https://[your-project-id].functions.supabase.co/stripe-subscription-webhook");
+      console.log("Events should include: checkout.session.completed");
+      return;
     }
     
-    // List webhook endpoints to see if they're properly configured
-    const webhooks = await stripe.webhookEndpoints.list({
-      limit: 10,
-    });
+    console.log("Found subscription webhook:", subscriptionWebhook.id);
+    console.log("Webhook URL:", subscriptionWebhook.url);
+    console.log("Webhook status:", subscriptionWebhook.status);
+    console.log("Enabled events:", subscriptionWebhook.enabled_events);
     
-    if (webhooks.data.length === 0) {
-      console.warn("WARNING: No webhook endpoints found in Stripe");
-      console.warn("You need to set up a webhook endpoint in the Stripe dashboard");
-    } else {
-      console.log(`Found ${webhooks.data.length} webhook endpoints`);
-      
-      // Check for subscription webhook
-      const subscriptionWebhook = webhooks.data.find(webhook => 
-        webhook.enabled_events?.includes("checkout.session.completed")
-      );
-      
-      if (subscriptionWebhook) {
-        console.log("Subscription webhook found:", subscriptionWebhook.url);
-        console.log("Webhook is " + (subscriptionWebhook.status === "enabled" ? "enabled" : "disabled"));
-      } else {
-        console.warn("WARNING: No webhook for checkout.session.completed events found");
-      }
+    // Verify the webhook has the required events
+    const hasCheckoutEvent = subscriptionWebhook.enabled_events.includes('checkout.session.completed');
+    
+    if (!hasCheckoutEvent) {
+      console.warn("Warning: Webhook doesn't have checkout.session.completed event enabled");
     }
+    
+    return subscriptionWebhook;
   } catch (error) {
     console.error("Error checking webhook endpoints:", error);
-    // Non-blocking - we don't want to stop the main flow if this check fails
+    return null;
   }
 }

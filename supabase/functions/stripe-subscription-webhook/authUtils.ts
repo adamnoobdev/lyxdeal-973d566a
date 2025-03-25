@@ -1,53 +1,51 @@
 
-// Utility functions for handling authentication
+import { corsHeaders } from "./corsHeaders.ts";
+import { getStripeWebhookSecret } from "./supabaseClient.ts";
+
+export function validateStripeWebhook(signature: string | null): boolean {
+  // Just check that the signature exists, actual verification will be done in the handler
+  return !!signature;
+}
 
 export function validateAuthHeader(authHeader: string | null, stripeSignature: string | null): boolean {
-  // För Stripe webhooks behöver vi inte standard authorization header
-  // eftersom Stripe autentiserar via stripe-signature headern
+  // If we have a stripe signature, we skip the regular auth validation
   if (stripeSignature) {
-    console.log("Stripe signature header found, skipping standard auth validation");
+    console.log("Stripe signature present, skipping regular auth validation");
     return true;
   }
   
-  // För standard API-anrop kräver vi fortfarande en Bearer token
+  // For non-Stripe requests, validate the standard auth header
   if (!authHeader) {
-    console.error("Missing authorization header and no stripe-signature present");
+    console.log("No auth header found");
     return false;
   }
   
-  return authHeader.startsWith('Bearer ');
+  // The header should be in the format "Bearer <token>"
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    console.log("Invalid auth header format");
+    return false;
+  }
+  
+  // Simple token validation - in production you'd verify this
+  const token = parts[1];
+  return token.length > 0;
 }
 
-export function handleUnauthorized(headers: Record<string, string>): Response {
-  console.error("Unauthorized request received");
-  console.error("Headers received:", JSON.stringify(headers));
+export function handleUnauthorized(headers?: Record<string, string>) {
+  console.error("Unauthorized request", headers ? JSON.stringify(headers) : "No headers");
   
   return new Response(
     JSON.stringify({ 
-      error: "Unauthorized. Missing or invalid authorization header."
+      code: 401,
+      message: "Missing authorization header" 
     }),
     { 
-      status: 401,
-      headers: {
+      status: 401, 
+      headers: { 
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      }
+        ...corsHeaders 
+      } 
     }
   );
-}
-
-// Validerar specifikt en Stripe webhook-signatur
-export function validateStripeWebhook(signature: string | null): boolean {
-  if (!signature) {
-    console.error("Missing stripe-signature header");
-    return false;
-  }
-  
-  // Stripe-signaturen börjar med t= följt av en tidsstämpel
-  if (!signature.startsWith('t=')) {
-    console.error("Invalid stripe-signature format:", signature.substring(0, 10) + "...");
-    return false;
-  }
-  
-  return true;
 }

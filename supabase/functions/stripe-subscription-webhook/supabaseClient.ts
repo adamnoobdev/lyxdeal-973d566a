@@ -1,47 +1,54 @@
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// Initialize Supabase client
-export const getSupabaseAdmin = () => {
-  const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+// Cache the webhook secret to avoid repeated calls
+let cachedWebhookSecret: string | null = null;
+
+export async function getSupabaseAdmin() {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
   
-  if (!supabaseUrl) {
-    console.error("SUPABASE_URL is not configured in environment variables");
-    throw new Error("Supabase URL is not configured");
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: false,
+    }
+  });
+}
+
+export async function getStripeWebhookSecret() {
+  // Return cached version if available
+  if (cachedWebhookSecret) {
+    return cachedWebhookSecret;
   }
   
-  if (!supabaseServiceRoleKey) {
-    console.error("SUPABASE_SERVICE_ROLE_KEY is not configured in environment variables");
-    throw new Error("Supabase service role key is not configured");
+  // Try to get from environment variable first (preferred method)
+  const envSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  if (envSecret) {
+    cachedWebhookSecret = envSecret;
+    return envSecret;
   }
-  
-  console.log(`Creating Supabase admin client with URL: ${supabaseUrl}`);
   
   try {
-    // Create the Supabase client with explicit auth settings
-    const client = createClient(supabaseUrl, supabaseServiceRoleKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        debug: true
-      },
-      global: {
-        headers: {
-          'x-client-info': 'stripe-webhook'
-        }
-      }
+    // Fallback: try to get from Supabase secrets
+    const supabaseAdmin = await getSupabaseAdmin();
+    const { data, error } = await supabaseAdmin.rpc('get_secret', {
+      name: 'STRIPE_WEBHOOK_SECRET'
     });
     
-    // Verify the client was created correctly
-    if (!client) {
-      throw new Error("Failed to create Supabase client");
+    if (error) {
+      console.error("Error fetching webhook secret from Supabase:", error);
+      return null;
     }
     
-    console.log("Supabase admin client created successfully");
-    return client;
-  } catch (error) {
-    console.error("Error creating Supabase client:", error);
-    throw new Error(`Failed to create Supabase client: ${error.message}`);
+    if (!data) {
+      console.error("No webhook secret found in Supabase");
+      return null;
+    }
+    
+    cachedWebhookSecret = data;
+    return data;
+  } catch (err) {
+    console.error("Exception fetching webhook secret:", err);
+    return null;
   }
-};
+}

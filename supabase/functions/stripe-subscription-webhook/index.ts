@@ -21,13 +21,15 @@ serve(async (req) => {
     const signature = req.headers.get("stripe-signature");
     const authHeader = req.headers.get("authorization");
     
-    // Log headers for debugging - ta bort känsliga uppgifter i produktion
+    // Log headers for debugging - remove sensitive details in production
     console.log("Headers received:", Object.fromEntries(req.headers.entries()));
     
-    // För Stripe webhooks kräver vi en giltig stripe-signature header
+    // Important: For Stripe webhooks, we're looking specifically for the stripe-signature header
+    // This is different from normal API auth which uses the Authorization header
     if (signature) {
       console.log("Processing as Stripe webhook with signature:", signature.substring(0, 20) + "...");
       
+      // Basic validation of signature format (detailed verification happens in handleWebhookEvent)
       if (!validateStripeWebhook(signature)) {
         return new Response(
           JSON.stringify({ error: "Invalid stripe-signature format" }),
@@ -41,15 +43,16 @@ serve(async (req) => {
         );
       }
     } else if (!validateAuthHeader(authHeader, signature)) {
-      // För andra anrop kräver vi standard auth
+      // For non-Stripe requests, we require standard auth
       return handleUnauthorized(Object.fromEntries(req.headers.entries()));
     }
     
     // Get the raw request body as a string for webhook verification
     const bodyText = await req.text();
     console.log("Request body size:", bodyText.length, "bytes");
+    console.log("Request body preview:", bodyText.substring(0, 200) + "...");
     
-    // Handle the webhook event
+    // Handle the webhook event - pass the signature for verification
     const result = await handleWebhookEvent(signature || "", bodyText);
     
     return new Response(
