@@ -72,7 +72,7 @@ serve(async (req) => {
     console.log("Auth header present:", !!authHeader, authHeader ? authHeader.substring(0, 15) + "..." : "none");
     
     // VIKTIGT: För Stripe webhook-anrop, acceptera ALLA anrop som har Stripe-signatur
-    // Detta är nyckeln till att lösa problemet
+    // Detta är nyckeln till att lösa problemet med JWT-validering
     if (signature) {
       console.log("Processing request with Stripe signature");
       console.log("Full signature for debug:", signature);
