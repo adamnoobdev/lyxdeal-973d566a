@@ -63,6 +63,6 @@ export async function checkWebhookEndpoints(stripe: Stripe) {
     return { success: true, webhook: subscriptionWebhook.id };
   } catch (error) {
     console.error("Error checking webhook endpoints:", error);
-    return { error: "Failed to check webhook endpoints", details: error.message, stack: error.stack };
+    return { error: "Failed to check webhook endpoints" };
   }
 }

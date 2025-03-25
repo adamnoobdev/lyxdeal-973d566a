@@ -1,7 +1,7 @@
 
 // Main entry point for the Stripe subscription webhook
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { getStripeClient } from "./stripeClient.ts";
+import { getStripeClient, verifyWebhookConfiguration } from "./stripeClient.ts";
 import { getStripeWebhookSecret } from "./supabaseClient.ts";
 import { corsHeaders } from "./corsHeaders.ts";
 import { validateStripeWebhook, handleUnauthorized, validateAuthHeader } from "./authUtils.ts";
@@ -25,6 +25,40 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     console.log("Handling preflight OPTIONS request");
     return new Response(null, { headers: corsHeaders });
+  }
+  
+  // Lägg till en special path för att testa om webhook-endpointen fungerar
+  const url = new URL(req.url);
+  if (url.pathname.endsWith("/test")) {
+    console.log("TEST ENDPOINT CALLED - webhook function is accessible!");
+    // Verifiera webhook-konfigurationen direkt
+    try {
+      const webhookConfig = await verifyWebhookConfiguration();
+      return new Response(
+        JSON.stringify({ 
+          message: "Webhook test endpoint reached successfully", 
+          webhook_config: webhookConfig,
+          timestamp: new Date().toISOString()
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    } catch (error) {
+      console.error("Error verifying webhook configuration:", error);
+      return new Response(
+        JSON.stringify({ 
+          message: "Webhook endpoint is accessible but configuration check failed", 
+          error: error.message,
+          timestamp: new Date().toISOString()
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
   }
 
   try {
@@ -65,6 +99,7 @@ serve(async (req) => {
     // Get the raw request body as text
     const payload = await req.text();
     console.log("Request payload size:", payload.length, "bytes");
+    console.log("Request payload preview:", payload.substring(0, 200) + "...");
     
     // För Stripe webhook-anrop, hantera eventet
     if (signature) {

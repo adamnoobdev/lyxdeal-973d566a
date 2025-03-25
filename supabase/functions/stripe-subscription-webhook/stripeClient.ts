@@ -46,7 +46,25 @@ export async function verifyWebhookConfiguration() {
     
     if (!subscriptionWebhook) {
       console.warn("No subscription webhook found in Stripe configuration");
-      return false;
+      
+      // Lista alla webhook-endpoints för felsökning
+      console.log("All registered webhook endpoints:");
+      webhooks.data.forEach((webhook, index) => {
+        console.log(`${index + 1}. URL: ${webhook.url}`);
+        console.log(`   Status: ${webhook.status}`);
+        console.log(`   Events: ${webhook.enabled_events.join(', ')}`);
+      });
+      
+      return {
+        status: "missing",
+        message: "No stripe-subscription-webhook endpoint found in Stripe",
+        suggestions: [
+          "Go to the Stripe Dashboard and add a webhook endpoint",
+          "The URL should be: https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/stripe-subscription-webhook",
+          "Include 'checkout.session.completed' in enabled events"
+        ],
+        available_webhooks: webhooks.data.map(w => ({ url: w.url, status: w.status }))
+      };
     }
     
     console.log("Found subscription webhook:", subscriptionWebhook.id);
@@ -59,14 +77,28 @@ export async function verifyWebhookConfiguration() {
       console.warn("Warning: Webhook is missing checkout.session.completed event");
     }
     
+    // Verifiera att webhook secret finns konfigurerat
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    const secretConfigured = !!webhookSecret;
+    
     return {
       id: subscriptionWebhook.id,
       url: subscriptionWebhook.url,
       status: subscriptionWebhook.status,
-      eventsConfigured: hasCheckoutEvent
+      eventsConfigured: hasCheckoutEvent,
+      secretConfigured: secretConfigured,
+      suggestions: !hasCheckoutEvent ? ["Add 'checkout.session.completed' to enabled events"] : 
+                   !secretConfigured ? ["Configure STRIPE_WEBHOOK_SECRET in Edge Function settings"] : []
     };
   } catch (error) {
     console.error("Error verifying webhook configuration:", error.message);
-    return false;
+    return {
+      status: "error",
+      message: `Error checking webhook configuration: ${error.message}`,
+      suggestions: [
+        "Verify Stripe API key is correct",
+        "Check if your account has permission to list webhooks"
+      ]
+    };
   }
 }
