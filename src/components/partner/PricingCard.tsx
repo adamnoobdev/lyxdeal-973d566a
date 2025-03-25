@@ -81,6 +81,12 @@ export const PricingCard = ({
         </ul>
       </div>
       
+      <div className="bg-green-50 p-3 rounded-md border border-green-200 mb-4">
+        <p className="text-sm text-green-800 font-medium">
+          Använd rabattkoden <span className="font-bold">provmanad</span> för en gratis provmånad!
+        </p>
+      </div>
+      
       <div className="space-y-2 mt-auto">
         <Button 
           className="w-full" 
