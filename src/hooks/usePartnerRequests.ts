@@ -62,6 +62,7 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         // Förbättrad hantering av headers för att ge bättre spårbarhet
         const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs";
         
+        // Se till att anropet till Edge Function inkluderar alla nödvändiga headers
         const functionResponse = await fetch(
           "https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/create-salon-subscription",
           {
@@ -72,7 +73,9 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
               "apikey": anonKey,
               "x-client-info": `web/1.0/partner-signup/${data.plan_title || 'standard'}`
             },
-            body: JSON.stringify(functionPayload)
+            body: JSON.stringify(functionPayload),
+            // Lägg till credentials för att säkerställa att cookies skickas med
+            credentials: "include"
           }
         );
         
