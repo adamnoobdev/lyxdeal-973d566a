@@ -19,11 +19,21 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
       hasSubscription: !!subscription
     });
     
-    const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-salon-welcome`, {
+    // Get the Supabase URL and anon key from environment variables
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("Missing Supabase URL or anon key");
+      return { success: false, error: "Missing Supabase configuration" };
+    }
+    
+    // Call the send-salon-welcome edge function
+    const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-salon-welcome`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+        "Authorization": `Bearer ${supabaseAnonKey}`,
       },
       body: JSON.stringify({
         email: session.metadata.email,
@@ -42,9 +52,17 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
     
     // Log the complete response for debugging
     const emailResponseStatus = emailResponse.status;
-    const emailResponseText = await emailResponse.text();
     console.log(`Welcome email API response status: ${emailResponseStatus}`);
-    console.log(`Welcome email API response: ${emailResponseText}`);
+    
+    // Get response text
+    let emailResponseText;
+    try {
+      emailResponseText = await emailResponse.text();
+      console.log(`Welcome email API response: ${emailResponseText}`);
+    } catch (textError) {
+      console.error("Error getting response text:", textError);
+      return { success: false, error: "Failed to read email response" };
+    }
     
     // Try to parse the response as JSON if possible
     let emailResponseData;
@@ -52,11 +70,16 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
       emailResponseData = JSON.parse(emailResponseText);
     } catch (parseError) {
       console.error("Error parsing email response:", parseError);
+      // Continue without parsed data
     }
     
     if (!emailResponse.ok) {
       console.error("Email API error:", emailResponseData || emailResponseText);
-      throw new Error(`Failed to send welcome email: ${emailResponseText}`);
+      return { 
+        success: false, 
+        error: `Failed to send welcome email: ${emailResponseText}`,
+        status: emailResponseStatus
+      };
     }
     
     console.log("Welcome email sent successfully");

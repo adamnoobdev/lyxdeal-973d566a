@@ -6,10 +6,10 @@ import { updatePartnerRequestStatus } from "./updatePartnerRequest.ts";
 import { sendWelcomeEmail } from "./sendWelcomeEmail.ts";
 
 export async function handleCheckoutCompleted(session: any) {
-  console.log("Checkout session completed:", session);
+  console.log("Checkout session completed:", session.id);
   
   if (!session.metadata || !session.metadata.email || !session.metadata.business_name) {
-    console.error("Missing required metadata in session:", session);
+    console.error("Missing required metadata in session:", JSON.stringify(session.metadata));
     throw new Error("Missing required metadata in session");
   }
   
@@ -20,28 +20,41 @@ export async function handleCheckoutCompleted(session: any) {
   let subscription;
   try {
     subscription = await stripe.subscriptions.retrieve(session.subscription);
-    console.log("Subscription details:", subscription);
+    console.log("Subscription details retrieved:", subscription.id);
   } catch (subscriptionError) {
     console.error("Error retrieving subscription:", subscriptionError);
   }
   
-  // Generate a random password
+  // Generate a secure random password
   const generatePassword = () => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     let password = "";
-    for (let i = 0; i < 12; i++) {
-      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    const length = 12; // Ensure constant length
+    
+    // Use crypto random for better security if available
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    
+    for (let i = 0; i < length; i++) {
+      password += chars.charAt(array[i] % chars.length);
     }
+    
     return password;
   };
   
   const password = generatePassword();
-  console.log(`Generated password length: ${password.length}`);
+  console.log(`Generated password of length: ${password.length}`);
   
   try {
     // Create a new salon account
+    console.log("Creating salon account for:", session.metadata.email);
     const userData = await createSalonAccount(supabaseAdmin, session, password);
-    console.log("User account created:", userData.user.id);
+    
+    if (!userData || !userData.user) {
+      throw new Error("Failed to create salon account: No user data returned");
+    }
+    
+    console.log("User account created with ID:", userData.user.id);
     
     // Get subscription data
     const subscriptionData = {
@@ -76,26 +89,35 @@ export async function handleCheckoutCompleted(session: any) {
 
     if (salonError) {
       console.error("Error creating salon:", salonError);
-      throw new Error("Failed to create salon record");
+      throw new Error(`Failed to create salon record: ${salonError.message}`);
     }
     
-    console.log("Salon record created successfully:", salonData);
+    if (!salonData || salonData.length === 0) {
+      console.error("No salon data returned after creation");
+      throw new Error("Failed to create salon record: No data returned");
+    }
+    
+    console.log("Salon record created successfully:", salonData[0].id);
     
     // Update partner request status
     await updatePartnerRequestStatus(supabaseAdmin, session.metadata.email);
     
     // Send welcome email with temporary password
+    console.log("Sending welcome email to:", session.metadata.email);
     const emailResult = await sendWelcomeEmail(session, password, subscription);
-    console.log("Email sending result:", emailResult);
     
     if (!emailResult.success) {
-      console.error("Failed to send welcome email, but proceeding with account creation");
+      console.error("Failed to send welcome email:", emailResult.error);
+      // Log but continue with account creation
+    } else {
+      console.log("Welcome email sent successfully");
     }
     
     return { 
       success: true, 
       userId: userData.user.id,
-      salonCreated: !!salonData,
+      salonId: salonData[0].id,
+      salonCreated: true,
       emailSent: emailResult.success 
     };
   } catch (error) {

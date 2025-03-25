@@ -26,12 +26,38 @@ serve(async (req) => {
       );
     }
 
-    const body = await req.json();
-    console.log("Received request body:", JSON.stringify(body));
+    // Parse request body
+    let body;
+    try {
+      body = await req.json();
+      console.log("Received request to send welcome email:", {
+        email: body.email,
+        business_name: body.business_name,
+        hasPassword: !!body.temporary_password,
+        passwordLength: body.temporary_password?.length
+      });
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError);
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON in request body" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
     
     const { email, business_name, temporary_password, subscription_info } = body;
 
+    // Validate required fields
     if (!email || !business_name || !temporary_password) {
+      console.error("Missing required fields:", { 
+        hasEmail: !!email, 
+        hasBusinessName: !!business_name, 
+        hasPassword: !!temporary_password,
+        passwordLength: temporary_password?.length 
+      });
+      
       return new Response(
         JSON.stringify({ 
           error: "Missing required fields", 
@@ -39,7 +65,7 @@ serve(async (req) => {
             email: email || null, 
             business_name: business_name || null, 
             hasPassword: !!temporary_password,
-            requestBody: body
+            passwordLength: temporary_password?.length
           } 
         }),
         {
@@ -113,6 +139,7 @@ serve(async (req) => {
     const testingMode = !Deno.env.get("PRODUCTION_MODE");
     const verifiedEmail = Deno.env.get("VERIFIED_EMAIL") || "adam@larlid.com";
     
+    // Configure email parameters
     const emailConfig = {
       // In production, use the verified domain. In testing, use Resend's default
       from: testingMode 
@@ -130,14 +157,15 @@ serve(async (req) => {
     }
 
     // Create detailed log of what we're about to send
-    console.log(`Sending email with config:`, JSON.stringify({
+    console.log(`Sending email with config:`, {
       from: emailConfig.from,
       to: emailConfig.to,
       subject: emailConfig.subject,
       testingMode: testingMode,
       apiKeyLength: apiKey ? apiKey.length : 0
-    }));
+    });
 
+    // Send the email with Resend API
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -148,11 +176,18 @@ serve(async (req) => {
     });
 
     const responseStatus = response.status;
-    const responseText = await response.text();
+    let responseText;
     
-    console.log(`Resend API response status: ${responseStatus}`);
-    console.log(`Resend API response body: ${responseText}`);
+    try {
+      responseText = await response.text();
+      console.log(`Resend API response status: ${responseStatus}`);
+      console.log(`Resend API response body: ${responseText}`);
+    } catch (textError) {
+      console.error("Failed to get response text:", textError);
+      responseText = "Could not read response";
+    }
     
+    // Parse response data
     let data;
     try {
       data = JSON.parse(responseText);
@@ -161,10 +196,20 @@ serve(async (req) => {
       data = { error: "Invalid JSON response from email service" };
     }
 
+    // Handle error responses
     if (!response.ok) {
       console.error("Error sending email:", data);
       return new Response(
-        JSON.stringify({ error: "Failed to send email", details: data, status: responseStatus }),
+        JSON.stringify({ 
+          error: "Failed to send email", 
+          details: data, 
+          status: responseStatus,
+          requestPayload: {
+            to: emailConfig.to,
+            from: emailConfig.from,
+            subject: emailConfig.subject
+          }
+        }),
         {
           status: 500,
           headers: {
@@ -199,6 +244,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
+    // Log and handle any unexpected errors
     console.error("Error in send-salon-welcome function:", error);
     return new Response(
       JSON.stringify({ 

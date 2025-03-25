@@ -2,10 +2,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
+import { Helmet } from "react-helmet";
 
 export default function SubscriptionSuccess() {
   const [searchParams] = useSearchParams();
@@ -27,7 +28,6 @@ export default function SubscriptionSuccess() {
 
       try {
         // Hämta partnerförfrågan som är associerad med detta köp
-        // Detta är en förenklad implementation - i verkligheten skulle vi behöva spara session_id i databasen
         const { data: partnerRequests, error: partnerError } = await supabase
           .from("partner_requests")
           .select("*")
@@ -36,11 +36,14 @@ export default function SubscriptionSuccess() {
           .limit(1);
 
         if (partnerError) {
+          console.error("Fel vid hämtning av partnerförfrågan:", partnerError);
           throw partnerError;
         }
 
         if (partnerRequests && partnerRequests.length > 0) {
           setPurchaseDetails(partnerRequests[0]);
+        } else {
+          console.log("Inga godkända partnerförfrågningar hittades");
         }
       } catch (err) {
         console.error("Fel vid hämtning av köpdetaljer:", err);
@@ -92,31 +95,52 @@ export default function SubscriptionSuccess() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-lg shadow-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-6">
-            <CheckCircle className="h-20 w-20 text-green-500" />
-          </div>
-          <CardTitle className="text-2xl lg:text-3xl">Prenumeration genomförd!</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          
-          <div className="text-center space-y-2">
-            <p className="text-gray-700">
-              Ditt konto har skapats och vi har skickat inloggningsuppgifter till din e-post. 
-              Kontrollera din inkorg (och spamkorg) för instruktioner om hur du loggar in på ditt nya salongskonto.
-            </p>
+    <>
+      <Helmet>
+        <title>Prenumeration genomförd | Lyxdeal</title>
+        <meta name="description" content="Din prenumeration har genomförts. Kontrollera din e-post för inloggningsuppgifter." />
+      </Helmet>
+    
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-lg shadow-md">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-6">
+              <CheckCircle className="h-20 w-20 text-green-500" />
+            </div>
+            <CardTitle className="text-2xl lg:text-3xl">Prenumeration genomförd!</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertTitle>Ett fel uppstod</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             
-            {!loading && renderPurchaseDetails()}
-          </div>
-
-          <div className="flex flex-col space-y-2">
+            <div className="text-center space-y-2">
+              <p className="text-gray-700">
+                Ditt konto har skapats och vi har skickat inloggningsuppgifter till din e-post. 
+                Kontrollera din inkorg (och spamkorg) för instruktioner om hur du loggar in på ditt nya salongskonto.
+              </p>
+              
+              <Alert className="mt-4 bg-blue-50 border-blue-200">
+                <AlertDescription className="text-blue-800">
+                  Viktigt: Om du inte hittar mejlet inom några minuter, kontrollera din spammapp. Om du fortfarande inte hittar det, kontakta oss på info@lyxdeal.se.
+                </AlertDescription>
+              </Alert>
+              
+              {loading ? (
+                <div className="py-4 text-center">
+                  <div className="animate-pulse h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                  <div className="animate-pulse h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                </div>
+              ) : (
+                renderPurchaseDetails()
+              )}
+            </div>
+          </CardContent>
+          
+          <CardFooter className="flex flex-col space-y-2 pt-2">
             <Button 
               onClick={() => navigate("/salon/login")}
               className="w-full"
@@ -131,9 +155,9 @@ export default function SubscriptionSuccess() {
             >
               Gå till startsidan
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardFooter>
+        </Card>
+      </div>
+    </>
   );
 }
