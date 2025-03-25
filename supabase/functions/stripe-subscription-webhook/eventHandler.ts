@@ -1,39 +1,61 @@
 
 import { handleCheckoutCompleted } from "./eventHandlers/checkoutCompleted.ts";
 import { getStripeWebhookSecret } from "./supabaseClient.ts";
-import Stripe from "https://esm.sh/stripe@12.11.0";
+import { getStripeClient } from "./stripeClient.ts";
 
 export async function handleWebhookEvent(signature: string, payload: string) {
   try {
     console.log("Starting to handle webhook event");
-    
-    // Get webhook secret from environment
-    const webhookSecret = await getStripeWebhookSecret();
-    
-    if (!webhookSecret) {
-      console.error("STRIPE_WEBHOOK_SECRET not found in environment");
-      return { error: "Webhook secret not configured" };
-    }
     
     if (!signature) {
       console.error("No stripe-signature header found");
       return { error: "Missing stripe-signature header" };
     }
     
+    if (!payload || payload.trim() === '') {
+      console.error("Empty or invalid payload received");
+      return { error: "Empty or invalid payload" };
+    }
+    
+    // Get webhook secret from environment
+    const webhookSecret = await getStripeWebhookSecret();
+    
+    if (!webhookSecret) {
+      console.error("STRIPE_WEBHOOK_SECRET not found in environment or Supabase secrets");
+      return { error: "Webhook secret not configured", suggestion: "Check Edge Function environment variables" };
+    }
+    
+    console.log("Webhook secret retrieved successfully");
+    
     // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2022-11-15",
-    });
+    const stripe = getStripeClient();
     
     let event;
     try {
       // Verify the event with Stripe
       console.log("Verifying Stripe signature with secret");
+      console.log("Payload size:", payload.length, "bytes");
+      console.log("Signature first 20 chars:", signature.substring(0, 20) + "...");
+      
       event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
       console.log("Signature verified successfully");
+      console.log("Event type:", event.type);
+      console.log("Event ID:", event.id);
     } catch (err) {
       console.error("Webhook signature verification failed:", err);
-      return { error: `Webhook Error: ${err.message}` };
+      console.error("Error message:", err.message);
+      
+      // Detaljerad felrapportering för debug
+      return { 
+        error: `Webhook signature verification failed: ${err.message}`,
+        details: {
+          signatureLength: signature?.length || 0,
+          payloadLength: payload?.length || 0,
+          signaturePreview: signature?.substring(0, 20) + "...",
+          webhookSecretConfigured: !!webhookSecret,
+          timestamp: new Date().toISOString()
+        }
+      };
     }
     
     console.log("Processing event type:", event.type);
@@ -41,7 +63,10 @@ export async function handleWebhookEvent(signature: string, payload: string) {
     // Handle different event types
     switch (event.type) {
       case 'checkout.session.completed':
-        console.log("Processing checkout.session.completed");
+        console.log("Processing checkout.session.completed event");
+        console.log("Customer:", event.data.object.customer);
+        console.log("Customer email:", event.data.object.customer_details?.email);
+        console.log("Subscription:", event.data.object.subscription);
         return await handleCheckoutCompleted(event.data.object);
       default:
         console.log(`Unhandled event type: ${event.type}`);
@@ -53,11 +78,13 @@ export async function handleWebhookEvent(signature: string, payload: string) {
     }
   } catch (error) {
     console.error("Error handling webhook event:", error);
+    console.error("Error message:", error.message);
     console.error("Error stack:", error.stack);
     return { 
       error: "Error handling webhook event", 
       message: error.message,
-      stack: error.stack 
+      stack: error.stack,
+      timestamp: new Date().toISOString()
     };
   }
 }

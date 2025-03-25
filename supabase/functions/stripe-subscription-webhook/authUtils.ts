@@ -3,42 +3,63 @@ import { corsHeaders } from "./corsHeaders.ts";
 import { getStripeWebhookSecret } from "./supabaseClient.ts";
 
 export function validateStripeWebhook(signature: string | null): boolean {
-  // Just check that the signature exists, actual verification will be done in the handler
-  return !!signature;
+  if (!signature) {
+    console.error("No Stripe signature provided in request");
+    return false;
+  }
+  
+  // Enkel validering av signaturformat - ska innehålla "t=" och "v1="
+  const hasTimestamp = signature.includes("t=");
+  const hasSignature = signature.includes("v1=");
+  
+  if (!hasTimestamp || !hasSignature) {
+    console.error(`Invalid signature format: Missing ${!hasTimestamp ? 't=' : ''} ${!hasSignature ? 'v1=' : ''}`);
+    return false;
+  }
+  
+  console.log("Stripe signature format validated successfully");
+  return true;
 }
 
 export function validateAuthHeader(authHeader: string | null, stripeSignature: string | null): boolean {
-  // If we have a stripe signature, we skip the regular auth validation
+  // Om vi har en Stripe-signatur, skippa vanlig auth-validering
   if (stripeSignature) {
     console.log("Stripe signature present, skipping regular auth validation");
     return true;
   }
   
-  // For non-Stripe requests, validate the standard auth header
+  // För icke-Stripe-begäran, validera standard auth-header
   if (!authHeader) {
-    console.log("No auth header found");
+    console.log("No auth header found for non-Stripe request");
     return false;
   }
   
-  // The header should be in the format "Bearer <token>"
+  // Headern ska vara i formatet "Bearer <token>"
   const parts = authHeader.split(' ');
   if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    console.log("Invalid auth header format");
+    console.log("Invalid auth header format, expected 'Bearer <token>'");
     return false;
   }
   
-  // Simple token validation - in production you'd verify this
+  // Enkel token-validering
   const token = parts[1];
-  return token.length > 0;
+  const isValid = token.length > 0;
+  console.log("Auth token validation result:", isValid ? "valid" : "invalid");
+  return isValid;
 }
 
 export function handleUnauthorized(headers?: Record<string, string>) {
-  console.error("Unauthorized request", headers ? JSON.stringify(headers) : "No headers");
+  console.error("Unauthorized request - missing or invalid authentication", 
+    headers ? JSON.stringify({
+      'stripe-signature': headers['stripe-signature'] ? 'present' : 'missing',
+      'authorization': headers['authorization'] ? 'present' : 'missing'
+    }) : "No headers");
   
   return new Response(
     JSON.stringify({ 
       code: 401,
-      message: "Missing authorization header" 
+      message: "Missing authorization header or invalid Stripe signature",
+      timestamp: new Date().toISOString()
     }),
     { 
       status: 401, 

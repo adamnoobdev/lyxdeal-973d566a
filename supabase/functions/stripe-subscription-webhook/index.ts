@@ -7,13 +7,19 @@ import { corsHeaders } from "./corsHeaders.ts";
 
 serve(async (req) => {
   try {
-    // Log the request for debugging
-    console.log("Stripe webhook request received:", new Date().toISOString());
-    console.log("HTTP Method:", req.method);
+    // Förbättrad loggning för att spåra HTTP-begäran
+    console.log("============== WEBHOOK REQUEST RECEIVED ==============");
+    console.log("Request time:", new Date().toISOString());
+    console.log("Method:", req.method);
     console.log("URL:", req.url);
+    
+    // Logga alla headers för att se vad som faktiskt skickas från Stripe
+    const headersMap = Object.fromEntries(req.headers.entries());
+    console.log("Headers:", JSON.stringify(headersMap, null, 2));
     
     // Handle CORS preflight requests
     if (req.method === "OPTIONS") {
+      console.log("Handling preflight OPTIONS request");
       return new Response(null, { headers: corsHeaders });
     }
     
@@ -21,16 +27,17 @@ serve(async (req) => {
     const signature = req.headers.get("stripe-signature");
     const authHeader = req.headers.get("authorization");
     
-    // Log headers for debugging - remove sensitive details in production
-    console.log("Headers received:", Object.fromEntries(req.headers.entries()));
-    
-    // Important: For Stripe webhooks, we're looking specifically for the stripe-signature header
-    // This is different from normal API auth which uses the Authorization header
+    console.log("Stripe-Signature present:", !!signature);
     if (signature) {
-      console.log("Processing as Stripe webhook with signature:", signature.substring(0, 20) + "...");
-      
-      // Basic validation of signature format (detailed verification happens in handleWebhookEvent)
+      console.log("Signature value (first 20 chars):", signature.substring(0, 20) + "...");
+    }
+    console.log("Authorization header present:", !!authHeader);
+    
+    // För Stripe-webhooks, validera signaturen om den finns
+    if (signature) {
+      console.log("Processing as Stripe webhook with signature");
       if (!validateStripeWebhook(signature)) {
+        console.error("Invalid stripe-signature format");
         return new Response(
           JSON.stringify({ error: "Invalid stripe-signature format" }),
           { 
@@ -42,18 +49,39 @@ serve(async (req) => {
           }
         );
       }
-    } else if (!validateAuthHeader(authHeader, signature)) {
-      // For non-Stripe requests, we require standard auth
-      return handleUnauthorized(Object.fromEntries(req.headers.entries()));
+      console.log("Stripe signature format validation passed");
+    } 
+    // För icke-Stripe begäran, kräv standard auth
+    else if (!validateAuthHeader(authHeader, signature)) {
+      console.error("Authentication failed: No valid signature or auth header");
+      return handleUnauthorized(headersMap);
     }
     
     // Get the raw request body as a string for webhook verification
     const bodyText = await req.text();
     console.log("Request body size:", bodyText.length, "bytes");
-    console.log("Request body preview:", bodyText.substring(0, 200) + "...");
+    if (bodyText.length > 0) {
+      try {
+        // Försök parsa JSON för att visa strukturen men hantera om det inte är JSON
+        const bodyPreview = JSON.parse(bodyText);
+        console.log("Request body event type:", bodyPreview.type);
+        console.log("Request body ID:", bodyPreview.id);
+        if (bodyPreview.data?.object?.id) {
+          console.log("Session ID:", bodyPreview.data.object.id);
+        }
+      } catch (e) {
+        console.log("Request body is not valid JSON or empty");
+      }
+    } else {
+      console.error("Request body is empty");
+    }
     
     // Handle the webhook event - pass the signature for verification
+    console.log("Passing request to handleWebhookEvent");
     const result = await handleWebhookEvent(signature || "", bodyText);
+    
+    console.log("Webhook handling result:", JSON.stringify(result, null, 2));
+    console.log("============== WEBHOOK REQUEST COMPLETED ==============");
     
     return new Response(
       JSON.stringify(result),
@@ -66,8 +94,11 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error processing webhook:", error);
+    console.error("============== WEBHOOK ERROR ==============");
+    console.error("Unhandled error in webhook processing:", error);
+    console.error("Error message:", error.message);
     console.error("Error stack:", error.stack);
+    console.error("============================================");
     
     return new Response(
       JSON.stringify({ 

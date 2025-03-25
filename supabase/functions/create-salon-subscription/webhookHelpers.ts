@@ -17,7 +17,7 @@ export async function checkWebhookEndpoints(stripe: Stripe) {
       console.log("No subscription webhook found. You should create one in the Stripe dashboard.");
       console.log("URL should be: https://[your-project-id].functions.supabase.co/stripe-subscription-webhook");
       console.log("Events should include: checkout.session.completed");
-      return;
+      return null;
     }
     
     console.log("Found subscription webhook:", subscriptionWebhook.id);
@@ -25,11 +25,24 @@ export async function checkWebhookEndpoints(stripe: Stripe) {
     console.log("Webhook status:", subscriptionWebhook.status);
     console.log("Enabled events:", subscriptionWebhook.enabled_events);
     
-    // Verify the webhook has the required events
+    // Check if the webhook includes the correct events
     const hasCheckoutEvent = subscriptionWebhook.enabled_events.includes('checkout.session.completed');
     
     if (!hasCheckoutEvent) {
       console.warn("Warning: Webhook doesn't have checkout.session.completed event enabled");
+    }
+    
+    // Check webhook secret
+    try {
+      const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+      if (webhookSecret) {
+        console.log("STRIPE_WEBHOOK_SECRET is configured in environment variables");
+      } else {
+        console.warn("STRIPE_WEBHOOK_SECRET is not configured in environment variables");
+        console.warn("This is required for webhook signature validation");
+      }
+    } catch (err) {
+      console.error("Error checking webhook secret:", err);
     }
     
     return subscriptionWebhook;
