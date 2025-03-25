@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Session } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
-import { User } from 'lucide-react';
+import { User, Scissors, Store } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ interface UserMenuProps {
   hasDashboard: boolean;
   dashboardPath: string;
   userRole?: string | null;
-  className?: string; // Added className as optional prop
+  className?: string;
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({
@@ -21,7 +21,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
   hasDashboard,
   dashboardPath,
   userRole,
-  className = '' // Default to empty string if not provided
+  className = ''
 }) => {
   const navigate = useNavigate();
   
@@ -68,7 +68,10 @@ const UserMenu: React.FC<UserMenuProps> = ({
 
   return (
     <Button size="sm" asChild className={className}>
-      <Link to="/auth">Logga in</Link>
+      <Link to="/auth">
+        <Scissors className="h-4 w-4 mr-2" />
+        <span className="xs:inline">Salongspartner</span>
+      </Link>
     </Button>
   );
 };
