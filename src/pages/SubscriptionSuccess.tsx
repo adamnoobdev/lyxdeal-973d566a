@@ -93,7 +93,7 @@ export default function SubscriptionSuccess() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-lg">
+      <Card className="w-full max-w-lg shadow-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-6">
             <CheckCircle className="h-20 w-20 text-green-500" />

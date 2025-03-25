@@ -26,11 +26,22 @@ serve(async (req) => {
       );
     }
 
-    const { email, business_name, temporary_password, subscription_info } = await req.json();
+    const body = await req.json();
+    console.log("Received request body:", JSON.stringify(body));
+    
+    const { email, business_name, temporary_password, subscription_info } = body;
 
     if (!email || !business_name || !temporary_password) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields", receivedFields: { email, business_name, hasPassword: !!temporary_password } }),
+        JSON.stringify({ 
+          error: "Missing required fields", 
+          receivedFields: { 
+            email: email || null, 
+            business_name: business_name || null, 
+            hasPassword: !!temporary_password,
+            requestBody: body
+          } 
+        }),
         {
           status: 400,
           headers: {
@@ -123,7 +134,8 @@ serve(async (req) => {
       from: emailConfig.from,
       to: emailConfig.to,
       subject: emailConfig.subject,
-      testingMode: testingMode
+      testingMode: testingMode,
+      apiKeyLength: apiKey ? apiKey.length : 0
     }));
 
     const response = await fetch("https://api.resend.com/emails", {
@@ -136,10 +148,18 @@ serve(async (req) => {
     });
 
     const responseStatus = response.status;
-    const data = await response.json();
-
+    const responseText = await response.text();
+    
     console.log(`Resend API response status: ${responseStatus}`);
-    console.log(`Resend API response:`, JSON.stringify(data));
+    console.log(`Resend API response body: ${responseText}`);
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error("Failed to parse Resend API response:", e);
+      data = { error: "Invalid JSON response from email service" };
+    }
 
     if (!response.ok) {
       console.error("Error sending email:", data);
@@ -167,7 +187,8 @@ serve(async (req) => {
         success: true, 
         data,
         message: message,
-        testingMode: testingMode
+        testingMode: testingMode,
+        email: email
       }),
       {
         status: 200,
@@ -180,7 +201,11 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in send-salon-welcome function:", error);
     return new Response(
-      JSON.stringify({ error: error.message, stack: error.stack }),
+      JSON.stringify({ 
+        error: error.message, 
+        stack: error.stack,
+        sentAt: new Date().toISOString()
+      }),
       {
         status: 500,
         headers: {
