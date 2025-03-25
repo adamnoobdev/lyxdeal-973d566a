@@ -102,17 +102,21 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
         // Add promo code information to toast message
         toast.success("Du skickas nu till betalningssidan. Använd rabattkoden 'provmanad' för en gratis provmånad!");
         
-        // Redirect to payment page directly in the same tab
+        // Redirect to payment page directly
         window.location.href = result.redirectUrl;
         
-        // Show a backup button in case redirect doesn't work automatically
-        toast.success("Om du inte omdirigeras automatiskt, klicka här", {
-          duration: 10000,
-          action: {
-            label: "Gå till betalning",
-            onClick: () => window.location.href = result.redirectUrl!
+        // If for some reason the redirect doesn't occur immediately, show a backup button
+        setTimeout(() => {
+          if (document.visibilityState !== 'hidden') {
+            toast.success("Om du inte omdirigeras automatiskt, klicka här", {
+              duration: 10000,
+              action: {
+                label: "Gå till betalning",
+                onClick: () => window.location.href = result.redirectUrl!
+              }
+            });
           }
-        });
+        }, 3000);
       } else {
         // If no payment required (free plan)
         toast.success("Tack för din registrering! Vi kontaktar dig inom kort.");
