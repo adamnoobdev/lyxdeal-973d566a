@@ -10,6 +10,12 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Logga allt för debugging
+  console.log("=======================================");
+  console.log("Create salon subscription request received", new Date().toISOString());
+  console.log("HTTP Method:", req.method);
+  console.log("Headers:", Object.fromEntries(req.headers.entries()));
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -32,6 +38,15 @@ serve(async (req) => {
           },
         }
       );
+    }
+    
+    // Kontrollera att webhook-hemligheten finns
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    if (!webhookSecret) {
+      console.error("STRIPE_WEBHOOK_SECRET is not configured");
+      console.log("This is critical for webhook validation!");
+    } else {
+      console.log("STRIPE_WEBHOOK_SECRET is configured");
     }
     
     // Initialize Stripe
@@ -115,6 +130,36 @@ serve(async (req) => {
     if (origin.includes("localhost") || origin.includes("lovableproject")) {
       origin = "https://www.lyxdeal.se";
       console.log("Corrected origin to:", origin);
+    }
+    
+    // Verifiera webhook endpoint
+    try {
+      // Kontrollera webhook endpoints
+      console.log("Checking Stripe webhook endpoints...");
+      const webhooks = await stripe.webhookEndpoints.list({ limit: 5 });
+      console.log(`Found ${webhooks.data.length} webhook endpoints`);
+      
+      // Logga alla webhook-endpoints för diagnostik
+      webhooks.data.forEach((webhook, index) => {
+        console.log(`Webhook #${index + 1}:`);
+        console.log(`  URL: ${webhook.url}`);
+        console.log(`  Status: ${webhook.status}`);
+        console.log(`  Events: ${webhook.enabled_events?.join(', ') || 'none'}`);
+      });
+      
+      // Kontrollera om vi har en webhook för checkout.session.completed
+      const hasCheckoutWebhook = webhooks.data.some(webhook => 
+        webhook.enabled_events?.includes('checkout.session.completed') || 
+        webhook.enabled_events?.includes('*')
+      );
+      
+      if (!hasCheckoutWebhook) {
+        console.warn("WARNING: No webhook found for checkout.session.completed events!");
+        console.warn("You may need to configure this in the Stripe dashboard.");
+      }
+    } catch (webhookError) {
+      console.error("Error checking webhooks:", webhookError);
+      // Fortsätt trots fel - detta är bara diagnostik
     }
     
     // Create our session parameters
@@ -210,23 +255,71 @@ serve(async (req) => {
         const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
         
         if (supabaseUrl && supabaseKey) {
+          console.log("Attempting to update partner_requests table with session ID");
           const supabase = createClient(supabaseUrl, supabaseKey);
           
-          const { data, error } = await supabase
+          // Först, leta efter en befintlig partner request
+          const { data: existingData, error: existingError } = await supabase
             .from("partner_requests")
-            .update({ stripe_session_id: session.id })
+            .select("id, email")
             .eq("email", email)
-            .select();
+            .order("created_at", { ascending: false })
+            .limit(1);
             
-          if (error) {
-            console.error("Error updating partner request with session ID:", error);
+          if (existingError) {
+            console.error("Error finding existing partner request:", existingError);
+          } else if (existingData && existingData.length > 0) {
+            console.log("Found existing partner request to update:", existingData[0].id);
+            
+            // Update existing partner request with session ID
+            const { data, error } = await supabase
+              .from("partner_requests")
+              .update({ 
+                stripe_session_id: session.id,
+                plan_title: planTitle,
+                plan_payment_type: planType,
+                plan_price: price
+              })
+              .eq("id", existingData[0].id)
+              .select();
+              
+            if (error) {
+              console.error("Error updating partner request with session ID:", error);
+            } else {
+              console.log("Successfully updated partner request with session ID");
+            }
           } else {
-            console.log("Updated partner request with session ID:", session.id);
+            console.log("No existing partner request found, creating a new one");
+            
+            // Create a new partner request with the session ID
+            const { data: newData, error: newError } = await supabase
+              .from("partner_requests")
+              .insert([
+                {
+                  name: businessName,
+                  business_name: businessName,
+                  email: email,
+                  phone: "Unknown", // Saknar telefonnummer men behöver fylla i ett värde
+                  stripe_session_id: session.id,
+                  plan_title: planTitle,
+                  plan_payment_type: planType,
+                  plan_price: price
+                }
+              ])
+              .select();
+              
+            if (newError) {
+              console.error("Error creating new partner request with session ID:", newError);
+            } else {
+              console.log("Successfully created new partner request with session ID");
+            }
           }
+        } else {
+          console.error("Missing Supabase credentials for partner request update");
         }
       } catch (updateError) {
         console.error("Failed to update partner request with session ID:", updateError);
-        // Continue despite error
+        // Continue despite error - still want to return the checkout URL
       }
       
     } catch (error) {
@@ -247,10 +340,13 @@ serve(async (req) => {
     }
 
     // Return the checkout URL as JSON
+    console.log("Returning checkout URL to client:", session.url);
+    console.log("=======================================");
     return new Response(
       JSON.stringify({ 
         url: session.url,
-        success: true 
+        success: true,
+        session_id: session.id
       }),
       {
         status: 200,
@@ -262,6 +358,7 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Unhandled error in creating checkout session:", error);
+    console.error("=======================================");
     return new Response(
       JSON.stringify({ 
         error: "Error creating checkout session",
