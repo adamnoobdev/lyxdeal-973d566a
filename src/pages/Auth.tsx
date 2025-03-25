@@ -78,9 +78,14 @@ export default function Auth() {
           <h1 className="text-3xl font-bold tracking-tight text-primary">
             Välkommen till Lyxdeal
           </h1>
-          <p className="text-muted-foreground">
-            Logga in för att fortsätta
+          <p className="text-muted-foreground mb-4">
+            Denna inloggning är endast för salongspartners
           </p>
+          <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-4">
+            <p className="text-sm text-green-800">
+              Vill du bli salongspartner? <a href="/bli-partner" className="font-medium underline">Registrera dig här</a> och få en gratis provmånad med kod <span className="font-bold">provmanad</span>!
+            </p>
+          </div>
         </div>
 
         {errorMessage && <Alert variant="destructive">
