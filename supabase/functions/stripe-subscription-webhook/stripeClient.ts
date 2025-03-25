@@ -52,7 +52,7 @@ export async function verifyWebhookConfiguration() {
     console.log("Found subscription webhook:", subscriptionWebhook.id);
     console.log("Webhook URL:", subscriptionWebhook.url);
     console.log("Webhook status:", subscriptionWebhook.status);
-    console.log("Enabled events:", subscriptionWebhook.enabled_events);
+    console.log("Webhook enabled events:", subscriptionWebhook.enabled_events);
     
     const hasCheckoutEvent = subscriptionWebhook.enabled_events.includes('checkout.session.completed');
     if (!hasCheckoutEvent) {
