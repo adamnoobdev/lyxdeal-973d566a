@@ -16,45 +16,46 @@ export async function handleCheckoutCompleted(session: any) {
   const stripe = getStripeClient();
   const supabaseAdmin = getSupabaseAdmin();
   
-  // Retrieve subscription information from Stripe
-  let subscription;
   try {
-    subscription = await stripe.subscriptions.retrieve(session.subscription);
-    console.log("Subscription details retrieved:", subscription.id);
-  } catch (subscriptionError) {
-    console.error("Error retrieving subscription:", subscriptionError);
-  }
-  
-  // Generate a secure random password
-  const generatePassword = () => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    let password = "";
-    const length = 12; // Ensure constant length
-    
-    // Use crypto random for better security if available
-    const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
-    
-    for (let i = 0; i < length; i++) {
-      password += chars.charAt(array[i] % chars.length);
+    // Retrieve subscription information from Stripe
+    let subscription;
+    try {
+      subscription = await stripe.subscriptions.retrieve(session.subscription);
+      console.log("Subscription details retrieved:", subscription.id);
+    } catch (subscriptionError) {
+      console.error("Error retrieving subscription:", subscriptionError);
     }
     
-    return password;
-  };
-  
-  const password = generatePassword();
-  console.log(`Generated password of length: ${password.length}`);
-  
-  try {
+    // Generate a secure random password
+    const generatePassword = () => {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+      let password = "";
+      const length = 12; // Ensure constant length
+      
+      // Use crypto random for better security if available
+      const array = new Uint8Array(length);
+      crypto.getRandomValues(array);
+      
+      for (let i = 0; i < length; i++) {
+        password += chars.charAt(array[i] % chars.length);
+      }
+      
+      return password;
+    };
+    
+    const password = generatePassword();
+    console.log(`Generated secure password of length: ${password.length}`);
+    
     // Create a new salon account
     console.log("Creating salon account for:", session.metadata.email);
     const userData = await createSalonAccount(supabaseAdmin, session, password);
     
     if (!userData || !userData.user) {
+      console.error("Failed to create salon account: No user data returned");
       throw new Error("Failed to create salon account: No user data returned");
     }
     
-    console.log("User account created with ID:", userData.user.id);
+    console.log("User account created successfully with ID:", userData.user.id);
     
     // Get subscription data
     const subscriptionData = {
@@ -121,7 +122,8 @@ export async function handleCheckoutCompleted(session: any) {
       emailSent: emailResult.success 
     };
   } catch (error) {
-    console.error("Error in handleCheckoutCompleted:", error);
+    console.error("Critical error in handleCheckoutCompleted:", error);
+    // Rethrow to ensure webhook processing fails and can be retried
     throw error;
   }
 }

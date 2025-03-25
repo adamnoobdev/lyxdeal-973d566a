@@ -15,9 +15,15 @@ export async function createSalonAccount(supabaseAdmin: any, session: any, passw
   
   try {
     // Check if user already exists to avoid duplicates
-    const { data: existingUser } = await supabaseAdmin.auth.admin.getUserByEmail(
+    console.log("Checking if user already exists...");
+    const { data: existingUser, error: userCheckError } = await supabaseAdmin.auth.admin.getUserByEmail(
       session.metadata.email
     );
+    
+    if (userCheckError) {
+      console.error("Error checking for existing user:", userCheckError);
+      throw new Error(`Error checking for existing user: ${userCheckError.message}`);
+    }
     
     if (existingUser?.user) {
       console.log("User already exists with email:", session.metadata.email);
@@ -25,6 +31,7 @@ export async function createSalonAccount(supabaseAdmin: any, session: any, passw
     }
     
     // Create new user
+    console.log("No existing user found, creating new user account");
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
       email: session.metadata.email,
       password,
@@ -49,6 +56,7 @@ export async function createSalonAccount(supabaseAdmin: any, session: any, passw
     console.log("User created successfully with ID:", userData.user.id);
     
     // Create user status record for first login tracking
+    console.log("Creating user status record for first login tracking");
     const { error: statusError } = await supabaseAdmin
       .from("salon_user_status")
       .insert([{ 
@@ -59,6 +67,8 @@ export async function createSalonAccount(supabaseAdmin: any, session: any, passw
     if (statusError) {
       console.warn("Failed to create user status record:", statusError);
       // Non-blocking - continue with user creation
+    } else {
+      console.log("User status record created successfully");
     }
     
     return userData;

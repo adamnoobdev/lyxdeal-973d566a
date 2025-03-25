@@ -10,9 +10,12 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Received webhook request");
+    
     // Get the signature from the headers
     const signature = req.headers.get("stripe-signature");
     if (!signature) {
+      console.error("No Stripe signature found in request headers");
       return new Response(
         JSON.stringify({ error: "No Stripe signature found" }),
         {
@@ -27,11 +30,13 @@ serve(async (req) => {
 
     // Get the request body
     const body = await req.text();
+    console.log("Webhook payload received, processing event...");
     
     // Process webhook event
     const result = await handleWebhookEvent(signature, body);
+    console.log("Webhook processing completed successfully:", result);
     
-    return new Response(JSON.stringify({ received: true }), {
+    return new Response(JSON.stringify({ received: true, ...result }), {
       headers: {
         ...corsHeaders,
         "Content-Type": "application/json",
@@ -41,7 +46,11 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in subscription webhook:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      }),
       {
         status: 500,
         headers: {

@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet";
+import { toast } from "sonner";
 
 export default function SubscriptionSuccess() {
   const [searchParams] = useSearchParams();
@@ -14,6 +15,7 @@ export default function SubscriptionSuccess() {
   const [purchaseDetails, setPurchaseDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   const sessionId = searchParams.get("session_id");
 
@@ -42,8 +44,19 @@ export default function SubscriptionSuccess() {
 
         if (partnerRequests && partnerRequests.length > 0) {
           setPurchaseDetails(partnerRequests[0]);
+          console.log("Hittade partnerförfrågan:", partnerRequests[0]);
         } else {
           console.log("Inga godkända partnerförfrågningar hittades");
+          // Om vi inte har någon godkänd förfrågan ännu och är under max försök, försök igen
+          if (retryCount < 3) {
+            const timer = setTimeout(() => {
+              setRetryCount(prev => prev + 1);
+            }, 3000); // Vänta 3 sekunder mellan försök
+            return () => clearTimeout(timer);
+          } else {
+            // Efter max försök, fortsätt ändå men visa info om att detaljerna inte kunde hämtas
+            toast.info("Kunde inte hämta alla detaljer om din prenumeration, men din betalning har gått igenom.");
+          }
         }
       } catch (err) {
         console.error("Fel vid hämtning av köpdetaljer:", err);
@@ -54,7 +67,7 @@ export default function SubscriptionSuccess() {
     };
 
     fetchPurchaseDetails();
-  }, [sessionId]);
+  }, [sessionId, retryCount]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('sv-SE');
@@ -124,8 +137,12 @@ export default function SubscriptionSuccess() {
               </p>
               
               <Alert className="mt-4 bg-blue-50 border-blue-200">
+                <AlertTitle className="flex items-center text-blue-800">
+                  <AlertTriangle className="h-4 w-4 mr-2" />
+                  Viktigt
+                </AlertTitle>
                 <AlertDescription className="text-blue-800">
-                  Viktigt: Om du inte hittar mejlet inom några minuter, kontrollera din spammapp. Om du fortfarande inte hittar det, kontakta oss på info@lyxdeal.se.
+                  Om du inte hittar mejlet inom några minuter, kontrollera din spammapp. Om du fortfarande inte hittar det, kontakta oss på info@lyxdeal.se.
                 </AlertDescription>
               </Alert>
               

@@ -28,6 +28,23 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
       return { success: false, error: "Missing Supabase configuration" };
     }
     
+    // Prepare the payload with all required data
+    const emailPayload = {
+      email: session.metadata.email,
+      business_name: session.metadata.business_name,
+      temporary_password: password,
+      subscription_info: {
+        plan: session.metadata.plan_title || "Standardplan",
+        type: session.metadata.plan_payment_type || "monthly",
+        start_date: new Date().toISOString(),
+        next_billing_date: subscription?.current_period_end 
+          ? new Date(subscription.current_period_end * 1000).toISOString() 
+          : null
+      }
+    };
+    
+    console.log("Calling send-salon-welcome edge function with payload:", JSON.stringify(emailPayload, null, 2));
+    
     // Call the send-salon-welcome edge function
     const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-salon-welcome`, {
       method: "POST",
@@ -35,19 +52,7 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
         "Content-Type": "application/json",
         "Authorization": `Bearer ${supabaseAnonKey}`,
       },
-      body: JSON.stringify({
-        email: session.metadata.email,
-        business_name: session.metadata.business_name,
-        temporary_password: password,
-        subscription_info: {
-          plan: session.metadata.plan_title,
-          type: session.metadata.plan_payment_type,
-          start_date: new Date().toISOString(),
-          next_billing_date: subscription?.current_period_end 
-            ? new Date(subscription.current_period_end * 1000).toISOString() 
-            : null
-        }
-      }),
+      body: JSON.stringify(emailPayload),
     });
     
     // Log the complete response for debugging

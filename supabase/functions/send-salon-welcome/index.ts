@@ -1,263 +1,253 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+interface WelcomeEmailRequest {
+  email: string;
+  business_name: string;
+  temporary_password: string;
+  subscription_info?: {
+    plan: string;
+    type: string;
+    start_date: string;
+    next_billing_date: string | null;
+  }
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Handle OPTIONS request for CORS
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const apiKey = Deno.env.get("RESEND_API_KEY");
-    if (!apiKey) {
+    console.log("send-salon-welcome function started");
+    
+    // Initialize Resend with API key
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendApiKey) {
       console.error("RESEND_API_KEY is not configured");
-      return new Response(
-        JSON.stringify({ error: "RESEND_API_KEY is not configured" }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
-
-    // Parse request body
-    let body;
-    try {
-      body = await req.json();
-      console.log("Received request to send welcome email:", {
-        email: body.email,
-        business_name: body.business_name,
-        hasPassword: !!body.temporary_password,
-        passwordLength: body.temporary_password?.length
-      });
-    } catch (parseError) {
-      console.error("Failed to parse request body:", parseError);
-      return new Response(
-        JSON.stringify({ error: "Invalid JSON in request body" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
+      throw new Error("RESEND_API_KEY is not configured");
     }
     
-    const { email, business_name, temporary_password, subscription_info } = body;
+    const resend = new Resend(resendApiKey);
 
-    // Validate required fields
-    if (!email || !business_name || !temporary_password) {
-      console.error("Missing required fields:", { 
-        hasEmail: !!email, 
-        hasBusinessName: !!business_name, 
-        hasPassword: !!temporary_password,
-        passwordLength: temporary_password?.length 
-      });
-      
+    // Parse request body
+    let data: WelcomeEmailRequest;
+    try {
+      data = await req.json();
+      console.log("Request payload received:", JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error("Error parsing request JSON:", error);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid JSON in request body" 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    // Validate request data
+    if (!data.email || !data.business_name || !data.temporary_password) {
+      console.error("Missing required fields in request:", data);
       return new Response(
         JSON.stringify({ 
           error: "Missing required fields", 
-          receivedFields: { 
-            email: email || null, 
-            business_name: business_name || null, 
-            hasPassword: !!temporary_password,
-            passwordLength: temporary_password?.length
-          } 
+          received: Object.keys(data)
         }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
         }
       );
     }
 
-    console.log(`Sending welcome email to new salon: ${business_name} (${email}) with password: ${temporary_password.substring(0, 3)}***`);
-    
-    // Formatera datum för tydligare visning
-    const formatDate = (dateString) => {
-      if (!dateString) return "Inte tillgängligt";
-      const date = new Date(dateString);
-      return date.toLocaleDateString('sv-SE');
-    };
-    
-    const startDate = formatDate(subscription_info?.start_date);
-    const nextBillingDate = formatDate(subscription_info?.next_billing_date);
+    // Format subscription data if available
+    const subInfo = data.subscription_info;
+    const planTypeText = subInfo?.type === "yearly" ? "årsvis" : "månadsvis";
+    const nextBillingDate = subInfo?.next_billing_date 
+      ? new Date(subInfo.next_billing_date).toLocaleDateString('sv-SE')
+      : "N/A";
 
+    // Create HTML email content
     const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #520053; padding: 30px 20px; text-align: center; color: white;">
-          <img src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets//Lyxdeal-logo.svg" alt="Lyxdeal" style="width: 150px; margin-bottom: 15px;" />
-          <h1 style="margin: 0; font-size: 24px;">Välkommen till Lyxdeal!</h1>
+    <!DOCTYPE html>
+    <html lang="sv">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Välkommen till Lyxdeal</title>
+      <style>
+        body { 
+          font-family: Arial, sans-serif; 
+          line-height: 1.6;
+          color: #333;
+          margin: 0;
+          padding: 0;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          background-color: #f8f8f8;
+          padding: 20px;
+          text-align: center;
+          border-bottom: 3px solid #9333ea;
+        }
+        .content {
+          padding: 20px;
+        }
+        .credentials {
+          background-color: #f0f0f0;
+          padding: 15px;
+          margin: 20px 0;
+          border-radius: 5px;
+          border-left: 4px solid #9333ea;
+        }
+        .footer {
+          text-align: center;
+          font-size: 12px;
+          color: #666;
+          padding: 20px;
+          border-top: 1px solid #eee;
+        }
+        .button {
+          display: inline-block;
+          background-color: #9333ea;
+          color: white;
+          text-decoration: none;
+          padding: 10px 20px;
+          border-radius: 5px;
+          margin: 20px 0;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 20px 0;
+        }
+        table, th, td {
+          border: 1px solid #ddd;
+        }
+        th, td {
+          padding: 10px;
+          text-align: left;
+        }
+        th {
+          background-color: #f2f2f2;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Välkommen till Lyxdeal</h1>
         </div>
-        
-        <div style="background-color: white; padding: 30px 20px;">
-          <p>Hej ${business_name},</p>
+        <div class="content">
+          <p>Hej ${data.business_name},</p>
           
-          <p>Tack för att du registrerade dig som partner på Lyxdeal! Vi är glada att ha dig med ombord.</p>
+          <p>Tack för att du valt att bli partner med Lyxdeal! Vi är glada att ha dig med oss.</p>
           
-          <p>Här är dina inloggningsuppgifter till ditt salongskonto:</p>
+          <p>Här är dina inloggningsuppgifter till salongsportalen:</p>
           
-          <div style="background-color: #f3f4f6; padding: 16px; border-radius: 4px; margin: 20px 0;">
-            <p><strong>E-post:</strong> ${email}</p>
-            <p><strong>Temporärt lösenord:</strong> ${temporary_password}</p>
+          <div class="credentials">
+            <p><strong>E-post:</strong> ${data.email}</p>
+            <p><strong>Lösenord:</strong> ${data.temporary_password}</p>
           </div>
           
-          <p>Vi rekommenderar att du ändrar ditt lösenord första gången du loggar in.</p>
+          <p><strong>OBS!</strong> Detta är ett tillfälligt lösenord. Vi rekommenderar starkt att du ändrar det vid din första inloggning.</p>
           
-          <div style="background-color: #f3f4f6; padding: 16px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #520053;">
-            <h3 style="margin-top: 0; color: #520053;">Din prenumeration</h3>
-            <p><strong>Plan:</strong> ${subscription_info?.plan || 'Standard'}</p>
-            <p><strong>Typ:</strong> ${subscription_info?.type === 'yearly' ? 'Årsvis' : 'Månadsvis'}</p>
-            <p><strong>Startdatum:</strong> ${startDate}</p>
-            <p><strong>Nästa faktureringsdag:</strong> ${nextBillingDate}</p>
+          ${subInfo ? `
+          <h3>Din prenumeration</h3>
+          <table>
+            <tr>
+              <th>Plan</th>
+              <td>${subInfo.plan}</td>
+            </tr>
+            <tr>
+              <th>Betalning</th>
+              <td>${planTypeText}</td>
+            </tr>
+            <tr>
+              <th>Startdatum</th>
+              <td>${new Date(subInfo.start_date).toLocaleDateString('sv-SE')}</td>
+            </tr>
+            <tr>
+              <th>Nästa fakturering</th>
+              <td>${nextBillingDate}</td>
+            </tr>
+          </table>
+          ` : ''}
+          
+          <p>För att logga in på din salongsportal, klicka på knappen nedan:</p>
+          
+          <div style="text-align: center;">
+            <a href="https://www.lyxdeal.se/salon/login" class="button">Logga in på salongsportalen</a>
           </div>
           
-          <p>Din prenumeration ger dig tillgång till alla funktioner i Lyxdeal-plattformen. Du kan när som helst hantera din prenumeration från din kontrollpanel.</p>
+          <p>I portalen kan du:</p>
+          <ul>
+            <li>Skapa och hantera erbjudanden</li>
+            <li>Se statistik över dina kampanjer</li>
+            <li>Hantera din prenumeration</li>
+            <li>Och mycket mer!</li>
+          </ul>
           
-          <a href="${Deno.env.get("PUBLIC_SITE_URL") || "https://lyxdeal.se"}/salon/login" style="display: inline-block; background-color: #520053; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; margin-top: 20px;">Logga in på ditt konto</a>
+          <p>Om du har några frågor eller behöver hjälp, tveka inte att kontakta oss på info@lyxdeal.se.</p>
           
-          <p style="margin-top: 40px;">Om du har några frågor eller behöver hjälp, tveka inte att kontakta oss på info@lyxdeal.se.</p>
-          
-          <p>Med vänliga hälsningar,<br>Lyxdeal-teamet</p>
+          <p>Med vänliga hälsningar,<br>Teamet på Lyxdeal</p>
         </div>
-        
-        <div style="background-color: #f9f0fa; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3e8f3;">
-          <p>Detta är ett automatiskt genererat meddelande, vänligen svara inte på detta email.</p>
-          <p>&copy; ${new Date().getFullYear()} Lyxdeal. Alla rättigheter förbehållna.</p>
+        <div class="footer">
+          <p>© ${new Date().getFullYear()} Lyxdeal. Alla rättigheter förbehållna.</p>
+          <p>Detta är ett automatiskt genererat meddelande. Vänligen svara inte på detta e-postmeddelande.</p>
         </div>
       </div>
+    </body>
+    </html>
     `;
 
-    // Check if we're in production mode
-    const testingMode = !Deno.env.get("PRODUCTION_MODE");
-    const verifiedEmail = Deno.env.get("VERIFIED_EMAIL") || "adam@larlid.com";
-    
-    // Configure email parameters
-    const emailConfig = {
-      // In production, use the verified domain. In testing, use Resend's default
-      from: testingMode 
-        ? "Lyxdeal <onboarding@resend.dev>" 
-        : "Lyxdeal <info@lyxdeal.se>",
-      // In testing mode, always send to the verified email
-      to: testingMode ? [verifiedEmail] : [email],
-      subject: "Välkommen till Lyxdeal som salongspartner!",
+    console.log("Sending welcome email to:", data.email);
+
+    // Send email using Resend
+    const emailResponse = await resend.emails.send({
+      from: "Lyxdeal <no-reply@lyxdeal.se>",
+      to: [data.email],
+      subject: "Välkommen till Lyxdeal - Din inloggningsinformation",
       html: htmlContent,
-      reply_to: "info@lyxdeal.se"
-    };
-    
-    if (testingMode && email !== verifiedEmail) {
-      console.log(`TESTING MODE: Redirecting email from ${email} to verified email ${verifiedEmail}`);
-    }
-
-    // Create detailed log of what we're about to send
-    console.log(`Sending email with config:`, {
-      from: emailConfig.from,
-      to: emailConfig.to,
-      subject: emailConfig.subject,
-      testingMode: testingMode,
-      apiKeyLength: apiKey ? apiKey.length : 0
     });
 
-    // Send the email with Resend API
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(emailConfig)
-    });
+    console.log("Email sending response:", emailResponse);
 
-    const responseStatus = response.status;
-    let responseText;
-    
-    try {
-      responseText = await response.text();
-      console.log(`Resend API response status: ${responseStatus}`);
-      console.log(`Resend API response body: ${responseText}`);
-    } catch (textError) {
-      console.error("Failed to get response text:", textError);
-      responseText = "Could not read response";
-    }
-    
-    // Parse response data
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      console.error("Failed to parse Resend API response:", e);
-      data = { error: "Invalid JSON response from email service" };
-    }
-
-    // Handle error responses
-    if (!response.ok) {
-      console.error("Error sending email:", data);
-      return new Response(
-        JSON.stringify({ 
-          error: "Failed to send email", 
-          details: data, 
-          status: responseStatus,
-          requestPayload: {
-            to: emailConfig.to,
-            from: emailConfig.from,
-            subject: emailConfig.subject
-          }
-        }),
-        {
-          status: 500,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
-
-    // Add note in response if we're in testing mode
-    let message = `Välkomstmail skickat till ${email}`;
-    if (testingMode && email !== verifiedEmail) {
-      message = `TESTLÄGE: Välkomstmail som skulle skickats till ${email} skickades istället till ${verifiedEmail}`;
-    }
-
-    console.log("Successfully sent salon welcome email:", data);
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data,
-        message: message,
-        testingMode: testingMode,
-        email: email
+        message: "Welcome email sent successfully",
+        data: emailResponse
       }),
-      {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );
   } catch (error) {
-    // Log and handle any unexpected errors
     console.error("Error in send-salon-welcome function:", error);
     return new Response(
       JSON.stringify({ 
-        error: error.message, 
-        stack: error.stack,
-        sentAt: new Date().toISOString()
+        error: error.message,
+        stack: error.stack
       }),
-      {
-        status: 500,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );
   }
