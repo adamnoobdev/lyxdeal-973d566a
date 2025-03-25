@@ -15,6 +15,10 @@ export async function handleWebhookEvent(signature: string, body: string) {
   
   try {
     console.log("Verifying webhook signature...");
+    console.log("Signature:", signature.substring(0, 20) + "...");
+    console.log("Webhook secret configured:", "YES (length: " + webhookSecret.length + ")");
+    
+    // Construct the event with the raw body string and signature
     const event = stripe.webhooks.constructEvent(
       body,
       signature,
@@ -24,8 +28,29 @@ export async function handleWebhookEvent(signature: string, body: string) {
     console.log(`Successfully verified webhook signature for event: ${event.type}, id: ${event.id}`);
     console.log(`Processing webhook event type: ${event.type}, id: ${event.id}`);
     
-    // Log the entire event object for debugging
-    console.log(`Event data: ${JSON.stringify(event.data.object, null, 2)}`);
+    // Parse the body as JSON for logging
+    let bodyObject;
+    try {
+      bodyObject = JSON.parse(body);
+      // Log selective parts of the event data for diagnostics
+      if (bodyObject.data && bodyObject.data.object) {
+        const obj = bodyObject.data.object;
+        console.log("Event data summary:");
+        console.log(`- ID: ${obj.id}`);
+        console.log(`- Type: ${bodyObject.type}`);
+        console.log(`- Customer: ${obj.customer || 'N/A'}`);
+        console.log(`- Amount: ${obj.amount_total !== undefined ? obj.amount_total : 'N/A'}`);
+        console.log(`- Status: ${obj.status || 'N/A'}`);
+        console.log(`- Created: ${new Date((obj.created || 0) * 1000).toISOString()}`);
+        
+        if (obj.metadata) {
+          console.log("Metadata:", obj.metadata);
+        }
+      }
+    } catch (parseError) {
+      console.error("Error parsing body as JSON for logging:", parseError);
+      // Continue with the original event object
+    }
     
     // Handle the event
     switch (event.type) {
@@ -37,63 +62,6 @@ export async function handleWebhookEvent(signature: string, body: string) {
           console.log("Session metadata:", session.metadata);
           console.log("Session customer:", session.customer);
           console.log("Session subscription:", session.subscription);
-          
-          // Försök hitta partnern i databasen
-          try {
-            const supabaseUrl = Deno.env.get("SUPABASE_URL");
-            const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-            
-            if (supabaseUrl && supabaseKey) {
-              const supabaseAdmin = { supabaseUrl, supabaseKey };
-              console.log("Supabase configured for manual partner lookup");
-              
-              // Denna kod exekveras bara för diagnostik och loggning
-              const myHeaders = new Headers();
-              myHeaders.append("apikey", supabaseKey);
-              myHeaders.append("Content-Type", "application/json");
-              
-              const requestOptions = {
-                method: 'GET',
-                headers: myHeaders,
-              };
-              
-              let partnerUrl = `${supabaseUrl}/rest/v1/partner_requests?stripe_session_id=eq.${session.id}`;
-              console.log("Checking for partner with session ID:", partnerUrl);
-              
-              try {
-                const partnerResponse = await fetch(partnerUrl, requestOptions);
-                const partnerData = await partnerResponse.json();
-                console.log("Partner lookup response:", JSON.stringify(partnerData, null, 2));
-                
-                if (partnerData && partnerData.length > 0) {
-                  console.log("Found partner with session ID:", partnerData[0].id);
-                  console.log("Partner email:", partnerData[0].email);
-                } else {
-                  console.log("No partner found with session ID, checking by email");
-                  
-                  // Försök hitta partnern med e-post om den finns i metadata
-                  if (session.metadata && session.metadata.email) {
-                    partnerUrl = `${supabaseUrl}/rest/v1/partner_requests?email=eq.${encodeURIComponent(session.metadata.email)}`;
-                    console.log("Checking for partner with email:", partnerUrl);
-                    
-                    const emailPartnerResponse = await fetch(partnerUrl, requestOptions);
-                    const emailPartnerData = await emailPartnerResponse.json();
-                    console.log("Partner email lookup response:", JSON.stringify(emailPartnerData, null, 2));
-                    
-                    if (emailPartnerData && emailPartnerData.length > 0) {
-                      console.log("Found partner with email:", emailPartnerData[0].id);
-                    } else {
-                      console.log("No partner found with email either");
-                    }
-                  }
-                }
-              } catch (partnerLookupError) {
-                console.error("Error looking up partner:", partnerLookupError);
-              }
-            }
-          } catch (lookupError) {
-            console.error("Error in manual partner lookup:", lookupError);
-          }
           
           const result = await handleCheckoutCompleted(session);
           console.log("Checkout session processing result:", result);

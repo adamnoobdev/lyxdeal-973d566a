@@ -3,149 +3,150 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { handleWebhookEvent } from "./eventHandler.ts";
 import { corsHeaders } from "./corsConfig.ts";
 
+// Log all requests for better debugging
 serve(async (req) => {
-  // Logga alla inkommande begäranden för debugging
-  console.log("=======================================");
-  console.log("Webhook received", new Date().toISOString());
+  console.log("===============================================");
+  console.log("Stripe webhook request received:", new Date().toISOString());
   console.log("HTTP Method:", req.method);
   console.log("Headers:", Object.fromEntries(req.headers.entries()));
-  console.log("URL:", req.url);
   
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    console.log("Responding to OPTIONS request with CORS headers");
-    return new Response(null, { headers: corsHeaders });
-  }
-
   try {
-    // Se om vi får Stripe-signaturen
-    const signature = req.headers.get("stripe-signature");
-    console.log("Stripe signature present:", !!signature);
+    // CORS preflight handler
+    if (req.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders
+      });
+    }
     
-    if (!signature) {
-      console.error("No Stripe signature found in request headers");
+    // Validate content type - Stripe sends application/json for webhooks
+    const contentType = req.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error("Invalid content type:", contentType);
       return new Response(
         JSON.stringify({ 
-          error: "No Stripe signature found",
-          headers: Object.fromEntries(req.headers.entries()),
-          timestamp: new Date().toISOString()
+          error: "Invalid content type, expected application/json",
+          received: contentType
         }),
         {
           status: 400,
           headers: {
             ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
-
-    // Get the request body and log its contents for debugging
-    const body = await req.text();
-    console.log(`Webhook payload received, size: ${body.length} bytes`);
-    
-    // Log a sample of the payload for debugging (first 500 chars)
-    if (body.length > 0) {
-      console.log(`Payload sample: ${body.substring(0, Math.min(500, body.length))}...`);
-      
-      try {
-        // Try to parse as JSON to see structure
-        const jsonSample = JSON.parse(body);
-        console.log("Event type from payload:", jsonSample.type);
-        console.log("Event ID from payload:", jsonSample.id);
-        
-        if (jsonSample.data && jsonSample.data.object) {
-          console.log("Event object type:", jsonSample.data.object.object);
-          console.log("Event object ID:", jsonSample.data.object.id);
-          
-          // Log metadata om det finns
-          if (jsonSample.data.object.metadata) {
-            console.log("Metadata:", JSON.stringify(jsonSample.data.object.metadata));
+            "Content-Type": "application/json"
           }
         }
-      } catch (parseError) {
-        console.error("Could not parse webhook body as JSON for logging:", parseError.message);
-      }
+      );
     }
     
-    // Kontrollera att vi har alla miljövariabler
-    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const resendKey = Deno.env.get("RESEND_API_KEY");
-    
-    console.log("Environment variables check:");
-    console.log("- STRIPE_WEBHOOK_SECRET:", !!webhookSecret);
-    console.log("- STRIPE_SECRET_KEY:", !!stripeKey);
-    console.log("- SUPABASE_URL:", !!supabaseUrl);
-    console.log("- SUPABASE_SERVICE_ROLE_KEY:", !!supabaseKey);
-    console.log("- RESEND_API_KEY:", !!resendKey);
-    
-    if (!webhookSecret || !stripeKey || !supabaseUrl || !supabaseKey || !resendKey) {
-      console.error("Missing required environment variables");
+    // Get the signature from headers
+    const signature = req.headers.get("stripe-signature");
+    if (!signature) {
+      console.error("Missing Stripe signature header");
       return new Response(
         JSON.stringify({ 
-          error: "Missing required environment variables", 
-          missingVars: {
-            webhookSecret: !webhookSecret,
-            stripeKey: !stripeKey,
-            supabaseUrl: !supabaseUrl,
-            supabaseKey: !supabaseKey,
-            resendKey: !resendKey
-          },
-          timestamp: new Date().toISOString()
+          error: "Missing Stripe signature header",
+          headers: Object.fromEntries(req.headers.entries())
         }),
         {
-          status: 500,
+          status: 400,
           headers: {
             ...corsHeaders,
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         }
       );
     }
     
-    // Process webhook event
-    console.log("Starting to process webhook event");
-    const result = await handleWebhookEvent(signature, body);
-    console.log("Webhook processing completed successfully:", result);
+    console.log("Stripe signature present:", signature.substring(0, 20) + "...");
     
-    return new Response(JSON.stringify({ received: true, ...result }), {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-      status: 200,
-    });
+    // Get the raw request body
+    let body: string;
+    try {
+      // NOTE: Stripe requires the RAW body string for signature verification
+      body = await req.text();
+      console.log("Request body received, length:", body.length);
+      
+      // Log part of the body for debugging (don't log sensitive data)
+      if (body.length > 0) {
+        const previewLength = Math.min(100, body.length);
+        console.log(`Body preview: ${body.substring(0, previewLength)}...`);
+      }
+    } catch (error) {
+      console.error("Error reading request body:", error);
+      return new Response(
+        JSON.stringify({ error: "Could not read request body" }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+    }
+    
+    // Handle the webhook event
+    try {
+      const result = await handleWebhookEvent(signature, body);
+      console.log("Webhook event handled successfully:", result);
+      console.log("===============================================");
+      
+      return new Response(
+        JSON.stringify({ 
+          received: true,
+          success: true,
+          result: result 
+        }),
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Error handling webhook event:", error);
+      console.error("Error stack:", error.stack);
+      console.error("===============================================");
+      
+      // Return a specific status code for signature verification failures
+      const statusCode = error.message?.includes("signature") ? 401 : 500;
+      
+      return new Response(
+        JSON.stringify({
+          received: true,
+          success: false,
+          error: error.message,
+          stack: error.stack
+        }),
+        {
+          status: statusCode,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+    }
   } catch (error) {
-    // Enhanced error logging
-    console.error("Critical error in subscription webhook:", error);
-    console.error("Stack trace:", error.stack);
-    
-    // Try to determine the specific part of the process that failed
-    let errorSource = "unknown";
-    if (error.message?.includes("signature")) errorSource = "signature_verification";
-    else if (error.message?.includes("account")) errorSource = "account_creation";
-    else if (error.message?.includes("email")) errorSource = "email_sending";
+    console.error("Unhandled exception in webhook handler:", error);
+    console.error("Error stack:", error.stack);
+    console.error("===============================================");
     
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        errorSource,
-        stack: error.stack,
-        timestamp: new Date().toISOString()
+      JSON.stringify({
+        error: "Internal server error", 
+        message: error.message,
+        stack: error.stack
       }),
       {
         status: 500,
         headers: {
           ...corsHeaders,
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json"
+        }
       }
     );
-  } finally {
-    console.log("Webhook handling completed at", new Date().toISOString());
-    console.log("=======================================");
   }
 });
