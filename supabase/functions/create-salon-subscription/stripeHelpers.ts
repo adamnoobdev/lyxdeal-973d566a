@@ -105,6 +105,12 @@ export async function createCheckoutSession(
       throw new Error("No checkout URL returned from Stripe");
     }
     
+    // Extra validering av URL:en
+    console.log("Validating checkout URL:", session.url);
+    if (!session.url.startsWith("https://checkout.stripe.com/")) {
+      console.warn("Unexpected Stripe URL format:", session.url);
+    }
+    
     console.log("Checkout URL:", session.url);
     return session;
   } catch (error) {

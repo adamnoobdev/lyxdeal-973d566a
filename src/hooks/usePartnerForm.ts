@@ -58,7 +58,14 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isSubmitting) {
+      console.log("Formuläret skickas redan, ignorerar nytt klick");
+      return;
+    }
+    
     setIsSubmitting(true);
+    console.log("Formulär skickas, isSubmitting satt till true");
     
     try {
       if (!selectedPlan) {
@@ -76,6 +83,9 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
         ...formData,
         plan: selectedPlan
       });
+      
+      // Visa toast innan anrop för att ge användaren feedback direkt
+      toast.info("Bearbetar din begäran...");
       
       // Submit partner request
       const result = await submitPartnerRequest({
@@ -99,12 +109,14 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
       if (result.redirectUrl) {
         console.log("Redirecting to payment URL:", result.redirectUrl);
         
-        // Add promo code information to toast message
-        toast.success("Du skickas nu till betalningssidan. Använd rabattkoden 'provmanad' för en gratis provmånad!");
+        // Visa en tydlig toast om omdirigering
+        toast.success("Du skickas nu till betalningssidan!");
         
-        // FÖRENKLAD OMDIRIGERING - Använd bara en metod för att undvika konflikter
-        console.log("Setting window.location.href to:", result.redirectUrl);
-        window.location.href = result.redirectUrl;
+        // Omdirigera med timeout för att ge toast tid att visas
+        setTimeout(() => {
+          console.log("Executing redirect to:", result.redirectUrl);
+          window.location.href = result.redirectUrl!;
+        }, 1000);
         
         // För att ge användaren en fallback om något inte fungerar
         const timeoutId = setTimeout(() => {
@@ -118,7 +130,7 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
               }
             });
           }
-        }, 3000);
+        }, 5000);
         
         return () => clearTimeout(timeoutId);
       } else {
@@ -130,6 +142,7 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
       console.error("Error submitting partner request:", error);
       toast.error(error instanceof Error ? error.message : "Ett fel uppstod. Försök igen senare.");
     } finally {
+      console.log("Partner request submission completed, isSubmitting set to false");
       setIsSubmitting(false);
     }
   };
