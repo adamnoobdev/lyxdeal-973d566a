@@ -33,13 +33,14 @@ export async function handleWebhookEvent(signature: string, payload: string) {
     
     let event;
     try {
-      // Verify the event with Stripe
-      console.log("Verifying Stripe signature with secret");
+      // Verify the event with Stripe USING THE ASYNC VERSION
+      console.log("Verifying Stripe signature with secret (using async method)");
       console.log("Payload size:", payload.length, "bytes");
       console.log("Signature first 20 chars:", signature.substring(0, 20) + "...");
       
       try {
-        event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+        // Use constructEventAsync instead of constructEvent
+        event = await stripe.webhooks.constructEventAsync(payload, signature, webhookSecret);
         console.log("Signature verified successfully");
       } catch (err) {
         console.error("Stripe signature verification failed:", err.message);
