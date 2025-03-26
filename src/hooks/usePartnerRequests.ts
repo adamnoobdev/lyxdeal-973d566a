@@ -132,6 +132,30 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         toast.success("Du skickas nu till betalningssidan");
         console.log("Redirecting to Stripe checkout URL:", stripeData.url);
         
+        // Gör en direkt omdirigering med timeout som fallback
+        try {
+          // Direkt omdirigering
+          window.location.href = stripeData.url;
+          
+          // Fallback om omdirigeringen inte sker inom 1 sekund
+          setTimeout(() => {
+            if (document.visibilityState !== 'hidden') {
+              console.log("Fallback: Redirecting to Stripe URL:", stripeData.url);
+              window.location.replace(stripeData.url);
+            }
+          }, 1000);
+        } catch (redirectError) {
+          console.error("Error during redirect:", redirectError);
+          // Visa en klickbar knapp som användaren kan klicka på
+          toast.error("Kunde inte omdirigera automatiskt. Klicka här för att gå till betalning.", {
+            duration: 10000,
+            action: {
+              label: "Gå till betalning",
+              onClick: () => window.open(stripeData.url, "_blank")
+            }
+          });
+        }
+        
         // Return success with redirect URL
         return { 
           success: true, 

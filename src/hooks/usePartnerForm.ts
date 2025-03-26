@@ -103,22 +103,48 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
         toast.success("Du skickas nu till betalningssidan. Använd rabattkoden 'provmanad' för en gratis provmånad!");
         
         // Redirect to payment page directly
-        window.location.href = result.redirectUrl;
-        
-        // Om omdirigering inte sker omedelbart, visa en säkerhetsknapp efter 3 sekunder
-        const timeoutId = setTimeout(() => {
-          if (document.visibilityState !== 'hidden') {
-            toast.success("Om du inte omdirigeras automatiskt, klicka här", {
-              duration: 10000,
-              action: {
-                label: "Gå till betalning",
-                onClick: () => window.location.href = result.redirectUrl!
-              }
-            });
-          }
-        }, 3000);
-        
-        return () => clearTimeout(timeoutId);
+        // Ny strategi: använd direkta window.location-metoder
+        try {
+          // Direkt omdirigering
+          window.location.href = result.redirectUrl;
+          
+          // Fallback: Försök igen om 500ms om användaren fortfarande är kvar på sidan
+          const timeoutId = setTimeout(() => {
+            if (document.visibilityState !== 'hidden') {
+              console.log("Fallback: Använder window.location.replace istället");
+              window.location.replace(result.redirectUrl!);
+              
+              // Ytterligare fallback med target=_blank efter ytterligare 500ms
+              setTimeout(() => {
+                if (document.visibilityState !== 'hidden') {
+                  console.log("Extra fallback: Öppnar i ny flik");
+                  window.open(result.redirectUrl!, "_blank");
+                  
+                  // Visa toast med klickbar länk som sista utväg
+                  toast.success("Om du inte omdirigeras automatiskt, klicka här", {
+                    duration: 10000,
+                    action: {
+                      label: "Gå till betalning",
+                      onClick: () => window.open(result.redirectUrl!, "_blank")
+                    }
+                  });
+                }
+              }, 500);
+            }
+          }, 500);
+          
+          return () => clearTimeout(timeoutId);
+        } catch (redirectError) {
+          console.error("Error during redirect:", redirectError);
+          // Visa en klickbar knapp som användaren kan klicka på
+          toast.error("Kunde inte omdirigera automatiskt. Klicka här för att gå till betalning.", {
+            duration: 10000,
+            action: {
+              label: "Gå till betalning",
+              onClick: () => window.open(result.redirectUrl!, "_blank")
+            }
+          });
+        }
       } else {
         // If no payment required (free plan)
         toast.success("Tack för din registrering! Vi kontaktar dig inom kort.");
