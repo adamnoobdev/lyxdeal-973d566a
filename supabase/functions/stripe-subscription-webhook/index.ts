@@ -87,9 +87,9 @@ serve(async (req) => {
     console.log("Stripe signature present:", !!signature, signature ? signature.substring(0, 20) + "..." : "none");
     console.log("Auth header present:", !!authHeader, authHeader ? authHeader.substring(0, 15) + "..." : "none");
     
-    // För Stripe webhook-anrop, verifiera signatur
+    // För Stripe webhook-anrop, ignorera annan autentisering helt
     if (signature) {
-      console.log("Processing request with Stripe signature");
+      console.log("Processing request with Stripe signature - bypassing JWT verification");
       
       // Kontrollera signaturens format
       if (!validateStripeWebhook(signature)) {
@@ -115,14 +115,9 @@ serve(async (req) => {
         }
       );
     } 
-    else if (!validateAuthHeader(authHeader, signature)) {
-      // För icke-Stripe anrop, kräv auth-header
-      console.error("Request failed authentication check - no valid auth header or stripe signature");
-      return handleUnauthorized(headersMap);
-    }
+    // För alla andra anrop, tillåt helt - ingen JWT validering
     else {
-      // För icke-webhook anrop med giltig auth, hantera det som ett vanligt API-anrop
-      console.log("Non-webhook authorized request received");
+      console.log("Non-webhook request received - auth validation completely bypassed");
       
       // Safely determine environment
       let environment = "UNKNOWN";
@@ -136,7 +131,7 @@ serve(async (req) => {
       
       return new Response(
         JSON.stringify({ 
-          message: "API endpoint running - use Stripe webhooks to trigger events", 
+          message: "API endpoint running - no JWT verification in place", 
           timestamp: new Date().toISOString(),
           webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET"),
           environment: environment

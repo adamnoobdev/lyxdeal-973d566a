@@ -4,7 +4,8 @@ export function validateAuthHeader(authHeader: string | null): boolean {
   // Logga försöket men returnera alltid true oavsett vad
   console.log("Auth header försök:", authHeader ? `${authHeader.substring(0, 10)}...` : "saknas");
   
-  // Validering avstängd - returnera alltid sant
+  // Validering helt avstängd - returnera alltid sant
+  console.log("JWT-validering helt avstängd - autentisering fungerar alltid");
   return true;
 }
 
