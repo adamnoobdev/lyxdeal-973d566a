@@ -44,12 +44,16 @@ export async function createCheckoutSession(
   origin: string
 ) {
   try {
-    // Verifiera att live-miljö används i produktion
-    if (!stripe.apiKey.startsWith("sk_live")) {
-      console.warn("VARNING: Använder TEST-nyckel för Stripe i produktionsmiljö!");
-    } else {
-      console.log("Använder korrekt LIVE Stripe-nyckel");
-    }
+    // Logga parametrar för felsökning
+    console.log("Creating checkout session with params:", {
+      customer: customer.id,
+      planTitle,
+      planType,
+      price,
+      businessName,
+      email,
+      origin
+    });
     
     // Förbättrad konfiguration av checkout session med fler detaljer
     const sessionParams = {
@@ -83,7 +87,7 @@ export async function createCheckoutSession(
       locale: "sv",
       allow_promotion_codes: true, // Enable promotion codes directly in Stripe UI
       billing_address_collection: "auto",
-      payment_method_collection: "always", // Säkerställ att betalningsmetod alltid samlas in
+      payment_method_collection: "always",
       custom_text: {
         submit: {
           message: "Vi kommer att skapa ditt salongskonto efter betalningen är genomförd."
@@ -91,11 +95,11 @@ export async function createCheckoutSession(
       }
     };
     
-    console.log("Creating Stripe checkout session");
-    console.log("Session parameters:", JSON.stringify(sessionParams));
+    console.log("Creating Stripe checkout session with params:", JSON.stringify(sessionParams));
     
     const session = await stripe.checkout.sessions.create(sessionParams);
     console.log("Created checkout session:", session.id);
+    console.log("Full session object:", JSON.stringify(session));
 
     if (!session.url) {
       throw new Error("No checkout URL returned from Stripe");
@@ -124,11 +128,6 @@ export async function createCheckoutSession(
 export async function setupPromoCode(stripe: Stripe) {
   try {
     console.log("Checking for existing promo code");
-    
-    // Verifiera att live-miljö används i produktion
-    if (!stripe.apiKey.startsWith("sk_live")) {
-      console.warn("VARNING: Använder TEST-nyckel för Stripe i produktionsmiljö!");
-    }
     
     // Check if the promotion code already exists
     const existingPromoCodes = await stripe.promotionCodes.list({

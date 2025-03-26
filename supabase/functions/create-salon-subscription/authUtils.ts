@@ -1,60 +1,32 @@
 
-import { corsHeaders } from "./corsConfig.ts";
-
+// Förenklad auth-validering som bara kontrollerar att headern finns och är icke-tom
 export function validateAuthHeader(authHeader: string | null): boolean {
-  // Utökad loggning för felsökning
-  console.log("Validating auth header:", authHeader ? `${authHeader.substring(0, 10)}...` : "null");
-  
   if (!authHeader) {
-    console.error("Missing authorization header");
+    console.error("Authorization header is missing");
     return false;
   }
   
-  // Acceptera alla Bearer-tokens för att underlätta testning
-  // I produktion bör detta vara mer strikt
-  if (authHeader.startsWith("Bearer ")) {
-    const token = authHeader.substring(7);
-    console.log("Found Bearer token, length:", token.length);
-    
-    // Enkel validering att token inte är tom
-    if (token.length > 0) {
-      console.log("Auth header validation passed");
-      return true;
-    }
-  }
-  
-  // Logga specifikt vad som gick fel
-  console.error("Invalid authorization header format:", 
-                authHeader.substring(0, 15) + "...", 
-                "Expected format: 'Bearer TOKEN'");
-  return false;
+  // Bara en enkel kontroll att den finns och har ett värde
+  console.log("Auth header length:", authHeader.length);
+  return authHeader.length > 0;
 }
 
-export function handleUnauthorized(headers?: Record<string, string>) {
-  console.error("Unauthorized access attempt");
-  console.error("Request headers:", headers ? JSON.stringify(headers, null, 2) : "No headers provided");
-  
-  // Logga alla viktiga headers för att underlätta felsökning
-  if (headers) {
-    const importantHeaders = ["authorization", "stripe-signature", "content-type", "origin"];
-    console.log("Important headers status:");
-    importantHeaders.forEach(header => {
-      console.log(`- ${header}: ${headers[header] ? "present" : "missing"}`);
-    });
-  }
+// Förberedd svarshantering för obehöriga anrop
+export function handleUnauthorized(headersMap: Record<string, string>) {
+  console.error("Unauthorized request, headers:", JSON.stringify(headersMap));
   
   return new Response(
     JSON.stringify({ 
-      error: "Missing or invalid authorization header",
-      status: "unauthorized",
-      details: "Please include a valid 'Authorization: Bearer TOKEN' header",
-      timestamp: new Date().toISOString()
+      error: "Unauthorized", 
+      timestamp: new Date().toISOString() 
     }),
     {
       status: 401,
       headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, origin",
+        "Content-Type": "application/json"
       },
     }
   );

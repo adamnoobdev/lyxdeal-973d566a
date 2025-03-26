@@ -59,10 +59,9 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
         
         console.log("Creating Stripe checkout session with payload:", functionPayload);
         
-        // Förbättrad hantering av headers för att ge bättre spårbarhet
         const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs";
         
-        // Se till att anropet till Edge Function inkluderar alla nödvändiga headers
+        // FÖRBÄTTRAD ANROP: Simplifierad headers för att undvika potentiella CORS-problem
         const functionResponse = await fetch(
           "https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/create-salon-subscription",
           {
@@ -70,19 +69,16 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
             headers: {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${anonKey}`,
-              "apikey": anonKey,
-              "x-client-info": `web/1.0/partner-signup/${data.plan_title || 'standard'}`
+              "apikey": anonKey
             },
-            body: JSON.stringify(functionPayload),
-            // Lägg till credentials för att säkerställa att cookies skickas med
-            credentials: "include"
+            body: JSON.stringify(functionPayload)
           }
         );
         
         const responseStatus = functionResponse.status;
         console.log(`Stripe function response status: ${responseStatus}`);
         
-        // Förbättrad hantering av svar från servern
+        // Logga hela svaret för enklare felsökning
         let responseText = "";
         try {
           responseText = await functionResponse.text();
@@ -95,7 +91,6 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
           console.error("Stripe error from edge function. Status:", responseStatus);
           console.error("Error response body:", responseText);
           
-          // Försök att tolka felmeddelandet för användaren
           let userFriendlyError = "Det gick inte att skapa betalningssessionen";
           try {
             const errorObj = JSON.parse(responseText);
@@ -105,7 +100,6 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
               userFriendlyError = `Betalningsfel: ${errorObj.error}`;
             }
           } catch (e) {
-            // Om det inte går att tolka JSON, använd originaltexten
             userFriendlyError = `Betalningsfel: ${responseText.substring(0, 100)}...`;
           }
           
@@ -128,33 +122,17 @@ export const submitPartnerRequest = async (data: PartnerRequestData) => {
           throw new Error('Ingen betalnings-URL returnerades från betalningsleverantören');
         }
         
-        // Visa mer information för användaren
-        toast.success("Du skickas nu till betalningssidan");
-        console.log("Redirecting to Stripe checkout URL:", stripeData.url);
+        // Enbart använda en metod för att redirecta - för att undvika konflikter
+        toast.success("Du kommer att omdirigeras till Stripe betalningssida");
         
-        // Gör en direkt omdirigering med timeout som fallback
-        try {
-          // Direkt omdirigering
-          window.location.href = stripeData.url;
-          
-          // Fallback om omdirigeringen inte sker inom 1 sekund
-          setTimeout(() => {
-            if (document.visibilityState !== 'hidden') {
-              console.log("Fallback: Redirecting to Stripe URL:", stripeData.url);
-              window.location.replace(stripeData.url);
-            }
-          }, 1000);
-        } catch (redirectError) {
-          console.error("Error during redirect:", redirectError);
-          // Visa en klickbar knapp som användaren kan klicka på
-          toast.error("Kunde inte omdirigera automatiskt. Klicka här för att gå till betalning.", {
-            duration: 10000,
-            action: {
-              label: "Gå till betalning",
-              onClick: () => window.open(stripeData.url, "_blank")
-            }
-          });
-        }
+        // FÖRENKLAD OMDIRIGERING utan try/catch som kan bryta flödet
+        console.log("Redirecting user to:", stripeData.url);
+        
+        // Visa länken i konsolen för felsökning
+        console.log("Redirect URL:", stripeData.url);
+        
+        // Använd en enkel metod först
+        window.location.href = stripeData.url;
         
         // Return success with redirect URL
         return { 
