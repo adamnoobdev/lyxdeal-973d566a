@@ -12,19 +12,25 @@ import { handleWebhookEvent } from "./eventHandler.ts";
  */
 serve(async (req) => {
   // Utökad loggning för att spåra alla inkommande förfrågningar
-  console.log("===== WEBHOOK REQUEST RECEIVED =====");
-  console.log("Request time:", new Date().toISOString());
-  console.log("Method:", req.method);
+  console.log("================================================================");
+  console.log("==== STRIPE WEBHOOK FÖRFRÅGAN MOTTAGEN ====");
+  console.log("Förfrågan tid:", new Date().toISOString());
+  console.log("Metod:", req.method);
   console.log("URL:", req.url);
   
   // Logga alla request headers för debugging
   const headersMap = Object.fromEntries(req.headers.entries());
-  console.log("All request headers:", JSON.stringify(headersMap, null, 2));
+  console.log("Request headers (KOMPLETT):", JSON.stringify(headersMap, null, 2));
 
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    console.log("Handling preflight OPTIONS request");
-    return new Response(null, { headers: corsHeaders });
+    console.log("Hanterar OPTIONS preflight-förfrågan");
+    return new Response(null, { 
+      headers: {
+        ...corsHeaders,
+        "Access-Control-Max-Age": "86400"
+      } 
+    });
   }
   
   // Verifiera att vi använder live-miljö i produktion
@@ -33,10 +39,9 @@ serve(async (req) => {
     const apiKey = stripeClient?.apiKey || '';
     
     if (!apiKey.startsWith("sk_live")) {
-      console.error("VARNING: Använder TEST-nyckel i produktionsmiljö!");
-      console.error("Nyckeltyp:", apiKey.startsWith("sk_test") ? "TEST" : "ANNAN");
+      console.log("INFO: Använder TEST-nyckel (sk_test) i aktuell miljö");
     } else {
-      console.log("Använder korrekt LIVE Stripe-nyckel");
+      console.log("INFO: Använder LIVE Stripe-nyckel (sk_live)");
     }
   } catch (e) {
     console.error("Kunde inte verifiera Stripe-nyckel:", e.message);
@@ -45,7 +50,7 @@ serve(async (req) => {
   // Lägg till en special path för att testa om webhook-endpointen fungerar
   const url = new URL(req.url);
   if (url.pathname.endsWith("/test")) {
-    console.log("TEST ENDPOINT CALLED - webhook function is accessible!");
+    console.log("TEST ENDPOINT ANROPAD - webhook-funktionen är tillgänglig!");
     // Verifiera webhook-konfigurationen direkt
     try {
       const webhookConfig = await verifyWebhookConfiguration();
@@ -55,7 +60,8 @@ serve(async (req) => {
           webhook_config: webhookConfig,
           timestamp: new Date().toISOString(),
           webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET"),
-          environment: webhookConfig.environment || "UNKNOWN"
+          environment: webhookConfig.environment || "UNKNOWN",
+          authentication: "JWT VALIDATION DISABLED - ALL TRAFFIC ALLOWED"
         }),
         { 
           status: 200, 
@@ -69,7 +75,8 @@ serve(async (req) => {
           message: "Webhook endpoint is accessible but configuration check failed", 
           error: error.message,
           timestamp: new Date().toISOString(),
-          webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET")
+          webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET"),
+          authentication: "JWT VALIDATION DISABLED - ALL TRAFFIC ALLOWED"
         }),
         { 
           status: 200, 
@@ -84,28 +91,32 @@ serve(async (req) => {
     const signature = req.headers.get("stripe-signature");
     const authHeader = req.headers.get("authorization");
     
-    console.log("Stripe signature present:", !!signature, signature ? signature.substring(0, 20) + "..." : "none");
-    console.log("Auth header present:", !!authHeader, authHeader ? authHeader.substring(0, 15) + "..." : "none");
+    console.log("======= AUTENTISERINGS INFORMATION =======");
+    console.log("Stripe signature finns:", !!signature, signature ? signature.substring(0, 20) + "..." : "saknas");
+    console.log("Auth header finns:", !!authHeader, authHeader ? authHeader.substring(0, 15) + "..." : "saknas");
+    console.log("JWT-validering: HELT INAKTIVERAD");
+    console.log("=========================================");
     
     // För Stripe webhook-anrop, ignorera annan autentisering helt
     if (signature) {
-      console.log("Processing request with Stripe signature - bypassing JWT verification");
+      console.log("Behandlar förfrågan med Stripe-signatur - JWT-verifiering kringgås helt");
       
       // Kontrollera signaturens format
       if (!validateStripeWebhook(signature)) {
-        console.error("Invalid Stripe signature format");
+        console.error("Ogiltig Stripe-signatur format");
+        console.error("Faktisk signatur:", signature);
         return handleUnauthorized(headersMap);
       }
       
       // Få raw request body som text
       const payload = await req.text();
-      console.log("Request payload size:", payload.length, "bytes");
-      console.log("Request payload preview:", payload.substring(0, 200) + "...");
+      console.log("Request payload storlek:", payload.length, "bytes");
+      console.log("Request payload förhandsvisning:", payload.substring(0, 200) + "...");
       
-      console.log("Processing Stripe webhook event...");
+      console.log("Behandlar Stripe webhook-händelse...");
       const result = await handleWebhookEvent(signature, payload);
       
-      console.log("Webhook processing complete with result:", JSON.stringify(result));
+      console.log("Webhook-behandling slutförd med resultat:", JSON.stringify(result));
       
       return new Response(
         JSON.stringify(result),
@@ -117,7 +128,7 @@ serve(async (req) => {
     } 
     // För alla andra anrop, tillåt helt - ingen JWT validering
     else {
-      console.log("Non-webhook request received - auth validation completely bypassed");
+      console.log("Icke-webhook-förfrågan mottagen - JWT-validering helt kringgången");
       
       // Safely determine environment
       let environment = "UNKNOWN";
@@ -134,7 +145,9 @@ serve(async (req) => {
           message: "API endpoint running - no JWT verification in place", 
           timestamp: new Date().toISOString(),
           webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET"),
-          environment: environment
+          environment: environment,
+          authentication: "JWT VALIDATION COMPLETELY DISABLED",
+          note: "This endpoint accepts all traffic without JWT verification"
         }),
         { 
           status: 200, 
@@ -153,7 +166,8 @@ serve(async (req) => {
         error: "Internal server error", 
         message: error.message,
         stack: error.stack,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        note: "JWT validation is disabled, so this error is not related to authentication"
       }),
       { 
         status: 500, 

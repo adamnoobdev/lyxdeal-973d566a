@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Stripe from "https://esm.sh/stripe@12.11.0";
@@ -22,14 +21,17 @@ serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     console.log("Handling OPTIONS preflight request");
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: {
+      ...corsHeaders,
+      "Access-Control-Max-Age": "86400"
+    } });
   }
 
   try {
     console.log("Starting create-salon-subscription function");
     
     // Autentisering är nu alltid godkänd - vi skippar kontrollen helt
-    console.log("Authentication check bypassed - proceeding with request");
+    console.log("OBS! Autentisering helt kringgången - fortsätter med begäran");
     
     // Initialize Stripe with secret key from environment variables
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -101,8 +103,8 @@ serve(async (req) => {
     }
 
     // Create a customer in Stripe
-    console.log("Creating Stripe customer for:", email);
-    const { customer } = await createStripeCustomer(stripe, email, businessName, planTitle, planType);
+    console.log("Creating Stripe customer for:", requestData.email);
+    const { customer } = await createStripeCustomer(stripe, requestData.email, requestData.businessName, requestData.planTitle, requestData.planType);
     console.log("Customer created with ID:", customer.id);
 
     // Determine the origin for redirects
@@ -124,11 +126,11 @@ serve(async (req) => {
     const session = await createCheckoutSession(
       stripe, 
       customer, 
-      planTitle, 
-      planType, 
-      price, 
-      businessName, 
-      email, 
+      requestData.planTitle, 
+      requestData.planType, 
+      requestData.price, 
+      requestData.businessName, 
+      requestData.email, 
       origin
     );
     
@@ -145,11 +147,11 @@ serve(async (req) => {
         await updatePartnerRequest(
           supabaseUrl, 
           supabaseKey, 
-          email, 
+          requestData.email, 
           session.id, 
-          planTitle, 
-          planType, 
-          price
+          requestData.planTitle, 
+          requestData.planType, 
+          requestData.price
         );
         console.log("Partner request updated successfully");
       } else {
@@ -157,7 +159,7 @@ serve(async (req) => {
       }
     } catch (updateError) {
       console.error("Error updating partner request:", updateError);
-      // Fortsätt ändå - detta är inte kritiskt för användaren
+      // Fortsätt ändå - detta är inte kritiskt för anv��ndaren
     }
 
     // Return the checkout URL as JSON
@@ -200,3 +202,4 @@ serve(async (req) => {
     );
   }
 });
+
