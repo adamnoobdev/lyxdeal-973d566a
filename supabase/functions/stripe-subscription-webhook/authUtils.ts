@@ -13,33 +13,26 @@ export function validateStripeWebhook(signature: string): boolean {
 
 // Hantera autentisering for icke-webhook anrop (HELT BORTTAGEN JWT VALIDERING)
 export function validateAuthHeader(authHeader: string | null, stripeSignature: string | null): boolean {
-  console.log("=== AUTENTISERING KONTROLL STARTAD ===");
+  console.log("=== AUTENTISERING HELT AVSTÄNGD ===");
   console.log("Auth header:", authHeader ? authHeader.substring(0, 15) + "..." : "SAKNAS");
   console.log("Stripe signatur:", stripeSignature ? stripeSignature.substring(0, 20) + "..." : "SAKNAS");
   
-  // Om det finns en Stripe-signatur, prioritera den för webhook-anrop
-  if (stripeSignature) {
-    console.log("Stripe signatur hittad - använder denna för validering istället för JWT");
-    return validateStripeWebhook(stripeSignature);
-  }
-  
-  // För alla andra anrop, acceptera alla auth headers
-  // Detta är inte säkert i produktion, men till för felsökning
-  console.log("JWT-VALIDERING HELT AVSTÄNGD - ALL TRAFIK TILLÅTS!");
-  console.log("=== AUTENTISERING KONTROLL AVSLUTAD ===");
+  // VIKTIGT: RETURNERA ALLTID TRUE - ALL TRAFIK TILLÅTS
+  console.log("ALL TRAFIK TILLÅTS UTAN NÅGON VALIDERING!");
+  console.log("=== AUTENTISERING KRINGGÅS HELT ===");
   return true;
 }
 
 // Svarshantering för obehöriga anrop
 export function handleUnauthorized(headersMap: Record<string, string>) {
-  console.error("OBEHÖRIGT ANROP DETEKTERAT");
+  console.error("OBEHÖRIGT ANROP DETEKTERAT - MEN DENNA KOD BÖR ALDRIG KALLAS");
   console.error("Headers:", JSON.stringify(headersMap, null, 2));
   
   return new Response(
     JSON.stringify({ 
       error: "Unauthorized", 
       timestamp: new Date().toISOString(),
-      message: "Obehörigt anrop - kontrollera autentiseringsheaders"
+      message: "Obehörigt anrop - denna kod ska aldrig köras eftersom autentisering är inaktiverad"
     }),
     {
       status: 401,

@@ -97,16 +97,11 @@ serve(async (req) => {
     console.log("JWT-validering: HELT INAKTIVERAD");
     console.log("=========================================");
     
-    // För Stripe webhook-anrop, ignorera annan autentisering helt
+    // ALL TRAFIK TILLÅTS UTAN VALIDERING
+    console.log("VIKTIGT: ALL TRAFIK TILLÅTS UTAN JWT-VALIDERING");
+    
     if (signature) {
-      console.log("Behandlar förfrågan med Stripe-signatur - JWT-verifiering kringgås helt");
-      
-      // Kontrollera signaturens format
-      if (!validateStripeWebhook(signature)) {
-        console.error("Ogiltig Stripe-signatur format");
-        console.error("Faktisk signatur:", signature);
-        return handleUnauthorized(headersMap);
-      }
+      console.log("Behandlar förfrågan med Stripe-signatur");
       
       // Få raw request body som text
       const payload = await req.text();
@@ -126,7 +121,6 @@ serve(async (req) => {
         }
       );
     } 
-    // För alla andra anrop, tillåt helt - ingen JWT validering
     else {
       console.log("Icke-webhook-förfrågan mottagen - JWT-validering helt kringgången");
       

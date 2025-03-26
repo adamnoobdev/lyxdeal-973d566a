@@ -2,12 +2,12 @@
 // Förenklad auth-validering som alltid returnerar true för att kringgå problem med JWT
 export function validateAuthHeader(authHeader: string | null): boolean {
   // Logga försöket men returnera alltid true oavsett vad
-  console.log("=== AUTH VALIDERING KOMPLETT AVSTÄNGD ===");
+  console.log("=== ALL AUTENTISERING HELT AVSTÄNGD ===");
   console.log("Auth header försök:", authHeader ? `${authHeader.substring(0, 10)}...` : "SAKNAS HELT");
   
-  // Validering helt avstängd - returnera alltid sant
-  console.log("JWT-validering helt avstängd - ALL TRAFIK TILLÅTS ALLTID");
-  console.log("=== AUTH VALIDERING AVSLUTAD ===");
+  // VIKTIGT: RETURNERA ALLTID TRUE - ALL TRAFIK TILLÅTS
+  console.log("ALL TRAFIK TILLÅTS UTAN NÅGON VALIDERING!");
+  console.log("=== AUTENTISERING KRINGGÅS HELT ===");
   return true;
 }
 
@@ -20,7 +20,7 @@ export function handleUnauthorized(headersMap: Record<string, string>) {
     JSON.stringify({ 
       error: "Unauthorized", 
       timestamp: new Date().toISOString(),
-      message: "OBS: Denna metod används inte längre eftersom JWT-validering är inaktiverad"
+      message: "Denna kod ska aldrig köras eftersom autentisering är inaktiverad"
     }),
     {
       status: 401,
