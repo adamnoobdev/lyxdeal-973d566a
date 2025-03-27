@@ -180,11 +180,11 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
     
     console.log("Sending email with Resend API...");
     
-    // Set production mode flag for testing/debugging
+    // Always use production mode
     const isProduction = true;
     
-    // Determine the recipient email based on production mode
-    let recipientEmail = session.metadata.email;
+    // Recipient email is always the one in session metadata
+    const recipientEmail = session.metadata.email;
     
     // Log email details before sending
     console.log(`Sending welcome email: 

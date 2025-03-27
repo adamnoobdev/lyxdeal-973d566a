@@ -14,9 +14,10 @@ export interface SalonAccount {
   id: number;
   email: string;
   name?: string;
+  isComplete?: boolean;
 }
 
-export interface SubscriptionDetailsState {
+export interface SubscriptionDetailsHook {
   purchaseDetails: PurchaseDetails | null;
   salonAccount: SalonAccount | null;
   loading: boolean;
@@ -24,11 +25,6 @@ export interface SubscriptionDetailsState {
   retryCount: number;
   isRetrying: boolean;
   timeElapsed: number;
+  manualRetry: () => void;
   maxRetries: number;
 }
-
-export interface SubscriptionDetailsActions {
-  manualRetry: () => void;
-}
-
-export interface SubscriptionDetailsHook extends SubscriptionDetailsState, SubscriptionDetailsActions {}
