@@ -11,7 +11,7 @@ interface DealImageProps {
 
 export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
   return (
-    <div className="relative overflow-hidden rounded-t-xl">
+    <div className="relative overflow-hidden">
       <div className="aspect-[16/10] overflow-hidden bg-muted-50">
         <ResponsiveImage
           src={imageUrl}

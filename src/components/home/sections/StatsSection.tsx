@@ -21,16 +21,16 @@ const STATS = [
 
 export function StatsSection() {
   return (
-    <div className="bg-white rounded-xl shadow-sm py-8 px-6 mb-8">
+    <div className="bg-white shadow-sm py-8 px-6 mb-8">
       <h2 className="text-xl md:text-2xl font-semibold text-center mb-6 text-primary">Så här fungerar det</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mx-auto relative">
         {STATS.map((stat, index) => (
           <div 
             key={index} 
-            className="flex flex-col items-center text-center p-6 space-y-3 bg-white/50 border border-muted-200 rounded-lg shadow-sm relative"
+            className="flex flex-col items-center text-center p-6 space-y-3 bg-white/50 border border-muted-200 shadow-sm relative"
           >
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10">
               <stat.icon className="h-6 w-6 text-primary/80" />
             </div>
             

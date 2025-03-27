@@ -44,7 +44,7 @@ export const DealInfo = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+    <div className="bg-white shadow-sm p-6 space-y-6">
       <div className="space-y-4">
         <h1 className="text-xl lg:text-2xl font-semibold text-gray-900">{title}</h1>
         
@@ -61,7 +61,7 @@ export const DealInfo = ({
           
           {/* Show discount percentage in a badge */}
           {originalPrice > discountedPrice && (
-            <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-0.5 rounded-full shadow-sm">
+            <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-0.5 shadow-sm">
               -{Math.round(((originalPrice - discountedPrice) / originalPrice) * 100)}%
             </span>
           )}
@@ -70,11 +70,11 @@ export const DealInfo = ({
         <div className="pt-4 border-t border-gray-100">
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="w-2 h-2 bg-emerald-500" />
               <span>{quantityLeft} rabattkoder kvar</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-primary" />
+              <span className="w-2 h-2 bg-primary" />
               <span>{timeRemainingText}</span>
             </div>
           </div>

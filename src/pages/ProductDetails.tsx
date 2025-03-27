@@ -33,11 +33,11 @@ const ProductDetails = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse space-y-8 max-w-6xl mx-auto">
-          <div className="h-96 bg-accent/5 rounded-xl" />
+          <div className="h-96 bg-accent/5" />
           <div className="space-y-4">
-            <div className="h-8 bg-accent/5 rounded w-3/4" />
-            <div className="h-4 bg-accent/5 rounded w-1/2" />
-            <div className="h-4 bg-accent/5 rounded w-2/3" />
+            <div className="h-8 bg-accent/5 w-3/4" />
+            <div className="h-4 bg-accent/5 w-1/2" />
+            <div className="h-4 bg-accent/5 w-2/3" />
           </div>
         </div>
       </div>
@@ -55,7 +55,7 @@ const ProductDetails = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left column with images and details */}
             <div className="lg:col-span-8 space-y-6">
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="bg-white shadow-sm overflow-hidden">
                 <ResponsiveImage
                   src={deal.imageUrl}
                   alt={deal.title}
@@ -80,12 +80,12 @@ const ProductDetails = () => {
                 />
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+              <div className="bg-white shadow-sm p-6 space-y-6">
                 <h2 className="text-xl font-semibold">Det här ingår</h2>
                 <ul className="space-y-3">
                   {deal.description.split('\n').map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-primary mt-2" />
+                      <span className="flex-shrink-0 w-1.5 h-1.5 bg-primary mt-2" />
                       <span className="text-gray-700">{item}</span>
                     </li>
                   ))}
@@ -95,7 +95,7 @@ const ProductDetails = () => {
               <PurchaseSteps />
 
               {deal.salon && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="bg-white shadow-sm p-6">
                   <h2 className="text-xl font-semibold mb-4">Om {deal.salon.name}</h2>
                   <div className="prose prose-sm max-w-none text-gray-700">
                     <p>{deal.salon.address}</p>
