@@ -60,7 +60,6 @@ double_confirm_changes = true
 enable_confirmations = false
 
 # Individual settings for each function
-[functions]
 [functions.test-openness]
 verify_jwt = false
 
