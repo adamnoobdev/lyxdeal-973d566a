@@ -25,17 +25,17 @@ export function HeroSection() {
         className="absolute inset-0 bg-black/20"
       />
       <div className="container mx-auto px-4">
-        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 md:space-y-8 py-12 md:py-16">
+        <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 md:space-y-8 py-12 md:py-16">
           <div className="space-y-4">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg">
               Upptäck Sveriges Bästa Skönhetserbjudanden
             </h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-medium drop-shadow">
+            <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto font-medium drop-shadow">
               Exklusiva erbjudanden från Sveriges främsta skönhetssalonger
             </p>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-2 md:gap-3 mx-auto">
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3 mx-auto max-w-3xl">
             {CATEGORIES.filter(cat => cat !== "Alla Erbjudanden").map((category) => (
               <CategoryBadge 
                 key={category}
