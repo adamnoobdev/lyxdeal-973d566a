@@ -61,5 +61,12 @@ enable_confirmations = false
 
 # Korrekt formatering för functions-sektionen i TOML
 [functions]
-# Ange funktioner som inte kräver autentisering
-public_function_names = ["test-openness", "debug-webhook", "stripe-subscription-webhook"]
+# Individuella inställningar för varje funktion
+[[functions.test-openness]]
+verify_jwt = false
+
+[[functions.debug-webhook]]
+verify_jwt = false
+
+[[functions.stripe-subscription-webhook]]
+verify_jwt = false
