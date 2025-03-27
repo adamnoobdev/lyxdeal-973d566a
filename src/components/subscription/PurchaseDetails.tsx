@@ -47,13 +47,17 @@ export const PurchaseDetailsComponent = ({
         </Alert>
         
         <div className="pt-6 flex flex-col gap-2">
-          <Button component={Link} to="/salon/login" className="w-full flex items-center justify-center gap-2">
-            <span>Gå till inloggning</span>
-            <MoveRight className="h-4 w-4" />
+          <Button asChild className="w-full flex items-center justify-center gap-2">
+            <Link to="/salon/login">
+              <span>Gå till inloggning</span>
+              <MoveRight className="h-4 w-4" />
+            </Link>
           </Button>
           
-          <Button variant="outline" component={Link} to="/" className="w-full">
-            Gå till startsidan
+          <Button variant="outline" asChild className="w-full">
+            <Link to="/">
+              Gå till startsidan
+            </Link>
           </Button>
         </div>
       </div>
@@ -207,3 +211,4 @@ export const PurchaseDetailsComponent = ({
     </div>
   );
 };
+
