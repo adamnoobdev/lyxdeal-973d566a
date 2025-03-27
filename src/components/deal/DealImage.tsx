@@ -11,18 +11,18 @@ interface DealImageProps {
 
 export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
   return (
-    <div className="relative overflow-hidden">
-      <div className="aspect-[16/11] overflow-hidden bg-muted-50">
+    <div className="relative overflow-hidden rounded-t-xl">
+      <div className="aspect-[16/10] overflow-hidden bg-muted-50">
         <ResponsiveImage
           src={imageUrl}
           alt={title}
-          className="h-full w-full object-cover transition-all duration-500 group-hover:scale-[1.02]"
+          className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
         />
       </div>
       {isNew && (
-        <div className="absolute left-1.5 top-1.5">
-          <CategoryBadge category="NYTT" className="bg-white/90 text-primary-600 text-[10px]">
-            <Star className="mr-0.5 h-2.5 w-2.5" />
+        <div className="absolute left-2 top-2">
+          <CategoryBadge category="NYTT" className="bg-white/90 text-primary-600 text-[10px] shadow-md">
+            <Star className="mr-0.5 h-2.5 w-2.5 text-amber-500" />
             Ny
           </CategoryBadge>
         </div>

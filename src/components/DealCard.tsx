@@ -62,7 +62,7 @@ const DealCardComponent = ({
   const daysRemaining = calculateDaysRemaining();
 
   return (
-    <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 bg-white/80 backdrop-blur-sm border-muted-200 hover:shadow-lg active:scale-95 touch-manipulation">
+    <Card className="group h-full flex flex-col relative overflow-hidden rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-98 bg-white/95 border-muted-200 hover:border-primary/20">
       <Link to={`/deal/${id}`} className="block h-full flex flex-col touch-manipulation">
         <div className="flex flex-col h-full">
           <div className="w-full">
