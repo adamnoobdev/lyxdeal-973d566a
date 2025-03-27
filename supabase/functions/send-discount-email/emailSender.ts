@@ -1,6 +1,6 @@
 
 // We replace Resend-npm-package with a simple fetch-implementation
-import { createEmailContent } from "./emailTemplate.ts";
+import { createEmailContent } from "./emailTemplates/template.ts";
 import { RequestPayload } from "./types.ts";
 import { corsHeaders } from "./corsConfig.ts";
 
