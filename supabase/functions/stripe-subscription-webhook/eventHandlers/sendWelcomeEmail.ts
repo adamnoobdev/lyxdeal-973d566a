@@ -61,10 +61,10 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
           text-align: center;
           padding: 25px 20px;
           border-bottom: 3px solid #520053;
-          background: linear-gradient(to right, #520053, #9c27b0);
+          background-color: #FFF0FF;
         }
         .header h1 {
-          color: white;
+          color: #520053;
           margin: 0;
           font-size: 28px;
           text-shadow: 1px 1px 2px rgba(0,0,0,0.2);

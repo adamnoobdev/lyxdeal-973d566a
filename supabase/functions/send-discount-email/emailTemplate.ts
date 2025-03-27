@@ -27,8 +27,8 @@ export function createEmailContent(name: string, code: string, dealTitle: string
             margin: 20px;
           }
           .header {
-            background-color: #520053;
-            color: white;
+            background-color: #FFF0FF;
+            color: #520053;
             padding: 30px 20px;
             text-align: center;
           }
