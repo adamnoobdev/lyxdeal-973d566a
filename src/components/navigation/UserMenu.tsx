@@ -30,7 +30,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       toast.success("Du har loggats ut");
-      navigate('/auth');
+      navigate('/salon/login');
     } catch (error) {
       console.error('Utloggningsfel:', error);
       toast.error("Det gick inte att logga ut. Försök igen.");
@@ -41,7 +41,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
     if (hasDashboard) {
       navigate(dashboardPath);
     } else {
-      navigate('/auth');
+      navigate('/salon/login');
     }
   };
 
@@ -68,7 +68,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
 
   return (
     <Button size="sm" asChild className={className}>
-      <Link to="/auth">
+      <Link to="/salon/login">
         <Store className="h-4 w-4 mr-2" />
         <span className="xs:inline">Salongspartner</span>
       </Link>

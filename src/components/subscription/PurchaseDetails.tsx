@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, CheckCircle, AlertTriangle, MoveRight } from "lucide-react";
@@ -211,4 +210,3 @@ export const PurchaseDetailsComponent = ({
     </div>
   );
 };
-

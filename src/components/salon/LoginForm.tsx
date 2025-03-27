@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,48 @@ export const SalonLoginForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if user is already logged in, and redirect if needed
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        handleRedirectAfterLogin(data.session.user.id);
+      }
+    };
+    
+    checkExistingSession();
+  }, []);
+
+  const handleRedirectAfterLogin = async (userId: string) => {
+    try {
+      const { data: salonData, error: salonError } = await supabase
+        .from('salons')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (salonError) {
+        toast.error('Kunde inte hämta salongsdata');
+        return;
+      }
+
+      if (!salonData) {
+        toast.error('Ingen salongsdata hittades för denna användare');
+        return;
+      }
+
+      if (salonData.role === 'admin') {
+        navigate("/admin");
+      } else {
+        navigate("/salon/dashboard");
+      }
+    } catch (error) {
+      console.error('Redirect error:', error);
+      navigate("/");
+    }
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,40 +89,21 @@ export const SalonLoginForm: React.FC = () => {
 
       if (signInError) {
         toast.error(getErrorMessage(signInError));
+        setLoading(false);
         return;
       }
 
       if (!authData.user) {
         toast.error("Ingen användare hittades");
+        setLoading(false);
         return;
       }
 
-      const { data: salonData, error: salonError } = await supabase
-        .from('salons')
-        .select('role')
-        .eq('user_id', authData.user.id)
-        .maybeSingle();
-
-      if (salonError) {
-        toast.error('Kunde inte hämta salongsdata');
-        return;
-      }
-
-      if (!salonData) {
-        toast.error('Ingen salongsdata hittades för denna användare');
-        return;
-      }
-
-      if (salonData.role === 'admin') {
-        navigate("/admin");
-      } else {
-        navigate("/salon");
-      }
+      handleRedirectAfterLogin(authData.user.id);
       
     } catch (error) {
       console.error('Login error:', error);
       toast.error("Ett oväntat fel inträffade vid inloggning");
-    } finally {
       setLoading(false);
     }
   };

@@ -1,10 +1,9 @@
 
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import Index from './pages/Index';
 import ProductDetails from './pages/ProductDetails';
-import Auth from './pages/Auth';
 import SearchResults from './pages/SearchResults';
 import Admin from './pages/Admin';
 import SalonDashboard from './pages/SalonDashboard';
@@ -54,7 +53,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Index />} />
-          <Route path="auth" element={<Auth />} />
+          <Route path="auth" element={<Navigate to="/salon/login" replace />} />
           <Route path="search" element={<SearchResults />} />
           <Route path="deals/:id" element={<ProductDetails />} />
           <Route path="deal/:id" element={<ProductDetails />} />
