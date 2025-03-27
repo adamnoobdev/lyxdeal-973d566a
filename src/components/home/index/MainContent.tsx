@@ -18,7 +18,7 @@ const MainContentComponent = ({
 }: MainContentProps) => {
   return (
     <div className="container mx-auto px-4">
-      <div className="grid grid-cols-1 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 gap-6 md:gap-8 max-w-4xl mx-auto">
         <div className="w-full">
           <StatsSection />
           <DealsSection 
