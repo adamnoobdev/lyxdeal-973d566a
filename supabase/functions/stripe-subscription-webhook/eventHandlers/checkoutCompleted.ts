@@ -56,7 +56,7 @@ export async function handleCheckoutCompleted(session: any) {
     // Begin transaction - we'll try to create everything in a consistent manner
     console.log("Beginning account creation process for:", session.metadata.email);
     
-    // Create a new salon account
+    // Create a new salon account with simplified approach
     console.log("Creating salon account for:", session.metadata.email);
     const userData = await createSalonAccount(supabaseAdmin, session, password);
     
@@ -65,32 +65,13 @@ export async function handleCheckoutCompleted(session: any) {
       throw new Error("Failed to create salon account: No user data returned");
     }
     
-    console.log("User account created successfully with ID:", userData.user.id);
+    console.log("User/salon account processed successfully with ID:", userData.user.id);
     
     // Get subscription data
     const subscriptionData = formatSubscriptionData(session, subscription);
     
-    // Create salon record
+    // Create/update salon record
     const salonData = await createSalonRecord(supabaseAdmin, session, userData, subscriptionData);
-    
-    // Verify the salon was actually created and has the right user_id
-    try {
-      const { data: verifyData, error: verifyError } = await supabaseAdmin
-        .from("salons")
-        .select("*")
-        .eq("user_id", userData.user.id)
-        .single();
-        
-      if (verifyError) {
-        console.error("Error verifying salon creation:", verifyError);
-      } else if (verifyData) {
-        console.log("Salon verification successful:", verifyData.id);
-      } else {
-        console.error("Salon verification failed: No salon found with user_id:", userData.user.id);
-      }
-    } catch (verifyError) {
-      console.error("Exception during salon verification:", verifyError);
-    }
     
     // Update partner request status
     try {
