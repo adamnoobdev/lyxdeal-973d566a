@@ -59,15 +59,14 @@ double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = false
 
-# Korrekt formatering för functions-sektionen i TOML
+# Correct format for functions section in TOML
 [functions]
-# Individuella inställningar för varje funktion
-[[functions.test-openness]]
+# Individual settings for each function
+[functions.test-openness]
 verify_jwt = false
 
-[[functions.debug-webhook]]
+[functions.debug-webhook]
 verify_jwt = false
 
-[[functions.stripe-subscription-webhook]]
+[functions.stripe-subscription-webhook]
 verify_jwt = false
-
