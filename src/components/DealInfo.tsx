@@ -49,22 +49,14 @@ export const DealInfo = ({
         <h1 className="text-xl lg:text-2xl font-semibold text-gray-900">{title}</h1>
         
         <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <PriceDisplay 
-              originalPrice={originalPrice} 
-              discountedPrice={discountedPrice}
-              className="text-lg lg:text-xl"
-              isFreeOverride={isFree}
-              showSavedAmount={true}
-            />
-          </div>
-          
-          {/* Show discount percentage in a badge */}
-          {originalPrice > discountedPrice && (
-            <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-0.5 shadow-sm">
-              -{Math.round(((originalPrice - discountedPrice) / originalPrice) * 100)}%
-            </span>
-          )}
+          <PriceDisplay 
+            originalPrice={originalPrice} 
+            discountedPrice={discountedPrice}
+            className="text-lg lg:text-xl"
+            isFreeOverride={isFree}
+            showSavedAmount={true}
+            showDiscountBadge={true}
+          />
         </div>
 
         <div className="pt-4 border-t border-gray-100">

@@ -8,6 +8,7 @@ interface PriceDisplayProps {
   isFreeOverride?: boolean;
   showZero?: boolean;
   showSavedAmount?: boolean;
+  showDiscountBadge?: boolean;
 }
 
 export function PriceDisplay({ 
@@ -17,6 +18,7 @@ export function PriceDisplay({
   isFreeOverride = false,
   showZero = false,
   showSavedAmount = false,
+  showDiscountBadge = true,
 }: PriceDisplayProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('sv-SE', {
@@ -43,8 +45,8 @@ export function PriceDisplay({
         <span className="text-3xl font-bold text-gray-900">
           {isFree ? "Gratis" : formatPrice(discountedPrice)}
         </span>
-        {discountPercentage > 0 && (
-          <span className="text-sm px-2 py-0.5 rounded-full bg-[#ea384c] text-white font-medium">
+        {showDiscountBadge && discountPercentage > 0 && (
+          <span className="text-sm px-2 py-0.5 bg-[#ea384c] text-white font-medium">
             -{discountPercentage}%
           </span>
         )}
