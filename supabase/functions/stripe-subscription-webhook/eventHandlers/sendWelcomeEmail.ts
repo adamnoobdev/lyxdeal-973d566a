@@ -32,13 +32,14 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
     const planTitle = session.metadata.plan_title || "Standard";
     const planType = session.metadata.plan_type === 'yearly' ? 'Årsvis' : 'Månadsvis';
     
-    // Create the email HTML
+    // Create the email HTML with improved Lyxdeal branding
     const emailHtml = `
     <!DOCTYPE html>
-    <html>
+    <html lang="sv">
     <head>
-      <meta charset="utf-8">
-      <title>Välkommen till Lyxdeal!</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Välkommen till Lyxdeal</title>
       <style>
         body { 
           font-family: Arial, sans-serif; 
@@ -46,44 +47,82 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
           color: #333;
           margin: 0;
           padding: 0;
+          background-color: #fef5ff;
         }
         .container {
           max-width: 600px;
           margin: 0 auto;
           padding: 20px;
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         .header {
-          background-color: #6366f1;
-          color: white;
-          padding: 20px;
           text-align: center;
+          padding: 25px 20px;
+          border-bottom: 3px solid #520053;
+          background: linear-gradient(to right, #520053, #9c27b0);
+        }
+        .header h1 {
+          color: white;
+          margin: 0;
+          font-size: 28px;
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
         .content {
-          padding: 20px;
-          background-color: #f9fafb;
+          padding: 30px 20px;
         }
         .details {
-          background-color: white;
-          padding: 15px;
-          border-radius: 5px;
-          margin: 20px 0;
-          border: 1px solid #eee;
-        }
-        .button {
-          display: inline-block;
-          background-color: #6366f1;
-          color: white !important;
-          text-decoration: none;
-          padding: 10px 20px;
-          border-radius: 5px;
-          margin-top: 15px;
-          font-weight: bold;
+          background-color: #fff9fe;
+          padding: 20px;
+          margin: 25px 0;
+          border-radius: 8px;
+          border-left: 4px solid #520053;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .footer {
-          margin-top: 20px;
           text-align: center;
           font-size: 12px;
           color: #666;
+          padding: 20px;
+          border-top: 1px solid #eee;
+          background-color: #f9f0fc;
+          border-radius: 0 0 8px 8px;
+        }
+        .button {
+          display: inline-block;
+          background-color: #520053;
+          color: white !important;
+          text-decoration: none;
+          padding: 12px 25px;
+          border-radius: 50px;
+          margin: 25px 0;
+          font-weight: bold;
+          text-align: center;
+          box-shadow: 0 4px 6px rgba(82,0,83,0.2);
+          transition: all 0.3s ease;
+        }
+        .highlight {
+          color: #520053;
+          font-weight: bold;
+        }
+        .feature-list {
+          background-color: #fff9fe;
+          padding: 15px;
+          border-radius: 8px;
+          margin: 20px 0;
+        }
+        .feature-list li {
+          margin-bottom: 10px;
+          position: relative;
+          padding-left: 25px;
+        }
+        .feature-list li:before {
+          content: "✓";
+          color: #520053;
+          font-weight: bold;
+          position: absolute;
+          left: 0;
         }
       </style>
     </head>
@@ -93,15 +132,15 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
           <h1>Välkommen till Lyxdeal!</h1>
         </div>
         <div class="content">
-          <p>Hej ${session.metadata.business_name}!</p>
+          <p>Hej <span class="highlight">${session.metadata.business_name}</span>!</p>
           
-          <p>Tack för att du registrerade dig hos oss. Ditt konto har skapats och du kan nu börja använda vår plattform.</p>
+          <p>Vi är glada att välkomna dig som partner till Lyxdeal! Ditt konto har nu skapats och du kan komma igång direkt med att skapa fantastiska erbjudanden.</p>
           
           <div class="details">
             <h3>Dina inloggningsuppgifter:</h3>
             <p><strong>E-post:</strong> ${session.metadata.email}</p>
             <p><strong>Lösenord:</strong> ${password}</p>
-            <p><small>För din säkerhet, vänligen ändra ditt lösenord vid första inloggningen.</small></p>
+            <p style="font-size: 0.9em; color: #777;">Vi rekommenderar att du ändrar ditt lösenord vid första inloggningen.</p>
           </div>
           
           <div class="details">
@@ -112,17 +151,27 @@ export async function sendWelcomeEmail(session: any, password: string, subscript
             <p><strong>Nästa betalning:</strong> ${subscriptionEndDate}</p>
           </div>
           
-          <p>För att komma igång, klicka på knappen nedan för att logga in på vår plattform:</p>
+          <h3 style="color: #520053;">Vad kan du göra i salongsportalen?</h3>
           
-          <a href="https://lyxdeal.se/salon/login" class="button">Logga in nu</a>
+          <ul class="feature-list">
+            <li>Skapa och hantera exklusiva erbjudanden</li>
+            <li>Övervaka kampanjresultat i realtid</li>
+            <li>Hantera rabattkoder för dina kunder</li>
+            <li>Se statistik över dina kampanjer</li>
+            <li>Uppdatera din profil och prenumerationsinformation</li>
+          </ul>
           
-          <p>Om du har några frågor eller behöver hjälp, kontakta oss på <a href="mailto:info@lyxdeal.se">info@lyxdeal.se</a>.</p>
+          <div style="text-align: center;">
+            <a href="https://lyxdeal.se/salon/login" class="button">Logga in nu</a>
+          </div>
           
-          <p>Med vänliga hälsningar,<br>Lyxdeal-teamet</p>
+          <p>Om du har några frågor eller behöver hjälp, kontakta oss på <a href="mailto:info@lyxdeal.se" style="color: #520053;">info@lyxdeal.se</a>.</p>
+          
+          <p>Med vänliga hälsningar,<br>Teamet på Lyxdeal</p>
         </div>
         <div class="footer">
-          <p>Detta är ett automatiskt meddelande, vänligen svara inte på detta e-postmeddelande.</p>
-          <p>&copy; 2023 Lyxdeal. Alla rättigheter förbehållna.</p>
+          <p>© ${new Date().getFullYear()} Lyxdeal. Alla rättigheter förbehållna.</p>
+          <p>Detta är ett automatiskt genererat meddelande. Vänligen svara inte på detta e-postmeddelande.</p>
         </div>
       </div>
     </body>
