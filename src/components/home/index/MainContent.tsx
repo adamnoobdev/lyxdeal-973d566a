@@ -2,7 +2,6 @@
 import { memo } from "react";
 import { StatsSection } from "../sections/StatsSection";
 import { DealsSection } from "../sections/DealsSection";
-import { CategorySection } from "./CategorySection";
 
 interface MainContentProps {
   selectedCategory: string;
@@ -19,17 +18,8 @@ const MainContentComponent = ({
 }: MainContentProps) => {
   return (
     <div className="container mx-auto px-4">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-        <div className="lg:col-span-3 order-2 lg:order-1">
-          <CategorySection 
-            selectedCategory={selectedCategory}
-            selectedCity={selectedCity}
-            onSelectCategory={onSelectCategory}
-            onSelectCity={onSelectCity}
-          />
-        </div>
-        
-        <div className="lg:col-span-9 order-1 lg:order-2">
+      <div className="grid grid-cols-1 gap-6 md:gap-8">
+        <div className="w-full">
           <StatsSection />
           <DealsSection 
             selectedCategory={selectedCategory} 
