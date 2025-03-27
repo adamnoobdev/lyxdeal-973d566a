@@ -17,16 +17,14 @@ export default function IndexPage() {
         <link rel="canonical" href="https://lyxdeal.se" />
       </Helmet>
       
-      <main className="flex flex-col min-h-screen bg-background">
+      <main className="flex flex-col min-h-screen bg-background pb-12">
         <HeroSection />
-        <div className="py-6 md:py-8">
-          <MainContent 
-            selectedCategory={selectedCategory}
-            selectedCity={selectedCity}
-            onSelectCategory={setSelectedCategory}
-            onSelectCity={setSelectedCity}
-          />
-        </div>
+        <MainContent 
+          selectedCategory={selectedCategory}
+          selectedCity={selectedCity}
+          onSelectCategory={setSelectedCategory}
+          onSelectCity={setSelectedCity}
+        />
       </main>
     </>
   );

@@ -1,5 +1,5 @@
 
-import { Star, MapPin, AlertTriangle } from "lucide-react";
+import { MapPin, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DealsGrid } from "@/components/DealsGrid";
 import { useDeals } from "@/hooks/useDeals";
@@ -16,7 +16,7 @@ const DealsSectionComponent = ({
   selectedCity
 }: DealsSectionProps) => {
   return (
-    <div className="space-y-8 md:space-y-12 px-4 md:px-0">
+    <div className="space-y-8 md:space-y-12">
       <section className="space-y-4 md:space-y-6">
         <div className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />

@@ -12,30 +12,30 @@ export function HeroSection() {
   };
 
   return (
-    <div className="container mx-auto">
-      <section className="relative min-h-[400px] md:min-h-[500px] flex items-center justify-center overflow-hidden my-6">
-        <div 
-          className="absolute inset-0 bg-cover bg-center opacity-90 transition-opacity duration-700"
-          style={{ 
-            backgroundImage: `url('${HERO_IMAGE_URL}')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <div 
-          className="absolute inset-0 bg-black/20"
-        />
+    <section className="relative w-full min-h-[400px] md:min-h-[500px] flex items-center justify-center overflow-hidden my-6">
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-90 transition-opacity duration-700"
+        style={{ 
+          backgroundImage: `url('${HERO_IMAGE_URL}')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+      <div 
+        className="absolute inset-0 bg-black/20"
+      />
+      <div className="container mx-auto px-4">
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 md:space-y-8 py-12 md:py-16">
           <div className="space-y-4">
-            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white leading-tight drop-shadow-lg px-4">
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white leading-tight drop-shadow-lg">
               Upptäck Sveriges Bästa Skönhetserbjudanden
             </h1>
-            <p className="text-lg md:text-xl lg:text-2xl text-white/90 max-w-2xl mx-auto font-medium drop-shadow px-4">
+            <p className="text-lg md:text-xl lg:text-2xl text-white/90 max-w-2xl mx-auto font-medium drop-shadow">
               Exklusiva erbjudanden från Sveriges främsta skönhetssalonger
             </p>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto px-4">
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3 max-w-2xl mx-auto">
             {CATEGORIES.filter(cat => cat !== "Alla Erbjudanden").map((category) => (
               <CategoryBadge 
                 key={category}
@@ -47,7 +47,7 @@ export function HeroSection() {
             ))}
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

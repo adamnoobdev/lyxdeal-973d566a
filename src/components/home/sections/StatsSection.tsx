@@ -21,7 +21,9 @@ const STATS = [
 
 export function StatsSection() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="bg-white rounded-xl shadow-sm py-8 px-6 mb-8">
+      <h2 className="text-xl md:text-2xl font-semibold text-center mb-6 text-primary">Så här fungerar det</h2>
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto relative">
         {STATS.map((stat, index) => (
           <div 

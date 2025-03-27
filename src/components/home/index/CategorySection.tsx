@@ -1,3 +1,4 @@
+
 import { Categories } from "@/components/Categories";
 import { Cities } from "@/components/Cities";
 
@@ -16,7 +17,7 @@ export function CategorySection({
 }: CategorySectionProps) {
   return (
     <div className="space-y-8 animate-fade-up">
-      <div className="bg-accent/5 rounded-xl p-8 space-y-8">
+      <div className="bg-accent/5 rounded-xl p-6 md:p-8 space-y-8 shadow-sm">
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-center text-primary">Kategorier</h2>
           <Categories 
