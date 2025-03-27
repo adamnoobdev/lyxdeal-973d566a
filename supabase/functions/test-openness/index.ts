@@ -1,5 +1,5 @@
 
-// Absolut enklaste möjliga funktion - bör alltid fungera
+// Simplest possible function to test Edge Function connectivity
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {
@@ -9,30 +9,26 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log("TEST-OPENNESS ENDPOINT ANROPAD");
-  console.log("HTTP-METOD:", req.method);
+  console.log("TEST-OPENNESS ENDPOINT CALLED");
+  console.log("HTTP METHOD:", req.method);
   
-  // Hantera CORS preflight
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    console.log("Behandlar OPTIONS preflight request");
+    console.log("Handling OPTIONS preflight request");
     return new Response(null, { headers: corsHeaders });
   }
   
-  // Logga alla headers för felsökning
-  console.log("Alla request headers:");
-  const headersMap = Object.fromEntries(req.headers.entries());
-  console.log(JSON.stringify(headersMap, null, 2));
+  // Log request details for debugging
+  console.log("Request URL:", req.url);
+  console.log("Request headers:", Object.fromEntries(req.headers.entries()));
   
-  // VIKTIG ÄNDRING: Vi kontrollerar inte längre efter auth header
-  // Returnera alltid framgångsrik respons OAVSETT autentisering
+  // Return a simple success response
   return new Response(
     JSON.stringify({
       success: true,
-      message: "Öppen endpoint fungerar!",
+      message: "Test function is working!",
       timestamp: new Date().toISOString(),
-      method: req.method,
-      headers_received: Object.keys(headersMap),
-      info: "Denna endpoint kräver INGEN autentisering"
+      method: req.method
     }),
     {
       status: 200,

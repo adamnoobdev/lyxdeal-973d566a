@@ -1,8 +1,8 @@
 
-// Debug webhook för att testa om Stripe-anrop kan nå funktionen
+// Debug webhook for testing network connectivity
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
-// Definiera CORS-headers som tillåter alla anrop
+// Define CORS headers that allow all calls
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE",
@@ -12,51 +12,42 @@ const corsHeaders = {
 
 serve(async (req) => {
   try {
-    console.log("==== DEBUG WEBHOOK MOTTAGEN ====");
-    console.log("Tidpunkt:", new Date().toISOString());
-    console.log("Metod:", req.method);
+    console.log("==== DEBUG WEBHOOK RECEIVED ====");
+    console.log("Timestamp:", new Date().toISOString());
+    console.log("Method:", req.method);
     console.log("URL:", req.url);
     
-    // Logga alla request headers
+    // Log all request headers
     const headersMap = Object.fromEntries(req.headers.entries());
     console.log("Headers:", JSON.stringify(headersMap, null, 2));
     
-    // Hantera CORS preflight
+    // Handle CORS preflight
     if (req.method === "OPTIONS") {
-      console.log("Hanterar OPTIONS preflight");
+      console.log("Handling OPTIONS preflight");
       return new Response(null, { headers: corsHeaders });
     }
     
-    // Försök att läsa body-data
-    let bodyData = "Ingen body";
+    // Try to read body data
+    let bodyData = "No body";
     try {
       if (req.body) {
         const bodyText = await req.text();
-        console.log("Body längd:", bodyText.length);
-        console.log("Body förhandsvisning:", bodyText.substring(0, 200) + "...");
+        console.log("Body length:", bodyText.length);
+        console.log("Body preview:", bodyText.substring(0, 200) + "...");
         bodyData = bodyText;
       }
     } catch (err) {
-      console.log("Kunde inte läsa body:", err.message);
+      console.log("Could not read body:", err.message);
     }
     
-    // Kontrollera Supabase-konfiguration
-    console.log("Miljövariabler tillgängliga:");
-    console.log("STRIPE_SECRET_KEY konfigurerad:", !!Deno.env.get("STRIPE_SECRET_KEY"));
-    console.log("STRIPE_WEBHOOK_SECRET konfigurerad:", !!Deno.env.get("STRIPE_WEBHOOK_SECRET"));
-    
-    // Returnera framgångsrikt svar - NOTERA: Ingen auth-kontroll
+    // Return successful response - NO auth check
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Debug webhook anropad framgångsrikt",
+        message: "Debug webhook called successfully",
         timestamp: new Date().toISOString(),
         headers_received: Object.keys(headersMap),
-        body_size: bodyData.length,
-        environment_check: {
-          stripe_key_configured: !!Deno.env.get("STRIPE_SECRET_KEY"),
-          webhook_secret_configured: !!Deno.env.get("STRIPE_WEBHOOK_SECRET")
-        }
+        body_size: bodyData.length
       }),
       {
         status: 200,
@@ -67,15 +58,14 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error("Fel i debug-webhook:", err);
-    console.error("Felmeddelande:", err.message);
+    console.error("Error in debug-webhook:", err);
+    console.error("Error message:", err.message);
     console.error("Stack:", err.stack);
     
     return new Response(
       JSON.stringify({
-        error: "Internt serverfel",
+        error: "Internal server error",
         message: err.message,
-        stack: err.stack,
         timestamp: new Date().toISOString()
       }),
       {
