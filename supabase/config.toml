@@ -59,8 +59,7 @@ double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = false
 
-# Corrected function configuration format
+# Korrekt formatering för functions-sektionen i TOML
 [functions]
-# NOTE: Detta är en viktig inställning för offentliga funktioner!
-# Anger att vissa funktioner kan anropas utan JWT-autentisering
+# Ange funktioner som inte kräver autentisering
 public_function_names = ["test-openness", "debug-webhook", "stripe-subscription-webhook"]

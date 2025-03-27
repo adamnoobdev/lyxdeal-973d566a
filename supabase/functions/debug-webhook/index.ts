@@ -5,8 +5,8 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 // Definiera CORS-headers som tillåter alla anrop
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature, origin",
+  "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE",
+  "Access-Control-Allow-Headers": "*",
   "Access-Control-Max-Age": "86400",
 };
 
@@ -45,7 +45,7 @@ serve(async (req) => {
     console.log("STRIPE_SECRET_KEY konfigurerad:", !!Deno.env.get("STRIPE_SECRET_KEY"));
     console.log("STRIPE_WEBHOOK_SECRET konfigurerad:", !!Deno.env.get("STRIPE_WEBHOOK_SECRET"));
     
-    // Returnera framgångsrikt svar
+    // Returnera framgångsrikt svar - NOTERA: Ingen auth-kontroll
     return new Response(
       JSON.stringify({
         success: true,
