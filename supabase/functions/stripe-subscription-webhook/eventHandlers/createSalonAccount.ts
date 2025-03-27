@@ -8,7 +8,7 @@ export async function createSalonAccount(supabaseAdmin: any, session: any, passw
   try {
     console.log(`Creating salon account for email: ${session.metadata.email}`);
     
-    // First check if the user already exists - utan att använda admin API
+    // First check if the user already exists
     const { data: existingUsers, error: findError } = await supabaseAdmin
       .from('salons')
       .select('email')
@@ -33,17 +33,15 @@ export async function createSalonAccount(supabaseAdmin: any, session: any, passw
       };
     }
     
-    // Skapa användarkontot med anonym autentisering istället
-    // eftersom vi inte har admin-rättigheter
+    // Vi kan inte skapa auth.users här, så vi skapar direkt ett salongskonto
     console.log(`Creating new user record for: ${session.metadata.email}`);
     
-    // Vi kan inte skapa auth.users här, så vi skapar direkt ett salongskonto
     const { data, error } = await supabaseAdmin
       .from('salons')
       .insert([{
         email: session.metadata.email,
         name: session.metadata.business_name,
-        subscription_plan: session.metadata.plan_title || "Standard",
+        // Ta bort fälten subscription_plan och role om de inte finns i tabellen
         role: 'salon_owner'
       }])
       .select();

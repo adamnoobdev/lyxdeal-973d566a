@@ -1,54 +1,42 @@
 
 import { getStripeClient } from "../stripeClient.ts";
 
-export async function getSubscriptionDetails(stripeSubscriptionId: string) {
-  if (!stripeSubscriptionId) {
-    console.warn("No subscription ID provided, skipping subscription retrieval");
-    return null;
+export function generateRandomPassword(length = 12) {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
   }
+  return password;
+}
 
+export async function getSubscriptionDetails(subscriptionId: string) {
   try {
     const stripe = getStripeClient();
-    console.log("Retrieving subscription details for:", stripeSubscriptionId);
-    const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
     
-    console.log("Subscription details retrieved:", subscription.id);
-    console.log("Subscription status:", subscription.status);
+    console.log(`Retrieving subscription details for: ${subscriptionId}`);
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    console.log(`Subscription details retrieved: ${subscription.id}`);
+    
+    console.log(`Subscription status: ${subscription.status}`);
     
     return subscription;
-  } catch (subscriptionError) {
-    console.error("Error retrieving subscription:", subscriptionError);
-    console.error("Subscription error message:", subscriptionError.message);
-    return null;
+  } catch (error) {
+    console.error("Error retrieving subscription:", error);
+    throw error;
   }
 }
 
 export function formatSubscriptionData(session: any, subscription: any) {
+  // Extract metadata from session and subscription
+  const metadata = session.metadata || {};
+  
   return {
-    stripe_subscription_id: subscription?.id || "",
-    stripe_customer_id: session.customer,
-    plan_title: session.metadata.plan_title || "Standard",
-    plan_type: session.metadata.plan_type || "monthly",
-    status: subscription?.status || "active",
-    current_period_end: subscription?.current_period_end 
-      ? new Date(subscription.current_period_end * 1000).toISOString() 
-      : null,
-    cancel_at_period_end: subscription?.cancel_at_period_end || false
+    stripe_subscription_id: session.subscription,
+    // Do not include plan_title or subscription_plan here
+    status: subscription ? subscription.status : 'active',
+    current_period_end: subscription ? new Date(subscription.current_period_end * 1000).toISOString() : null,
+    cancel_at_period_end: subscription ? subscription.cancel_at_period_end : false
   };
-}
-
-export function generateRandomPassword() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-  let password = "";
-  const length = 12; // Ensure constant length
-  
-  // Use crypto random for better security if available
-  const array = new Uint8Array(length);
-  crypto.getRandomValues(array);
-  
-  for (let i = 0; i < length; i++) {
-    password += chars.charAt(array[i] % chars.length);
-  }
-  
-  return password;
 }

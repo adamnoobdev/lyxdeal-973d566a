@@ -7,14 +7,20 @@ export async function createSalonRecord(supabaseAdmin: any, session: any, userDa
     if (userData.isExisting) {
       console.log("Salon already exists for this user, updating subscription details");
       
+      // Skapa en uppdateringsobjekt som endast innehåller fält som faktiskt finns i databasen
+      const updateData = {
+        // Vi använder inte subscription_plan eller plan_title eftersom de inte finns i tabellen
+        stripe_customer_id: session.customer,
+        // Lägg till andra fält från subscriptionData som verkligen existerar i tabellen
+        stripe_subscription_id: subscriptionData.stripe_subscription_id,
+        status: subscriptionData.status,
+        current_period_end: subscriptionData.current_period_end,
+        cancel_at_period_end: subscriptionData.cancel_at_period_end
+      };
+
       const { data: salonData, error: salonError } = await supabaseAdmin
         .from("salons")
-        .update({
-          subscription_plan: session.metadata.plan_title || "Standard",
-          subscription_type: session.metadata.plan_type || "monthly",
-          stripe_customer_id: session.customer,
-          ...subscriptionData
-        })
+        .update(updateData)
         .eq("email", session.metadata.email)
         .select();
 
@@ -30,21 +36,22 @@ export async function createSalonRecord(supabaseAdmin: any, session: any, userDa
     
     // Om userData innehåller ett nyskapat salon-objekt
     // behöver vi bara uppdatera det skapade salongsobjektet med Stripe-information
-    console.log("Updating newly created salon with subscription details:", {
-      subscription_plan: session.metadata.plan_title,
-      subscription_type: session.metadata.plan_type,
-      stripe_customer_id: session.customer,
-      ...subscriptionData
-    });
+    console.log("Updating newly created salon with subscription details");
     
+    // Skapa ett uppdateringsobjekt som endast innehåller fält som faktiskt finns i databasen
+    const updateData = {
+      // Vi använder inte subscription_plan eller plan_title eftersom de inte finns i tabellen
+      stripe_customer_id: session.customer,
+      // Lägg till andra fält från subscriptionData som verkligen existerar i tabellen
+      stripe_subscription_id: subscriptionData.stripe_subscription_id,
+      status: subscriptionData.status,
+      current_period_end: subscriptionData.current_period_end,
+      cancel_at_period_end: subscriptionData.cancel_at_period_end
+    };
+
     const { data: salonData, error: salonError } = await supabaseAdmin
       .from("salons")
-      .update({
-        subscription_plan: session.metadata.plan_title || "Standard",
-        subscription_type: session.metadata.plan_type || "monthly",
-        stripe_customer_id: session.customer,
-        ...subscriptionData
-      })
+      .update(updateData)
       .eq("id", userData.user.id)
       .select();
 
