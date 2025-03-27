@@ -19,7 +19,7 @@ export default function IndexPage() {
       
       <main className="flex flex-col min-h-screen bg-background">
         <HeroSection />
-        <div className="container mx-auto py-6 md:py-8">
+        <div className="py-6 md:py-8">
           <MainContent 
             selectedCategory={selectedCategory}
             selectedCity={selectedCity}
