@@ -36,8 +36,8 @@ export const useSubscriptionPolling = ({
   const fetchSubscriptionData = useCallback(async (): Promise<boolean> => {
     if (!sessionId) {
       console.warn("Inget session-ID hittades i URL:en");
-      setError("Inget sessionID hittades");
       setLoading(false);
+      // We're not setting an error here anymore since we want to show the success page anyway
       return false;
     }
 
@@ -89,6 +89,7 @@ export const useSubscriptionPolling = ({
       }
       
       console.log("Ingen matchande partner-förfrågan eller salongskonto hittades. Försök nr:", retryCount);
+      // Even if we don't find a match, we still want to show the success page
       return false; // Behöver fortsätta kontrollera
     } catch (err) {
       console.error("Fel vid hämtning av prenumerationsdetaljer:", err);

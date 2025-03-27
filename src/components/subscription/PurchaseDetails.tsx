@@ -1,9 +1,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, CheckCircle, AlertTriangle } from "lucide-react";
+import { Loader2, CheckCircle, AlertTriangle, MoveRight } from "lucide-react";
 import { PurchaseDetails, SalonAccount } from "@/hooks/subscription/types";
 import { formatDate } from "@/hooks/subscription/formatUtils";
+import { Link } from "react-router-dom";
 
 interface PurchaseDetailsComponentProps {
   purchaseDetails: PurchaseDetails | null;
@@ -22,22 +23,69 @@ export const PurchaseDetailsComponent = ({
 }: PurchaseDetailsComponentProps) => {
   if (!purchaseDetails) {
     return (
-      <Alert className="mt-6 bg-gray-50 border-gray-200">
-        <AlertTitle className="flex items-center text-gray-800">
-          <AlertTriangle className="h-4 w-4 mr-2" />
-          Beställningsinformation
-        </AlertTitle>
-        <AlertDescription className="text-gray-700">
-          Ingen beställningsinformation hittades. Kontakta oss på info@lyxdeal.se om du behöver hjälp.
-        </AlertDescription>
-      </Alert>
+      <div className="space-y-6">
+        <div className="flex justify-center mb-6">
+          <CheckCircle className="h-20 w-20 text-green-500" />
+        </div>
+        
+        <h2 className="text-2xl lg:text-3xl font-bold text-center text-purple-900">
+          Prenumeration genomförd!
+        </h2>
+        
+        <p className="text-center text-gray-700">
+          Din betalning har genomförts och ditt konto håller på att skapas. Du kommer att få ett e-postmeddelande 
+          med inloggningsuppgifter till den e-postadress du angav under registreringen.
+        </p>
+        
+        <Alert className="bg-blue-50 border-blue-200">
+          <AlertTitle className="flex items-center text-blue-800">
+            <AlertTriangle className="h-4 w-4 mr-2" /> Viktigt
+          </AlertTitle>
+          <AlertDescription className="text-blue-800">
+            Om du inte hittar mejlet inom några minuter, kontrollera din spammapp. Om du fortfarande inte hittar det, kontakta oss på info@lyxdeal.se.
+          </AlertDescription>
+        </Alert>
+        
+        <div className="pt-6 flex flex-col gap-2">
+          <Button component={Link} to="/salon/login" className="w-full flex items-center justify-center gap-2">
+            <span>Gå till inloggning</span>
+            <MoveRight className="h-4 w-4" />
+          </Button>
+          
+          <Button variant="outline" component={Link} to="/" className="w-full">
+            Gå till startsidan
+          </Button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6 mt-8">
+    <div className="space-y-6 mt-6">
+      <div className="flex justify-center mb-6">
+        <CheckCircle className="h-20 w-20 text-green-500" />
+      </div>
+      
+      <h2 className="text-2xl lg:text-3xl font-bold text-center text-purple-900">
+        Prenumeration genomförd!
+      </h2>
+      
+      <p className="text-center text-gray-700">
+        Din betalning har genomförts och ditt konto håller på att skapas. Du kommer att få ett e-postmeddelande 
+        med inloggningsuppgifter till den e-postadress du angav under registreringen.
+      </p>
+      
+      <Alert className="mt-4 bg-blue-50 border-blue-200">
+        <AlertTitle className="flex items-center text-blue-800">
+          <AlertTriangle className="h-4 w-4 mr-2" /> Viktigt
+        </AlertTitle>
+        <AlertDescription className="text-blue-800">
+          Om du inte hittar mejlet inom några minuter, kontrollera din spammapp. Om du fortfarande inte hittar det, kontakta oss på info@lyxdeal.se.
+        </AlertDescription>
+      </Alert>
+
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Beställningsinformation</h3>
+        <h3 className="text-lg font-semibold">Beställningsinformation</h3>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-md border border-gray-100">
           <div>
@@ -78,7 +126,7 @@ export const PurchaseDetailsComponent = ({
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Salongskonto</h3>
+        <h3 className="text-lg font-semibold">Salongskonto</h3>
         
         {!salonAccount ? (
           <Alert className="bg-blue-50 border-blue-200">
@@ -140,6 +188,21 @@ export const PurchaseDetailsComponent = ({
             </AlertDescription>
           </Alert>
         )}
+      </div>
+
+      <div className="pt-6 flex flex-col gap-2">
+        <Button asChild className="w-full flex items-center justify-center gap-2">
+          <Link to="/salon/login">
+            <span>Gå till inloggning</span>
+            <MoveRight className="h-4 w-4" />
+          </Link>
+        </Button>
+        
+        <Button variant="outline" asChild className="w-full">
+          <Link to="/">
+            Gå till startsidan
+          </Link>
+        </Button>
       </div>
     </div>
   );
