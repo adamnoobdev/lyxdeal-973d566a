@@ -51,14 +51,32 @@ const ProductDetails = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
+          {/* Restructured layout for better mobile responsiveness */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Vänster kolumn med bilder och detaljer */}
+            {/* Left column with images and details */}
             <div className="lg:col-span-8 space-y-6">
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <ResponsiveImage
                   src={deal.imageUrl}
                   alt={deal.title}
                   className="w-full aspect-[4/3] object-cover"
+                />
+              </div>
+              
+              {/* Mobile-only DealInfo section that appears right after the image on mobile */}
+              <div className="block lg:hidden">
+                <DealInfo
+                  id={deal.id}
+                  title={deal.title}
+                  description={deal.description}
+                  category={deal.category}
+                  originalPrice={deal.originalPrice}
+                  discountedPrice={deal.discountedPrice}
+                  daysRemaining={deal.daysRemaining}
+                  city={deal.city}
+                  quantityLeft={deal.quantityLeft}
+                  isFree={deal.isFree}
+                  salon={deal.salon}
                 />
               </div>
 
@@ -87,8 +105,8 @@ const ProductDetails = () => {
               )}
             </div>
 
-            {/* Höger kolumn med pris och köpinfo */}
-            <div className="lg:col-span-4">
+            {/* Right column with price and purchase info - hidden on mobile as we show it above */}
+            <div className="lg:col-span-4 hidden lg:block">
               <div className="lg:sticky lg:top-8">
                 <DealInfo
                   id={deal.id}

@@ -46,18 +46,25 @@ export const DealInfo = ({
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+        <h1 className="text-xl lg:text-2xl font-semibold text-gray-900">{title}</h1>
         
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div className="space-y-1">
             <PriceDisplay 
               originalPrice={originalPrice} 
               discountedPrice={discountedPrice}
-              className="text-lg"
+              className="text-lg lg:text-xl"
               isFreeOverride={isFree}
               showSavedAmount={true}
             />
           </div>
+          
+          {/* Show discount percentage in a badge */}
+          {originalPrice > discountedPrice && (
+            <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-0.5 rounded-full shadow-sm">
+              -{Math.round(((originalPrice - discountedPrice) / originalPrice) * 100)}%
+            </span>
+          )}
         </div>
 
         <div className="pt-4 border-t border-gray-100">
