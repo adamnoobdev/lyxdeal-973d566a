@@ -26,6 +26,7 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
       
       try {
         setIsLoading(true);
+        console.log("Fetching coordinates for address:", address);
         const coords = await getCoordinates(address, mapboxToken);
         
         if (coords) {
@@ -45,7 +46,6 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
     };
 
     if (mapboxToken && address) {
-      console.log("Fetching coordinates for address:", address);
       fetchCoordinates();
     }
   }, [address, mapboxToken]);

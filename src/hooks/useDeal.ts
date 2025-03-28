@@ -19,12 +19,29 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // Updated query to properly fetch salon data
+        // First, let's check if the deal has a salon_id
+        const { data: dealCheck, error: dealCheckError } = await supabase
+          .from("deals")
+          .select(`
+            id,
+            salon_id
+          `)
+          .eq("id", dealId)
+          .single();
+
+        if (dealCheckError) {
+          console.error("Error checking deal salon_id:", dealCheckError);
+          throw dealCheckError;
+        }
+
+        console.log("Deal check result:", dealCheck);
+
+        // Now fetch the full deal with salon data
         const { data, error } = await supabase
           .from("deals")
           .select(`
             *,
-            salon:salon_id (
+            salon:salons!deals_salon_id_fkey (
               id,
               name,
               address,
@@ -76,15 +93,48 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free either by explicit flag or 0 price
         const isFree = data.is_free || data.discounted_price === 0;
 
-        // Process salon data correctly
-        const salon = data.salon ? {
-          id: data.salon.id,
-          name: data.salon.name || '',
-          address: data.salon.address || null,
-          phone: data.salon.phone || null,
-        } : null;
+        // Process salon data correctly, checking both data.salon and data.salons
+        let salon = null;
+        
+        if (data.salon) {
+          salon = {
+            id: data.salon.id,
+            name: data.salon.name || '',
+            address: data.salon.address || null,
+            phone: data.salon.phone || null,
+          };
+          console.log("Found salon data via data.salon:", salon);
+        } else if (data.salons) {
+          salon = {
+            id: data.salons.id,
+            name: data.salons.name || '',
+            address: data.salons.address || null,
+            phone: data.salons.phone || null,
+          };
+          console.log("Found salon data via data.salons:", salon);
+        } else if (dealCheck && dealCheck.salon_id) {
+          // If we have a salon_id but no salon data in the main query, try to fetch it directly
+          console.log("Attempting to fetch salon data separately with salon_id:", dealCheck.salon_id);
+          const { data: salonData, error: salonError } = await supabase
+            .from("salons")
+            .select("id, name, address, phone")
+            .eq("id", dealCheck.salon_id)
+            .maybeSingle();
+            
+          if (!salonError && salonData) {
+            salon = {
+              id: salonData.id,
+              name: salonData.name || '',
+              address: salonData.address || null,
+              phone: salonData.phone || null,
+            };
+            console.log("Successfully fetched salon data separately:", salon);
+          } else {
+            console.error("Failed to fetch salon data separately:", salonError);
+          }
+        }
 
-        console.log("Processed salon data:", salon);
+        console.log("Final processed salon data:", salon);
 
         return {
           id: data.id,

@@ -10,6 +10,13 @@ interface SalonInfoProps {
 }
 
 export const SalonInfo = ({ salon }: SalonInfoProps) => {
+  console.log("SalonInfo received salon data:", salon);
+  
+  if (!salon) {
+    console.log("SalonInfo: No salon data provided");
+    return null;
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
