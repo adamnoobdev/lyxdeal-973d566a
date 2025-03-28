@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
@@ -15,14 +16,15 @@ export const PasswordField = ({ form }: PasswordFieldProps) => {
         <FormItem>
           <FormLabel>Lösenord</FormLabel>
           <FormControl>
-            <Input 
-              type="password" 
-              placeholder="Ange nytt lösenord..." 
-              {...field} 
+            <Input
+              type="password"
+              placeholder="Ange lösenord..."
+              {...field}
+              value={field.value || ""}
             />
           </FormControl>
           <FormDescription>
-            Lämna tomt om du inte vill ändra lösenordet
+            Om du fyller i detta fält kommer ett nytt lösenord att sättas. Lämna tomt för att behålla nuvarande lösenord.
           </FormDescription>
           <FormMessage />
         </FormItem>

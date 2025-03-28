@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Salon } from "@/components/admin/types";
@@ -43,7 +44,10 @@ const createSalonData = async (values: any) => {
   try {
     console.log("Creating salon with values:", values);
     const { data, error } = await supabase.functions.invoke("create-salon-account", {
-      body: values,
+      body: {
+        ...values,
+        skipSubscription: values.skipSubscription || false
+      },
     });
 
     if (error) {

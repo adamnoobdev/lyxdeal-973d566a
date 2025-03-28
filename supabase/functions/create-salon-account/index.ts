@@ -13,6 +13,7 @@ interface CreateSalonRequest {
   email: string;
   phone?: string;
   address?: string;
+  skipSubscription?: boolean; // New flag to indicate no subscription needed
 }
 
 serve(async (req) => {
@@ -71,7 +72,7 @@ serve(async (req) => {
     }
 
     // Get request body
-    const { name, email, phone, address }: CreateSalonRequest = await req.json();
+    const { name, email, phone, address, skipSubscription }: CreateSalonRequest = await req.json();
 
     // Generate a random password
     const password = Math.random().toString(36).slice(-8);
@@ -94,18 +95,26 @@ serve(async (req) => {
     }
 
     // Create the salon record
-    const { data: salonData, error: createSalonError } = await supabaseClient
+    const salonData = {
+      name,
+      email,
+      phone,
+      address,
+      user_id: userData.user.id,
+      role: "salon_owner",
+    };
+    
+    // If we're skipping subscription, add default active status
+    if (skipSubscription) {
+      Object.assign(salonData, {
+        status: "active", // Set the salon as active by default
+        current_period_end: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000), // 10 years in the future
+      });
+    }
+
+    const { data: salon, error: createSalonError } = await supabaseClient
       .from("salons")
-      .insert([
-        {
-          name,
-          email,
-          phone,
-          address,
-          user_id: userData.user.id,
-          role: "salon_owner",
-        },
-      ])
+      .insert([salonData])
       .select()
       .single();
 
@@ -131,7 +140,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        salon: salonData,
+        salon: salon,
         temporaryPassword: password,
       }),
       {
