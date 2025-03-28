@@ -13,7 +13,7 @@ interface CreateSalonRequest {
   email: string;
   phone?: string;
   address?: string;
-  skipSubscription?: boolean; // New flag to indicate no subscription needed
+  skipSubscription?: boolean; // Flag to indicate no subscription needed
 }
 
 serve(async (req) => {
@@ -73,11 +73,35 @@ serve(async (req) => {
 
     // Get request body
     const { name, email, phone, address, skipSubscription }: CreateSalonRequest = await req.json();
+    
+    console.log("Request body:", { name, email, phone, address, skipSubscription });
+
+    // Check if a user with this email already exists
+    const { data: existingUsers, error: existingUserError } = await supabaseClient
+      .from("salons")
+      .select("email")
+      .eq("email", email)
+      .limit(1);
+      
+    if (existingUserError) {
+      console.error("Error checking existing users:", existingUserError);
+    }
+    
+    if (existingUsers && existingUsers.length > 0) {
+      return new Response(
+        JSON.stringify({ error: "En salong med denna e-postadress finns redan" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     // Generate a random password
     const password = Math.random().toString(36).slice(-8);
 
     // Create the user account
+    console.log("Creating user with email:", email);
     const { data: userData, error: createUserError } = await supabaseClient.auth.admin.createUser({
       email,
       password,
@@ -85,6 +109,7 @@ serve(async (req) => {
     });
 
     if (createUserError) {
+      console.error("Error creating user:", createUserError);
       return new Response(
         JSON.stringify({ error: createUserError.message }),
         {
@@ -111,7 +136,8 @@ serve(async (req) => {
         current_period_end: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000), // 10 years in the future
       });
     }
-
+    
+    console.log("Creating salon with data:", salonData);
     const { data: salon, error: createSalonError } = await supabaseClient
       .from("salons")
       .insert([salonData])
@@ -119,6 +145,7 @@ serve(async (req) => {
       .single();
 
     if (createSalonError) {
+      console.error("Error creating salon:", createSalonError);
       return new Response(
         JSON.stringify({ error: createSalonError.message }),
         {
@@ -138,6 +165,7 @@ serve(async (req) => {
         },
       ]);
 
+    console.log("Successfully created salon:", salon);
     return new Response(
       JSON.stringify({
         salon: salon,
@@ -149,6 +177,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
+    console.error("Unexpected error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

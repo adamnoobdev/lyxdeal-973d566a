@@ -9,6 +9,7 @@ import { ContactFields } from "./form/ContactFields";
 import { PasswordField } from "./form/PasswordField";
 import { SubscriptionField } from "./form/SubscriptionField";
 import { Loader2 } from "lucide-react";
+import { LoadingButton } from "@/components/ui/loading-button";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -42,28 +43,29 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing }: SalonFormProps
     },
   });
 
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await onSubmit(values);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <BasicInfoFields form={form} />
         <ContactFields form={form} />
         {isEditing && <PasswordField form={form} />}
         {!isEditing && <SubscriptionField form={form} />}
         
         <div className="flex justify-end gap-4">
-          <Button 
+          <LoadingButton 
             type="submit" 
-            disabled={form.formState.isSubmitting}
+            loading={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sparar...
-              </>
-            ) : (
-              "Spara"
-            )}
-          </Button>
+            Spara
+          </LoadingButton>
         </div>
       </form>
     </Form>

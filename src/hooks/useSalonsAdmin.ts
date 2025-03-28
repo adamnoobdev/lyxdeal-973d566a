@@ -55,6 +55,11 @@ const createSalonData = async (values: any) => {
       throw error;
     }
     
+    if (data.error) {
+      console.error("Error response from edge function:", data.error);
+      throw new Error(data.error);
+    }
+    
     console.log("Response from edge function:", data);
     
     return data;
@@ -149,6 +154,7 @@ export const useSalonsAdmin = () => {
 
   const handleCreate = async (values: any) => {
     try {
+      console.log("Handling create salon with values:", values);
       const response = await createSalonData(values);
       toast.success("Salongen har skapats");
       await fetchSalons();

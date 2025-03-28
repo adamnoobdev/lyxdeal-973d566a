@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -20,7 +21,7 @@ interface CreateSalonResponse {
 interface CreateSalonDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (values: any) => Promise<CreateSalonResponse>;
+  onSubmit: (values: any) => Promise<CreateSalonResponse | false>;
 }
 
 export const CreateSalonDialog = ({
@@ -29,12 +30,22 @@ export const CreateSalonDialog = ({
   onSubmit,
 }: CreateSalonDialogProps) => {
   const [password, setPassword] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (values: any) => {
+    if (isSubmitting) return;
+    
     try {
+      setIsSubmitting(true);
+      console.log("Submitting salon creation values:", values);
       const response = await onSubmit(values);
-      if (response?.temporaryPassword) {
+      console.log("Response from salon creation:", response);
+      
+      if (response && response.temporaryPassword) {
         setPassword(response.temporaryPassword);
+      } else if (response === false) {
+        // Error was already handled in onSubmit
+        return;
       } else {
         console.warn("No temporary password received from server");
         toast.error("Ett fel uppstod vid skapande av lösenord");
@@ -42,6 +53,8 @@ export const CreateSalonDialog = ({
     } catch (error) {
       console.error("Error creating salon:", error);
       toast.error("Ett fel uppstod vid skapande av salong");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -54,6 +67,7 @@ export const CreateSalonDialog = ({
 
   const handleClose = () => {
     setPassword(null);
+    setIsSubmitting(false);
     onClose();
   };
 
