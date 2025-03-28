@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Navigation, Key } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 interface SalonLocationMapProps {
   address: string;
@@ -58,6 +59,7 @@ export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) 
       localStorage.setItem('mapbox_token', mapboxToken);
       setIsTokenSaved(true);
       setIsMapboxTokenVisible(false);
+      toast.success("Din Mapbox API-nyckel har sparats och kommer att användas för alla kartor");
     }
   };
 
@@ -123,6 +125,13 @@ export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) 
     window.open(url, '_blank');
   };
 
+  const removeToken = () => {
+    localStorage.removeItem('mapbox_token');
+    setIsTokenSaved(false);
+    setMapboxToken("");
+    toast.info("Mapbox API-nyckeln har tagits bort");
+  };
+
   // Om vi inte har en Mapbox-token, visa inmatningsfält
   if (!isTokenSaved) {
     return (
@@ -132,7 +141,7 @@ export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) 
             <Alert className="mb-4">
               <AlertDescription>
                 För att visa kartan behöver du ange din Mapbox API-nyckel. 
-                Denna lagras endast i din webbläsare och används bara för att visa kartor.
+                Denna lagras endast i din webbläsare och används för att visa kartor på alla erbjudanden.
               </AlertDescription>
             </Alert>
             
@@ -195,11 +204,8 @@ export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) 
           <Button 
             variant="ghost" 
             className="flex-none"
-            onClick={() => {
-              localStorage.removeItem('mapbox_token');
-              setIsTokenSaved(false);
-              setMapboxToken("");
-            }}
+            onClick={removeToken}
+            title="Ta bort Mapbox API-nyckel"
           >
             <Key className="h-4 w-4" />
           </Button>
@@ -234,12 +240,8 @@ export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) 
         <Button 
           variant="ghost" 
           className="flex-none"
-          onClick={() => {
-            localStorage.removeItem('mapbox_token');
-            setIsTokenSaved(false);
-            setMapboxToken("");
-          }}
-          title="Ändra Mapbox API-nyckel"
+          onClick={removeToken}
+          title="Ta bort Mapbox API-nyckel"
         >
           <Key className="h-4 w-4" />
         </Button>
