@@ -6,7 +6,7 @@ interface SalonInfoProps {
     name: string;
     address: string | null;
     phone: string | null;
-  };
+  } | null;
 }
 
 export const SalonInfo = ({ salon }: SalonInfoProps) => {
@@ -44,4 +44,4 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
       </div>
     </div>
   );
-}
+};

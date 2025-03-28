@@ -19,7 +19,7 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // First, let's check if the deal has a salon_id
+        // First, let's check if the deal exists and get its salon_id
         const { data: dealCheck, error: dealCheckError } = await supabase
           .from("deals")
           .select(`
@@ -36,7 +36,7 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Deal check result:", dealCheck);
 
-        // Now fetch the full deal with salon data
+        // Now fetch the full deal data
         const { data, error } = await supabase
           .from("deals")
           .select(`
@@ -49,7 +49,7 @@ export const useDeal = (id: string | undefined) => {
             )
           `)
           .eq("id", dealId)
-          .maybeSingle();
+          .single();
 
         if (error) {
           console.error("Supabase error:", error);
@@ -111,7 +111,7 @@ export const useDeal = (id: string | undefined) => {
             .from("salons")
             .select("id, name, address, phone")
             .eq("id", dealCheck.salon_id)
-            .maybeSingle();
+            .single();
             
           if (!salonError && salonData) {
             salon = {
