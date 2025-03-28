@@ -38,10 +38,12 @@ export const DealInfo = ({
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
   const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
 
-  // Funktion för att hantera säkring av erbjudandet
+  // Handle securing the deal
   const handleSecureDeal = () => {
     navigate(`/secure-deal/${id}`);
   };
+
+  console.log("DealInfo salon data:", salon);
 
   return (
     <div className="bg-white shadow-sm p-6 space-y-6">

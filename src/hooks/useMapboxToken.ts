@@ -13,24 +13,26 @@ export const useMapboxToken = () => {
         setIsLoading(true);
         setError(null);
         
-        // Anropa en edge-funktion som returnerar Mapbox-token
+        // Call edge function to retrieve Mapbox token
         const { data, error } = await supabase.functions.invoke('get-mapbox-token');
         
         if (error) {
-          console.error('Fel vid hämtning av Mapbox-token:', error);
+          console.error('Error fetching Mapbox token:', error);
           setError('Kunde inte ladda karttjänsten');
           setIsLoading(false);
           return;
         }
         
-        // Sätt token om den returnerades
+        // Set token if returned
         if (data && data.token) {
+          console.log("Mapbox token retrieved successfully");
           setMapboxToken(data.token);
         } else {
+          console.error('No token found in response');
           setError('Mapbox API-nyckel saknas');
         }
       } catch (error) {
-        console.error('Fel vid hämtning av Mapbox-token:', error);
+        console.error('Error fetching Mapbox token:', error);
         setError('Kunde inte ladda karttjänsten');
       } finally {
         setIsLoading(false);

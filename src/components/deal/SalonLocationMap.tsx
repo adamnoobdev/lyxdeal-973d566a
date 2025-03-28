@@ -31,8 +31,10 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
         if (coords) {
           setCoordinates(coords);
           setMapError(null);
+          console.log("Retrieved coordinates:", coords);
         } else {
           setMapError('Kunde inte ladda kartan för denna adress');
+          console.error("No coordinates returned for address:", address);
         }
       } catch (error) {
         console.error('Error fetching coordinates:', error);
@@ -42,7 +44,10 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
       }
     };
 
-    fetchCoordinates();
+    if (mapboxToken && address) {
+      console.log("Fetching coordinates for address:", address);
+      fetchCoordinates();
+    }
   }, [address, mapboxToken]);
 
   // Combine loading states

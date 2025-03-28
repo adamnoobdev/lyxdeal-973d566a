@@ -14,9 +14,18 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
   const map = useRef<mapboxgl.Map | null>(null);
 
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || !coordinates) return;
+    if (!mapContainer.current || !mapboxToken || !coordinates) {
+      console.log("Missing requirements for map:", { 
+        hasContainer: !!mapContainer.current, 
+        hasToken: !!mapboxToken, 
+        hasCoords: !!coordinates 
+      });
+      return;
+    }
 
     try {
+      console.log("Initializing map with token and coordinates:", coordinates);
+      
       // Initialize map
       mapboxgl.accessToken = mapboxToken;
       
@@ -43,6 +52,8 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
       
       // Add navigation controls
       newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      
+      console.log("Map initialized successfully");
     } catch (error) {
       console.error('Error initializing map:', error);
     }
@@ -50,6 +61,7 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
     // Cleanup
     return () => {
       if (map.current) {
+        console.log("Cleaning up map instance");
         map.current.remove();
         map.current = null;
       }

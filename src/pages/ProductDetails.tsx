@@ -46,6 +46,8 @@ const ProductDetails = () => {
     );
   }
 
+  console.log("Deal salon data in ProductDetails:", deal.salon);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">

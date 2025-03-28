@@ -74,18 +74,14 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free either by explicit flag or 0 price
         const isFree = data.is_free || data.discounted_price === 0;
 
-        // Garantera att salon-objektet är korrekt format om det finns
+        // Ensure salon object is correctly formatted
         const salon = data.salons ? {
           name: data.salons.name || '',
           address: data.salons.address || null,
           phone: data.salons.phone || null,
         } : null;
 
-        console.log("Processed deal data:", {
-          id: data.id,
-          title: data.title,
-          salon: salon
-        });
+        console.log("Processed salon data:", salon);
 
         return {
           id: data.id,
@@ -119,7 +115,7 @@ export const useDeal = (id: string | undefined) => {
         throw new Error("Failed to fetch deal");
       }
     },
-    staleTime: 5 * 60 * 1000, // Cache i 5 minuter
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     refetchOnWindowFocus: false,
   });
 };
