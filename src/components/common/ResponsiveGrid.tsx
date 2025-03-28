@@ -27,7 +27,7 @@ const ResponsiveGridComponent = ({ children, className = "" }: ResponsiveGridPro
   }
   
   return (
-    <div className={`grid gap-5 grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 mx-auto w-full ${className}`}>
+    <div className={`grid gap-5 grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 mx-auto w-full ${className}`}>
       {children}
     </div>
   );

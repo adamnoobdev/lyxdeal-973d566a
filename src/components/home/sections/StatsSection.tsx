@@ -21,10 +21,10 @@ const STATS = [
 
 export function StatsSection() {
   return (
-    <div className="bg-white shadow-sm py-8 px-6 mb-8">
+    <div className="bg-white shadow-sm py-8 px-6 mb-8 w-full">
       <h2 className="text-xl md:text-2xl font-semibold text-center mb-6 text-primary">Så här fungerar det</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mx-auto relative">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mx-auto relative max-w-[1800px]">
         {STATS.map((stat, index) => (
           <div 
             key={index} 
