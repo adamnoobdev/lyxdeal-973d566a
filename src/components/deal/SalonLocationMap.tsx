@@ -32,12 +32,12 @@ export const SalonLocationMap = ({
   const getFormattedAddress = () => {
     if (!address) return '';
     
-    // If address already contains the city, use it as is
-    if (address.toLowerCase().includes(city?.toLowerCase() || '')) {
+    // Om adressen redan innehåller staden, använd den som den är
+    if (city && address.toLowerCase().includes(city.toLowerCase())) {
       return address;
     }
     
-    // Otherwise, append the city if available
+    // Annars, lägg till staden om den finns tillgänglig
     return city ? `${address}, ${city}` : address;
   };
 

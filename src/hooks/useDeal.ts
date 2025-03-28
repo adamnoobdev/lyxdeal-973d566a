@@ -19,18 +19,15 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // First, try to fetch the deal with salon data
+        // Först, hämta erbjudandet 
         const { data, error } = await supabase
           .from("deals")
-          .select(`
-            *,
-            salon:salons(id, name, address, phone)
-          `)
+          .select("*")
           .eq("id", dealId)
           .single();
 
         if (error) {
-          console.error("Error fetching deal with join:", error);
+          console.error("Error fetching deal:", error);
           throw error;
         }
 
@@ -69,15 +66,12 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free
         const isFree = data.is_free || data.discounted_price === 0;
 
-        // Extract and format salon data properly
+        // Om vi har ett salon_id, hämta salongsinformation
         let salon = null;
         
-        // Log what's in the salon field from the join
-        console.log("Raw salon data from join:", data.salon);
-        
         if (data.salon_id) {
-          // If we have a salon_id, fetch salon data directly (this handles the case where the join didn't work)
-          console.log("Fetching salon data directly with salon_id:", data.salon_id);
+          console.log("Fetching salon data for salon_id:", data.salon_id);
+          
           const { data: salonData, error: salonError } = await supabase
             .from("salons")
             .select("id, name, address, phone")
@@ -90,44 +84,26 @@ export const useDeal = (id: string | undefined) => {
               address: salonData[0].address || null,
               phone: salonData[0].phone || null,
             };
-            console.log("Successfully fetched salon data directly:", salon);
+            console.log("Successfully fetched salon data:", salon);
           } else {
-            console.error("Error fetching salon data directly:", salonError);
-          }
-        } 
-        // If we still don't have salon data but the join returned something
-        else if (data.salon) {
-          if (Array.isArray(data.salon) && data.salon.length > 0) {
-            // Handle array of salon data
-            const salonData = data.salon[0];
+            console.error("Error or no data when fetching salon:", salonError);
+            // Fallback till att använda staden som en del av salongen om hämtning misslyckas
             salon = {
-              id: salonData.id,
-              name: salonData.name || '',
-              address: salonData.address || null,
-              phone: salonData.phone || null,
+              id: null,
+              name: `Salong i ${data.city}`,
+              address: data.city || null,
+              phone: null,
             };
-            console.log("Extracted salon data from array:", salon);
-          } else if (!Array.isArray(data.salon) && data.salon.id) {
-            // Handle direct salon object data
-            salon = {
-              id: data.salon.id,
-              name: data.salon.name || '',
-              address: data.salon.address || null,
-              phone: data.salon.phone || null,
-            };
-            console.log("Extracted salon data from object:", salon);
           }
-        }
-
-        // If we still don't have salon data, create a fallback
-        if (!salon) {
+        } else {
+          // Om vi inte har ett salon_id, använd staden som en del av salongen
           salon = {
             id: null,
             name: `Salong i ${data.city}`,
             address: data.city || null,
             phone: null,
           };
-          console.log("Created fallback salon data:", salon);
+          console.log("No salon_id available, created fallback salon data:", salon);
         }
 
         console.log("Final processed salon data:", salon);

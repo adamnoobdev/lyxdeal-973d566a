@@ -2,14 +2,13 @@
 import { useParams } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Store } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { RelatedDeals } from "@/components/deal/RelatedDeals";
 import { useEffect } from "react";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
 import { DealInfo } from "@/components/deal/DealInfo";
 import { PurchaseSteps } from "@/components/deal/PurchaseSteps";
 import { SalonLocationMap } from "@/components/deal/SalonLocationMap";
-import { SalonInfo } from "@/components/deal/SalonInfo";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -97,7 +96,7 @@ const ProductDetails = () => {
 
               <PurchaseSteps />
 
-              {/* Always show a salon section, even if salon data is missing */}
+              {/* Salon section with location info */}
               <div className="bg-white shadow-sm p-6 space-y-6">
                 <h2 className="text-xl font-semibold mb-4">Om {deal.salon?.name || "salongen"}</h2>
                 
