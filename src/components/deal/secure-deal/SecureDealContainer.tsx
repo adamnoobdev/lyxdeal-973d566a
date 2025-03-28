@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAvailableDiscountCode, markDiscountCodeAsUsed } from "@/utils/discount-codes";
 import { toast } from "sonner";
 import { SecureForm, SecureFormValues } from "./SecureForm";
 import { SuccessMessage } from "./SuccessMessage";
+import { validateEmail } from "@/utils/validation";
 
 interface SecureDealContainerProps {
   dealId: number;
@@ -21,6 +22,54 @@ export const SecureDealContainer = ({
   const [isSuccess, setIsSuccess] = useState(false);
   const [emailSent, setEmailSent] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState<string | null>(null);
+  const [hasAlreadyClaimed, setHasAlreadyClaimed] = useState(false);
+
+  // Kontrollera om användaren redan har säkrat detta erbjudande
+  useEffect(() => {
+    const checkIfAlreadyClaimed = async () => {
+      try {
+        // Kolla om det finns tidigare anspråk baserat på IP/browser fingerprint
+        const storedClaims = localStorage.getItem('claimed_deals') || '[]';
+        const claimedDeals = JSON.parse(storedClaims);
+        
+        if (claimedDeals.includes(dealId.toString())) {
+          setHasAlreadyClaimed(true);
+        }
+
+        // Kolla även i databasen efter tidigare anspråk
+        const { data: existingClaims, error } = await supabase
+          .from("discount_codes")
+          .select("id")
+          .eq("deal_id", dealId)
+          .eq("is_used", true)
+          .limit(1);
+
+        if (error) {
+          console.error("Error checking existing claims:", error);
+          return;
+        }
+
+        // Om användaren tidigare har använt en rabattkod för detta erbjudande
+        if (existingClaims && existingClaims.length > 0) {
+          const claimedIPAddress = localStorage.getItem('claimed_from_ip') || '';
+          const { data: ipMatch } = await supabase.functions.invoke("check-previous-claims", {
+            body: { 
+              dealId, 
+              previousIP: claimedIPAddress 
+            }
+          });
+          
+          if (ipMatch && ipMatch.isSameDevice) {
+            setHasAlreadyClaimed(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking claims:", error);
+      }
+    };
+
+    checkIfAlreadyClaimed();
+  }, [dealId]);
 
   // Funktion för att generera en slumpmässig rabattkod
   const generateRandomCode = (length = 8): string => {
@@ -56,12 +105,61 @@ export const SecureDealContainer = ({
   };
 
   const handleSubmit = async (values: SecureFormValues) => {
+    if (hasAlreadyClaimed) {
+      toast.error("Du har redan säkrat detta erbjudande.");
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
       console.log(`[SecureDealContainer] Securing deal ${dealId} for ${values.email}`);
       
-      // 1. Försök hämta en tillgänglig rabattkod
+      // 1. Verifiera e-post och telefonnummer
+      if (!validateEmail(values.email)) {
+        toast.error("Vänligen ange en giltig e-postadress");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Kontrollera om email redan har använts för detta erbjudande
+      const { data: existingEmail } = await supabase
+        .from("discount_codes")
+        .select("id")
+        .eq("deal_id", dealId)
+        .eq("customer_email", values.email)
+        .limit(1);
+
+      if (existingEmail && existingEmail.length > 0) {
+        toast.error("Denna e-postadress har redan använts för detta erbjudande");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Kontrollera om telefonnumret är giltigt
+      const phonePattern = /^(?:\+46|0)7[0-9]{8}$/;
+      const formattedPhone = values.phone.replace(/\s+/g, "");
+      if (!phonePattern.test(formattedPhone)) {
+        toast.error("Vänligen ange ett giltigt svenskt mobilnummer (07XXXXXXXX)");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Kontrollera om telefonnummer redan har använts för detta erbjudande
+      const { data: existingPhone } = await supabase
+        .from("discount_codes")
+        .select("id")
+        .eq("deal_id", dealId)
+        .eq("customer_phone", formattedPhone)
+        .limit(1);
+
+      if (existingPhone && existingPhone.length > 0) {
+        toast.error("Detta telefonnummer har redan använts för detta erbjudande");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // 2. Försök hämta en tillgänglig rabattkod
       let code = await getAvailableDiscountCode(dealId);
       
       // Om ingen rabattkod finns, skapa en ny
@@ -79,11 +177,11 @@ export const SecureDealContainer = ({
         code = newCode;
       }
       
-      // 2. Markera koden som använd och koppla till kundinformation
+      // 3. Markera koden som använd och koppla till kundinformation
       const codeUpdated = await markDiscountCodeAsUsed(code, {
         name: values.name,
         email: values.email,
-        phone: values.phone
+        phone: formattedPhone
       });
       
       if (!codeUpdated) {
@@ -92,7 +190,7 @@ export const SecureDealContainer = ({
         return;
       }
       
-      // 3. Vi försöker skapa en purchase-post, men fortsätter även om det misslyckas
+      // 4. Vi försöker skapa en purchase-post, men fortsätter även om det misslyckas
       // eftersom vi har den viktigaste informationen i discount_codes-tabellen
       try {
         const { error: purchaseError } = await supabase
@@ -112,7 +210,7 @@ export const SecureDealContainer = ({
         // Vi fortsätter trots fel med purchase-posten
       }
       
-      // 4. Skicka e-post med rabattkoden
+      // 5. Skicka e-post med rabattkoden för att verifiera e-postadressen
       let emailSent = false;
       let emailResponse;
       try {
@@ -120,7 +218,7 @@ export const SecureDealContainer = ({
           body: {
             email: values.email,
             name: values.name,
-            phone: values.phone,
+            phone: formattedPhone,
             code: code,
             dealTitle: dealTitle
           },
@@ -137,7 +235,7 @@ export const SecureDealContainer = ({
         console.error("Exception sending email:", emailError);
       }
       
-      // 5. Visa bekräftelse oavsett om e-post skickades eller inte
+      // 6. Visa bekräftelse oavsett om e-post skickades eller inte
       if (emailSent) {
         // Check if we're in testing mode and emails are being redirected
         if (emailResponse && emailResponse.productionMode === false) {
@@ -149,6 +247,15 @@ export const SecureDealContainer = ({
         toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Kontakta kundtjänst om du inte får din kod.");
       }
       
+      // Spara erbjudande-ID:t i localStorage för att förhindra dubbletter
+      const storedClaims = localStorage.getItem('claimed_deals') || '[]';
+      const claimedDeals = JSON.parse(storedClaims);
+      
+      if (!claimedDeals.includes(dealId.toString())) {
+        claimedDeals.push(dealId.toString());
+        localStorage.setItem('claimed_deals', JSON.stringify(claimedDeals));
+      }
+      
       // Store email for confirmation message
       setEmailSent(values.email);
       
@@ -157,7 +264,7 @@ export const SecureDealContainer = ({
       setDiscountCode(code);
       setIsSuccess(true);
       
-      // 6. Anropa success callback om tillhandahållen
+      // 7. Anropa success callback om tillhandahållen
       if (onSuccess) {
         onSuccess();
       }
@@ -178,7 +285,22 @@ export const SecureDealContainer = ({
 
   return (
     <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-      {isSuccess ? (
+      {hasAlreadyClaimed ? (
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Du har redan säkrat detta erbjudande
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Du kan endast säkra ett erbjudande en gång. Kontrollera din e-post efter den rabattkod som redan skickats.
+          </p>
+          <button
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors"
+            onClick={() => window.history.back()}
+          >
+            Tillbaka till erbjudandet
+          </button>
+        </div>
+      ) : isSuccess ? (
         <SuccessMessage onReset={handleReset} email={emailSent} />
       ) : (
         <SecureForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
