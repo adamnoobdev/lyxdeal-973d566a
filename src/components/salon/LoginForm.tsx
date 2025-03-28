@@ -6,8 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle, ShieldCheck } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const CAPTCHA_SITE_KEY = "10000000-ffff-ffff-ffff-000000000001"; // Replace with your actual hCaptcha site key in production
 
 const getErrorMessage = (error: AuthError) => {
   if (error instanceof AuthApiError) {
@@ -27,8 +32,19 @@ export const SalonLoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [securityMessage, setSecurityMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Show CAPTCHA after second attempt
+  useEffect(() => {
+    if (loginAttempts >= 2) {
+      setShowCaptcha(true);
+    }
+  }, [loginAttempts]);
 
   // Check if user is already logged in, and redirect if needed
   useEffect(() => {
@@ -71,11 +87,32 @@ export const SalonLoginForm: React.FC = () => {
     }
   };
 
+  const handleVerificationSuccess = (token: string) => {
+    setCaptchaToken(token);
+    setSecurityMessage("Verifiering lyckades. Du kan nu logga in.");
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
       toast.error("Vänligen fyll i både e-post och lösenord");
+      return;
+    }
+
+    // If many login attempts, require CAPTCHA
+    if (loginAttempts >= 2 && !captchaToken) {
+      setSecurityMessage("Vänligen verifiera att du inte är en robot");
+      return;
+    }
+
+    // Too many attempts
+    if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+      setSecurityMessage("För många inloggningsförsök. Vänta en stund och försök igen.");
+      setTimeout(() => {
+        setLoginAttempts(0);
+        setSecurityMessage(null);
+      }, 30000); // Reset after 30 seconds
       return;
     }
 
@@ -88,21 +125,27 @@ export const SalonLoginForm: React.FC = () => {
       });
 
       if (signInError) {
+        setLoginAttempts(prev => prev + 1);
         toast.error(getErrorMessage(signInError));
         setLoading(false);
         return;
       }
 
       if (!authData.user) {
+        setLoginAttempts(prev => prev + 1);
         toast.error("Ingen användare hittades");
         setLoading(false);
         return;
       }
 
+      // Reset login attempts on success
+      setLoginAttempts(0);
+      setCaptchaToken(null);
       handleRedirectAfterLogin(authData.user.id);
       
     } catch (error) {
       console.error('Login error:', error);
+      setLoginAttempts(prev => prev + 1);
       toast.error("Ett oväntat fel inträffade vid inloggning");
       setLoading(false);
     }
@@ -134,13 +177,32 @@ export const SalonLoginForm: React.FC = () => {
           disabled={loading}
           required
           className="w-full"
+          autoComplete="current-password"
         />
       </div>
+      
+      {showCaptcha && (
+        <div className="py-3">
+          <HCaptcha
+            sitekey={CAPTCHA_SITE_KEY}
+            onVerify={handleVerificationSuccess}
+          />
+        </div>
+      )}
+
+      {securityMessage && (
+        <Alert variant={captchaToken ? "default" : "destructive"} className="my-2">
+          <AlertDescription className="flex items-center gap-2">
+            {captchaToken ? <ShieldCheck size={16} /> : <AlertTriangle size={16} />}
+            {securityMessage}
+          </AlertDescription>
+        </Alert>
+      )}
       
       <Button
         type="submit"
         className="w-full"
-        disabled={loading}
+        disabled={loading || (loginAttempts >= MAX_LOGIN_ATTEMPTS)}
       >
         {loading ? (
           <>

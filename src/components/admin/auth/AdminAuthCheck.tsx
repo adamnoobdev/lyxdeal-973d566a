@@ -17,6 +17,78 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
   const checkPerformed = useRef(false);
   const isCheckingRef = useRef(false);
   const isMountedRef = useRef(true);
+  const lastCheckTimeRef = useRef<number>(0);
+
+  // Security measure: re-verify admin status periodically
+  useEffect(() => {
+    const RECHECK_INTERVAL = 15 * 60 * 1000; // 15 minutes
+    
+    const intervalCheck = setInterval(() => {
+      const now = Date.now();
+      // Only recheck if enough time has passed and we're not already checking
+      if (now - lastCheckTimeRef.current > RECHECK_INTERVAL && !isCheckingRef.current && user?.id) {
+        console.log("Periodic re-verification of admin status");
+        verifyAdminStatus(user.id);
+      }
+    }, 60000); // Check every minute if recheck is needed
+    
+    return () => clearInterval(intervalCheck);
+  }, [user?.id]);
+
+  // Secure verification of admin status
+  const verifyAdminStatus = async (userId: string) => {
+    if (isCheckingRef.current) return;
+    
+    isCheckingRef.current = true;
+    try {
+      console.log("Verifying admin status for user:", userId);
+      
+      const { data: salon, error } = await supabase
+        .from('salons')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Admin status verification error:', error);
+        if (isMountedRef.current) {
+          setIsAdmin(false);
+          toast.error("Behörighetskontroll misslyckades");
+          navigate("/salon/login");
+        }
+        return;
+      }
+      
+      const hasAdminRole = salon?.role === 'admin';
+      
+      if (!hasAdminRole) {
+        console.log("User does not have admin role:", salon?.role);
+        if (isMountedRef.current) {
+          setIsAdmin(false);
+          toast.error("Du har inte behörighet till administrationssidan");
+          navigate("/salon/login");
+        }
+        return;
+      }
+      
+      lastCheckTimeRef.current = Date.now();
+      if (isMountedRef.current) {
+        setIsAdmin(true);
+      }
+    } catch (error) {
+      console.error('Error in admin verification:', error);
+      if (isMountedRef.current) {
+        setIsAdmin(false);
+        toast.error("Ett säkerhetsfel uppstod");
+        navigate("/salon/login");
+      }
+    } finally {
+      isCheckingRef.current = false;
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     // Set up isMountedRef to handle cleanup correctly
@@ -26,61 +98,14 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
       // Avoid double checks or parallel calls
       if (checkPerformed.current || isCheckingRef.current || !isMountedRef.current || sessionLoading) return;
       
-      // Set a flag to show that the check is in progress
-      isCheckingRef.current = true;
-      
-      try {
-        if (!user?.id) {
-          console.log("AdminAuthCheck: No user session found, redirecting to login...");
-          navigate("/auth");
-          return;
-        }
-
-        console.log("AdminAuthCheck: Checking admin status for user:", user.id);
-        checkPerformed.current = true;
-
-        const { data: salon, error } = await supabase
-          .from('salons')
-          .select('role')
-          .eq('user_id', user.id)
-          .single();
-
-        console.log("AdminAuthCheck: Salon query result:", { salon, error });
-
-        if (error) {
-          console.error('AdminAuthCheck: Error checking admin status:', error);
-          if (isMountedRef.current) {
-            toast.error("Ett fel uppstod vid behörighetskontroll");
-            navigate("/auth");
-          }
-          return;
-        }
-
-        if (!salon || salon.role !== 'admin') {
-          console.log("AdminAuthCheck: User is not admin. Role:", salon?.role);
-          if (isMountedRef.current) {
-            toast.error("Du har inte behörighet till denna sida");
-            navigate("/auth");
-          }
-          return;
-        }
-
-        console.log("AdminAuthCheck: Admin status confirmed");
-        if (isMountedRef.current) {
-          setIsAdmin(true);
-        }
-      } catch (error) {
-        console.error('AdminAuthCheck: Error in checkAdminStatus:', error);
-        if (isMountedRef.current) {
-          toast.error("Ett fel uppstod");
-          navigate("/auth");
-        }
-      } finally {
-        if (isMountedRef.current) {
-          setIsLoading(false);
-        }
-        isCheckingRef.current = false;
+      if (!user?.id) {
+        console.log("AdminAuthCheck: No user session found, redirecting to login...");
+        navigate("/salon/login");
+        return;
       }
+
+      checkPerformed.current = true;
+      await verifyAdminStatus(user.id);
     };
 
     checkAdminStatus();
@@ -98,7 +123,7 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
       isCheckingRef.current = false;
       if (isMountedRef.current) {
         setIsAdmin(null);
-        navigate("/auth");
+        navigate("/salon/login");
       }
     }
   }, [session, sessionLoading, navigate]);
