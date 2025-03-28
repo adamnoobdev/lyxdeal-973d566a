@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Salon } from "../types";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
@@ -46,6 +47,49 @@ export const SalonsList = () => {
     return response;
   };
 
+  // Parse address into components for editing
+  const getInitialValuesForEdit = (salon: Salon) => {
+    const initialValues = {
+      name: salon.name,
+      email: salon.email,
+      phone: salon.phone || "",
+      street: "",
+      postalCode: "",
+      city: ""
+    };
+
+    // Parse address if it exists
+    if (salon.address) {
+      const addressParts = salon.address.split(',');
+      
+      // Get street from first part
+      if (addressParts.length > 0) {
+        initialValues.street = addressParts[0].trim();
+        
+        // Get postal code and city from second part
+        if (addressParts.length > 1) {
+          const secondPart = addressParts[1].trim();
+          
+          // Try to find postal code (5 digits with optional space after 3 digits)
+          const postalCodeMatch = secondPart.match(/\b(\d{3}\s?\d{2})\b/);
+          
+          if (postalCodeMatch) {
+            initialValues.postalCode = postalCodeMatch[1];
+            
+            // City is the rest of the text after the postal code
+            const cityText = secondPart.replace(postalCodeMatch[1], '').trim();
+            initialValues.city = cityText;
+          } else {
+            // If no postal code is found, assume it's all city
+            initialValues.city = secondPart;
+          }
+        }
+      }
+    }
+    
+    return initialValues;
+  };
+
   if (isLoading) {
     return <SalonsLoadingSkeleton />;
   }
@@ -71,16 +115,7 @@ export const SalonsList = () => {
         isOpen={!!editingSalon}
         onClose={() => setEditingSalon(null)}
         onSubmit={onUpdate}
-        initialValues={
-          editingSalon
-            ? {
-                name: editingSalon.name,
-                email: editingSalon.email,
-                phone: editingSalon.phone || "",
-                address: editingSalon.address || "",
-              }
-            : undefined
-        }
+        initialValues={editingSalon ? getInitialValuesForEdit(editingSalon) : undefined}
       />
 
       <DeleteSalonDialog

@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { SalonForm } from "./SalonForm";
 import { useState, useEffect } from "react";
@@ -52,7 +53,7 @@ export const EditSalonDialog = ({
       setIsSubmitting(true);
       
       // Validera att vi har adressinformation
-      const hasAddressInfo = values.address && values.address.trim() !== "";
+      const hasAddressInfo = values.street || values.postalCode || values.city;
       if (hasAddressInfo && (!values.street || !values.postalCode || !values.city)) {
         toast.warning("Adressinformationen kan vara ofullständig. Kontrollera att du fyllt i gata, postnummer och stad.");
       }
@@ -76,6 +77,9 @@ export const EditSalonDialog = ({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Redigera salong</DialogTitle>
+          <DialogDescription>
+            Uppdatera information om salongen. Fyll i adressinformation för korrekt visning på kartan.
+          </DialogDescription>
         </DialogHeader>
         <SalonForm 
           onSubmit={handleSubmit} 

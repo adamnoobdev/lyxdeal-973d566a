@@ -94,7 +94,7 @@ const createSalonData = async (values: any) => {
 const updateSalonData = async (values: any, id: number) => {
   try {
     // Rensa upp och hantera adressfält innan de skickas
-    const { street, postalCode, city, password, ...otherValues } = values;
+    const { street, postalCode, city, password, skipSubscription, ...otherValues } = values;
     
     // Kombinera adressfälten till fullständig adress om de finns
     if (street || postalCode || city) {
@@ -131,6 +131,8 @@ const updateSalonData = async (values: any, id: number) => {
         if (passwordError) throw passwordError;
       }
     }
+
+    console.log("Updating salon with values:", otherValues);
 
     const { error } = await supabase
       .from("salons")
