@@ -45,6 +45,12 @@ const UserMenu: React.FC<UserMenuProps> = ({
     }
   };
 
+  const handlePartnerClick = () => {
+    // Navigera till salon/login sidan och se till att den scrollar till toppen
+    navigate('/salon/login');
+    window.scrollTo(0, 0);
+  };
+
   if (session?.user) {
     return (
       <DropdownMenu>
@@ -67,11 +73,9 @@ const UserMenu: React.FC<UserMenuProps> = ({
   }
 
   return (
-    <Button size="sm" asChild className={className}>
-      <Link to="/salon/login">
-        <Store className="h-4 w-4 mr-2" />
-        <span className="xs:inline">Salongspartner</span>
-      </Link>
+    <Button size="sm" onClick={handlePartnerClick} className={className}>
+      <Store className="h-4 w-4 mr-2" />
+      <span className="xs:inline">Salongspartner</span>
     </Button>
   );
 };

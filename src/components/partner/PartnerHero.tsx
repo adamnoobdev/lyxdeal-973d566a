@@ -13,6 +13,11 @@ export const PartnerHero = () => {
     }
   };
   
+  const handleLoginClick = () => {
+    navigate("/salon/login");
+    window.scrollTo(0, 0);
+  };
+  
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-primary">
       <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-10"></div>
@@ -35,7 +40,7 @@ export const PartnerHero = () => {
             <Button 
               size="lg" 
               className="bg-white text-primary hover:bg-white/90 w-full sm:w-auto"
-              onClick={() => navigate("/salon/login")}
+              onClick={handleLoginClick}
             >
               Logga in som partner
             </Button>
