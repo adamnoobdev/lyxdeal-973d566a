@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Store } from "lucide-react";
 import { RelatedDeals } from "@/components/deal/RelatedDeals";
 import { useEffect } from "react";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
@@ -95,23 +95,40 @@ const ProductDetails = () => {
 
               <PurchaseSteps />
 
-              {deal.salon && (
-                <div className="bg-white shadow-sm p-6 space-y-6">
-                  <h2 className="text-xl font-semibold mb-4">Om {deal.salon.name}</h2>
-                  
-                  <SalonInfo salon={deal.salon} />
-                  
-                  {deal.salon.address && (
-                    <div className="mt-6">
-                      <SalonLocationMap 
-                        address={`${deal.salon.address}, ${deal.city}`} 
-                        salonName={deal.salon.name} 
-                        hideAddress={true}
-                      />
+              {/* Always show a salon section, even if salon data is missing */}
+              <div className="bg-white shadow-sm p-6 space-y-6">
+                <h2 className="text-xl font-semibold mb-4">Om {deal.salon?.name || "salongen"}</h2>
+                
+                {deal.salon ? (
+                  <>
+                    <SalonInfo salon={deal.salon} />
+                    
+                    {deal.salon.address && (
+                      <div className="mt-6">
+                        <SalonLocationMap 
+                          address={`${deal.salon.address}, ${deal.city}`} 
+                          salonName={deal.salon.name} 
+                          hideAddress={true}
+                        />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-full bg-primary/5 p-2">
+                        <Store className="h-5 w-5 text-primary" />
+                      </div>
+                      <h3 className="text-base font-medium text-foreground">
+                        {deal.title}
+                      </h3>
                     </div>
-                  )}
-                </div>
-              )}
+                    <p className="text-sm text-muted-foreground">
+                      Detta erbjudande finns i {deal.city}. För mer information om salongen, vänligen besök bokningslänken.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Right column with price and purchase info - hidden on mobile as we show it above */}

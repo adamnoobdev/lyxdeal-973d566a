@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Phone, Tag } from "lucide-react";
+import { Phone, Tag, ExternalLink } from "lucide-react";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { useNavigate } from "react-router-dom";
 
@@ -20,6 +20,7 @@ interface DealInfoProps {
     address: string | null;
     phone: string | null;
   } | null;
+  booking_url?: string;
 }
 
 export const DealInfo = ({
@@ -31,6 +32,7 @@ export const DealInfo = ({
   quantityLeft,
   salon,
   isFree,
+  booking_url,
 }: DealInfoProps) => {
   const navigate = useNavigate();
   
@@ -43,7 +45,15 @@ export const DealInfo = ({
     navigate(`/secure-deal/${id}`);
   };
 
+  // Handle booking
+  const handleBooking = () => {
+    if (booking_url) {
+      window.open(booking_url, '_blank');
+    }
+  };
+
   console.log("DealInfo salon data:", salon);
+  console.log("DealInfo booking_url:", booking_url);
 
   return (
     <div className="bg-white shadow-sm p-6 space-y-6">
@@ -92,6 +102,18 @@ export const DealInfo = ({
           >
             <Phone className="mr-2 h-5 w-5" />
             Kontakta salongen
+          </Button>
+        )}
+
+        {booking_url && (
+          <Button 
+            variant="outline"
+            className="w-full text-primary border border-primary hover:bg-primary/5 group mt-3"
+            size="lg"
+            onClick={handleBooking}
+          >
+            <ExternalLink className="mr-2 h-5 w-5" />
+            Boka tid
           </Button>
         )}
 

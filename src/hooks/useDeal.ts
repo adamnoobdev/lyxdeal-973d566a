@@ -143,6 +143,7 @@ export const useDeal = (id: string | undefined) => {
           quantityLeft: data.quantity_left,
           isFree: isFree,
           salon: salon,
+          booking_url: data.booking_url,
         };
       } catch (error) {
         console.error("Error fetching deal:", error);
