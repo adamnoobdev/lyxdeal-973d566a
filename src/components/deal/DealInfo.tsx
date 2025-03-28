@@ -56,7 +56,7 @@ export const DealInfo = ({
   console.log("DealInfo booking_url:", booking_url);
 
   return (
-    <div className="bg-white shadow-sm p-6 space-y-6">
+    <div className="bg-white shadow-sm p-6 space-y-6 md:rounded-lg">
       <div className="space-y-4">
         <h1 className="text-xl lg:text-2xl font-semibold text-gray-900">{title}</h1>
         
@@ -85,7 +85,7 @@ export const DealInfo = ({
         </div>
         
         <Button 
-          className="w-full bg-primary hover:bg-primary/90 text-white group"
+          className="w-full bg-primary hover:bg-primary/90 text-white group transition-colors"
           size="lg"
           onClick={handleSecureDeal}
         >
@@ -96,7 +96,7 @@ export const DealInfo = ({
         {salon?.phone && (
           <Button 
             variant="outline"
-            className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary group mt-3"
+            className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary group mt-3 transition-colors"
             size="lg"
             onClick={() => window.location.href = `tel:${salon.phone}`}
           >
@@ -108,7 +108,7 @@ export const DealInfo = ({
         {booking_url && (
           <Button 
             variant="outline"
-            className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary group mt-3"
+            className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary group mt-3 transition-colors"
             size="lg"
             onClick={handleBooking}
           >

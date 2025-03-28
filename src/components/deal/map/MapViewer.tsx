@@ -54,6 +54,7 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
         center: [lng, lat],
         zoom: 14,
         attributionControl: false,
+        refreshExpiredTiles: false, // Förhindra omladdning av förfallna rutor
       });
       
       map.current = newMap;

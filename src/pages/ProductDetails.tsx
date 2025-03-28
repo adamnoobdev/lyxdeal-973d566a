@@ -19,6 +19,13 @@ const ProductDetails = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]); // Added id as dependency to ensure scroll on navigation between products
 
+  // Logga query-parametrar för att hjälpa till med debugging
+  useEffect(() => {
+    console.log("Current URL:", window.location.href);
+    console.log("Path:", window.location.pathname);
+    console.log("Deal ID from params:", id);
+  }, [id]);
+
   if (isError) {
     return (
       <Alert variant="destructive" className="max-w-2xl mx-auto mt-8">
