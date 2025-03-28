@@ -110,44 +110,28 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
         </div>
       </div>
       
-      {/* Villkorsacceptans med lila textfärg */}
+      {/* Kombinerad villkorsacceptans för både allmänna villkor och integritetspolicyn */}
       <div className="space-y-4 bg-gray-50 p-4 rounded-md">
         <div className="flex items-start space-x-3">
           <Checkbox 
-            id="termsAccepted" 
-            checked={formData.termsAccepted || false}
-            onCheckedChange={(checked) => handleCheckboxChange('termsAccepted', checked === true)}
+            id="termsAndPrivacyAccepted" 
+            checked={(formData.termsAccepted && formData.privacyAccepted) || false}
+            onCheckedChange={(checked) => {
+              const isChecked = checked === true;
+              handleCheckboxChange('termsAccepted', isChecked);
+              handleCheckboxChange('privacyAccepted', isChecked);
+            }}
             className="mt-1 border-gray-400"
           />
           <div>
             <label 
-              htmlFor="termsAccepted" 
+              htmlFor="termsAndPrivacyAccepted" 
               className="text-[#5D1277] font-medium cursor-pointer"
             >
-              Jag har läst och accepterar <Link to="/terms" className="text-primary hover:underline" target="_blank">allmänna villkor</Link>
+              Jag har läst och accepterar <Link to="/terms" className="text-primary hover:underline" target="_blank">allmänna villkor</Link> och <Link to="/privacy" className="text-primary hover:underline" target="_blank">integritetspolicyn</Link>
             </label>
-            {formErrors.termsAccepted && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.termsAccepted}</p>
-            )}
-          </div>
-        </div>
-        
-        <div className="flex items-start space-x-3">
-          <Checkbox 
-            id="privacyAccepted" 
-            checked={formData.privacyAccepted || false}
-            onCheckedChange={(checked) => handleCheckboxChange('privacyAccepted', checked === true)}
-            className="mt-1 border-gray-400"
-          />
-          <div>
-            <label 
-              htmlFor="privacyAccepted" 
-              className="text-[#5D1277] font-medium cursor-pointer"
-            >
-              Jag har läst och accepterar <Link to="/privacy" className="text-primary hover:underline" target="_blank">integritetspolicyn</Link>
-            </label>
-            {formErrors.privacyAccepted && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.privacyAccepted}</p>
+            {(formErrors.termsAccepted || formErrors.privacyAccepted) && (
+              <p className="text-sm text-red-500 mt-1">Du måste acceptera våra villkor för att fortsätta</p>
             )}
           </div>
         </div>
