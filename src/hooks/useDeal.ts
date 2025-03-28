@@ -20,7 +20,7 @@ export const useDeal = (id: string | undefined) => {
         console.log("Fetching deal with ID:", dealId);
 
         // Först, hämta erbjudandet med JOIN på salongs-tabellen
-        const { data: dealData, error: dealError } = await supabase
+        let { data: dealData, error: dealError } = await supabase
           .from("deals")
           .select(`
             *,
