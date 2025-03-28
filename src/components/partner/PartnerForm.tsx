@@ -92,7 +92,7 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
           />
         </div>
         
-        {/* Använd Mapbox för adressinmatning - Ta bort FormControl här */}
+        {/* Använd Mapbox för adressinmatning */}
         <div className="md:col-span-2 space-y-2">
           <label htmlFor="address" className="text-sm font-medium">Adress</label>
           <MapboxAddressInput
@@ -110,8 +110,8 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
         </div>
       </div>
       
-      {/* Villkorsacceptans */}
-      <div className="space-y-4">
+      {/* Villkorsacceptans - Uppdaterade formuleringar enligt bilden */}
+      <div className="space-y-4 bg-gray-50 p-4 rounded-md">
         <div className="flex items-start space-x-2">
           <Checkbox 
             id="termsAccepted" 
