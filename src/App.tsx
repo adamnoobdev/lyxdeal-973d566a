@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/AdminDashboard"
 import FaqPage from "./pages/FaqPage"
 import Privacy from './pages/Privacy';
 import SecureDeal from './pages/SecureDeal';
+import IndexPage from "./pages/Index";
 
 const queryClient = new QueryClient()
 
@@ -40,6 +41,10 @@ function createRouter() {
       children: [
         {
           path: "/",
+          element: <IndexPage />,
+        },
+        {
+          path: "/landing",
           element: <LandingPage />,
         },
         {
