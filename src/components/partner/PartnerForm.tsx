@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { usePartnerForm } from "@/hooks/usePartnerForm";
+import { MapPin } from "lucide-react";
 
 interface SelectedPlan {
   title: string;
@@ -80,13 +81,19 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
           <p className="text-xs text-muted-foreground">
             Ange fullständig adress med gatunummer, postnummer och stad för korrekt visning på kartan.
           </p>
-          <Input 
-            id="address" 
-            placeholder="Gatuadress, postnummer och stad (t.ex. Torsplan 8, 113 65 Stockholm)" 
-            value={formData.address || ''}
-            onChange={handleChange}
-            className="w-full"
-          />
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              id="address" 
+              placeholder="Gatuadress, postnummer och stad (t.ex. Torsplan 8, 113 65 Stockholm)" 
+              value={formData.address || ''}
+              onChange={handleChange}
+              className="w-full pl-9"
+            />
+          </div>
+          <p className="text-xs text-primary">
+            En komplett adress behövs för att kartan ska kunna visa rätt plats.
+          </p>
         </div>
       </div>
       

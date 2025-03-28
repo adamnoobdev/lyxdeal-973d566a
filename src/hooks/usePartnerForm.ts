@@ -3,13 +3,14 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { submitPartnerRequest } from "./usePartnerRequests";
+import { isValidAddressFormat } from "@/utils/mapbox";
 
 interface PartnerFormData {
   name: string;
   business: string;
   email: string;
   phone: string;
-  address: string; // Added address property to the interface
+  address: string;
 }
 
 interface SelectedPlan {
@@ -27,7 +28,7 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
     business: "",
     email: "",
     phone: "",
-    address: "", // Initialize the address field
+    address: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +54,11 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
     if (formData.phone.length < 7) {
       toast.error("Vänligen ange ett giltigt telefonnummer");
       return false;
+    }
+
+    // Validera adressformat om det finns
+    if (formData.address && !isValidAddressFormat(formData.address)) {
+      toast.warning("Din adress kan vara ofullständig. För bästa resultat, ange gatunamn, nummer, postnummer och stad.");
     }
 
     return true;

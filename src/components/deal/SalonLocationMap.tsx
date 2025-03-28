@@ -5,7 +5,7 @@ import { DirectionsButton } from './map/DirectionsButton';
 import { MapLoadingState } from './map/MapLoadingState';
 import { MapErrorState } from './map/MapErrorState';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
-import { getCoordinates } from '@/utils/mapbox';
+import { getCoordinates, normalizeAddress } from '@/utils/mapbox';
 import { MapPin, Store, Phone } from 'lucide-react';
 
 interface SalonLocationMapProps {
@@ -27,6 +27,7 @@ export const SalonLocationMap = ({
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [normalizedAddress, setNormalizedAddress] = useState<string>('');
 
   // Format address for geocoding
   const getFormattedAddress = () => {
@@ -45,6 +46,11 @@ export const SalonLocationMap = ({
 
   console.log("SalonLocationMap props:", { address, salonName, salonPhone, city });
   console.log("Formatted address for geocoding:", formattedAddress);
+
+  useEffect(() => {
+    // Normalisera adressen för bättre visning
+    setNormalizedAddress(normalizeAddress(formattedAddress));
+  }, [formattedAddress]);
 
   // Check if we have a valid address before trying to fetch coordinates
   if (!formattedAddress || formattedAddress.trim() === '') {
@@ -86,12 +92,12 @@ export const SalonLocationMap = ({
           setMapError(null);
           console.log("Retrieved coordinates:", coords);
         } else {
-          setMapError('Kunde inte ladda kartan för denna adress');
+          setMapError('Kunde inte hitta denna adress på kartan. Kontrollera att adressen är korrekt och fullständig.');
           console.error("No coordinates returned for address:", formattedAddress);
         }
       } catch (error) {
         console.error('Error fetching coordinates:', error);
-        setMapError('Kunde inte ladda kartan för denna adress');
+        setMapError('Ett problem uppstod när vi försökte visa kartan för denna adress.');
       } finally {
         setIsLoading(false);
       }
@@ -105,7 +111,7 @@ export const SalonLocationMap = ({
   // Combine loading states
   if (isTokenLoading || (isLoading && !mapError)) {
     return <MapLoadingState 
-              address={formattedAddress} 
+              address={normalizedAddress} 
               hideAddress={hideAddress} 
               salonName={salonName}
               salonPhone={salonPhone}
@@ -116,10 +122,10 @@ export const SalonLocationMap = ({
   if (tokenError || mapError) {
     return (
       <MapErrorState 
-        address={formattedAddress}
+        address={normalizedAddress}
         errorMessage={tokenError || mapError || 'Kunde inte ladda kartan'}
         coordinates={coordinates}
-        destination={`${salonName}, ${formattedAddress}`}
+        destination={`${salonName}, ${normalizedAddress}`}
         hideAddress={hideAddress}
         salonName={salonName}
         salonPhone={salonPhone}
@@ -131,10 +137,10 @@ export const SalonLocationMap = ({
   if (!coordinates) {
     return (
       <MapErrorState 
-        address={formattedAddress}
-        errorMessage="Kunde inte hitta koordinater för adressen"
+        address={normalizedAddress}
+        errorMessage="Kunde inte hitta koordinater för adressen. Kontrollera att adressen inkluderar gatunummer, postnummer och stad."
         coordinates={null}
-        destination={`${salonName}, ${formattedAddress}`}
+        destination={`${salonName}, ${normalizedAddress}`}
         hideAddress={hideAddress}
         salonName={salonName}
         salonPhone={salonPhone}
@@ -158,10 +164,10 @@ export const SalonLocationMap = ({
           </div>
         )}
         
-        {!hideAddress && formattedAddress && (
+        {!hideAddress && normalizedAddress && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" />
-            <span>{formattedAddress}</span>
+            <span>{normalizedAddress}</span>
           </div>
         )}
       </div>
@@ -173,7 +179,7 @@ export const SalonLocationMap = ({
       
       <DirectionsButton 
         coordinates={coordinates} 
-        destination={`${salonName}, ${formattedAddress}`} 
+        destination={`${salonName}, ${normalizedAddress}`} 
       />
     </div>
   );

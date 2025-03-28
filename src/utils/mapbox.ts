@@ -74,8 +74,49 @@ export const getCoordinates = async (
 export const isValidAddressFormat = (address: string): boolean => {
   if (!address || address.trim() === '') return false;
   
-  // Basic validation - should contain at least numbers and street name
-  // and be of reasonable length
+  // Mer detaljerad validering av adress
   const cleanAddress = address.trim();
-  return cleanAddress.length >= 5 && /\d+/.test(cleanAddress);
+  
+  // Kontrollera grundläggande längd
+  if (cleanAddress.length < 5) return false;
+  
+  // Kontrollera att adressen innehåller både siffror och bokstäver
+  if (!/\d+/.test(cleanAddress)) return false; // Ska innehålla minst ett nummer
+  if (!/[a-zA-Z]+/.test(cleanAddress)) return false; // Ska innehålla bokstäver
+  
+  // Kontrollera om adressen innehåller ett postnummer (5 siffror i följd eller
+  // med mellanslag efter 3 siffror, vanligt i Sverige)
+  const hasPostalCode = /\b\d{3}(\s?\d{2})\b/.test(cleanAddress);
+  
+  // Kontrollera om adressen innehåller en stad (ett ord efter postnummer eller i slutet)
+  const hasCityName = /(\d{5}|\d{3}\s\d{2})\s+[A-Za-zåäöÅÄÖ]+\b/.test(cleanAddress) || 
+                       /,\s+[A-Za-zåäöÅÄÖ]+$/.test(cleanAddress);
+  
+  // Om adressen har ett postnummer eller ser ut att ha en stad, anses den mer komplett
+  if (hasPostalCode || hasCityName) {
+    return true;
+  }
+  
+  // Annars, grundläggande validering som kräver minst 3 delar (gatunamn, nummer, etc.)
+  const parts = cleanAddress.split(/[,\s]+/).filter(part => part.length > 0);
+  return parts.length >= 3;
+};
+
+/**
+ * Försök normalisera en adress till ett standardformat
+ * 
+ * @param address Adressen som ska normaliseras
+ * @returns Normaliserad adress
+ */
+export const normalizeAddress = (address: string): string => {
+  if (!address) return '';
+  
+  // Rensa extra mellanslag 
+  let normalizedAddress = address.trim().replace(/\s+/g, ' ');
+  
+  // Fixa vanliga formateringsfel med postnummer
+  // Exempel: "12345 Stockholm" -> "123 45 Stockholm"
+  normalizedAddress = normalizedAddress.replace(/(\d{3})(\d{2})(\s+)/, '$1 $2$3');
+  
+  return normalizedAddress;
 };

@@ -12,7 +12,7 @@ import { Loader2 } from "lucide-react";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { isValidAddressFormat } from "@/utils/mapbox";
 
-// Förbättrat schema med validering för adressfältet
+// Förbättrat schema med striktare validering för adressfältet
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Namnet måste vara minst 2 tecken.",
