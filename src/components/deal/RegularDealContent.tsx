@@ -45,23 +45,23 @@ export const RegularDealContent = ({
   const savedAmount = originalPrice - discountedPrice;
 
   return (
-    <div className="p-3 flex flex-col h-full justify-between">
-      <div className="flex items-start justify-between gap-1 mb-2">
-        <CategoryBadge category={category} className="text-[10px]" />
+    <div className="p-4 flex flex-col h-full justify-between">
+      <div className="flex items-start justify-between gap-1 mb-3">
+        <CategoryBadge category={category} className="text-xs" />
         <div className="flex items-center text-xs text-muted-foreground">
-          <Clock className="h-3 w-3 mr-0.5" />
+          <Clock className="h-3 w-3 mr-1" />
           {timeRemainingText}
         </div>
       </div>
 
-      <div className="mb-2.5">
-        <h3 className="font-medium text-base leading-tight line-clamp-2 mb-1.5">{title}</h3>
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-snug">
+      <div className="mb-3">
+        <h3 className="font-medium text-base leading-tight line-clamp-2 mb-2">{title}</h3>
+        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
           {description}
         </p>
       </div>
       
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
         <MapPin className="h-3 w-3" />
         <span>{city}</span>
         <span className="mx-1">•</span>
@@ -69,10 +69,10 @@ export const RegularDealContent = ({
       </div>
 
       <div className="mt-auto">
-        <div className="flex items-end justify-between mb-3">
-          <div className="space-y-0.5">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-lg font-bold text-primary-600">
+        <div className="flex items-end justify-between mb-4">
+          <div className="space-y-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl font-bold text-primary-600">
                 {isFreeDeal ? "Gratis" : `${discountedPrice} kr`}
               </span>
               {originalPrice > discountedPrice && (
@@ -88,7 +88,7 @@ export const RegularDealContent = ({
             )}
           </div>
           {discountPercentage > 0 && (
-            <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-0.5 shadow-sm">
+            <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-1 rounded-md shadow-sm">
               -{discountPercentage}%
             </span>
           )}
@@ -97,12 +97,12 @@ export const RegularDealContent = ({
         {id && (
           <Button 
             size="sm" 
-            className="w-full text-sm h-9 font-medium shadow-sm"
+            className="w-full text-sm h-10 font-medium shadow-sm"
             variant="default"
             asChild
           >
             <Link to={`/deal/${id}`}>
-              <Tag className="h-3.5 w-3.5 mr-1.5" />
+              <Tag className="h-4 w-4 mr-2" />
               Säkra rabattkod
             </Link>
           </Button>

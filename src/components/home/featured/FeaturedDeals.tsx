@@ -16,14 +16,14 @@ const FeaturedDealsComponent = () => {
         .from('deals')
         .select('*')
         .eq('featured', true)
-        .eq('is_active', true) // Endast aktiva erbjudanden
+        .eq('is_active', true) 
         .order('created_at', { ascending: false })
-        .limit(8); // Begränsa antal för bättre prestanda
+        .limit(8);
 
       if (error) throw error;
       return data as Deal[];
     },
-    staleTime: 5 * 60 * 1000, // Cache data för 5 minuter
+    staleTime: 5 * 60 * 1000, 
   });
 
   if (isLoading) {
