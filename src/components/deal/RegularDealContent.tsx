@@ -88,7 +88,7 @@ export const RegularDealContent = ({
             )}
           </div>
           {discountPercentage > 0 && (
-            <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-0.5 rounded-sm shadow-sm">
+            <span className="text-xs font-medium text-white bg-[#ea384c] px-2 py-0.5 rounded-md shadow-sm">
               -{discountPercentage}%
             </span>
           )}

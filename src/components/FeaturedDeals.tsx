@@ -18,7 +18,8 @@ export function FeaturedDeals() {
           .from('deals')
           .select('*')
           .eq('featured', true)
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(12); // Öka gränsen för att visa fler erbjudanden på breda skärmar
 
         if (error) {
           console.error('Error fetching featured deals:', error);
@@ -49,7 +50,7 @@ export function FeaturedDeals() {
   if (isLoading) {
     return (
       <ResponsiveGrid>
-        {[...Array(4)].map((_, i) => (
+        {[...Array(6)].map((_, i) => (
           <div key={i} className="h-96 bg-accent/50 rounded-xl animate-pulse" />
         ))}
       </ResponsiveGrid>
