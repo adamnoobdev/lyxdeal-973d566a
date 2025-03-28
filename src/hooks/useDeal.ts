@@ -19,36 +19,36 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // Först, hämta erbjudandet 
-        const { data, error } = await supabase
+        // Först, hämta erbjudandet med en mer detaljerad fråga
+        const { data: dealData, error: dealError } = await supabase
           .from("deals")
-          .select("*")
+          .select("*, salon:salons(id, name, address, phone)")
           .eq("id", dealId)
           .single();
 
-        if (error) {
-          console.error("Error fetching deal:", error);
-          throw error;
+        if (dealError) {
+          console.error("Error fetching deal:", dealError);
+          throw dealError;
         }
 
-        if (!data) {
+        if (!dealData) {
           throw new Error("Deal not found");
         }
 
-        console.log("Raw deal data from DB:", data);
-
+        console.log("Raw deal data from DB:", dealData);
+        
         // Calculate days remaining
         const calculateDaysRemaining = () => {
-          if (!data.expiration_date) {
+          if (!dealData.expiration_date) {
             // If no expiration date, parse days from time_remaining or default to 30
-            if (data.time_remaining && data.time_remaining.includes("dag")) {
-              const daysText = data.time_remaining.split(" ")[0];
+            if (dealData.time_remaining && dealData.time_remaining.includes("dag")) {
+              const daysText = dealData.time_remaining.split(" ")[0];
               return parseInt(daysText) || 30;
             }
             return 30;
           }
           
-          const expirationDate = new Date(data.expiration_date);
+          const expirationDate = new Date(dealData.expiration_date);
           const now = new Date();
           
           // Set both dates to midnight to avoid time differences
@@ -64,18 +64,23 @@ export const useDeal = (id: string | undefined) => {
         const daysRemaining = calculateDaysRemaining();
 
         // Determine if the deal is free
-        const isFree = data.is_free || data.discounted_price === 0;
+        const isFree = dealData.is_free || dealData.discounted_price === 0;
 
-        // Om vi har ett salon_id, hämta salongsinformation
+        // Om första försöket att hämta salong misslyckades, gör ett andra separat försök
         let salon = null;
         
-        if (data.salon_id) {
-          console.log("Fetching salon data for salon_id:", data.salon_id);
+        if (dealData.salon) {
+          // Salong har redan laddats från den kopplade frågan
+          salon = dealData.salon;
+          console.log("Salon data retrieved from join query:", salon);
+        } else if (dealData.salon_id) {
+          console.log("First salon fetch attempt failed, trying direct fetch for salon_id:", dealData.salon_id);
           
+          // Gör ett separat försök att hämta salongsinformation
           const { data: salonData, error: salonError } = await supabase
             .from("salons")
             .select("id, name, address, phone")
-            .eq("id", data.salon_id);
+            .eq("id", dealData.salon_id);
             
           if (!salonError && salonData && salonData.length > 0) {
             salon = {
@@ -84,14 +89,16 @@ export const useDeal = (id: string | undefined) => {
               address: salonData[0].address || null,
               phone: salonData[0].phone || null,
             };
-            console.log("Successfully fetched salon data:", salon);
+            console.log("Successfully fetched salon data in second attempt:", salon);
           } else {
-            console.error("Error or no data when fetching salon:", salonError);
+            console.error("Error or no data when fetching salon in second attempt:", salonError);
+            console.error("Response returned from salons table:", salonData);
+            
             // Fallback till att använda staden som en del av salongen om hämtning misslyckas
             salon = {
               id: null,
-              name: `Salong i ${data.city}`,
-              address: data.city || null,
+              name: `Salong i ${dealData.city}`,
+              address: dealData.city || null,
               phone: null,
             };
           }
@@ -99,8 +106,8 @@ export const useDeal = (id: string | undefined) => {
           // Om vi inte har ett salon_id, använd staden som en del av salongen
           salon = {
             id: null,
-            name: `Salong i ${data.city}`,
-            address: data.city || null,
+            name: `Salong i ${dealData.city}`,
+            address: dealData.city || null,
             phone: null,
           };
           console.log("No salon_id available, created fallback salon data:", salon);
@@ -109,21 +116,21 @@ export const useDeal = (id: string | undefined) => {
         console.log("Final processed salon data:", salon);
 
         return {
-          id: data.id,
-          title: data.title,
-          description: data.description,
-          imageUrl: data.image_url,
-          originalPrice: data.original_price,
-          discountedPrice: data.discounted_price,
+          id: dealData.id,
+          title: dealData.title,
+          description: dealData.description,
+          imageUrl: dealData.image_url,
+          originalPrice: dealData.original_price,
+          discountedPrice: dealData.discounted_price,
           daysRemaining,
-          expirationDate: data.expiration_date || new Date().toISOString(),
-          category: data.category,
-          city: data.city,
-          created_at: data.created_at,
-          quantityLeft: data.quantity_left,
+          expirationDate: dealData.expiration_date || new Date().toISOString(),
+          category: dealData.category,
+          city: dealData.city,
+          created_at: dealData.created_at,
+          quantityLeft: dealData.quantity_left,
           isFree: isFree,
           salon: salon,
-          booking_url: data.booking_url,
+          booking_url: dealData.booking_url,
         };
       } catch (error) {
         console.error("Error in useDeal hook:", error);

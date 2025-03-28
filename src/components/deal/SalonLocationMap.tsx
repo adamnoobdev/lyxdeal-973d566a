@@ -30,7 +30,7 @@ export const SalonLocationMap = ({
 
   // Format address for geocoding
   const getFormattedAddress = () => {
-    if (!address) return '';
+    if (!address) return city || '';
     
     // Om adressen redan innehåller staden, använd den som den är
     if (city && address.toLowerCase().includes(city.toLowerCase())) {
@@ -42,6 +42,9 @@ export const SalonLocationMap = ({
   };
 
   const formattedAddress = getFormattedAddress();
+
+  console.log("SalonLocationMap props:", { address, salonName, salonPhone, city });
+  console.log("Formatted address for geocoding:", formattedAddress);
 
   // Check if we have a valid address before trying to fetch coordinates
   if (!formattedAddress || formattedAddress.trim() === '') {
@@ -56,6 +59,12 @@ export const SalonLocationMap = ({
             {salonName}
           </h3>
         </div>
+        {salonPhone && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+            <Phone className="h-4 w-4" />
+            <a href={`tel:${salonPhone}`} className="hover:underline">{salonPhone}</a>
+          </div>
+        )}
         <p className="text-sm text-muted-foreground">
           Adressinformation saknas för denna salong.
         </p>
@@ -95,7 +104,12 @@ export const SalonLocationMap = ({
 
   // Combine loading states
   if (isTokenLoading || (isLoading && !mapError)) {
-    return <MapLoadingState address={formattedAddress} hideAddress={hideAddress} />;
+    return <MapLoadingState 
+              address={formattedAddress} 
+              hideAddress={hideAddress} 
+              salonName={salonName}
+              salonPhone={salonPhone}
+            />;
   }
 
   // Handle error states
@@ -107,6 +121,8 @@ export const SalonLocationMap = ({
         coordinates={coordinates}
         destination={`${salonName}, ${formattedAddress}`}
         hideAddress={hideAddress}
+        salonName={salonName}
+        salonPhone={salonPhone}
       />
     );
   }
@@ -120,6 +136,8 @@ export const SalonLocationMap = ({
         coordinates={null}
         destination={`${salonName}, ${formattedAddress}`}
         hideAddress={hideAddress}
+        salonName={salonName}
+        salonPhone={salonPhone}
       />
     );
   }
@@ -140,7 +158,7 @@ export const SalonLocationMap = ({
           </div>
         )}
         
-        {!hideAddress && (
+        {!hideAddress && formattedAddress && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" />
             <span>{formattedAddress}</span>
