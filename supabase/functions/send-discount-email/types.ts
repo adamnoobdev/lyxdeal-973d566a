@@ -6,4 +6,5 @@ export interface RequestPayload {
   phone: string;
   code: string;
   dealTitle: string;
+  bookingUrl?: string;
 }

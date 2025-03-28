@@ -8,7 +8,7 @@ export async function handleRequest(req: Request) {
   
   try {
     const payload: RequestPayload = await req.json();
-    const { email, name, code, dealTitle, phone } = payload;
+    const { email, name, code, dealTitle, phone, bookingUrl } = payload;
 
     // Validate required fields
     if (!email || !name || !code || !dealTitle) {

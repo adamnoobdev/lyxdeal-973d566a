@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       deals: {
         Row: {
+          booking_url: string | null
           category: string
           city: string
           created_at: string
@@ -32,6 +33,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          booking_url?: string | null
           category: string
           city: string
           created_at?: string
@@ -53,6 +55,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          booking_url?: string | null
           category?: string
           city?: string
           created_at?: string

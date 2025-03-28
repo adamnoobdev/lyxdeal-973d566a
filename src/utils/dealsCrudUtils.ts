@@ -69,7 +69,8 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       ...values,
       originalPrice,
       discountedPrice,
-      expirationDate: expirationDate
+      expirationDate: expirationDate,
+      booking_url: values.booking_url
     });
     
     // Update the deal with all information
@@ -90,7 +91,8 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
         is_active: values.is_active,
         quantity_left: parseInt(values.quantity) || 10,
         is_free: isFree, // Set is_free based on original discounted price
-        status: 'approved' // Always approve deals
+        status: 'approved', // Always approve deals,
+        booking_url: values.booking_url || null, // Lägg till bokningslänk
       })
       .eq('id', id);
 
@@ -136,7 +138,8 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       discountedPrice,
       isFree,
       expirationDate: expirationDate,
-      quantity
+      quantity,
+      booking_url: values.booking_url
     });
     
     // Create a new deal
@@ -158,6 +161,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
         is_free: isFree, // Set is_free based on original discounted price
         is_active: values.is_active !== undefined ? values.is_active : true,
         quantity_left: quantity,
+        booking_url: values.booking_url || null, // Lägg till bokningslänk
       }])
       .select();
 

@@ -8,6 +8,7 @@ import { LocationFields } from "./deal-form/LocationFields";
 import { SalonField } from "./deal-form/SalonField";
 import { QuantityField } from "./deal-form/QuantityField";
 import { AdditionalFields } from "./deal-form/AdditionalFields";
+import { BookingUrlField } from "./deal-form/BookingUrlField";
 import { formSchema, FormValues } from "./deal-form/schema";
 import { useCallback } from "react";
 import { endOfMonth } from "date-fns";
@@ -39,6 +40,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       quantity: "10",
       is_free: false,
       is_active: true,
+      booking_url: "",
     },
   });
 
@@ -62,6 +64,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           <PriceFields form={form} />
           <LocationFields form={form} categories={["Hårvård", "Nagelvård", "Ansiktsbehandling", "Massage", "Makeup", "Ögonfransar & Bryn", "Kroppsvård", "Fotvård", "Hudvård", "Annat"]} 
                          cities={["Stockholm", "Göteborg", "Malmö", "Uppsala", "Västerås", "Örebro", "Linköping", "Helsingborg", "Jönköping", "Norrköping"]} />
+          <BookingUrlField form={form} />
           <QuantityField form={form} readOnly={!!initialValues} />
           <AdditionalFields form={form} />
         </div>

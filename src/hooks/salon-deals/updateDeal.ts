@@ -27,7 +27,8 @@ export const updateDeal = async (
       originalPrice,
       discountedPrice,
       is_free: isFree,
-      expirationDate: expirationDate
+      expirationDate: expirationDate,
+      booking_url: values.booking_url
     });
     
     const { error } = await supabase
@@ -46,6 +47,7 @@ export const updateDeal = async (
         status: 'pending',
         is_free: isFree, // Set is_free flag for free deals
         quantity_left: parseInt(values.quantity) || 10,
+        booking_url: values.booking_url || null, // Lägg till bokningslänk
       })
       .eq('id', dealId);
 

@@ -34,7 +34,8 @@ export const createDeal = async (
       discountedPrice,
       is_free: isFree,
       expirationDate: expirationDate,
-      quantity
+      quantity,
+      booking_url: values.booking_url
     });
     
     const { data: newDeal, error } = await supabase.from('deals').insert({
@@ -52,6 +53,7 @@ export const createDeal = async (
       status: 'pending',
       is_free: isFree, // Set is_free flag for free deals
       quantity_left: quantity,
+      booking_url: values.booking_url || null, // Lägg till bokningslänk
     }).select();
 
     if (error) {

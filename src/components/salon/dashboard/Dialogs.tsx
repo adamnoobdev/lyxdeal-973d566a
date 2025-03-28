@@ -60,6 +60,7 @@ export const DashboardDialogs = ({
           salon_id: editingDeal.salon_id,
           is_free: editingDeal.is_free,
           quantity: editingDeal.quantity_left?.toString() || "10",
+          booking_url: editingDeal.booking_url || "",
           expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
         } : undefined}
       />

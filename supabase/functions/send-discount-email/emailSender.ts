@@ -5,7 +5,7 @@ import { RequestPayload } from "./types.ts";
 import { corsHeaders } from "./corsConfig.ts";
 
 export async function sendDiscountEmail(payload: RequestPayload) {
-  const { email, name, code, dealTitle } = payload;
+  const { email, name, code, dealTitle, bookingUrl } = payload;
   
   // Check if RESEND_API_KEY is configured
   const apiKey = Deno.env.get("RESEND_API_KEY");
@@ -21,9 +21,12 @@ export async function sendDiscountEmail(payload: RequestPayload) {
   }
 
   // Skapa e-postinnehållet med vår rena HTML-funktion
-  const emailContent = createEmailContent(name, code, dealTitle);
+  const emailContent = createEmailContent(name, code, dealTitle, bookingUrl);
   
   console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
+  if (bookingUrl) {
+    console.log(`Including booking URL: ${bookingUrl}`);
+  }
   
   try {
     // Set production mode to true by default

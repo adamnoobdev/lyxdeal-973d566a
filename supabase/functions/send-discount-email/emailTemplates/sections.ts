@@ -26,7 +26,7 @@ export function createDiscountCodeSection(code: string) {
   `;
 }
 
-export function createInstructionsSection() {
+export function createInstructionsSection(bookingUrl?: string) {
   return `
     <div class="instructions">
       <h3>💜 Så här använder du din kod:</h3>
@@ -35,6 +35,7 @@ export function createInstructionsSection() {
         <li>Koden är giltig i 72 timmar</li>
         <li>Boka tid direkt med salongen om det behövs</li>
       </ul>
+      ${bookingUrl ? `<p class="booking-link">Du kan boka din tid direkt här: <a href="${bookingUrl}" target="_blank" class="btn-booking">Boka nu</a></p>` : ''}
     </div>
   `;
 }

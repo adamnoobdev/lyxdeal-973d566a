@@ -12,7 +12,7 @@ import {
   createFooterSection
 } from "./sections.ts";
 
-export function createEmailContent(name: string, code: string, dealTitle: string): string {
+export function createEmailContent(name: string, code: string, dealTitle: string, bookingUrl?: string): string {
   const currentYear = new Date().getFullYear();
   
   return `
@@ -32,7 +32,7 @@ export function createEmailContent(name: string, code: string, dealTitle: string
           <div class="content">
             ${createGreetingSection(name, dealTitle)}
             ${createDiscountCodeSection(code)}
-            ${createInstructionsSection()}
+            ${createInstructionsSection(bookingUrl)}
             <p>Vi hoppas att du får en fantastisk upplevelse och välkommen tillbaka till Lyxdeal för fler exklusiva erbjudanden!</p>
             ${createSignatureSection()}
           </div>

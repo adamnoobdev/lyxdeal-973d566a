@@ -54,6 +54,7 @@ const DealsDialogsComponent = ({
                   is_free: editingDeal.is_free || false,
                   is_active: editingDeal.is_active,
                   quantity: editingDeal.quantity_left?.toString() || "10",
+                  booking_url: editingDeal.booking_url || "",
                   expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
                 }
               : undefined

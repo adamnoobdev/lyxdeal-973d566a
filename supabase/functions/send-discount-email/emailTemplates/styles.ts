@@ -1,6 +1,6 @@
 
 /**
- * Email template styling components
+ * Email styles
  */
 
 export function getEmailStyles() {
@@ -9,92 +9,109 @@ export function getEmailStyles() {
       font-family: 'Helvetica Neue', Arial, sans-serif;
       line-height: 1.6;
       color: #333;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
       max-width: 600px;
       margin: 0 auto;
-      padding: 0;
-      background-color: #f9f9fb;
-    }
-    .container {
       background-color: #ffffff;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-      border-radius: 8px;
-      overflow: hidden;
-      margin: 20px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
     }
+    
     .header {
-      background-color: #FFF0FF;
-      color: #520053;
-      padding: 30px 20px;
+      background-color: #520053;
+      color: white;
+      padding: 25px 20px;
       text-align: center;
     }
+
     .header img {
-      width: 150px;
+      max-width: 150px;
       height: auto;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
+    
     .header h1 {
-      margin: 0;
       font-size: 24px;
-      font-weight: 700;
+      margin: 0;
+      font-weight: normal;
     }
+    
     .content {
-      padding: 30px 20px;
-      background-color: #ffffff;
+      padding: 30px 25px;
     }
+    
     .greeting {
       font-size: 18px;
-      margin-bottom: 15px;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
+
+    .highlight {
+      color: #520053;
+      font-weight: bold;
+    }
+    
     .discount-code {
-      background-color: #f9f0fa;
-      border: 2px dashed #b944ba;
-      padding: 15px;
-      margin: 25px 0;
-      text-align: center;
-      font-size: 28px;
+      background-color: #f1e5f2;
+      border: 2px dashed #520053;
+      font-size: 24px;
       font-weight: bold;
       letter-spacing: 2px;
-      border-radius: 6px;
-      color: #520053;
-    }
-    .instructions {
-      background-color: #f9f9fb;
-      padding: 15px;
-      border-radius: 6px;
+      text-align: center;
+      padding: 20px;
       margin: 20px 0;
-    }
-    .instructions h3 {
       color: #520053;
-      margin-top: 0;
-      font-size: 16px;
     }
+    
+    .instructions {
+      background-color: #f9f5f9;
+      padding: 20px;
+      margin: 25px 0;
+      border-left: 4px solid #520053;
+    }
+    
+    .instructions h3 {
+      margin-top: 0;
+      color: #520053;
+    }
+    
     .instructions ul {
-      margin: 0;
       padding-left: 20px;
     }
-    .instructions li {
-      margin-bottom: 8px;
-    }
+    
     .signature {
-      margin-top: 25px;
+      margin-top: 40px;
     }
+    
     .footer {
+      background-color: #f9f5f9;
+      padding: 20px;
       text-align: center;
       font-size: 12px;
-      color: #6b7280;
-      padding: 20px;
-      background-color: #f9f0fa;
-      border-top: 1px solid #f3e8f3;
+      color: #888;
     }
-    .logo {
-      font-size: 20px;
-      font-weight: bold;
-      color: #ffffff;
+
+    .booking-link {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .btn-booking {
+      display: inline-block;
+      background-color: #520053;
+      color: white;
+      padding: 10px 20px;
       text-decoration: none;
-    }
-    .highlight {
-      color: #b944ba;
+      border-radius: 4px;
       font-weight: bold;
+    }
+
+    .btn-booking:hover {
+      background-color: #6a0069;
     }
   `;
 }
