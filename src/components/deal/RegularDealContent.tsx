@@ -45,7 +45,7 @@ export const RegularDealContent = ({
   const savedAmount = originalPrice - discountedPrice;
 
   return (
-    <div className="p-5 flex flex-col h-full justify-between">
+    <div className="p-5 md:p-6 flex flex-col h-full justify-between">
       <div className="flex items-start justify-between gap-1 mb-3">
         <CategoryBadge category={category} className="text-xs" />
         <div className="flex items-center text-xs text-muted-foreground">
@@ -54,14 +54,14 @@ export const RegularDealContent = ({
         </div>
       </div>
 
-      <div className="mb-3">
-        <h3 className="font-medium text-base leading-tight line-clamp-2 mb-2">{title}</h3>
+      <div className="mb-4">
+        <h3 className="font-medium text-base md:text-lg leading-tight line-clamp-2 mb-2">{title}</h3>
         <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
           {description}
         </p>
       </div>
       
-      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
         <MapPin className="h-3 w-3" />
         <span>{city}</span>
         <span className="mx-1">•</span>
