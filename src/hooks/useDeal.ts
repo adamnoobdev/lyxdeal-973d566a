@@ -68,6 +68,13 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free either by explicit flag or 0 price
         const isFree = data.is_free || data.discounted_price === 0;
 
+        // Garantera att salon-objektet är korrekt format om det finns
+        const salon = data.salons ? {
+          name: data.salons.name || '',
+          address: data.salons.address || null,
+          phone: data.salons.phone || null,
+        } : null;
+
         return {
           id: data.id,
           title: data.title,
@@ -82,13 +89,10 @@ export const useDeal = (id: string | undefined) => {
           created_at: data.created_at,
           quantityLeft: data.quantity_left,
           isFree: isFree,
-          salon: data.salons ? {
-            name: data.salons.name,
-            address: data.salons.address,
-            phone: data.salons.phone,
-          } : null,
+          salon: salon,
         };
       } catch (error) {
+        console.error("Error fetching deal:", error);
         if (error instanceof Error) {
           if (['No deal ID provided', 'Invalid deal ID', 'Deal not found'].includes(error.message)) {
             toast.error(error.message === 'No deal ID provided' ? "Inget erbjudande-ID angivet" :

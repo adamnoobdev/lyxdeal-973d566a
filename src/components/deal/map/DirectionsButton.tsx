@@ -1,31 +1,33 @@
 
+import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Navigation } from "lucide-react";
 
 interface DirectionsButtonProps {
   coordinates: [number, number] | null;
   destination: string;
-  className?: string;
 }
 
-export const DirectionsButton = ({ coordinates, destination, className }: DirectionsButtonProps) => {
-  const handleGetDirections = () => {
-    if (!coordinates) return;
-    
-    const [lng, lat] = coordinates;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=${encodeURIComponent(destination)}`;
-    window.open(url, '_blank');
+export const DirectionsButton = ({ coordinates, destination }: DirectionsButtonProps) => {
+  // Skapa Google Maps-riktnings-URL
+  const getDirectionsUrl = () => {
+    if (coordinates) {
+      // Använd koordinater om tillgängliga
+      return `https://www.google.com/maps/dir/?api=1&destination=${coordinates[1]},${coordinates[0]}&travelmode=driving`;
+    } else {
+      // Annars använd destinationstext
+      return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+    }
   };
 
   return (
     <Button 
       variant="outline" 
-      className={className || "w-full"}
-      onClick={handleGetDirections}
-      disabled={!coordinates}
+      className="w-full text-sm"
+      size="sm"
+      onClick={() => window.open(getDirectionsUrl(), '_blank')}
     >
-      <Navigation className="h-4 w-4 mr-2" />
-      Få vägbeskrivning
+      <MapPin className="h-4 w-4 mr-2" />
+      <span>Visa vägbeskrivning</span>
     </Button>
   );
 };
