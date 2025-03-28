@@ -2,7 +2,8 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { MapPin } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
+import { isValidAddressFormat } from "@/utils/mapbox";
 
 interface ContactFieldsProps {
   form: UseFormReturn<any>;
@@ -17,9 +18,12 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Telefon</FormLabel>
-            <FormControl>
-              <Input placeholder="Ange telefon..." {...field} />
-            </FormControl>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <FormControl>
+                <Input placeholder="08-12 34 56..." className="pl-9" {...field} />
+              </FormControl>
+            </div>
             <FormMessage />
           </FormItem>
         )}
@@ -41,6 +45,16 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
                   placeholder="Gatuadress, postnummer och stad..." 
                   className="pl-9"
                   {...field} 
+                  onBlur={(e) => {
+                    field.onBlur();
+                    // Validera och ge visuell feedback om adressen verkar ofullständig
+                    const isValid = isValidAddressFormat(e.target.value);
+                    if (e.target.value && !isValid) {
+                      e.target.classList.add('border-orange-400');
+                    } else {
+                      e.target.classList.remove('border-orange-400');
+                    }
+                  }}
                 />
               </FormControl>
             </div>

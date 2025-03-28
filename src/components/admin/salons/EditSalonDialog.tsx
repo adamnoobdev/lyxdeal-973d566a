@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { SalonForm } from "./SalonForm";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface EditSalonDialogProps {
   isOpen: boolean;
@@ -49,8 +50,21 @@ export const EditSalonDialog = ({
     
     try {
       setIsSubmitting(true);
+      
+      // Validera adressen innan den skickas
+      if (values.address && values.address.trim() !== "") {
+        const { isValidAddressFormat } = await import("@/utils/mapbox");
+        if (!isValidAddressFormat(values.address)) {
+          toast.warning("Adressen kan vara ofullständig. Kontrollera att den innehåller gatunummer, postnummer och stad.");
+        }
+      }
+      
       await onSubmit(values);
       handleClose();
+      toast.success("Salonginformationen har uppdaterats");
+    } catch (error) {
+      console.error("Error in form submission:", error);
+      toast.error("Ett fel uppstod när salongen skulle uppdateras");
     } finally {
       setIsSubmitting(false);
     }
