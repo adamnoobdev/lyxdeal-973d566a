@@ -19,16 +19,36 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // Först, hämta erbjudandet med en mer detaljerad fråga
+        // Först, hämta erbjudandet med JOIN på salongs-tabellen
         const { data: dealData, error: dealError } = await supabase
           .from("deals")
-          .select("*, salon:salons(id, name, address, phone)")
+          .select(`
+            *,
+            salon:salons(id, name, address, phone)
+          `)
           .eq("id", dealId)
           .single();
 
         if (dealError) {
-          console.error("Error fetching deal:", dealError);
-          throw dealError;
+          console.error("Error fetching deal with JOIN:", dealError);
+          
+          // Fallback: försök hämta bara deal-datan om JOIN misslyckas
+          const { data: fallbackDealData, error: fallbackError } = await supabase
+            .from("deals")
+            .select("*")
+            .eq("id", dealId)
+            .single();
+            
+          if (fallbackError) {
+            console.error("Error fetching deal (fallback):", fallbackError);
+            throw fallbackError;
+          }
+          
+          if (!fallbackDealData) {
+            throw new Error("Deal not found");
+          }
+          
+          dealData = fallbackDealData;
         }
 
         if (!dealData) {
@@ -66,51 +86,45 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free
         const isFree = dealData.is_free || dealData.discounted_price === 0;
 
-        // Om första försöket att hämta salong misslyckades, gör ett andra separat försök
+        // Hantera salonginformation
         let salon = null;
         
+        // Först, kontrollera om vi fick salongen från JOINen
         if (dealData.salon) {
-          // Salong har redan laddats från den kopplade frågan
           salon = dealData.salon;
           console.log("Salon data retrieved from join query:", salon);
-        } else if (dealData.salon_id) {
-          console.log("First salon fetch attempt failed, trying direct fetch for salon_id:", dealData.salon_id);
+        } 
+        // Om inte, gör en separat förfrågan för att hämta salong
+        else if (dealData.salon_id) {
+          console.log("Making separate request for salon with ID:", dealData.salon_id);
           
-          // Gör ett separat försök att hämta salongsinformation
           const { data: salonData, error: salonError } = await supabase
             .from("salons")
             .select("id, name, address, phone")
-            .eq("id", dealData.salon_id);
+            .eq("id", dealData.salon_id)
+            .single();
             
-          if (!salonError && salonData && salonData.length > 0) {
-            salon = {
-              id: salonData[0].id,
-              name: salonData[0].name || '',
-              address: salonData[0].address || null,
-              phone: salonData[0].phone || null,
-            };
-            console.log("Successfully fetched salon data in second attempt:", salon);
+          if (!salonError && salonData) {
+            salon = salonData;
+            console.log("Salon data from separate request:", salon);
           } else {
-            console.error("Error or no data when fetching salon in second attempt:", salonError);
-            console.error("Response returned from salons table:", salonData);
-            
-            // Fallback till att använda staden som en del av salongen om hämtning misslyckas
+            console.error("Error fetching salon:", salonError);
+            // Fallback till att använda staden som en del av salongen
             salon = {
-              id: null,
+              id: dealData.salon_id,
               name: `Salong i ${dealData.city}`,
               address: dealData.city || null,
               phone: null,
             };
           }
         } else {
-          // Om vi inte har ett salon_id, använd staden som en del av salongen
+          // Fallback om vi inte har salon_id
           salon = {
             id: null,
             name: `Salong i ${dealData.city}`,
             address: dealData.city || null,
             phone: null,
           };
-          console.log("No salon_id available, created fallback salon data:", salon);
         }
 
         console.log("Final processed salon data:", salon);
@@ -144,7 +158,7 @@ export const useDeal = (id: string | undefined) => {
         throw error;
       }
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 0, // Minska cache-tiden för att säkerställa färsk data
+    refetchOnWindowFocus: true, // Uppdatera när fönstret får fokus
   });
 };

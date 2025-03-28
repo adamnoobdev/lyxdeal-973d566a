@@ -15,97 +15,87 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || !coordinates || !Array.isArray(coordinates) || coordinates.length !== 2) {
-      console.log("Missing requirements for map:", { 
-        hasContainer: !!mapContainer.current, 
-        hasToken: !!mapboxToken, 
-        hasCoords: !!coordinates,
-        validCoords: coordinates && Array.isArray(coordinates) && coordinates.length === 2
-      });
+    // Validera indata
+    if (!mapContainer.current) {
+      console.log("Missing map container");
+      return;
+    }
+    
+    if (!mapboxToken) {
+      console.log("Missing Mapbox token");
+      setErrorMessage('Mapbox-token saknas');
+      return;
+    }
+    
+    if (!coordinates || !Array.isArray(coordinates) || coordinates.length !== 2) {
+      console.log("Invalid coordinates:", coordinates);
+      setErrorMessage('Ogiltiga koordinater');
       return;
     }
 
     try {
-      console.log("Initializing map with token and coordinates:", coordinates);
+      console.log("Initializing map with coordinates:", coordinates);
       
-      // Initialize map
+      // Rensa eventuell tidigare karta
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+      
+      // Initiera Mapbox
       mapboxgl.accessToken = mapboxToken;
       
       const [lng, lat] = coordinates;
       
-      if (map.current) {
-        map.current.remove();
-      }
-      
+      // Skapa ny karta
       const newMap = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [lng, lat],
         zoom: 14,
-        attributionControl: false, // Disable default attribution control
+        attributionControl: false,
       });
       
       map.current = newMap;
       
-      // Add marker with custom color matching Lyxdeal primary color
+      // Lägg till markör med anpassad färg
       new mapboxgl.Marker({ 
-        color: '#9b87f5', // Primary purple Lyxdeal color
-        scale: 1.1 // Slightly larger marker
+        color: '#9b87f5', // Lyxdeal primary color
+        scale: 1.1
       })
         .setLngLat([lng, lat])
         .addTo(newMap);
       
-      // Add navigation controls with custom positioning
+      // Lägg till navigationskontroller
       newMap.addControl(new mapboxgl.NavigationControl({
         showCompass: true,
         visualizePitch: false,
       }), 'top-right');
       
-      console.log("Map initialized successfully");
-
-      // Add error handling
+      // Hantera fel
       newMap.on('error', (e) => {
         console.error('Mapbox map error:', e);
         setErrorMessage('Ett fel uppstod med kartan');
       });
 
-      // Apply custom map style to match Lyxdeal theme
+      // Dölj Mapbox-logotypen och attributionen
       newMap.on('load', () => {
-        if (!map.current) return;
-
-        // Create a simple style change that won't cause rendering issues
-        try {
-          // Use simpler, more reliable style changes
-          map.current.setPaintProperty('water', 'fill-color', '#f9eeff');
-          map.current.setPaintProperty('building', 'fill-color', '#f3e8ff');
-          
-          // Remove Mapbox logo and attribution
-          const mapCanvas = map.current.getCanvas();
-          const mapContainer = mapCanvas.parentElement;
-          
-          if (mapContainer) {
-            // Add style to hide Mapbox branding
-            const style = document.createElement('style');
-            style.textContent = `
-              .mapboxgl-ctrl-logo { display: none !important; }
-              .mapboxgl-ctrl-attrib { display: none !important; }
-            `;
-            document.head.appendChild(style);
-          }
-        } catch (styleError) {
-          console.warn('Non-critical style application error:', styleError);
-          // Continue with basic map if styling fails
-        }
+        // Dölj Mapbox branding
+        const style = document.createElement('style');
+        style.textContent = `
+          .mapboxgl-ctrl-logo { display: none !important; }
+          .mapboxgl-ctrl-attrib { display: none !important; }
+        `;
+        document.head.appendChild(style);
       });
     } catch (error) {
       console.error('Error initializing map:', error);
       setErrorMessage('Kunde inte visa kartan');
     }
     
-    // Cleanup
+    // Städa upp när komponenten avmonteras
     return () => {
       if (map.current) {
-        console.log("Cleaning up map instance");
         map.current.remove();
         map.current = null;
       }
