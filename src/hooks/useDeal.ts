@@ -93,7 +93,7 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free either by explicit flag or 0 price
         const isFree = data.is_free || data.discounted_price === 0;
 
-        // Process salon data correctly, checking both data.salon and data.salons
+        // Process salon data correctly, handling different possible data structures
         let salon = null;
         
         if (data.salon) {
@@ -104,14 +104,6 @@ export const useDeal = (id: string | undefined) => {
             phone: data.salon.phone || null,
           };
           console.log("Found salon data via data.salon:", salon);
-        } else if (data.salons) {
-          salon = {
-            id: data.salons.id,
-            name: data.salons.name || '',
-            address: data.salons.address || null,
-            phone: data.salons.phone || null,
-          };
-          console.log("Found salon data via data.salons:", salon);
         } else if (dealCheck && dealCheck.salon_id) {
           // If we have a salon_id but no salon data in the main query, try to fetch it directly
           console.log("Attempting to fetch salon data separately with salon_id:", dealCheck.salon_id);
