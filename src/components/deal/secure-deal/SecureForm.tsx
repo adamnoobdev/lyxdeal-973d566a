@@ -13,11 +13,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Vänligen ange ditt namn" }),
   email: z.string().email({ message: "Vänligen ange en giltig e-postadress" }),
   phone: z.string().min(6, { message: "Vänligen ange ett giltigt telefonnummer" }),
+  termsAccepted: z.boolean().refine(val => val === true, {
+    message: "Du måste godkänna villkoren för att fortsätta"
+  })
 });
 
 export type SecureFormValues = z.infer<typeof formSchema>;
@@ -34,6 +39,7 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
       name: "",
       email: "",
       phone: "",
+      termsAccepted: false
     },
   });
 
@@ -92,6 +98,35 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
                 />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="termsAccepted"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-2">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isSubmitting}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel className="text-sm font-normal">
+                  Jag godkänner Lyxdeals{' '}
+                  <Link to="/terms" target="_blank" className="text-primary hover:underline">
+                    allmänna villkor
+                  </Link>{' '}
+                  och{' '}
+                  <Link to="/privacy" target="_blank" className="text-primary hover:underline">
+                    integritetspolicy
+                  </Link>
+                </FormLabel>
+                <FormMessage />
+              </div>
             </FormItem>
           )}
         />

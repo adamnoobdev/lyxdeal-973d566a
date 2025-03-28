@@ -1,11 +1,15 @@
 
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { usePartnerForm } from "@/hooks/usePartnerForm";
 import { MapboxAddressInput, AddressParts } from "@/components/common/MapboxAddressInput";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface SelectedPlan {
   title: string;
@@ -20,7 +24,8 @@ interface PartnerFormProps {
 
 export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
   const navigate = useNavigate();
-  const { formData, isSubmitting, handleChange, handleAddressChange, handleSubmit } = usePartnerForm(selectedPlan);
+  const { formData, isSubmitting, handleChange, handleAddressChange, handleSubmit: submitForm } = usePartnerForm(selectedPlan);
+  const [termsAccepted, setTermsAccepted] = React.useState(false);
 
   // Hantera direkt adressinmatning från Mapbox
   const handleMapboxAddressChange = (value: string, parts?: AddressParts) => {
@@ -33,6 +38,18 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
       if (parts.postalCode) handleChange({ target: { id: 'postalCode', value: parts.postalCode } } as any);
       if (parts.city) handleChange({ target: { id: 'city', value: parts.city } } as any);
     }
+  };
+
+  // Wrapper för submit som kontrollerar terms acceptance
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!termsAccepted) {
+      toast.error("Du måste godkänna villkoren för att fortsätta");
+      return;
+    }
+    
+    submitForm(e);
   };
 
   return (
@@ -108,12 +125,49 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
         </div>
       </div>
       
+      {/* Terms and Conditions Checkbox */}
+      <div className="space-y-4">
+        <div className="flex items-start space-x-2">
+          <Checkbox 
+            id="terms" 
+            checked={termsAccepted}
+            onCheckedChange={(checked: boolean) => setTermsAccepted(checked)}
+            className="mt-1"
+          />
+          <div className="grid gap-1.5 leading-none">
+            <Label 
+              htmlFor="terms" 
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Jag godkänner Lyxdeals{' '}
+              <Link to="/terms" target="_blank" className="text-primary hover:underline">
+                allmänna villkor
+              </Link>{' '}
+              och{' '}
+              <Link to="/privacy" target="_blank" className="text-primary hover:underline">
+                integritetspolicy
+              </Link>
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Genom att registrera dig som salongspartner godkänner du våra villkor.
+            </p>
+          </div>
+        </div>
+        
+        {!termsAccepted && (
+          <div className="text-xs flex items-center text-destructive">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            Du måste godkänna villkoren för att fortsätta
+          </div>
+        )}
+      </div>
+      
       <div className="flex flex-col sm:flex-row gap-4 pt-4">
         <LoadingButton 
           type="submit" 
           className="flex-1 w-full"
           loading={isSubmitting}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !termsAccepted}
           aria-label={isSubmitting ? "Skickar din information..." : "Fortsätt till betalning"}
         >
           {isSubmitting ? "Bearbetar..." : "Fortsätt till betalning"}
