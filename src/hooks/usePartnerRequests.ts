@@ -6,6 +6,7 @@ export interface PartnerRequestData {
   business_name: string;
   email: string;
   phone: string;
+  address?: string; // Added address property
   message?: string;
   plan_title?: string;
   plan_payment_type?: string;

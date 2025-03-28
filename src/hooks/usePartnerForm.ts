@@ -9,6 +9,7 @@ interface PartnerFormData {
   business: string;
   email: string;
   phone: string;
+  address: string; // Added address property to the interface
 }
 
 interface SelectedPlan {
@@ -26,6 +27,7 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
     business: "",
     email: "",
     phone: "",
+    address: "", // Initialize the address field
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,12 +89,13 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
       // Visa toast innan anrop för att ge användaren feedback direkt
       toast.info("Bearbetar din begäran...");
       
-      // Submit partner request
+      // Submit partner request with address included
       const result = await submitPartnerRequest({
         name: formData.name,
         business_name: formData.business,
         email: formData.email,
         phone: formData.phone,
+        address: formData.address, // Include address in the request
         message: "", // No message needed for signup
         plan_title: selectedPlan.title,
         plan_payment_type: selectedPlan.paymentType,
