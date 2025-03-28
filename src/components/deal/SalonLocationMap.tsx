@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { MapPin } from "lucide-react";
 import { MapViewer } from './map/MapViewer';
 import { DirectionsButton } from './map/DirectionsButton';
 import { MapLoadingState } from './map/MapLoadingState';
@@ -10,10 +11,9 @@ import { getCoordinates } from '@/utils/mapbox';
 interface SalonLocationMapProps {
   address: string;
   salonName: string;
-  hideAddress?: boolean;
 }
 
-export const SalonLocationMap = ({ address, salonName, hideAddress = false }: SalonLocationMapProps) => {
+export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) => {
   const { mapboxToken, isLoading: isTokenLoading, error: tokenError } = useMapboxToken();
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
@@ -46,7 +46,7 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
 
   // Combine loading states
   if (isTokenLoading || (isLoading && !mapError)) {
-    return <MapLoadingState address={address} hideAddress={hideAddress} />;
+    return <MapLoadingState address={address} />;
   }
 
   // Handle error states
@@ -57,7 +57,6 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
         errorMessage={tokenError || mapError || 'Kunde inte ladda kartan'}
         coordinates={coordinates}
         destination={`${salonName} ${address}`}
-        hideAddress={hideAddress}
       />
     );
   }
@@ -70,18 +69,16 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
         errorMessage="Kunde inte hitta koordinater för adressen"
         coordinates={null}
         destination={`${salonName} ${address}`}
-        hideAddress={hideAddress}
       />
     );
   }
 
   return (
     <div className="space-y-4">
-      {!hideAddress && (
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground pl-2">
-          <span>{address}</span>
-        </div>
-      )}
+      <div className="flex items-center space-x-2 text-sm text-muted-foreground pl-2">
+        <MapPin className="h-4 w-4" />
+        <span>{address}</span>
+      </div>
       
       <MapViewer 
         mapboxToken={mapboxToken} 

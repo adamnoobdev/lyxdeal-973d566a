@@ -1,4 +1,3 @@
-
 import { Store, MapPin, Phone } from "lucide-react";
 
 interface SalonInfoProps {
@@ -37,4 +36,4 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
       </div>
     </div>
   );
-}
+};
