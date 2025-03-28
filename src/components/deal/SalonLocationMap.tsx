@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { MapViewer } from './map/MapViewer';
 import { DirectionsButton } from './map/DirectionsButton';
@@ -5,11 +6,12 @@ import { MapLoadingState } from './map/MapLoadingState';
 import { MapErrorState } from './map/MapErrorState';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { getCoordinates } from '@/utils/mapbox';
-import { MapPin, Store } from 'lucide-react';
+import { MapPin, Store, Phone } from 'lucide-react';
 
 interface SalonLocationMapProps {
   address: string;
   salonName: string;
+  salonPhone?: string | null;
   city?: string;
   hideAddress?: boolean;
 }
@@ -17,6 +19,7 @@ interface SalonLocationMapProps {
 export const SalonLocationMap = ({ 
   address, 
   salonName, 
+  salonPhone,
   city, 
   hideAddress = false 
 }: SalonLocationMapProps) => {
@@ -123,12 +126,27 @@ export const SalonLocationMap = ({
 
   return (
     <div className="space-y-4">
-      {!hideAddress && (
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground pl-2">
-          <MapPin className="h-4 w-4" />
-          <span>{formattedAddress}</span>
+      {/* Salon info section with name, phone and address */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Store className="h-4 w-4 text-primary" />
+          <span className="font-medium">{salonName}</span>
         </div>
-      )}
+        
+        {salonPhone && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Phone className="h-4 w-4" />
+            <a href={`tel:${salonPhone}`} className="hover:underline">{salonPhone}</a>
+          </div>
+        )}
+        
+        {!hideAddress && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4" />
+            <span>{formattedAddress}</span>
+          </div>
+        )}
+      </div>
       
       <MapViewer 
         mapboxToken={mapboxToken} 

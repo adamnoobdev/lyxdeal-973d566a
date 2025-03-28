@@ -101,13 +101,12 @@ const ProductDetails = () => {
               <div className="bg-white shadow-sm p-6 space-y-6">
                 <h2 className="text-xl font-semibold mb-4">Om {deal.salon?.name || "salongen"}</h2>
                 
-                <SalonInfo salon={deal.salon} />
-                
                 {deal.salon?.address && (
                   <div className="mt-6">
                     <SalonLocationMap 
                       address={deal.salon.address} 
                       salonName={deal.salon.name} 
+                      salonPhone={deal.salon.phone}
                       city={deal.city}
                       hideAddress={false}
                     />
