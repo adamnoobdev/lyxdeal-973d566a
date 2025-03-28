@@ -29,7 +29,7 @@ export const DealsSection = ({
   if (!deals.length) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
         <h2 className="text-xl font-semibold">{title}</h2>
         {deals.length > 0 && onViewDetails && (

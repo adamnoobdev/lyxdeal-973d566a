@@ -33,7 +33,7 @@ export const SalonsContent = ({
   }, []);
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 max-w-7xl mx-auto">
       <div className={`${isMobile || !selectedSalon ? 'xl:col-span-3' : 'xl:col-span-2'}`}>
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-4 border-b">

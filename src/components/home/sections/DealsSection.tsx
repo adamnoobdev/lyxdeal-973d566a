@@ -16,7 +16,7 @@ const DealsSectionComponent = ({
   selectedCity
 }: DealsSectionProps) => {
   return (
-    <div className="space-y-8 md:space-y-12 max-w-[1800px] mx-auto w-full">
+    <div className="space-y-8 md:space-y-12 max-w-7xl mx-auto w-full">
       <section className="space-y-4 md:space-y-6 w-full">
         <div className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
