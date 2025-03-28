@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from "@/components/ui/button";
-import { MapPin, Navigation } from "lucide-react";
+import { MapPin, Navigation, Key } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SalonLocationMapProps {
   address: string;
@@ -13,10 +15,14 @@ interface SalonLocationMapProps {
 export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>("");
+  const [mapboxToken, setMapboxToken] = useState<string>(() => {
+    // Try to get the token from localStorage if it exists
+    return localStorage.getItem('mapbox_token') || "";
+  });
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const [isMapboxTokenVisible, setIsMapboxTokenVisible] = useState(false);
+  const [isTokenSaved, setIsTokenSaved] = useState(!!mapboxToken);
 
   // Funktion för att konvertera adress till koordinater
   const getCoordinates = async (address: string) => {
@@ -45,6 +51,19 @@ export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) 
       setMapError('Kunde inte ladda kartan för denna adress');
       return null;
     }
+  };
+
+  const saveMapboxToken = () => {
+    if (mapboxToken) {
+      localStorage.setItem('mapbox_token', mapboxToken);
+      setIsTokenSaved(true);
+      setIsMapboxTokenVisible(false);
+    }
+  };
+
+  const handleTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMapboxToken(e.target.value);
+    setIsTokenSaved(false);
   };
 
   // Initialisera kartan när komponenten laddas
@@ -105,22 +124,39 @@ export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) 
   };
 
   // Om vi inte har en Mapbox-token, visa inmatningsfält
-  if (!mapboxToken) {
+  if (!isTokenSaved) {
     return (
       <div className="space-y-4 p-4 border border-border rounded-md bg-background">
         {isMapboxTokenVisible ? (
           <>
-            <div className="text-center text-sm text-muted-foreground mb-2">
-              Ange en Mapbox token för att visa kartan. Denna används bara temporärt i denna session.
-            </div>
-            <input 
-              type="text" 
-              className="w-full p-2 border border-input rounded-md"
-              placeholder="Ange din Mapbox token"
-              onChange={(e) => setMapboxToken(e.target.value)}
-            />
-            <div className="text-xs text-muted-foreground">
-              Gå till <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">Mapbox.com</a> för att skapa ett konto och få din publika token.
+            <Alert className="mb-4">
+              <AlertDescription>
+                För att visa kartan behöver du ange din Mapbox API-nyckel. 
+                Denna lagras endast i din webbläsare och används bara för att visa kartor.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="space-y-3">
+              <Input 
+                type="text" 
+                value={mapboxToken}
+                className="w-full"
+                placeholder="Ange din Mapbox token"
+                onChange={handleTokenChange}
+              />
+              
+              <Button 
+                onClick={saveMapboxToken} 
+                className="w-full"
+                disabled={!mapboxToken}
+              >
+                <Key className="h-4 w-4 mr-2" />
+                Spara nyckel och visa karta
+              </Button>
+              
+              <div className="text-xs text-muted-foreground">
+                Gå till <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline">Mapbox.com</a> för att skapa ett konto och få din publika token.
+              </div>
             </div>
           </>
         ) : (
@@ -146,14 +182,28 @@ export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) 
           <span>{address}</span>
         </div>
         <div className="mt-2 text-sm text-destructive">{mapError}</div>
-        <Button 
-          variant="outline" 
-          className="w-full mt-4"
-          onClick={handleGetDirections}
-        >
-          <Navigation className="h-4 w-4 mr-2" />
-          Få vägbeskrivning
-        </Button>
+        <div className="flex gap-2 mt-4">
+          <Button 
+            variant="outline" 
+            className="flex-1"
+            onClick={handleGetDirections}
+          >
+            <Navigation className="h-4 w-4 mr-2" />
+            Få vägbeskrivning
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className="flex-none"
+            onClick={() => {
+              localStorage.removeItem('mapbox_token');
+              setIsTokenSaved(false);
+              setMapboxToken("");
+            }}
+          >
+            <Key className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     );
   }
@@ -171,14 +221,29 @@ export const SalonLocationMap = ({ address, salonName }: SalonLocationMapProps) 
         style={{ backgroundColor: '#eee' }}
       />
       
-      <Button 
-        variant="outline" 
-        className="w-full"
-        onClick={handleGetDirections}
-      >
-        <Navigation className="h-4 w-4 mr-2" />
-        Få vägbeskrivning
-      </Button>
+      <div className="flex gap-2">
+        <Button 
+          variant="outline" 
+          className="flex-1"
+          onClick={handleGetDirections}
+        >
+          <Navigation className="h-4 w-4 mr-2" />
+          Få vägbeskrivning
+        </Button>
+        
+        <Button 
+          variant="ghost" 
+          className="flex-none"
+          onClick={() => {
+            localStorage.removeItem('mapbox_token');
+            setIsTokenSaved(false);
+            setMapboxToken("");
+          }}
+          title="Ändra Mapbox API-nyckel"
+        >
+          <Key className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 };
