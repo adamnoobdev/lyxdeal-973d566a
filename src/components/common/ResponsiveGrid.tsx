@@ -16,7 +16,7 @@ const ResponsiveGridComponent = ({ children, className = "" }: ResponsiveGridPro
       <div className="w-full -mx-4 overflow-x-auto touch-pan-x scrollbar-hide">
         <div className={`flex space-x-4 px-4 py-2 w-max ${className}`}>
           {React.Children.map(children, (child) => (
-            <div className="min-w-[320px] max-w-[320px] flex-shrink-0">
+            <div className="min-w-[340px] max-w-[340px] flex-shrink-0">
               {child}
             </div>
           ))}
@@ -27,7 +27,7 @@ const ResponsiveGridComponent = ({ children, className = "" }: ResponsiveGridPro
   }
   
   return (
-    <div className={`grid gap-5 grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 mx-auto w-full ${className}`}>
+    <div className={`grid gap-4 grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 mx-auto w-full ${className}`}>
       {children}
     </div>
   );

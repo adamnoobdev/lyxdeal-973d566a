@@ -45,7 +45,7 @@ export const RegularDealContent = ({
   const savedAmount = originalPrice - discountedPrice;
 
   return (
-    <div className="p-4 flex flex-col h-full justify-between">
+    <div className="p-5 flex flex-col h-full justify-between">
       <div className="flex items-start justify-between gap-1 mb-3">
         <CategoryBadge category={category} className="text-xs" />
         <div className="flex items-center text-xs text-muted-foreground">
@@ -56,7 +56,7 @@ export const RegularDealContent = ({
 
       <div className="mb-3">
         <h3 className="font-medium text-base leading-tight line-clamp-2 mb-2">{title}</h3>
-        <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
           {description}
         </p>
       </div>
@@ -72,7 +72,7 @@ export const RegularDealContent = ({
         <div className="flex items-end justify-between mb-4">
           <div className="space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-xl font-bold text-primary-600">
+              <span className="text-2xl font-bold text-primary-600">
                 {isFreeDeal ? "Gratis" : `${discountedPrice} kr`}
               </span>
               {originalPrice > discountedPrice && (
