@@ -48,7 +48,11 @@ export const useDeal = (id: string | undefined) => {
             throw new Error("Deal not found");
           }
           
-          dealData = fallbackDealData;
+          // Here's the fix: ensure the fallback data has a salon property set to null
+          dealData = {
+            ...fallbackDealData,
+            salon: null
+          };
         }
 
         if (!dealData) {
