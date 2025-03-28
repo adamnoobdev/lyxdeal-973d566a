@@ -107,6 +107,7 @@ const ProductDetails = () => {
                       <SalonLocationMap 
                         address={`${deal.salon.address}, ${deal.city}`} 
                         salonName={deal.salon.name} 
+                        hideAddress={true}
                       />
                     </div>
                   )}
