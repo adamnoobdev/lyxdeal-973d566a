@@ -4,49 +4,36 @@ import { QrCode, Star, Percent } from "lucide-react";
 const STATS = [
   { 
     icon: Percent, 
-    title: "1. Säkra erbjudandet", 
-    description: "Enkelt och snabbt med några få steg" 
+    title: "Upp till 70%", 
+    description: "Rabatt på behandlingar" 
   },
   { 
     icon: QrCode, 
-    title: "2. Få rabattkoden", 
-    description: "Koden skickas automatiskt till din angivna e-post" 
+    title: "Digital kod", 
+    description: "Använd direkt i salongen" 
   },
   { 
     icon: Star, 
-    title: "3. Visa koden", 
-    description: "Använd koden direkt på salongens bokningssida" 
+    title: "Kvalitetssäkrat", 
+    description: "Utvalda salonger" 
   }
 ] as const;
 
 export function StatsSection() {
   return (
-    <div className="bg-white shadow-sm py-8 px-6 mb-8">
-      <h2 className="text-xl md:text-2xl font-semibold text-center mb-6 text-primary">Så här fungerar det</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mx-auto relative">
-        {STATS.map((stat, index) => (
-          <div 
-            key={index} 
-            className="flex flex-col items-center text-center p-6 space-y-3 bg-white/50 border border-muted-200 shadow-sm relative"
-          >
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10">
-              <stat.icon className="h-6 w-6 text-primary/80" />
-            </div>
-            
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-semibold text-foreground">{stat.title}</h3>
-              <p className="text-sm text-muted-foreground">{stat.description}</p>
-            </div>
-
-            {index < STATS.length - 1 && (
-              <div className="hidden md:block absolute -right-4 top-1/2 transform -translate-y-1/2 z-10">
-                <div className="w-8 h-0.5 bg-primary/20"></div>
-              </div>
-            )}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1920px] mx-auto w-full py-8">
+      {STATS.map((stat, index) => (
+        <div 
+          key={index} 
+          className="bg-accent/50 rounded-xl p-6 text-center transition-all duration-300 hover:bg-accent hover:shadow-lg"
+        >
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-4">
+            <stat.icon className="h-6 w-6" />
           </div>
-        ))}
-      </div>
+          <h3 className="text-2xl font-bold text-primary">{stat.title}</h3>
+          <p className="text-muted-foreground">{stat.description}</p>
+        </div>
+      ))}
     </div>
   );
 }

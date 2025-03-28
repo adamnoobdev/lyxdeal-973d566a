@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DealCard } from "./DealCard";
@@ -46,8 +47,8 @@ export function FeaturedDeals() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 max-w-[1920px] mx-auto w-full">
+        {[...Array(6)].map((_, i) => (
           <div key={i} className="h-96 bg-accent/50 rounded-xl animate-pulse" />
         ))}
       </div>
@@ -73,7 +74,7 @@ export function FeaturedDeals() {
 
   console.log('Rendering featured deals:', deals);
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 max-w-[1920px] mx-auto w-full">
       {deals.map((deal) => (
         <DealCard
           key={deal.id}

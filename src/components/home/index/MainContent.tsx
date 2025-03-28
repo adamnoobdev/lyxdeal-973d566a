@@ -17,8 +17,8 @@ const MainContentComponent = ({
   onSelectCity
 }: MainContentProps) => {
   return (
-    <div className="container mx-auto px-4">
-      <div className="grid grid-cols-1 gap-6 md:gap-8 max-w-5xl mx-auto">
+    <div className="container mx-auto px-4 max-w-full">
+      <div className="max-w-[1920px] mx-auto w-full">
         <div className="w-full">
           <StatsSection />
           <DealsSection 
