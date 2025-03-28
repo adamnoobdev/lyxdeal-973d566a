@@ -10,7 +10,9 @@ import { PasswordField } from "./form/PasswordField";
 import { SubscriptionField } from "./form/SubscriptionField";
 import { Loader2 } from "lucide-react";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { isValidAddressFormat } from "@/utils/mapbox";
 
+// Förbättrat schema med validering för adressfältet
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Namnet måste vara minst 2 tecken.",
@@ -19,7 +21,14 @@ const formSchema = z.object({
     message: "Vänligen ange en giltig e-postadress.",
   }),
   phone: z.string().optional(),
-  address: z.string().optional(),
+  address: z.string()
+    .optional()
+    .refine(
+      (val) => !val || val.trim() === "" || isValidAddressFormat(val), 
+      {
+        message: "Ange en komplett adress med gatunamn, nummer, postnummer och stad.",
+      }
+    ),
   password: z.string().optional(),
   skipSubscription: z.boolean().optional().default(false),
 });
@@ -45,6 +54,11 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing }: SalonFormProps
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      // Om adressen är tom eller bara består av mellanslag, sätt den till null
+      if (values.address && values.address.trim() === "") {
+        values.address = undefined;
+      }
+      
       await onSubmit(values);
     } catch (error) {
       console.error("Error submitting form:", error);

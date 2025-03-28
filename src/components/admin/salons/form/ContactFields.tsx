@@ -1,4 +1,5 @@
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 
@@ -29,8 +30,14 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Adress</FormLabel>
+            <FormDescription>
+              Ange fullständig adress med gatunummer, postnummer och stad för korrekt visning på kartan (t.ex. "Torsplan 8, 113 65 Stockholm")
+            </FormDescription>
             <FormControl>
-              <Input placeholder="Ange adress..." {...field} />
+              <Input 
+                placeholder="Gatuadress, postnummer och stad..." 
+                {...field} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

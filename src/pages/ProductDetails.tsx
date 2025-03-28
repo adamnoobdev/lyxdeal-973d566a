@@ -106,8 +106,9 @@ const ProductDetails = () => {
                 {deal.salon?.address && (
                   <div className="mt-6">
                     <SalonLocationMap 
-                      address={`${deal.salon.address}, ${deal.city}`} 
+                      address={deal.salon.address} 
                       salonName={deal.salon.name} 
+                      city={deal.city}
                       hideAddress={false}
                     />
                   </div>

@@ -75,6 +75,19 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
             inputMode="tel"
           />
         </div>
+        <div className="space-y-2 md:col-span-2">
+          <label htmlFor="address" className="text-sm font-medium">Adress</label>
+          <p className="text-xs text-muted-foreground">
+            Ange fullständig adress med gatunummer, postnummer och stad för korrekt visning på kartan.
+          </p>
+          <Input 
+            id="address" 
+            placeholder="Gatuadress, postnummer och stad (t.ex. Torsplan 8, 113 65 Stockholm)" 
+            value={formData.address || ''}
+            onChange={handleChange}
+            className="w-full"
+          />
+        </div>
       </div>
       
       <div className="flex flex-col sm:flex-row gap-4 pt-4">
