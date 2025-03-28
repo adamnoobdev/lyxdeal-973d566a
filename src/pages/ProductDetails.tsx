@@ -78,6 +78,7 @@ const ProductDetails = () => {
                   quantityLeft={deal.quantityLeft}
                   isFree={deal.isFree}
                   salon={deal.salon}
+                  booking_url={deal.booking_url}
                 />
               </div>
 
@@ -146,6 +147,7 @@ const ProductDetails = () => {
                   quantityLeft={deal.quantityLeft}
                   isFree={deal.isFree}
                   salon={deal.salon}
+                  booking_url={deal.booking_url}
                 />
               </div>
             </div>
