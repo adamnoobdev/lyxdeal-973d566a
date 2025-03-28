@@ -120,6 +120,41 @@
   .mobile-button {
     @apply min-h-[44px] min-w-[44px];
   }
+  
+  /* Ta bort Mapbox-logotypen och attributionskontroll från kartan */
+  .mapboxgl-ctrl-logo,
+  .mapboxgl-ctrl-attrib {
+    display: none !important;
+  }
+  
+  /* Anpassa navigationsknapparna för kartan till Lyxdeal-temat */
+  .mapboxgl-ctrl-group {
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(155, 135, 245, 0.2) !important;
+    border: 1px solid rgba(155, 135, 245, 0.2) !important;
+  }
+  
+  .mapboxgl-ctrl-group button {
+    background-color: white !important;
+  }
+  
+  .mapboxgl-ctrl-group button:hover {
+    background-color: #f9f6ff !important;
+  }
+  
+  /* Anpassa kartnålens popup stil */
+  .mapboxgl-popup-content {
+    background-color: white !important;
+    border: 1px solid rgba(155, 135, 245, 0.2) !important;
+    box-shadow: 0 2px 6px rgba(155, 135, 245, 0.15) !important;
+    padding: 10px 15px !important;
+    border-radius: 6px !important;
+  }
+  
+  .mapboxgl-popup-tip {
+    border-top-color: white !important;
+    border-bottom-color: white !important;
+  }
 }
 
 @layer utilities {
