@@ -1,21 +1,23 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 
-import Layout from "@/components/Layout"
-import LandingPage from "@/pages/LandingPage"
-import DealPage from "@/pages/DealPage"
-import SalonPage from "@/pages/SalonPage"
-import LoginPage from "@/pages/LoginPage"
-import RegisterPage from "@/pages/RegisterPage"
+import Layout from "./components/Layout"
+import LandingPage from "./pages/LandingPage"
+import DealPage from "./pages/DealPage"
+import SalonPage from "./pages/SalonPage"
+import LoginPage from "./pages/LoginPage"
+import RegisterPage from "./pages/RegisterPage"
 import Terms from "@/pages/Terms"
 import PartnerPage from "@/pages/PartnerPage"
 import PartnerSignup from "@/pages/PartnerSignup"
 import SalonDashboard from "@/pages/SalonDashboard"
-import AdminDashboard from "@/pages/AdminDashboard"
-import FaqPage from "@/pages/FaqPage"
+import AdminDashboard from "./pages/AdminDashboard"
+import FaqPage from "./pages/FaqPage"
 import Privacy from './pages/Privacy';
+import SecureDeal from './pages/SecureDeal';
 
 const queryClient = new QueryClient()
 
@@ -23,7 +25,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="lyxdeal-ui-theme">
-        <Toaster position="top-right" />
+        <Toaster />
         <RouterProvider router={createRouter()} />
       </ThemeProvider>
     </QueryClientProvider>
@@ -80,13 +82,14 @@ function createRouter() {
           path: "/faq",
           element: <FaqPage />,
         },
-        
-        // Add the Privacy route to the existing routes
         {
           path: "/privacy",
           element: <Privacy />,
         },
-        
+        {
+          path: "/secure-deal/:id",
+          element: <SecureDeal />,
+        },
       ],
     },
   ]);

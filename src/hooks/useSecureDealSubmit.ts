@@ -9,13 +9,14 @@ export const useSecureDealSubmit = (dealId: string) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [alreadyClaimed, setAlreadyClaimed] = useState(false);
+  const [emailSent, setEmailSent] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Check if the user has previously claimed this deal
   const checkPreviousClaims = async (email: string) => {
     try {
       const { data, error } = await supabase.functions.invoke("check-previous-claims", {
-        body: { email, dealId: Number(dealId) }
+        body: { email, dealId: parseInt(dealId) }
       });
 
       if (error) {
@@ -55,7 +56,7 @@ export const useSecureDealSubmit = (dealId: string) => {
         .from("discount_codes")
         .insert([
           {
-            deal_id: Number(dealId),
+            deal_id: parseInt(dealId),
             code: generateDiscountCode(8),
             customer_name: formData.name,
             customer_email: formData.email,
@@ -75,6 +76,7 @@ export const useSecureDealSubmit = (dealId: string) => {
       // Successfully created the discount code
       if (data && data.length > 0) {
         const discountCode = data[0].code;
+        setEmailSent(formData.email);
         
         // Send email with the discount code (if email sending is enabled)
         const emailSendResponse = await supabase.functions.invoke("send-discount-email", {
@@ -82,7 +84,7 @@ export const useSecureDealSubmit = (dealId: string) => {
             name: formData.name,
             email: formData.email,
             code: discountCode,
-            dealId: Number(dealId)
+            dealId: parseInt(dealId)
           }
         });
 
@@ -97,7 +99,7 @@ export const useSecureDealSubmit = (dealId: string) => {
           .from("purchases")
           .insert([
             {
-              deal_id: Number(dealId),
+              deal_id: parseInt(dealId),
               customer_email: formData.email,
               discount_code: discountCode
             }
@@ -132,10 +134,19 @@ export const useSecureDealSubmit = (dealId: string) => {
     return result;
   };
 
+  // Reset the form state
+  const handleReset = () => {
+    setIsSuccess(false);
+    setAlreadyClaimed(false);
+    setEmailSent(null);
+  };
+
   return {
     handleSubmit,
     isSubmitting,
     isSuccess,
-    alreadyClaimed
+    alreadyClaimed,
+    emailSent,
+    handleReset
   };
 };
