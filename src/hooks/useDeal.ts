@@ -19,7 +19,7 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // First, try to fetch the deal with salon data using a join
+        // First, try to fetch the deal with salon data
         const { data, error } = await supabase
           .from("deals")
           .select(`
@@ -75,44 +75,47 @@ export const useDeal = (id: string | undefined) => {
         // Log what's in the salon field from the join
         console.log("Raw salon data from join:", data.salon);
         
-        if (data.salon && Array.isArray(data.salon) && data.salon.length > 0) {
-          // Handle array of salon data
-          const salonData = data.salon[0];
-          salon = {
-            id: salonData.id,
-            name: salonData.name || '',
-            address: salonData.address || null,
-            phone: salonData.phone || null,
-          };
-          console.log("Extracted salon data from array:", salon);
-        } else if (data.salon && !Array.isArray(data.salon) && data.salon.id) {
-          // Handle direct salon object data
-          salon = {
-            id: data.salon.id,
-            name: data.salon.name || '',
-            address: data.salon.address || null,
-            phone: data.salon.phone || null,
-          };
-          console.log("Extracted salon data from object:", salon);
-        } else if (data.salon_id) {
-          // Fetch salon data directly if the join didn't work but we have salon_id
+        if (data.salon_id) {
+          // If we have a salon_id, fetch salon data directly (this handles the case where the join didn't work)
           console.log("Fetching salon data directly with salon_id:", data.salon_id);
           const { data: salonData, error: salonError } = await supabase
             .from("salons")
             .select("id, name, address, phone")
-            .eq("id", data.salon_id)
-            .single();
+            .eq("id", data.salon_id);
             
-          if (!salonError && salonData) {
+          if (!salonError && salonData && salonData.length > 0) {
+            salon = {
+              id: salonData[0].id,
+              name: salonData[0].name || '',
+              address: salonData[0].address || null,
+              phone: salonData[0].phone || null,
+            };
+            console.log("Successfully fetched salon data directly:", salon);
+          } else {
+            console.error("Error fetching salon data directly:", salonError);
+          }
+        } 
+        // If we still don't have salon data but the join returned something
+        else if (data.salon) {
+          if (Array.isArray(data.salon) && data.salon.length > 0) {
+            // Handle array of salon data
+            const salonData = data.salon[0];
             salon = {
               id: salonData.id,
               name: salonData.name || '',
               address: salonData.address || null,
               phone: salonData.phone || null,
             };
-            console.log("Successfully fetched salon data directly:", salon);
-          } else {
-            console.error("Error fetching salon data directly:", salonError);
+            console.log("Extracted salon data from array:", salon);
+          } else if (!Array.isArray(data.salon) && data.salon.id) {
+            // Handle direct salon object data
+            salon = {
+              id: data.salon.id,
+              name: data.salon.name || '',
+              address: data.salon.address || null,
+              phone: data.salon.phone || null,
+            };
+            console.log("Extracted salon data from object:", salon);
           }
         }
 
