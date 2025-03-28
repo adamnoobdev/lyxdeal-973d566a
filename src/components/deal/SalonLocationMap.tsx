@@ -5,7 +5,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from "@/components/ui/button";
 import { MapPin, Navigation } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SalonLocationMapProps {
