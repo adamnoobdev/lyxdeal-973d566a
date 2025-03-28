@@ -8,6 +8,8 @@ import { useEffect } from "react";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
 import { DealInfo } from "@/components/DealInfo";
 import { PurchaseSteps } from "@/components/deal/PurchaseSteps";
+import { SalonLocationMap } from "@/components/deal/SalonLocationMap";
+import { SalonInfo } from "@/components/deal/SalonInfo";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -95,12 +97,19 @@ const ProductDetails = () => {
               <PurchaseSteps />
 
               {deal.salon && (
-                <div className="bg-white shadow-sm p-6">
+                <div className="bg-white shadow-sm p-6 space-y-6">
                   <h2 className="text-xl font-semibold mb-4">Om {deal.salon.name}</h2>
-                  <div className="prose prose-sm max-w-none text-gray-700">
-                    <p>{deal.salon.address}</p>
-                    {deal.salon.phone && <p>Tel: {deal.salon.phone}</p>}
-                  </div>
+                  
+                  <SalonInfo salon={deal.salon} />
+                  
+                  {deal.salon.address && (
+                    <div className="mt-6">
+                      <SalonLocationMap 
+                        address={`${deal.salon.address}, ${deal.city}`} 
+                        salonName={deal.salon.name} 
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
