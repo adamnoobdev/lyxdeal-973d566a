@@ -156,4 +156,10 @@
   .touch-target {
     @apply p-2 md:p-1;
   }
+
+  /* Ta bort Mapbox-logotypen från kartan */
+  .mapboxgl-map-container .mapboxgl-ctrl-logo,
+  .mapboxgl-map-container .mapboxgl-ctrl-attrib {
+    display: none !important;
+  }
 }

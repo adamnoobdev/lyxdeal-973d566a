@@ -23,7 +23,8 @@ export const MapViewer = ({ mapboxToken, coordinates, className }: MapViewerProp
       style: 'mapbox://styles/mapbox/streets-v12',
       center: coordinates,
       zoom: 15,
-      attributionControl: false
+      attributionControl: false,
+      logoPosition: 'bottom-left'
     });
     
     map.current = newMap;
@@ -49,7 +50,7 @@ export const MapViewer = ({ mapboxToken, coordinates, className }: MapViewerProp
   return (
     <div 
       ref={mapContainer} 
-      className={className || "h-48 w-full rounded-md overflow-hidden border border-border"}
+      className={`${className || "h-48 w-full rounded-md overflow-hidden border border-border"} mapboxgl-map-container`}
       style={{ backgroundColor: '#eee' }}
     />
   );
