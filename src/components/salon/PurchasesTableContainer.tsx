@@ -20,7 +20,7 @@ export function PurchasesTableContainer() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Det gick inte att hämta köphistorik: {error.message}
+            Det gick inte att hämta rabattkodshistorik: {error.message}
           </AlertDescription>
         </Alert>
       )}

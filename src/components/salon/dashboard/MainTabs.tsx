@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DealsSection } from "@/components/salon/DealsSection";
 import { PurchasesTableContainer } from "@/components/salon/PurchasesTableContainer";
@@ -38,7 +37,6 @@ export function MainTabs() {
     fetchSalonData();
   }, [session?.user?.id]);
 
-  // Function to update salon data after profile changes
   const handleProfileUpdate = async () => {
     if (!session?.user?.id) return;
     
@@ -53,17 +51,15 @@ export function MainTabs() {
     }
   };
 
-  // Get deals for the salon
   const salonId = salonData?.id;
   
-  // Default empty state for deals
   const emptyDeals: Deal[] = [];
 
   return (
     <Tabs defaultValue="deals" className="w-full">
       <TabsList className="grid grid-cols-4 w-full max-w-2xl mb-8">
         <TabsTrigger value="deals">Erbjudanden</TabsTrigger>
-        <TabsTrigger value="customers">Köphistorik</TabsTrigger>
+        <TabsTrigger value="customers">Rabattkoder</TabsTrigger>
         <TabsTrigger value="subscription">Prenumeration</TabsTrigger>
         <TabsTrigger value="profile">Profil</TabsTrigger>
       </TabsList>
