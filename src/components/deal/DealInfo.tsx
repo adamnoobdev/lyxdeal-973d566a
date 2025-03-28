@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Phone, Tag } from "lucide-react";
-import { PriceDisplay } from "./PriceDisplay";
+import { PriceDisplay } from "@/components/PriceDisplay";
 import { useNavigate } from "react-router-dom";
 
 interface DealInfoProps {
