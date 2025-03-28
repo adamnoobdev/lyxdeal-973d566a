@@ -46,9 +46,6 @@ const ProductDetails = () => {
     );
   }
 
-  // Calculate saved amount
-  const savedAmount = deal.originalPrice - deal.discountedPrice;
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -87,7 +84,7 @@ const ProductDetails = () => {
                 <ul className="space-y-3">
                   {deal.description.split('\n').map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-1.5 h-1.5 bg-primary mt-2" />
+                      <span className="flex-shrink-0 w-1.5 h-1.5 bg-primary mt-2 rounded-full" />
                       <span className="text-gray-700">{item}</span>
                     </li>
                   ))}

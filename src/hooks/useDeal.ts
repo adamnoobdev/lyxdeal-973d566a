@@ -17,6 +17,8 @@ export const useDeal = (id: string | undefined) => {
           throw new Error("Invalid deal ID");
         }
 
+        console.log("Fetching deal with ID:", dealId);
+
         const { data, error } = await supabase
           .from("deals")
           .select(`
@@ -31,12 +33,16 @@ export const useDeal = (id: string | undefined) => {
           .maybeSingle();
 
         if (error) {
+          console.error("Supabase error:", error);
           throw error;
         }
 
         if (!data) {
+          console.error("No data returned for deal ID:", dealId);
           throw new Error("Deal not found");
         }
+
+        console.log("Deal data:", data);
 
         // Calculate days remaining
         const calculateDaysRemaining = () => {
@@ -74,6 +80,12 @@ export const useDeal = (id: string | undefined) => {
           address: data.salons.address || null,
           phone: data.salons.phone || null,
         } : null;
+
+        console.log("Processed deal data:", {
+          id: data.id,
+          title: data.title,
+          salon: salon
+        });
 
         return {
           id: data.id,

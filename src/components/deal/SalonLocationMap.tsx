@@ -6,6 +6,7 @@ import { MapLoadingState } from './map/MapLoadingState';
 import { MapErrorState } from './map/MapErrorState';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { getCoordinates } from '@/utils/mapbox';
+import { MapPin } from 'lucide-react';
 
 interface SalonLocationMapProps {
   address: string;
@@ -79,6 +80,7 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
     <div className="space-y-4">
       {!hideAddress && (
         <div className="flex items-center space-x-2 text-sm text-muted-foreground pl-2">
+          <MapPin className="h-4 w-4" />
           <span>{address}</span>
         </div>
       )}

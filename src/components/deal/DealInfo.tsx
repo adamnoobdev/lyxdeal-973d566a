@@ -62,11 +62,11 @@ export const DealInfo = ({
         <div className="pt-4 border-t border-gray-100">
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-emerald-500" />
+              <span className="w-2 h-2 bg-emerald-500 rounded-full" />
               <span>{quantityLeft} rabattkoder kvar</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-primary" />
+              <span className="w-2 h-2 bg-primary rounded-full" />
               <span>{timeRemainingText}</span>
             </div>
           </div>
@@ -83,7 +83,8 @@ export const DealInfo = ({
         
         {salon && salon.phone && (
           <Button 
-            className="w-full bg-white text-primary border border-primary hover:bg-primary/5 group mt-3"
+            variant="outline"
+            className="w-full text-primary border border-primary hover:bg-primary/5 group mt-3"
             size="lg"
             onClick={() => window.location.href = `tel:${salon.phone}`}
           >
@@ -98,4 +99,4 @@ export const DealInfo = ({
       </div>
     </div>
   );
-}
+};
