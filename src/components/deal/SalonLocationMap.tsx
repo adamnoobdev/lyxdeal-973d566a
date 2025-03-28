@@ -22,6 +22,7 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
 
   // Check if we have a valid address before trying to fetch coordinates
   if (!address || address.trim() === '') {
+    console.log("SalonLocationMap: Invalid or empty address provided", { address });
     return (
       <div className="p-4 border border-border rounded-md">
         <div className="flex items-center gap-3 mb-3">
@@ -81,7 +82,7 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
         address={address}
         errorMessage={tokenError || mapError || 'Kunde inte ladda kartan'}
         coordinates={coordinates}
-        destination={`${salonName} ${address}`}
+        destination={`${salonName}, ${address}`}
         hideAddress={hideAddress}
       />
     );
@@ -94,7 +95,7 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
         address={address}
         errorMessage="Kunde inte hitta koordinater för adressen"
         coordinates={null}
-        destination={`${salonName} ${address}`}
+        destination={`${salonName}, ${address}`}
         hideAddress={hideAddress}
       />
     );
@@ -116,7 +117,7 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
       
       <DirectionsButton 
         coordinates={coordinates} 
-        destination={`${salonName} ${address}`} 
+        destination={`${salonName}, ${address}`} 
       />
     </div>
   );

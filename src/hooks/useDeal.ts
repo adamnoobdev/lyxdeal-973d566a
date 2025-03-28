@@ -19,24 +19,7 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // First, let's check if the deal exists and get its salon_id
-        const { data: dealCheck, error: dealCheckError } = await supabase
-          .from("deals")
-          .select(`
-            id,
-            salon_id
-          `)
-          .eq("id", dealId)
-          .single();
-
-        if (dealCheckError) {
-          console.error("Error checking deal salon_id:", dealCheckError);
-          throw dealCheckError;
-        }
-
-        console.log("Deal check result:", dealCheck);
-
-        // Now fetch the full deal data
+        // Fetch the deal with salon data in a single query
         const { data, error } = await supabase
           .from("deals")
           .select(`
@@ -52,7 +35,7 @@ export const useDeal = (id: string | undefined) => {
           .single();
 
         if (error) {
-          console.error("Supabase error:", error);
+          console.error("Supabase error fetching deal:", error);
           throw error;
         }
 
@@ -93,7 +76,7 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free either by explicit flag or 0 price
         const isFree = data.is_free || data.discounted_price === 0;
 
-        // Process salon data correctly, handling different possible data structures
+        // If salon data is missing from the join, attempt to fetch it directly
         let salon = null;
         
         if (data.salon) {
@@ -104,15 +87,15 @@ export const useDeal = (id: string | undefined) => {
             phone: data.salon.phone || null,
           };
           console.log("Found salon data via data.salon:", salon);
-        } else if (dealCheck && dealCheck.salon_id) {
-          // If we have a salon_id but no salon data in the main query, try to fetch it directly
-          console.log("Attempting to fetch salon data separately with salon_id:", dealCheck.salon_id);
+        } else if (data.salon_id) {
+          // If salon data is missing but we have a salon_id, try to fetch it separately
+          console.log("Attempting to fetch salon data separately with salon_id:", data.salon_id);
           try {
             const { data: salonData, error: salonError } = await supabase
               .from("salons")
               .select("id, name, address, phone")
-              .eq("id", dealCheck.salon_id)
-              .single();
+              .eq("id", data.salon_id)
+              .maybeSingle(); // Use maybeSingle instead of single to avoid error if not found
               
             if (!salonError && salonData) {
               salon = {
@@ -123,12 +106,35 @@ export const useDeal = (id: string | undefined) => {
               };
               console.log("Successfully fetched salon data separately:", salon);
             } else {
-              console.error("Failed to fetch salon data separately:", salonError);
+              // Create a fallback salon object with city information
+              salon = {
+                id: null,
+                name: `Salong i ${data.city}`,
+                address: `${data.city}`,
+                phone: null,
+              };
+              console.log("Created fallback salon data:", salon);
             }
           } catch (error) {
             console.error("Error fetching salon data:", error);
-            // Continue with salon as null
+            // Create a fallback salon object with city information
+            salon = {
+              id: null,
+              name: `Salong i ${data.city}`,
+              address: `${data.city}`,
+              phone: null,
+            };
+            console.log("Created fallback salon data after error:", salon);
           }
+        } else {
+          // Create a fallback salon object with city information if no salon_id
+          salon = {
+            id: null,
+            name: `Salong i ${data.city}`,
+            address: `${data.city}`,
+            phone: null,
+          };
+          console.log("Created fallback salon data (no salon_id):", salon);
         }
 
         console.log("Final processed salon data:", salon);

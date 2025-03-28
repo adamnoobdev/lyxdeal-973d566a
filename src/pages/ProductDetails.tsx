@@ -100,33 +100,15 @@ const ProductDetails = () => {
               <div className="bg-white shadow-sm p-6 space-y-6">
                 <h2 className="text-xl font-semibold mb-4">Om {deal.salon?.name || "salongen"}</h2>
                 
-                {deal.salon ? (
-                  <>
-                    <SalonInfo salon={deal.salon} />
-                    
-                    {deal.salon.address && (
-                      <div className="mt-6">
-                        <SalonLocationMap 
-                          address={`${deal.salon.address}, ${deal.city}`} 
-                          salonName={deal.salon.name} 
-                          hideAddress={false}
-                        />
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-full bg-primary/5 p-2">
-                        <Store className="h-5 w-5 text-primary" />
-                      </div>
-                      <h3 className="text-base font-medium text-foreground">
-                        Salong i {deal.city}
-                      </h3>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Detta erbjudande finns i {deal.city}. För mer information om salongen, vänligen besök bokningslänken.
-                    </p>
+                <SalonInfo salon={deal.salon} />
+                
+                {deal.salon?.address && (
+                  <div className="mt-6">
+                    <SalonLocationMap 
+                      address={`${deal.salon.address}, ${deal.city}`} 
+                      salonName={deal.salon.name} 
+                      hideAddress={false}
+                    />
                   </div>
                 )}
               </div>

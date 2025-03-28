@@ -14,7 +14,18 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
   
   if (!salon) {
     console.log("SalonInfo: No salon data provided");
-    return null;
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-primary/5 p-2">
+            <Store className="h-5 w-5 text-primary" />
+          </div>
+          <h3 className="text-base font-medium text-foreground">
+            Information om salongen saknas
+          </h3>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -85,7 +85,7 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
   }
 
   return (
-    <div className="h-48 w-full rounded-md overflow-hidden border border-border">
+    <div className="h-48 w-full rounded-md overflow-hidden border border-border relative">
       <div ref={mapContainer} className="h-full w-full" />
     </div>
   );

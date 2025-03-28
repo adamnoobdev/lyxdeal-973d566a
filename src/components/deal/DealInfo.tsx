@@ -45,7 +45,7 @@ export const DealInfo = ({
     navigate(`/secure-deal/${id}`);
   };
 
-  // Handle booking
+  // Handle booking - open in new tab
   const handleBooking = () => {
     if (booking_url) {
       window.open(booking_url, '_blank');
@@ -93,7 +93,7 @@ export const DealInfo = ({
           Säkra rabattkod
         </Button>
         
-        {salon && salon.phone && (
+        {salon?.phone && (
           <Button 
             variant="outline"
             className="w-full text-primary border border-primary hover:bg-primary/5 group mt-3"
@@ -117,7 +117,7 @@ export const DealInfo = ({
           </Button>
         )}
 
-        <p className="text-xs text-center text-gray-500">
+        <p className="text-xs text-center text-gray-500 mt-2">
           {booking_url ? "Besök salongens hemsida för att boka tid" : "Säkra din rabattkod först"}
         </p>
       </div>
