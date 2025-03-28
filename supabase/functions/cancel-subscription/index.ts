@@ -58,16 +58,43 @@ serve(async (req) => {
 
     console.log("Successfully cancelled subscription:", subscription.id);
 
-    // Uppdatera databasen med den nya prenumerationsstatusen
+    // Hämta salongs-ID från stripe_subscription_id
+    const { data: salons, error: fetchError } = await supabaseAdmin
+      .from("salons")
+      .select("id")
+      .eq("stripe_subscription_id", subscription_id)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching salon information:", fetchError);
+    }
+
+    // Uppdatera databasen med den nya prenumerationsstatusen och inaktivera salongen
     const { error: updateError } = await supabaseAdmin
       .from("salons")
       .update({
-        cancel_at_period_end: true
+        cancel_at_period_end: true,
+        status: "inactive"
       })
       .eq("stripe_subscription_id", subscription_id);
 
     if (updateError) {
       console.error("Error updating salon subscription status:", updateError);
+    }
+
+    // Om vi hittade salongs-ID, inaktivera alla aktiva erbjudanden för salongen
+    if (salons && salons.id) {
+      const { error: dealsError } = await supabaseAdmin
+        .from("deals")
+        .update({ is_active: false })
+        .eq("salon_id", salons.id)
+        .eq("is_active", true);
+
+      if (dealsError) {
+        console.error("Error deactivating salon deals:", dealsError);
+      } else {
+        console.log(`Successfully deactivated deals for salon ID: ${salons.id}`);
+      }
     }
 
     return new Response(

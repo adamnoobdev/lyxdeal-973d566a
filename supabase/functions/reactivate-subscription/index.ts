@@ -69,11 +69,23 @@ serve(async (req) => {
 
     console.log("Successfully reactivated subscription:", subscription.id);
 
-    // Uppdatera databasen med den nya prenumerationsstatusen
+    // Hämta salongs-ID från stripe_subscription_id
+    const { data: salons, error: fetchError } = await supabaseAdmin
+      .from("salons")
+      .select("id")
+      .eq("stripe_subscription_id", subscription_id)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching salon information:", fetchError);
+    }
+
+    // Uppdatera databasen med den nya prenumerationsstatusen och aktivera salongen
     const { error: updateError } = await supabaseAdmin
       .from("salons")
       .update({
-        cancel_at_period_end: false
+        cancel_at_period_end: false,
+        status: "active"
       })
       .eq("stripe_subscription_id", subscription_id);
 
