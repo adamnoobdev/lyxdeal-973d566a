@@ -15,7 +15,7 @@ const DealsGridComponent = ({ deals, className = "" }: DealsGridProps) => {
   }
 
   return (
-    <ResponsiveGrid className={`w-full ${className}`}>
+    <ResponsiveGrid className={className}>
       {deals.map((deal) => (
         <DealCard
           key={deal.id}
