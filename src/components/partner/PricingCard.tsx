@@ -96,14 +96,10 @@ export const PricingCard = ({
           Betala månadsvis
         </Button>
         <Button 
-          className="w-full" 
+          type="button" 
           variant="outline" 
           onClick={() => handleSignupClick('yearly')}
-          // Lägg till hover:text-primary för att behålla textfärgen vid hovring
-          // Den outline-varianten ändrar textfärgen till accent-foreground vid hovring
-          // vilket i det här fallet blir vit text
-          // Den här ändringen säkerställer att texten förblir synlig
-          className="hover:text-primary"
+          className="w-full hover:text-primary"
         >
           Betala årsvis
         </Button>
