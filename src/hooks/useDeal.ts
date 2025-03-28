@@ -19,36 +19,29 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // Fetch the deal with salon data in a single query
+        // First, try to fetch the deal with salon data using a join
         const { data, error } = await supabase
           .from("deals")
           .select(`
             *,
-            salon:salons!deals_salon_id_fkey (
-              id,
-              name,
-              address,
-              phone
-            )
+            salon:salons(id, name, address, phone)
           `)
           .eq("id", dealId)
           .single();
 
         if (error) {
-          console.error("Supabase error fetching deal:", error);
+          console.error("Error fetching deal with join:", error);
           throw error;
         }
 
         if (!data) {
-          console.error("No data returned for deal ID:", dealId);
           throw new Error("Deal not found");
         }
 
-        console.log("Deal data:", data);
+        console.log("Raw deal data from DB:", data);
 
         // Calculate days remaining
         const calculateDaysRemaining = () => {
-          // If no expiration_date in the database, parse days from time_remaining or default to 30
           if (!data.expiration_date) {
             // If no expiration date, parse days from time_remaining or default to 30
             if (data.time_remaining && data.time_remaining.includes("dag")) {
@@ -73,68 +66,65 @@ export const useDeal = (id: string | undefined) => {
 
         const daysRemaining = calculateDaysRemaining();
 
-        // Determine if the deal is free either by explicit flag or 0 price
+        // Determine if the deal is free
         const isFree = data.is_free || data.discounted_price === 0;
 
-        // If salon data is missing from the join, attempt to fetch it directly
+        // Extract and format salon data properly
         let salon = null;
         
-        if (data.salon) {
+        // Log what's in the salon field from the join
+        console.log("Raw salon data from join:", data.salon);
+        
+        if (data.salon && Array.isArray(data.salon) && data.salon.length > 0) {
+          // Handle array of salon data
+          const salonData = data.salon[0];
+          salon = {
+            id: salonData.id,
+            name: salonData.name || '',
+            address: salonData.address || null,
+            phone: salonData.phone || null,
+          };
+          console.log("Extracted salon data from array:", salon);
+        } else if (data.salon && !Array.isArray(data.salon) && data.salon.id) {
+          // Handle direct salon object data
           salon = {
             id: data.salon.id,
             name: data.salon.name || '',
             address: data.salon.address || null,
             phone: data.salon.phone || null,
           };
-          console.log("Found salon data via data.salon:", salon);
+          console.log("Extracted salon data from object:", salon);
         } else if (data.salon_id) {
-          // If salon data is missing but we have a salon_id, try to fetch it separately
-          console.log("Attempting to fetch salon data separately with salon_id:", data.salon_id);
-          try {
-            const { data: salonData, error: salonError } = await supabase
-              .from("salons")
-              .select("id, name, address, phone")
-              .eq("id", data.salon_id)
-              .maybeSingle(); // Use maybeSingle instead of single to avoid error if not found
-              
-            if (!salonError && salonData) {
-              salon = {
-                id: salonData.id,
-                name: salonData.name || '',
-                address: salonData.address || null,
-                phone: salonData.phone || null,
-              };
-              console.log("Successfully fetched salon data separately:", salon);
-            } else {
-              // Create a fallback salon object with city information
-              salon = {
-                id: null,
-                name: `Salong i ${data.city}`,
-                address: `${data.city}`,
-                phone: null,
-              };
-              console.log("Created fallback salon data:", salon);
-            }
-          } catch (error) {
-            console.error("Error fetching salon data:", error);
-            // Create a fallback salon object with city information
+          // Fetch salon data directly if the join didn't work but we have salon_id
+          console.log("Fetching salon data directly with salon_id:", data.salon_id);
+          const { data: salonData, error: salonError } = await supabase
+            .from("salons")
+            .select("id, name, address, phone")
+            .eq("id", data.salon_id)
+            .single();
+            
+          if (!salonError && salonData) {
             salon = {
-              id: null,
-              name: `Salong i ${data.city}`,
-              address: `${data.city}`,
-              phone: null,
+              id: salonData.id,
+              name: salonData.name || '',
+              address: salonData.address || null,
+              phone: salonData.phone || null,
             };
-            console.log("Created fallback salon data after error:", salon);
+            console.log("Successfully fetched salon data directly:", salon);
+          } else {
+            console.error("Error fetching salon data directly:", salonError);
           }
-        } else {
-          // Create a fallback salon object with city information if no salon_id
+        }
+
+        // If we still don't have salon data, create a fallback
+        if (!salon) {
           salon = {
             id: null,
             name: `Salong i ${data.city}`,
-            address: `${data.city}`,
+            address: data.city || null,
             phone: null,
           };
-          console.log("Created fallback salon data (no salon_id):", salon);
+          console.log("Created fallback salon data:", salon);
         }
 
         console.log("Final processed salon data:", salon);
@@ -157,19 +147,15 @@ export const useDeal = (id: string | undefined) => {
           booking_url: data.booking_url,
         };
       } catch (error) {
-        console.error("Error fetching deal:", error);
+        console.error("Error in useDeal hook:", error);
         if (error instanceof Error) {
-          if (['No deal ID provided', 'Invalid deal ID', 'Deal not found'].includes(error.message)) {
-            toast.error(error.message === 'No deal ID provided' ? "Inget erbjudande-ID angivet" :
-                      error.message === 'Invalid deal ID' ? "Ogiltigt erbjudande-ID" : 
-                      "Erbjudandet kunde inte hittas");
-          } else {
-            toast.error("Ett fel uppstod när erbjudandet skulle hämtas");
-          }
-          throw error;
+          toast.error(error.message === 'No deal ID provided' ? "Inget erbjudande-ID angivet" :
+                    error.message === 'Invalid deal ID' ? "Ogiltigt erbjudande-ID" : 
+                    "Erbjudandet kunde inte hittas");
+        } else {
+          toast.error("Ett oväntat fel uppstod");
         }
-        toast.error("Ett oväntat fel uppstod");
-        throw new Error("Failed to fetch deal");
+        throw error;
       }
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes

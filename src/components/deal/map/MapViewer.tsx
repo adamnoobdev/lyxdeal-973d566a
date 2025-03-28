@@ -15,11 +15,12 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken || !coordinates) {
+    if (!mapContainer.current || !mapboxToken || !coordinates || !Array.isArray(coordinates) || coordinates.length !== 2) {
       console.log("Missing requirements for map:", { 
         hasContainer: !!mapContainer.current, 
         hasToken: !!mapboxToken, 
-        hasCoords: !!coordinates 
+        hasCoords: !!coordinates,
+        validCoords: coordinates && Array.isArray(coordinates) && coordinates.length === 2
       });
       return;
     }

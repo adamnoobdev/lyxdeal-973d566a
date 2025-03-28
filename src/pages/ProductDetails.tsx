@@ -46,7 +46,8 @@ const ProductDetails = () => {
     );
   }
 
-  console.log("Deal salon data in ProductDetails:", deal.salon);
+  console.log("Deal data in ProductDetails:", deal);
+  console.log("Salon data in ProductDetails:", deal.salon);
 
   return (
     <div className="min-h-screen bg-gray-50">
