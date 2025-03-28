@@ -44,10 +44,27 @@ serve(async (req) => {
 
     console.log(`Creating billing portal session for customer: ${customer_id}`);
 
-    // Skapa en session till Stripe kundportal
+    // Skapa en session till Stripe kundportal med explicit konfiguration
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customer_id,
       return_url: `${Deno.env.get("PUBLIC_SITE_URL") || "https://lyxdeal.se"}/salon/dashboard`,
+      // Explicit konfiguration för portalen för att lösa problemet
+      configuration: {
+        features: {
+          payment_method_update: {
+            enabled: true
+          },
+          invoice_history: {
+            enabled: true
+          },
+          subscription_cancel: {
+            enabled: true
+          },
+          subscription_update: {
+            enabled: true
+          }
+        }
+      }
     });
 
     console.log("Successfully created billing portal session:", portalSession.url);
@@ -61,8 +78,17 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error creating billing portal session:", error);
+    
+    // Förbättrad felhantering med mer information i svaret
+    const errorMessage = error.message || "Ett okänt fel uppstod";
+    const errorDetails = error.type || error.code || "unknown";
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: errorMessage,
+        details: errorDetails,
+        message: "Kunde inte skapa en portal-session. Kontrollera att Stripe Customer Portal är konfigurerad i Stripe Dashboard."
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
