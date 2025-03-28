@@ -110,19 +110,19 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
         </div>
       </div>
       
-      {/* Villkorsacceptans - Uppdaterade formuleringar enligt bilden */}
+      {/* Villkorsacceptans med lila textfärg */}
       <div className="space-y-4 bg-gray-50 p-4 rounded-md">
-        <div className="flex items-start space-x-2">
+        <div className="flex items-start space-x-3">
           <Checkbox 
             id="termsAccepted" 
             checked={formData.termsAccepted || false}
             onCheckedChange={(checked) => handleCheckboxChange('termsAccepted', checked === true)}
-            className="mt-1"
+            className="mt-1 border-gray-400"
           />
           <div>
             <label 
               htmlFor="termsAccepted" 
-              className="text-sm font-medium cursor-pointer"
+              className="text-[#5D1277] font-medium cursor-pointer"
             >
               Jag har läst och accepterar <Link to="/terms" className="text-primary hover:underline" target="_blank">allmänna villkor</Link>
             </label>
@@ -132,17 +132,17 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
           </div>
         </div>
         
-        <div className="flex items-start space-x-2">
+        <div className="flex items-start space-x-3">
           <Checkbox 
             id="privacyAccepted" 
             checked={formData.privacyAccepted || false}
             onCheckedChange={(checked) => handleCheckboxChange('privacyAccepted', checked === true)}
-            className="mt-1"
+            className="mt-1 border-gray-400"
           />
           <div>
             <label 
               htmlFor="privacyAccepted" 
-              className="text-sm font-medium cursor-pointer"
+              className="text-[#5D1277] font-medium cursor-pointer"
             >
               Jag har läst och accepterar <Link to="/privacy" className="text-primary hover:underline" target="_blank">integritetspolicyn</Link>
             </label>
