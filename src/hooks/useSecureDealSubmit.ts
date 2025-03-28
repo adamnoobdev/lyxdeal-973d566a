@@ -56,7 +56,7 @@ export const useSecureDealSubmit = (dealId: string) => {
         .from("discount_codes")
         .insert([
           {
-            deal_id: parseInt(dealId),
+            deal_id: parseInt(dealId), // Convert string to number here
             code: generateDiscountCode(8),
             customer_name: formData.name,
             customer_email: formData.email,
@@ -84,7 +84,7 @@ export const useSecureDealSubmit = (dealId: string) => {
             name: formData.name,
             email: formData.email,
             code: discountCode,
-            dealId: parseInt(dealId)
+            dealId: parseInt(dealId) // Convert string to number here
           }
         });
 
@@ -99,7 +99,7 @@ export const useSecureDealSubmit = (dealId: string) => {
           .from("purchases")
           .insert([
             {
-              deal_id: parseInt(dealId),
+              deal_id: parseInt(dealId), // Convert string to number here
               customer_email: formData.email,
               discount_code: discountCode
             }
@@ -109,7 +109,7 @@ export const useSecureDealSubmit = (dealId: string) => {
         const { data: deal } = await supabase
           .from("deals")
           .select("stripe_price_id")
-          .eq("id", dealId)
+          .eq("id", parseInt(dealId)) // Convert string to number here
           .single();
 
         if (deal?.stripe_price_id) {
