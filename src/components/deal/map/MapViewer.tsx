@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { MapPin } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface MapViewerProps {
   mapboxToken: string;
@@ -47,34 +47,6 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
       
       map.current = newMap;
       
-      // Apply custom map style to match Lyxdeal theme
-      newMap.on('load', () => {
-        // Change the map style properties to match Lyxdeal purple theme
-        if (!map.current) return;
-
-        // Custom styling for map features
-        map.current.setPaintProperty('water', 'fill-color', '#f9eeff'); // Light purple tint for water
-        map.current.setPaintProperty('building', 'fill-color', '#f3e8ff'); // Light purple tint for buildings
-        map.current.setPaintProperty('road', 'line-color', '#ffffff'); // White roads
-        map.current.setPaintProperty('road-primary', 'line-color', '#f5f0ff'); // Light purple tint for main roads
-        map.current.setPaintProperty('road-secondary', 'line-color', '#f7f2ff'); // Slightly lighter purple for secondary roads
-        map.current.setPaintProperty('road-label', 'text-color', '#7E69AB'); // Purple text for road labels
-        
-        // Hide the Mapbox logo and attribution
-        const mapCanvas = map.current.getCanvas();
-        const mapContainer = mapCanvas.parentElement;
-        
-        if (mapContainer) {
-          // Add custom CSS to hide Mapbox branding
-          const style = document.createElement('style');
-          style.innerHTML = `
-            .mapboxgl-ctrl-logo { display: none !important; }
-            .mapboxgl-ctrl-attrib { display: none !important; }
-          `;
-          document.head.appendChild(style);
-        }
-      });
-      
       // Add marker with custom color matching Lyxdeal primary color
       new mapboxgl.Marker({ 
         color: '#9b87f5', // Primary purple Lyxdeal color
@@ -96,6 +68,35 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
         console.error('Mapbox map error:', e);
         setErrorMessage('Ett fel uppstod med kartan');
       });
+
+      // Apply custom map style to match Lyxdeal theme
+      newMap.on('load', () => {
+        if (!map.current) return;
+
+        // Create a simple style change that won't cause rendering issues
+        try {
+          // Use simpler, more reliable style changes
+          map.current.setPaintProperty('water', 'fill-color', '#f9eeff');
+          map.current.setPaintProperty('building', 'fill-color', '#f3e8ff');
+          
+          // Remove Mapbox logo and attribution
+          const mapCanvas = map.current.getCanvas();
+          const mapContainer = mapCanvas.parentElement;
+          
+          if (mapContainer) {
+            // Add style to hide Mapbox branding
+            const style = document.createElement('style');
+            style.textContent = `
+              .mapboxgl-ctrl-logo { display: none !important; }
+              .mapboxgl-ctrl-attrib { display: none !important; }
+            `;
+            document.head.appendChild(style);
+          }
+        } catch (styleError) {
+          console.warn('Non-critical style application error:', styleError);
+          // Continue with basic map if styling fails
+        }
+      });
     } catch (error) {
       console.error('Error initializing map:', error);
       setErrorMessage('Kunde inte visa kartan');
@@ -114,7 +115,10 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
   if (errorMessage) {
     return (
       <div className="h-48 w-full rounded-md overflow-hidden border border-border bg-accent/5 flex items-center justify-center">
-        <div className="text-sm text-muted-foreground">{errorMessage}</div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <AlertTriangle className="h-4 w-4" />
+          <span>{errorMessage}</span>
+        </div>
       </div>
     );
   }
