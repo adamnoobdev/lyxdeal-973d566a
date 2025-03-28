@@ -8,11 +8,10 @@ import { BasicInfoFields } from "./form/BasicInfoFields";
 import { ContactFields } from "./form/ContactFields";
 import { PasswordField } from "./form/PasswordField";
 import { SubscriptionField } from "./form/SubscriptionField";
-import { Loader2 } from "lucide-react";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { isValidAddressFormat } from "@/utils/mapbox";
+import { useEffect } from "react";
 
-// Förbättrat schema med striktare validering för adressfältet
+// Förbättrat schema med separata adressfält
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Namnet måste vara minst 2 tecken.",
@@ -21,14 +20,10 @@ const formSchema = z.object({
     message: "Vänligen ange en giltig e-postadress.",
   }),
   phone: z.string().optional(),
-  address: z.string()
-    .optional()
-    .refine(
-      (val) => !val || val.trim() === "" || isValidAddressFormat(val), 
-      {
-        message: "Ange en komplett adress med gatunamn, nummer, postnummer och stad.",
-      }
-    ),
+  street: z.string().optional(),
+  postalCode: z.string().optional(),
+  city: z.string().optional(),
+  address: z.string().optional(),
   password: z.string().optional(),
   skipSubscription: z.boolean().optional().default(false),
 });
@@ -40,26 +35,106 @@ interface SalonFormProps {
 }
 
 export const SalonForm = ({ onSubmit, initialValues, isEditing }: SalonFormProps) => {
+  // Dela upp adressen i separata fält om den finns i initialValues
+  const processedInitialValues = { ...initialValues };
+  
+  if (initialValues?.address) {
+    const addressParts = initialValues.address.split(',');
+    if (addressParts.length > 0) {
+      processedInitialValues.street = addressParts[0].trim();
+      
+      // Försök extrahera postnummer och stad från andra delen
+      if (addressParts.length > 1) {
+        const cityPostalParts = addressParts[1].trim().split(' ');
+        // Leta efter postnummer (5-6 tecken, oftast med mellanslag som XXX XX)
+        const postalCodeRegex = /^\d{3}\s?\d{2}$/;
+        const postalCodeIndex = cityPostalParts.findIndex(part => postalCodeRegex.test(part.trim()));
+        
+        if (postalCodeIndex >= 0) {
+          processedInitialValues.postalCode = cityPostalParts[postalCodeIndex];
+          // Staden är resten av texten efter postnumret
+          processedInitialValues.city = cityPostalParts.slice(postalCodeIndex + 1).join(' ');
+        } else {
+          // Om inget postnummer hittas, anta att allt är stad
+          processedInitialValues.city = addressParts[1].trim();
+        }
+      }
+    }
+  }
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialValues || {
+    defaultValues: processedInitialValues || {
       name: "",
       email: "",
       phone: "",
+      street: "",
+      postalCode: "",
+      city: "",
       address: "",
       password: "",
       skipSubscription: false,
     },
   });
 
+  // Uppdatera adressfältet när de individuella fälten ändras
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'street' || name === 'postalCode' || name === 'city') {
+        const street = value.street || '';
+        const postalCode = value.postalCode || '';
+        const city = value.city || '';
+        
+        // Skapa fullständig adress
+        let fullAddress = '';
+        if (street) fullAddress += street;
+        if (postalCode) {
+          if (fullAddress) fullAddress += ', ';
+          fullAddress += postalCode;
+        }
+        if (city) {
+          if (fullAddress && !fullAddress.endsWith(' ')) fullAddress += ' ';
+          fullAddress += city;
+        }
+        
+        form.setValue('address', fullAddress);
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // Om adressen är tom eller bara består av mellanslag, sätt den till null
-      if (values.address && values.address.trim() === "") {
-        values.address = undefined;
+      // Kombinera adressfälten innan formuläret skickas
+      const street = values.street?.trim() || '';
+      const postalCode = values.postalCode?.trim() || '';
+      const city = values.city?.trim() || '';
+      
+      // Skapa fullständig adress
+      let fullAddress = '';
+      if (street) fullAddress += street;
+      if (postalCode) {
+        if (fullAddress) fullAddress += ', ';
+        fullAddress += postalCode;
+      }
+      if (city) {
+        if (fullAddress && !fullAddress.endsWith(' ')) fullAddress += ' ';
+        fullAddress += city;
       }
       
-      await onSubmit(values);
+      // Uppdatera adressfältet med kombinationen
+      const submissionValues = {
+        ...values,
+        address: fullAddress || undefined
+      };
+      
+      // Om adressen är tom, sätt den till undefined
+      if (submissionValues.address?.trim() === "") {
+        submissionValues.address = undefined;
+      }
+      
+      await onSubmit(submissionValues);
     } catch (error) {
       console.error("Error submitting form:", error);
     }

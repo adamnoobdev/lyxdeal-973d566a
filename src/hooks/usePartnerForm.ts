@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { submitPartnerRequest } from "./usePartnerRequests";
@@ -10,6 +10,9 @@ interface PartnerFormData {
   business: string;
   email: string;
   phone: string;
+  street?: string;
+  postalCode?: string;
+  city?: string;
   address: string;
 }
 
@@ -28,6 +31,9 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
     business: "",
     email: "",
     phone: "",
+    street: "",
+    postalCode: "",
+    city: "",
     address: "",
   });
 
@@ -35,6 +41,10 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
   };
+
+  const handleAddressChange = useCallback((address: string) => {
+    setFormData(prev => ({ ...prev, address }));
+  }, []);
 
   const validateForm = (): boolean => {
     // Validera formulärdata
@@ -56,9 +66,9 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
       return false;
     }
 
-    // Validera adressformat om det finns
-    if (formData.address && !isValidAddressFormat(formData.address)) {
-      toast.warning("Din adress kan vara ofullständig. För bästa resultat, ange gatunamn, nummer, postnummer och stad.");
+    // Validera att vi har tillräcklig adressinformation
+    if ((!formData.street || !formData.postalCode || !formData.city) && formData.address) {
+      toast.warning("Adressinformationen kan vara ofullständig. Vänligen fyll i gata, postnummer och stad.");
     }
 
     return true;
@@ -87,8 +97,28 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
         return;
       }
       
+      // Uppdatera den kombinerade adressen om den inte redan är uppdaterad
+      let fullAddress = formData.address;
+      if (!fullAddress && (formData.street || formData.postalCode || formData.city)) {
+        const street = formData.street || '';
+        const postalCode = formData.postalCode || '';
+        const city = formData.city || '';
+        
+        fullAddress = '';
+        if (street) fullAddress += street;
+        if (postalCode) {
+          if (fullAddress) fullAddress += ', ';
+          fullAddress += postalCode;
+        }
+        if (city) {
+          if (fullAddress && !fullAddress.endsWith(' ')) fullAddress += ' ';
+          fullAddress += city;
+        }
+      }
+      
       console.log("Submitting partner request with data:", {
         ...formData,
+        address: fullAddress,
         plan: selectedPlan
       });
       
@@ -101,7 +131,7 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
         business_name: formData.business,
         email: formData.email,
         phone: formData.phone,
-        address: formData.address, // Include address in the request
+        address: fullAddress, // Include combined address in the request
         message: "", // No message needed for signup
         plan_title: selectedPlan.title,
         plan_payment_type: selectedPlan.paymentType,
@@ -160,6 +190,7 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
     formData,
     isSubmitting,
     handleChange,
+    handleAddressChange,
     handleSubmit
   };
 };

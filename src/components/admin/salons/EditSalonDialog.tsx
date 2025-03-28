@@ -51,12 +51,10 @@ export const EditSalonDialog = ({
     try {
       setIsSubmitting(true);
       
-      // Validera adressen innan den skickas
-      if (values.address && values.address.trim() !== "") {
-        const { isValidAddressFormat } = await import("@/utils/mapbox");
-        if (!isValidAddressFormat(values.address)) {
-          toast.warning("Adressen kan vara ofullständig. Kontrollera att den innehåller gatunummer, postnummer och stad.");
-        }
+      // Validera att vi har adressinformation
+      const hasAddressInfo = values.address && values.address.trim() !== "";
+      if (hasAddressInfo && (!values.street || !values.postalCode || !values.city)) {
+        toast.warning("Adressinformationen kan vara ofullständig. Kontrollera att du fyllt i gata, postnummer och stad.");
       }
       
       await onSubmit(values);

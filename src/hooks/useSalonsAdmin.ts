@@ -42,6 +42,28 @@ const deleteSalonData = async (id: number) => {
 
 const createSalonData = async (values: any) => {
   try {
+    // Rensa upp och hantera adressfält innan de skickas
+    const { street, postalCode, city, ...otherValues } = values;
+    
+    // Kombinera adressfälten till fullständig adress om de finns
+    if (street || postalCode || city) {
+      let fullAddress = '';
+      if (street) fullAddress += street;
+      if (postalCode) {
+        if (fullAddress) fullAddress += ', ';
+        fullAddress += postalCode;
+      }
+      if (city) {
+        if (fullAddress && !fullAddress.endsWith(' ')) fullAddress += ' ';
+        fullAddress += city;
+      }
+      
+      values = {
+        ...otherValues,
+        address: fullAddress || undefined
+      };
+    }
+    
     console.log("Creating salon with values:", values);
     const { data, error } = await supabase.functions.invoke("create-salon-account", {
       body: {
@@ -71,8 +93,27 @@ const createSalonData = async (values: any) => {
 
 const updateSalonData = async (values: any, id: number) => {
   try {
+    // Rensa upp och hantera adressfält innan de skickas
+    const { street, postalCode, city, password, ...otherValues } = values;
+    
+    // Kombinera adressfälten till fullständig adress om de finns
+    if (street || postalCode || city) {
+      let fullAddress = '';
+      if (street) fullAddress += street;
+      if (postalCode) {
+        if (fullAddress) fullAddress += ', ';
+        fullAddress += postalCode;
+      }
+      if (city) {
+        if (fullAddress && !fullAddress.endsWith(' ')) fullAddress += ' ';
+        fullAddress += city;
+      }
+      
+      otherValues.address = fullAddress || undefined;
+    }
+    
     // If a new password is provided, update it via auth admin API
-    if (values.password) {
+    if (password) {
       const { data: salon } = await supabase
         .from("salons")
         .select("user_id")
@@ -83,7 +124,7 @@ const updateSalonData = async (values: any, id: number) => {
         const { error: passwordError } = await supabase.functions.invoke("update-salon-password", {
           body: { 
             userId: salon.user_id,
-            newPassword: values.password
+            newPassword: password
           }
         });
 
@@ -91,11 +132,9 @@ const updateSalonData = async (values: any, id: number) => {
       }
     }
 
-    // Remove password from values before updating salon data
-    const { password, ...salonData } = values;
     const { error } = await supabase
       .from("salons")
-      .update(salonData)
+      .update(otherValues)
       .eq("id", id);
 
     if (error) throw error;

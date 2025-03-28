@@ -1,11 +1,11 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { usePartnerForm } from "@/hooks/usePartnerForm";
-import { MapPin } from "lucide-react";
+import { Home, Building, MapPinned } from "lucide-react";
 
 interface SelectedPlan {
   title: string;
@@ -20,7 +20,29 @@ interface PartnerFormProps {
 
 export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
   const navigate = useNavigate();
-  const { formData, isSubmitting, handleChange, handleSubmit } = usePartnerForm(selectedPlan);
+  const { formData, isSubmitting, handleChange, handleAddressChange, handleSubmit } = usePartnerForm(selectedPlan);
+
+  // Uppdatera den kombinerade adressen när någon av adresskomponenterna ändras
+  useEffect(() => {
+    const street = formData.street || '';
+    const postalCode = formData.postalCode || '';
+    const city = formData.city || '';
+    
+    // Skapa fullständig adress
+    let fullAddress = '';
+    if (street) fullAddress += street;
+    if (postalCode) {
+      if (fullAddress) fullAddress += ', ';
+      fullAddress += postalCode;
+    }
+    if (city) {
+      if (fullAddress && !fullAddress.endsWith(' ')) fullAddress += ' ';
+      fullAddress += city;
+    }
+    
+    // Uppdatera adressfältet med kombinationen via handleAddressChange
+    handleAddressChange(fullAddress);
+  }, [formData.street, formData.postalCode, formData.city, handleAddressChange]);
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit} aria-label="Partner registreringsformulär">
@@ -76,24 +98,63 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
             inputMode="tel"
           />
         </div>
-        <div className="space-y-2 md:col-span-2">
-          <label htmlFor="address" className="text-sm font-medium">Adress</label>
-          <p className="text-xs text-muted-foreground">
-            Ange fullständig adress med gatunummer, postnummer och stad för korrekt visning på kartan.
+        
+        {/* Nya separata adressfält */}
+        <div className="md:col-span-2">
+          <p className="text-sm font-medium mb-2">Adressuppgifter</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Ange fullständig adressinformation för korrekt visning på kartan.
           </p>
+        </div>
+        
+        <div className="space-y-2">
+          <label htmlFor="street" className="text-sm font-medium">Gatuadress</label>
           <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Home className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
-              id="address" 
-              placeholder="Gatuadress, postnummer och stad (t.ex. Torsplan 8, 113 65 Stockholm)" 
-              value={formData.address || ''}
+              id="street" 
+              placeholder="Gatunamn och nummer"
+              value={formData.street || ''}
               onChange={handleChange}
               className="w-full pl-9"
             />
           </div>
-          <p className="text-xs text-primary">
-            En komplett adress behövs för att kartan ska kunna visa rätt plats.
-          </p>
+        </div>
+        
+        <div className="space-y-2">
+          <label htmlFor="postalCode" className="text-sm font-medium">Postnummer</label>
+          <div className="relative">
+            <MapPinned className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              id="postalCode"
+              placeholder="XXX XX" 
+              value={formData.postalCode || ''}
+              onChange={handleChange}
+              className="w-full pl-9"
+              maxLength={6}
+            />
+          </div>
+        </div>
+        
+        <div className="md:col-span-2 space-y-2">
+          <label htmlFor="city" className="text-sm font-medium">Stad</label>
+          <div className="relative">
+            <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              id="city"
+              placeholder="Stad" 
+              value={formData.city || ''}
+              onChange={handleChange}
+              className="w-full pl-9"
+            />
+          </div>
+          {/* Dolt fält som innehåller den kombinerade adressen */}
+          <input 
+            type="hidden" 
+            id="address" 
+            value={formData.address || ''} 
+            onChange={() => {}} 
+          />
         </div>
       </div>
       
