@@ -6,7 +6,7 @@ import { AlertTriangle } from "lucide-react";
 import { RelatedDeals } from "@/components/deal/RelatedDeals";
 import { useEffect } from "react";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
-import { DealInfo } from "@/components/DealInfo";
+import { DealInfo } from "@/components/deal/DealInfo";
 import { PurchaseSteps } from "@/components/deal/PurchaseSteps";
 import { SalonLocationMap } from "@/components/deal/SalonLocationMap";
 import { SalonInfo } from "@/components/deal/SalonInfo";

@@ -16,28 +16,36 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken || !coordinates) return;
 
-    // Initialize map
-    mapboxgl.accessToken = mapboxToken;
-    
-    const [lng, lat] = coordinates;
-    
-    const newMap = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [lng, lat],
-      zoom: 14,
-      attributionControl: false,
-    });
-    
-    map.current = newMap;
-    
-    // Add marker
-    new mapboxgl.Marker({ color: '#2563EB' })
-      .setLngLat([lng, lat])
-      .addTo(newMap);
-    
-    // Add navigation controls
-    newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    try {
+      // Initialize map
+      mapboxgl.accessToken = mapboxToken;
+      
+      const [lng, lat] = coordinates;
+      
+      if (map.current) {
+        map.current.remove();
+      }
+      
+      const newMap = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [lng, lat],
+        zoom: 14,
+        attributionControl: false,
+      });
+      
+      map.current = newMap;
+      
+      // Add marker
+      new mapboxgl.Marker({ color: '#2563EB' })
+        .setLngLat([lng, lat])
+        .addTo(newMap);
+      
+      // Add navigation controls
+      newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
     
     // Cleanup
     return () => {
