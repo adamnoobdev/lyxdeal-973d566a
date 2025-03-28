@@ -107,22 +107,27 @@ export const useDeal = (id: string | undefined) => {
         } else if (dealCheck && dealCheck.salon_id) {
           // If we have a salon_id but no salon data in the main query, try to fetch it directly
           console.log("Attempting to fetch salon data separately with salon_id:", dealCheck.salon_id);
-          const { data: salonData, error: salonError } = await supabase
-            .from("salons")
-            .select("id, name, address, phone")
-            .eq("id", dealCheck.salon_id)
-            .single();
-            
-          if (!salonError && salonData) {
-            salon = {
-              id: salonData.id,
-              name: salonData.name || '',
-              address: salonData.address || null,
-              phone: salonData.phone || null,
-            };
-            console.log("Successfully fetched salon data separately:", salon);
-          } else {
-            console.error("Failed to fetch salon data separately:", salonError);
+          try {
+            const { data: salonData, error: salonError } = await supabase
+              .from("salons")
+              .select("id, name, address, phone")
+              .eq("id", dealCheck.salon_id)
+              .single();
+              
+            if (!salonError && salonData) {
+              salon = {
+                id: salonData.id,
+                name: salonData.name || '',
+                address: salonData.address || null,
+                phone: salonData.phone || null,
+              };
+              console.log("Successfully fetched salon data separately:", salon);
+            } else {
+              console.error("Failed to fetch salon data separately:", salonError);
+            }
+          } catch (error) {
+            console.error("Error fetching salon data:", error);
+            // Continue with salon as null
           }
         }
 

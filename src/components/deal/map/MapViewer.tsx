@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapPin } from 'lucide-react';
@@ -12,6 +12,7 @@ interface MapViewerProps {
 export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken || !coordinates) {
@@ -54,8 +55,15 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
       newMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
       
       console.log("Map initialized successfully");
+
+      // Add error handling
+      newMap.on('error', (e) => {
+        console.error('Mapbox map error:', e);
+        setErrorMessage('Ett fel uppstod med kartan');
+      });
     } catch (error) {
       console.error('Error initializing map:', error);
+      setErrorMessage('Kunde inte visa kartan');
     }
     
     // Cleanup
@@ -67,6 +75,14 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
       }
     };
   }, [mapboxToken, coordinates]);
+
+  if (errorMessage) {
+    return (
+      <div className="h-48 w-full rounded-md overflow-hidden border border-border bg-accent/5 flex items-center justify-center">
+        <div className="text-sm text-muted-foreground">{errorMessage}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-48 w-full rounded-md overflow-hidden border border-border">

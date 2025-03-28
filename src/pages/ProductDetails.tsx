@@ -109,7 +109,7 @@ const ProductDetails = () => {
                         <SalonLocationMap 
                           address={`${deal.salon.address}, ${deal.city}`} 
                           salonName={deal.salon.name} 
-                          hideAddress={true}
+                          hideAddress={false}
                         />
                       </div>
                     )}
@@ -121,7 +121,7 @@ const ProductDetails = () => {
                         <Store className="h-5 w-5 text-primary" />
                       </div>
                       <h3 className="text-base font-medium text-foreground">
-                        {deal.title}
+                        Salong i {deal.city}
                       </h3>
                     </div>
                     <p className="text-sm text-muted-foreground">

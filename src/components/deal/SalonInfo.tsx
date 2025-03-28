@@ -38,7 +38,7 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
         {salon.phone && (
           <div className="flex items-center gap-2">
             <Phone className="h-4 w-4" />
-            <span>{salon.phone}</span>
+            <a href={`tel:${salon.phone}`} className="hover:underline">{salon.phone}</a>
           </div>
         )}
       </div>

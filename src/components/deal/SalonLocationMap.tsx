@@ -6,7 +6,7 @@ import { MapLoadingState } from './map/MapLoadingState';
 import { MapErrorState } from './map/MapErrorState';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { getCoordinates } from '@/utils/mapbox';
-import { MapPin } from 'lucide-react';
+import { MapPin, Store } from 'lucide-react';
 
 interface SalonLocationMapProps {
   address: string;
@@ -19,6 +19,25 @@ export const SalonLocationMap = ({ address, salonName, hideAddress = false }: Sa
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Check if we have a valid address before trying to fetch coordinates
+  if (!address || address.trim() === '') {
+    return (
+      <div className="p-4 border border-border rounded-md">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="rounded-full bg-primary/5 p-2">
+            <Store className="h-5 w-5 text-primary" />
+          </div>
+          <h3 className="text-base font-medium text-foreground">
+            {salonName}
+          </h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Adressinformation saknas för denna salong.
+        </p>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const fetchCoordinates = async () => {

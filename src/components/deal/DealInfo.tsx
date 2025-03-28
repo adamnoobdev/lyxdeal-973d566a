@@ -118,7 +118,7 @@ export const DealInfo = ({
         )}
 
         <p className="text-xs text-center text-gray-500">
-          Besök salongens hemsida för att boka tid
+          {booking_url ? "Besök salongens hemsida för att boka tid" : "Säkra din rabattkod först"}
         </p>
       </div>
     </div>
