@@ -1,53 +1,34 @@
 
-import { useNavigate } from "react-router-dom";
+import { FC } from "react";
 
 interface CustomerServiceSectionProps {
   onNavigate: (path: string) => void;
 }
 
-export const CustomerServiceSection = ({ onNavigate }: CustomerServiceSectionProps) => {
+export const CustomerServiceSection: FC<CustomerServiceSectionProps> = ({ onNavigate }) => {
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Kundservice</h3>
-      
+    <div className="text-center sm:text-left">
+      <h3 className="font-semibold text-lg mb-4">Kundservice</h3>
       <ul className="space-y-2">
         <li>
           <button 
-            onClick={() => onNavigate('/faq')}
-            className="text-gray-600 hover:text-primary transition-colors"
+            onClick={() => onNavigate('/faq')} 
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+            aria-label="Visa vanliga frågor"
           >
             Vanliga frågor
           </button>
         </li>
         <li>
           <button 
-            onClick={() => onNavigate('/terms')}
-            className="text-gray-600 hover:text-primary transition-colors"
+            onClick={() => onNavigate('/terms')} 
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+            aria-label="Visa allmänna villkor"
           >
             Allmänna villkor
           </button>
         </li>
-        <li>
-          <button 
-            onClick={() => onNavigate('/privacy')}
-            className="text-gray-600 hover:text-primary transition-colors"
-          >
-            Integritetspolicy
-          </button>
-        </li>
       </ul>
-      
-      <div className="pt-2">
-        <p className="text-sm text-gray-600">
-          Har du frågor? Kontakta oss på<br />
-          <a 
-            href="mailto:info@lyxdeal.se" 
-            className="text-primary hover:underline"
-          >
-            info@lyxdeal.se
-          </a>
-        </p>
-      </div>
     </div>
   );
 };

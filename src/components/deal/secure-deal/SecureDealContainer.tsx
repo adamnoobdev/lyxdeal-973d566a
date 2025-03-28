@@ -1,7 +1,7 @@
 
 import { useClaimCheck } from "@/hooks/useClaimCheck";
 import { useSecureDealSubmit } from "@/hooks/useSecureDealSubmit";
-import { SecureForm } from "./SecureForm";
+import { SecureForm, SecureFormValues } from "./SecureForm";
 import { SuccessMessage } from "./SuccessMessage";
 import { AlreadyClaimedMessage } from "./AlreadyClaimedMessage";
 
@@ -21,13 +21,17 @@ export const SecureDealContainer = ({
   
   // Handle form submission and code generation
   const {
-    handleSubmit,
     isSubmitting,
     isSuccess,
-    alreadyClaimed,
     emailSent,
+    handleSubmit,
     handleReset
-  } = useSecureDealSubmit(dealId.toString());
+  } = useSecureDealSubmit({
+    dealId,
+    dealTitle,
+    onSuccess,
+    hasAlreadyClaimed
+  });
 
   // Handle going back to deal page
   const handleGoBack = () => {
@@ -46,7 +50,7 @@ export const SecureDealContainer = ({
 
   return (
     <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-      {hasAlreadyClaimed || alreadyClaimed ? (
+      {hasAlreadyClaimed ? (
         <AlreadyClaimedMessage onGoBack={handleGoBack} />
       ) : isSuccess ? (
         <SuccessMessage onReset={handleReset} email={emailSent} />
