@@ -56,7 +56,7 @@ export const RegularDealContent = ({
 
       <div className="mb-3">
         <h3 className="font-medium text-base leading-tight line-clamp-2 mb-2">{title}</h3>
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+        <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
           {description}
         </p>
       </div>

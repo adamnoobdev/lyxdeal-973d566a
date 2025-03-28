@@ -18,7 +18,7 @@ const FeaturedDealsComponent = () => {
         .eq('featured', true)
         .eq('is_active', true) 
         .order('created_at', { ascending: false })
-        .limit(8);
+        .limit(12);
 
       if (error) throw error;
       return data as Deal[];
@@ -29,7 +29,7 @@ const FeaturedDealsComponent = () => {
   if (isLoading) {
     return (
       <ResponsiveGrid>
-        {[...Array(4)].map((_, i) => (
+        {[...Array(6)].map((_, i) => (
           <div key={i} className="h-64 bg-accent/50 rounded-xl animate-pulse" />
         ))}
       </ResponsiveGrid>
