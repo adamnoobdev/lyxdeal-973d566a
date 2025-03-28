@@ -14,7 +14,7 @@ export const CustomersTableHeader = ({ onExport }: CustomersTableHeaderProps) =>
         variant="outline" 
         size="sm" 
         onClick={onExport}
-        className="text-xs"
+        className="text-xs hover:text-primary"
       >
         <Download className="h-3 w-3 mr-1" />
         Exportera

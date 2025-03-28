@@ -28,7 +28,7 @@ export function SidebarLink({
         className={({ isActive: linkActive }) =>
           cn(
             buttonVariants({ variant: "ghost" }),
-            "w-full justify-start gap-2 font-normal",
+            "w-full justify-start gap-2 font-normal hover:text-accent-foreground",
             (linkActive || active || isCurrentPath) && "bg-muted font-medium"
           )
         }

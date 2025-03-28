@@ -51,16 +51,31 @@ export const DiscountCodesTab = ({
       </div>
       
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" onClick={handleListAllCodes}>
+        <Button 
+          variant="outline" 
+          onClick={handleListAllCodes}
+          className="hover:text-primary"
+        >
           Lista alla koder
         </Button>
-        <Button variant="outline" onClick={handleCountCodes}>
+        <Button 
+          variant="outline" 
+          onClick={handleCountCodes}
+          className="hover:text-primary"
+        >
           Räkna koder
         </Button>
-        <Button variant="outline" onClick={handleGenerateCodes}>
+        <Button 
+          variant="outline" 
+          onClick={handleGenerateCodes}
+          className="hover:text-primary"
+        >
           Generera koder
         </Button>
-        <Button variant="destructive" onClick={handleRemoveAllCodes}>
+        <Button 
+          variant="destructive" 
+          onClick={handleRemoveAllCodes}
+        >
           Ta bort koder
         </Button>
       </div>

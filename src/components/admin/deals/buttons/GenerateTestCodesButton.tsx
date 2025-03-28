@@ -19,7 +19,7 @@ export const GenerateTestCodesButton = ({
       size="sm"
       onClick={onClick}
       disabled={isDisabled}
-      className="gap-2 w-full"
+      className="gap-2 w-full hover:text-primary"
     >
       <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
       <span>Generera 5 testkoder</span>

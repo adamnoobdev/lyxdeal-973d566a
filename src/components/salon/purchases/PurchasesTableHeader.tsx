@@ -15,7 +15,10 @@ export const PurchasesTableHeader = ({ onExport }: PurchasesTableHeaderProps) =>
           Här visas alla rabattkoder som hämtats för dina erbjudanden.
         </p>
       </div>
-      <Button onClick={onExport} className="gap-2">
+      <Button 
+        onClick={onExport} 
+        className="gap-2"
+      >
         <Download className="h-4 w-4" />
         <span className="hidden sm:inline">Exportera CSV</span>
       </Button>

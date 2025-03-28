@@ -24,6 +24,11 @@ export const ActionButton = ({
   title,
   children,
 }: ActionButtonProps) => {
+  // Lägg till hover:text-primary om det är outline-variant
+  const buttonClassName = variant === "outline" 
+    ? `${className} hover:text-primary` 
+    : className;
+
   // Om loading-egenskapen är definierad, använd LoadingButton-komponenten
   if (loading !== undefined) {
     return (
@@ -33,7 +38,7 @@ export const ActionButton = ({
         onClick={onClick}
         loading={loading}
         disabled={disabled || loading}
-        className={className}
+        className={buttonClassName}
         title={title}
       >
         {children}
@@ -48,7 +53,7 @@ export const ActionButton = ({
       size={size}
       onClick={onClick}
       disabled={disabled}
-      className={className}
+      className={buttonClassName}
       title={title}
     >
       {children}

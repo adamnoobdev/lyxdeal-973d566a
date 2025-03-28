@@ -18,7 +18,7 @@ export const DirectionsButton = ({ coordinates, destination }: DirectionsButtonP
   return (
     <Button 
       variant="outline" 
-      className="w-full text-primary border-primary hover:bg-primary/5"
+      className="w-full text-primary border-primary hover:bg-primary/5 hover:text-primary"
       onClick={() => window.open(googleMapsUrl, '_blank')}
     >
       <ExternalLink className="h-4 w-4 mr-2" />

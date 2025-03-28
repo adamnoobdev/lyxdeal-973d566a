@@ -96,7 +96,7 @@ export const DealInfo = ({
         {salon?.phone && (
           <Button 
             variant="outline"
-            className="w-full text-primary border border-primary hover:bg-primary/5 group mt-3"
+            className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary group mt-3"
             size="lg"
             onClick={() => window.location.href = `tel:${salon.phone}`}
           >
@@ -108,7 +108,7 @@ export const DealInfo = ({
         {booking_url && (
           <Button 
             variant="outline"
-            className="w-full text-primary border border-primary hover:bg-primary/5 group mt-3"
+            className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary group mt-3"
             size="lg"
             onClick={handleBooking}
           >

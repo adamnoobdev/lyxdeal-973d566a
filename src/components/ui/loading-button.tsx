@@ -9,12 +9,18 @@ interface LoadingButtonProps extends ButtonProps {
 }
 
 export const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
-  ({ children, loading = false, className, disabled, ...props }, ref) => {
+  ({ children, loading = false, className, disabled, variant, ...props }, ref) => {
+    // Lägg till hover:text-primary för outline-knappar
+    const buttonClassName = variant === "outline" 
+      ? cn(className, "hover:text-primary") 
+      : className;
+
     return (
       <Button
-        className={cn(className)}
+        className={cn(buttonClassName)}
         disabled={disabled || loading}
         ref={ref}
+        variant={variant}
         {...props}
       >
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
