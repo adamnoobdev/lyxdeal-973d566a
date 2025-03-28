@@ -1,5 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { DealsSection } from "@/components/salon/DealsSection";
 import { PurchasesTableContainer } from "@/components/salon/PurchasesTableContainer";
 import { ProfileSettings } from "@/components/salon/ProfileSettings";
