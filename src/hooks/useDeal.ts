@@ -19,11 +19,13 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
+        // Updated query to properly fetch salon data
         const { data, error } = await supabase
           .from("deals")
           .select(`
             *,
-            salons (
+            salon:salon_id (
+              id,
               name,
               address,
               phone
@@ -74,11 +76,12 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free either by explicit flag or 0 price
         const isFree = data.is_free || data.discounted_price === 0;
 
-        // Ensure salon object is correctly formatted
-        const salon = data.salons ? {
-          name: data.salons.name || '',
-          address: data.salons.address || null,
-          phone: data.salons.phone || null,
+        // Process salon data correctly
+        const salon = data.salon ? {
+          id: data.salon.id,
+          name: data.salon.name || '',
+          address: data.salon.address || null,
+          phone: data.salon.phone || null,
         } : null;
 
         console.log("Processed salon data:", salon);
