@@ -1,6 +1,5 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { Loader2, MapPin, CheckCircle2, XCircle } from 'lucide-react';
@@ -177,16 +176,15 @@ export const MapboxAddressInput = ({
     <div className="relative">
       <div className="relative">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <FormControl>
-          <Input
-            id={id}
-            placeholder={placeholder}
-            value={inputValue}
-            onChange={handleInputChange}
-            required={required}
-            className={`pl-9 pr-9 ${className} ${error ? 'border-destructive' : ''}`}
-          />
-        </FormControl>
+        {/* Removed FormControl wrapper here */}
+        <Input
+          id={id}
+          placeholder={placeholder}
+          value={inputValue}
+          onChange={handleInputChange}
+          required={required}
+          className={`pl-9 pr-9 ${className} ${error ? 'border-destructive' : ''}`}
+        />
         
         {/* Validitetsindikator */}
         {inputValue && (
