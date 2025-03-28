@@ -16,7 +16,7 @@ export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
         <ResponsiveImage
           src={imageUrl}
           alt={title}
-          className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover"
         />
       </div>
       {isNew && (

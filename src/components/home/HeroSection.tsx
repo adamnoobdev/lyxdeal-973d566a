@@ -1,3 +1,4 @@
+
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { CATEGORIES } from "@/constants/app-constants";
 
@@ -21,7 +22,7 @@ export function HeroSection() {
               key={category}
               category={category}
               variant="default"
-              className="cursor-pointer transform transition-all duration-300 hover:scale-105 active:scale-95"
+              className="cursor-pointer"
             />
           ))}
         </div>

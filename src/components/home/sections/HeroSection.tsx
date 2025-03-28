@@ -14,7 +14,7 @@ export function HeroSection() {
   return (
     <section className="relative w-full min-h-[400px] md:min-h-[500px] flex items-center justify-center overflow-hidden my-6">
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-90 transition-opacity duration-700"
+        className="absolute inset-0 bg-cover bg-center opacity-90"
         style={{ 
           backgroundImage: `url('${HERO_IMAGE_URL}')`,
           backgroundSize: 'cover',
@@ -41,7 +41,7 @@ export function HeroSection() {
                 key={category}
                 category={category}
                 variant="outline"
-                className="cursor-pointer bg-white/90 hover:bg-white text-primary hover:text-primary-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm md:text-base"
+                className="cursor-pointer bg-white/90 hover:bg-white text-primary hover:text-primary-600 shadow-lg text-sm md:text-base"
                 onClick={() => handleCategorySelect(category)}
               />
             ))}
