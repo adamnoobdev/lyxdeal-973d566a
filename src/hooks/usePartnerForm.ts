@@ -14,6 +14,13 @@ interface PartnerFormData {
   postalCode?: string;
   city?: string;
   address: string;
+  termsAccepted?: boolean;
+  privacyAccepted?: boolean;
+}
+
+interface FormErrors {
+  termsAccepted?: string;
+  privacyAccepted?: string;
 }
 
 interface SelectedPlan {
@@ -26,6 +33,7 @@ interface SelectedPlan {
 export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState<PartnerFormData>({
     name: "",
     business: "",
@@ -35,11 +43,26 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
     postalCode: "",
     city: "",
     address: "",
+    termsAccepted: false,
+    privacyAccepted: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleCheckboxChange = (field: string, checked: boolean) => {
+    setFormData(prev => ({ ...prev, [field]: checked }));
+    
+    // Rensa fel för detta fält om det nu är markerat
+    if (checked && formErrors[field as keyof FormErrors]) {
+      setFormErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field as keyof FormErrors];
+        return newErrors;
+      });
+    }
   };
 
   const handleAddressChange = useCallback((address: string) => {
@@ -71,7 +94,27 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
       toast.warning("Adressinformationen kan vara ofullständig. Vänligen fyll i gata, postnummer och stad.");
     }
 
-    return true;
+    // Validera att villkor är accepterade
+    let valid = true;
+    const newErrors: FormErrors = {};
+    
+    if (!formData.termsAccepted) {
+      newErrors.termsAccepted = "Du måste acceptera våra allmänna villkor";
+      valid = false;
+    }
+    
+    if (!formData.privacyAccepted) {
+      newErrors.privacyAccepted = "Du måste acceptera vår integritetspolicy";
+      valid = false;
+    }
+    
+    setFormErrors(newErrors);
+    
+    if (!valid) {
+      toast.error("Du måste acceptera våra villkor för att fortsätta");
+    }
+
+    return valid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -189,7 +232,9 @@ export const usePartnerForm = (selectedPlan: SelectedPlan | null) => {
   return {
     formData,
     isSubmitting,
+    formErrors,
     handleChange,
+    handleCheckboxChange,
     handleAddressChange,
     handleSubmit
   };

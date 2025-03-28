@@ -13,6 +13,7 @@ import PartnerPage from './pages/PartnerPage';
 import PartnerSignup from './pages/PartnerSignup';
 import FAQ from './pages/FAQ';
 import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 import SecureDeal from './pages/SecureDeal';
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import { SalonDeals } from './components/salon/SalonDeals';
@@ -60,6 +61,7 @@ function App() {
           <Route path="secure-deal/:id" element={<SecureDeal />} />
           <Route path="faq" element={<FAQ />} />
           <Route path="terms" element={<Terms />} />
+          <Route path="privacy" element={<Privacy />} />
           <Route path="partner" element={<PartnerPage />} />
           <Route path="partner/signup" element={<PartnerSignup />} />
           <Route path="bli-partner" element={<PartnerPage />} />

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { usePartnerForm } from "@/hooks/usePartnerForm";
 import { MapboxAddressInput, AddressParts } from "@/components/common/MapboxAddressInput";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
 
 interface SelectedPlan {
   title: string;
@@ -20,7 +22,7 @@ interface PartnerFormProps {
 
 export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
   const navigate = useNavigate();
-  const { formData, isSubmitting, handleChange, handleAddressChange, handleSubmit } = usePartnerForm(selectedPlan);
+  const { formData, isSubmitting, handleChange, handleAddressChange, handleSubmit, handleCheckboxChange, formErrors } = usePartnerForm(selectedPlan);
 
   // Hantera direkt adressinmatning från Mapbox
   const handleMapboxAddressChange = (value: string, parts?: AddressParts) => {
@@ -105,6 +107,49 @@ export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
           <input type="hidden" id="street" value={formData.street || ''} onChange={() => {}} />
           <input type="hidden" id="postalCode" value={formData.postalCode || ''} onChange={() => {}} />
           <input type="hidden" id="city" value={formData.city || ''} onChange={() => {}} />
+        </div>
+      </div>
+      
+      {/* Villkorsacceptans */}
+      <div className="space-y-4">
+        <div className="flex items-start space-x-2">
+          <Checkbox 
+            id="termsAccepted" 
+            checked={formData.termsAccepted || false}
+            onCheckedChange={(checked) => handleCheckboxChange('termsAccepted', checked === true)}
+            className="mt-1"
+          />
+          <div>
+            <label 
+              htmlFor="termsAccepted" 
+              className="text-sm font-medium cursor-pointer"
+            >
+              Jag har läst och accepterar <Link to="/terms" className="text-primary hover:underline" target="_blank">allmänna villkor</Link>
+            </label>
+            {formErrors.termsAccepted && (
+              <p className="text-sm text-red-500 mt-1">{formErrors.termsAccepted}</p>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-start space-x-2">
+          <Checkbox 
+            id="privacyAccepted" 
+            checked={formData.privacyAccepted || false}
+            onCheckedChange={(checked) => handleCheckboxChange('privacyAccepted', checked === true)}
+            className="mt-1"
+          />
+          <div>
+            <label 
+              htmlFor="privacyAccepted" 
+              className="text-sm font-medium cursor-pointer"
+            >
+              Jag har läst och accepterar <Link to="/privacy" className="text-primary hover:underline" target="_blank">integritetspolicyn</Link>
+            </label>
+            {formErrors.privacyAccepted && (
+              <p className="text-sm text-red-500 mt-1">{formErrors.privacyAccepted}</p>
+            )}
+          </div>
         </div>
       </div>
       

@@ -28,6 +28,15 @@ export const CustomerServiceSection: FC<CustomerServiceSectionProps> = ({ onNavi
             Allmänna villkor
           </button>
         </li>
+        <li>
+          <button 
+            onClick={() => onNavigate('/privacy')} 
+            className="text-gray-600 hover:text-gray-900 transition-colors"
+            aria-label="Visa integritetspolicy"
+          >
+            Integritetspolicy
+          </button>
+        </li>
       </ul>
     </div>
   );
