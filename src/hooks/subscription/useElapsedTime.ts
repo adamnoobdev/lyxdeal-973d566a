@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 
-// En enkel hook för att räkna förfluten tid
+// A simple hook for counting elapsed time
 export const useElapsedTime = (): number => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   

@@ -3,12 +3,12 @@ import { useSubscriptionPolling } from "./useSubscriptionPolling";
 import { useElapsedTime } from "./useElapsedTime";
 import { SubscriptionDetailsHook } from "./types";
 
-// Exportera typerna på ett sätt som stöds av TypeScript med isolatedModules
+// Export types in a way that's supported by TypeScript with isolatedModules
 export type { PurchaseDetails, SalonAccount } from "./types";
 export { formatDate } from "./formatUtils";
 
 export const useSubscriptionDetails = (sessionId: string | null): SubscriptionDetailsHook => {
-  // Använd de refaktorerade hooks för att få grundfunktionalitet
+  // Use the refactored hooks to get core functionality
   const {
     purchaseDetails,
     salonAccount,
@@ -23,10 +23,10 @@ export const useSubscriptionDetails = (sessionId: string | null): SubscriptionDe
     retryDelay: 3000
   });
   
-  // Lägg till timer för att spåra förfluten tid
+  // Add timer to track elapsed time
   const timeElapsed = useElapsedTime();
   
-  // Returnera alla nödvändiga värden och funktioner
+  // Return all necessary values and functions
   return {
     purchaseDetails,
     salonAccount,

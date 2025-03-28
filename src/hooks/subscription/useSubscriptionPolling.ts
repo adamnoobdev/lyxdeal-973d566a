@@ -32,89 +32,89 @@ export const useSubscriptionPolling = ({
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
 
-  // Huvudfunktion för att hämta data och kontrollera kontostatus
+  // Main function for fetching data and checking account status
   const fetchSubscriptionData = useCallback(async (): Promise<boolean> => {
     if (!sessionId) {
-      console.warn("Inget session-ID hittades i URL:en");
+      console.warn("No session ID found in URL");
       setLoading(false);
       // We're not setting an error here anymore since we want to show the success page anyway
       return false;
     }
 
     try {
-      console.log("Hämtar prenumerationsdetaljer för session:", sessionId);
-      console.log("Försök nr:", retryCount);
+      console.log("Fetching subscription details for session:", sessionId);
+      console.log("Retry count:", retryCount);
       
-      // Strategi 1: Sök efter partner-förfrågan med session-ID
+      // Strategy 1: Look for partner request with session ID
       let partnerRequest = await fetchPartnerRequestBySession(sessionId);
       
-      // Om vi hittade en förfrågan med detta session-ID
+      // If we found a request with this session ID
       if (partnerRequest) {
         setPurchaseDetails(partnerRequest);
         
-        // Kontrollera om e-postadressen har ett salongskonto
+        // Check if email has a salon account
         if (partnerRequest.email) {
           const account = await checkSalonAccount(partnerRequest.email);
           
           if (account) {
             setSalonAccount(account);
-            toast.success("Ditt salongskonto har skapats!");
+            toast.success("Your salon account has been created!");
             return true;
           }
           
-          return false; // Behöver fortsätta kontrollera
+          return false; // Need to continue checking
         }
       }
       
-      // Strategi 2: Sök efter nyligen godkända partner-förfrågningar
+      // Strategy 2: Look for recently approved partner requests
       const recentRequests = await fetchRecentApprovedPartnerRequests();
       
       if (recentRequests.length > 0) {
-        // Använd den senaste godkända förfrågan
+        // Use the most recent approved request
         const mostRecent = recentRequests[0];
         setPurchaseDetails(mostRecent);
         
-        // Kontrollera om det finns ett salongskonto för denna e-post
+        // Check if a salon account exists for this email
         if (mostRecent.email) {
           const account = await checkSalonAccount(mostRecent.email);
           
           if (account) {
             setSalonAccount(account);
-            toast.success("Ditt salongskonto har skapats!");
+            toast.success("Your salon account has been created!");
             return true;
           }
           
-          return false; // Behöver fortsätta kontrollera
+          return false; // Need to continue checking
         }
       }
       
-      console.log("Ingen matchande partner-förfrågan eller salongskonto hittades. Försök nr:", retryCount);
+      console.log("No matching partner request or salon account found. Retry count:", retryCount);
       // Even if we don't find a match, we still want to show the success page
-      return false; // Behöver fortsätta kontrollera
+      return false; // Need to continue checking
     } catch (err) {
-      console.error("Fel vid hämtning av prenumerationsdetaljer:", err);
-      setError("Kunde inte hämta detaljer om din prenumeration");
-      return true; // Fel uppstod, men sluta försöka
+      console.error("Error fetching subscription details:", err);
+      setError("Could not retrieve your subscription details");
+      return true; // Error, but stop retrying
     } finally {
       setLoading(false);
       setIsRetrying(false);
     }
   }, [sessionId, retryCount]);
 
-  // Funktion för manuell omförsök
+  // Function for manual retry
   const manualRetry = useCallback(() => {
     setIsRetrying(true);
     setRetryCount(prev => prev + 1);
-    toast.info("Kontrollerar kontostatus...");
+    toast.info("Checking account status...");
   }, []);
 
-  // Starta initial kontroll och inställning av återförsök
+  // Set up initial check and retry logic
   useEffect(() => {
     if (loading || isRetrying || (retryCount > 0 && !salonAccount)) {
       (async () => {
         const success = await fetchSubscriptionData();
         
-        // Om inget salongskonto hittades och vi inte har överskridit max antal försök, försök igen
+        // If no salon account was found and we haven't exceeded max retries, try again
         if (!success && retryCount < maxRetries) {
           const timer = setTimeout(() => {
             setRetryCount(prev => prev + 1);
@@ -123,8 +123,8 @@ export const useSubscriptionPolling = ({
           
           return () => clearTimeout(timer);
         } else if (!success && retryCount >= maxRetries) {
-          console.warn("Maximalt antal försök uppnått, fortfarande inget salongskonto hittat");
-          toast.error("Kunde inte hitta ditt salongskonto efter flera försök. Vänligen kontakta kundtjänst.");
+          console.warn("Max retries reached, still no salon account found");
+          toast.error("Could not find your salon account after multiple attempts. Please contact customer support.");
         }
       })();
     }
