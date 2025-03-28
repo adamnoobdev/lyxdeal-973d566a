@@ -16,20 +16,20 @@ const FeaturedDealsComponent = () => {
         .from('deals')
         .select('*')
         .eq('featured', true)
-        .eq('is_active', true) 
+        .eq('is_active', true) // Endast aktiva erbjudanden
         .order('created_at', { ascending: false })
-        .limit(12);
+        .limit(8); // Begränsa antal för bättre prestanda
 
       if (error) throw error;
       return data as Deal[];
     },
-    staleTime: 5 * 60 * 1000, 
+    staleTime: 5 * 60 * 1000, // Cache data för 5 minuter
   });
 
   if (isLoading) {
     return (
       <ResponsiveGrid>
-        {[...Array(6)].map((_, i) => (
+        {[...Array(4)].map((_, i) => (
           <div key={i} className="h-64 bg-accent/50 rounded-xl animate-pulse" />
         ))}
       </ResponsiveGrid>

@@ -1,4 +1,3 @@
-
 import { Star, Sparkles, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FeaturedDeals } from "@/components/FeaturedDeals";
@@ -14,7 +13,7 @@ export function DealsSection({ selectedCategory, selectedCity }: DealsSectionPro
   const { data: deals, isLoading, error } = useDeals(selectedCategory, selectedCity);
 
   return (
-    <div className="space-y-12 max-w-7xl mx-auto">
+    <div className="space-y-12">
       <section className="space-y-8">
         <div className="flex items-center gap-2">
           <Star className="h-6 w-6 text-primary" />

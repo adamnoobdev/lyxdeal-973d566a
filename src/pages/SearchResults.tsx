@@ -90,7 +90,7 @@ export default function SearchResults() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto p-4 md:p-6">
       <div className="space-y-6">
         <Link to="/">
           <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">

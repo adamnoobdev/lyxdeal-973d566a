@@ -16,16 +16,16 @@ const DealsSectionComponent = ({
   selectedCity
 }: DealsSectionProps) => {
   return (
-    <div className="space-y-8 md:space-y-12 w-full">
-      <section className="space-y-4 md:space-y-6 w-full max-w-7xl mx-auto px-4">
+    <div className="space-y-8 md:space-y-12">
+      <section className="space-y-4 md:space-y-6">
         <div className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
           <h2 className="text-xl md:text-2xl font-semibold">Skönhetserbjudanden efter stad</h2>
         </div>
         
-        <div className="space-y-12 w-full">
+        <div className="space-y-12">
           {CITIES.filter(city => city !== "Alla Städer").map(city => (
-            <div key={city} className="space-y-4 w-full">
+            <div key={city} className="space-y-4">
               <h3 className="text-lg md:text-xl font-medium border-b pb-2">{city}</h3>
               
               <CityDeals city={city} selectedCategory={selectedCategory} />
