@@ -7,20 +7,24 @@ interface MapErrorStateProps {
   errorMessage: string;
   coordinates: [number, number] | null;
   destination: string;
+  hideAddress?: boolean;
 }
 
 export const MapErrorState = ({ 
   address, 
   errorMessage, 
   coordinates, 
-  destination 
+  destination,
+  hideAddress = false
 }: MapErrorStateProps) => {
   return (
     <div className="p-4 border border-border rounded-md bg-background">
-      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-        <MapPin className="h-4 w-4" />
-        <span>{address}</span>
-      </div>
+      {!hideAddress && (
+        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4" />
+          <span>{address}</span>
+        </div>
+      )}
       <div className="mt-2 text-sm text-destructive">{errorMessage}</div>
       <div className="mt-4">
         <DirectionsButton 
