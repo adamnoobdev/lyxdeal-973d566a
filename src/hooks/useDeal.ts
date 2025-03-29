@@ -45,27 +45,55 @@ export const useDeal = (id: string | undefined) => {
           phone: null
         };
 
-        // If we have a salon_id, try to fetch the salon data
+        // Only attempt to fetch salon data if we have a salon_id
         if (dealData.salon_id) {
-          console.log("Fetching salon with ID:", dealData.salon_id);
+          console.log(`Attempting to fetch salon data for salon_id: ${dealData.salon_id}`);
           
-          // Using a simplified query with basic fields, no complex diagnostics
-          const { data: fetchedSalonData, error: salonError } = await supabase
-            .from("salons")
-            .select("id, name, address, phone")
-            .eq("id", dealData.salon_id)
-            .maybeSingle(); // Use maybeSingle instead of single to avoid errors if no data is found
-            
-          if (salonError) {
-            // Just log the error, don't throw - we'll use the default salon data
-            console.error("Error fetching salon data:", salonError.message);
-          } else if (fetchedSalonData) {
-            // If salon data was found, use it
-            salonData = fetchedSalonData;
-            console.log("Salon data successfully retrieved:", salonData);
-          } else {
-            console.log("No salon found with ID:", dealData.salon_id);
+          try {
+            // Separate try/catch to handle salon fetch errors independently
+            const { data: fetchedSalonData, error: salonError } = await supabase
+              .from("salons")
+              .select("id, name, address, phone")
+              .eq("id", dealData.salon_id)
+              .maybeSingle();
+              
+            if (salonError) {
+              console.error(`Error fetching salon data for salon_id ${dealData.salon_id}:`, salonError.message);
+              console.error("Full error object:", salonError);
+            } else if (fetchedSalonData) {
+              console.log("Salon data successfully retrieved:", fetchedSalonData);
+              salonData = fetchedSalonData;
+            } else {
+              console.warn(`No salon found with ID: ${dealData.salon_id}. This might indicate a data consistency issue.`);
+              
+              // Additional diagnostic check - verify if the salon exists at all
+              const { count, error: countError } = await supabase
+                .from("salons")
+                .select("*", { count: 'exact', head: true });
+                
+              if (countError) {
+                console.error("Error checking salon table:", countError);
+              } else {
+                console.log(`Total number of salons in database: ${count}`);
+              }
+              
+              // Try to get all salon IDs to check if the ID exists
+              const { data: allSalonIds, error: idsError } = await supabase
+                .from("salons")
+                .select("id")
+                .limit(20);
+                
+              if (idsError) {
+                console.error("Error fetching salon IDs:", idsError);
+              } else {
+                console.log("Available salon IDs in database:", allSalonIds.map(s => s.id));
+              }
+            }
+          } catch (salonFetchError) {
+            console.error("Unexpected error during salon data fetch:", salonFetchError);
           }
+        } else {
+          console.log("No salon_id provided in deal data, using default salon data");
         }
         
         // Calculate days remaining
