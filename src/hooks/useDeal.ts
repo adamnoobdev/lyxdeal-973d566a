@@ -37,39 +37,34 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Raw deal data from DB:", dealData);
 
-        // När vi har deal-datan, hämta salongsdata separat med tydligare loggning
+        // När vi har deal-datan, hämta salongsdata separat med förbättrad felhantering
         let salonData = null;
         if (dealData.salon_id) {
           console.log("Fetching salon with ID:", dealData.salon_id);
           
+          // Använd standard select istället för single() för att undvika 406-fel
           const { data: fetchedSalonData, error: salonError } = await supabase
             .from("salons")
             .select("id, name, address, phone")
-            .eq("id", dealData.salon_id)
-            .single(); // Using single() instead of maybeSingle() as we know the ID should exist
+            .eq("id", dealData.salon_id);
             
+          console.log("Salon query result:", { data: fetchedSalonData, error: salonError });
+          
           if (salonError) {
             console.error("Error fetching salon data:", salonError.message, salonError);
-            
-            // Try with a different approach using maybeSingle
-            console.log("Retrying with maybeSingle");
-            const { data: retryData, error: retryError } = await supabase
-              .from("salons")
-              .select("id, name, address, phone")
-              .eq("id", dealData.salon_id)
-              .maybeSingle();
-              
-            if (!retryError && retryData) {
-              salonData = retryData;
-              console.log("Salon data retrieved with maybeSingle:", salonData);
-            } else if (retryError) {
-              console.error("Retry error fetching salon:", retryError);
-            } else {
-              console.log("No salon found with ID:", dealData.salon_id);
-            }
-          } else {
-            salonData = fetchedSalonData;
+          } else if (fetchedSalonData && fetchedSalonData.length > 0) {
+            // Om vi fick resultat, använd det första (det bör bara finnas ett)
+            salonData = fetchedSalonData[0];
             console.log("Salon data retrieved:", salonData);
+          } else {
+            console.log("No salon found with ID:", dealData.salon_id);
+            // Kontrollera om det finns en rad i salons-tabellen med detta ID
+            const { count, error: countError } = await supabase
+              .from("salons")
+              .select("*", { count: 'exact', head: true })
+              .eq("id", dealData.salon_id);
+              
+            console.log(`Count of salons with ID ${dealData.salon_id}:`, count, "Error:", countError);
           }
         }
         
