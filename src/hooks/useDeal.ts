@@ -48,10 +48,16 @@ export const useDeal = (id: string | undefined) => {
             throw new Error("Deal not found");
           }
           
-          // Skapa en kopia av fallbackDealData med salon satt till null från början
+          // Skapa en kopia av fallbackDealData med salon satt till ett tomt objekt med rätt struktur
+          // istället för null för att matcha TypeScript-kraven
           dealData = { 
             ...fallbackDealData, 
-            salon: null 
+            salon: {
+              id: fallbackDealData.salon_id || null,
+              name: fallbackDealData.city ? `Salong i ${fallbackDealData.city}` : 'Okänd salong',
+              address: fallbackDealData.city || null,
+              phone: null
+            }
           };
           
           if (dealData.salon_id) {
@@ -68,13 +74,7 @@ export const useDeal = (id: string | undefined) => {
               console.log("Salon data retrieved separately:", salonData);
             } else {
               console.log("Could not retrieve salon data separately:", salonError);
-              // Fallback till att använda staden för salongsnamn
-              dealData.salon = {
-                id: dealData.salon_id,
-                name: `Salong i ${dealData.city}`,
-                address: dealData.city || null,
-                phone: null,
-              };
+              // Vi behöver inte göra något mer här eftersom vi redan har satt en default salon struktur ovan
             }
           }
         }
@@ -115,34 +115,13 @@ export const useDeal = (id: string | undefined) => {
         const isFree = dealData.is_free || dealData.discounted_price === 0;
 
         // Hantera salongsinformation
-        let salon = null;
-        
-        // Först, kontrollera om vi fick salongen från JOINen
-        if (dealData.salon) {
-          salon = dealData.salon;
-          console.log("Salon data retrieved from join query:", salon);
-        } 
-        // Om vi redan har hämtat salong i fallback-scenariot ovan, använd den datan
-        else if (dealData.salon_id) {
-          // Vi bör redan ha hämtat salongsdata i fallback-fallet ovan
-          if (!salon) {
-            console.log("Using fallback salon data with city");
-            salon = {
-              id: dealData.salon_id,
-              name: `Salong i ${dealData.city}`,
-              address: dealData.city || null,
-              phone: null,
-            };
-          }
-        } else {
-          // Fallback om vi inte har salon_id
-          salon = {
-            id: null,
-            name: `Salong i ${dealData.city}`,
-            address: dealData.city || null,
-            phone: null,
-          };
-        }
+        // Säkerställ att salon alltid har korrekt struktur för TypeScript
+        let salon = dealData.salon || {
+          id: dealData.salon_id || null,
+          name: `Salong i ${dealData.city || 'okänd stad'}`,
+          address: dealData.city || null,
+          phone: null
+        };
 
         console.log("Final processed salon data:", salon);
 
