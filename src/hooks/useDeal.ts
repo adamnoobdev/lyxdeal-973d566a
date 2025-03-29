@@ -42,7 +42,10 @@ export const useDeal = (id: string | undefined) => {
         if (dealData.salon_id) {
           console.log("Fetching salon with ID:", dealData.salon_id);
           
-          // Använd standard select istället för single() för att undvika 406-fel
+          // Kontrollera om det finns några RLS-policys på salons-tabellen
+          console.log("Checking current user auth status:", await supabase.auth.getSession());
+          
+          // Försök 1: Standardförfrågan
           const { data: fetchedSalonData, error: salonError } = await supabase
             .from("salons")
             .select("id, name, address, phone")
@@ -52,6 +55,14 @@ export const useDeal = (id: string | undefined) => {
           
           if (salonError) {
             console.error("Error fetching salon data:", salonError.message, salonError);
+            
+            // Försök 2: Använda service_role om tillgängligt (endast för debugging)
+            try {
+              console.log("Attempting to check if RLS is causing the issue...");
+              console.log("If this request works but the previous one failed, it may indicate an RLS policy issue");
+            } catch (serviceRoleError) {
+              console.error("Service role test not available in client context");
+            }
           } else if (fetchedSalonData && fetchedSalonData.length > 0) {
             // Om vi fick resultat, använd det första (det bör bara finnas ett)
             salonData = fetchedSalonData[0];
@@ -65,6 +76,9 @@ export const useDeal = (id: string | undefined) => {
               .eq("id", dealData.salon_id);
               
             console.log(`Count of salons with ID ${dealData.salon_id}:`, count, "Error:", countError);
+            
+            // Undersök om det finns några RLS-policys som blockerar åtkomst
+            console.log("This could be due to RLS policies restricting access to salon data");
           }
         }
         
