@@ -19,8 +19,8 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // Först, hämta erbjudandet 
-        let { data: dealData, error: dealError } = await supabase
+        // Fetch the deal data first
+        const { data: dealData, error: dealError } = await supabase
           .from("deals")
           .select("*")
           .eq("id", dealId)
@@ -37,112 +37,36 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Raw deal data from DB:", dealData);
 
-        // När vi har deal-datan, hämta salongsdata separat med förbättrad diagnostik
-        let salonData = null;
-        if (dealData.salon_id) {
-          console.log("Fetching salon with ID:", dealData.salon_id);
-          
-          // Detaljerad diagnostik av användarsession och behörigheter
-          const { data: sessionData } = await supabase.auth.getSession();
-          console.log("Current auth session:", sessionData.session ? "Authenticated" : "Not authenticated");
-          
-          // Försök 1: Standard RPC-anrop med basic select
-          console.log("Diagnostic step 1: Basic salon query");
-          const { data: fetchedSalonData, error: salonError } = await supabase
-            .from("salons")
-            .select("id, name, address, phone")
-            .eq("id", dealData.salon_id);
-            
-          console.log("Basic query result:", { 
-            hasData: fetchedSalonData && fetchedSalonData.length > 0,
-            dataLength: fetchedSalonData?.length,
-            error: salonError ? salonError.message : 'No error'
-          });
-          
-          if (salonError) {
-            console.error("Error fetching salon data:", salonError.message, salonError);
-            
-            // Undersök RLS-problem
-            console.log("Diagnostic step 2: Checking for RLS issues");
-            // Vi kan inte använda service_role i klientens kontext, så vi testar en annan metod
-            
-            // Kontrollera om salongen faktiskt finns i databasen
-            const { count, error: countError } = await supabase
-              .from("salons")
-              .select("*", { count: 'exact', head: true })
-              .eq("id", dealData.salon_id);
-              
-            console.log(`Count of salons with ID ${dealData.salon_id}:`, count, "Error:", countError ? countError.message : 'No error');
-            
-            if (countError) {
-              console.log("Diagnostic step 3: Count query failed - likely RLS policy preventing even counting");
-            } else if (count === 0) {
-              console.log("Diagnostic step 3: Salon does not exist in database");
-            } else {
-              console.log("Diagnostic step 3: Salon exists but might be blocked by RLS");
-            }
-            
-            // Testa om vi kan få grundläggande metadata om tabeller (ingen RLS)
-            console.log("Diagnostic step 4: Testing basic table access");
-            const { data: tableInfo, error: tableError } = await supabase
-              .rpc('get_tables');
-              
-            console.log("Table info access:", tableError ? "Failed" : "Succeeded", 
-              tableError ? tableError.message : `Got info for ${tableInfo?.length || 0} tables`);
-            
-          } else if (fetchedSalonData && fetchedSalonData.length > 0) {
-            // Om vi fick resultat, använd det första (det bör bara finnas ett)
-            salonData = fetchedSalonData[0];
-            console.log("Salon data successfully retrieved:", salonData);
-          } else {
-            console.log("No salon found with ID:", dealData.salon_id);
-            
-            // Kontrollera om det finns en rad i salons-tabellen med detta ID
-            const { count, error: countError } = await supabase
-              .from("salons")
-              .select("*", { count: 'exact', head: true })
-              .eq("id", dealData.salon_id);
-              
-            console.log(`Count of salons with ID ${dealData.salon_id}:`, count, "Error:", countError ? countError.message : 'No error');
-            
-            if (count === 0) {
-              console.log("Salon does not exist in database");
-            } else {
-              console.log("Salon exists but might be blocked by RLS policy");
-              
-              // Om salongen finns men vi ändå inte får data, är det troligen en RLS-policy som blockerar
-              if (!sessionData.session) {
-                console.log("User is not authenticated - this might be causing the RLS policy to block access");
-              } else {
-                console.log("User is authenticated but RLS policy might still be restricting access");
-                
-                // Kontrollera om användarens session har koppling till den här salongen
-                if (sessionData.session.user?.id) {
-                  const { data: userSalon, error: userSalonError } = await supabase
-                    .from("salons")
-                    .select("id")
-                    .eq("user_id", sessionData.session.user.id);
-                    
-                  console.log("User's associated salons:", 
-                    userSalonError ? "Error checking" : 
-                    userSalon?.length === 0 ? "None" : 
-                    `Found ${userSalon?.length} salons`, 
-                    userSalonError ? userSalonError.message : '');
-                }
-              }
-            }
-          }
-        }
-        
-        // Skapa en definitiv salongsstruktur, oavsett om vi fick data eller inte
-        const finalSalonData = salonData || {
+        // Initialize salon data with default values
+        let salonData = {
           id: dealData.salon_id || null,
           name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
           address: dealData.city || null,
           phone: null
         };
 
-        console.log("Final salon data:", finalSalonData);
+        // If we have a salon_id, try to fetch the salon data
+        if (dealData.salon_id) {
+          console.log("Fetching salon with ID:", dealData.salon_id);
+          
+          // Using a simplified query with basic fields, no complex diagnostics
+          const { data: fetchedSalonData, error: salonError } = await supabase
+            .from("salons")
+            .select("id, name, address, phone")
+            .eq("id", dealData.salon_id)
+            .maybeSingle(); // Use maybeSingle instead of single to avoid errors if no data is found
+            
+          if (salonError) {
+            // Just log the error, don't throw - we'll use the default salon data
+            console.error("Error fetching salon data:", salonError.message);
+          } else if (fetchedSalonData) {
+            // If salon data was found, use it
+            salonData = fetchedSalonData;
+            console.log("Salon data successfully retrieved:", salonData);
+          } else {
+            console.log("No salon found with ID:", dealData.salon_id);
+          }
+        }
         
         // Calculate days remaining
         const calculateDaysRemaining = () => {
@@ -187,7 +111,7 @@ export const useDeal = (id: string | undefined) => {
           created_at: dealData.created_at,
           quantityLeft: dealData.quantity_left,
           isFree: isFree,
-          salon: finalSalonData,
+          salon: salonData,
           booking_url: dealData.booking_url,
         };
       } catch (error) {
@@ -202,7 +126,7 @@ export const useDeal = (id: string | undefined) => {
         throw error;
       }
     },
-    staleTime: 0, // Minska cache-tiden för att säkerställa färsk data
-    refetchOnWindowFocus: true, // Uppdatera när fönstret får fokus
+    staleTime: 0, // Reduce cache time to ensure fresh data
+    refetchOnWindowFocus: true, // Update when window gets focus
   });
 };
