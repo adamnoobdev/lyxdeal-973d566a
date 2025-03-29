@@ -48,11 +48,33 @@ export const useDeal = (id: string | undefined) => {
             throw new Error("Deal not found");
           }
           
-          // Ensure the fallback data has a salon property set to null
-          dealData = {
-            ...fallbackDealData,
-            salon: null
-          };
+          // Om deal-data hittades men salongen saknas, försök hämta salong separat om salon_id finns
+          dealData = fallbackDealData;
+          dealData.salon = null;
+          
+          if (dealData.salon_id) {
+            console.log("Fetching salon separately with ID:", dealData.salon_id);
+            
+            const { data: salonData, error: salonError } = await supabase
+              .from("salons")
+              .select("id, name, address, phone")
+              .eq("id", dealData.salon_id)
+              .maybeSingle(); // Använd maybeSingle() istället för single() för att undvika fel
+              
+            if (!salonError && salonData) {
+              dealData.salon = salonData;
+              console.log("Salon data retrieved separately:", salonData);
+            } else {
+              console.log("Could not retrieve salon data separately:", salonError);
+              // Fallback till att använda staden för salongsnamn
+              dealData.salon = {
+                id: dealData.salon_id,
+                name: `Salong i ${dealData.city}`,
+                address: dealData.city || null,
+                phone: null,
+              };
+            }
+          }
         }
 
         if (!dealData) {
@@ -98,22 +120,11 @@ export const useDeal = (id: string | undefined) => {
           salon = dealData.salon;
           console.log("Salon data retrieved from join query:", salon);
         } 
-        // Om inte, gör en separat förfrågan för att hämta salong
+        // Om vi redan har hämtat salong i fallback-scenariot ovan, använd den datan
         else if (dealData.salon_id) {
-          console.log("Making separate request for salon with ID:", dealData.salon_id);
-          
-          const { data: salonData, error: salonError } = await supabase
-            .from("salons")
-            .select("id, name, address, phone")
-            .eq("id", dealData.salon_id)
-            .single();
-            
-          if (!salonError && salonData) {
-            salon = salonData;
-            console.log("Salon data from separate request:", salon);
-          } else {
-            console.error("Error fetching salon:", salonError);
-            // Fallback till att använda staden som en del av salongen
+          // Vi bör redan ha hämtat salongsdata i fallback-fallet ovan
+          if (!salon) {
+            console.log("Using fallback salon data with city");
             salon = {
               id: dealData.salon_id,
               name: `Salong i ${dealData.city}`,
