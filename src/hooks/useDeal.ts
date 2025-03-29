@@ -36,6 +36,7 @@ export const useDeal = (id: string | undefined) => {
         }
 
         console.log("Raw deal data from DB:", dealData);
+        console.log("Deal salon_id value:", dealData.salon_id, "Type:", typeof dealData.salon_id);
 
         // Initialize salon data with default values
         let salonData = {
@@ -66,6 +67,29 @@ export const useDeal = (id: string | undefined) => {
             } else {
               console.warn(`No salon found with ID: ${dealData.salon_id}. This might indicate a data consistency issue.`);
               
+              // First diagnostic check - make sure the salon ID is a valid number
+              if (typeof dealData.salon_id !== 'number') {
+                console.error(`Invalid salon_id type: ${typeof dealData.salon_id}, value: ${dealData.salon_id}`);
+                
+                // Try to convert it to a number if it's a string
+                if (typeof dealData.salon_id === 'string') {
+                  const numericId = parseInt(dealData.salon_id);
+                  if (!isNaN(numericId)) {
+                    console.log(`Attempting to fetch salon with parsed ID: ${numericId}`);
+                    const { data: parsedSalon } = await supabase
+                      .from("salons")
+                      .select("id, name, address, phone")
+                      .eq("id", numericId)
+                      .maybeSingle();
+                      
+                    if (parsedSalon) {
+                      console.log("Found salon with parsed ID:", parsedSalon);
+                      salonData = parsedSalon;
+                    }
+                  }
+                }
+              }
+              
               // Additional diagnostic check - verify if the salon exists at all
               const { count, error: countError } = await supabase
                 .from("salons")
@@ -86,7 +110,32 @@ export const useDeal = (id: string | undefined) => {
               if (idsError) {
                 console.error("Error fetching salon IDs:", idsError);
               } else {
-                console.log("Available salon IDs in database:", allSalonIds.map(s => s.id));
+                console.log("Available salon IDs in database:", allSalonIds?.map(s => s.id));
+                
+                // Try an advanced direct query with rawSQL to check if there's any data difference
+                const { data: rawSalonData, error: rawError } = await supabase
+                  .from("salons")
+                  .select("*")
+                  .limit(1);
+                  
+                if (rawError) {
+                  console.error("Error fetching raw salon data:", rawError);
+                } else if (rawSalonData && rawSalonData.length > 0) {
+                  console.log("Sample raw salon record structure:", rawSalonData[0]);
+                  
+                  // Try to see if any salon has this ID as a string
+                  const stringId = String(dealData.salon_id);
+                  const { data: stringSalon } = await supabase
+                    .from("salons")
+                    .select("id, name, address, phone")
+                    .filter("id::text", "eq", stringId)
+                    .maybeSingle();
+                    
+                  if (stringSalon) {
+                    console.log("Found salon with string ID comparison:", stringSalon);
+                    salonData = stringSalon;
+                  }
+                }
               }
             }
           } catch (salonFetchError) {
