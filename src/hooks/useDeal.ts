@@ -19,7 +19,7 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // Först, hämta erbjudandet utan JOIN för att säkerställa att vi får data
+        // Först, hämta erbjudandet 
         let { data: dealData, error: dealError } = await supabase
           .from("deals")
           .select("*")
@@ -35,7 +35,9 @@ export const useDeal = (id: string | undefined) => {
           throw new Error("Deal not found");
         }
 
-        // När vi har deal-datan, hämta salongsdata separat
+        console.log("Raw deal data from DB:", dealData);
+
+        // När vi har deal-datan, hämta salongsdata separat med tydligare loggning
         let salonData = null;
         if (dealData.salon_id) {
           console.log("Fetching salon with ID:", dealData.salon_id);
@@ -44,17 +46,34 @@ export const useDeal = (id: string | undefined) => {
             .from("salons")
             .select("id, name, address, phone")
             .eq("id", dealData.salon_id)
-            .maybeSingle();
+            .single(); // Using single() instead of maybeSingle() as we know the ID should exist
             
-          if (!salonError && fetchedSalonData) {
+          if (salonError) {
+            console.error("Error fetching salon data:", salonError.message, salonError);
+            
+            // Try with a different approach using maybeSingle
+            console.log("Retrying with maybeSingle");
+            const { data: retryData, error: retryError } = await supabase
+              .from("salons")
+              .select("id, name, address, phone")
+              .eq("id", dealData.salon_id)
+              .maybeSingle();
+              
+            if (!retryError && retryData) {
+              salonData = retryData;
+              console.log("Salon data retrieved with maybeSingle:", salonData);
+            } else if (retryError) {
+              console.error("Retry error fetching salon:", retryError);
+            } else {
+              console.log("No salon found with ID:", dealData.salon_id);
+            }
+          } else {
             salonData = fetchedSalonData;
             console.log("Salon data retrieved:", salonData);
-          } else {
-            console.log("Could not retrieve salon data:", salonError);
           }
         }
         
-        // Skapa en standard salon-struktur om vi inte kunde hämta någon
+        // Skapa en definitiv salongsstruktur, oavsett om vi fick data eller inte
         const finalSalonData = salonData || {
           id: dealData.salon_id || null,
           name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
@@ -62,7 +81,6 @@ export const useDeal = (id: string | undefined) => {
           phone: null
         };
 
-        console.log("Raw deal data from DB:", dealData);
         console.log("Final salon data:", finalSalonData);
         
         // Calculate days remaining
