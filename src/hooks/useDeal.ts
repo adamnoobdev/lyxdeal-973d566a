@@ -48,39 +48,51 @@ export const useDeal = (id: string | undefined) => {
             throw new Error("Deal not found");
           }
           
-          // Skapa en kopia av fallbackDealData med salon satt till ett tomt objekt med rätt struktur
-          // istället för null för att matcha TypeScript-kraven
-          dealData = { 
-            ...fallbackDealData, 
-            salon: {
-              id: fallbackDealData.salon_id || null,
-              name: fallbackDealData.city ? `Salong i ${fallbackDealData.city}` : 'Okänd salong',
-              address: fallbackDealData.city || null,
-              phone: null
-            }
+          // För TypeScript-kompatibilitet: se till att vi alltid har en salon-struktur
+          // Denna del är kritisk för att uppfylla TypeScript-kraven
+          const salonData = {
+            id: fallbackDealData.salon_id || null,
+            name: fallbackDealData.city ? `Salong i ${fallbackDealData.city}` : 'Okänd salong',
+            address: fallbackDealData.city || null,
+            phone: null
           };
           
-          if (dealData.salon_id) {
-            console.log("Fetching salon separately with ID:", dealData.salon_id);
+          // Kombinera deal-data med vår salon-struktur
+          dealData = { 
+            ...fallbackDealData,
+            salon: salonData // Explicit sätt salon-strukturen
+          };
+          
+          // Försök hämta salongsdata om vi har salon_id
+          if (fallbackDealData.salon_id) {
+            console.log("Fetching salon separately with ID:", fallbackDealData.salon_id);
             
-            const { data: salonData, error: salonError } = await supabase
+            const { data: fetchedSalonData, error: salonError } = await supabase
               .from("salons")
               .select("id, name, address, phone")
-              .eq("id", dealData.salon_id)
-              .maybeSingle(); // Använd maybeSingle() istället för single() för att undvika fel
+              .eq("id", fallbackDealData.salon_id)
+              .maybeSingle();
               
-            if (!salonError && salonData) {
-              dealData.salon = salonData;
-              console.log("Salon data retrieved separately:", salonData);
+            if (!salonError && fetchedSalonData) {
+              // Uppdatera med korrekt salongsdata
+              dealData.salon = fetchedSalonData;
+              console.log("Salon data retrieved separately:", fetchedSalonData);
             } else {
               console.log("Could not retrieve salon data separately:", salonError);
-              // Vi behöver inte göra något mer här eftersom vi redan har satt en default salon struktur ovan
+              // Vi behåller den fallback salon-struktur vi skapade ovan
             }
           }
-        }
-
-        if (!dealData) {
+        } else if (!dealData) {
           throw new Error("Deal not found");
+        } else if (dealData && !dealData.salon) {
+          // Om vi får deal-data men ingen salon, skapa en standard salon-struktur
+          // Detta är viktigt för att hålla TypeScript-typen konsekvent
+          dealData.salon = {
+            id: dealData.salon_id || null,
+            name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
+            address: dealData.city || null,
+            phone: null
+          };
         }
 
         console.log("Raw deal data from DB:", dealData);
@@ -114,16 +126,8 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free
         const isFree = dealData.is_free || dealData.discounted_price === 0;
 
-        // Hantera salongsinformation
-        // Säkerställ att salon alltid har korrekt struktur för TypeScript
-        let salon = dealData.salon || {
-          id: dealData.salon_id || null,
-          name: `Salong i ${dealData.city || 'okänd stad'}`,
-          address: dealData.city || null,
-          phone: null
-        };
-
-        console.log("Final processed salon data:", salon);
+        // Hantera salongsinformation - förenkla och garantera att salon alltid finns
+        console.log("Final processed salon data:", dealData.salon);
 
         return {
           id: dealData.id,
@@ -139,7 +143,7 @@ export const useDeal = (id: string | undefined) => {
           created_at: dealData.created_at,
           quantityLeft: dealData.quantity_left,
           isFree: isFree,
-          salon: salon,
+          salon: dealData.salon, // Detta är nu garanterat att finnas och ha rätt struktur
           booking_url: dealData.booking_url,
         };
       } catch (error) {
