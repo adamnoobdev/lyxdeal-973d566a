@@ -37,48 +37,100 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Raw deal data from DB:", dealData);
 
-        // När vi har deal-datan, hämta salongsdata separat med förbättrad felhantering
+        // När vi har deal-datan, hämta salongsdata separat med förbättrad diagnostik
         let salonData = null;
         if (dealData.salon_id) {
           console.log("Fetching salon with ID:", dealData.salon_id);
           
-          // Kontrollera om det finns några RLS-policys på salons-tabellen
-          console.log("Checking current user auth status:", await supabase.auth.getSession());
+          // Detaljerad diagnostik av användarsession och behörigheter
+          const { data: sessionData } = await supabase.auth.getSession();
+          console.log("Current auth session:", sessionData.session ? "Authenticated" : "Not authenticated");
           
-          // Försök 1: Standardförfrågan
+          // Försök 1: Standard RPC-anrop med basic select
+          console.log("Diagnostic step 1: Basic salon query");
           const { data: fetchedSalonData, error: salonError } = await supabase
             .from("salons")
             .select("id, name, address, phone")
             .eq("id", dealData.salon_id);
             
-          console.log("Salon query result:", { data: fetchedSalonData, error: salonError });
+          console.log("Basic query result:", { 
+            hasData: fetchedSalonData && fetchedSalonData.length > 0,
+            dataLength: fetchedSalonData?.length,
+            error: salonError ? salonError.message : 'No error'
+          });
           
           if (salonError) {
             console.error("Error fetching salon data:", salonError.message, salonError);
             
-            // Försök 2: Använda service_role om tillgängligt (endast för debugging)
-            try {
-              console.log("Attempting to check if RLS is causing the issue...");
-              console.log("If this request works but the previous one failed, it may indicate an RLS policy issue");
-            } catch (serviceRoleError) {
-              console.error("Service role test not available in client context");
+            // Undersök RLS-problem
+            console.log("Diagnostic step 2: Checking for RLS issues");
+            // Vi kan inte använda service_role i klientens kontext, så vi testar en annan metod
+            
+            // Kontrollera om salongen faktiskt finns i databasen
+            const { count, error: countError } = await supabase
+              .from("salons")
+              .select("*", { count: 'exact', head: true })
+              .eq("id", dealData.salon_id);
+              
+            console.log(`Count of salons with ID ${dealData.salon_id}:`, count, "Error:", countError ? countError.message : 'No error');
+            
+            if (countError) {
+              console.log("Diagnostic step 3: Count query failed - likely RLS policy preventing even counting");
+            } else if (count === 0) {
+              console.log("Diagnostic step 3: Salon does not exist in database");
+            } else {
+              console.log("Diagnostic step 3: Salon exists but might be blocked by RLS");
             }
+            
+            // Testa om vi kan få grundläggande metadata om tabeller (ingen RLS)
+            console.log("Diagnostic step 4: Testing basic table access");
+            const { data: tableInfo, error: tableError } = await supabase
+              .rpc('get_tables');
+              
+            console.log("Table info access:", tableError ? "Failed" : "Succeeded", 
+              tableError ? tableError.message : `Got info for ${tableInfo?.length || 0} tables`);
+            
           } else if (fetchedSalonData && fetchedSalonData.length > 0) {
             // Om vi fick resultat, använd det första (det bör bara finnas ett)
             salonData = fetchedSalonData[0];
-            console.log("Salon data retrieved:", salonData);
+            console.log("Salon data successfully retrieved:", salonData);
           } else {
             console.log("No salon found with ID:", dealData.salon_id);
+            
             // Kontrollera om det finns en rad i salons-tabellen med detta ID
             const { count, error: countError } = await supabase
               .from("salons")
               .select("*", { count: 'exact', head: true })
               .eq("id", dealData.salon_id);
               
-            console.log(`Count of salons with ID ${dealData.salon_id}:`, count, "Error:", countError);
+            console.log(`Count of salons with ID ${dealData.salon_id}:`, count, "Error:", countError ? countError.message : 'No error');
             
-            // Undersök om det finns några RLS-policys som blockerar åtkomst
-            console.log("This could be due to RLS policies restricting access to salon data");
+            if (count === 0) {
+              console.log("Salon does not exist in database");
+            } else {
+              console.log("Salon exists but might be blocked by RLS policy");
+              
+              // Om salongen finns men vi ändå inte får data, är det troligen en RLS-policy som blockerar
+              if (!sessionData.session) {
+                console.log("User is not authenticated - this might be causing the RLS policy to block access");
+              } else {
+                console.log("User is authenticated but RLS policy might still be restricting access");
+                
+                // Kontrollera om användarens session har koppling till den här salongen
+                if (sessionData.session.user?.id) {
+                  const { data: userSalon, error: userSalonError } = await supabase
+                    .from("salons")
+                    .select("id")
+                    .eq("user_id", sessionData.session.user.id);
+                    
+                  console.log("User's associated salons:", 
+                    userSalonError ? "Error checking" : 
+                    userSalon?.length === 0 ? "None" : 
+                    `Found ${userSalon?.length} salons`, 
+                    userSalonError ? userSalonError.message : '');
+                }
+              }
+            }
           }
         }
         
