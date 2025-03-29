@@ -48,9 +48,11 @@ export const useDeal = (id: string | undefined) => {
             throw new Error("Deal not found");
           }
           
-          // Om deal-data hittades men salongen saknas, försök hämta salong separat om salon_id finns
-          dealData = fallbackDealData;
-          dealData.salon = null;
+          // Skapa en kopia av fallbackDealData med salon satt till null från början
+          dealData = { 
+            ...fallbackDealData, 
+            salon: null 
+          };
           
           if (dealData.salon_id) {
             console.log("Fetching salon separately with ID:", dealData.salon_id);
@@ -112,7 +114,7 @@ export const useDeal = (id: string | undefined) => {
         // Determine if the deal is free
         const isFree = dealData.is_free || dealData.discounted_price === 0;
 
-        // Hantera salonginformation
+        // Hantera salongsinformation
         let salon = null;
         
         // Först, kontrollera om vi fick salongen från JOINen
