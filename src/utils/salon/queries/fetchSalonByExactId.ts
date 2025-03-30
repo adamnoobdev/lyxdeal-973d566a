@@ -18,10 +18,13 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
     // Prioritera direkthämtning utan autentisering
     console.log(`[fetchSalonByExactId] Försöker direkthämta salong med ID: ${salonId}`);
     
+    // Ensure salonId is properly formatted for the query
+    const formattedId = typeof salonId === 'string' ? salonId : salonId.toString();
+    
     // Send a query to the REST API endpoint which should bypass RLS
     const directData = await directFetch<SalonData>(
       `salons`,
-      { "id": `eq.${salonId}`, "select": "id,name,address,phone", "limit": "1" }
+      { "id": `eq.${formattedId}`, "select": "id,name,address,phone", "limit": "1" }
     );
     
     if (directData && directData.length > 0) {
@@ -34,10 +37,19 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
     // Fallback till Supabase klient om direkthämtning misslyckas
     console.log(`[fetchSalonByExactId] Försöker hämta salong med ID: ${salonId} via Supabase klient`);
     
+    // Convert salonId to number for Supabase query if it's a string
+    const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    
+    // Check if conversion resulted in a valid number
+    if (isNaN(Number(numericId))) {
+      console.error(`[fetchSalonByExactId] Ogiltigt salong ID format: ${salonId}`);
+      return null;
+    }
+    
     const { data, error } = await supabase
       .from("salons")
       .select("id, name, address, phone")
-      .eq("id", salonId)
+      .eq("id", numericId)
       .single();
     
     if (error) {
