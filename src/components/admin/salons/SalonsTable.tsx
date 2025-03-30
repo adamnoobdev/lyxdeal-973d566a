@@ -77,7 +77,7 @@ export const SalonsTable = ({
               </TableCell>
               <TableCell className="text-right">
                 <SalonActions
-                  salon={salon}
+                  salonId={salon.id}
                   onDelete={() => onDelete(salon)}
                   onEdit={() => onEdit(salon)}
                 />

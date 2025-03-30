@@ -45,7 +45,7 @@ export const SalonsContent = ({
               onEdit={onEdit}
               onDelete={onDelete}
               onSelect={onSelect}
-              selectedSalonId={selectedSalon?.id}
+              selectedSalon={selectedSalon}
             />
           </div>
         </div>
