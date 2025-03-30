@@ -1,3 +1,4 @@
+
 export interface Deal {
   id: number;
   title: string;
@@ -32,6 +33,8 @@ export interface Salon {
   created_at: string;
   user_id: string | null;
   role: string;
+  terms_accepted?: boolean;
+  privacy_accepted?: boolean;
 }
 
 export interface SalonFormValues {
@@ -40,4 +43,6 @@ export interface SalonFormValues {
   phone?: string;
   address?: string;
   password?: string;
+  termsAccepted?: boolean;
+  privacyAccepted?: boolean;
 }

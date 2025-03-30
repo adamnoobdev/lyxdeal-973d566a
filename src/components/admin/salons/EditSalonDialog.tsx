@@ -78,7 +78,7 @@ export const EditSalonDialog = ({
         <DialogHeader>
           <DialogTitle>Redigera salong</DialogTitle>
           <DialogDescription>
-            Uppdatera information om salongen. Fyll i adressinformation för korrekt visning på kartan.
+            Uppdatera information om salongen. Fyll i adressinformation för korrekt visning på kartan och hantera godkännanden av villkor.
           </DialogDescription>
         </DialogHeader>
         <SalonForm 

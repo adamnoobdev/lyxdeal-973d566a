@@ -1,88 +1,85 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { z } from "zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { BasicInfoFields } from "./form/BasicInfoFields";
 import { ContactFields } from "./form/ContactFields";
 import { PasswordField } from "./form/PasswordField";
 import { SubscriptionField } from "./form/SubscriptionField";
-import { LoadingButton } from "@/components/ui/loading-button";
+import { TermsFields } from "./form/TermsFields";
+import { useState } from "react";
 
-// Förbättrat schema med adressfält som stöder mapbox-integration
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Namnet måste vara minst 2 tecken.",
-  }),
-  email: z.string().email({
-    message: "Vänligen ange en giltig e-postadress.",
-  }),
+  name: z.string().min(1, { message: "Namn krävs" }),
+  email: z.string().email({ message: "Ogiltig e-postadress" }),
   phone: z.string().optional(),
-  fullAddress: z.string().optional(),
   street: z.string().optional(),
   postalCode: z.string().optional(),
   city: z.string().optional(),
-  address: z.string().optional(),
   password: z.string().optional(),
   skipSubscription: z.boolean().optional().default(false),
+  termsAccepted: z.boolean().optional().default(true),
+  privacyAccepted: z.boolean().optional().default(true),
 });
 
 interface SalonFormProps {
-  onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>;
-  initialValues?: z.infer<typeof formSchema>;
+  onSubmit: (values: any) => Promise<void>;
+  initialValues?: any;
   isEditing?: boolean;
 }
 
 export const SalonForm = ({ onSubmit, initialValues, isEditing }: SalonFormProps) => {
-  // Här använder vi de ursprungliga initialValues utan att behöva processa de manuellt
-  const form = useForm<z.infer<typeof formSchema>>({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Kombinera initialValues med standardvärden
+  const defaultValues = {
+    name: "",
+    email: "",
+    phone: "",
+    street: "",
+    postalCode: "",
+    city: "",
+    password: "",
+    skipSubscription: false,
+    termsAccepted: true,
+    privacyAccepted: true,
+    ...initialValues,
+  };
+
+  const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: initialValues || {
-      name: "",
-      email: "",
-      phone: "",
-      fullAddress: "",
-      street: "",
-      postalCode: "",
-      city: "",
-      address: "",
-      password: "",
-      skipSubscription: false,
-    },
+    defaultValues,
   });
 
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: any) => {
+    setIsSubmitting(true);
     try {
-      // Vi behöver inte längre kombinera adressfälten manuellt - detta hanteras av MapboxAddressInput
-      // som uppdaterar det dolda address-fältet som skickas till backend
-      
-      // Om adressen är tom, sätt den till undefined
-      if (values.address?.trim() === "") {
-        values.address = undefined;
-      }
-      
       await onSubmit(values);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
         <BasicInfoFields form={form} />
         <ContactFields form={form} />
-        {isEditing && <PasswordField form={form} />}
-        {!isEditing && <SubscriptionField form={form} />}
         
-        <div className="flex justify-end gap-4">
-          <LoadingButton 
-            type="submit" 
-            loading={form.formState.isSubmitting}
-          >
-            Spara
-          </LoadingButton>
+        {isEditing && <TermsFields form={form} />}
+        
+        {!isEditing && <PasswordField form={form} />}
+        
+        {!isEditing && <SubscriptionField form={form} />}
+
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Sparar..." : isEditing ? "Uppdatera" : "Skapa"}
+          </Button>
         </div>
       </form>
     </Form>

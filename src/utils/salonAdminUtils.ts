@@ -106,7 +106,7 @@ export const createSalonData = async (values: any) => {
 export const updateSalonData = async (values: any, id: number) => {
   try {
     // Rensa upp och hantera adressfält innan de skickas
-    const { street, postalCode, city, password, skipSubscription, ...otherValues } = values;
+    const { street, postalCode, city, password, skipSubscription, termsAccepted, privacyAccepted, ...otherValues } = values;
     
     // Kombinera adressfälten till fullständig adress om de finns
     if (street || postalCode || city) {
@@ -122,6 +122,15 @@ export const updateSalonData = async (values: any, id: number) => {
       }
       
       otherValues.address = fullAddress || undefined;
+    }
+    
+    // Lägg till godkännanden
+    if (termsAccepted !== undefined) {
+      otherValues.terms_accepted = termsAccepted;
+    }
+    
+    if (privacyAccepted !== undefined) {
+      otherValues.privacy_accepted = privacyAccepted;
     }
     
     // If a new password is provided, update it via auth admin API

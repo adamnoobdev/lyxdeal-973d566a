@@ -55,7 +55,9 @@ export const SalonsList = () => {
       phone: salon.phone || "",
       street: "",
       postalCode: "",
-      city: ""
+      city: "",
+      termsAccepted: salon.terms_accepted !== false, // Om undefined eller true, sätt true som standard
+      privacyAccepted: salon.privacy_accepted !== false, // Om undefined eller true, sätt true som standard
     };
 
     // Parse address if it exists
