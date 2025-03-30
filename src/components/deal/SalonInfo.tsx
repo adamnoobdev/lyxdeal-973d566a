@@ -28,6 +28,15 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
     );
   }
 
+  // Logga ännu mer information för felsökning
+  console.log("SalonInfo rendering with salon data:", { 
+    name: salon.name, 
+    address: salon.address, 
+    phone: salon.phone,
+    nameType: typeof salon.name,
+    nameEmpty: salon.name ? salon.name.trim() === '' : true
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
@@ -35,7 +44,7 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
           <Store className="h-5 w-5 text-primary" />
         </div>
         <h3 className="text-base font-medium text-foreground">
-          {salon.name}
+          {salon.name || 'Okänd salong'}
         </h3>
       </div>
       

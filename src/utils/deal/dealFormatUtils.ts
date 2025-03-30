@@ -12,7 +12,7 @@ import { FormattedDealData, RawDealData } from "./types";
  */
 export const formatDealData = (
   rawDeal: RawDealData, 
-  salonData: { id: number | null; name: string; address: string | null; phone: string | null; }
+  salonData: { id: number | null; name: string; address: string | null; phone: string | null; } | null
 ): FormattedDealData => {
   console.log("Formatting deal data:", { 
     dealId: rawDeal.id,
@@ -26,10 +26,22 @@ export const formatDealData = (
   const isFree = isDealFree(rawDeal.is_free, rawDeal.discounted_price);
 
   // Säkerställ att vi alltid har ett salongsnamn
-  const salonName = salonData?.name || 
-                   (rawDeal.city ? `Salong i ${rawDeal.city}` : 'Okänd salong');
+  const salonName = salonData?.name && salonData.name.trim() !== '' 
+                   ? salonData.name 
+                   : (rawDeal.city ? `Salong i ${rawDeal.city}` : 'Okänd salong');
   
   console.log("Final salon name to use:", salonName);
+  
+  // Skapa ett standardsalongsobjekt om inget fanns
+  const finalSalonData = salonData ? {
+    ...salonData,
+    name: salonName // Använd det säkra namnet
+  } : {
+    id: rawDeal.salon_id,
+    name: salonName,
+    address: rawDeal.city ? `${rawDeal.city}` : null,
+    phone: null
+  };
 
   const formattedDeal = {
     id: rawDeal.id,
@@ -45,10 +57,7 @@ export const formatDealData = (
     created_at: rawDeal.created_at,
     quantityLeft: rawDeal.quantity_left,
     isFree,
-    salon: {
-      ...salonData,
-      name: salonName
-    },
+    salon: finalSalonData,
     booking_url: rawDeal.booking_url || null
   };
   

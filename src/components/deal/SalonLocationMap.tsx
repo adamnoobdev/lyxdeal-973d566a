@@ -28,6 +28,18 @@ export const SalonLocationMap = ({
   const [mapError, setMapError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [normalizedAddress, setNormalizedAddress] = useState<string>('');
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Loggning för felsökning
+  console.log("SalonLocationMap rendering with props:", { 
+    address, 
+    salonName, 
+    salonPhone, 
+    city, 
+    hideAddress,
+    mapboxToken: !!mapboxToken,
+    isTokenLoading
+  });
 
   // Förbättrad adressformatering för geocoding
   const getFormattedAddress = () => {
@@ -47,8 +59,7 @@ export const SalonLocationMap = ({
 
   const formattedAddress = getFormattedAddress();
 
-  console.log("SalonLocationMap props:", { address, salonName, salonPhone, city });
-  console.log("Formatted address for geocoding:", formattedAddress);
+  console.log("SalonLocationMap formattedAddress:", formattedAddress);
 
   useEffect(() => {
     // Normalisera adressen för bättre visning
@@ -98,8 +109,22 @@ export const SalonLocationMap = ({
           setMapError(null);
           console.log("Retrieved coordinates:", coords);
         } else {
-          setMapError('Kunde inte hitta denna adress på kartan. Kontrollera att adressen är korrekt och fullständig.');
+          setMapError('Kunde inte hitta denna adress på kartan. Försöker igen...');
           console.error("No coordinates returned for address:", formattedAddress);
+          
+          // Prova ett alternativt format om första försöket misslyckas
+          if (city && retryCount < 1) {
+            setRetryCount(prev => prev + 1);
+            const cityOnlyCoords = await getCoordinates(city, mapboxToken);
+            
+            if (cityOnlyCoords) {
+              setCoordinates(cityOnlyCoords);
+              setMapError(null);
+              console.log("Retrieved city coordinates as fallback:", cityOnlyCoords);
+            } else {
+              setMapError('Kunde inte hitta denna adress på kartan. Kontrollera att adressen är korrekt och fullständig.');
+            }
+          }
         }
       } catch (error) {
         console.error('Error fetching coordinates:', error);
@@ -112,7 +137,7 @@ export const SalonLocationMap = ({
     if (mapboxToken && formattedAddress) {
       fetchCoordinates();
     }
-  }, [formattedAddress, mapboxToken]);
+  }, [formattedAddress, mapboxToken, city, retryCount]);
 
   // Combine loading states
   if (isTokenLoading || (isLoading && !mapError)) {

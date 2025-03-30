@@ -47,20 +47,42 @@ export const useDeal = (id: string | undefined) => {
         console.log("Deal salon_id value:", dealData.salon_id, "Type:", typeof dealData.salon_id);
         console.log("Deal city value:", dealData.city);
 
-        // Direkt försök att hämta salongsdata först
+        // Först försöker vi hämta salongsdata direkt med ett explicit ID
         let salonData = null;
         if (dealData.salon_id) {
-          const { data: directSalonData, error: salonError } = await supabase
-            .from("salons")
-            .select("id, name, address, phone")
-            .eq("id", dealData.salon_id)
-            .single();
-            
-          if (!salonError && directSalonData) {
-            console.log("Successfully fetched salon data directly:", directSalonData);
-            salonData = directSalonData;
-          } else {
-            console.log("Could not fetch salon data directly, trying with resolver:", salonError);
+          try {
+            // Specifikt direkthämtning med både number och string typhantering
+            const numericSalonId = typeof dealData.salon_id === 'string' 
+              ? parseInt(dealData.salon_id) 
+              : dealData.salon_id;
+
+            // Hämta med exakt ID först
+            const { data: exactSalonData, error: exactSalonError } = await supabase
+              .from("salons")
+              .select("id, name, address, phone")
+              .eq("id", numericSalonId)
+              .maybeSingle();
+              
+            if (!exactSalonError && exactSalonData) {
+              console.log("Successfully fetched salon data by exact ID:", exactSalonData);
+              salonData = exactSalonData;
+            } else {
+              // Försök med string-jämförelse om numeric inte fungerade
+              const { data: stringSalonData, error: stringSalonError } = await supabase
+                .from("salons")
+                .select("id, name, address, phone")
+                .filter('id::text', 'eq', String(dealData.salon_id))
+                .maybeSingle();
+                
+              if (!stringSalonError && stringSalonData) {
+                console.log("Successfully fetched salon data by string ID:", stringSalonData);
+                salonData = stringSalonData;
+              } else {
+                console.log("Could not fetch salon data directly:", exactSalonError || stringSalonError);
+              }
+            }
+          } catch (directFetchError) {
+            console.error("Error in direct salon fetch:", directFetchError);
           }
         }
         
@@ -71,10 +93,6 @@ export const useDeal = (id: string | undefined) => {
             console.log("Resolved salon data using resolver:", salonData);
           } catch (salonError) {
             console.error("Error resolving salon data:", salonError);
-            toast.error("Kunde inte hämta information om salongen", {
-              id: "salon-error",
-              duration: 3000,
-            });
             
             // Fallback till standardsalong baserad på stad om resolution misslyckas helt
             salonData = {
@@ -87,6 +105,12 @@ export const useDeal = (id: string | undefined) => {
           }
         }
         
+        // Ytterligare säkerhetskontroll för att säkerställa att vi har ett namn
+        if (salonData && (!salonData.name || salonData.name.trim() === '')) {
+          salonData.name = dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong';
+          console.log("Added missing salon name:", salonData.name);
+        }
+        
         // Format and return the complete deal data
         return formatDealData(dealData as RawDealData, salonData);
       } catch (error) {
@@ -96,5 +120,7 @@ export const useDeal = (id: string | undefined) => {
     },
     staleTime: 0, // Reduce cache time to ensure fresh data
     refetchOnWindowFocus: true, // Update when window gets focus
+    refetchOnMount: 'always', // Always refetch when component mounts
+    retry: 3, // Retry failed requests 3 times
   });
 };
