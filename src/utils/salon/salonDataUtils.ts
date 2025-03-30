@@ -27,17 +27,20 @@ export const resolveSalonData = async (
     // Try to fetch salon with exact ID first
     const exactSalon = await fetchSalonByExactId(salonId);
     if (exactSalon) {
+      console.log("Found salon with exact ID match:", exactSalon);
       return exactSalon;
     }
     
+    console.log("No exact ID match found, trying similar ID search");
     // If exact match fails, try to find salon with similar ID
     const similarSalon = await findSalonWithSimilarId(salonId);
     if (similarSalon) {
+      console.log("Found salon with similar ID:", similarSalon);
       return similarSalon;
     }
     
     // If all else fails, return default salon data
-    console.log("All salon lookup attempts failed, falling back to default salon data");
+    console.log(`All salon lookup attempts failed for ID: ${salonId}, falling back to default salon data`);
     return createDefaultSalonData(cityName);
   } catch (err) {
     console.error("Unexpected error in resolveSalonData:", err);

@@ -21,7 +21,7 @@ export const checkSalonsTable = async (): Promise<boolean> => {
     }
     
     // Table exists and we can access it (even if it's empty)
-    console.log("Salons table exists and is accessible:", true);
+    console.log("Salons table exists and is accessible, found records:", data?.length > 0);
     return true;
   } catch (err) {
     console.error("Exception checking salons table:", err);
@@ -33,7 +33,7 @@ export const checkSalonsTable = async (): Promise<boolean> => {
  * Fetches a salon by its exact ID
  */
 export const fetchSalonByExactId = async (salonId: number | string): Promise<SalonData | null> => {
-  console.log(`Attempting to fetch salon with exact ID: ${salonId}`);
+  console.log(`Attempting to fetch salon with exact ID: ${salonId} (${typeof salonId})`);
   
   // Convert string ID to number if needed
   const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
@@ -93,7 +93,10 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
       return null;
     }
     
-    console.log("All available salons:", allSalons);
+    console.log("All available salons count:", allSalons?.length || 0);
+    if (allSalons && allSalons.length > 0) {
+      console.log("First salon in the list:", allSalons[0]);
+    }
     
     return allSalons as SalonData[];
   } catch (err) {

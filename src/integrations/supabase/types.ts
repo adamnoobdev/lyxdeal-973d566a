@@ -313,12 +313,14 @@ export type Database = {
           id: number
           name: string
           phone: string | null
+          privacy_accepted: boolean | null
           role: string
           status: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_plan: string | null
           subscription_type: string | null
+          terms_accepted: boolean | null
           user_id: string | null
         }
         Insert: {
@@ -330,12 +332,14 @@ export type Database = {
           id?: number
           name: string
           phone?: string | null
+          privacy_accepted?: boolean | null
           role?: string
           status?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_plan?: string | null
           subscription_type?: string | null
+          terms_accepted?: boolean | null
           user_id?: string | null
         }
         Update: {
@@ -347,12 +351,14 @@ export type Database = {
           id?: number
           name?: string
           phone?: string | null
+          privacy_accepted?: boolean | null
           role?: string
           status?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_plan?: string | null
           subscription_type?: string | null
+          terms_accepted?: boolean | null
           user_id?: string | null
         }
         Relationships: []
