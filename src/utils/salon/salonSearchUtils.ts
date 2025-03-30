@@ -11,35 +11,31 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
   console.log(`Finding salon with similar ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Först prova att hämta alla salonger via Supabase klienten
-    let allSalons = await fetchAllSalons();
-    
-    // Om inga salonger hittades med Supabase klienten, prova direkt fetch
-    if (!allSalons || allSalons.length === 0) {
-      console.log("No salons found via Supabase client, trying direct fetch");
-      
-      const { data: directData, error: directError } = await fetch(
-        `${SUPABASE_URL}/rest/v1/salons?select=id,name,address,phone&limit=50`,
-        {
-          method: 'GET',
-          headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
+    // Försök hämta direkt via API först för att kringgå behörighetsbegränsningar
+    console.log("Trying direct fetch for all salons");
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/salons?select=id,name,address,phone&limit=50`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
-      ).then(res => res.json().then(data => ({ data, error: null })))
-        .catch(error => ({ data: null, error }));
-      
-      if (directError) {
-        console.error("Error fetching all salons with direct API:", directError);
-        return null;
       }
-      
-      if (directData && Array.isArray(directData)) {
+    );
+    
+    let allSalons: SalonData[] = [];
+    
+    if (response.ok) {
+      const directData = await response.json();
+      if (directData && Array.isArray(directData) && directData.length > 0) {
         allSalons = directData as SalonData[];
         console.log("Retrieved salons via direct API:", allSalons.length);
       }
+    } else {
+      // Fallback till Supabase klient
+      allSalons = await fetchAllSalons() || [];
     }
     
     if (!allSalons || allSalons.length === 0) {

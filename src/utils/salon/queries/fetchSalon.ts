@@ -14,6 +14,32 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
     const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
     const isValidNumber = !isNaN(numericId);
     
+    // Hämta direkt via API utan autentisering först
+    console.log(`Fetching salon with ID=${salonId} via direct API`);
+    
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/salons?id=eq.${numericId}&select=id,name,address,phone`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    if (response.ok) {
+      const directData = await response.json();
+      if (directData && Array.isArray(directData) && directData.length > 0) {
+        console.log("Found salon with direct API query:", directData[0]);
+        return directData[0] as SalonData;
+      }
+    } else {
+      console.log(`Direct API query failed: ${response.status} ${response.statusText}`);
+    }
+    
+    // Fallback till Supabase klient
     // Försök hämta med numeriskt ID först om giltigt
     if (isValidNumber) {
       console.log(`Querying salon with numeric ID: ${numericId}`);
@@ -21,7 +47,7 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
       const { data: numericData, error: numericError } = await supabase
         .from("salons")
         .select("id, name, address, phone")
-        .eq("id", numericId)
+        .filter('id', 'eq', numericId)
         .maybeSingle();
         
       if (numericError) {
@@ -37,8 +63,6 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
     console.log(`Querying salon with string ID filter: ${stringId}`);
     
     // Ändra till att använda filterfunktionen med explicit typkonvertering
-    // Detta löser TypeScript-felet genom att använda .filter() istället för .eq()
-    // när vi vill jämföra med en sträng
     const { data: stringData, error: stringError } = await supabase
       .from("salons")
       .select("id, name, address, phone")
@@ -47,43 +71,16 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
       
     if (stringError) {
       console.error("Error in string salon query:", stringError);
-      return null;
-    }
-    
-    if (stringData) {
+    } else if (stringData) {
       console.log("Found salon with string ID comparison:", stringData);
       return stringData as SalonData;
     }
     
-    // Om ingen exakt match, gör en anonym fetch direkt mot databasen utan auth
-    console.log(`No exact match through normal API, trying direct fetch for salon_id=${salonId}`);
-    
-    // Anropa direkthämtning med anonym nyckel utan auth-headers för att kringgå RLS
-    const { data: directData, error: directError } = await fetch(
-      `${SUPABASE_URL}/rest/v1/salons?id=eq.${numericId}&select=id,name,address,phone`,
-      {
-        method: 'GET',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      }
-    ).then(res => res.json().then(data => ({ data, error: null })))
-      .catch(error => ({ data: null, error }));
-    
-    if (directError) {
-      console.error("Error in direct salon query:", directError);
-    } else if (directData && Array.isArray(directData) && directData.length > 0) {
-      console.log("Found salon with direct API query:", directData[0]);
-      return directData[0] as SalonData;
-    }
-    
-    // Om direkthämtning misslyckas, prova att söka efter alla salonger (begränsat antal)
+    // Om ingen exakt match, prova att söka efter alla salonger (begränsat antal)
     console.log(`No direct match, fetching a limited set of salons to search manually`);
     
-    // Anropa direkthämtning av alla salonger - utan auth-token för att kringgå RLS
-    const { data: allSalons, error: allSalonsError } = await fetch(
+    // Anropa direkthämtning av alla salonger utan auth-token
+    const allSalonsResponse = await fetch(
       `${SUPABASE_URL}/rest/v1/salons?select=id,name,address,phone&limit=50`,
       {
         method: 'GET',
@@ -93,29 +90,27 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
           'Accept': 'application/json'
         }
       }
-    ).then(res => res.json().then(data => ({ data, error: null })))
-      .catch(error => ({ data: null, error }));
+    );
       
-    if (allSalonsError) {
-      console.error("Error fetching all salons:", allSalonsError);
-      return null;
-    }
-    
-    if (allSalons && Array.isArray(allSalons) && allSalons.length > 0) {
-      console.log("Got all salons to search manually, count:", allSalons.length);
-      // Sök manuellt efter en matchande ID
-      const matchedSalon = allSalons.find(salon => 
-        salon.id == salonId || String(salon.id) === stringId
-      );
+    if (allSalonsResponse.ok) {
+      const allSalons = await allSalonsResponse.json();
       
-      if (matchedSalon) {
-        console.log("Found salon through manual comparison:", matchedSalon);
-        return matchedSalon as SalonData;
+      if (allSalons && Array.isArray(allSalons) && allSalons.length > 0) {
+        console.log("Got all salons to search manually, count:", allSalons.length);
+        // Sök manuellt efter en matchande ID
+        const matchedSalon = allSalons.find(salon => 
+          salon.id == salonId || String(salon.id) === stringId
+        );
+        
+        if (matchedSalon) {
+          console.log("Found salon through manual comparison:", matchedSalon);
+          return matchedSalon as SalonData;
+        }
+        
+        // Fallback till första salonen om ingen match hittas
+        console.log("No matching salon found, using first available salon as fallback");
+        return allSalons[0] as SalonData;
       }
-      
-      // Fallback till första salonen om ingen match hittas
-      console.log("No matching salon found, using first available salon as fallback");
-      return allSalons[0] as SalonData;
     }
     
     console.log(`No salon found with ID: ${salonId} using any method`);
@@ -133,7 +128,29 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
   try {
     console.log("Fetching all salons");
     
-    // Först prova normal Supabase query
+    // Använd direkt fetch först för att kringgå behörighetsbegränsningar
+    console.log("Trying direct fetch to get all salons");
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/salons?select=id,name,address,phone&limit=50`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    if (response.ok) {
+      const directData = await response.json();
+      if (directData && Array.isArray(directData) && directData.length > 0) {
+        console.log("Found salons with direct API:", directData.length);
+        return directData as SalonData[];
+      }
+    }
+    
+    // Fallback till normal Supabase query
     const { data: salonData, error: salonError, status } = await supabase
       .from("salons")
       .select("id, name, address, phone")
@@ -142,43 +159,18 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
     console.log("All salons query status:", status);
       
     if (salonError || !salonData || salonData.length === 0) {
-      console.log("No salons found via Supabase client, trying direct fetch", salonError);
-      
-      // Om det misslyckas eller är tomt, prova direkt fetch utan auth
-      const { data: directData, error: directError } = await fetch(
-        `${SUPABASE_URL}/rest/v1/salons?select=id,name,address,phone&limit=50`,
-        {
-          method: 'GET',
-          headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        }
-      ).then(res => res.json().then(data => ({ data, error: null })))
-        .catch(error => ({ data: null, error }));
-      
-      if (directError) {
-        console.error("Error in direct fetch for all salons:", directError);
-        return null;
-      }
-      
-      if (directData && Array.isArray(directData) && directData.length > 0) {
-        console.log("Found salons with direct API:", directData.length);
-        return directData as SalonData[];
-      }
-    } else {
-      console.log("All available salons count:", salonData?.length || 0);
-      if (salonData && salonData.length > 0) {
-        console.log("Sample of salons:", salonData.slice(0, 3));
-      } else {
-        console.log("No salons found in the database");
-      }
-      
-      return salonData as SalonData[];
+      console.log("No salons found via Supabase client:", salonError);
+      return null;
     }
     
-    return null;
+    console.log("All available salons count:", salonData?.length || 0);
+    if (salonData && salonData.length > 0) {
+      console.log("Sample of salons:", salonData.slice(0, 3));
+    } else {
+      console.log("No salons found in the database");
+    }
+    
+    return salonData as SalonData[];
   } catch (err) {
     console.error("Exception in fetchAllSalons:", err);
     return null;
@@ -192,15 +184,38 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
   console.log(`Fetching full salon data for ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Prova numerisk sökning först
+    // Hämta direkt via API utan autentisering först
     const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    
+    console.log(`Using direct API query for salon ID: ${salonId}`);
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/salons?id=eq.${numericId}&select=id,name,address,phone`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    if (response.ok) {
+      const directData = await response.json();
+      if (directData && Array.isArray(directData) && directData.length > 0) {
+        console.log("Retrieved salon with direct API query:", directData[0]);
+        return directData[0] as SalonData;
+      }
+    }
+    
+    // Fallback till Supabase klient om API-förfrågan misslyckas
     if (!isNaN(numericId)) {
       console.log(`Using numeric query for salon ID: ${numericId}`);
       
       const { data, error } = await supabase
         .from("salons")
         .select("id, name, address, phone")
-        .eq("id", numericId)
+        .filter('id', 'eq', numericId)
         .maybeSingle();
         
       if (error) {
@@ -227,29 +242,6 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
     } else if (stringData) {
       console.log("Retrieved salon with string comparison:", stringData);
       return stringData as SalonData;
-    }
-    
-    // Prova direkt fetch utan auth som sista utväg
-    console.log(`No results from Supabase client, trying direct fetch for salon_id=${salonId}`);
-    
-    const { data: directData, error: directError } = await fetch(
-      `${SUPABASE_URL}/rest/v1/salons?id=eq.${numericId}&select=id,name,address,phone`,
-      {
-        method: 'GET',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      }
-    ).then(res => res.json().then(data => ({ data, error: null })))
-      .catch(error => ({ data: null, error }));
-    
-    if (directError) {
-      console.error("Error in direct salon query:", directError);
-    } else if (directData && Array.isArray(directData) && directData.length > 0) {
-      console.log("Found salon with direct API query:", directData[0]);
-      return directData[0] as SalonData;
     }
     
     console.log(`No salon found with ID: ${salonId} using any method`);
