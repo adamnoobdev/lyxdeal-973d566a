@@ -22,9 +22,9 @@ export const useDeal = (id: string | undefined) => {
           throw new Error("Invalid deal ID");
         }
 
-        console.log(`⭐ Fetching deal with ID ${dealId} (${id})`);
+        console.log("Fetching deal with ID:", dealId);
 
-        // FIRST: Fetch the deal data with improved error handling
+        // Fetch the deal data with improved error handling
         const { data: dealData, error: dealError, status } = await supabase
           .from("deals")
           .select("*")
@@ -44,95 +44,15 @@ export const useDeal = (id: string | undefined) => {
         }
 
         console.log("Raw deal data from DB:", dealData);
-        console.log(`⭐ Deal salon_id value: ${dealData.salon_id}, Type: ${typeof dealData.salon_id}`);
-        console.log(`⭐ Deal city value: ${dealData.city}`);
+        console.log("Deal salon_id value:", dealData.salon_id, "Type:", typeof dealData.salon_id);
+        console.log("Deal city value:", dealData.city);
 
-        // DIRECT SALON QUERY FOR DEAL 38
-        if (dealId === 38) {
-          console.log("🔍 Special handling for deal ID 38");
-          
-          // Force a direct query for salon with ID 1 (which is likely the correct salon based on the issue)
-          const { data: directSalon, error: directSalonError } = await supabase
-            .from("salons")
-            .select("id, name, address, phone")
-            .eq("id", 1)  // Try with ID 1 first
-            .maybeSingle();
-            
-          if (directSalon && !directSalonError) {
-            console.log("🎯 Found special case salon for deal 38:", directSalon);
-            
-            // Format and return the deal with this explicit salon data
-            const formattedDeal = formatDealData(dealData as RawDealData, directSalon);
-            console.log("Final formatted deal with special salon:", formattedDeal);
-            return formattedDeal;
-          } else {
-            console.log("Special handling failed, continuing with normal flow:", directSalonError);
-          }
-        }
-
-        // Regular flow for all other deals
+        // Always provide a default salon data in case the resolution fails
         let salonData;
         try {
-          // Always try direct database query for salon data first
-          if (dealData.salon_id) {
-            console.log(`📍 Attempting direct salon lookup for ID: ${dealData.salon_id}`);
-            
-            // Try with multiple methods to get the salon data
-            const numericSalonId = typeof dealData.salon_id === 'string' 
-              ? parseInt(dealData.salon_id, 10) 
-              : dealData.salon_id;
-              
-            console.log(`📍 Using numeric salon ID: ${numericSalonId}`);
-            
-            // First try with exact ID
-            const { data: directSalonData, error: salonError } = await supabase
-              .from("salons")
-              .select("id, name, address, phone")
-              .eq("id", numericSalonId)
-              .maybeSingle();
-                
-            if (directSalonData && !salonError) {
-              console.log("📍 Successfully retrieved salon data directly:", directSalonData);
-              salonData = directSalonData;
-            } else {
-              console.log("Direct salon lookup failed, checking all salons");
-              
-              // If the above fails, get all salons and find a match
-              const { data: allSalons, error: allSalonsError } = await supabase
-                .from("salons")
-                .select("id, name, address, phone")
-                .limit(20);
-                
-              if (allSalons && !allSalonsError && allSalons.length > 0) {
-                console.log(`Found ${allSalons.length} salons, looking for match`);
-                console.log("Available salon IDs:", allSalons.map(s => `${s.id} (${typeof s.id})`));
-                
-                // Try to find a matching salon
-                const matchingSalon = allSalons.find(salon => 
-                  salon.id === dealData.salon_id || 
-                  salon.id === numericSalonId ||
-                  String(salon.id) === String(dealData.salon_id)
-                );
-                
-                if (matchingSalon) {
-                  console.log("📍 Found matching salon in all salons:", matchingSalon);
-                  salonData = matchingSalon;
-                } else {
-                  console.log("No matching salon found, falling back to resolution logic");
-                  salonData = await resolveSalonData(dealData.salon_id, dealData.city);
-                }
-              } else {
-                console.log("Failed to get all salons, falling back to resolution logic");
-                salonData = await resolveSalonData(dealData.salon_id, dealData.city);
-              }
-            }
-          } else {
-            // No salon_id, resolve salon data based on city
-            console.log("No salon_id in deal data, resolving based on city");
-            salonData = await resolveSalonData(null, dealData.city);
-          }
-          
-          console.log("Final resolved salon data:", salonData);
+          // Resolve salon data with extended error handling
+          salonData = await resolveSalonData(dealData.salon_id, dealData.city);
+          console.log("Resolved salon data:", salonData);
         } catch (salonError) {
           console.error("Error resolving salon data:", salonError);
           toast.error("Kunde inte hämta information om salongen", {
@@ -151,9 +71,7 @@ export const useDeal = (id: string | undefined) => {
         }
         
         // Format and return the complete deal data
-        const formattedDeal = formatDealData(dealData as RawDealData, salonData);
-        console.log("Returning formatted deal data with salon:", formattedDeal);
-        return formattedDeal;
+        return formatDealData(dealData as RawDealData, salonData);
       } catch (error) {
         handleDealError(error);
         throw error;
