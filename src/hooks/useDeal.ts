@@ -47,33 +47,44 @@ export const useDeal = (id: string | undefined) => {
         console.log("Deal salon_id value:", dealData.salon_id, "Type:", typeof dealData.salon_id);
         console.log("Deal city value:", dealData.city);
 
-        // Försök resolve:a salongsdata med förbättrad felhantering
-        let salonData;
-        try {
-          // Resolve salon data with extended error handling
-          salonData = await resolveSalonData(dealData.salon_id, dealData.city);
-          console.log("Resolved salon data:", salonData);
-          
-          // Extra kontroll för att säkerställa att vi har ett namn
-          if (!salonData.name && dealData.city) {
-            salonData.name = `Salong i ${dealData.city}`;
-            console.log("Added fallback salon name based on city:", salonData.name);
+        // Direkt försök att hämta salongsdata först
+        let salonData = null;
+        if (dealData.salon_id) {
+          const { data: directSalonData, error: salonError } = await supabase
+            .from("salons")
+            .select("id, name, address, phone")
+            .eq("id", dealData.salon_id)
+            .single();
+            
+          if (!salonError && directSalonData) {
+            console.log("Successfully fetched salon data directly:", directSalonData);
+            salonData = directSalonData;
+          } else {
+            console.log("Could not fetch salon data directly, trying with resolver:", salonError);
           }
-        } catch (salonError) {
-          console.error("Error resolving salon data:", salonError);
-          toast.error("Kunde inte hämta information om salongen", {
-            id: "salon-error",
-            duration: 3000,
-          });
-          
-          // Fallback till standardsalong baserad på stad om resolution misslyckas helt
-          salonData = {
-            id: dealData.salon_id,
-            name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
-            address: dealData.city ? `${dealData.city} centrum` : null,
-            phone: null
-          };
-          console.log("Using fallback salon data:", salonData);
+        }
+        
+        // Fallback till resolver om direkt hämtning misslyckas
+        if (!salonData) {
+          try {
+            salonData = await resolveSalonData(dealData.salon_id, dealData.city);
+            console.log("Resolved salon data using resolver:", salonData);
+          } catch (salonError) {
+            console.error("Error resolving salon data:", salonError);
+            toast.error("Kunde inte hämta information om salongen", {
+              id: "salon-error",
+              duration: 3000,
+            });
+            
+            // Fallback till standardsalong baserad på stad om resolution misslyckas helt
+            salonData = {
+              id: dealData.salon_id,
+              name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
+              address: dealData.city ? `${dealData.city} centrum` : null,
+              phone: null
+            };
+            console.log("Using fallback salon data:", salonData);
+          }
         }
         
         // Format and return the complete deal data
