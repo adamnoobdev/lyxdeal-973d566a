@@ -1,8 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { Phone, Tag, ExternalLink, Store } from "lucide-react";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { useNavigate } from "react-router-dom";
-import { getHardcodedSalonData } from "@/utils/deal/dealFormatUtils";
 
 interface DealInfoProps {
   id: number;
@@ -53,35 +53,17 @@ export const DealInfo = ({
     }
   };
 
-  // Enhanced debug logs for salon data
-  console.log(`🏢 DealInfo component rendered for deal ${id}:`, { 
-    salonData: salon, 
-    city,
-    id
-  });
+  // Log salon data for debugging
+  console.log(`🏢 DealInfo component for deal ${id}:`, { salon, city });
   
-  // Enhanced salon name determination
-  const getSalonName = () => {
-    // Check for hardcoded salon name first using the utility function
-    const hardcodedSalon = getHardcodedSalonData(id);
-    if (hardcodedSalon) {
-      console.log(`🏢 Using hardcoded salon name for deal ${id}: ${hardcodedSalon.name}`);
-      return hardcodedSalon.name;
-    }
-    
-    // Otherwise use standard fallback logic
-    if (salon?.name && !salon.name.startsWith(`Salong i`)) {
-      console.log(`🏢 Using actual salon name: ${salon.name}`);
-      return salon.name;
-    } else if (city) {
-      console.log(`🏢 Using city-based salon name: Salong i ${city}`);
-      return `Salong i ${city}`;
-    }
-    
-    return 'Okänd salong';
-  };
+  // Enhanced salon name handling
+  let salonName = 'Okänd salong';
+  if (salon?.name && salon.name !== `Salong i ${city || ''}`) {
+    salonName = salon.name;
+  } else if (city) {
+    salonName = `Salong i ${city}`;
+  }
   
-  const salonName = getSalonName();
   const hasPhone = !!salon?.phone;
   console.log(`🏢 Final salon display name: ${salonName}, Phone: ${salon?.phone || 'none'}`);
 
