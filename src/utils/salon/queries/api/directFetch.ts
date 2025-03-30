@@ -1,53 +1,59 @@
 
-const API_URL = "https://gmqeqhlhqhyrjquzhuzg.supabase.co/rest/v1";
-
 /**
- * Directly fetches data from Supabase REST API without requiring authentication
+ * Direkthämtning av data via REST API utan autentisering
+ * Detta gör att vi kan hämta offentlig data utan att vara inloggad
  */
 export async function directFetch<T>(
-  table: string,
-  params: Record<string, string> = {},
-  options: RequestInit = {}
+  endpoint: string,
+  params: Record<string, string> = {}
 ): Promise<T[] | null> {
   try {
-    // Build URL with query parameters
-    const url = new URL(`${API_URL}/${table}`);
+    // Bygg URL med parametrar
+    const url = new URL(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${endpoint}`);
+    
+    // Lägg till parametrar i URL
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.append(key, value);
     });
-
-    // Add Supabase API headers
-    const headers = new Headers({
-      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs',
+    
+    // Sätt API-nyckel och content-type headers för att använda REST API
+    const headers = {
+      'apikey': `${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Prefer': 'return=representation',
-      ...options.headers
-    });
-
-    // Make fetch request
+      'Prefer': 'return=representation'
+    };
+    
+    // Gör fetch-anropet
+    console.log(`[directFetch] Anropar: ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
+    
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers,
-      ...options,
+      headers: headers
     });
-
-    // Handle errors
+    
+    // Kontrollera HTTP-statuskoden
     if (!response.ok) {
-      console.error(`[directFetch] Error response: ${response.status} ${response.statusText}`);
-      if (response.status === 401 || response.status === 403) {
-        console.error("[directFetch] Authorization error, public data may still be accessible");
-        // For auth errors, we don't throw - we'll try to return whatever data we can
-        return null;
-      }
+      console.error(`[directFetch] HTTP-fel: ${response.status} - ${response.statusText}`);
+      console.error(`[directFetch] URL: ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
       return null;
     }
-
-    // Parse response
+    
+    // Tolka svaret som JSON
     const data = await response.json();
-    return Array.isArray(data) ? data : [data];
+    
+    // Om svaret är en tom array, returnera en tom array
+    if (Array.isArray(data) && data.length === 0) {
+      console.log(`[directFetch] Tomt svar från API`);
+      return [];
+    }
+    
+    // Hantera både array och single-objekt svar
+    const resultArray = Array.isArray(data) ? data : [data];
+    console.log(`[directFetch] Hämtade ${resultArray.length} poster: `, JSON.stringify(resultArray).substring(0, 100) + '...');
+    
+    return resultArray as T[];
   } catch (error) {
-    console.error("[directFetch] Exception:", error);
+    console.error(`[directFetch] Fel vid direkthämtning: ${error instanceof Error ? error.message : String(error)}`);
     return null;
   }
 }

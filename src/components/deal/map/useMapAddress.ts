@@ -25,7 +25,7 @@ export const useMapAddress = (salonId?: number | string | null) => {
         // Always try to fetch salon data without authentication first
         let salonData = await fetchSalonByExactId(salonId);
 
-        // If that fails and we have a session, try with authentication
+        // If that fails and we have a session, try with authentication as backup
         if (!salonData && session) {
           console.log("[useMapAddress] Attempting authenticated fetch for salon data");
           salonData = await resolveSalonData(salonId);
