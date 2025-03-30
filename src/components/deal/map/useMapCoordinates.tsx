@@ -1,18 +1,15 @@
 
 import { useState, useEffect } from 'react';
 import { getCoordinates } from '@/utils/mapbox';
+import { useMapboxToken } from '@/hooks/useMapboxToken';
 
 interface UseMapCoordinatesProps {
-  mapboxToken: string | undefined;
   formattedAddress: string | null;
   city?: string;
 }
 
-export const useMapCoordinates = ({ 
-  mapboxToken, 
-  formattedAddress, 
-  city 
-}: UseMapCoordinatesProps) => {
+export const useMapCoordinates = (formattedAddress: string | null, city?: string) => {
+  const { mapboxToken } = useMapboxToken() || { mapboxToken: undefined };
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,6 +59,13 @@ export const useMapCoordinates = ({
 
     if (mapboxToken && formattedAddress) {
       fetchCoordinates();
+    } else {
+      setIsLoading(false);
+      if (!mapboxToken) {
+        setMapError('Mapbox-token saknas');
+      } else if (!formattedAddress) {
+        setMapError('Adress saknas');
+      }
     }
   }, [formattedAddress, mapboxToken, city, retryCount]);
 

@@ -2,9 +2,9 @@
 import { Store, Phone, MapPin } from 'lucide-react';
 
 interface SalonInfoHeaderProps {
-  salonName: string;
+  salonName: string | null;
   salonPhone?: string | null;
-  address: string;
+  address?: string | null;
   hideAddress?: boolean;
 }
 
@@ -16,10 +16,12 @@ export const SalonInfoHeader = ({
 }: SalonInfoHeaderProps) => {
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Store className="h-4 w-4 text-primary" />
-        <span className="font-medium">{salonName}</span>
-      </div>
+      {salonName && (
+        <div className="flex items-center gap-2">
+          <Store className="h-4 w-4 text-primary" />
+          <span className="font-medium">{salonName}</span>
+        </div>
+      )}
       
       {salonPhone && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

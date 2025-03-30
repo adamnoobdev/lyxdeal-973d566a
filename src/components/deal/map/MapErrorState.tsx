@@ -5,18 +5,18 @@ import { SalonAddressInfo, ErrorAlert, AddressTipsList } from "./error";
 interface MapErrorStateProps {
   address: string;
   errorMessage: string;
-  coordinates: [number, number] | null;
-  destination: string;
+  coordinates?: [number, number] | null;
+  destination?: string;
   hideAddress?: boolean;
-  salonName?: string;
+  salonName?: string | null;
   salonPhone?: string | null;
 }
 
 export const MapErrorState = ({ 
   address, 
   errorMessage, 
-  coordinates, 
-  destination,
+  coordinates = null, 
+  destination = '',
   hideAddress = false,
   salonName,
   salonPhone
@@ -26,7 +26,7 @@ export const MapErrorState = ({
       <div className="space-y-4">
         {/* Salon info section */}
         <SalonAddressInfo 
-          salonName={salonName}
+          salonName={salonName || undefined}
           salonPhone={salonPhone}
           address={address}
           hideAddress={hideAddress}
@@ -38,12 +38,13 @@ export const MapErrorState = ({
         {/* Tips to fix address problems */}
         <AddressTipsList />
         
-        {/* Directions button if coordinates are available */}
-        {coordinates && (
+        {/* Directions button if address is available */}
+        {address && (
           <div className="mt-4">
             <DirectionsButton 
-              coordinates={coordinates} 
-              destination={destination} 
+              address={address}
+              coordinates={coordinates || undefined}
+              destination={destination || undefined}
             />
           </div>
         )}

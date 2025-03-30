@@ -5,11 +5,12 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { AlertTriangle } from 'lucide-react';
 
 export interface MapViewerProps {
-  mapboxToken: string;
+  mapboxToken?: string;
   coordinates: [number, number];
+  address?: string;
 }
 
-export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
+export const MapViewer = ({ mapboxToken, coordinates, address }: MapViewerProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

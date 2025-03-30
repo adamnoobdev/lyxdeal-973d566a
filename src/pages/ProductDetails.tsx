@@ -149,13 +149,7 @@ const ProductDetails = () => {
                   <h2 className="text-xl font-semibold mb-4">Om {deal.salon?.name || "salongen"}</h2>
                   
                   <div className="mt-6">
-                    <SalonLocationMap 
-                      address={deal.salon?.address || deal.city || ""}
-                      salonName={deal.salon?.name || `Salong i ${deal.city}`}
-                      salonPhone={deal.salon?.phone}
-                      city={deal.city}
-                      hideAddress={false}
-                    />
+                    <SalonLocationMap salonId={deal.salon?.id || null} />
                   </div>
                 </div>
               </div>

@@ -3,14 +3,14 @@ import { MapPin, Store, Phone } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface MapLoadingStateProps {
-  address: string;
+  address?: string;
   hideAddress?: boolean;
   salonName?: string;
   salonPhone?: string | null;
 }
 
 export const MapLoadingState = ({ 
-  address, 
+  address = '', 
   hideAddress = false,
   salonName,
   salonPhone
