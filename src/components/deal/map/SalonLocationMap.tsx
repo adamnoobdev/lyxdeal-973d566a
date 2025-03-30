@@ -6,7 +6,7 @@ import { MapLoadingState } from './MapLoadingState';
 import { MapErrorState } from './MapErrorState';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { getCoordinates } from '@/utils/mapbox';
-import { Store, Phone } from 'lucide-react';
+import { Store, Phone, MapPin } from 'lucide-react';
 import { useMapAddress } from './useMapAddress';
 
 interface SalonLocationMapProps {
