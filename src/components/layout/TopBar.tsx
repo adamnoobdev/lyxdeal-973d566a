@@ -5,7 +5,7 @@ import { ArrowRight, Store } from 'lucide-react';
 
 const TopBar = () => {
   return (
-    <div className="w-full bg-primary text-white py-2 text-center text-sm fixed top-0 left-0 z-[60]">
+    <div className="w-full bg-primary text-white py-2 text-center text-sm fixed top-0 left-0 z-50">
       <div className="container mx-auto px-4">
         <Link 
           to="/partner" 
