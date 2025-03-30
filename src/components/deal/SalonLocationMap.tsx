@@ -85,6 +85,8 @@ export const SalonLocationMap = ({
       try {
         setIsLoading(true);
         console.log("Fetching coordinates for address:", formattedAddress);
+        console.log("Using mapboxToken type:", typeof mapboxToken);
+        
         const coords = await getCoordinates(formattedAddress, mapboxToken);
         
         if (coords) {

@@ -39,7 +39,7 @@ export const getCoordinates = async (
     url.searchParams.append('limit', limit.toString());
     url.searchParams.append('country', country);
     
-    console.log('Geocoding request URL:', url.toString());
+    console.log('Geocoding request URL:', url.toString().replace(mapboxToken, '[REDACTED]'));
     
     const response = await fetch(url.toString());
     

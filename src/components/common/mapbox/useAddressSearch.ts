@@ -32,11 +32,18 @@ export const useAddressSearch = (
       url.searchParams.append('limit', '5');
       url.searchParams.append('types', 'address,poi,postcode,place');
 
+      console.log(`Searching for "${query}" (URL logged without token)`);
+      
       const response = await fetch(url.toString());
+      if (!response.ok) {
+        throw new Error(`Geocoding search failed with status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       if (data.features) {
         setSuggestions(data.features);
+        console.log(`Found ${data.features.length} suggestions for "${query}"`);
       }
     } catch (error) {
       console.error('Error searching for address:', error);
