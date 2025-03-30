@@ -96,10 +96,13 @@ export const SalonsList = () => {
     return <SalonsLoadingSkeleton />;
   }
 
+  // Convert error to string type - this fixes the type error
+  const errorMessage = error instanceof Error ? error.message : error as string;
+
   return (
     <div className="space-y-6">
       <SalonsHeader 
-        error={error} 
+        error={errorMessage} 
         onCreateClick={() => setIsCreating(true)} 
       />
 

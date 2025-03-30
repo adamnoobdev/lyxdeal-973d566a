@@ -9,7 +9,7 @@ import { useSalonOperations } from "@/hooks/useSalonOperations";
 export const useSalonsAdmin = () => {
   const [salons, setSalons] = useState<Salon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { session, isLoading: sessionLoading } = useSession();
 
   const fetchSalons = useCallback(async () => {
