@@ -7,4 +7,4 @@
 export { calculateDaysRemaining } from "./dealTimeUtils";
 export { isDealFree, calculateDiscountPercentage, formatPrice } from "./dealPriceUtils";
 export { formatDealData } from "./dealFormatUtils";
-export type { RawDealData, FormattedDealData } from "./dealTypes";
+export type { RawDealData, FormattedDealData } from "./types";
