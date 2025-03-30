@@ -46,6 +46,7 @@ export const resolveSalonData = async (
 };
 
 // Re-export all the things that might be used elsewhere
-export { SalonData, createDefaultSalonData } from "./types";
+export type { SalonData } from "./types";
+export { createDefaultSalonData } from "./types";
 export { checkSalonsTable, fetchSalonByExactId, fetchFullSalonData } from "./salonDbQueries";
 export { findSalonWithSimilarId } from "./salonSearchUtils";

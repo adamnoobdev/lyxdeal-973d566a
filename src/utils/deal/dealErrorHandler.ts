@@ -1,4 +1,8 @@
 
+/**
+ * Handlers for deal-related errors
+ */
+
 import { toast } from "sonner";
 
 /**
