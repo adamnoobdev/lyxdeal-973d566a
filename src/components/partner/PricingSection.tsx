@@ -1,5 +1,4 @@
 
-import { PriceDisplay } from "../PriceDisplay";
 import { PricingCard } from "./PricingCard";
 
 export const PricingSection = () => {
@@ -35,7 +34,7 @@ export const PricingSection = () => {
   };
 
   return (
-    <div className="py-16 bg-white">
+    <div className="py-20 bg-white">
       <div className="container px-4 md:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Välj det paket som passar dig bäst</h2>
@@ -48,6 +47,10 @@ export const PricingSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <PricingCard {...basicPackage} />
           <PricingCard {...premiumPackage} />
+        </div>
+        
+        <div className="text-center mt-10 text-sm text-gray-500">
+          <p>Alla priser exklusive moms. Bindningstid 3 månader vid månadspris, 12 månader vid årspris.</p>
         </div>
       </div>
     </div>

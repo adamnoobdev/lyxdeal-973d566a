@@ -2,6 +2,7 @@
 import { Check } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PricingCardProps {
   title: string;
@@ -23,6 +24,7 @@ export const PricingCard = ({
   isPopular = false,
 }: PricingCardProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleSignupClick = (paymentType: 'monthly' | 'yearly') => {
     const price = paymentType === 'monthly' ? monthlyPrice : yearlyPrice;
@@ -33,64 +35,64 @@ export const PricingCard = ({
 
   return (
     <div className={`
-      p-4 sm:p-6 rounded-lg border shadow-md flex flex-col h-full
-      transition-all duration-300 hover:shadow-lg 
-      ${isPopular ? 'border-primary bg-primary-50/30 ring-2 ring-primary' : 'border-gray-200'}
+      p-6 rounded-lg border shadow-md flex flex-col h-full
+      transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1
+      ${isPopular ? 'border-primary-300 bg-primary-50/30 ring-2 ring-primary-300' : 'border-gray-200'}
     `}>
       {isPopular && (
-        <div className="mb-4 -mt-2 -mx-2">
-          <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">
+        <div className="mb-4 -mt-2 mx-auto">
+          <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-xs font-semibold inline-block">
             Populärt val
           </span>
         </div>
       )}
       
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 mb-4 sm:mb-6">Perfekt för {dealCount === 1 ? 'ett enstaka erbjudande' : 'flera erbjudanden'}</p>
+      <h3 className="text-xl font-bold mb-2">{title}</h3>
+      <p className="text-sm text-gray-500 mb-6">Perfekt för {dealCount === 1 ? 'ett enstaka erbjudande' : 'flera erbjudanden'}</p>
       
-      <div className="mb-4 sm:mb-6">
+      <div className="mb-6">
         <div className="flex flex-col gap-2">
-          <div>
-            <span className="text-2xl sm:text-3xl font-bold">{monthlyPrice}</span>
-            <span className="text-gray-500"> SEK/mån</span>
+          <div className="flex items-baseline">
+            <span className="text-3xl font-bold">{monthlyPrice}</span>
+            <span className="text-gray-500 ml-1"> SEK/mån</span>
           </div>
           <div className="flex flex-col">
             <span className="text-sm">
               Årspris: <span className="font-semibold">{yearlyPrice} SEK</span>
             </span>
-            <span className="text-sm text-success-700 font-medium">
+            <span className="text-sm text-green-600 font-medium">
               Spara {yearSavings} SEK per år
             </span>
           </div>
         </div>
       </div>
       
-      <div className="mb-4 sm:mb-6 flex-grow">
-        <h4 className="font-medium mb-2">Inkluderar:</h4>
-        <ul className="space-y-2">
-          <li className="flex items-center gap-2 text-sm">
-            <Check className="h-4 w-4 text-primary flex-shrink-0" />
-            <span>{dealCount} erbjudande{dealCount > 1 ? 'n' : ''}</span>
+      <div className="mb-6 flex-grow">
+        <h4 className="font-medium mb-3 text-gray-700">Inkluderar:</h4>
+        <ul className="space-y-3">
+          <li className="flex items-start gap-2">
+            <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+            <span className="text-sm">{dealCount} erbjudande{dealCount > 1 ? 'n' : ''}</span>
           </li>
           {features.map((feature, index) => (
-            <li key={index} className="flex items-center gap-2 text-sm">
-              <Check className="h-4 w-4 text-primary flex-shrink-0" />
-              <span>{feature}</span>
+            <li key={index} className="flex items-start gap-2">
+              <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+              <span className="text-sm">{feature}</span>
             </li>
           ))}
         </ul>
       </div>
       
-      <div className="bg-green-50 p-3 rounded-md border border-green-200 mb-4">
-        <p className="text-sm text-green-800 font-medium">
+      <div className="bg-green-50 p-3 rounded-md border border-green-100 mb-6">
+        <p className="text-sm text-green-800 font-medium text-center">
           Använd rabattkoden <span className="font-bold">provmanad</span> för en gratis provmånad!
         </p>
       </div>
       
-      <div className="space-y-2 mt-auto">
+      <div className="space-y-3 mt-auto">
         <Button 
-          className="w-full" 
-          variant="default" 
+          className="w-full bg-primary hover:bg-primary/90 font-medium" 
+          size={isMobile ? "default" : "lg"}
           onClick={() => handleSignupClick('monthly')}
         >
           Betala månadsvis
@@ -99,7 +101,8 @@ export const PricingCard = ({
           type="button" 
           variant="outline" 
           onClick={() => handleSignupClick('yearly')}
-          className="w-full hover:text-primary"
+          className="w-full hover:bg-primary/5 hover:text-primary font-medium"
+          size={isMobile ? "default" : "lg"}
         >
           Betala årsvis
         </Button>
