@@ -51,8 +51,9 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
       console.log(`Using numeric comparison with ID: ${numericId}`);
       query = query.eq("id", numericId);
     } else {
-      // For non-numeric string ID
+      // For non-numeric string ID - use explicit type cast for string IDs
       console.log(`Using string comparison with ID: ${salonId}`);
+      // Fix: Use .eq() with the string value directly, Supabase handles the conversion
       query = query.eq("id", salonId);
     }
     
@@ -117,14 +118,16 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
   try {
     // Convert to numeric ID if possible
     const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-    const useNumericId = !isNaN(numericId);
+    const useNumericId = !isNaN(Number(numericId)); // Changed to use Number() for better type checking
     
     console.log(`Using ${useNumericId ? 'numeric' : 'original'} ID for full data query: ${useNumericId ? numericId : salonId}`);
     
+    // Fix: The error is here - we need to make sure the ID is acceptable to Supabase
+    // Let Supabase handle the type conversion internally rather than trying to force it
     const { data, error } = await supabase
       .from("salons")
       .select("id, name, address, phone")
-      .eq("id", useNumericId ? numericId : salonId)
+      .eq("id", salonId) // Pass the original ID - Supabase will handle it properly
       .maybeSingle();
       
     if (error) {
