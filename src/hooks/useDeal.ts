@@ -22,11 +22,13 @@ export const useDeal = (id: string | undefined) => {
         console.log("Fetching deal with ID:", dealId);
 
         // Fetch the deal data
-        const { data: dealData, error: dealError } = await supabase
+        const { data: dealData, error: dealError, status } = await supabase
           .from("deals")
           .select("*")
           .eq("id", dealId)
           .single();
+        
+        console.log("Deal query status:", status);
 
         if (dealError) {
           console.error("Error fetching deal:", dealError);
@@ -40,7 +42,7 @@ export const useDeal = (id: string | undefined) => {
         console.log("Raw deal data from DB:", dealData);
         console.log("Deal salon_id value:", dealData.salon_id, "Type:", typeof dealData.salon_id);
 
-        // Resolve salon data
+        // Resolve salon data with extended error handling
         const salonData = await resolveSalonData(dealData.salon_id, dealData.city);
         
         // Format and return the complete deal data

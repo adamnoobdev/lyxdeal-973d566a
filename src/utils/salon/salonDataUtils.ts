@@ -34,16 +34,23 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
   }
   
   try {
-    const { data, error } = await supabase
+    // Log the actual query we're about to execute
+    console.log(`Executing Supabase query: .from("salons").select("id, name, address, phone").eq("id", ${numericId})`);
+    
+    const { data, error, status } = await supabase
       .from("salons")
       .select("id, name, address, phone")
       .eq("id", numericId)
       .maybeSingle();
-      
+    
+    console.log("Query response status:", status);
+    
     if (error) {
       console.error("Error fetching salon by exact ID:", error);
       return null;
     }
+    
+    console.log("Raw salon data response:", data);
     
     if (data) {
       console.log("Salon data successfully retrieved with exact ID:", data);
@@ -59,15 +66,43 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
 };
 
 /**
+ * Checks if the salons table exists and contains data
+ */
+export const checkSalonsTable = async (): Promise<boolean> => {
+  try {
+    console.log("Checking if salons table exists and contains data");
+    
+    // First, check if we can access the table at all
+    const { data: tableCheck, error: tableError } = await supabase
+      .from("salons")
+      .select("count(*)", { count: "exact", head: true });
+      
+    if (tableError) {
+      console.error("Error accessing salons table:", tableError);
+      return false;
+    }
+    
+    console.log("Salons table access check result:", tableCheck);
+    return true;
+  } catch (err) {
+    console.error("Exception checking salons table:", err);
+    return false;
+  }
+};
+
+/**
  * Fetches all salons and tries to find one with a similar ID
  */
 export const findSalonWithSimilarId = async (salonId: number | string): Promise<SalonData | null> => {
   console.log("No salon found with exact ID match, trying alternative approaches");
   
   try {
-    const { data: allSalons, error } = await supabase
+    console.log("Fetching all salons to look for a match");
+    const { data: allSalons, error, status } = await supabase
       .from("salons")
       .select("id, name");
+    
+    console.log("All salons query status:", status);
       
     if (error) {
       console.error("Error fetching all salons:", error);
@@ -78,6 +113,11 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
     
     if (!allSalons || allSalons.length === 0) {
       console.log("No salons found in the database");
+      
+      // Check if the table exists and has proper permissions
+      const tableExists = await checkSalonsTable();
+      console.log("Salons table exists and is accessible:", tableExists);
+      
       return null;
     }
     
@@ -156,6 +196,10 @@ export const resolveSalonData = async (
   console.log(`Attempting to resolve salon data for salon_id: ${salonId}, type: ${typeof salonId}`);
   
   try {
+    // First check if the salons table is accessible
+    const tableExists = await checkSalonsTable();
+    console.log("Salons table check result:", tableExists);
+    
     // Try to fetch salon with exact ID first
     const exactSalon = await fetchSalonByExactId(salonId);
     if (exactSalon) {
