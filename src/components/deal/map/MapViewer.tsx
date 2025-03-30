@@ -4,7 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { AlertTriangle } from 'lucide-react';
 
-interface MapViewerProps {
+export interface MapViewerProps {
   mapboxToken: string;
   coordinates: [number, number];
 }
@@ -15,7 +15,7 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Validera indata
+    // Validate input
     if (!mapContainer.current) {
       console.log("Missing map container");
       return;
@@ -36,30 +36,30 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
     try {
       console.log("Initializing map with coordinates:", coordinates);
       
-      // Rensa eventuell tidigare karta
+      // Clear any previous map
       if (map.current) {
         map.current.remove();
         map.current = null;
       }
       
-      // Initiera Mapbox
+      // Initialize Mapbox
       mapboxgl.accessToken = mapboxToken;
       
       const [lng, lat] = coordinates;
       
-      // Skapa ny karta
+      // Create new map
       const newMap = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [lng, lat],
         zoom: 14,
         attributionControl: false,
-        refreshExpiredTiles: false, // Förhindra omladdning av förfallna rutor
+        refreshExpiredTiles: false, // Prevent reloading expired tiles
       });
       
       map.current = newMap;
       
-      // Lägg till markör med anpassad färg
+      // Add marker with custom color
       new mapboxgl.Marker({ 
         color: '#9b87f5', // Lyxdeal primary color
         scale: 1.1
@@ -67,21 +67,21 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
         .setLngLat([lng, lat])
         .addTo(newMap);
       
-      // Lägg till navigationskontroller
+      // Add navigation controls
       newMap.addControl(new mapboxgl.NavigationControl({
         showCompass: true,
         visualizePitch: false,
       }), 'top-right');
       
-      // Hantera fel
+      // Handle errors
       newMap.on('error', (e) => {
         console.error('Mapbox map error:', e);
         setErrorMessage('Ett fel uppstod med kartan');
       });
 
-      // Dölj Mapbox-logotypen och attributionen
+      // Hide Mapbox logo and attribution
       newMap.on('load', () => {
-        // Dölj Mapbox branding
+        // Hide Mapbox branding
         const style = document.createElement('style');
         style.textContent = `
           .mapboxgl-ctrl-logo { display: none !important; }
@@ -94,7 +94,7 @@ export const MapViewer = ({ mapboxToken, coordinates }: MapViewerProps) => {
       setErrorMessage('Kunde inte visa kartan');
     }
     
-    // Städa upp när komponenten avmonteras
+    // Clean up when component unmounts
     return () => {
       if (map.current) {
         map.current.remove();

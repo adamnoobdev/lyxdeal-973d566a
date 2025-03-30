@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { MapViewer } from './map/MapViewer';
-import { DirectionsButton } from './map/DirectionsButton';
-import { MapLoadingState } from './map/MapLoadingState';
-import { MapErrorState } from './map/MapErrorState';
+import { MapViewer } from './MapViewer';
+import { DirectionsButton } from './DirectionsButton';
+import { MapLoadingState } from './MapLoadingState';
+import { MapErrorState } from './MapErrorState';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
-import { getCoordinates, normalizeAddress, isValidAddressFormat } from '@/utils/mapbox';
-import { MapPin, Store, Phone } from 'lucide-react';
+import { getCoordinates } from '@/utils/mapbox';
+import { Store, Phone } from 'lucide-react';
+import { useMapAddress } from './useMapAddress';
 
 interface SalonLocationMapProps {
   address: string;
@@ -27,10 +28,14 @@ export const SalonLocationMap = ({
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [normalizedAddress, setNormalizedAddress] = useState<string>('');
   const [retryCount, setRetryCount] = useState(0);
+  
+  const { normalizedAddress, formattedAddress, isValidAddress } = useMapAddress({
+    address,
+    city
+  });
 
-  // Loggning för felsökning
+  // Logging for debugging
   console.log("SalonLocationMap rendering with props:", { 
     address, 
     salonName, 
@@ -38,36 +43,13 @@ export const SalonLocationMap = ({
     city, 
     hideAddress,
     mapboxToken: !!mapboxToken,
-    isTokenLoading
+    isTokenLoading,
+    formattedAddress,
+    isValidAddress
   });
 
-  // Förbättrad adressformatering för geocoding
-  const getFormattedAddress = () => {
-    if (!address) return city || '';
-    
-    // Standardisera adressformatet
-    let formattedAddress = address.trim();
-    
-    // Om adressen redan innehåller staden, använd den som den är
-    if (city && formattedAddress.toLowerCase().includes(city.toLowerCase())) {
-      return formattedAddress;
-    }
-    
-    // Annars, lägg till staden om den finns tillgänglig
-    return city ? `${formattedAddress}, ${city}` : formattedAddress;
-  };
-
-  const formattedAddress = getFormattedAddress();
-
-  console.log("SalonLocationMap formattedAddress:", formattedAddress);
-
-  useEffect(() => {
-    // Normalisera adressen för bättre visning
-    setNormalizedAddress(normalizeAddress(formattedAddress));
-  }, [formattedAddress]);
-
   // Check if we have a valid address before trying to fetch coordinates
-  if (!formattedAddress || formattedAddress.trim() === '') {
+  if (!isValidAddress) {
     console.log("SalonLocationMap: Invalid or empty address provided", { address, city });
     return (
       <div className="p-4 border border-border rounded-md">
@@ -112,7 +94,7 @@ export const SalonLocationMap = ({
           setMapError('Kunde inte hitta denna adress på kartan. Försöker igen...');
           console.error("No coordinates returned for address:", formattedAddress);
           
-          // Prova ett alternativt format om första försöket misslyckas
+          // Try an alternative format if first attempt fails
           if (city && retryCount < 1) {
             setRetryCount(prev => prev + 1);
             const cityOnlyCoords = await getCoordinates(city, mapboxToken);
@@ -142,11 +124,11 @@ export const SalonLocationMap = ({
   // Combine loading states
   if (isTokenLoading || (isLoading && !mapError)) {
     return <MapLoadingState 
-              address={normalizedAddress} 
-              hideAddress={hideAddress} 
-              salonName={salonName}
-              salonPhone={salonPhone}
-            />;
+             address={normalizedAddress} 
+             hideAddress={hideAddress} 
+             salonName={salonName}
+             salonPhone={salonPhone}
+           />;
   }
 
   // Handle error states

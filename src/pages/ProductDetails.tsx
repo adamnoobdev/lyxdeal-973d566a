@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
 import { DealInfo } from "@/components/deal/DealInfo";
 import { PurchaseSteps } from "@/components/deal/PurchaseSteps";
-import { SalonLocationMap } from "@/components/deal/SalonLocationMap";
+import { SalonLocationMap } from "@/components/deal/map";
 import { Helmet } from "react-helmet";
 
 const ProductDetails = () => {
@@ -15,9 +15,8 @@ const ProductDetails = () => {
   const { data: deal, isLoading, isError } = useDeal(id);
 
   useEffect(() => {
-    // Scroll to top when component mounts or id changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]); // Added id as dependency to ensure scroll on navigation between products
+  }, [id]);
 
   if (isError) {
     return (

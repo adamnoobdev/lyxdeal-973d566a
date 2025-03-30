@@ -28,12 +28,12 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
     );
   }
 
-  // Säkerställ att vi har ett giltigt namn
+  // Ensure we have a valid name
   const displayName = salon.name && salon.name.trim() !== '' 
                     ? salon.name 
                     : 'Okänd salong';
 
-  // Logga information för felsökning
+  // Log information for debugging
   console.log("[SalonInfo] Renderar med salongsdata:", { 
     name: displayName, 
     address: salon.address, 
