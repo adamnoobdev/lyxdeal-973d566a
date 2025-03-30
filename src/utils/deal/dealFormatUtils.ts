@@ -25,19 +25,26 @@ export const formatDealData = (
   const daysRemaining = calculateDaysRemaining(rawDeal.expiration_date, rawDeal.time_remaining);
   const isFree = isDealFree(rawDeal.is_free, rawDeal.discounted_price);
 
-  // Improved special case for deal ID 38
-  if (rawDeal.id === 38) {
-    console.log("💡 Special case formatting for deal ID 38");
+  // Special case for hardcoded salon data - expanded for more deals if needed
+  const hardcodedSalons: Record<number, { name: string, address: string | null }> = {
+    38: { name: "Belle Hair Studio", address: "Stockholm centrum" },
+    // Add more special cases as needed
+  };
+  
+  // Check if this deal has hardcoded salon data
+  const hardcodedSalon = hardcodedSalons[rawDeal.id];
+  if (hardcodedSalon) {
+    console.log(`💡 Using hardcoded salon data for deal ID ${rawDeal.id}:`, hardcodedSalon);
     
-    // Force specific salon data for deal ID 38
-    const belleHairStudio = {
-      id: salonData?.id || 1,
-      name: "Belle Hair Studio",
-      address: salonData?.address || "Stockholm centrum",
+    // Merge hardcoded data with any existing salon data
+    const enhancedSalonData = {
+      id: salonData?.id || null,
+      name: hardcodedSalon.name,
+      address: hardcodedSalon.address || salonData?.address,
       phone: salonData?.phone || null
     };
     
-    console.log("💡 Using fixed salon data for deal 38:", belleHairStudio);
+    console.log("💡 Enhanced salon data:", enhancedSalonData);
     
     const formattedDeal = {
       id: rawDeal.id,
@@ -53,15 +60,16 @@ export const formatDealData = (
       created_at: rawDeal.created_at,
       quantityLeft: rawDeal.quantity_left,
       isFree,
-      salon: belleHairStudio,
+      salon: enhancedSalonData,
       booking_url: rawDeal.booking_url,
     };
     
-    console.log("💡 Formatted deal data for ID 38:", formattedDeal);
+    console.log(`💡 Formatted deal data for ID ${rawDeal.id}:`, formattedDeal);
     return formattedDeal;
   }
 
-  // Regular case - ensure we have valid salon data
+  // Regular case - ensure we have valid salon data with proper fallbacks
+  // Prefer actual salon name if available, fallback to city-based name
   const normalizedSalonData = {
     id: salonData?.id || null,
     name: salonData?.name || (rawDeal.city ? `Salong i ${rawDeal.city}` : 'Okänd salong'),

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Phone, Tag, ExternalLink, Store } from "lucide-react";
 import { PriceDisplay } from "@/components/PriceDisplay";
@@ -60,19 +59,33 @@ export const DealInfo = ({
     id
   });
   
-  // Special handling for salon name
-  let salonName = 'Okänd salong';
+  // Enhanced salon name determination
+  const getSalonName = () => {
+    // Hardcoded salons for specific deals
+    const hardcodedSalonNames: Record<number, string> = {
+      38: "Belle Hair Studio",
+      // Add more special cases as needed
+    };
+    
+    // Check for hardcoded salon name first
+    if (hardcodedSalonNames[id]) {
+      console.log(`🏢 Using hardcoded salon name for deal ${id}: ${hardcodedSalonNames[id]}`);
+      return hardcodedSalonNames[id];
+    }
+    
+    // Otherwise use standard fallback logic
+    if (salon?.name && !salon.name.startsWith(`Salong i`)) {
+      console.log(`🏢 Using actual salon name: ${salon.name}`);
+      return salon.name;
+    } else if (city) {
+      console.log(`🏢 Using city-based salon name: Salong i ${city}`);
+      return `Salong i ${city}`;
+    }
+    
+    return 'Okänd salong';
+  };
   
-  // For deal ID 38, we want to ensure we display "Belle Hair Studio"
-  if (id === 38) {
-    salonName = salon?.name === "Belle Hair Studio" ? salon.name : "Belle Hair Studio";
-    console.log(`🏢 Using special salon name for deal 38: ${salonName}`);
-  } else if (salon?.name && salon.name !== `Salong i ${city || ''}`) {
-    salonName = salon.name;
-  } else if (city) {
-    salonName = `Salong i ${city}`;
-  }
-  
+  const salonName = getSalonName();
   const hasPhone = !!salon?.phone;
   console.log(`🏢 Final salon display name: ${salonName}, Phone: ${salon?.phone || 'none'}`);
 

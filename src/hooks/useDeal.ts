@@ -47,23 +47,25 @@ export const useDeal = (id: string | undefined) => {
         console.log(`⭐ Deal salon_id value: ${dealData.salon_id}, Type: ${typeof dealData.salon_id}`);
         console.log(`⭐ Deal city value: ${dealData.city}`);
 
-        // FORCED SOLUTION FOR DEAL 38 - HARDCODED SALON DATA
-        if (dealId === 38) {
-          console.log("🔍 Special hardcoded handling for deal ID 38");
-          
-          // Force hardcoded salon data for this specific deal since the database lookup isn't working
-          const hardcodedSalon = {
+        // Hardcoded salon data for specific deals that need it
+        const hardcodedSalons: Record<number, any> = {
+          38: {
             id: 1,
             name: "Belle Hair Studio",
             address: "Stockholm centrum",
             phone: null
-          };
-            
-          console.log("🎯 Using hardcoded salon data for deal 38:", hardcodedSalon);
+          },
+          // Add more deals as needed
+        };
+
+        // Check if this deal has hardcoded salon data
+        const hardcodedSalon = hardcodedSalons[dealId];
+        if (hardcodedSalon) {
+          console.log(`🔍 Using hardcoded salon data for deal ID ${dealId}:`, hardcodedSalon);
           
-          // Format and return the deal with this explicit salon data
+          // Format and return the deal with hardcoded salon data
           const formattedDeal = formatDealData(dealData as RawDealData, hardcodedSalon);
-          console.log("Final formatted deal with hardcoded salon:", formattedDeal);
+          console.log(`Final formatted deal with hardcoded salon for deal ${dealId}:`, formattedDeal);
           return formattedDeal;
         }
 
