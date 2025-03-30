@@ -35,10 +35,13 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
     const stringId = String(salonId);
     console.log(`Querying salon with string ID filter: ${stringId}`);
     
+    // Ändra till att använda filterfunktionen med explicit typkonvertering
+    // Detta löser TypeScript-felet genom att använda .filter() istället för .eq()
+    // när vi vill jämföra med en sträng
     const { data: stringData, error: stringError } = await supabase
       .from("salons")
       .select("id, name, address, phone")
-      .eq('id', stringId)  // Använd eq istället för filter för att minska risken för 406-fel
+      .filter('id::text', 'eq', stringId)  // Konvertera id till text för jämförelse
       .maybeSingle();
       
     if (stringError) {
@@ -148,12 +151,13 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
     
     // Fallback till strängmatchning om numerisk sökning misslyckas
     const stringId = String(salonId);
-    console.log(`Using simple equality test for salon ID: "${stringId}"`);
+    console.log(`Using string filter for salon ID: "${stringId}"`);
     
+    // Använd filter-metoden med explicit typkonvertering för att matcha strängar
     const { data: stringData, error: stringError } = await supabase
       .from("salons")
       .select("id, name, address, phone")
-      .eq('id', stringId)  // Använd eq istället för filter för att undvika 406-fel
+      .filter('id::text', 'eq', stringId)  // Konvertera id till text för jämförelse
       .maybeSingle();
       
     if (stringError) {
