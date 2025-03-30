@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInDays } from "date-fns";
 import { toast } from "sonner";
-import { createDeal, updateDeal, deleteDeal } from "./dealsCrudUtils";
+import { createDeal, updateDeal, deleteDeal } from "./deal/queries";
 
 // Reexportera CRUD-funktioner för att bevara bakåtkompatibilitet
 export { createDeal as createDealAdmin, updateDeal as updateDealAdmin, deleteDeal as deleteDealAdmin };
