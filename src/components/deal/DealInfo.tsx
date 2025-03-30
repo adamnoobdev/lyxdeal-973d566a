@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Phone, Tag, ExternalLink, MapPin } from "lucide-react";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DealInfoProps {
   id: number;
@@ -36,6 +37,7 @@ export const DealInfo = ({
   city
 }: DealInfoProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Format days remaining text
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
@@ -60,28 +62,29 @@ export const DealInfo = ({
   const hasBookingUrl = !!booking_url;
 
   return (
-    <div className="bg-white shadow-sm p-4 md:p-6 space-y-6 md:rounded-lg">
+    <div className="bg-white shadow-sm p-4 md:p-6 space-y-5 md:rounded-lg">
       <div className="space-y-4">
-        <h1 className="text-xl lg:text-2xl font-semibold text-gray-900">{title}</h1>
+        <h1 className={`${isMobile ? "text-lg" : "text-xl lg:text-2xl"} font-semibold text-gray-900`}>{title}</h1>
         
-        {/* Location information */}
-        <div className="flex items-center text-sm text-gray-600 gap-1.5">
-          <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-          <span>{displaySalonName}{hasSalonAddress ? `, ${salon?.address}` : `, ${city}`}</span>
+        {/* Location information with better mobile styling */}
+        <div className="flex items-start text-sm text-gray-600 gap-2">
+          <MapPin className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+          <span className="flex-1">{displaySalonName}{hasSalonAddress ? `, ${salon?.address}` : `, ${city}`}</span>
         </div>
         
         <div className="flex items-start justify-between">
           <PriceDisplay 
             originalPrice={originalPrice} 
             discountedPrice={discountedPrice}
-            className="text-lg lg:text-xl"
+            className={isMobile ? "text-base" : "text-lg lg:text-xl"}
             isFreeOverride={isFree}
             showSavedAmount={true}
             showDiscountBadge={true}
           />
         </div>
 
-        <div className="pt-4 border-t border-gray-100">
+        {/* Availability information in a visually distinct box */}
+        <div className="p-3 bg-gray-50 rounded-md border border-gray-100">
           <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex items-center gap-2">
@@ -96,39 +99,42 @@ export const DealInfo = ({
           </div>
         </div>
         
-        <div className="space-y-3 pt-2">
+        {/* Button layout responsively adapts based on screen size */}
+        <div className="space-y-3 pt-1">
           <Button 
-            className="w-full bg-primary hover:bg-primary/90 text-white group transition-colors"
-            size="lg"
+            className="w-full bg-primary hover:bg-primary/90 text-white transition-colors"
+            size={isMobile ? "default" : "lg"}
             onClick={handleSecureDeal}
           >
             <Tag className="mr-2 h-5 w-5" />
             Säkra rabattkod
           </Button>
           
-          {hasSalonPhone && (
-            <Button 
-              variant="outline"
-              className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary group transition-colors"
-              size="lg"
-              onClick={() => window.location.href = `tel:${salon?.phone}`}
-            >
-              <Phone className="mr-2 h-5 w-5" />
-              Kontakta {displaySalonName}
-            </Button>
-          )}
+          <div className={`grid ${hasBookingUrl && hasSalonPhone ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"} gap-3`}>
+            {hasSalonPhone && (
+              <Button 
+                variant="outline"
+                className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary transition-colors"
+                size={isMobile ? "default" : "lg"}
+                onClick={() => window.location.href = `tel:${salon?.phone}`}
+              >
+                <Phone className="mr-2 h-5 w-5" />
+                <span className="truncate">Kontakta</span>
+              </Button>
+            )}
 
-          {hasBookingUrl && (
-            <Button 
-              variant="outline"
-              className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary group transition-colors"
-              size="lg"
-              onClick={handleBooking}
-            >
-              <ExternalLink className="mr-2 h-5 w-5" />
-              Boka tid
-            </Button>
-          )}
+            {hasBookingUrl && (
+              <Button 
+                variant="outline"
+                className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary transition-colors"
+                size={isMobile ? "default" : "lg"}
+                onClick={handleBooking}
+              >
+                <ExternalLink className="mr-2 h-5 w-5" />
+                Boka tid
+              </Button>
+            )}
+          </div>
         </div>
 
         <p className="text-xs text-center text-gray-500 mt-1">
