@@ -149,7 +149,10 @@ const ProductDetails = () => {
                   <h2 className="text-xl font-semibold mb-4">Om {deal.salon?.name || "salongen"}</h2>
                   
                   <div className="mt-6">
-                    <SalonLocationMap salonId={deal.salon?.id || null} />
+                    <SalonLocationMap 
+                      salonId={deal.salon?.id || null} 
+                      city={deal.city} 
+                    />
                   </div>
                 </div>
               </div>

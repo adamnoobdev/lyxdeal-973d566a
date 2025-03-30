@@ -1,9 +1,10 @@
+
 import { MapPin, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DirectionsButtonProps {
   address?: string;
-  coordinates?: [number, number];
+  coordinates?: [number, number] | null;
   destination?: string;
   className?: string;
   variant?: "default" | "outline" | "secondary";
@@ -30,7 +31,8 @@ export const DirectionsButton = ({
     }
   };
 
-  const targetDestination = destination || coordinates || address;
+  // Prioritera coordinates om de finns, annars använd destination, och sist address
+  const targetDestination = coordinates || destination || address;
 
   return (
     <Button 

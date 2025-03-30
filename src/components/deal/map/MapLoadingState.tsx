@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface MapLoadingStateProps {
   address?: string;
   hideAddress?: boolean;
-  salonName?: string;
+  salonName?: string | null;
   salonPhone?: string | null;
 }
 

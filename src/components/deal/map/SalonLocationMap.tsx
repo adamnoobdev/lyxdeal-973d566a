@@ -12,21 +12,23 @@ import { useMapboxToken } from "@/hooks/useMapboxToken";
 interface SalonLocationMapProps {
   salonId?: number | string | null;
   className?: string;
+  city?: string;
 }
 
-export const SalonLocationMap = ({ salonId, className = "" }: SalonLocationMapProps) => {
+export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocationMapProps) => {
   const [showMap, setShowMap] = useState(false);
   const { mapboxToken } = useMapboxToken() || { mapboxToken: undefined };
   
   // Get address data
   const { address, salonName, salonPhone, isLoading: isAddressLoading, error: addressError } = useMapAddress(salonId);
   
-  // Get coordinates
-  const { coordinates, mapError, isLoading: isCoordinatesLoading } = useMapCoordinates(address);
+  // Get coordinates - använd staden som fallback om adressen saknas
+  const displayAddress = address || (city ? `${city} centrum` : null);
+  const { coordinates, mapError, isLoading: isCoordinatesLoading } = useMapCoordinates(displayAddress, city);
   
   const isLoading = isAddressLoading || isCoordinatesLoading;
   const hasError = !!addressError || !!mapError;
-  const error = addressError || mapError;
+  const error = addressError || mapError || ((!address && !city) ? "Adress saknas" : null);
   
   // Show map when we have coordinates and no errors
   useEffect(() => {
@@ -40,22 +42,24 @@ export const SalonLocationMap = ({ salonId, className = "" }: SalonLocationMapPr
   const renderContent = () => {
     if (isLoading) {
       return <MapLoadingState 
-        address={address || ''} 
+        address={displayAddress || ''} 
         salonName={salonName} 
         salonPhone={salonPhone}
+        hideAddress={!displayAddress}
       />;
     }
     
-    if (hasError || !address) {
+    if (hasError || !displayAddress) {
       return (
         <MapErrorState 
-          errorMessage={error || "Adressen kunde inte hittas"} 
-          address={address || ""}
+          errorMessage={error || "Adressinformation saknas"} 
+          address={displayAddress || ""}
           coordinates={coordinates}
-          destination=""
+          destination={displayAddress || ""}
           salonName={salonName}
           salonPhone={salonPhone}
-          hideAddress={!address}
+          hideAddress={!displayAddress}
+          city={city}
         />
       );
     }
@@ -66,10 +70,14 @@ export const SalonLocationMap = ({ salonId, className = "" }: SalonLocationMapPr
           <MapViewer 
             coordinates={coordinates}
             mapboxToken={mapboxToken}
-            address={address}
+            address={displayAddress}
           />
           <div className="flex justify-end">
-            <DirectionsButton address={address} variant="secondary" />
+            <DirectionsButton 
+              address={displayAddress} 
+              coordinates={coordinates}
+              variant="secondary" 
+            />
           </div>
         </div>
       );
@@ -82,8 +90,9 @@ export const SalonLocationMap = ({ salonId, className = "" }: SalonLocationMapPr
     <div className={`space-y-4 ${className}`}>
       <SalonInfoHeader 
         salonName={salonName} 
-        address={address} 
+        address={displayAddress} 
         salonPhone={salonPhone} 
+        hideAddress={!displayAddress}
       />
       {renderContent()}
     </div>
