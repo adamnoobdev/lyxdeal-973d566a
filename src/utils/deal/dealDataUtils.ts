@@ -6,5 +6,5 @@
 // Re-export everything from the utility files
 export { calculateDaysRemaining } from "./dealTimeUtils";
 export { isDealFree, calculateDiscountPercentage, formatPrice } from "./dealPriceUtils";
-export { formatDealData } from "./dealFormatUtils";
+export { formatDealData, getHardcodedSalonData } from "./dealFormatUtils";
 export type { RawDealData, FormattedDealData } from "./dealTypes";

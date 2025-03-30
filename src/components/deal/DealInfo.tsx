@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Phone, Tag, ExternalLink, Store } from "lucide-react";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { useNavigate } from "react-router-dom";
+import { getHardcodedSalonData } from "@/utils/deal/dealFormatUtils";
 
 interface DealInfoProps {
   id: number;
@@ -61,16 +62,11 @@ export const DealInfo = ({
   
   // Enhanced salon name determination
   const getSalonName = () => {
-    // Hardcoded salons for specific deals
-    const hardcodedSalonNames: Record<number, string> = {
-      38: "Belle Hair Studio",
-      // Add more special cases as needed
-    };
-    
-    // Check for hardcoded salon name first
-    if (hardcodedSalonNames[id]) {
-      console.log(`🏢 Using hardcoded salon name for deal ${id}: ${hardcodedSalonNames[id]}`);
-      return hardcodedSalonNames[id];
+    // Check for hardcoded salon name first using the utility function
+    const hardcodedSalon = getHardcodedSalonData(id);
+    if (hardcodedSalon) {
+      console.log(`🏢 Using hardcoded salon name for deal ${id}: ${hardcodedSalon.name}`);
+      return hardcodedSalon.name;
     }
     
     // Otherwise use standard fallback logic

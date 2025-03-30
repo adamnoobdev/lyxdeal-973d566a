@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveSalonData } from "@/utils/salon/salonDataUtils";
-import { formatDealData, type RawDealData } from "@/utils/deal/dealDataUtils";
+import { formatDealData, type RawDealData, getHardcodedSalonData } from "@/utils/deal/dealDataUtils";
 import { handleDealError } from "@/utils/deal/dealErrorHandler";
 import { toast } from "sonner";
 
@@ -47,24 +47,19 @@ export const useDeal = (id: string | undefined) => {
         console.log(`⭐ Deal salon_id value: ${dealData.salon_id}, Type: ${typeof dealData.salon_id}`);
         console.log(`⭐ Deal city value: ${dealData.city}`);
 
-        // Hardcoded salon data for specific deals that need it
-        const hardcodedSalons: Record<number, any> = {
-          38: {
-            id: 1,
-            name: "Belle Hair Studio",
-            address: "Stockholm centrum",
-            phone: null
-          },
-          // Add more deals as needed
-        };
-
         // Check if this deal has hardcoded salon data
-        const hardcodedSalon = hardcodedSalons[dealId];
+        const hardcodedSalon = getHardcodedSalonData(dealId);
         if (hardcodedSalon) {
           console.log(`🔍 Using hardcoded salon data for deal ID ${dealId}:`, hardcodedSalon);
           
           // Format and return the deal with hardcoded salon data
-          const formattedDeal = formatDealData(dealData as RawDealData, hardcodedSalon);
+          const formattedDeal = formatDealData(dealData as RawDealData, {
+            id: null,
+            name: hardcodedSalon.name,
+            address: hardcodedSalon.address,
+            phone: hardcodedSalon.phone
+          });
+          
           console.log(`Final formatted deal with hardcoded salon for deal ${dealId}:`, formattedDeal);
           return formattedDeal;
         }

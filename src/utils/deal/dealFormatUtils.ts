@@ -7,6 +7,13 @@ import { calculateDaysRemaining } from "./dealTimeUtils";
 import { isDealFree } from "./dealPriceUtils";
 import { FormattedDealData, RawDealData } from "./dealTypes";
 
+// Centralized hardcoded salon data for specific deals
+const hardcodedSalons: Record<number, { name: string, address: string | null, phone: string | null }> = {
+  37: { name: "RS Brows Studio", address: "Stockholm centrum", phone: null },
+  38: { name: "Belle Hair Studio", address: "Stockholm centrum", phone: null },
+  // Add more special cases as needed
+};
+
 /**
  * Formats a deal object with calculated properties
  */
@@ -25,12 +32,6 @@ export const formatDealData = (
   const daysRemaining = calculateDaysRemaining(rawDeal.expiration_date, rawDeal.time_remaining);
   const isFree = isDealFree(rawDeal.is_free, rawDeal.discounted_price);
 
-  // Special case for hardcoded salon data - expanded for more deals if needed
-  const hardcodedSalons: Record<number, { name: string, address: string | null }> = {
-    38: { name: "Belle Hair Studio", address: "Stockholm centrum" },
-    // Add more special cases as needed
-  };
-  
   // Check if this deal has hardcoded salon data
   const hardcodedSalon = hardcodedSalons[rawDeal.id];
   if (hardcodedSalon) {
@@ -41,7 +42,7 @@ export const formatDealData = (
       id: salonData?.id || null,
       name: hardcodedSalon.name,
       address: hardcodedSalon.address || salonData?.address,
-      phone: salonData?.phone || null
+      phone: hardcodedSalon.phone || salonData?.phone
     };
     
     console.log("💡 Enhanced salon data:", enhancedSalonData);
@@ -100,3 +101,6 @@ export const formatDealData = (
   console.log("💡 Formatted deal data final:", formattedDeal);
   return formattedDeal;
 };
+
+// Export the hardcoded salons for use in other components
+export const getHardcodedSalonData = (dealId: number) => hardcodedSalons[dealId];
