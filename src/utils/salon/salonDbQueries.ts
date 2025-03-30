@@ -53,8 +53,8 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
     } else {
       // For non-numeric string ID - use explicit type cast for string IDs
       console.log(`Using string comparison with ID: ${salonId}`);
-      // Fix: Use .eq() with the string value directly, Supabase handles the conversion
-      query = query.eq("id", salonId);
+      // Fix: Cast to a known type using :: operator in a filter condition with .filter()
+      query = query.filter('id::text', 'eq', salonId.toString());
     }
     
     const { data, error, status } = await query.maybeSingle();
@@ -122,13 +122,20 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
     
     console.log(`Using ${useNumericId ? 'numeric' : 'original'} ID for full data query: ${useNumericId ? numericId : salonId}`);
     
-    // Fix: The error is here - we need to make sure the ID is acceptable to Supabase
-    // Let Supabase handle the type conversion internally rather than trying to force it
-    const { data, error } = await supabase
+    // Fix: For full data query, handle string IDs properly
+    let query = supabase
       .from("salons")
-      .select("id, name, address, phone")
-      .eq("id", salonId) // Pass the original ID - Supabase will handle it properly
-      .maybeSingle();
+      .select("id, name, address, phone");
+      
+    // Apply the appropriate filter based on ID type
+    if (useNumericId) {
+      query = query.eq("id", numericId);
+    } else {
+      // For string IDs, use the filter method with type casting
+      query = query.filter('id::text', 'eq', String(salonId));
+    }
+    
+    const { data, error } = await query.maybeSingle();
       
     if (error) {
       console.error("Error fetching full salon data:", error);
