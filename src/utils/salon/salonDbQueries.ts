@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { SalonData } from "./types";
 
@@ -40,21 +41,16 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
   console.log(`Attempting to fetch salon with exact ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Using raw filter to handle both string and numeric IDs
-    let query = supabase
+    // Convert to string for consistent handling
+    const idAsString = salonId.toString();
+    
+    console.log(`Using string-based query with ID: ${idAsString}`);
+    
+    const { data, error, status } = await supabase
       .from("salons")
-      .select("id, name, address, phone");
-    
-    if (typeof salonId === 'number') {
-      // For numeric IDs, use direct equality
-      query = query.eq('id', salonId);
-    } else {
-      // For string IDs, use a text cast in the raw filter
-      // This avoids the TypeScript error by not using .eq() with a string
-      query = query.filter('id::text', 'eq', salonId);
-    }
-    
-    const { data, error, status } = await query.maybeSingle();
+      .select("id, name, address, phone")
+      .or(`id.eq.${idAsString},id::text.eq.${idAsString}`)
+      .maybeSingle();
     
     console.log("Query response status:", status);
     
@@ -113,21 +109,16 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
   console.log(`Fetching full salon data for ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Using raw filter to handle both string and numeric IDs
-    let query = supabase
+    // Convert to string for consistent handling
+    const idAsString = salonId.toString();
+    
+    console.log(`Using string-based query for full salon data with ID: ${idAsString}`);
+    
+    const { data, error } = await supabase
       .from("salons")
-      .select("id, name, address, phone");
-    
-    if (typeof salonId === 'number') {
-      // For numeric IDs, use direct equality
-      query = query.eq('id', salonId);
-    } else {
-      // For string IDs, use a text cast in the raw filter
-      // This avoids the TypeScript error by not using .eq() with a string
-      query = query.filter('id::text', 'eq', salonId);
-    }
-    
-    const { data, error } = await query.maybeSingle();
+      .select("id, name, address, phone")
+      .or(`id.eq.${idAsString},id::text.eq.${idAsString}`)
+      .maybeSingle();
       
     if (error) {
       console.error("Error fetching full salon data:", error);
