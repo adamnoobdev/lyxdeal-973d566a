@@ -66,23 +66,25 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
 };
 
 /**
- * Checks if the salons table exists and contains data
+ * Checks if the salons table exists and contains data - using a more reliable approach
  */
 export const checkSalonsTable = async (): Promise<boolean> => {
   try {
     console.log("Checking if salons table exists and contains data");
     
-    // First, check if we can access the table at all
-    const { data: tableCheck, error: tableError } = await supabase
+    // Use a simple query that should work even if the table is empty
+    const { data, error } = await supabase
       .from("salons")
-      .select("count(*)", { count: "exact", head: true });
+      .select("id")
+      .limit(1);
       
-    if (tableError) {
-      console.error("Error accessing salons table:", tableError);
+    if (error) {
+      console.error("Error accessing salons table:", error);
       return false;
     }
     
-    console.log("Salons table access check result:", tableCheck);
+    // Table exists and we can access it (even if it's empty)
+    console.log("Salons table exists and is accessible:", true);
     return true;
   } catch (err) {
     console.error("Exception checking salons table:", err);

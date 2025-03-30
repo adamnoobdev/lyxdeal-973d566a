@@ -21,7 +21,7 @@ export const useDeal = (id: string | undefined) => {
 
         console.log("Fetching deal with ID:", dealId);
 
-        // Fetch the deal data
+        // Fetch the deal data with improved error handling
         const { data: dealData, error: dealError, status } = await supabase
           .from("deals")
           .select("*")
@@ -42,8 +42,21 @@ export const useDeal = (id: string | undefined) => {
         console.log("Raw deal data from DB:", dealData);
         console.log("Deal salon_id value:", dealData.salon_id, "Type:", typeof dealData.salon_id);
 
-        // Resolve salon data with extended error handling
-        const salonData = await resolveSalonData(dealData.salon_id, dealData.city);
+        // Always provide a default salon data in case the resolution fails
+        let salonData;
+        try {
+          // Resolve salon data with extended error handling
+          salonData = await resolveSalonData(dealData.salon_id, dealData.city);
+        } catch (salonError) {
+          console.error("Error resolving salon data:", salonError);
+          // Fallback to a default salon based on city if salon resolution fails completely
+          salonData = {
+            id: null,
+            name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
+            address: dealData.city || null,
+            phone: null
+          };
+        }
         
         // Format and return the complete deal data
         return formatDealData(dealData as RawDealData, salonData);
