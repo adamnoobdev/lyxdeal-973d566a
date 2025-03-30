@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Salon } from "../types";
+import { Salon, SalonFormValues } from "../types";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
 import { EditSalonDialog } from "./EditSalonDialog";
 import { DeleteSalonDialog } from "./DeleteSalonDialog";
@@ -63,8 +63,9 @@ export const SalonsList = () => {
   /**
    * Dela upp adressfält för redigering
    */
-  const getInitialValuesForEdit = (salon: Salon) => {
-    const initialValues = {
+  const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
+    // Skapa grundläggande initialvärden
+    const initialValues: SalonFormValues = {
       name: salon.name,
       email: salon.email,
       phone: salon.phone || "",
@@ -78,7 +79,8 @@ export const SalonsList = () => {
     // För bakåtkompatibilitet försöker vi fortfarande tolka adressen
     // men använder det kompletta adressfältet som primär källa
     if (salon.address) {
-      initialValues.fullAddress = salon.address;
+      // Lägg till fullständig adress
+      initialValues.address = salon.address;
       
       // Försök tolka delarna för historiska adresser i gammalt format
       try {
@@ -86,7 +88,10 @@ export const SalonsList = () => {
         
         // Hämta gata från första delen
         if (addressParts.length > 0) {
-          initialValues.street = addressParts[0].trim();
+          // Dessa värden används bara för visning i formuläret
+          // och kommer att ersättas med faktiska värden från MapboxAddressInput
+          // Vi behöver dem inte i initialValues eftersom de är dolda fält
+          console.log("Extracted street:", addressParts[0].trim());
           
           // Hämta postnummer och stad från andra delen
           if (addressParts.length > 1) {
@@ -96,14 +101,14 @@ export const SalonsList = () => {
             const postalCodeMatch = secondPart.match(/\b(\d{3}\s?\d{2})\b/);
             
             if (postalCodeMatch) {
-              initialValues.postalCode = postalCodeMatch[1];
+              console.log("Extracted postal code:", postalCodeMatch[1]);
               
               // Staden är resten av texten efter postnumret
               const cityText = secondPart.replace(postalCodeMatch[1], '').trim();
-              initialValues.city = cityText;
+              console.log("Extracted city:", cityText);
             } else {
               // Om inget postnummer hittades, anta att det är hela staden
-              initialValues.city = secondPart;
+              console.log("No postal code found, using as city:", secondPart);
             }
           }
         }
