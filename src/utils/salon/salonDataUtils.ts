@@ -24,10 +24,19 @@ export const createDefaultSalonData = (cityName?: string | null): SalonData => (
 export const fetchSalonByExactId = async (salonId: number | string): Promise<SalonData | null> => {
   console.log(`Attempting to fetch salon with exact ID: ${salonId}`);
   
+  // Convert string ID to number if needed
+  const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+  
+  // Check if conversion was successful
+  if (isNaN(numericId)) {
+    console.error(`Invalid salon ID format: ${salonId}`);
+    return null;
+  }
+  
   const { data, error } = await supabase
     .from("salons")
     .select("id, name, address, phone")
-    .eq("id", salonId)
+    .eq("id", numericId)
     .maybeSingle();
     
   if (error) {
@@ -67,10 +76,13 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
   }
   
   // Try to find a salon with a similar ID
-  const numericId = typeof salonId === 'string' ? parseInt(salonId) : salonId;
+  const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+  
+  // Check if conversion was successful before using it for comparison
+  const validNumericId = !isNaN(numericId);
   
   const similarSalon = allSalons.find(s => 
-    s.id === numericId || 
+    (validNumericId && s.id === numericId) || 
     s.id === salonId || 
     String(s.id) === String(salonId)
   );
@@ -89,10 +101,19 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
  * Fetches full salon data by ID
  */
 export const fetchFullSalonData = async (salonId: number | string): Promise<SalonData | null> => {
+  // Convert string ID to number if needed
+  const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+  
+  // Check if conversion was successful
+  if (isNaN(numericId)) {
+    console.error(`Invalid salon ID format: ${salonId}`);
+    return null;
+  }
+  
   const { data, error } = await supabase
     .from("salons")
     .select("id, name, address, phone")
-    .eq("id", salonId)
+    .eq("id", numericId)
     .single();
     
   if (error) {
