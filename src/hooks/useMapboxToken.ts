@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useMapboxToken = () => {
-  return useQuery({
+  const query = useQuery({
     queryKey: ["mapbox-token"],
     queryFn: async () => {
       try {
@@ -31,4 +31,10 @@ export const useMapboxToken = () => {
     staleTime: 1000 * 60 * 60, // 1 hour
     retry: 2,
   });
+
+  return {
+    mapboxToken: query.data,
+    isLoading: query.isLoading,
+    error: query.error
+  };
 };

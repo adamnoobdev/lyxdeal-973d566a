@@ -120,10 +120,14 @@ export const SalonLocationMap = ({
 
   // Handle error states
   if (tokenError || mapError) {
+    const errorMessage = tokenError 
+      ? (tokenError instanceof Error ? tokenError.message : String(tokenError))
+      : mapError || 'Kunde inte ladda kartan';
+      
     return (
       <MapErrorState 
         address={normalizedAddress}
-        errorMessage={tokenError || mapError || 'Kunde inte ladda kartan'}
+        errorMessage={errorMessage}
         coordinates={coordinates}
         destination={`${salonName}, ${normalizedAddress}`}
         hideAddress={hideAddress}
@@ -173,7 +177,7 @@ export const SalonLocationMap = ({
       </div>
       
       <MapViewer 
-        mapboxToken={mapboxToken} 
+        mapboxToken={mapboxToken || ''} 
         coordinates={coordinates} 
       />
       
