@@ -21,13 +21,13 @@ const ProductDetails = () => {
 
   // Debug logging for troubleshooting
   useEffect(() => {
-    console.log("ProductDetails rendered for deal ID:", id);
-    console.log("Deal data loaded state:", { isLoading, isError, dealExists: !!deal });
+    console.log(`🔍 ProductDetails rendered for deal ID: ${id}`);
+    console.log(`🔍 Deal data loaded state: ${isLoading ? 'loading' : (isError ? 'error' : 'success')}`);
     
     if (deal) {
-      console.log("Complete deal data in ProductDetails:", deal);
-      console.log("Salon data in ProductDetails:", deal.salon);
-      console.log("Salon structure:", {
+      console.log("🔍 Complete deal data in ProductDetails:", deal);
+      console.log("🔍 Salon data in ProductDetails:", deal.salon);
+      console.log("🔍 Salon structure:", {
         id: deal.salon?.id,
         name: deal.salon?.name,
         address: deal.salon?.address,
@@ -62,10 +62,12 @@ const ProductDetails = () => {
     );
   }
 
-  // Safe access to salon data with fallbacks
+  // Enhanced safe access to salon data with more detailed fallbacks for debugging
+  console.log(`🔎 Preparing salon display data for deal ${id}`);
   const salonName = deal.salon?.name || `Salong i ${deal.city || 'Stockholm'}`;
   const salonAddress = deal.salon?.address || (deal.city ? `${deal.city} centrum` : null);
   const salonPhone = deal.salon?.phone || null;
+  console.log(`🔎 Final salon display values:`, { salonName, salonAddress, salonPhone });
 
   return (
     <div className="min-h-screen bg-gray-50">

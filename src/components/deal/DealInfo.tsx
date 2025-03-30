@@ -53,12 +53,19 @@ export const DealInfo = ({
     }
   };
 
-  // Debugging salon data
-  console.log("DealInfo component received salon data:", salon);
+  // Log salon data for debugging
+  console.log(`🏢 DealInfo component for deal ${id}:`, { salon, city });
   
-  // Safely access salon data with fallbacks
-  const salonName = salon?.name || `Salong i ${city || ''}`;
+  // Enhanced salon name handling
+  let salonName = 'Okänd salong';
+  if (salon?.name && salon.name !== `Salong i ${city || ''}`) {
+    salonName = salon.name;
+  } else if (city) {
+    salonName = `Salong i ${city}`;
+  }
+  
   const hasPhone = !!salon?.phone;
+  console.log(`🏢 Final salon display name: ${salonName}, Phone: ${salon?.phone || 'none'}`);
 
   return (
     <div className="bg-white shadow-sm p-6 space-y-6 md:rounded-lg">
@@ -66,12 +73,10 @@ export const DealInfo = ({
         <h1 className="text-xl lg:text-2xl font-semibold text-gray-900">{title}</h1>
         
         {/* Salon information - displayed at the top */}
-        {salonName && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Store className="h-4 w-4 text-primary" />
-            <span>{salonName}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Store className="h-4 w-4 text-primary" />
+          <span>{salonName}</span>
+        </div>
         
         <div className="flex items-start justify-between">
           <PriceDisplay 
