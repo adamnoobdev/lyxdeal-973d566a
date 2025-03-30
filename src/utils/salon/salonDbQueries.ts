@@ -12,16 +12,21 @@ export const checkSalonsTable = async (): Promise<boolean> => {
     // Use a simple query that should work even if the table is empty
     const { data, error } = await supabase
       .from("salons")
-      .select("id")
-      .limit(1);
+      .select("id, name")
+      .limit(5);
       
     if (error) {
       console.error("Error accessing salons table:", error);
       return false;
     }
     
-    // Table exists and we can access it (even if it's empty)
-    console.log("Salons table exists and is accessible, found records:", data?.length > 0);
+    // Table exists and we can access it
+    console.log("Salons table check result:", {
+      accessible: true,
+      recordsFound: data?.length || 0,
+      sampleData: data
+    });
+    
     return true;
   } catch (err) {
     console.error("Exception checking salons table:", err);
@@ -35,24 +40,23 @@ export const checkSalonsTable = async (): Promise<boolean> => {
 export const fetchSalonByExactId = async (salonId: number | string): Promise<SalonData | null> => {
   console.log(`Attempting to fetch salon with exact ID: ${salonId} (${typeof salonId})`);
   
-  // Convert string ID to number if needed
-  const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-  
-  // Check if conversion was successful
-  if (isNaN(numericId)) {
-    console.error(`Invalid salon ID format: ${salonId}`);
-    return null;
-  }
-  
   try {
-    // Log the actual query we're about to execute
-    console.log(`Executing Supabase query: .from("salons").select("id, name, address, phone").eq("id", ${numericId})`);
+    // Handle potential string ID more carefully
+    let query = supabase.from("salons").select("id, name, address, phone");
     
-    const { data, error, status } = await supabase
-      .from("salons")
-      .select("id, name, address, phone")
-      .eq("id", numericId)
-      .maybeSingle();
+    // Determine the right comparison based on ID type
+    if (typeof salonId === 'number' || (typeof salonId === 'string' && !isNaN(parseInt(salonId, 10)))) {
+      // For numeric ID or string that can be parsed as number
+      const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+      console.log(`Using numeric comparison with ID: ${numericId}`);
+      query = query.eq("id", numericId);
+    } else {
+      // For non-numeric string ID
+      console.log(`Using string comparison with ID: ${salonId}`);
+      query = query.eq("id", salonId);
+    }
+    
+    const { data, error, status } = await query.maybeSingle();
     
     console.log("Query response status:", status);
     
@@ -61,14 +65,12 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
       return null;
     }
     
-    console.log("Raw salon data response:", data);
-    
     if (data) {
       console.log("Salon data successfully retrieved with exact ID:", data);
       return data as SalonData;
     }
     
-    console.log(`No salon found with ID: ${salonId}. This might indicate a data consistency issue.`);
+    console.log(`No salon found with ID: ${salonId}`);
     return null;
   } catch (err) {
     console.error("Exception fetching salon by exact ID:", err);
@@ -84,7 +86,8 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
     console.log("Fetching all salons");
     const { data: allSalons, error, status } = await supabase
       .from("salons")
-      .select("id, name, address, phone");
+      .select("id, name, address, phone")
+      .order('id', { ascending: true });
     
     console.log("All salons query status:", status);
       
@@ -95,7 +98,7 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
     
     console.log("All available salons count:", allSalons?.length || 0);
     if (allSalons && allSalons.length > 0) {
-      console.log("First salon in the list:", allSalons[0]);
+      console.log("Sample of salons:", allSalons.slice(0, 3));
     }
     
     return allSalons as SalonData[];
@@ -109,29 +112,33 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
  * Fetches full salon data by ID
  */
 export const fetchFullSalonData = async (salonId: number | string): Promise<SalonData | null> => {
-  // Convert string ID to number if needed
-  const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-  
-  // Check if conversion was successful
-  if (isNaN(numericId)) {
-    console.error(`Invalid salon ID format: ${salonId}`);
-    return null;
-  }
+  console.log(`Fetching full salon data for ID: ${salonId} (${typeof salonId})`);
   
   try {
+    // Convert to numeric ID if possible
+    const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    const useNumericId = !isNaN(numericId);
+    
+    console.log(`Using ${useNumericId ? 'numeric' : 'original'} ID for full data query: ${useNumericId ? numericId : salonId}`);
+    
     const { data, error } = await supabase
       .from("salons")
       .select("id, name, address, phone")
-      .eq("id", numericId)
-      .single();
+      .eq("id", useNumericId ? numericId : salonId)
+      .maybeSingle();
       
     if (error) {
       console.error("Error fetching full salon data:", error);
       return null;
     }
     
-    console.log("Retrieved full salon data:", data);
-    return data as SalonData;
+    if (data) {
+      console.log("Retrieved full salon data:", data);
+      return data as SalonData;
+    }
+    
+    console.log(`No salon found with ID: ${salonId}`);
+    return null;
   } catch (err) {
     console.error("Exception in fetchFullSalonData:", err);
     return null;

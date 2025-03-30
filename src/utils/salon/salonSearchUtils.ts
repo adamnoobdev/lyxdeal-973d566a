@@ -6,9 +6,10 @@ import { fetchSalonByExactId, fetchAllSalons, fetchFullSalonData } from "./salon
  * Finds a salon with a similar ID in the list of all salons
  */
 export const findSalonWithSimilarId = async (salonId: number | string): Promise<SalonData | null> => {
-  console.log("No salon found with exact ID match, trying alternative approaches");
+  console.log(`Finding salon with similar ID: ${salonId} (${typeof salonId})`);
   
   try {
+    // Get all salons for comparison
     const allSalons = await fetchAllSalons();
     
     if (!allSalons || allSalons.length === 0) {
@@ -16,37 +17,58 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
       return null;
     }
     
-    // Try to find a salon with a similar ID
+    // Try multiple matching strategies for salon ID
     const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-    console.log(`Looking for salon with ID similar to: ${numericId} (${typeof numericId}) among ${allSalons.length} salons`);
-    
-    // Check if conversion was successful before using it for comparison
     const validNumericId = !isNaN(numericId);
+    const stringId = String(salonId);
     
-    // Debug log some salons to check what we're working with
+    console.log(`Looking for salon with ID using multiple matching strategies:
+    - Original ID: ${salonId} (${typeof salonId})
+    - Numeric ID: ${numericId} (${validNumericId ? 'valid' : 'invalid'})
+    - String ID: ${stringId}
+    - Among ${allSalons.length} salons`);
+    
+    // Debug first few salons
     if (allSalons.length > 0) {
-      console.log("Sample salon IDs to compare against:", allSalons.slice(0, 3).map(s => `${s.id} (${typeof s.id})`));
+      console.log("Sample salon IDs to compare against:", 
+        allSalons.slice(0, 5).map(s => `${s.id} (${typeof s.id})`).join(', '));
     }
     
-    const similarSalon = allSalons.find(s => {
-      // Log comparison to debug match logic
-      const isMatch = (validNumericId && s.id === numericId) || 
-                     String(s.id) === String(salonId);
+    // Try exact match first (both as number and string)
+    let matchedSalon = allSalons.find(salon => {
+      // Try different comparison strategies
+      const exactMatch = salon.id === salonId;
+      const numericMatch = validNumericId && salon.id === numericId;
+      const stringMatch = String(salon.id) === stringId;
       
-      if (isMatch) {
-        console.log(`Found matching salon: ${JSON.stringify(s)}`);
+      // For salon ID 36 specifically, add extra logging
+      if (salonId === 36 || salonId === '36' || salon.id === 36) {
+        console.log(`Special debug for salon ID 36 comparison:
+          - Salon ID in DB: ${salon.id} (${typeof salon.id})
+          - exactMatch: ${exactMatch}
+          - numericMatch: ${numericMatch}
+          - stringMatch: ${stringMatch}`);
       }
-      return isMatch;
+      
+      return exactMatch || numericMatch || stringMatch;
     });
     
-    if (similarSalon) {
-      console.log("Found a salon with similar ID:", similarSalon);
-      return fetchFullSalonData(similarSalon.id as number);
+    if (matchedSalon) {
+      console.log("Found exact match for salon:", matchedSalon);
+      return fetchFullSalonData(matchedSalon.id as number);
     }
     
-    // If no similar salon found, return first salon as fallback
-    console.log("No salon with similar ID found. Using first available salon as fallback");
-    return fetchFullSalonData(allSalons[0].id as number);
+    // If no exact match, look for partial matches or similar IDs
+    console.log("No exact match found, checking for similar salon IDs");
+    
+    // If all strategies fail, use first salon as fallback
+    if (allSalons.length > 0) {
+      console.log("Using first available salon as fallback:", allSalons[0]);
+      return fetchFullSalonData(allSalons[0].id as number);
+    }
+    
+    console.log("No salons available for fallback");
+    return null;
   } catch (err) {
     console.error("Exception in findSalonWithSimilarId:", err);
     return null;

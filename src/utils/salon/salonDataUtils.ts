@@ -17,6 +17,7 @@ export const resolveSalonData = async (
     return createDefaultSalonData(cityName);
   }
 
+  // Enhanced logging for debugging
   console.log(`Attempting to resolve salon data for salon_id: ${salonId}, type: ${typeof salonId}`);
   
   try {
@@ -24,8 +25,17 @@ export const resolveSalonData = async (
     const tableExists = await checkSalonsTable();
     console.log("Salons table check result:", tableExists);
     
-    // Try to fetch salon with exact ID first
-    const exactSalon = await fetchSalonByExactId(salonId);
+    // Convert salonId to proper type for database queries
+    const numericSalonId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    
+    // Add detailed logging for ID being used
+    console.log(`Using ${typeof numericSalonId === 'number' && !isNaN(numericSalonId) ? 'numeric' : 'original'} ID: ${typeof numericSalonId === 'number' && !isNaN(numericSalonId) ? numericSalonId : salonId}`);
+    
+    // Try to fetch salon with exact ID first - use numeric ID if valid, otherwise original
+    const exactSalon = await fetchSalonByExactId(
+      typeof numericSalonId === 'number' && !isNaN(numericSalonId) ? numericSalonId : salonId
+    );
+    
     if (exactSalon) {
       console.log("Found salon with exact ID match:", exactSalon);
       return exactSalon;
