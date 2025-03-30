@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +7,7 @@ import { Cities } from "@/components/Cities";
 import { Deal } from "@/types/deal";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { Helmet } from "react-helmet";
 
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -77,43 +77,96 @@ export default function SearchResults() {
     setSearchParams(newParams);
   };
 
+  const query = searchParams.get("q") || "";
+  const category = searchParams.get("category") || "Alla kategorier";
+  const city = searchParams.get("city") || "Alla städer";
+  
+  const pageTitle = query 
+    ? `${query} - Skönhetserbjudanden i ${city !== "Alla Städer" ? city : "Sverige"}`
+    : `${category !== "Alla Erbjudanden" ? category : "Skönhetserbjudanden"} i ${city !== "Alla Städer" ? city : "Sverige"}`;
+  
+  const pageDescription = `Hitta de bästa ${category !== "Alla Erbjudanden" ? category.toLowerCase() : "skönhetserbjudandena"} i ${city !== "Alla Städer" ? city : "hela Sverige"}. Spara pengar på kvalitetsbehandlingar.`;
+
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4 md:p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-48 bg-gray-200 rounded-lg animate-pulse" />
-          ))}
+      <>
+        <Helmet>
+          <title>{`${pageTitle} | Lyxdeal`}</title>
+          <meta name="description" content={pageDescription} />
+          <meta name="robots" content="noindex, follow" />
+        </Helmet>
+        <div className="container mx-auto p-4 md:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-48 bg-gray-200 rounded-lg animate-pulse" />
+            ))}
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6">
-      <div className="space-y-6">
-        <Link to="/">
-          <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Tillbaka till startsidan
-          </Button>
-        </Link>
+    <>
+      <Helmet>
+        <title>{`${pageTitle} | Lyxdeal`}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={`https://lyxdeal.se/search?${searchParams.toString()}`} />
+        
+        <meta property="og:title" content={`${pageTitle} | Lyxdeal`} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://lyxdeal.se/search?${searchParams.toString()}`} />
+        
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "itemListElement": deals.slice(0, 10).map((deal, index) => ({
+              "@type": "ListItem",
+              "position": index + 1,
+              "item": {
+                "@type": "Product",
+                "name": deal.title,
+                "description": deal.description,
+                "offers": {
+                  "@type": "Offer",
+                  "price": deal.discountedPrice,
+                  "priceCurrency": "SEK",
+                  "availability": "https://schema.org/InStock",
+                  "url": `https://lyxdeal.se/deal/${deal.id}`
+                }
+              }
+            }))
+          })}
+        </script>
+      </Helmet>
+    
+      <div className="container mx-auto p-4 md:p-6">
+        <div className="space-y-6">
+          <Link to="/">
+            <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Tillbaka till startsidan
+            </Button>
+          </Link>
 
-        <Categories 
-          selectedCategory={selectedCategory} 
-          onSelectCategory={handleCategorySelect} 
-        />
-        <Cities 
-          selectedCity={selectedCity} 
-          onSelectCity={handleCitySelect} 
-        />
-        
-        <h1 className="text-2xl font-bold">
-          {deals.length} erbjudanden hittades
-        </h1>
-        
-        <DealsGrid deals={deals} />
+          <Categories 
+            selectedCategory={selectedCategory} 
+            onSelectCategory={handleCategorySelect} 
+          />
+          <Cities 
+            selectedCity={selectedCity} 
+            onSelectCity={handleCitySelect} 
+          />
+          
+          <h1 className="text-2xl font-bold">
+            {deals.length} erbjudanden hittades
+          </h1>
+          
+          <DealsGrid deals={deals} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

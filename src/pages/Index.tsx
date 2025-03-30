@@ -13,8 +13,39 @@ export default function IndexPage() {
       <Helmet>
         <title>Lyxdeal - Upptäck Sveriges Bästa Skönhetserbjudanden</title>
         <meta name="description" content="Hitta och boka de bästa skönhetserbjudandena från Sveriges främsta salonger. Spara pengar på behandlingar och upptäck nya favoritsalonger." />
+        <meta name="keywords" content="skönhetserbjudanden, rabatt på skönhetsvård, skönhetsbehandlingar, hårvård, hudvård, nagelvård, spa, massage, Stockholm, Göteborg, Malmö" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         <link rel="canonical" href="https://lyxdeal.se" />
+        <meta property="og:title" content="Lyxdeal - Upptäck Sveriges Bästa Skönhetserbjudanden" />
+        <meta property="og:description" content="Hitta och boka de bästa skönhetserbjudandena från Sveriges främsta salonger. Spara pengar på behandlingar och upptäck nya favoritsalonger." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://lyxdeal.se" />
+        <meta property="og:image" content="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Lyxdeal - Upptäck Sveriges Bästa Skönhetserbjudanden" />
+        <meta name="twitter:description" content="Hitta och boka de bästa skönhetserbjudandena från Sveriges främsta salonger." />
+        <meta name="twitter:image" content="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" />
+        
+        {/* Schema.org strukturerad data för Organisation och lokalt företag */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Lyxdeal",
+            "description": "Platform för skönhetserbjudanden och behandlingar i Sverige",
+            "url": "https://lyxdeal.se",
+            "logo": "https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png",
+            "sameAs": [
+              "https://facebook.com/lyxdeal",
+              "https://instagram.com/lyxdeal_sverige"
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "customer service",
+              "email": "kontakt@lyxdeal.se"
+            }
+          })}
+        </script>
       </Helmet>
       
       <main className="flex flex-col min-h-screen bg-background pb-12">
