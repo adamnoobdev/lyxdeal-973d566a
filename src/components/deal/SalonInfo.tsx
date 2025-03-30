@@ -21,7 +21,7 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
             <Store className="h-5 w-5 text-primary" />
           </div>
           <h3 className="text-base font-medium text-foreground">
-            Information om salongen saknas
+            Information om salongen laddas...
           </h3>
         </div>
       </div>

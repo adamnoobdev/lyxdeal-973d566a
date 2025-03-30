@@ -1,28 +1,34 @@
 
-import { ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { MapPin, Navigation } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface DirectionsButtonProps {
-  coordinates: [number, number] | null;
-  destination: string;
+  address?: string;
+  className?: string;
+  variant?: "default" | "outline" | "secondary";
 }
 
-export const DirectionsButton = ({ coordinates, destination }: DirectionsButtonProps) => {
-  if (!coordinates) return null;
-  
-  const [lng, lat] = coordinates;
-  
-  // Create Google Maps directions URL
-  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
-  
+export const DirectionsButton = ({ 
+  address, 
+  className = "", 
+  variant = "default" 
+}: DirectionsButtonProps) => {
+  if (!address) return null;
+
+  const getDirectionsUrl = (address: string) => {
+    const encodedAddress = encodeURIComponent(address);
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+  };
+
   return (
     <Button 
-      variant="outline" 
-      className="w-full text-primary border-primary hover:bg-primary/5 hover:text-primary"
-      onClick={() => window.open(googleMapsUrl, '_blank')}
+      variant={variant}
+      size="sm"
+      className={`gap-2 ${className}`}
+      onClick={() => window.open(getDirectionsUrl(address), '_blank')}
     >
-      <ExternalLink className="h-4 w-4 mr-2" />
-      Vägbeskrivning
+      <Navigation className="h-4 w-4" />
+      <span>Vägbeskrivning</span>
     </Button>
   );
 };
