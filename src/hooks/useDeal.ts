@@ -47,26 +47,6 @@ export const useDeal = (id: string | undefined) => {
         console.log("Deal salon_id value:", dealData.salon_id, "Type:", typeof dealData.salon_id);
         console.log("Deal city value:", dealData.city);
 
-        // Hårdkodade salongsnamn för specifika deals
-        const hardcodedSalons: Record<number, { name: string, address?: string | null, phone?: string | null }> = {
-          37: { name: "Belle Hair Studio", address: "Drottninggatan 102, 111 60 Stockholm", phone: "08-411 23 32" },
-          38: { name: "Belle Hair Studio", address: "Drottninggatan 102, 111 60 Stockholm", phone: "08-411 23 32" },
-          // Lägg till fler vid behov
-        };
-
-        // Använd hårdkodad salongsdata om det finns för detta deal-ID
-        if (hardcodedSalons[dealId]) {
-          console.log(`Using hardcoded salon data for deal ID ${dealId}:`, hardcodedSalons[dealId]);
-          const formattedDeal = formatDealData(dealData as RawDealData, {
-            id: dealData.salon_id,
-            name: hardcodedSalons[dealId].name,
-            address: hardcodedSalons[dealId].address || null,
-            phone: hardcodedSalons[dealId].phone || null
-          });
-          
-          return formattedDeal;
-        }
-
         // Försök resolve:a salongsdata med förbättrad felhantering
         let salonData;
         try {
