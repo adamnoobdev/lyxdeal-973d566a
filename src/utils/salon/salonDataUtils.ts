@@ -11,33 +11,16 @@ export const resolveSalonData = async (
   salonId: number | string | null | undefined, 
   cityName?: string | null
 ): Promise<SalonData> => {
-  // Hårdkodade salongsdata för specifika salonger
-  const hardcodedSalons: Record<number, SalonData> = {
-    37: { id: 37, name: "Sherry Beauty & Estetik", address: "Drottninggatan 102, 111 60 Stockholm", phone: "08-411 23 32" },
-    38: { id: 38, name: "Sherry Beauty & Estetik", address: "Torsplan 8, 113 65 Stockholm", phone: "08-411 23 32" },
-    31: { id: 31, name: "Belle Hair Studio", address: "Drottninggatan 102, 111 60 Stockholm", phone: "08-411 23 32" }
-    // Lägg till fler vid behov
-  };
-
-  // If no salon_id provided, return default salon data
-  if (salonId === null || salonId === undefined) {
-    console.log("No salon_id provided, using default salon data");
-    return createDefaultSalonData(cityName);
-  }
-
-  // Kontrollera om vi har hårdkodad data för denna salong
-  const numericSalonId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-  
-  // Kontrollera bara hårdkodad data om vi har ett giltigt numeriskt ID
-  if (!isNaN(Number(numericSalonId)) && hardcodedSalons[numericSalonId as number]) {
-    console.log(`Using hardcoded salon data for salon_id: ${numericSalonId}`, hardcodedSalons[numericSalonId as number]);
-    return hardcodedSalons[numericSalonId as number];
-  }
-
-  // Enhanced logging for debugging
+  // Ta bort hårdkodade salongsdata och förlita oss på faktisk data från databasen
   console.log(`Attempting to resolve salon data for salon_id: ${salonId}, type: ${typeof salonId}`);
   
   try {
+    // If no salon_id provided, return default salon data
+    if (salonId === null || salonId === undefined) {
+      console.log("No salon_id provided, using default salon data");
+      return createDefaultSalonData(cityName);
+    }
+
     // First check if the salons table is accessible
     const tableExists = await checkSalonsTable();
     console.log("Salons table check result:", tableExists);
