@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { SalonData } from "./types";
 
@@ -41,22 +40,18 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
   console.log(`Attempting to fetch salon with exact ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Handle potential string ID more carefully
-    let query = supabase.from("salons").select("id, name, address, phone");
+    // Using raw filter to handle both string and numeric IDs
+    let query = supabase
+      .from("salons")
+      .select("id, name, address, phone");
     
-    // Cast salon ID to number if it's a string that can be parsed as a number
-    const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-    const isValidNumber = !isNaN(Number(numericId));
-    
-    if (isValidNumber) {
-      // Use numeric comparison
-      console.log(`Using numeric query with ID: ${numericId}`);
-      query = query.eq("id", numericId as number);
+    if (typeof salonId === 'number') {
+      // For numeric IDs, use direct equality
+      query = query.eq('id', salonId);
     } else {
-      // For string IDs that can't be parsed as numbers, use string comparison
-      console.log(`Using string query with ID: ${salonId}`);
-      // Use textsearch with ::text type casting
-      query = query.or(`id.eq.${salonId},id::text.eq.${salonId}`);
+      // For string IDs, use a text cast in the raw filter
+      // This avoids the TypeScript error by not using .eq() with a string
+      query = query.filter('id::text', 'eq', salonId);
     }
     
     const { data, error, status } = await query.maybeSingle();
@@ -118,26 +113,18 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
   console.log(`Fetching full salon data for ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Try to convert the ID to a number if possible
-    const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-    const isValidNumber = !isNaN(Number(numericId));
-    
-    console.log(`ID conversion check - Original: ${salonId}, Numeric: ${numericId}, Valid number: ${isValidNumber}`);
-    
-    // Query construction based on ID type
+    // Using raw filter to handle both string and numeric IDs
     let query = supabase
       .from("salons")
       .select("id, name, address, phone");
     
-    if (isValidNumber) {
-      // If it's a valid number, use a numeric comparison
-      console.log(`Using numeric ID query: ${numericId}`);
-      query = query.eq("id", numericId as number);
+    if (typeof salonId === 'number') {
+      // For numeric IDs, use direct equality
+      query = query.eq('id', salonId);
     } else {
-      // For non-numeric strings, try string comparison
-      console.log(`Using string ID query: ${salonId}`);
-      // Handle string IDs with a flexible approach, using OR condition
-      query = query.or(`id.eq.${salonId},id::text.eq.${salonId}`);
+      // For string IDs, use a text cast in the raw filter
+      // This avoids the TypeScript error by not using .eq() with a string
+      query = query.filter('id::text', 'eq', salonId);
     }
     
     const { data, error } = await query.maybeSingle();
