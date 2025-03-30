@@ -1,5 +1,7 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { SalonData } from "../types";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/utils/supabaseConfig";
 
 /**
  * Hämtar en salong med exakt matchande ID
@@ -58,11 +60,11 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
     
     // Anropa direkthämtning med anonym nyckel utan auth-headers för att kringgå RLS
     const { data: directData, error: directError } = await fetch(
-      `${supabase.supabaseUrl}/rest/v1/salons?id=eq.${numericId}&select=id,name,address,phone`,
+      `${SUPABASE_URL}/rest/v1/salons?id=eq.${numericId}&select=id,name,address,phone`,
       {
         method: 'GET',
         headers: {
-          'apikey': supabase.supabaseKey,
+          'apikey': SUPABASE_ANON_KEY,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         }
@@ -82,11 +84,11 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
     
     // Anropa direkthämtning av alla salonger - utan auth-token för att kringgå RLS
     const { data: allSalons, error: allSalonsError } = await fetch(
-      `${supabase.supabaseUrl}/rest/v1/salons?select=id,name,address,phone&limit=50`,
+      `${SUPABASE_URL}/rest/v1/salons?select=id,name,address,phone&limit=50`,
       {
         method: 'GET',
         headers: {
-          'apikey': supabase.supabaseKey,
+          'apikey': SUPABASE_ANON_KEY,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         }
@@ -144,11 +146,11 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
       
       // Om det misslyckas eller är tomt, prova direkt fetch utan auth
       const { data: directData, error: directError } = await fetch(
-        `${supabase.supabaseUrl}/rest/v1/salons?select=id,name,address,phone&limit=50`,
+        `${SUPABASE_URL}/rest/v1/salons?select=id,name,address,phone&limit=50`,
         {
           method: 'GET',
           headers: {
-            'apikey': supabase.supabaseKey,
+            'apikey': SUPABASE_ANON_KEY,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
@@ -231,11 +233,11 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
     console.log(`No results from Supabase client, trying direct fetch for salon_id=${salonId}`);
     
     const { data: directData, error: directError } = await fetch(
-      `${supabase.supabaseUrl}/rest/v1/salons?id=eq.${numericId}&select=id,name,address,phone`,
+      `${SUPABASE_URL}/rest/v1/salons?id=eq.${numericId}&select=id,name,address,phone`,
       {
         method: 'GET',
         headers: {
-          'apikey': supabase.supabaseKey,
+          'apikey': SUPABASE_ANON_KEY,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         }

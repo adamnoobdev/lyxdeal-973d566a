@@ -2,6 +2,7 @@
 import { SalonData } from "./types";
 import { fetchAllSalons, fetchFullSalonData } from "./queries";
 import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/utils/supabaseConfig";
 
 /**
  * Finds a salon with a similar ID in the list of all salons
@@ -18,11 +19,11 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
       console.log("No salons found via Supabase client, trying direct fetch");
       
       const { data: directData, error: directError } = await fetch(
-        `${supabase.supabaseUrl}/rest/v1/salons?select=id,name,address,phone&limit=50`,
+        `${SUPABASE_URL}/rest/v1/salons?select=id,name,address,phone&limit=50`,
         {
           method: 'GET',
           headers: {
-            'apikey': supabase.supabaseKey,
+            'apikey': SUPABASE_ANON_KEY,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }

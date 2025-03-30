@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/utils/supabaseConfig";
 
 /**
  * Kontrollerar om salongstabellen finns och innehåller data
@@ -20,11 +21,11 @@ export const checkSalonsTable = async (): Promise<boolean> => {
       // Prova direkt fetch som fallback utan auth
       console.log("Trying direct fetch to check salons table");
       const response = await fetch(
-        `${supabase.supabaseUrl}/rest/v1/salons?select=id,name&limit=5`,
+        `${SUPABASE_URL}/rest/v1/salons?select=id,name&limit=5`,
         {
           method: 'GET',
           headers: {
-            'apikey': supabase.supabaseKey,
+            'apikey': SUPABASE_ANON_KEY,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
