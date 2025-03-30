@@ -24,6 +24,12 @@ export const formatDealData = (
   const daysRemaining = calculateDaysRemaining(rawDeal.expiration_date, rawDeal.time_remaining);
   const isFree = isDealFree(rawDeal.is_free, rawDeal.discounted_price);
 
+  // Säkerställ att vi alltid har ett salongsnamn
+  const salonName = salonData?.name || 
+                   (rawDeal.city ? `Salong i ${rawDeal.city}` : 'Okänd salong');
+  
+  console.log("Final salon name to use:", salonName);
+
   const formattedDeal = {
     id: rawDeal.id,
     title: rawDeal.title,
@@ -38,7 +44,10 @@ export const formatDealData = (
     created_at: rawDeal.created_at,
     quantityLeft: rawDeal.quantity_left,
     isFree,
-    salon: salonData,
+    salon: {
+      ...salonData,
+      name: salonName
+    },
     booking_url: rawDeal.booking_url,
   };
   

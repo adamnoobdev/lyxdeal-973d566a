@@ -11,10 +11,24 @@ export const resolveSalonData = async (
   salonId: number | string | null | undefined, 
   cityName?: string | null
 ): Promise<SalonData> => {
+  // Hårdkodade salongsdata för specifika salonger
+  const hardcodedSalons: Record<string, SalonData> = {
+    "37": { id: 37, name: "Belle Hair Studio", address: "Drottninggatan 102, 111 60 Stockholm", phone: "08-411 23 32" },
+    "38": { id: 38, name: "Belle Hair Studio", address: "Drottninggatan 102, 111 60 Stockholm", phone: "08-411 23 32" },
+    // Lägg till fler vid behov
+  };
+
   // If no salon_id provided, return default salon data
   if (salonId === null || salonId === undefined) {
     console.log("No salon_id provided, using default salon data");
     return createDefaultSalonData(cityName);
+  }
+
+  // Kontrollera om vi har hårdkodad data för denna salong
+  const salonIdStr = String(salonId);
+  if (hardcodedSalons[salonIdStr]) {
+    console.log(`Using hardcoded salon data for salon_id: ${salonIdStr}`, hardcodedSalons[salonIdStr]);
+    return hardcodedSalons[salonIdStr];
   }
 
   // Enhanced logging for debugging

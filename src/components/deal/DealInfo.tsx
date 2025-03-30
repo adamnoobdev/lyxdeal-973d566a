@@ -55,6 +55,16 @@ export const DealInfo = ({
   console.log("DealInfo salon data:", salon);
   console.log("DealInfo booking_url:", booking_url);
 
+  // Hårdkodade salongsnamn för specifika deals
+  const hardcodedSalons: Record<number, string> = {
+    37: "Belle Hair Studio",
+    38: "Belle Hair Studio"
+    // Lägg till fler vid behov
+  };
+
+  // Bestäm vilket salongsnamn som ska visas
+  const displaySalonName = hardcodedSalons[id] || salon?.name || "Okänd salong";
+
   return (
     <div className="bg-white shadow-sm p-6 space-y-6 md:rounded-lg">
       <div className="space-y-4">
@@ -101,7 +111,7 @@ export const DealInfo = ({
             onClick={() => window.location.href = `tel:${salon.phone}`}
           >
             <Phone className="mr-2 h-5 w-5" />
-            Kontakta salongen
+            Kontakta {displaySalonName}
           </Button>
         )}
 
