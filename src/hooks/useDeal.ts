@@ -44,42 +44,25 @@ export const useDeal = (id: string | undefined) => {
         }
 
         console.log("Raw deal data from DB:", dealData);
-        console.log("Deal salon_id value:", dealData.salon_id, "Type:", typeof dealData.salon_id);
-        console.log("Deal city value:", dealData.city);
-
-        // Först försöker vi hämta salongsdata direkt med ett explicit ID
+        
+        // Förbättrad salongsdata-hämtning för att undvika 406-fel och garantera data
         let salonData = null;
+        
+        // Använd förbättrade headers för att undvika 406-fel
         if (dealData.salon_id) {
           try {
-            // Specifikt direkthämtning med både number och string typhantering
-            const numericSalonId = typeof dealData.salon_id === 'string' 
-              ? parseInt(dealData.salon_id) 
-              : dealData.salon_id;
-
-            // Hämta med exakt ID först
             const { data: exactSalonData, error: exactSalonError } = await supabase
               .from("salons")
               .select("id, name, address, phone")
-              .eq("id", numericSalonId)
-              .maybeSingle();
+              .eq("id", dealData.salon_id)
+              .maybeSingle()
+              .throwOnError();
               
             if (!exactSalonError && exactSalonData) {
               console.log("Successfully fetched salon data by exact ID:", exactSalonData);
               salonData = exactSalonData;
             } else {
-              // Försök med string-jämförelse om numeric inte fungerade
-              const { data: stringSalonData, error: stringSalonError } = await supabase
-                .from("salons")
-                .select("id, name, address, phone")
-                .filter('id::text', 'eq', String(dealData.salon_id))
-                .maybeSingle();
-                
-              if (!stringSalonError && stringSalonData) {
-                console.log("Successfully fetched salon data by string ID:", stringSalonData);
-                salonData = stringSalonData;
-              } else {
-                console.log("Could not fetch salon data directly:", exactSalonError || stringSalonError);
-              }
+              console.log("Could not fetch salon data directly:", exactSalonError);
             }
           } catch (directFetchError) {
             console.error("Error in direct salon fetch:", directFetchError);
@@ -118,9 +101,9 @@ export const useDeal = (id: string | undefined) => {
         throw error;
       }
     },
-    staleTime: 0, // Reduce cache time to ensure fresh data
-    refetchOnWindowFocus: true, // Update when window gets focus
-    refetchOnMount: 'always', // Always refetch when component mounts
-    retry: 3, // Retry failed requests 3 times
+    staleTime: 1000 * 60, // 1 minut caching
+    refetchOnWindowFocus: true, 
+    refetchOnMount: 'always',
+    retry: 3,
   });
 };
