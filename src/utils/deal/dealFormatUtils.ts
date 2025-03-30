@@ -5,7 +5,7 @@
 
 import { calculateDaysRemaining } from "./dealTimeUtils";
 import { isDealFree } from "./dealPriceUtils";
-import { FormattedDealData, RawDealData } from "./dealTypes";
+import { FormattedDealData, RawDealData } from "./types";
 
 /**
  * Formats a deal object with calculated properties
