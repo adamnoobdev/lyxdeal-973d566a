@@ -1,6 +1,4 @@
 
-import { supabase } from "@/integrations/supabase/client";
-
 export interface SalonData {
   id: number | null;
   name: string;

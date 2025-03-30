@@ -19,7 +19,7 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
     
     // Try multiple matching strategies for salon ID
     const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-    const validNumericId = !isNaN(numericId);
+    const validNumericId = typeof numericId === 'number' && !isNaN(numericId);
     const stringId = String(salonId);
     
     console.log(`Looking for salon with ID using multiple matching strategies:
@@ -40,15 +40,6 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
       const exactMatch = salon.id === salonId;
       const numericMatch = validNumericId && salon.id === numericId;
       const stringMatch = String(salon.id) === stringId;
-      
-      // For salon ID 36 specifically, add extra logging
-      if (salonId === 36 || salonId === '36' || salon.id === 36) {
-        console.log(`Special debug for salon ID 36 comparison:
-          - Salon ID in DB: ${salon.id} (${typeof salon.id})
-          - exactMatch: ${exactMatch}
-          - numericMatch: ${numericMatch}
-          - stringMatch: ${stringMatch}`);
-      }
       
       return exactMatch || numericMatch || stringMatch;
     });

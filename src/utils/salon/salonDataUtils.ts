@@ -12,7 +12,7 @@ export const resolveSalonData = async (
   cityName?: string | null
 ): Promise<SalonData> => {
   // If no salon_id provided, return default salon data
-  if (!salonId) {
+  if (salonId === null || salonId === undefined) {
     console.log("No salon_id provided, using default salon data");
     return createDefaultSalonData(cityName);
   }
@@ -25,23 +25,21 @@ export const resolveSalonData = async (
     const tableExists = await checkSalonsTable();
     console.log("Salons table check result:", tableExists);
     
-    // Convert salonId to proper type for database queries
-    const numericSalonId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    if (!tableExists) {
+      console.log("Salons table not accessible, using default salon data");
+      return createDefaultSalonData(cityName);
+    }
     
-    // Add detailed logging for ID being used
-    console.log(`Using ${typeof numericSalonId === 'number' && !isNaN(numericSalonId) ? 'numeric' : 'original'} ID: ${typeof numericSalonId === 'number' && !isNaN(numericSalonId) ? numericSalonId : salonId}`);
-    
-    // Try to fetch salon with exact ID first - use numeric ID if valid, otherwise original
-    const exactSalon = await fetchSalonByExactId(
-      typeof numericSalonId === 'number' && !isNaN(numericSalonId) ? numericSalonId : salonId
-    );
+    // Try to fetch salon with exact ID first
+    const exactSalon = await fetchSalonByExactId(salonId);
     
     if (exactSalon) {
       console.log("Found salon with exact ID match:", exactSalon);
       return exactSalon;
     }
     
-    console.log("No exact ID match found, trying similar ID search");
+    console.log(`No exact ID match found for ${salonId}, trying similar ID search`);
+    
     // If exact match fails, try to find salon with similar ID
     const similarSalon = await findSalonWithSimilarId(salonId);
     if (similarSalon) {

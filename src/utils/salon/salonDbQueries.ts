@@ -42,9 +42,9 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
   
   try {
     // Convert to string for consistent handling
-    const idAsString = salonId.toString();
+    const idAsString = String(salonId);
     
-    console.log(`Using string-based query with ID: ${idAsString}`);
+    console.log(`Fetching salon with ID string: "${idAsString}"`);
     
     const { data, error, status } = await supabase
       .from("salons")
@@ -52,7 +52,12 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
       .or(`id.eq.${idAsString},id::text.eq.${idAsString}`)
       .maybeSingle();
     
-    console.log("Query response status:", status);
+    console.log("Salon query response:", {
+      status,
+      hasError: !!error, 
+      dataReceived: !!data,
+      data
+    });
     
     if (error) {
       console.error("Error fetching salon by exact ID:", error);
@@ -93,6 +98,8 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
     console.log("All available salons count:", allSalons?.length || 0);
     if (allSalons && allSalons.length > 0) {
       console.log("Sample of salons:", allSalons.slice(0, 3));
+    } else {
+      console.log("No salons found in the database");
     }
     
     return allSalons as SalonData[];
@@ -110,7 +117,7 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
   
   try {
     // Convert to string for consistent handling
-    const idAsString = salonId.toString();
+    const idAsString = String(salonId);
     
     console.log(`Using string-based query for full salon data with ID: ${idAsString}`);
     
