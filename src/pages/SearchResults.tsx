@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -131,7 +132,7 @@ export default function SearchResults() {
                 "description": deal.description,
                 "offers": {
                   "@type": "Offer",
-                  "price": deal.discountedPrice,
+                  "price": deal.discounted_price,
                   "priceCurrency": "SEK",
                   "availability": "https://schema.org/InStock",
                   "url": `https://lyxdeal.se/deal/${deal.id}`
