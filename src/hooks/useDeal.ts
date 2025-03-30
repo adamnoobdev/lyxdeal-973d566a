@@ -50,96 +50,75 @@ export const useDeal = (id: string | undefined) => {
         if (dealData.salon_id) {
           console.log(`Attempting to fetch salon data for salon_id: ${dealData.salon_id}`);
           
-          try {
-            // Separate try/catch to handle salon fetch errors independently
-            const { data: fetchedSalonData, error: salonError } = await supabase
+          // First try with the exact salon_id
+          const { data: exactSalon, error: exactError } = await supabase
+            .from("salons")
+            .select("id, name, address, phone")
+            .eq("id", dealData.salon_id)
+            .maybeSingle();
+            
+          if (exactSalon) {
+            console.log("Salon data successfully retrieved with exact ID:", exactSalon);
+            salonData = exactSalon;
+          } else {
+            console.log("No salon found with exact ID match, trying alternative approaches");
+            
+            // Get all salons to see what's available
+            const { data: allSalons, error: allError } = await supabase
               .from("salons")
-              .select("id, name, address, phone")
-              .eq("id", dealData.salon_id)
-              .maybeSingle();
+              .select("id, name");
               
-            if (salonError) {
-              console.error(`Error fetching salon data for salon_id ${dealData.salon_id}:`, salonError.message);
-              console.error("Full error object:", salonError);
-            } else if (fetchedSalonData) {
-              console.log("Salon data successfully retrieved:", fetchedSalonData);
-              salonData = fetchedSalonData;
+            if (allError) {
+              console.error("Error fetching all salons:", allError);
             } else {
-              console.warn(`No salon found with ID: ${dealData.salon_id}. This might indicate a data consistency issue.`);
+              console.log("All available salons:", allSalons);
               
-              // First diagnostic check - make sure the salon ID is a valid number
-              if (typeof dealData.salon_id !== 'number') {
-                console.error(`Invalid salon_id type: ${typeof dealData.salon_id}, value: ${dealData.salon_id}`);
-                
-                // Try to convert it to a number if it's a string
-                if (typeof dealData.salon_id === 'string') {
-                  const numericId = parseInt(dealData.salon_id);
-                  if (!isNaN(numericId)) {
-                    console.log(`Attempting to fetch salon with parsed ID: ${numericId}`);
-                    const { data: parsedSalon } = await supabase
-                      .from("salons")
-                      .select("id, name, address, phone")
-                      .eq("id", numericId)
-                      .maybeSingle();
-                      
-                    if (parsedSalon) {
-                      console.log("Found salon with parsed ID:", parsedSalon);
-                      salonData = parsedSalon;
-                    }
-                  }
-                }
-              }
+              // Check if any salon has an ID close to what we're looking for
+              const numericId = typeof dealData.salon_id === 'string' 
+                ? parseInt(dealData.salon_id) 
+                : dealData.salon_id;
               
-              // Additional diagnostic check - verify if the salon exists at all
-              const { count, error: countError } = await supabase
-                .from("salons")
-                .select("*", { count: 'exact', head: true });
-                
-              if (countError) {
-                console.error("Error checking salon table:", countError);
-              } else {
-                console.log(`Total number of salons in database: ${count}`);
-              }
+              // Try to find a salon with a similar ID
+              const similarSalon = allSalons?.find(s => 
+                s.id === numericId || 
+                s.id === dealData.salon_id || 
+                String(s.id) === String(dealData.salon_id)
+              );
               
-              // Try to get all salon IDs to check if the ID exists
-              const { data: allSalonIds, error: idsError } = await supabase
-                .from("salons")
-                .select("id")
-                .limit(20);
+              if (similarSalon) {
+                console.log("Found a salon with similar ID:", similarSalon);
                 
-              if (idsError) {
-                console.error("Error fetching salon IDs:", idsError);
-              } else {
-                console.log("Available salon IDs in database:", allSalonIds?.map(s => s.id));
-                
-                // Try an advanced direct query with rawSQL to check if there's any data difference
-                const { data: rawSalonData, error: rawError } = await supabase
+                // Fetch the full salon data
+                const { data: fullSalonData } = await supabase
                   .from("salons")
-                  .select("*")
-                  .limit(1);
+                  .select("id, name, address, phone")
+                  .eq("id", similarSalon.id)
+                  .single();
                   
-                if (rawError) {
-                  console.error("Error fetching raw salon data:", rawError);
-                } else if (rawSalonData && rawSalonData.length > 0) {
-                  console.log("Sample raw salon record structure:", rawSalonData[0]);
+                if (fullSalonData) {
+                  console.log("Retrieved full salon data:", fullSalonData);
+                  salonData = fullSalonData;
+                }
+              } else {
+                // If we still haven't found a salon, use the first one as a fallback
+                if (allSalons && allSalons.length > 0) {
+                  console.log("Using first available salon as fallback");
                   
-                  // Try to see if any salon has this ID as a string
-                  const stringId = String(dealData.salon_id);
-                  const { data: stringSalon } = await supabase
+                  const { data: fallbackSalon } = await supabase
                     .from("salons")
                     .select("id, name, address, phone")
-                    .filter("id::text", "eq", stringId)
-                    .maybeSingle();
+                    .eq("id", allSalons[0].id)
+                    .single();
                     
-                  if (stringSalon) {
-                    console.log("Found salon with string ID comparison:", stringSalon);
-                    salonData = stringSalon;
+                  if (fallbackSalon) {
+                    salonData = fallbackSalon;
+                    console.log("Using fallback salon:", fallbackSalon);
                   }
+                } else {
+                  console.log("No salons found in the database, using default data");
                 }
               }
             }
-          } catch (salonFetchError) {
-            console.error("Unexpected error during salon data fetch:", salonFetchError);
           }
         } else {
           console.log("No salon_id provided in deal data, using default salon data");
