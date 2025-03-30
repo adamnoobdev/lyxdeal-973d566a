@@ -19,7 +19,6 @@ export interface DealWithSalon extends Deal {
   } | null;
 }
 
-// Move content from dealTypes.ts here to provide a single source of truth
 /**
  * Raw deal data from the database
  */
@@ -64,5 +63,5 @@ export interface FormattedDealData {
     address: string | null;
     phone: string | null;
   };
-  booking_url?: string;
+  booking_url?: string | null;
 }

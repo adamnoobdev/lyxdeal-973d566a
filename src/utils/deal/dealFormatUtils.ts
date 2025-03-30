@@ -17,7 +17,8 @@ export const formatDealData = (
   console.log("Formatting deal data:", { 
     dealId: rawDeal.id,
     salonId: rawDeal.salon_id,
-    dealTitle: rawDeal.title
+    dealTitle: rawDeal.title,
+    bookingUrl: rawDeal.booking_url
   });
   console.log("Salon data for formatting:", salonData);
   
@@ -48,7 +49,7 @@ export const formatDealData = (
       ...salonData,
       name: salonName
     },
-    booking_url: rawDeal.booking_url,
+    booking_url: rawDeal.booking_url || null
   };
   
   console.log("Formatted deal data:", formattedDeal);
