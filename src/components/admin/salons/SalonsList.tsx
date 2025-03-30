@@ -96,8 +96,8 @@ export const SalonsList = () => {
     return <SalonsLoadingSkeleton />;
   }
 
-  // Convert error to string type - this fixes the type error
-  const errorMessage = error instanceof Error ? error.message : error as string;
+  // Since error is already a string or null in useSalonsAdmin, we don't need to check instanceof
+  const errorMessage = error || null;
 
   return (
     <div className="space-y-6">
