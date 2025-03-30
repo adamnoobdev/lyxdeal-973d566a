@@ -19,12 +19,22 @@ const ProductDetails = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]); // Added id as dependency to ensure scroll on navigation between products
 
-  // Logga query-parametrar för att hjälpa till med debugging
+  // Debug logging for troubleshooting
   useEffect(() => {
-    console.log("Current URL:", window.location.href);
-    console.log("Path:", window.location.pathname);
-    console.log("Deal ID from params:", id);
-  }, [id]);
+    console.log("ProductDetails rendered for deal ID:", id);
+    console.log("Deal data loaded state:", { isLoading, isError, dealExists: !!deal });
+    
+    if (deal) {
+      console.log("Complete deal data in ProductDetails:", deal);
+      console.log("Salon data in ProductDetails:", deal.salon);
+      console.log("Salon structure:", {
+        id: deal.salon?.id,
+        name: deal.salon?.name,
+        address: deal.salon?.address,
+        phone: deal.salon?.phone
+      });
+    }
+  }, [id, deal, isLoading, isError]);
 
   if (isError) {
     return (
@@ -52,8 +62,10 @@ const ProductDetails = () => {
     );
   }
 
-  console.log("Deal data in ProductDetails:", deal);
-  console.log("Salon data in ProductDetails:", deal.salon);
+  // Safe access to salon data with fallbacks
+  const salonName = deal.salon?.name || `Salong i ${deal.city || 'Stockholm'}`;
+  const salonAddress = deal.salon?.address || (deal.city ? `${deal.city} centrum` : null);
+  const salonPhone = deal.salon?.phone || null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -105,13 +117,13 @@ const ProductDetails = () => {
 
               {/* Salon section with location info */}
               <div className="bg-white shadow-sm p-6 space-y-6">
-                <h2 className="text-xl font-semibold mb-4">Om {deal.salon?.name || "salongen"}</h2>
+                <h2 className="text-xl font-semibold mb-4">Om {salonName}</h2>
                 
                 <div className="mt-6">
                   <SalonLocationMap 
-                    address={deal.salon?.address || deal.city || ""}
-                    salonName={deal.salon?.name || `Salong i ${deal.city}`}
-                    salonPhone={deal.salon?.phone}
+                    address={salonAddress || deal.city || ""}
+                    salonName={salonName}
+                    salonPhone={salonPhone}
                     city={deal.city}
                     hideAddress={false}
                   />

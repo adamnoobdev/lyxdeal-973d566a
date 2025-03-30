@@ -24,6 +24,16 @@ export const formatDealData = (
   const daysRemaining = calculateDaysRemaining(rawDeal.expiration_date, rawDeal.time_remaining);
   const isFree = isDealFree(rawDeal.is_free, rawDeal.discounted_price);
 
+  // Ensure we have valid salon data
+  const normalizedSalonData = {
+    id: salonData?.id || null,
+    name: salonData?.name || (rawDeal.city ? `Salong i ${rawDeal.city}` : 'Okänd salong'),
+    address: salonData?.address || (rawDeal.city ? `${rawDeal.city} centrum` : null),
+    phone: salonData?.phone || null
+  };
+  
+  console.log("Normalized salon data:", normalizedSalonData);
+
   const formattedDeal = {
     id: rawDeal.id,
     title: rawDeal.title,
@@ -38,10 +48,10 @@ export const formatDealData = (
     created_at: rawDeal.created_at,
     quantityLeft: rawDeal.quantity_left,
     isFree,
-    salon: salonData,
+    salon: normalizedSalonData,
     booking_url: rawDeal.booking_url,
   };
   
-  console.log("Formatted deal data:", formattedDeal);
+  console.log("Formatted deal data final:", formattedDeal);
   return formattedDeal;
 };

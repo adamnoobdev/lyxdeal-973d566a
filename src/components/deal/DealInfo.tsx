@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Phone, Tag, ExternalLink } from "lucide-react";
+import { Phone, Tag, ExternalLink, Store } from "lucide-react";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { useNavigate } from "react-router-dom";
 
@@ -31,6 +31,7 @@ export const DealInfo = ({
   daysRemaining,
   quantityLeft,
   salon,
+  city,
   isFree,
   booking_url,
 }: DealInfoProps) => {
@@ -52,13 +53,25 @@ export const DealInfo = ({
     }
   };
 
-  console.log("DealInfo salon data:", salon);
-  console.log("DealInfo booking_url:", booking_url);
+  // Debugging salon data
+  console.log("DealInfo component received salon data:", salon);
+  
+  // Safely access salon data with fallbacks
+  const salonName = salon?.name || `Salong i ${city || ''}`;
+  const hasPhone = !!salon?.phone;
 
   return (
     <div className="bg-white shadow-sm p-6 space-y-6 md:rounded-lg">
       <div className="space-y-4">
         <h1 className="text-xl lg:text-2xl font-semibold text-gray-900">{title}</h1>
+        
+        {/* Salon information - displayed at the top */}
+        {salonName && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Store className="h-4 w-4 text-primary" />
+            <span>{salonName}</span>
+          </div>
+        )}
         
         <div className="flex items-start justify-between">
           <PriceDisplay 
@@ -93,12 +106,12 @@ export const DealInfo = ({
           Säkra rabattkod
         </Button>
         
-        {salon?.phone && (
+        {hasPhone && (
           <Button 
             variant="outline"
             className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary group mt-3 transition-colors"
             size="lg"
-            onClick={() => window.location.href = `tel:${salon.phone}`}
+            onClick={() => window.location.href = `tel:${salon?.phone}`}
           >
             <Phone className="mr-2 h-5 w-5" />
             Kontakta salongen

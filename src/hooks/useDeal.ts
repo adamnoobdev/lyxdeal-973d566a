@@ -50,9 +50,30 @@ export const useDeal = (id: string | undefined) => {
         // Always provide a default salon data in case the resolution fails
         let salonData;
         try {
-          // Resolve salon data with extended error handling
-          salonData = await resolveSalonData(dealData.salon_id, dealData.city);
-          console.log("Resolved salon data:", salonData);
+          // Perform direct database query for salon data first
+          if (dealData.salon_id) {
+            console.log(`Attempting direct salon lookup for ID: ${dealData.salon_id}`);
+            const { data: directSalonData, error: salonError } = await supabase
+              .from("salons")
+              .select("id, name, address, phone")
+              .eq("id", dealData.salon_id)
+              .single();
+                
+            if (directSalonData && !salonError) {
+              console.log("Successfully retrieved salon data directly:", directSalonData);
+              salonData = directSalonData;
+            } else {
+              console.log("Direct salon lookup failed, falling back to resolution logic");
+              // If direct lookup fails, fall back to resolution logic
+              salonData = await resolveSalonData(dealData.salon_id, dealData.city);
+            }
+          } else {
+            // No salon_id, resolve salon data based on city
+            console.log("No salon_id in deal data, resolving based on city");
+            salonData = await resolveSalonData(null, dealData.city);
+          }
+          
+          console.log("Final resolved salon data:", salonData);
         } catch (salonError) {
           console.error("Error resolving salon data:", salonError);
           toast.error("Kunde inte hämta information om salongen", {
@@ -71,7 +92,9 @@ export const useDeal = (id: string | undefined) => {
         }
         
         // Format and return the complete deal data
-        return formatDealData(dealData as RawDealData, salonData);
+        const formattedDeal = formatDealData(dealData as RawDealData, salonData);
+        console.log("Returning formatted deal data with salon:", formattedDeal);
+        return formattedDeal;
       } catch (error) {
         handleDealError(error);
         throw error;
