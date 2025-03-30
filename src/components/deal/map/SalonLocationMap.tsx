@@ -1,13 +1,12 @@
-
-import { useState, useEffect } from 'react';
+import { useMapboxToken } from '@/hooks/useMapboxToken';
 import { MapViewer } from './MapViewer';
 import { DirectionsButton } from './DirectionsButton';
 import { MapLoadingState } from './MapLoadingState';
 import { MapErrorState } from './MapErrorState';
-import { useMapboxToken } from '@/hooks/useMapboxToken';
-import { getCoordinates } from '@/utils/mapbox';
-import { Store, Phone, MapPin } from 'lucide-react';
+import { SalonInfoHeader } from './SalonInfoHeader';
 import { useMapAddress } from './useMapAddress';
+import { useMapCoordinates } from './useMapCoordinates';
+import { Store, Phone } from 'lucide-react';
 
 interface SalonLocationMapProps {
   address: string;
@@ -25,17 +24,22 @@ export const SalonLocationMap = ({
   hideAddress = false 
 }: SalonLocationMapProps) => {
   const { mapboxToken, isLoading: isTokenLoading, error: tokenError } = useMapboxToken();
-  const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
-  const [mapError, setMapError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
   
   const { normalizedAddress, formattedAddress, isValidAddress } = useMapAddress({
     address,
     city
   });
 
-  // Logging for debugging
+  const { 
+    coordinates, 
+    mapError, 
+    isLoading 
+  } = useMapCoordinates({
+    mapboxToken,
+    formattedAddress: isValidAddress ? formattedAddress : null,
+    city
+  });
+
   console.log("SalonLocationMap rendering with props:", { 
     address, 
     salonName, 
@@ -48,7 +52,6 @@ export const SalonLocationMap = ({
     isValidAddress
   });
 
-  // Check if we have a valid address before trying to fetch coordinates
   if (!isValidAddress) {
     console.log("SalonLocationMap: Invalid or empty address provided", { address, city });
     return (
@@ -74,54 +77,6 @@ export const SalonLocationMap = ({
     );
   }
 
-  useEffect(() => {
-    const fetchCoordinates = async () => {
-      if (!mapboxToken || !formattedAddress) return;
-      
-      try {
-        setIsLoading(true);
-        console.log("Fetching coordinates for address:", formattedAddress);
-        console.log("Using mapboxToken type:", typeof mapboxToken);
-        console.log("Token available:", !!mapboxToken);
-        
-        const coords = await getCoordinates(formattedAddress, mapboxToken);
-        
-        if (coords) {
-          setCoordinates(coords);
-          setMapError(null);
-          console.log("Retrieved coordinates:", coords);
-        } else {
-          setMapError('Kunde inte hitta denna adress på kartan. Försöker igen...');
-          console.error("No coordinates returned for address:", formattedAddress);
-          
-          // Try an alternative format if first attempt fails
-          if (city && retryCount < 1) {
-            setRetryCount(prev => prev + 1);
-            const cityOnlyCoords = await getCoordinates(city, mapboxToken);
-            
-            if (cityOnlyCoords) {
-              setCoordinates(cityOnlyCoords);
-              setMapError(null);
-              console.log("Retrieved city coordinates as fallback:", cityOnlyCoords);
-            } else {
-              setMapError('Kunde inte hitta denna adress på kartan. Kontrollera att adressen är korrekt och fullständig.');
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching coordinates:', error);
-        setMapError('Ett problem uppstod när vi försökte visa kartan för denna adress.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (mapboxToken && formattedAddress) {
-      fetchCoordinates();
-    }
-  }, [formattedAddress, mapboxToken, city, retryCount]);
-
-  // Combine loading states
   if (isTokenLoading || (isLoading && !mapError)) {
     return <MapLoadingState 
              address={normalizedAddress} 
@@ -131,7 +86,6 @@ export const SalonLocationMap = ({
            />;
   }
 
-  // Handle error states
   if (tokenError || mapError) {
     const errorMessage = tokenError 
       ? (tokenError instanceof Error ? tokenError.message : String(tokenError))
@@ -150,7 +104,6 @@ export const SalonLocationMap = ({
     );
   }
 
-  // Only render the map if we have coordinates
   if (!coordinates) {
     return (
       <MapErrorState 
@@ -167,27 +120,12 @@ export const SalonLocationMap = ({
 
   return (
     <div className="space-y-4">
-      {/* Salon info section with name, phone and address */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Store className="h-4 w-4 text-primary" />
-          <span className="font-medium">{salonName}</span>
-        </div>
-        
-        {salonPhone && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Phone className="h-4 w-4" />
-            <a href={`tel:${salonPhone}`} className="hover:underline">{salonPhone}</a>
-          </div>
-        )}
-        
-        {!hideAddress && normalizedAddress && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4" />
-            <span>{normalizedAddress}</span>
-          </div>
-        )}
-      </div>
+      <SalonInfoHeader 
+        salonName={salonName}
+        salonPhone={salonPhone}
+        address={normalizedAddress}
+        hideAddress={hideAddress}
+      />
       
       <MapViewer 
         mapboxToken={mapboxToken || ''} 
