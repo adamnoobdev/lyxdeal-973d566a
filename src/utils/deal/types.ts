@@ -19,5 +19,6 @@ export interface DealWithSalon extends Deal {
   } | null;
 }
 
-// For consistent imports, re-export dealTypes
-export * from './dealTypes';
+// Original dealTypes.ts content should be moved here
+// We can remove the re-export that was causing the error
+// export * from './dealTypes';
