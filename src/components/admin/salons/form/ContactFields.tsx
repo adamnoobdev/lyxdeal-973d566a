@@ -12,6 +12,8 @@ interface ContactFieldsProps {
 export const ContactFields = ({ form }: ContactFieldsProps) => {
   // Hantera mapbox-adressinmatning
   const handleAddressChange = (value: string, parts?: AddressParts) => {
+    console.log("Address changed:", value, "parts:", parts);
+    
     // Uppdatera det synliga adressfältet
     form.setValue('fullAddress', value, { shouldValidate: true });
     
@@ -21,27 +23,20 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
       if (parts.postalCode) form.setValue('postalCode', parts.postalCode, { shouldValidate: true });
       if (parts.city) form.setValue('city', parts.city, { shouldValidate: true });
       
-      // Skapa fullständig adress för backend
-      let fullAddress = '';
-      if (parts.street) fullAddress += parts.street;
-      if (parts.postalCode) {
-        if (fullAddress) fullAddress += ', ';
-        fullAddress += parts.postalCode;
-      }
-      if (parts.city) {
-        if (fullAddress && !fullAddress.endsWith(' ')) fullAddress += ' ';
-        fullAddress += parts.city;
-      }
-      
-      form.setValue('address', fullAddress, { shouldValidate: true });
-    } else {
-      // Om vi inte har strukturerade detaljer, använd hela värdet som adress
+      // Skapa fullständig adress för backend - använd det exakta värdet från Mapbox
+      form.setValue('address', value, { shouldValidate: true });
+    } else if (value) {
+      // Om vi inte har strukturerade detaljer men har ett värde,
+      // använd hela värdet som adress
       form.setValue('address', value, { shouldValidate: true });
     }
   };
 
   // Skapa en konstruerad defaultValue för Mapbox-inmatningen
   const getFullAddress = () => {
+    const address = form.watch('address') || '';
+    if (address) return address;
+    
     const street = form.watch('street') || '';
     const postalCode = form.watch('postalCode') || '';
     const city = form.watch('city') || '';

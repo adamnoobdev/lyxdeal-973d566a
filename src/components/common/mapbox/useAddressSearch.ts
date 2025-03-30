@@ -13,7 +13,7 @@ export const useAddressSearch = (
   const [inputValue, setInputValue] = useState(defaultValue);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(defaultValue || null);
   const [isValid, setIsValid] = useState(!!defaultValue);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -80,6 +80,7 @@ export const useAddressSearch = (
       return;
     }
     
+    // Get the full formatted address from Mapbox
     const place = feature.place_name;
     setInputValue(place);
     setSelectedAddress(place);

@@ -44,6 +44,7 @@ export const SalonsList = () => {
    */
   const onUpdate = async (values: any) => {
     if (editingSalon) {
+      console.log("Updating salon with values:", values);
       const success = await handleUpdate(values, editingSalon.id);
       if (success) {
         setEditingSalon(null);
@@ -67,42 +68,52 @@ export const SalonsList = () => {
       name: salon.name,
       email: salon.email,
       phone: salon.phone || "",
-      street: "",
-      postalCode: "",
-      city: "",
+      address: salon.address || "",
       termsAccepted: salon.terms_accepted !== false,
       privacyAccepted: salon.privacy_accepted !== false,
     };
 
-    // Tolka adress om den finns
+    console.log("Preparing initial values for salon:", salon.name, "address:", salon.address);
+    
+    // För bakåtkompatibilitet försöker vi fortfarande tolka adressen
+    // men använder det kompletta adressfältet som primär källa
     if (salon.address) {
-      const addressParts = salon.address.split(',');
+      initialValues.fullAddress = salon.address;
       
-      // Hämta gata från första delen
-      if (addressParts.length > 0) {
-        initialValues.street = addressParts[0].trim();
+      // Försök tolka delarna för historiska adresser i gammalt format
+      try {
+        const addressParts = salon.address.split(',');
         
-        // Hämta postnummer och stad från andra delen
-        if (addressParts.length > 1) {
-          const secondPart = addressParts[1].trim();
+        // Hämta gata från första delen
+        if (addressParts.length > 0) {
+          initialValues.street = addressParts[0].trim();
           
-          // Försök hitta postnummer (5 siffror med valfritt mellanslag efter 3 siffror)
-          const postalCodeMatch = secondPart.match(/\b(\d{3}\s?\d{2})\b/);
-          
-          if (postalCodeMatch) {
-            initialValues.postalCode = postalCodeMatch[1];
+          // Hämta postnummer och stad från andra delen
+          if (addressParts.length > 1) {
+            const secondPart = addressParts[1].trim();
             
-            // Staden är resten av texten efter postnumret
-            const cityText = secondPart.replace(postalCodeMatch[1], '').trim();
-            initialValues.city = cityText;
-          } else {
-            // Om inget postnummer hittades, anta att det är hela staden
-            initialValues.city = secondPart;
+            // Försök hitta postnummer (5 siffror med valfritt mellanslag efter 3 siffror)
+            const postalCodeMatch = secondPart.match(/\b(\d{3}\s?\d{2})\b/);
+            
+            if (postalCodeMatch) {
+              initialValues.postalCode = postalCodeMatch[1];
+              
+              // Staden är resten av texten efter postnumret
+              const cityText = secondPart.replace(postalCodeMatch[1], '').trim();
+              initialValues.city = cityText;
+            } else {
+              // Om inget postnummer hittades, anta att det är hela staden
+              initialValues.city = secondPart;
+            }
           }
         }
+      } catch (e) {
+        console.warn("Could not parse address parts:", e);
+        // Vid fel, använd bara det kompletta adressfältet
       }
     }
     
+    console.log("Final initial values:", initialValues);
     return initialValues;
   };
 

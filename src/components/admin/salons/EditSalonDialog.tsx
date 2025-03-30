@@ -51,11 +51,11 @@ export const EditSalonDialog = ({
     
     try {
       setIsSubmitting(true);
+      console.log("Submitting form with values:", values);
       
-      // Validera att vi har adressinformation
-      const hasAddressInfo = values.street || values.postalCode || values.city;
-      if (hasAddressInfo && (!values.street || !values.postalCode || !values.city)) {
-        toast.warning("Adressinformationen kan vara ofullständig. Kontrollera att du fyllt i gata, postnummer och stad.");
+      // Make sure fullAddress is used if a full raw address was entered
+      if (values.fullAddress && !values.address) {
+        values.address = values.fullAddress;
       }
       
       await onSubmit(values);
