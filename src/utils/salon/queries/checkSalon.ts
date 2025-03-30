@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/utils/supabaseConfig";
+import { directFetch } from "./api/directFetch";
+import { SalonData } from "../types";
 
 /**
  * Kontrollerar om salongstabellen finns och innehåller data
@@ -11,49 +12,40 @@ export const checkSalonsTable = async (): Promise<boolean> => {
     
     // Försök alltid med en direkt fetch först, eftersom det säkerställer åtkomst utan autentisering
     console.log("Using direct fetch to check salons table");
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/salons?select=id,name&limit=5`,
-      {
-        method: 'GET',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      }
+    
+    const directData = await directFetch<SalonData>(
+      `salons`,
+      { "select": "id,name", "limit": "5" }
     );
     
-    if (!response.ok) {
-      console.error("Direct fetch to salons table failed:", response.status, response.statusText);
-      
-      // Fallback till normal Supabase-förfrågan
-      const { data, error, status } = await supabase
-        .from("salons")
-        .select("id, name")
-        .limit(5);
-        
-      if (error) {
-        console.error("Error accessing salons table with Supabase client:", error);
-        return false;
-      }
-      
-      console.log("Supabase client salons table check result:", {
+    if (directData && directData.length > 0) {
+      console.log("Direct fetch salons table check result:", {
         accessible: true,
-        recordsFound: data?.length || 0,
-        sampleData: data
+        recordsFound: directData.length,
+        sampleData: directData
       });
       
-      return Array.isArray(data) && data.length > 0;
+      return true;
     }
     
-    const directData = await response.json();
-    console.log("Direct fetch salons table check result:", {
+    // Fallback till normal Supabase-förfrågan
+    const { data, error, status } = await supabase
+      .from("salons")
+      .select("id, name")
+      .limit(5);
+      
+    if (error) {
+      console.error("Error accessing salons table with Supabase client:", error);
+      return false;
+    }
+    
+    console.log("Supabase client salons table check result:", {
       accessible: true,
-      recordsFound: directData?.length || 0,
-      sampleData: directData
+      recordsFound: data?.length || 0,
+      sampleData: data
     });
     
-    return Array.isArray(directData) && directData.length > 0;
+    return Array.isArray(data) && data.length > 0;
   } catch (err) {
     console.error("Exception checking salons table:", err);
     return false;

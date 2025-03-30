@@ -6,7 +6,8 @@ export * from './salonSearchUtils';
 export * from './types';
 
 // För att göra bakåtkompatibilitet enklare
-import { checkSalonsTable, fetchSalonByExactId, fetchFullSalonData } from './queries';
+import { checkSalonsTable } from './queries/checkSalon';
+import { fetchSalonByExactId, fetchAllSalons, fetchFullSalonData } from './queries';
 import { findSalonWithSimilarId } from './salonSearchUtils';
 import { SalonData, createDefaultSalonData } from './types';
 
@@ -14,6 +15,7 @@ import { SalonData, createDefaultSalonData } from './types';
 export { 
   checkSalonsTable, 
   fetchSalonByExactId, 
+  fetchAllSalons,
   fetchFullSalonData,
   findSalonWithSimilarId,
   createDefaultSalonData

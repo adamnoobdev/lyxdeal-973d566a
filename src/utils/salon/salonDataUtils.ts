@@ -1,5 +1,6 @@
 
-import { checkSalonsTable, fetchSalonByExactId, fetchFullSalonData } from "./queries";
+import { checkSalonsTable } from "./queries/checkSalon";
+import { fetchSalonByExactId } from "./queries/fetchSalonByExactId";
 import { findSalonWithSimilarId } from "./salonSearchUtils";
 import { SalonData, createDefaultSalonData } from "./types";
 

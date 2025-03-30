@@ -1,8 +1,7 @@
 
 import { SalonData } from "./types";
-import { fetchAllSalons, fetchFullSalonData } from "./queries";
-import { supabase } from "@/integrations/supabase/client";
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/utils/supabaseConfig";
+import { fetchAllSalons } from "./queries/fetchAllSalons";
+import { directFetch } from "./queries/api/directFetch";
 
 /**
  * Finds a salon with a similar ID in the list of all salons
@@ -13,26 +12,17 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
   try {
     // Försök hämta direkt via API först för att kringgå behörighetsbegränsningar
     console.log("Trying direct fetch for all salons");
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/salons?select=id,name,address,phone&limit=50`,
-      {
-        method: 'GET',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      }
+    
+    const directData = await directFetch<SalonData>(
+      `salons`,
+      { "select": "id,name,address,phone", "limit": "50" }
     );
     
     let allSalons: SalonData[] = [];
     
-    if (response.ok) {
-      const directData = await response.json();
-      if (directData && Array.isArray(directData) && directData.length > 0) {
-        allSalons = directData as SalonData[];
-        console.log("Retrieved salons via direct API:", allSalons.length);
-      }
+    if (directData && directData.length > 0) {
+      allSalons = directData as SalonData[];
+      console.log("Retrieved salons via direct API:", allSalons.length);
     } else {
       // Fallback till Supabase klient
       allSalons = await fetchAllSalons() || [];
