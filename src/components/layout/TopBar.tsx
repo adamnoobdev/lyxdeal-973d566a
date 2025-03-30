@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Store } from 'lucide-react';
 
 const TopBar = () => {
   return (
@@ -11,9 +11,11 @@ const TopBar = () => {
           to="/partner" 
           className="inline-flex items-center justify-center gap-1 hover:underline font-medium"
         >
-          <span className="hidden xs:inline">Bli salongspartner idag och få en gratis provmånad med kod </span>
-          <span className="xs:hidden">Gratis provmånad: </span>
-          <span className="font-bold whitespace-nowrap">"provmanad"</span>
+          <Store className="h-4 w-4 mr-1" />
+          <span className="hidden xs:inline">Salongsägare: Bli partner idag och få en </span>
+          <span className="xs:hidden">För salonger: </span>
+          <span className="font-bold whitespace-nowrap">gratis provmånad</span>
+          <span className="hidden xs:inline"> med kod "provmanad"</span>
           <ArrowRight className="h-4 w-4 ml-1 animate-pulse" />
         </Link>
       </div>
