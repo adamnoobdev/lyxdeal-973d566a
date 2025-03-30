@@ -41,35 +41,50 @@ export const fetchSalonByExactId = async (salonId: number | string): Promise<Sal
   console.log(`Attempting to fetch salon with exact ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Convert to string for consistent handling
-    const idAsString = String(salonId);
+    // Convert to number for numeric query
+    const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    const isValidNumber = !isNaN(numericId);
     
-    console.log(`Fetching salon with ID string: "${idAsString}"`);
+    // Try to fetch using numeric ID first if valid
+    if (isValidNumber) {
+      console.log(`Querying salon with numeric ID: ${numericId}`);
+      
+      const { data: numericData, error: numericError } = await supabase
+        .from("salons")
+        .select("id, name, address, phone")
+        .eq("id", numericId)
+        .maybeSingle();
+        
+      if (numericError) {
+        console.error("Error in numeric salon query:", numericError);
+      } else if (numericData) {
+        console.log("Found salon with numeric ID:", numericData);
+        return numericData as SalonData;
+      }
+    }
     
-    const { data, error, status } = await supabase
+    // If numeric query fails or ID isn't numeric, try string comparison
+    // This is a fallback to handle cases where IDs might be stored as strings
+    const stringId = String(salonId);
+    console.log(`Querying salon with string ID filter: ${stringId}`);
+    
+    const { data: stringData, error: stringError } = await supabase
       .from("salons")
       .select("id, name, address, phone")
-      .or(`id.eq.${idAsString},id::text.eq.${idAsString}`)
+      .filter('id::text', 'eq', stringId)
       .maybeSingle();
-    
-    console.log("Salon query response:", {
-      status,
-      hasError: !!error, 
-      dataReceived: !!data,
-      data
-    });
-    
-    if (error) {
-      console.error("Error fetching salon by exact ID:", error);
+      
+    if (stringError) {
+      console.error("Error in string salon query:", stringError);
       return null;
     }
     
-    if (data) {
-      console.log("Salon data successfully retrieved with exact ID:", data);
-      return data as SalonData;
+    if (stringData) {
+      console.log("Found salon with string ID comparison:", stringData);
+      return stringData as SalonData;
     }
     
-    console.log(`No salon found with ID: ${salonId}`);
+    console.log(`No salon found with ID: ${salonId} using either method`);
     return null;
   } catch (err) {
     console.error("Exception fetching salon by exact ID:", err);
@@ -116,25 +131,43 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
   console.log(`Fetching full salon data for ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Convert to string for consistent handling
-    const idAsString = String(salonId);
+    // Try numeric query first
+    const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    if (!isNaN(numericId)) {
+      console.log(`Using numeric query for salon ID: ${numericId}`);
+      
+      const { data, error } = await supabase
+        .from("salons")
+        .select("id, name, address, phone")
+        .eq("id", numericId)
+        .maybeSingle();
+        
+      if (error) {
+        console.error("Error fetching salon with numeric ID:", error);
+      } else if (data) {
+        console.log("Retrieved salon with numeric ID:", data);
+        return data as SalonData;
+      }
+    }
     
-    console.log(`Using string-based query for full salon data with ID: ${idAsString}`);
+    // Fallback to string comparison if numeric fails
+    const stringId = String(salonId);
+    console.log(`Using string filter for salon ID: "${stringId}"`);
     
-    const { data, error } = await supabase
+    const { data: stringData, error: stringError } = await supabase
       .from("salons")
       .select("id, name, address, phone")
-      .or(`id.eq.${idAsString},id::text.eq.${idAsString}`)
+      .filter('id::text', 'eq', stringId)
       .maybeSingle();
       
-    if (error) {
-      console.error("Error fetching full salon data:", error);
+    if (stringError) {
+      console.error("Error in string-based salon query:", stringError);
       return null;
     }
     
-    if (data) {
-      console.log("Retrieved full salon data:", data);
-      return data as SalonData;
+    if (stringData) {
+      console.log("Retrieved salon with string comparison:", stringData);
+      return stringData as SalonData;
     }
     
     console.log(`No salon found with ID: ${salonId}`);

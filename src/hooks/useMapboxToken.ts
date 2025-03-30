@@ -1,64 +1,34 @@
 
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useState, useEffect } from 'react';
-
-interface MapboxTokenResponse {
-  token: string;
-}
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useMapboxToken = () => {
-  const [tokenFromStorage, setTokenFromStorage] = useState<string | null>(null);
-
-  // Försök först hämta token från localStorage om det finns
-  useEffect(() => {
-    const savedToken = localStorage.getItem('mapbox_token');
-    if (savedToken) {
-      setTokenFromStorage(savedToken);
-    }
-  }, []);
-
-  // Använd react-query för att hämta token från Supabase Edge Function
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['mapbox-token'],
+  return useQuery({
+    queryKey: ["mapbox-token"],
     queryFn: async () => {
       try {
-        // Först kontrollera om vi redan har en token från localStorage
-        if (tokenFromStorage) {
-          console.log("Using Mapbox token from localStorage");
-          return { token: tokenFromStorage };
-        }
-
-        // Annars hämta via Supabase function
-        console.log("Fetching Mapbox token from Supabase function");
-        const { data, error } = await supabase.functions.invoke<MapboxTokenResponse>('get-mapbox-token');
+        console.log("Fetching Mapbox token from Edge Function");
+        
+        const { data, error } = await supabase.functions.invoke("get-mapbox-token");
         
         if (error) {
-          console.error('Error fetching Mapbox token:', error);
-          throw new Error(`Kunde inte hämta Mapbox token: ${error.message}`);
+          console.error("Error fetching Mapbox token:", error);
+          throw new Error(`Failed to fetch Mapbox token: ${error.message}`);
         }
         
         if (!data || !data.token) {
-          console.error('No Mapbox token returned:', data);
-          throw new Error('Ingen Mapbox token returnerades från servern');
+          console.error("No Mapbox token returned from Edge Function");
+          throw new Error("No Mapbox token found");
         }
         
-        // Spara token i localStorage för framtida användning
-        localStorage.setItem('mapbox_token', data.token);
-        
-        return data;
-      } catch (error) {
-        console.error('Exception fetching Mapbox token:', error);
-        throw error;
+        console.log("Successfully retrieved Mapbox token");
+        return data.token as string;
+      } catch (err) {
+        console.error("Unexpected error in useMapboxToken:", err);
+        throw err;
       }
     },
-    staleTime: 24 * 60 * 60 * 1000, // Caching token for 24 hours
-    retry: 3,
+    staleTime: 1000 * 60 * 60, // 1 hour
+    retry: 2,
   });
-
-  return {
-    mapboxToken: data?.token || tokenFromStorage || '',
-    isLoading: isLoading && !tokenFromStorage,
-    error: error ? (error instanceof Error ? error.message : 'Okänt fel vid hämtning av Mapbox token') : null,
-  };
 };
