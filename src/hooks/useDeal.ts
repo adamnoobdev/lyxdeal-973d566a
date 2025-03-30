@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { resolveSalonData } from "@/utils/salon/salonDataUtils";
 import { formatDealData, type RawDealData } from "@/utils/deal/dealDataUtils";
 import { handleDealError } from "@/utils/deal/dealErrorHandler";
+import { toast } from "sonner";
 
 export const useDeal = (id: string | undefined) => {
   return useQuery({
@@ -11,11 +12,13 @@ export const useDeal = (id: string | undefined) => {
     queryFn: async () => {
       try {
         if (!id) {
+          console.error("No deal ID provided");
           throw new Error("No deal ID provided");
         }
         
         const dealId = parseInt(id);
         if (isNaN(dealId)) {
+          console.error("Invalid deal ID:", id);
           throw new Error("Invalid deal ID");
         }
 
@@ -36,26 +39,35 @@ export const useDeal = (id: string | undefined) => {
         }
         
         if (!dealData) {
+          console.error("Deal not found with ID:", dealId);
           throw new Error("Deal not found");
         }
 
         console.log("Raw deal data from DB:", dealData);
         console.log("Deal salon_id value:", dealData.salon_id, "Type:", typeof dealData.salon_id);
+        console.log("Deal city value:", dealData.city);
 
         // Always provide a default salon data in case the resolution fails
         let salonData;
         try {
           // Resolve salon data with extended error handling
           salonData = await resolveSalonData(dealData.salon_id, dealData.city);
+          console.log("Resolved salon data:", salonData);
         } catch (salonError) {
           console.error("Error resolving salon data:", salonError);
+          toast.error("Kunde inte hämta information om salongen", {
+            id: "salon-error",
+            duration: 3000,
+          });
+          
           // Fallback to a default salon based on city if salon resolution fails completely
           salonData = {
             id: null,
             name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
-            address: dealData.city || null,
+            address: dealData.city ? `${dealData.city} centrum` : null,
             phone: null
           };
+          console.log("Using fallback salon data:", salonData);
         }
         
         // Format and return the complete deal data

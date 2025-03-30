@@ -29,8 +29,18 @@ export const getCoordinates = async (
       limit = 1 
     } = options;
     
-    // Clean and encode the address
-    const cleanAddress = address.trim().replace(/\s+/g, ' ');
+    // Clean and encode the address - mer standardisering
+    let cleanAddress = address.trim();
+    
+    // Ta bort dubbla mellanslag
+    cleanAddress = cleanAddress.replace(/\s+/g, ' ');
+    
+    // Om adressen bara är ett stadsnamn, lägg till "centrum" för bättre resultat
+    if (cleanAddress.split(/[\s,]+/).length === 1) {
+      cleanAddress = `${cleanAddress} centrum`;
+      console.log('Modified city-only address to:', cleanAddress);
+    }
+    
     const encodedAddress = encodeURIComponent(cleanAddress);
     
     // Build the URL with parameters
@@ -38,8 +48,10 @@ export const getCoordinates = async (
     url.searchParams.append('access_token', mapboxToken);
     url.searchParams.append('limit', limit.toString());
     url.searchParams.append('country', country);
+    url.searchParams.append('language', 'sv'); // Lägg till språkpreferens
     
     console.log('Geocoding request URL:', url.toString().replace(mapboxToken, '[REDACTED]'));
+    console.log('Using address for geocoding:', cleanAddress);
     
     const response = await fetch(url.toString());
     
@@ -52,11 +64,23 @@ export const getCoordinates = async (
     console.log('Geocoding response features:', data.features ? data.features.length : 0);
     
     if (data.features && data.features.length > 0) {
-      const [lng, lat] = data.features[0].center;
+      const feature = data.features[0];
+      console.log('Selected feature place type:', feature.place_type);
+      console.log('Selected feature place name:', feature.place_name);
+      
+      const [lng, lat] = feature.center;
       console.log('Found coordinates:', [lng, lat], 'for address:', cleanAddress);
       return [lng, lat] as [number, number];
     } else {
       console.warn('No geocoding results found for address:', cleanAddress);
+      
+      // Försök med enbart stadsnamnet om det finns tillgängligt
+      const cityMatch = cleanAddress.match(/,\s*([^,]+)$/);
+      if (cityMatch && cityMatch[1] && !cleanAddress.startsWith(cityMatch[1])) {
+        console.log('Trying with city name only:', cityMatch[1]);
+        return getCoordinates(cityMatch[1], mapboxToken, options);
+      }
+      
       return null;
     }
   } catch (error) {

@@ -9,9 +9,13 @@ export interface SalonData {
 /**
  * Creates a default salon data object with fallback values
  */
-export const createDefaultSalonData = (cityName?: string | null): SalonData => ({
-  id: null,
-  name: cityName ? `Salong i ${cityName}` : 'Okänd salong',
-  address: cityName || null,
-  phone: null
-});
+export const createDefaultSalonData = (cityName?: string | null): SalonData => {
+  const address = cityName ? `${cityName} centrum` : null;
+  
+  return {
+    id: null,
+    name: cityName ? `Salong i ${cityName}` : 'Okänd salong',
+    address: address,
+    phone: null
+  };
+};

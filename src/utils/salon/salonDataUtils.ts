@@ -47,9 +47,18 @@ export const resolveSalonData = async (
       return similarSalon;
     }
     
-    // If all else fails, return default salon data
-    console.log(`All salon lookup attempts failed for ID: ${salonId}, falling back to default salon data`);
-    return createDefaultSalonData(cityName);
+    // Om vi inte kunde hitta salongen, skapa en tillfällig salong baserad på staden
+    // med standardadress för att öka chansen för geocoding
+    console.log(`All salon lookup attempts failed for ID: ${salonId}, falling back to default salon data with city`);
+    const defaultSalon = createDefaultSalonData(cityName);
+    
+    // Utöka adressinformationen om vi endast har ett stadsnamn
+    if (cityName && (!defaultSalon.address || defaultSalon.address === cityName)) {
+      defaultSalon.address = `${cityName} centrum`;
+      console.log(`Enhanced default salon address to ${defaultSalon.address} for better geocoding`);
+    }
+    
+    return defaultSalon;
   } catch (err) {
     console.error("Unexpected error in resolveSalonData:", err);
     return createDefaultSalonData(cityName);

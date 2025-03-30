@@ -5,7 +5,7 @@ import { DirectionsButton } from './map/DirectionsButton';
 import { MapLoadingState } from './map/MapLoadingState';
 import { MapErrorState } from './map/MapErrorState';
 import { useMapboxToken } from '@/hooks/useMapboxToken';
-import { getCoordinates, normalizeAddress } from '@/utils/mapbox';
+import { getCoordinates, normalizeAddress, isValidAddressFormat } from '@/utils/mapbox';
 import { MapPin, Store, Phone } from 'lucide-react';
 
 interface SalonLocationMapProps {
@@ -29,17 +29,20 @@ export const SalonLocationMap = ({
   const [isLoading, setIsLoading] = useState(true);
   const [normalizedAddress, setNormalizedAddress] = useState<string>('');
 
-  // Format address for geocoding
+  // Förbättrad adressformatering för geocoding
   const getFormattedAddress = () => {
     if (!address) return city || '';
     
+    // Standardisera adressformatet
+    let formattedAddress = address.trim();
+    
     // Om adressen redan innehåller staden, använd den som den är
-    if (city && address.toLowerCase().includes(city.toLowerCase())) {
-      return address;
+    if (city && formattedAddress.toLowerCase().includes(city.toLowerCase())) {
+      return formattedAddress;
     }
     
     // Annars, lägg till staden om den finns tillgänglig
-    return city ? `${address}, ${city}` : address;
+    return city ? `${formattedAddress}, ${city}` : formattedAddress;
   };
 
   const formattedAddress = getFormattedAddress();
@@ -86,6 +89,7 @@ export const SalonLocationMap = ({
         setIsLoading(true);
         console.log("Fetching coordinates for address:", formattedAddress);
         console.log("Using mapboxToken type:", typeof mapboxToken);
+        console.log("Token available:", !!mapboxToken);
         
         const coords = await getCoordinates(formattedAddress, mapboxToken);
         
