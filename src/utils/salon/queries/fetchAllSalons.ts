@@ -8,10 +8,10 @@ import { directFetch } from "./api/directFetch";
  */
 export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
   try {
-    console.log("Fetching all salons");
+    console.log("[fetchAllSalons] Hämtar alla salonger");
     
-    // Använd direkt fetch först för att kringgå behörighetsbegränsningar
-    console.log("Trying direct fetch to get all salons");
+    // Prioritera direkthämtning via API utan autentisering
+    console.log("[fetchAllSalons] Försöker direkthämta alla salonger");
     
     const directData = await directFetch<SalonData>(
       `salons`,
@@ -19,33 +19,36 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
     );
     
     if (directData && directData.length > 0) {
-      console.log("Found salons with direct API:", directData.length);
+      console.log("[fetchAllSalons] Hämtade salonger via direkthämtning, antal:", directData.length);
       return directData as SalonData[];
+    } else {
+      console.log("[fetchAllSalons] Ingen data hittades via direkthämtning");
     }
     
-    // Fallback till normal Supabase query
+    // Fallback till Supabase klient
+    console.log("[fetchAllSalons] Försöker hämta via Supabase klient");
+    
     const { data: salonData, error: salonError, status } = await supabase
       .from("salons")
       .select("id, name, address, phone")
       .order('id', { ascending: true });
     
-    console.log("All salons query status:", status);
+    console.log("[fetchAllSalons] Supabase förfrågan status:", status);
       
-    if (salonError || !salonData || salonData.length === 0) {
-      console.log("No salons found via Supabase client:", salonError);
+    if (salonError) {
+      console.error("[fetchAllSalons] Fel vid hämtning:", salonError);
       return null;
     }
     
-    console.log("All available salons count:", salonData?.length || 0);
-    if (salonData && salonData.length > 0) {
-      console.log("Sample of salons:", salonData.slice(0, 3));
-    } else {
-      console.log("No salons found in the database");
+    if (!salonData || salonData.length === 0) {
+      console.log("[fetchAllSalons] Inga salonger hittades via Supabase klient");
+      return null;
     }
     
+    console.log("[fetchAllSalons] Hämtade salonger via Supabase klient, antal:", salonData.length);
     return salonData as SalonData[];
   } catch (err) {
-    console.error("Exception in fetchAllSalons:", err);
+    console.error("[fetchAllSalons] Undantag vid hämtning:", err);
     return null;
   }
 };

@@ -17,7 +17,7 @@ export const directFetch = async <T>(
     const queryPart = queryString ? `?${queryString}` : '';
     const url = `${SUPABASE_URL}/rest/v1/${endpoint}${queryPart}`;
     
-    console.log(`Making direct fetch to: ${url}`);
+    console.log(`[directFetch] Hämtar data direkt från: ${url}`);
     
     const response = await fetch(
       url,
@@ -26,20 +26,24 @@ export const directFetch = async <T>(
         headers: {
           'apikey': SUPABASE_ANON_KEY,
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
         }
       }
     );
     
     if (!response.ok) {
-      console.log(`Direct API fetch failed: ${response.status} ${response.statusText}`);
+      console.error(`[directFetch] Direkthämtning misslyckades: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`[directFetch] Felmeddelande: ${errorText}`);
       return null;
     }
     
     const data = await response.json();
+    console.log(`[directFetch] Framgångsrik hämtning från ${endpoint}, antal objekt:`, Array.isArray(data) ? data.length : 'N/A (ej array)');
     return Array.isArray(data) ? data : null;
   } catch (err) {
-    console.error("Exception in directFetch:", err);
+    console.error("[directFetch] Exception vid API-anrop:", err);
     return null;
   }
 };

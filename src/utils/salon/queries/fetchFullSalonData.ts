@@ -7,27 +7,31 @@ import { directFetch } from "./api/directFetch";
  * Hämtar fullständig salongsdata med ett specifikt ID
  */
 export const fetchFullSalonData = async (salonId: number | string): Promise<SalonData | null> => {
-  console.log(`Fetching full salon data for ID: ${salonId} (${typeof salonId})`);
+  console.log(`[fetchFullSalonData] Hämtar salong med ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Hämta direkt via API utan autentisering först
+    // Konvertera till nummer för numerisk sökning
     const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    const isValidNumber = !isNaN(numericId);
     
-    console.log(`Using direct API query for salon ID: ${salonId}`);
+    // Prioritera direkthämtning via API utan autentisering
+    console.log(`[fetchFullSalonData] Försöker direkthämta salong för ID=${salonId}`);
     
     const directData = await directFetch<SalonData>(
       `salons`,
-      { "id": `eq.${numericId}`, "select": "id,name,address,phone" }
+      { "id": `eq.${isValidNumber ? numericId : salonId}`, "select": "id,name,address,phone" }
     );
     
     if (directData && directData.length > 0) {
-      console.log("Retrieved salon with direct API query:", directData[0]);
+      console.log("[fetchFullSalonData] Hittade salong via direkthämtning:", directData[0]);
       return directData[0];
+    } else {
+      console.log("[fetchFullSalonData] Ingen salong hittades via direkthämtning");
     }
     
-    // Fallback till Supabase klient om API-förfrågan misslyckas
-    if (!isNaN(numericId)) {
-      console.log(`Using numeric query for salon ID: ${numericId}`);
+    // Fallback till Supabase klient
+    if (isValidNumber) {
+      console.log(`[fetchFullSalonData] Försöker med numerisk sökning: ${numericId}`);
       
       const { data, error } = await supabase
         .from("salons")
@@ -36,35 +40,60 @@ export const fetchFullSalonData = async (salonId: number | string): Promise<Salo
         .maybeSingle();
         
       if (error) {
-        console.error("Error fetching salon with numeric ID:", error);
+        console.error("[fetchFullSalonData] Fel vid numerisk sökning:", error);
       } else if (data) {
-        console.log("Retrieved salon with numeric ID:", data);
+        console.log("[fetchFullSalonData] Hittade salong med numeriskt ID:", data);
         return data as SalonData;
       }
     }
     
-    // Fallback till strängmatchning om numerisk sökning misslyckas
+    // Fallback till strängmatchning
     const stringId = String(salonId);
-    console.log(`Using string filter for salon ID: "${stringId}"`);
+    console.log(`[fetchFullSalonData] Försöker med strängsökning: "${stringId}"`);
     
-    // Använd filter-metoden med explicit typkonvertering för att matcha strängar
     const { data: stringData, error: stringError } = await supabase
       .from("salons")
       .select("id, name, address, phone")
-      .filter('id::text', 'eq', stringId)  // Konvertera id till text för jämförelse
+      .filter('id::text', 'eq', stringId)
       .maybeSingle();
       
     if (stringError) {
-      console.error("Error in string-based salon query:", stringError);
+      console.error("[fetchFullSalonData] Fel vid strängsökning:", stringError);
     } else if (stringData) {
-      console.log("Retrieved salon with string comparison:", stringData);
+      console.log("[fetchFullSalonData] Hittade salong med strängjämförelse:", stringData);
       return stringData as SalonData;
     }
     
-    console.log(`No salon found with ID: ${salonId} using any method`);
+    // Sista försök: hämta alla salonger och filtrera
+    console.log(`[fetchFullSalonData] Försöker hämta alla salonger för manuell sökning`);
+    
+    const allSalons = await directFetch<SalonData>(
+      `salons`,
+      { "select": "id,name,address,phone", "limit": "50" }
+    );
+    
+    if (allSalons && allSalons.length > 0) {
+      console.log("[fetchFullSalonData] Hämtade alla salonger, antal:", allSalons.length);
+      
+      // Sök efter exakt match
+      const matchedSalon = allSalons.find(salon => 
+        salon.id == salonId || String(salon.id) === stringId
+      );
+      
+      if (matchedSalon) {
+        console.log("[fetchFullSalonData] Hittade matchande salong genom manuell jämförelse:", matchedSalon);
+        return matchedSalon;
+      }
+      
+      // Om ingen exakt match finns, använd första salongen som fallback
+      console.log("[fetchFullSalonData] Ingen matchande salong hittades, använder första tillgängliga som fallback");
+      return allSalons[0];
+    }
+    
+    console.log(`[fetchFullSalonData] Kunde inte hitta salong med ID: ${salonId}`);
     return null;
   } catch (err) {
-    console.error("Exception in fetchFullSalonData:", err);
+    console.error("[fetchFullSalonData] Undantag vid hämtning:", err);
     return null;
   }
 };

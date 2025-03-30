@@ -10,10 +10,10 @@ interface SalonInfoProps {
 }
 
 export const SalonInfo = ({ salon }: SalonInfoProps) => {
-  console.log("SalonInfo received salon data:", salon);
+  console.log("[SalonInfo] Mottagna salongsdata:", salon);
   
   if (!salon) {
-    console.log("SalonInfo: No salon data provided");
+    console.log("[SalonInfo] Inga salongsdata tillhandahålls");
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3">
@@ -28,9 +28,14 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
     );
   }
 
-  // Logga ännu mer information för felsökning
-  console.log("SalonInfo rendering with salon data:", { 
-    name: salon.name, 
+  // Säkerställ att vi har ett giltigt namn
+  const displayName = salon.name && salon.name.trim() !== '' 
+                    ? salon.name 
+                    : 'Okänd salong';
+
+  // Logga information för felsökning
+  console.log("[SalonInfo] Renderar med salongsdata:", { 
+    name: displayName, 
     address: salon.address, 
     phone: salon.phone,
     nameType: typeof salon.name,
@@ -44,7 +49,7 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
           <Store className="h-5 w-5 text-primary" />
         </div>
         <h3 className="text-base font-medium text-foreground">
-          {salon.name || 'Okänd salong'}
+          {displayName}
         </h3>
       </div>
       

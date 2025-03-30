@@ -8,10 +8,10 @@ import { SalonData } from "../types";
  */
 export const checkSalonsTable = async (): Promise<boolean> => {
   try {
-    console.log("Checking if salons table exists and contains data");
+    console.log("[checkSalonsTable] Kontrollerar om salongstabellen finns och innehåller data");
     
     // Försök alltid med en direkt fetch först, eftersom det säkerställer åtkomst utan autentisering
-    console.log("Using direct fetch to check salons table");
+    console.log("[checkSalonsTable] Använder direkthämtning för kontroll");
     
     const directData = await directFetch<SalonData>(
       `salons`,
@@ -19,10 +19,10 @@ export const checkSalonsTable = async (): Promise<boolean> => {
     );
     
     if (directData && directData.length > 0) {
-      console.log("Direct fetch salons table check result:", {
+      console.log("[checkSalonsTable] Direkthämtning lyckades:", {
         accessible: true,
         recordsFound: directData.length,
-        sampleData: directData
+        sampleData: directData[0]
       });
       
       return true;
@@ -35,19 +35,19 @@ export const checkSalonsTable = async (): Promise<boolean> => {
       .limit(5);
       
     if (error) {
-      console.error("Error accessing salons table with Supabase client:", error);
+      console.error("[checkSalonsTable] Fel vid åtkomst till salongstabellen:", error);
       return false;
     }
     
-    console.log("Supabase client salons table check result:", {
+    console.log("[checkSalonsTable] Supabase klientkontroll:", {
       accessible: true,
       recordsFound: data?.length || 0,
-      sampleData: data
+      sampleData: data && data.length > 0 ? data[0] : null
     });
     
     return Array.isArray(data) && data.length > 0;
   } catch (err) {
-    console.error("Exception checking salons table:", err);
+    console.error("[checkSalonsTable] Undantag vid kontroll:", err);
     return false;
   }
 };

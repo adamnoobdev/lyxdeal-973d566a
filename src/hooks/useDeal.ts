@@ -12,87 +12,45 @@ export const useDeal = (id: string | undefined) => {
     queryFn: async () => {
       try {
         if (!id) {
-          console.error("No deal ID provided");
-          throw new Error("No deal ID provided");
+          console.error("[useDeal] Inget erbjudande-ID tillhandahållet");
+          throw new Error("Inget erbjudande-ID tillhandahållet");
         }
         
         const dealId = parseInt(id);
         if (isNaN(dealId)) {
-          console.error("Invalid deal ID:", id);
-          throw new Error("Invalid deal ID");
+          console.error("[useDeal] Ogiltigt erbjudande-ID:", id);
+          throw new Error("Ogiltigt erbjudande-ID");
         }
 
-        console.log("Fetching deal with ID:", dealId);
+        console.log("[useDeal] Hämtar erbjudande med ID:", dealId);
 
-        // Fetch the deal data with improved error handling
+        // Hämta erbjudandedata med förbättrad felhantering
         const { data: dealData, error: dealError, status } = await supabase
           .from("deals")
           .select("*")
           .eq("id", dealId)
           .single();
         
-        console.log("Deal query status:", status);
+        console.log("[useDeal] Erbjudandeförfrågans status:", status);
 
         if (dealError) {
-          console.error("Error fetching deal:", dealError);
+          console.error("[useDeal] Fel vid hämtning av erbjudande:", dealError);
           throw dealError;
         }
         
         if (!dealData) {
-          console.error("Deal not found with ID:", dealId);
-          throw new Error("Deal not found");
+          console.error("[useDeal] Erbjudande hittades inte med ID:", dealId);
+          throw new Error("Erbjudande hittades inte");
         }
 
-        console.log("Raw deal data from DB:", dealData);
+        console.log("[useDeal] Råa erbjudandedata från DB:", dealData);
         
-        // Förbättrad salongsdata-hämtning för att undvika 406-fel och garantera data
-        let salonData = null;
+        // Förbättrad salongsdata-hämtning som prioriterar direkta API-anrop
+        console.log("[useDeal] Försöker hämta salongsdata för ID:", dealData.salon_id);
         
-        // Använd förbättrade headers för att undvika 406-fel
-        if (dealData.salon_id) {
-          try {
-            const { data: exactSalonData, error: exactSalonError } = await supabase
-              .from("salons")
-              .select("id, name, address, phone")
-              .eq("id", dealData.salon_id)
-              .maybeSingle()
-              .throwOnError();
-              
-            if (!exactSalonError && exactSalonData) {
-              console.log("Successfully fetched salon data by exact ID:", exactSalonData);
-              salonData = exactSalonData;
-            } else {
-              console.log("Could not fetch salon data directly:", exactSalonError);
-            }
-          } catch (directFetchError) {
-            console.error("Error in direct salon fetch:", directFetchError);
-          }
-        }
-        
-        // Fallback till resolver om direkt hämtning misslyckas
-        if (!salonData) {
-          try {
-            salonData = await resolveSalonData(dealData.salon_id, dealData.city);
-            console.log("Resolved salon data using resolver:", salonData);
-          } catch (salonError) {
-            console.error("Error resolving salon data:", salonError);
-            
-            // Fallback till standardsalong baserad på stad om resolution misslyckas helt
-            salonData = {
-              id: dealData.salon_id,
-              name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
-              address: dealData.city ? `${dealData.city} centrum` : null,
-              phone: null
-            };
-            console.log("Using fallback salon data:", salonData);
-          }
-        }
-        
-        // Ytterligare säkerhetskontroll för att säkerställa att vi har ett namn
-        if (salonData && (!salonData.name || salonData.name.trim() === '')) {
-          salonData.name = dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong';
-          console.log("Added missing salon name:", salonData.name);
-        }
+        // Använd den förbättrade resolveSalonData som prioriterar direkta anrop
+        const salonData = await resolveSalonData(dealData.salon_id, dealData.city);
+        console.log("[useDeal] Resultat av salongsupplösning:", salonData);
         
         // Format and return the complete deal data
         return formatDealData(dealData as RawDealData, salonData);
