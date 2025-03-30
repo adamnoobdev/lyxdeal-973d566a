@@ -6,12 +6,19 @@ import { useSession } from "@/hooks/useSession";
 import { fetchSalonsData } from "@/utils/salonAdminUtils";
 import { useSalonOperations } from "@/hooks/useSalonOperations";
 
+/**
+ * Hook för att hantera salongsadministration
+ * @returns Funktionalitet för att hantera salonger
+ */
 export const useSalonsAdmin = () => {
   const [salons, setSalons] = useState<Salon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { session, isLoading: sessionLoading } = useSession();
 
+  /**
+   * Hämtar alla salonger från databasen
+   */
   const fetchSalons = useCallback(async () => {
     if (sessionLoading) return;
     
@@ -34,7 +41,7 @@ export const useSalonsAdmin = () => {
     }
   }, [session, sessionLoading]);
 
-  // Use the salon operations hook
+  // Använd operationshook för att hantera CRUD-operationer
   const { handleDelete, handleCreate, handleUpdate } = useSalonOperations(fetchSalons);
 
   return {

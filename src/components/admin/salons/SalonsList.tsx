@@ -9,6 +9,9 @@ import { SalonsLoadingSkeleton } from "./SalonsLoadingSkeleton";
 import { SalonsHeader } from "./SalonsHeader";
 import { SalonsContent } from "./SalonsContent";
 
+/**
+ * Komponent för att lista och hantera salonger i administratörsgränssnittet
+ */
 export const SalonsList = () => {
   const [editingSalon, setEditingSalon] = useState<Salon | null>(null);
   const [deletingSalon, setDeletingSalon] = useState<Salon | null>(null);
@@ -21,6 +24,9 @@ export const SalonsList = () => {
     fetchSalons();
   }, [fetchSalons]);
 
+  /**
+   * Hantera borttagning av en salong
+   */
   const onDelete = async () => {
     if (deletingSalon) {
       const success = await handleDelete(deletingSalon.id);
@@ -33,6 +39,9 @@ export const SalonsList = () => {
     }
   };
 
+  /**
+   * Hantera uppdatering av en salong
+   */
   const onUpdate = async (values: any) => {
     if (editingSalon) {
       const success = await handleUpdate(values, editingSalon.id);
@@ -42,12 +51,17 @@ export const SalonsList = () => {
     }
   };
 
+  /**
+   * Hantera skapande av en ny salong
+   */
   const onCreate = async (values: any) => {
     const response = await handleCreate(values);
     return response;
   };
 
-  // Parse address into components for editing
+  /**
+   * Dela upp adressfält för redigering
+   */
   const getInitialValuesForEdit = (salon: Salon) => {
     const initialValues = {
       name: salon.name,
@@ -56,33 +70,33 @@ export const SalonsList = () => {
       street: "",
       postalCode: "",
       city: "",
-      termsAccepted: salon.terms_accepted !== false, // Om undefined eller true, sätt true som standard
-      privacyAccepted: salon.privacy_accepted !== false, // Om undefined eller true, sätt true som standard
+      termsAccepted: salon.terms_accepted !== false,
+      privacyAccepted: salon.privacy_accepted !== false,
     };
 
-    // Parse address if it exists
+    // Tolka adress om den finns
     if (salon.address) {
       const addressParts = salon.address.split(',');
       
-      // Get street from first part
+      // Hämta gata från första delen
       if (addressParts.length > 0) {
         initialValues.street = addressParts[0].trim();
         
-        // Get postal code and city from second part
+        // Hämta postnummer och stad från andra delen
         if (addressParts.length > 1) {
           const secondPart = addressParts[1].trim();
           
-          // Try to find postal code (5 digits with optional space after 3 digits)
+          // Försök hitta postnummer (5 siffror med valfritt mellanslag efter 3 siffror)
           const postalCodeMatch = secondPart.match(/\b(\d{3}\s?\d{2})\b/);
           
           if (postalCodeMatch) {
             initialValues.postalCode = postalCodeMatch[1];
             
-            // City is the rest of the text after the postal code
+            // Staden är resten av texten efter postnumret
             const cityText = secondPart.replace(postalCodeMatch[1], '').trim();
             initialValues.city = cityText;
           } else {
-            // If no postal code is found, assume it's all city
+            // Om inget postnummer hittades, anta att det är hela staden
             initialValues.city = secondPart;
           }
         }
@@ -96,7 +110,7 @@ export const SalonsList = () => {
     return <SalonsLoadingSkeleton />;
   }
 
-  // Since error is already a string or null in useSalonsAdmin, we don't need to check instanceof
+  // Eftersom error redan är string eller null i useSalonsAdmin behöver vi inte kolla instanceof
   const errorMessage = error || null;
 
   return (

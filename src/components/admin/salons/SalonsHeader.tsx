@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, AlertTriangle, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState } from "react";
-import { updateAllSalonsTermsAcceptance } from "@/utils/salon/salonDbQueries";
+import { updateAllSalonsTermsAcceptance } from "@/utils/salon/queries";
 import { toast } from "sonner";
 
 interface SalonsHeaderProps {

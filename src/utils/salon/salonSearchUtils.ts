@@ -1,6 +1,6 @@
 
 import { SalonData } from "./types";
-import { fetchSalonByExactId, fetchAllSalons, fetchFullSalonData } from "./salonDbQueries";
+import { fetchAllSalons, fetchFullSalonData } from "./queries";
 
 /**
  * Finds a salon with a similar ID in the list of all salons
@@ -19,12 +19,12 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
     
     // Try multiple matching strategies for salon ID
     const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
-    const validNumericId = typeof numericId === 'number' && !isNaN(numericId);
+    const isValidNumber = typeof numericId === 'number' && !isNaN(numericId);
     const stringId = String(salonId);
     
     console.log(`Looking for salon with ID using multiple matching strategies:
     - Original ID: ${salonId} (${typeof salonId})
-    - Numeric ID: ${numericId} (${validNumericId ? 'valid' : 'invalid'})
+    - Numeric ID: ${numericId} (${isValidNumber ? 'valid' : 'invalid'})
     - String ID: ${stringId}
     - Among ${allSalons.length} salons`);
     
@@ -38,7 +38,7 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
     let matchedSalon = allSalons.find(salon => {
       // Try different comparison strategies
       const exactMatch = salon.id === salonId;
-      const numericMatch = validNumericId && salon.id === numericId;
+      const numericMatch = isValidNumber && salon.id === numericId;
       const stringMatch = String(salon.id) === stringId;
       
       return exactMatch || numericMatch || stringMatch;

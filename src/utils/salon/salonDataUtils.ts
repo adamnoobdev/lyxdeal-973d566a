@@ -1,6 +1,5 @@
 
-import { checkSalonsTable } from "./salonDbQueries";
-import { fetchSalonByExactId } from "./salonDbQueries";
+import { checkSalonsTable, fetchSalonByExactId, fetchFullSalonData } from "./queries";
 import { findSalonWithSimilarId } from "./salonSearchUtils";
 import { SalonData, createDefaultSalonData } from "./types";
 
@@ -65,8 +64,6 @@ export const resolveSalonData = async (
   }
 };
 
-// Re-export all the things that might be used elsewhere
+// Re-export types för att underlätta användning
 export type { SalonData } from "./types";
 export { createDefaultSalonData } from "./types";
-export { checkSalonsTable, fetchSalonByExactId, fetchFullSalonData } from "./salonDbQueries";
-export { findSalonWithSimilarId } from "./salonSearchUtils";
