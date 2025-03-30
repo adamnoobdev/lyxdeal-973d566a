@@ -6,7 +6,7 @@ import { useOperationExclusion } from "@/hooks/useOperationExclusion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { generateDiscountCodes } from "@/utils/discount-codes";
-import { createDeal, updateDeal, deleteDeal } from "@/utils/dealsCrudUtils";
+import { createDeal, updateDeal, deleteDeal } from "@/utils/deal/queries";
 import { useState } from "react";
 
 /**

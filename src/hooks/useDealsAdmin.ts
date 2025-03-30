@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
 import { FormValues } from "@/components/deal-form/schema";
 import { useCallback } from "react";
-import { createDeal, updateDeal, deleteDeal, toggleDealActive } from "@/utils/dealsCrudUtils";
+import { createDeal, updateDeal, deleteDeal, toggleDealActive } from "@/utils/deal/queries";
 
 /**
  * Hook för att hantera erbjudanden i admin-gränssnittet
