@@ -20,16 +20,16 @@ export const resolveSalonData = async (
       return createDefaultSalonData(cityName);
     }
 
-    // First check if the salons table is accessible
+    // Kontrollera först att tabellen verkligen finns och innehåller data
     const tableExists = await checkSalonsTable();
     console.log("Salons table check result:", tableExists);
     
     if (!tableExists) {
-      console.log("Salons table not accessible, using default salon data");
+      console.log("Salons table not accessible or empty, using default salon data");
       return createDefaultSalonData(cityName);
     }
     
-    // Try to fetch salon with exact ID first
+    // Prova hämta salong med exakt ID först - denna använder nu flera metoder
     const exactSalon = await fetchSalonByExactId(salonId);
     
     if (exactSalon) {
@@ -39,7 +39,7 @@ export const resolveSalonData = async (
     
     console.log(`No exact ID match found for ${salonId}, trying similar ID search`);
     
-    // If exact match fails, try to find salon with similar ID
+    // Om exakt match misslyckas, försök hitta salong med liknande ID
     const similarSalon = await findSalonWithSimilarId(salonId);
     if (similarSalon) {
       console.log("Found salon with similar ID:", similarSalon);

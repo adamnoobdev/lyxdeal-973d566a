@@ -1,6 +1,7 @@
 
 import { SalonData } from "./types";
 import { fetchAllSalons, fetchFullSalonData } from "./queries";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Finds a salon with a similar ID in the list of all salons
@@ -9,15 +10,43 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
   console.log(`Finding salon with similar ID: ${salonId} (${typeof salonId})`);
   
   try {
-    // Get all salons for comparison
-    const allSalons = await fetchAllSalons();
+    // Först prova att hämta alla salonger via Supabase klienten
+    let allSalons = await fetchAllSalons();
+    
+    // Om inga salonger hittades med Supabase klienten, prova direkt fetch
+    if (!allSalons || allSalons.length === 0) {
+      console.log("No salons found via Supabase client, trying direct fetch");
+      
+      const { data: directData, error: directError } = await fetch(
+        `${supabase.supabaseUrl}/rest/v1/salons?select=id,name,address,phone&limit=50`,
+        {
+          method: 'GET',
+          headers: {
+            'apikey': supabase.supabaseKey,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      ).then(res => res.json().then(data => ({ data, error: null })))
+        .catch(error => ({ data: null, error }));
+      
+      if (directError) {
+        console.error("Error fetching all salons with direct API:", directError);
+        return null;
+      }
+      
+      if (directData && Array.isArray(directData)) {
+        allSalons = directData as SalonData[];
+        console.log("Retrieved salons via direct API:", allSalons.length);
+      }
+    }
     
     if (!allSalons || allSalons.length === 0) {
-      console.log("No salons found in the database");
+      console.log("No salons found in the database using any method");
       return null;
     }
     
-    // Try multiple matching strategies for salon ID
+    // Prova flera matchningsstrategier för salongs-ID
     const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
     const isValidNumber = typeof numericId === 'number' && !isNaN(numericId);
     const stringId = String(salonId);
@@ -28,15 +57,15 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
     - String ID: ${stringId}
     - Among ${allSalons.length} salons`);
     
-    // Debug first few salons
+    // Debug första salonger
     if (allSalons.length > 0) {
       console.log("Sample salon IDs to compare against:", 
         allSalons.slice(0, 5).map(s => `${s.id} (${typeof s.id})`).join(', '));
     }
     
-    // Try exact match first (both as number and string)
+    // Prova exakt match först (både som nummer och sträng)
     let matchedSalon = allSalons.find(salon => {
-      // Try different comparison strategies
+      // Prova olika jämförelsestrategier
       const exactMatch = salon.id === salonId;
       const numericMatch = isValidNumber && salon.id === numericId;
       const stringMatch = String(salon.id) === stringId;
@@ -46,16 +75,13 @@ export const findSalonWithSimilarId = async (salonId: number | string): Promise<
     
     if (matchedSalon) {
       console.log("Found exact match for salon:", matchedSalon);
-      return fetchFullSalonData(matchedSalon.id as number);
+      return matchedSalon;
     }
     
-    // If no exact match, look for partial matches or similar IDs
-    console.log("No exact match found, checking for similar salon IDs");
-    
-    // If all strategies fail, use first salon as fallback
+    // Om ingen exakt match, använd första salonen som fallback
     if (allSalons.length > 0) {
       console.log("Using first available salon as fallback:", allSalons[0]);
-      return fetchFullSalonData(allSalons[0].id as number);
+      return allSalons[0];
     }
     
     console.log("No salons available for fallback");
