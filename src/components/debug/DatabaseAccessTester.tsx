@@ -177,8 +177,8 @@ export const DatabaseAccessTester = () => {
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
                   Om åtkomst till salons-tabellen misslyckas, kontrollera Row Level Security-policyerna 
-                  i din Supabase-databas. Du kan behöva lägga till en policy som tillåter publik 
-                  läsning av salongs-data.
+                  i din Supabase-databas. Din nya policy "Allow public read access" borde ha löst 
+                  läsåtkomstproblemet för anonyma användare.
                 </AlertDescription>
               </Alert>
               

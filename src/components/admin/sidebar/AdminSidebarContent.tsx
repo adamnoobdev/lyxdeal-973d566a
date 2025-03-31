@@ -26,28 +26,18 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
       // Call the signOut function
       await signOut();
       
-      // Aggressivt rensa lokala lagringen
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // För att säkerställa omedelbara visuella ändringar visas en toast
+      // Visas en toast innan omdirigering
       toast.success("Du har loggats ut");
       
-      // Kort fördröjning före omdirigering för att säkerställa att allt rensats
-      setTimeout(() => {
-        console.log("Admin sidebar: Forcefully reloading to login page");
-        
-        // Använd window.location.href för att tvinga full sidladdning
-        window.location.href = "/salon/login";
-      }, 100);
+      // Vi använder window.location.href för att säkerställa en full sidomladdning 
+      // och att all autentiseringsstatus rensas
+      window.location.href = "/salon/login";
     } catch (error) {
       console.error("Admin sidebar logout error:", error);
       toast.error("Ett fel uppstod vid utloggning");
       
-      // Även vid fel, försök omdirigera
-      setTimeout(() => {
-        window.location.href = "/salon/login";
-      }, 200);
+      // Även vid fel, tvinga omdirigering med full sidomladdning
+      window.location.href = "/salon/login";
     }
   };
   

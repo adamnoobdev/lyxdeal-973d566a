@@ -35,23 +35,24 @@ const UserMenu: React.FC<UserMenuProps> = ({
       }
       
       console.log("UserMenu: Initiating logout");
-      // Call the improved signOut function from the hook
+      // Visa att utloggningen pågår
+      toast.loading("Loggar ut...");
+      
+      // Anropa signOut från hooken
       await signOut();
       
-      // Use a small timeout to ensure the state is updated before navigation
-      setTimeout(() => {
-        console.log("UserMenu: Navigating to login page after logout");
-        navigate('/salon/login', { replace: true });
-      }, 100);
+      // Framgångsmeddelande
+      toast.success("Du har loggats ut");
+      
+      // Använd window.location.href för att tvinga en full sidomladdning
+      window.location.href = '/salon/login';
       
     } catch (error) {
       console.error('Utloggningsfel:', error);
       toast.error("Det gick inte att logga ut. Försök igen.");
       
-      // Even if there's an error, still try to navigate away
-      setTimeout(() => {
-        navigate('/salon/login', { replace: true });
-      }, 100);
+      // Även om det finns ett fel, försöker vi fortfarande navigera bort med full sidomladdning
+      window.location.href = '/salon/login';
     }
   };
   
@@ -64,7 +65,6 @@ const UserMenu: React.FC<UserMenuProps> = ({
   };
 
   const handlePartnerClick = () => {
-    // Navigera till salon/login sidan och se till att den scrollar till toppen
     navigate('/salon/login');
     window.scrollTo(0, 0);
   };

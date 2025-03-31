@@ -19,13 +19,13 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
       
       // Aggressiv rensning av lagring - var grundlig
       try {
+        // Explicit rensa auth-token för att säkerställa att autentiseringen inte återupptas
+        localStorage.removeItem('sb-gmqeqhlhqhyrjquzhuzg-auth-token');
+        sessionStorage.removeItem('sb-gmqeqhlhqhyrjquzhuzg-auth-token');
+        
         // Rensa allt i local och session storage
         localStorage.clear();
         sessionStorage.clear();
-        
-        // Explicit rensa auth-token
-        localStorage.removeItem('sb-gmqeqhlhqhyrjquzhuzg-auth-token');
-        sessionStorage.removeItem('sb-gmqeqhlhqhyrjquzhuzg-auth-token');
       } catch (storageErr) {
         console.error("Error clearing storage during force sign-out:", storageErr);
       }
@@ -66,47 +66,47 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
       // Kontrollera alltid först om det är en sandbox-miljö och tillämpa särskild hantering
       if (isSandboxEnvironment()) {
         console.log("Sandbox environment detected, using aggressive logout handling");
-        // I sandbox, rensa alltid sessionen omedelbart
+        // I sandbox, rensa alltid sessionen omedelbart och forcera omladdning
         const success = await forceSignOut();
         
         if (success) {
+          // KRITISK FÖRÄNDRING: Tvinga helsidomladdning för att säkerställa att all state återställs
+          setTimeout(() => {
+            console.log("Forcing complete page reload to login page");
+            window.location.href = '/salon/login';
+          }, 100);
           return true;
         } else {
-          // Även om forcerad utloggning misslyckas kommer vi att fortsätta flödet i UI
-          console.log("Force signout had issues but continuing logout flow");
+          // Även om forcerad utloggning misslyckas fortsätter vi och tvingar en sidomladdning
+          setTimeout(() => {
+            window.location.href = '/salon/login';
+          }, 100);
           return true;
         }
       }
       
       // Standardutloggningsflöde för produktion
       console.log("Running standard logout flow");
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
       
-      if (error) {
-        console.error("Sign out API error:", error);
-        toast.error("Problem vid utloggning. Försöker med alternativ metod...");
-        
-        // Även om API-anropet misslyckas, tvinga rensning av sessionen
-        const forcedSuccess = await forceSignOut();
-        return true; // Returnera true ändå för att fortsätta UI-flödet
-      }
+      // Kör force logout först för att säkerställa att all state rensas
+      await forceSignOut();
       
-      // Rensa eventuella uppdateringstimers
-      if (refreshTimerRef.current) {
-        clearTimeout(refreshTimerRef.current);
-        refreshTimerRef.current = null;
-      }
-      
-      // Extra åtgärd för att säkerställa att alla tokens är borttagna
-      localStorage.clear();
-      sessionStorage.clear();
+      // Tvinga helsidomladdning efter utloggning
+      setTimeout(() => {
+        console.log("Redirecting to login page after logout");
+        window.location.href = '/salon/login';
+      }, 100);
       
       return true;
     } catch (error) {
       console.error("Unexpected error during sign out:", error);
       
-      // Sista utväg - tvinga utloggningen
+      // Sista utväg - tvinga utloggningen och sidomladdning
       await forceSignOut();
+      
+      setTimeout(() => {
+        window.location.href = '/salon/login';
+      }, 100);
       
       // Returnera true ändå för att fortsätta UI-flödet
       return true;
