@@ -21,30 +21,34 @@ export const formatDealData = (
     bookingUrl: rawDeal.booking_url,
     city: rawDeal.city
   });
-  console.log("[formatDealData] Salongsdata att använda:", salonData);
+  
+  // Extra loggning för att spåra salongsdata-parametern
+  console.log("[formatDealData] Inkommande salongsdata:", 
+    salonData ? JSON.stringify(salonData) : "null");
   
   const daysRemaining = calculateDaysRemaining(rawDeal.expiration_date, rawDeal.time_remaining);
   const isFree = isDealFree(rawDeal.is_free, rawDeal.discounted_price);
 
-  // Säkerställ att vi alltid har ett salongsnamn, även om inget salongsdata finns
-  const salonName = salonData?.name && salonData.name.trim() !== '' 
-                   ? salonData.name 
-                   : (rawDeal.city ? `Salong i ${rawDeal.city}` : 'Okänd salong');
+  // Säkerställ att vi alltid har ett giltigt salon-objekt
+  // Om salongsdata är null eller har ett tomt namn, använd city som fallback
+  const fallbackSalonName = rawDeal.city 
+    ? `Salong i ${rawDeal.city}` 
+    : 'Okänd salong';
   
-  console.log("[formatDealData] Slutgiltigt salongsnamn:", salonName);
-  
-  // Skapa ett standard-salongobjekt om inget hittades
-  const finalSalonData = salonData ? {
-    ...salonData,
-    name: salonName // Använd det säkra namnet
-  } : {
+  // Använd nullish coalescing för att hantera både null och undefined
+  const effectiveSalonData = salonData ?? {
     id: rawDeal.salon_id,
-    name: salonName,
-    address: rawDeal.city ? `${rawDeal.city}` : null,
+    name: fallbackSalonName,
+    address: rawDeal.city ?? null,
     phone: null
   };
-
-  console.log("[formatDealData] Slutgiltigt salongsobjekt:", finalSalonData);
+  
+  // Ytterligare säkerhetskontroll för tomma namn
+  if (!effectiveSalonData.name || effectiveSalonData.name.trim() === '') {
+    effectiveSalonData.name = fallbackSalonName;
+  }
+  
+  console.log("[formatDealData] Slutgiltigt salongobjekt:", effectiveSalonData);
 
   const formattedDeal = {
     id: rawDeal.id,
@@ -60,7 +64,7 @@ export const formatDealData = (
     created_at: rawDeal.created_at,
     quantityLeft: rawDeal.quantity_left,
     isFree,
-    salon: finalSalonData,
+    salon: effectiveSalonData,
     booking_url: rawDeal.booking_url || null
   };
   

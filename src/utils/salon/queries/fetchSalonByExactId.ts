@@ -5,6 +5,7 @@ import { directFetch } from "./directFetch";
 
 /**
  * Hämtar en specifik salong med exakt ID
+ * Med förbättrad felhantering för 404-fel
  */
 export const fetchSalonByExactId = async (salonId?: number | string | null): Promise<SalonData | null> => {
   if (!salonId) {
@@ -24,16 +25,21 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
     const formattedId = String(salonId); // Konvertera ID till sträng för API-parametrar
     
     console.log(`[fetchSalonByExactId] Direkthämtar salong med ID: ${formattedId}`);
-    const directData = await directFetch<SalonData>(
-      `salons`,
-      { "id": `eq.${formattedId}`, "select": "*" }
-    );
-    
-    if (directData && directData.length > 0) {
-      console.log(`[fetchSalonByExactId] Framgångsrik direkthämtning av salong:`, directData[0]);
-      return directData[0];
-    } else {
-      console.log(`[fetchSalonByExactId] Direkthämtning hittade ingen salong med ID ${formattedId}. Provar Supabase klient istället.`);
+    try {
+      const directData = await directFetch<SalonData>(
+        `salons`,
+        { "id": `eq.${formattedId}`, "select": "*" }
+      );
+      
+      if (directData && directData.length > 0) {
+        console.log(`[fetchSalonByExactId] Framgångsrik direkthämtning av salong:`, directData[0]);
+        return directData[0];
+      } else {
+        console.log(`[fetchSalonByExactId] Direkthämtning hittade ingen salong med ID ${formattedId}. Provar Supabase klient istället.`);
+      }
+    } catch (directFetchError) {
+      console.error(`[fetchSalonByExactId] Fel vid direkthämtning:`, directFetchError);
+      // Fortsätt till nästa metod, logga men avbryt inte flödet
     }
     
     // 2. Testa salongs tabell existens och permissions
@@ -46,6 +52,7 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
       if (error) {
         console.error(`[fetchSalonByExactId] VIKTIGT: Kunde inte komma åt salongs-tabellen:`, error.message);
         console.error(`[fetchSalonByExactId] Detta indikerar troligen ett PERMISSIONS- eller RLS-problem!`);
+        console.error(`[fetchSalonByExactId] ⚠️ Se till att det finns en RLS policy i Supabase för publik åtkomst till salons-tabellen`);
       } else {
         console.log(`[fetchSalonByExactId] Salong-tabellen är åtkomlig med ${count || 0} rader`);
       }
@@ -68,34 +75,54 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
       numericId = salonId as number;
     }
     
-    // Viktigt: Använd publik åtkomst till salons-tabellen
-    const { data, error } = await supabase
-      .from("salons")
-      .select("*")
-      .eq("id", numericId)
-      .maybeSingle(); 
-    
-    if (error) {
-      console.error(`[fetchSalonByExactId] Supabase-fel: ${error.message}`);
-      console.error(`[fetchSalonByExactId] Kod: ${error.code}, Detaljer: ${error.details}`);
+    try {
+      // Viktigt: Använd publik åtkomst till salons-tabellen
+      const { data, error } = await supabase
+        .from("salons")
+        .select("*")
+        .eq("id", numericId)
+        .maybeSingle(); 
       
-      // Test för att se om det är ett RLS-fel
-      if (error.code === "PGRST116" || error.message.includes("permission denied")) {
-        console.error(`[fetchSalonByExactId] KRITISKT: Detta verkar vara ett Row Level Security (RLS) fel!`);
-        console.error(`[fetchSalonByExactId] Användaren saknar behörighet att läsa från salons-tabellen.`);
-        console.error(`[fetchSalonByExactId] Kontrollera RLS-policyer i Supabase-databasen.`);
+      if (error) {
+        // Identifiera specifikt 404-fel
+        if (error.code === '404' || error.message.includes('404')) {
+          console.error(`[fetchSalonByExactId] 404 Not Found: Salongen med ID ${numericId} finns inte`);
+        } else {
+          console.error(`[fetchSalonByExactId] Supabase-fel: ${error.message}`);
+          console.error(`[fetchSalonByExactId] Kod: ${error.code}, Detaljer: ${error.details}`);
+        }
+        
+        // Test för att se om det är ett RLS-fel
+        if (error.code === "PGRST116" || error.message.includes("permission denied")) {
+          console.error(`[fetchSalonByExactId] KRITISKT: Detta verkar vara ett Row Level Security (RLS) fel!`);
+          console.error(`[fetchSalonByExactId] Användaren saknar behörighet att läsa från salons-tabellen.`);
+          console.error(`[fetchSalonByExactId] Lägg till följande RLS policy i Supabase:
+          
+            CREATE POLICY "Allow public read access" ON salons
+            FOR SELECT
+            TO anon
+            USING (true);
+          `);
+        }
+        
+        return null;
       }
       
-      return null;
+      if (data) {
+        console.log(`[fetchSalonByExactId] Hämtade salong via Supabase:`, data);
+        return data as SalonData;
+      } else {
+        console.log(`[fetchSalonByExactId] Hittade ingen salong med ID: ${salonId} via Supabase`);
+        return null;
+      }
+    } catch (supabaseError) {
+      console.error(`[fetchSalonByExactId] Fel vid Supabase-hämtning:`, supabaseError);
+      // Fortsätt till fallback
     }
     
-    if (data) {
-      console.log(`[fetchSalonByExactId] Hämtade salong via Supabase:`, data);
-      return data as SalonData;
-    } else {
-      console.log(`[fetchSalonByExactId] Hittade ingen salong med ID: ${salonId} via Supabase`);
-      return null;
-    }
+    // 4. Om alla metoder misslyckas, returnera null
+    console.log(`[fetchSalonByExactId] Alla hämtningsmetoder misslyckades för ID: ${salonId}`);
+    return null;
   } catch (err) {
     console.error(`[fetchSalonByExactId] Undantag: ${err instanceof Error ? err.message : String(err)}`);
     return null;

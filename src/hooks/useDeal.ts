@@ -50,35 +50,44 @@ export const useDeal = (id: string | undefined) => {
           city: dealData.city
         });
         
-        // Visa token för debugging
-        const currentToken = supabase.auth.getSession();
-        console.log("[useDeal] Använder Supabase med token:", 
-          currentToken ? "Token finns" : "Ingen token (anonym användare)");
-        
-        // Förbättrad salongsdata-hämtning med detaljerad loggning
-        console.log("[useDeal] Försöker hämta salongsdata för ID:", dealData.salon_id);
-        
+        // Hantera salongsdata, med förbättrad felhantering för 404-fel
         try {
-          // Använd den förbättrade resolveSalonData som prioriterar direkta anrop
+          // Försök hämta salongsdata men hantera det explicit om den saknas
+          console.log("[useDeal] Försöker hämta salongsdata för ID:", dealData.salon_id);
           const salonData = await resolveSalonData(dealData.salon_id, dealData.city);
-          console.log("[useDeal] Resultat av salongsupplösning:", salonData);
+          console.log("[useDeal] Salongsdata resultat:", salonData);
           
-          // Format and return the complete deal data
+          // Formatera och returnera komplett erbjudandedata
           return formatDealData(dealData as RawDealData, salonData);
         } catch (salonError) {
           console.error("[useDeal] Fel vid hämtning av salongsdata:", salonError);
-          // Även om salongsdata misslyckas, formatera ändå erbjudandet med null salongsdata
-          console.log("[useDeal] Formaterar erbjudande utan salongsdata");
-          return formatDealData(dealData as RawDealData, null);
+          console.log("[useDeal] Fortsätter med erbjudandet utan salongsdetaljer");
+          
+          // Skapa ett placeholder salon-objekt baserat på tillgänglig information
+          const fallbackSalon = {
+            id: dealData.salon_id,
+            name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
+            address: dealData.city || null,
+            phone: null
+          };
+          
+          console.log("[useDeal] Använder fallback-salongsdata:", fallbackSalon);
+          return formatDealData(dealData as RawDealData, fallbackSalon);
         }
       } catch (error) {
-        handleDealError(error);
+        // Om error är ett 404-fel, hantera det särskilt
+        if (error instanceof Error && error.message.includes("404")) {
+          console.error("[useDeal] 404-fel vid hämtning av data:", error);
+          toast.error("Kunde inte hitta resursen");
+        } else {
+          handleDealError(error);
+        }
         throw error;
       }
     },
     staleTime: 1000 * 60, // 1 minut caching
     refetchOnWindowFocus: true, 
     refetchOnMount: 'always',
-    retry: 3,
+    retry: 2, // Minska antalet försök för att undvika onödiga förfrågningar
   });
 };

@@ -24,14 +24,14 @@ export const SalonInfo = ({ salon, fallbackCity }: SalonInfoProps) => {
     phone: null
   });
   
-  // Säkerställ att vi har ett giltigt namn, även om salon-objektet är tomt
-  const displayName = effectiveSalon.name && effectiveSalon.name.trim() !== '' 
-                    ? effectiveSalon.name 
-                    : fallbackCity ? `Salong i ${fallbackCity}` : 'Okänd salong';
-
+  // Extra kontroll för tomt namn
+  if (!effectiveSalon.name || effectiveSalon.name.trim() === '') {
+    effectiveSalon.name = fallbackCity ? `Salong i ${fallbackCity}` : 'Okänd salong';
+  }
+  
   // Logga mer detaljerad information för felsökning
   console.log("[SalonInfo] Visar salongsdata:", { 
-    name: displayName, 
+    name: effectiveSalon.name, 
     address: effectiveSalon.address, 
     phone: effectiveSalon.phone,
     fallbackCity: fallbackCity,
@@ -46,7 +46,7 @@ export const SalonInfo = ({ salon, fallbackCity }: SalonInfoProps) => {
           <Store className="h-5 w-5 text-primary" />
         </div>
         <h3 className="text-base font-medium text-foreground">
-          {displayName}
+          {effectiveSalon.name}
         </h3>
       </div>
       
@@ -61,6 +61,12 @@ export const SalonInfo = ({ salon, fallbackCity }: SalonInfoProps) => {
           <div className="flex items-center gap-2">
             <Phone className="h-4 w-4" />
             <a href={`tel:${effectiveSalon.phone}`} className="hover:underline">{effectiveSalon.phone}</a>
+          </div>
+        )}
+        {!effectiveSalon.address && !effectiveSalon.phone && fallbackCity && (
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            <span>{fallbackCity}</span>
           </div>
         )}
       </div>

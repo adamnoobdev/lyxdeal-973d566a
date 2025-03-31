@@ -19,6 +19,8 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
   const [showMap, setShowMap] = useState(false);
   const { mapboxToken } = useMapboxToken() || { mapboxToken: undefined };
   
+  console.log("[SalonLocationMap] Rendering with salonId:", salonId, "city:", city);
+  
   // Get address data
   const { address, salonName, salonPhone, isLoading: isAddressLoading, error: addressError } = useMapAddress(salonId);
   
@@ -35,14 +37,29 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
   
   // Show map when we have coordinates and no errors
   useEffect(() => {
+    console.log("[SalonLocationMap] Effect triggered:", { 
+      coordinates, hasError, isLoading, displayAddress 
+    });
+    
     if (coordinates && !hasError && !isLoading) {
+      console.log("[SalonLocationMap] Showing map");
       setShowMap(true);
     } else {
+      console.log("[SalonLocationMap] Hiding map due to:", {
+        hasCoordinates: !!coordinates,
+        hasError,
+        isLoading,
+        displayAddress
+      });
       setShowMap(false);
     }
-  }, [coordinates, hasError, isLoading]);
+  }, [coordinates, hasError, isLoading, displayAddress]);
 
   const renderContent = () => {
+    console.log("[SalonLocationMap] Rendering content state:", { 
+      isLoading, hasError, displayAddress, showMap, coordinates 
+    });
+    
     if (isLoading) {
       return <MapLoadingState 
         address={displayAddress || ''} 
@@ -86,7 +103,17 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
       );
     }
     
-    return null;
+    // Om vi hamnar här, visar vi ett reservalternativ
+    return (
+      <MapErrorState 
+        errorMessage="Kunde inte visa karta" 
+        address={displayAddress || ""}
+        salonName={effectiveSalonName}
+        salonPhone={salonPhone}
+        hideAddress={!displayAddress}
+        city={city}
+      />
+    );
   };
   
   return (
