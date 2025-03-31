@@ -142,57 +142,89 @@ export const useSession = () => {
     };
   }, []);
 
+  // Function to check if we're in a sandbox environment
+  const isSandboxEnvironment = () => {
+    return window.location.hostname.includes('lovableproject.com') || 
+           window.location.hostname.includes('localhost');
+  };
+
+  // Improved forceSignOut function - ensures session is properly cleared
+  const forceSignOut = () => {
+    // Clear any refresh timers
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = null;
+    }
+    
+    // Force clear local session state
+    if (isMountedRef.current) {
+      setSession(null);
+    }
+    
+    // Clear browser storage
+    localStorage.removeItem('supabase.auth.token');
+    sessionStorage.removeItem('supabase.auth.token');
+    
+    // Force client to clear its state
+    supabase.auth.signOut({ scope: 'local' }).catch(e => {
+      console.log("Ignoring error during force sign-out:", e);
+    });
+    
+    console.log("Force sign-out completed");
+    return true;
+  };
+
   // Helper for signing out securely
   const signOut = async () => {
     try {
-      // Detektera sandbox-miljö för speciell hantering
-      const isSandbox = window.location.hostname.includes('lovableproject.com');
-      
-      if (isSandbox) {
-        console.log("Sandbox-miljö detekterad, använder specialhantering för utloggning");
-        // I sandbox-miljö, rensa sessionen direkt utan att försöka göra API-anrop
-        if (refreshTimerRef.current) {
-          clearTimeout(refreshTimerRef.current);
-          refreshTimerRef.current = null;
-        }
-        
-        if (isMountedRef.current) {
-          setSession(null);
-        }
-        
-        // Försök ändå göra logout-anropet, men ignorera resultatet
-        try {
-          await supabase.auth.signOut();
-        } catch (e) {
-          console.log("Ignorerar utloggningsfel i sandbox-miljö:", e);
-        }
-        
-        return true;
+      // Always check for sandbox environment first
+      if (isSandboxEnvironment()) {
+        console.log("Sandbox environment detected, using special logout handling");
+        // In sandbox, force clear the session immediately
+        const success = forceSignOut();
+        toast.success("Du har loggat ut");
+        return success;
       }
       
-      // Normal logout flow för produktion
+      // Standard logout flow for production
+      console.log("Running standard logout flow");
       const { error } = await supabase.auth.signOut();
+      
       if (error) {
         console.error("Sign out error:", error);
-        toast.error("Det gick inte att logga ut. Försök igen.");
-        return false;
+        toast.error("Det gick inte att logga ut. Försöker med alternativ metod...");
+        
+        // Even if the API call fails, force clear the session
+        const forcedSuccess = forceSignOut();
+        if (forcedSuccess) {
+          toast.success("Du har loggat ut");
+        }
+        return forcedSuccess;
       }
+      
       // Clear any refresh timers
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
         refreshTimerRef.current = null;
       }
       
-      // Explicit reset av session för att säkerställa att UI uppdateras korrekt
+      // Explicit reset of session for UI update
       if (isMountedRef.current) {
         setSession(null);
       }
       
+      toast.success("Du har loggat ut");
       return true;
     } catch (error) {
       console.error("Unexpected error during sign out:", error);
-      toast.error("Ett oväntat fel uppstod vid utloggning.");
-      return false;
+      toast.error("Ett oväntat fel uppstod vid utloggning");
+      
+      // Last resort - force the logout
+      const forcedSuccess = forceSignOut();
+      if (forcedSuccess) {
+        toast.success("Du har loggat ut trots fel");
+      }
+      return forcedSuccess;
     }
   };
 

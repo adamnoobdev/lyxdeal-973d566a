@@ -20,31 +20,17 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
   
   const handleLogout = async () => {
     try {
+      // Använd den förbättrade signOut-funktionen
       const success = await signOut();
       
-      if (success) {
-        toast.success("Du har loggat ut");
-      }
-      
-      // Oavsett resultat, navigera till startsidan
+      // Alltid navigera till startsidan, oavsett resultat
       navigate("/", { replace: true });
-      
-      // Force-navigera även vid fel i sandbox
-      const isSandbox = window.location.hostname.includes('lovableproject.com');
-      if (isSandbox && !success) {
-        console.log("Sandbox-miljö detekterad, tvingar omdirigering trots misslyckad utloggning");
-        navigate("/", { replace: true });
-      }
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Ett fel uppstod vid utloggning");
       
-      // Force-navigera även vid fel i sandbox
-      const isSandbox = window.location.hostname.includes('lovableproject.com');
-      if (isSandbox) {
-        console.log("Sandbox-miljö detekterad, tvingar omdirigering trots fel");
-        navigate("/", { replace: true });
-      }
+      // Tvinga ändå fram en navigering
+      navigate("/", { replace: true });
     }
   };
   

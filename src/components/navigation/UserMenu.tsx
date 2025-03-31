@@ -5,7 +5,6 @@ import { Session } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
 import { User, Store } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useSession } from "@/hooks/useSession";
 
@@ -35,32 +34,19 @@ const UserMenu: React.FC<UserMenuProps> = ({
         return;
       }
       
-      // Använd den förbättrade signOut-funktionen från useSession-hooken
-      // som hanterar alla edge-cases och säkerställer att sessionstaten rensas
+      // Call the improved signOut function from the hook
       const success = await signOut();
       
-      if (success) {
-        toast.success("Du har loggats ut");
-        // Force-navigera till login-sidan oavsett resultat för att säkerställa UI-uppdatering
-        navigate('/salon/login');
-      } else {
-        // Om logout misslyckades men vi är i sandbox-läge, tvinga fram en UI-uppdatering
-        const isSandbox = window.location.hostname.includes('lovableproject.com');
-        if (isSandbox) {
-          console.log("Sandbox-miljö detekterad, tvingar omdirigering till login");
-          navigate('/salon/login', { replace: true });
-        }
-      }
+      // Always navigate to login page to ensure UI is updated
+      // This will happen even if signOut fails
+      navigate('/salon/login', { replace: true });
+      
     } catch (error) {
       console.error('Utloggningsfel:', error);
       toast.error("Det gick inte att logga ut. Försök igen.");
       
-      // Force-navigera även vid fel i sandbox
-      const isSandbox = window.location.hostname.includes('lovableproject.com');
-      if (isSandbox) {
-        console.log("Sandbox-miljö detekterad, tvingar omdirigering till login trots fel");
-        navigate('/salon/login', { replace: true });
-      }
+      // Even if there's an error, still try to navigate away
+      navigate('/salon/login', { replace: true });
     }
   };
   
