@@ -20,6 +20,12 @@ export async function directFetch<T>(
       params['select'] = '*';
     }
     
+    // VIKTIGT: Ta bort city-parametern om den finns eftersom den kolumnen inte existerar
+    if (params['city']) {
+      console.log(`[directFetch] Tar bort ogiltigt 'city'-filter: ${params['city']} eftersom kolumnen inte existerar`);
+      delete params['city'];
+    }
+    
     // Lägg till parametrar i URL
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.append(key, value);

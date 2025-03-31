@@ -49,43 +49,25 @@ export const resolveSalonData = async (
       }
     }
 
-    // Strategi 3: Hämta salong baserad på stad (mycket viktig fallback)
+    // Strategi 3: Hämta en salong (utan sökning på stad eftersom city-kolumnen inte finns)
     if (city) {
-      console.log(`[resolveSalonData] Strategi 3: Söker salong baserad på stad: ${city}`);
+      console.log(`[resolveSalonData] Strategi 3: Hämtar en salong (stad ${city} specificerad men kolumnen finns inte)`);
       try {
-        // VIKTIGT: Förbättrad direkthämtning för städer - använder ilike för delvis matchning
-        const directData = await directFetch<SalonData>(
-          `salons`, 
-          { "select": "*", "city": `ilike.%${city}%`, "limit": "1" }
-        );
-        
-        if (directData && directData.length > 0) {
-          console.log("[resolveSalonData] Hittade salong baserad på stad:", directData[0]);
-          // Säkerställ att city-värdet finns på objektet
-          const result = {
-            ...directData[0],
-            name: directData[0].name || `Salong i ${city}`,
-            city: city // Explicit tilldela city-värdet
-          };
-          return result;
-        }
-        
-        // Om ingen salong hittades med stadens namn via ilike, testa att hämta första salongen
-        console.log("[resolveSalonData] Ingen salong hittades för staden, hämtar första tillgängliga salong");
+        // Eftersom city-kolumnen inte finns, hämtar vi en valfri salong istället
         const fallbackData = await directFetch<SalonData>('salons', { "select": "*", "limit": "1" });
         
         if (fallbackData && fallbackData.length > 0) {
           console.log("[resolveSalonData] Hittade en generisk salong:", fallbackData[0]);
-          // Säkerställ att city-värdet finns på objektet
+          // Säkerställ att city-värdet finns på objektet som lokal data
           const result = {
             ...fallbackData[0],
             name: fallbackData[0].name || `Salong i ${city}`,
-            city: city // Explicit tilldela city-värdet
+            city: city // Explicit tilldela city-värdet lokalt (finns inte i databasen)
           };
           return result;
         }
       } catch (err) {
-        console.error("[resolveSalonData] Fel vid hämtning baserad på stad:", err);
+        console.error("[resolveSalonData] Fel vid hämtning av generisk salong:", err);
       }
       
       // Om allt annat misslyckas, skapa en default-salong för staden
