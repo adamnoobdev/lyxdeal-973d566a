@@ -1,7 +1,7 @@
 
 import { SalonData } from "./types";
 import { fetchAllSalons } from "./queries/fetchAllSalons";
-import { directFetch } from "./queries/api/directFetch";
+import { directFetch } from "./queries/directFetch";
 
 /**
  * Finds a salon with a similar ID in the list of all salons

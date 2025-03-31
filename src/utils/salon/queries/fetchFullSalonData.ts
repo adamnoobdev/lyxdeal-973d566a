@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { SalonData } from "../types";
-import { directFetch } from "./api/directFetch";
+import { directFetch } from "./directFetch";
 
 /**
  * Hämtar fullständig salongsdata med ett specifikt ID
