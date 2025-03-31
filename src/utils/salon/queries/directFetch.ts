@@ -12,7 +12,7 @@ export async function directFetch<T>(
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://gmqeqhlhqhyrjquzhuzg.supabase.co";
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs";
     
-    // CRITICAL - Create a copy of params to avoid modifying the original
+    // Create a copy of params to avoid modifying the original
     const cleanParams = { ...params };
     
     // Add select=* as default if it doesn't already exist
@@ -21,8 +21,9 @@ export async function directFetch<T>(
     }
     
     // IMPORTANT: Remove the city parameter if it exists as the column doesn't exist
+    // This was causing filtering issues on the salons table which doesn't have a city column
     if (cleanParams['city']) {
-      console.log(`[directFetch] Removing invalid 'city' filter: ${cleanParams['city']} as the column doesn't exist in ${endpoint}`);
+      console.log(`[directFetch] REMOVING invalid 'city' filter: ${cleanParams['city']} as the column doesn't exist in ${endpoint}`);
       delete cleanParams['city'];
     }
     
