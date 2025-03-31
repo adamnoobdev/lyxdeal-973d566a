@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Session } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
-import { User, Store } from 'lucide-react';
+import { User } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useSession } from "@/hooks/useSession";
@@ -35,23 +34,17 @@ const UserMenu: React.FC<UserMenuProps> = ({
       }
       
       console.log("UserMenu: Initiating logout");
-      // Visa att utloggningen pågår
       toast.loading("Loggar ut...");
       
-      // Anropa signOut från hooken
       await signOut();
       
-      // Framgångsmeddelande
       toast.success("Du har loggats ut");
       
-      // Använd window.location.href för att tvinga en full sidomladdning, men nu till startsidan
       window.location.href = '/';
-      
     } catch (error) {
       console.error('Utloggningsfel:', error);
       toast.error("Det gick inte att logga ut. Försök igen.");
       
-      // Även om det finns ett fel, försöker vi fortfarande navigera bort med full sidomladdning
       window.location.href = '/';
     }
   };
@@ -91,9 +84,13 @@ const UserMenu: React.FC<UserMenuProps> = ({
   }
 
   return (
-    <Button size="sm" onClick={handlePartnerClick} className={className}>
-      <Store className="h-4 w-4 mr-2" />
-      <span className="xs:inline">Salongspartner</span>
+    <Button 
+      variant="outline" 
+      size="sm" 
+      onClick={handlePartnerClick} 
+      className={`${className}`}
+    >
+      Logga in
     </Button>
   );
 };
