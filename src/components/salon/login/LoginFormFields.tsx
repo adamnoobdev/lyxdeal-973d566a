@@ -1,0 +1,101 @@
+
+import React from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { SecurityMessage } from "./SecurityMessage";
+import { MAX_LOGIN_ATTEMPTS } from "@/hooks/salon/useLoginForm";
+
+// HCaptcha site key - replace with your actual hCaptcha site key in production
+const CAPTCHA_SITE_KEY = "10000000-ffff-ffff-ffff-000000000001";
+
+interface LoginFormFieldsProps {
+  email: string;
+  setEmail: (email: string) => void;
+  password: string;
+  setPassword: (password: string) => void;
+  loading: boolean;
+  captchaToken: string | null;
+  loginAttempts: number;
+  showCaptcha: boolean;
+  securityMessage: string | null;
+  handleVerificationSuccess: (token: string) => void;
+  handleSubmit: (e: React.FormEvent) => void;
+}
+
+export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
+  email,
+  setEmail,
+  password,
+  setPassword,
+  loading,
+  captchaToken,
+  loginAttempts,
+  showCaptcha,
+  securityMessage,
+  handleVerificationSuccess,
+  handleSubmit
+}) => {
+  return (
+    <form className="space-y-6" onSubmit={handleSubmit}>
+      <div className="space-y-2">
+        <Label htmlFor="email">E-postadress</Label>
+        <Input
+          id="email"
+          type="email"
+          placeholder="namn@exempel.se"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
+          required
+          className="w-full"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="password">Lösenord</Label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
+          required
+          className="w-full"
+          autoComplete="current-password"
+        />
+      </div>
+      
+      {showCaptcha && (
+        <div className="py-3">
+          <HCaptcha
+            sitekey={CAPTCHA_SITE_KEY}
+            onVerify={handleVerificationSuccess}
+          />
+        </div>
+      )}
+
+      <SecurityMessage 
+        message={securityMessage} 
+        captchaVerified={!!captchaToken} 
+      />
+      
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={loading || (loginAttempts >= MAX_LOGIN_ATTEMPTS)}
+      >
+        {loading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Loggar in...
+          </>
+        ) : (
+          "Logga in"
+        )}
+      </Button>
+    </form>
+  );
+};
