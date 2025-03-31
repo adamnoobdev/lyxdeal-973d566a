@@ -34,7 +34,7 @@ export const PricingSection = () => {
   };
 
   return (
-    <div className="py-20 bg-white">
+    <div id="pricing-section" className="py-20 bg-white">
       <div className="container px-4 md:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Välj det paket som passar dig bäst</h2>

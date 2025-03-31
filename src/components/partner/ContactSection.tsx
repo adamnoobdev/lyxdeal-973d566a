@@ -1,8 +1,17 @@
 
 import { Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
 
 export const ContactSection = () => {
+  const handlePartnerClick = () => {
+    // Navigera till pricing-section på samma sida
+    const pricingSection = document.getElementById('pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div id="contact-section" className="py-16 bg-white">
       <div className="container px-4 md:px-8">
@@ -33,6 +42,12 @@ export const ContactSection = () => {
                 >
                   info@lyxdeal.se
                 </a>
+                <Button 
+                  onClick={handlePartnerClick} 
+                  className="mt-4 bg-primary hover:bg-primary/90 text-white"
+                >
+                  Bli partner idag
+                </Button>
               </div>
             </CardContent>
           </Card>
