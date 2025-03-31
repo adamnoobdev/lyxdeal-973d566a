@@ -25,17 +25,17 @@ export const formatDealData = (
   const daysRemaining = calculateDaysRemaining(rawDeal.expiration_date, rawDeal.time_remaining);
   const isFree = isDealFree(rawDeal.is_free, rawDeal.discounted_price);
 
-  // Säkerställ att vi alltid har ett salongsnamn
+  // Ensure we always have a salon name
   const salonName = salonData?.name && salonData.name.trim() !== '' 
                    ? salonData.name 
                    : (rawDeal.city ? `Salong i ${rawDeal.city}` : 'Okänd salong');
   
   console.log("Final salon name to use:", salonName);
   
-  // Skapa ett standardsalongsobjekt om inget fanns
+  // Create a default salon object if none was found
   const finalSalonData = salonData ? {
     ...salonData,
-    name: salonName // Använd det säkra namnet
+    name: salonName // Use the safe name
   } : {
     id: rawDeal.salon_id,
     name: salonName,

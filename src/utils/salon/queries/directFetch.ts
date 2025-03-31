@@ -1,40 +1,40 @@
 
 /**
- * Direkthämtning av data via REST API utan autentisering
- * Detta gör att vi kan hämta offentlig data utan att vara inloggad
+ * Direct fetch of data via REST API without authentication
+ * This allows us to fetch public data without being logged in
  */
 export async function directFetch<T>(
   endpoint: string,
   params: Record<string, string> = {}
 ): Promise<T[] | null> {
   try {
-    // Säkerställ att vi har rätt URL och API-nyckel
+    // Ensure we have the correct URL and API key
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://gmqeqhlhqhyrjquzhuzg.supabase.co";
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs";
     
-    // KRITISKT - Skapa en kopia av params för att inte modifiera originalet
+    // CRITICAL - Create a copy of params to avoid modifying the original
     const cleanParams = { ...params };
     
-    // Lägg till select=* som standard om det inte redan finns
+    // Add select=* as default if it doesn't already exist
     if (!cleanParams['select']) {
       cleanParams['select'] = '*';
     }
     
-    // VIKTIGT: Ta bort city-parametern om den finns eftersom kolumnen inte existerar
+    // IMPORTANT: Remove the city parameter if it exists as the column doesn't exist
     if (cleanParams['city']) {
-      console.log(`[directFetch] Tar bort ogiltigt 'city'-filter: ${cleanParams['city']} eftersom kolumnen inte existerar i ${endpoint}`);
+      console.log(`[directFetch] Removing invalid 'city' filter: ${cleanParams['city']} as the column doesn't exist in ${endpoint}`);
       delete cleanParams['city'];
     }
     
-    // Bygg REST API URL
+    // Build REST API URL
     const url = new URL(`${supabaseUrl}/rest/v1/${endpoint}`);
     
-    // Lägg till parametrar i URL
+    // Add parameters to URL
     Object.entries(cleanParams).forEach(([key, value]) => {
       url.searchParams.append(key, value);
     });
     
-    // Kritiskt: Sätt korrekt Supabase API-nyckel i headers
+    // Critical: Set correct Supabase API key in headers
     const headers = {
       'apikey': supabaseKey,
       'Authorization': `Bearer ${supabaseKey}`,
@@ -42,42 +42,42 @@ export async function directFetch<T>(
       'Prefer': 'return=representation'
     };
     
-    // Detaljerad loggning för felsökning
-    console.log(`[directFetch] Anropar REST API: ${endpoint}`);
-    console.log(`[directFetch] URL (utan API-nyckel): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
-    console.log(`[directFetch] Parametrar efter rensning: ${JSON.stringify(cleanParams)}`);
+    // Detailed logging for debugging
+    console.log(`[directFetch] Calling REST API: ${endpoint}`);
+    console.log(`[directFetch] URL (without API key): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
+    console.log(`[directFetch] Parameters after cleaning: ${JSON.stringify(cleanParams)}`);
     
-    // Gör fetch-anropet
+    // Make the fetch call
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: headers
     });
     
-    // Kontrollera HTTP-statuskoden
+    // Check HTTP status code
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`[directFetch] HTTP-fel: ${response.status} - ${response.statusText}`);
-      console.error(`[directFetch] Felmeddelande: ${errorText}`);
-      console.error(`[directFetch] URL (utan API-nyckel): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
+      console.error(`[directFetch] HTTP error: ${response.status} - ${response.statusText}`);
+      console.error(`[directFetch] Error message: ${errorText}`);
+      console.error(`[directFetch] URL (without API key): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
       return null;
     }
     
-    // Tolka svaret som JSON
+    // Parse response as JSON
     const data = await response.json();
     
-    // Hantera olika svarstyper
+    // Handle different response types
     if (Array.isArray(data)) {
-      console.log(`[directFetch] Hämtade ${data.length} ${endpoint}-poster`);
+      console.log(`[directFetch] Retrieved ${data.length} ${endpoint} records`);
       return data.length > 0 ? data as T[] : [];
     } else if (data && typeof data === 'object') {
-      console.log(`[directFetch] Hämtade en ${endpoint}-post:`, data.id || 'ID saknas');
+      console.log(`[directFetch] Retrieved a single ${endpoint} record:`, data.id || 'ID missing');
       return [data] as T[];
     } else {
-      console.log(`[directFetch] Tomt eller oförväntat svar från API:`, data);
+      console.log(`[directFetch] Empty or unexpected response from API:`, data);
       return [];
     }
   } catch (error) {
-    console.error(`[directFetch] Fel vid direkthämtning av ${endpoint}:`, error);
+    console.error(`[directFetch] Error during direct fetch of ${endpoint}:`, error);
     return null;
   }
 }

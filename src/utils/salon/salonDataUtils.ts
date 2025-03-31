@@ -1,4 +1,3 @@
-
 import { fetchSalonByExactId } from "./queries/fetchSalonByExactId";
 import { SalonData, createDefaultSalonData } from "./types";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,23 +5,23 @@ import { findSalonWithSimilarId } from "./salonSearchUtils";
 import { directFetch } from "./queries/directFetch";
 
 /**
- * Försöker hämta fullständig salongsdata med flera fallback-strategier
+ * Attempts to fetch full salon data with multiple fallback strategies
  */
 export const resolveSalonData = async (
   salonId?: number | string | null,
   city?: string | null
 ): Promise<SalonData> => {
   try {
-    console.log(`[resolveSalonData] Startar sökning efter salong med ID: ${salonId}, stad: ${city || 'N/A'}`);
+    console.log(`[resolveSalonData] Starting search for salon with ID: ${salonId}, city: ${city || 'N/A'}`);
     
-    // Strategi 1: Direkthämtning via publik API
+    // Strategy 1: Direct fetch via public API
     if (salonId) {
-      console.log(`[resolveSalonData] Strategi 1: Direkthämtning med ID: ${salonId}`);
+      console.log(`[resolveSalonData] Strategy 1: Direct fetch with ID: ${salonId}`);
       const directData = await fetchSalonByExactId(salonId);
       
       if (directData) {
-        console.log("[resolveSalonData] Hittade salong via direkthämtning:", directData);
-        // Om vi har stadsinformation men saknar den i hämtad data, lägg till den
+        console.log("[resolveSalonData] Found salon via direct fetch:", directData);
+        // If we have city information but it's missing in fetched data, add it
         if (city && !directData.city) {
           directData.city = city;
         }
@@ -30,58 +29,58 @@ export const resolveSalonData = async (
       }
     }
     
-    // Strategi 2: Sök efter liknande ID - behåller denna strategi men förbättrar debugging
+    // Strategy 2: Search for similar ID - keeping this strategy but improving debugging
     if (salonId) {
-      console.log(`[resolveSalonData] Strategi 2: Söker salong med liknande ID: ${salonId}`);
+      console.log(`[resolveSalonData] Strategy 2: Searching for salon with similar ID: ${salonId}`);
       try {
         const similarData = await findSalonWithSimilarId(salonId);
         
         if (similarData) {
-          console.log("[resolveSalonData] Hittade salong med liknande ID:", similarData);
-          // Om vi har stadsinformation men saknar den i hämtad data, lägg till den
+          console.log("[resolveSalonData] Found salon with similar ID:", similarData);
+          // If we have city information but it's missing in fetched data, add it
           if (city && !similarData.city) {
             similarData.city = city;
           }
           return similarData;
         }
       } catch (err) {
-        console.error("[resolveSalonData] Fel vid sökning efter liknande ID:", err);
+        console.error("[resolveSalonData] Error searching for similar ID:", err);
       }
     }
 
-    // Strategi 3: Hämta en salong utan stad-filtrering (eftersom city-kolumnen inte finns)
-    console.log(`[resolveSalonData] Strategi 3: Hämtar en salong (utan stad-filtrering)`);
+    // Strategy 3: Fetch a salon without city filtering (since city column doesn't exist)
+    console.log(`[resolveSalonData] Strategy 3: Fetching a salon (without city filtering)`);
     try {
-      // OBS! Vi skickar inte med city-parametern här eftersom den inte finns i databasen
+      // NOTE! We don't send the city parameter here as it doesn't exist in the database
       const fallbackData = await directFetch<SalonData>('salons', { "limit": "1" });
       
       if (fallbackData && fallbackData.length > 0) {
-        console.log("[resolveSalonData] Hittade en generisk salong:", fallbackData[0]);
-        // Säkerställ att city-värdet finns på objektet som lokal data
+        console.log("[resolveSalonData] Found a generic salon:", fallbackData[0]);
+        // Ensure city value exists on object as local data
         const result = {
           ...fallbackData[0],
           name: fallbackData[0].name || `Salong i ${city || 'okänd stad'}`,
-          city: city // Explicit tilldela city-värdet lokalt (finns inte i databasen)
+          city: city // Explicitly assign city value locally (doesn't exist in database)
         };
         return result;
       }
     } catch (err) {
-      console.error("[resolveSalonData] Fel vid hämtning av generisk salong:", err);
+      console.error("[resolveSalonData] Error fetching generic salon:", err);
     }
     
-    // Strategi 4: Om vi har city-information, skapa en default-salong för staden
+    // Strategy 4: If we have city information, create a default salon for the city
     if (city) {
-      console.log(`[resolveSalonData] Strategi 4: Skapar default-salong för stad: ${city}`);
-      const defaultSalong = createDefaultSalonData(city);
-      defaultSalong.city = city; // Säkerställ att city-värdet finns
-      return defaultSalong;
+      console.log(`[resolveSalonData] Strategy 4: Creating default salon for city: ${city}`);
+      const defaultSalon = createDefaultSalonData(city);
+      defaultSalon.city = city; // Ensure city value exists
+      return defaultSalon;
     }
 
-    // Strategi 5: Om allt annat misslyckas, returnera en standard-salong
-    console.log("[resolveSalonData] Strategi 5: Returnerar default-salong");
+    // Strategy 5: If all else fails, return a standard salon
+    console.log("[resolveSalonData] Strategy 5: Returning default salon");
     return createDefaultSalonData();
   } catch (error) {
-    console.error(`[resolveSalonData] Fel vid hämtning av salong: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`[resolveSalonData] Error fetching salon: ${error instanceof Error ? error.message : String(error)}`);
     return createDefaultSalonData();
   }
 };

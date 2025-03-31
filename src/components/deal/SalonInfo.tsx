@@ -10,10 +10,10 @@ interface SalonInfoProps {
 }
 
 export const SalonInfo = ({ salon }: SalonInfoProps) => {
-  console.log("[SalonInfo] Mottagna salongsdata:", salon);
+  console.log("[SalonInfo] Received salon data:", salon);
   
   if (!salon) {
-    console.log("[SalonInfo] Inga salongsdata tillhandahålls");
+    console.log("[SalonInfo] No salon data provided");
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
                     : 'Okänd salong';
 
   // Log information for debugging
-  console.log("[SalonInfo] Renderar med salongsdata:", { 
+  console.log("[SalonInfo] Rendering with salon data:", { 
     name: displayName, 
     address: salon.address, 
     phone: salon.phone,
