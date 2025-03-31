@@ -38,13 +38,19 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
     console.log(`[fetchSalonByExactId] Försöker hämta salong med ID: ${salonId} via Supabase klient`);
     
     // Convert salonId to number for Supabase query if it's a string
-    const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+    let numericId: number;
     
-    // Check if conversion resulted in a valid number
-    if (isNaN(Number(numericId))) {
-      console.error(`[fetchSalonByExactId] Ogiltigt salong ID format: ${salonId}`);
-      return null;
+    if (typeof salonId === 'string') {
+      numericId = parseInt(salonId, 10);
+      if (isNaN(numericId)) {
+        console.error(`[fetchSalonByExactId] Ogiltigt salong ID format: ${salonId}`);
+        return null;
+      }
+    } else {
+      numericId = salonId;
     }
+    
+    console.log(`[fetchSalonByExactId] Använder numericId: ${numericId}, typ: ${typeof numericId}`);
     
     const { data, error } = await supabase
       .from("salons")

@@ -20,7 +20,7 @@ export const useMapAddress = (salonId?: number | string | null) => {
       setError(null);
 
       try {
-        console.log(`[useMapAddress] Fetching address for salon ID: ${salonId}`);
+        console.log(`[useMapAddress] Fetching address for salon ID: ${salonId} (type: ${typeof salonId})`);
         
         // Always try to fetch salon data without authentication first
         let salonData = await fetchSalonByExactId(salonId);

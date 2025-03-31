@@ -25,6 +25,7 @@ export async function directFetch<T>(
     
     // Gör fetch-anropet
     console.log(`[directFetch] Anropar: ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
+    console.log(`[directFetch] Parametrar: ${JSON.stringify(params)}`);
     
     const response = await fetch(url.toString(), {
       method: 'GET',
@@ -49,7 +50,11 @@ export async function directFetch<T>(
     
     // Hantera både array och single-objekt svar
     const resultArray = Array.isArray(data) ? data : [data];
-    console.log(`[directFetch] Hämtade ${resultArray.length} poster: `, JSON.stringify(resultArray).substring(0, 100) + '...');
+    console.log(`[directFetch] Hämtade ${resultArray.length} poster: `, 
+      resultArray.length > 0 ? 
+        `ID: ${resultArray[0].id}, Name: ${resultArray[0].name || 'No name'}` : 
+        'Inga resultat'
+    );
     
     return resultArray as T[];
   } catch (error) {
