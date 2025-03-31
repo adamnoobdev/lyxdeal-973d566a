@@ -9,7 +9,7 @@ export async function directFetch<T>(
 ): Promise<T[] | null> {
   try {
     // Bygg URL med parametrar
-    const url = new URL(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${endpoint}`);
+    const url = new URL(`${import.meta.env.VITE_SUPABASE_URL || "https://gmqeqhlhqhyrjquzhuzg.supabase.co"}/rest/v1/${endpoint}`);
     
     // Lägg till parametrar i URL
     Object.entries(params).forEach(([key, value]) => {
@@ -18,7 +18,7 @@ export async function directFetch<T>(
     
     // Sätt API-nyckel och content-type headers för att använda REST API
     const headers = {
-      'apikey': `${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      'apikey': `${import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs"}`,
       'Content-Type': 'application/json',
       'Prefer': 'return=representation'
     };
@@ -36,6 +36,15 @@ export async function directFetch<T>(
     if (!response.ok) {
       console.error(`[directFetch] HTTP-fel: ${response.status} - ${response.statusText}`);
       console.error(`[directFetch] URL: ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
+      
+      // Logga responsens innehåll för felsökning
+      try {
+        const errorText = await response.text();
+        console.error(`[directFetch] Felmeddelande: ${errorText}`);
+      } catch (e) {
+        console.error("[directFetch] Kunde inte läsa felmeddelande från svar");
+      }
+      
       return null;
     }
     

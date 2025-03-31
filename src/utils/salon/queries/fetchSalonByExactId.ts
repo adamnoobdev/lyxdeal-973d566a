@@ -13,18 +13,25 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
   }
   
   try {
-    console.log(`[fetchSalonByExactId] Försöker hämta salong med ID: ${salonId}`);
+    console.log(`[fetchSalonByExactId] Försöker hämta salong med ID: ${salonId}, typ: ${typeof salonId}`);
     
     // Prioritera direkthämtning utan autentisering
     console.log(`[fetchSalonByExactId] Försöker direkthämta salong med ID: ${salonId}`);
     
-    // Ensure salonId is properly formatted for the query
-    const formattedId = typeof salonId === 'string' ? salonId : salonId.toString();
+    // Säkerställ att salonId är korrekt formaterat för API-anropet
+    const formattedId = typeof salonId === 'string' || typeof salonId === 'number' 
+      ? String(salonId) 
+      : null;
     
-    // Send a query to the REST API endpoint which should bypass RLS
+    if (!formattedId) {
+      console.error(`[fetchSalonByExactId] Ogiltigt salong ID format: ${salonId}`);
+      return null;
+    }
+    
+    // Skicka en förfrågan till REST API-endpunkten som borde kringgå RLS
     const directData = await directFetch<SalonData>(
       `salons`,
-      { "id": `eq.${formattedId}`, "select": "id,name,address,phone", "limit": "1" }
+      { "id": `eq.${formattedId}`, "select": "*", "limit": "1" }
     );
     
     if (directData && directData.length > 0) {
@@ -37,24 +44,24 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
     // Fallback till Supabase klient om direkthämtning misslyckas
     console.log(`[fetchSalonByExactId] Försöker hämta salong med ID: ${salonId} via Supabase klient`);
     
-    // Convert salonId to number for Supabase query if it's a string
+    // Konvertera salonId till nummer för Supabase-fråga om det är en sträng
     let numericId: number;
     
     if (typeof salonId === 'string') {
       numericId = parseInt(salonId, 10);
       if (isNaN(numericId)) {
-        console.error(`[fetchSalonByExactId] Ogiltigt salong ID format: ${salonId}`);
+        console.error(`[fetchSalonByExactId] Ogiltigt salong ID format för Supabase-anrop: ${salonId}`);
         return null;
       }
     } else {
-      numericId = salonId;
+      numericId = salonId as number;
     }
     
     console.log(`[fetchSalonByExactId] Använder numericId: ${numericId}, typ: ${typeof numericId}`);
     
     const { data, error } = await supabase
       .from("salons")
-      .select("id, name, address, phone")
+      .select("*")
       .eq("id", numericId)
       .single();
     

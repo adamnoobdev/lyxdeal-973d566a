@@ -22,13 +22,21 @@ export const useMapAddress = (salonId?: number | string | null) => {
       try {
         console.log(`[useMapAddress] Fetching address for salon ID: ${salonId} (type: ${typeof salonId})`);
         
+        if (!salonId) {
+          console.log("[useMapAddress] No salon ID provided");
+          setIsLoading(false);
+          return;
+        }
+        
         // Always try to fetch salon data without authentication first
         let salonData = await fetchSalonByExactId(salonId);
+        console.log("[useMapAddress] Direct fetch result:", salonData);
 
         // If that fails and we have a session, try with authentication as backup
         if (!salonData && session) {
           console.log("[useMapAddress] Attempting authenticated fetch for salon data");
           salonData = await resolveSalonData(salonId);
+          console.log("[useMapAddress] Authenticated fetch result:", salonData);
         }
 
         if (salonData) {
