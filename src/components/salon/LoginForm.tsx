@@ -3,7 +3,11 @@ import React from "react";
 import { useLoginForm } from "@/hooks/salon/useLoginForm";
 import { LoginFormFields } from "./login/LoginFormFields";
 
-export const SalonLoginForm: React.FC = () => {
+interface SalonLoginFormProps {
+  onForgotPassword: () => void;
+}
+
+export const SalonLoginForm: React.FC<SalonLoginFormProps> = ({ onForgotPassword }) => {
   const {
     email,
     setEmail,
@@ -31,6 +35,7 @@ export const SalonLoginForm: React.FC = () => {
       securityMessage={securityMessage}
       handleVerificationSuccess={handleVerificationSuccess}
       handleSubmit={handleSignIn}
+      onForgotPassword={onForgotPassword}
     />
   );
 };

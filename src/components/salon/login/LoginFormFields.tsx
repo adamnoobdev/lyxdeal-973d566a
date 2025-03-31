@@ -23,6 +23,7 @@ interface LoginFormFieldsProps {
   securityMessage: string | null;
   handleVerificationSuccess: (token: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
+  onForgotPassword: () => void;
 }
 
 export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
@@ -36,7 +37,8 @@ export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
   showCaptcha,
   securityMessage,
   handleVerificationSuccess,
-  handleSubmit
+  handleSubmit,
+  onForgotPassword
 }) => {
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
@@ -54,7 +56,18 @@ export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Lösenord</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Lösenord</Label>
+          <Button
+            type="button"
+            variant="link"
+            className="px-0 font-normal h-auto text-xs text-muted-foreground"
+            onClick={onForgotPassword}
+            disabled={loading}
+          >
+            Glömt lösenord?
+          </Button>
+        </div>
         <Input
           id="password"
           type="password"

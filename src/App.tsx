@@ -8,6 +8,7 @@ import SearchResults from './pages/SearchResults';
 import Admin from './pages/Admin';
 import SalonDashboard from './pages/SalonDashboard';
 import SalonLogin from './pages/SalonLogin';
+import UpdatePassword from './pages/UpdatePassword';
 import SalonDetails from './pages/SalonDetails';
 import PartnerPage from './pages/PartnerPage';
 import PartnerSignup from './pages/PartnerSignup';
@@ -73,6 +74,7 @@ function App() {
           <Route path="/admin/*" element={<Admin />} />
           
           <Route path="/salon/login" element={<SalonLogin />} />
+          <Route path="/salon/update-password" element={<UpdatePassword />} />
           <Route path="/salon/dashboard" element={<SalonDashboard />} />
           <Route path="/salon/deal" element={<SalonDeals />} />
           <Route path="/salon/deals" element={<SalonDeals />} />
