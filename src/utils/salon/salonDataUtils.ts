@@ -29,7 +29,7 @@ export const createDefaultSalonData = (
  * With improved fallback strategies for 404 errors and missing data
  */
 export const resolveSalonData = async (
-  salonId?: number | null,
+  salonId: number | null,
   city?: string | null
 ) => {
   console.log(`[resolveSalonData] Försöker hämta salongsdata för ID: ${salonId}, Stad: ${city}`);
