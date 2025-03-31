@@ -10,10 +10,10 @@ interface SalonInfoProps {
 }
 
 export const SalonInfo = ({ salon }: SalonInfoProps) => {
-  console.log("[SalonInfo] Received salon data:", salon);
+  console.log("[SalonInfo] Rendering with salon data:", salon);
   
+  // Visa laddningsläge om salongsdata saknas helt
   if (!salon) {
-    console.log("[SalonInfo] No salon data provided");
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3">
@@ -28,13 +28,13 @@ export const SalonInfo = ({ salon }: SalonInfoProps) => {
     );
   }
 
-  // Ensure we have a valid name
+  // Säkerställ att vi har ett giltigt namn, även om salon-objektet är tomt
   const displayName = salon.name && salon.name.trim() !== '' 
                     ? salon.name 
                     : 'Okänd salong';
 
-  // Log information for debugging
-  console.log("[SalonInfo] Rendering with salon data:", { 
+  // Logga mer detaljerad information för felsökning
+  console.log("[SalonInfo] Visar salongsdata:", { 
     name: displayName, 
     address: salon.address, 
     phone: salon.phone,
