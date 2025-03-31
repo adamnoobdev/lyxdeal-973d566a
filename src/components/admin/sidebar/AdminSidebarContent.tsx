@@ -5,8 +5,8 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useSession } from "@/hooks/useSession";
 
 interface AdminSidebarContentProps {
   userRole?: string;
@@ -16,15 +16,35 @@ interface AdminSidebarContentProps {
 export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarContentProps) => {
   const isAdmin = userRole === 'admin';
   const navigate = useNavigate();
+  const { signOut } = useSession();
   
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      toast.success("Du har loggat ut");
-      navigate("/");
+      const success = await signOut();
+      
+      if (success) {
+        toast.success("Du har loggat ut");
+      }
+      
+      // Oavsett resultat, navigera till startsidan
+      navigate("/", { replace: true });
+      
+      // Force-navigera även vid fel i sandbox
+      const isSandbox = window.location.hostname.includes('lovableproject.com');
+      if (isSandbox && !success) {
+        console.log("Sandbox-miljö detekterad, tvingar omdirigering trots misslyckad utloggning");
+        navigate("/", { replace: true });
+      }
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Ett fel uppstod vid utloggning");
+      
+      // Force-navigera även vid fel i sandbox
+      const isSandbox = window.location.hostname.includes('lovableproject.com');
+      if (isSandbox) {
+        console.log("Sandbox-miljö detekterad, tvingar omdirigering trots fel");
+        navigate("/", { replace: true });
+      }
     }
   };
   

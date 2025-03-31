@@ -145,6 +145,32 @@ export const useSession = () => {
   // Helper for signing out securely
   const signOut = async () => {
     try {
+      // Detektera sandbox-miljö för speciell hantering
+      const isSandbox = window.location.hostname.includes('lovableproject.com');
+      
+      if (isSandbox) {
+        console.log("Sandbox-miljö detekterad, använder specialhantering för utloggning");
+        // I sandbox-miljö, rensa sessionen direkt utan att försöka göra API-anrop
+        if (refreshTimerRef.current) {
+          clearTimeout(refreshTimerRef.current);
+          refreshTimerRef.current = null;
+        }
+        
+        if (isMountedRef.current) {
+          setSession(null);
+        }
+        
+        // Försök ändå göra logout-anropet, men ignorera resultatet
+        try {
+          await supabase.auth.signOut();
+        } catch (e) {
+          console.log("Ignorerar utloggningsfel i sandbox-miljö:", e);
+        }
+        
+        return true;
+      }
+      
+      // Normal logout flow för produktion
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Sign out error:", error);

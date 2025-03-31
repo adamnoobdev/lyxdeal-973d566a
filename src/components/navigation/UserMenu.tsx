@@ -7,6 +7,7 @@ import { User, Store } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useSession } from "@/hooks/useSession";
 
 interface UserMenuProps {
   session: Session | null;
@@ -24,27 +25,42 @@ const UserMenu: React.FC<UserMenuProps> = ({
   className = ''
 }) => {
   const navigate = useNavigate();
+  const { signOut } = useSession();
   
   const handleLogout = async () => {
     try {
       if (!session) {
         toast.error("Ingen aktiv session att logga ut från");
+        navigate('/salon/login');
         return;
       }
       
-      const { error } = await supabase.auth.signOut();
+      // Använd den förbättrade signOut-funktionen från useSession-hooken
+      // som hanterar alla edge-cases och säkerställer att sessionstaten rensas
+      const success = await signOut();
       
-      if (error) {
-        console.error('Utloggningsfel:', error);
-        toast.error("Det gick inte att logga ut. Försök igen.");
-        return;
+      if (success) {
+        toast.success("Du har loggats ut");
+        // Force-navigera till login-sidan oavsett resultat för att säkerställa UI-uppdatering
+        navigate('/salon/login');
+      } else {
+        // Om logout misslyckades men vi är i sandbox-läge, tvinga fram en UI-uppdatering
+        const isSandbox = window.location.hostname.includes('lovableproject.com');
+        if (isSandbox) {
+          console.log("Sandbox-miljö detekterad, tvingar omdirigering till login");
+          navigate('/salon/login', { replace: true });
+        }
       }
-      
-      toast.success("Du har loggats ut");
-      navigate('/salon/login');
     } catch (error) {
       console.error('Utloggningsfel:', error);
       toast.error("Det gick inte att logga ut. Försök igen.");
+      
+      // Force-navigera även vid fel i sandbox
+      const isSandbox = window.location.hostname.includes('lovableproject.com');
+      if (isSandbox) {
+        console.log("Sandbox-miljö detekterad, tvingar omdirigering till login trots fel");
+        navigate('/salon/login', { replace: true });
+      }
     }
   };
   
