@@ -21,35 +21,33 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
   const handleLogout = async () => {
     try {
       console.log("Admin sidebar: Starting logout process");
+      toast.loading("Loggar ut...");
       
-      // Call the signOut function and wait for it to complete
-      const success = await signOut();
+      // Call the signOut function
+      await signOut();
       
-      if (success) {
-        console.log("Admin sidebar: Logout successful, navigating to login page");
+      // Aggressivt rensa lokala lagringen
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // För att säkerställa omedelbara visuella ändringar visas en toast
+      toast.success("Du har loggats ut");
+      
+      // Kort fördröjning före omdirigering för att säkerställa att allt rensats
+      setTimeout(() => {
+        console.log("Admin sidebar: Forcefully reloading to login page");
         
-        // Clear local session state before navigation
-        window.localStorage.removeItem('supabase.auth.token');
-        sessionStorage.removeItem('supabase.auth.token');
-        
-        // Use immediate timeout before navigation to allow state updates
-        setTimeout(() => {
-          console.log("Admin sidebar: Forcibly navigating to login page");
-          window.location.href = "/salon/login"; // Force full page reload to clear all state
-        }, 50);
-      } else {
-        console.error("Admin sidebar: Logout failed");
-        toast.error("Ett fel uppstod vid utloggning. Försök igen.");
-      }
+        // Använd window.location.href för att tvinga full sidladdning
+        window.location.href = "/salon/login";
+      }, 100);
     } catch (error) {
       console.error("Admin sidebar logout error:", error);
       toast.error("Ett fel uppstod vid utloggning");
       
-      // Force navigation even on error as fallback
+      // Även vid fel, försök omdirigera
       setTimeout(() => {
-        console.log("Admin sidebar: Forcibly navigating to login page after error");
-        window.location.href = "/salon/login"; // Use window.location for a complete refresh
-      }, 50);
+        window.location.href = "/salon/login";
+      }, 200);
     }
   };
   

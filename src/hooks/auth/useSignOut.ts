@@ -6,44 +6,33 @@ import { useEnvironmentDetection } from "./useEnvironmentDetection";
 export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null>) => {
   const { isSandboxEnvironment } = useEnvironmentDetection();
   
-  // Helper for forcing a sign out without API call
+  // Hjälpfunktion för att tvinga utloggning utan API-anrop
   const forceSignOut = async () => {
     try {
       console.log("Executing aggressive force sign-out procedure");
       
-      // Clear any refresh timers
+      // Rensa eventuella uppdateringstimers
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
         refreshTimerRef.current = null;
       }
       
-      // Aggressive storage clearing - be thorough
+      // Aggressiv rensning av lagring - var grundlig
       try {
-        // Clear all potentially auth-related items
-        for (const key of Object.keys(localStorage)) {
-          if (key.includes('supabase') || key.includes('auth') || key.includes('session')) {
-            console.log(`Clearing localStorage item: ${key}`);
-            localStorage.removeItem(key);
-          }
-        }
+        // Rensa allt i local och session storage
+        localStorage.clear();
+        sessionStorage.clear();
         
-        for (const key of Object.keys(sessionStorage)) {
-          if (key.includes('supabase') || key.includes('auth') || key.includes('session')) {
-            console.log(`Clearing sessionStorage item: ${key}`);
-            sessionStorage.removeItem(key);
-          }
-        }
-        
-        // Explicitly clear the main auth token
-        localStorage.removeItem('supabase.auth.token');
-        sessionStorage.removeItem('supabase.auth.token');
+        // Explicit rensa auth-token
+        localStorage.removeItem('sb-gmqeqhlhqhyrjquzhuzg-auth-token');
+        sessionStorage.removeItem('sb-gmqeqhlhqhyrjquzhuzg-auth-token');
       } catch (storageErr) {
         console.error("Error clearing storage during force sign-out:", storageErr);
       }
       
-      // Force client to clear its state - with additional error handling
+      // Tvinga klienten att rensa sitt tillstånd - med ytterligare felhantering
       try {
-        await supabase.auth.signOut({ scope: 'global' }); // Try global scope first
+        await supabase.auth.signOut({ scope: 'global' }); // Prova global omfattning först
       } catch (e) {
         console.log("Error during global signOut, trying local:", e);
         try {
@@ -51,6 +40,14 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
         } catch (e2) {
           console.log("Error during local signOut as well, continuing:", e2);
         }
+      }
+      
+      // Manuellt utlösa ett SIGNED_OUT-event för att säkerställa att listeners hör det
+      try {
+        const event = new CustomEvent('supabase.auth.signout', { detail: { event: 'SIGNED_OUT' } });
+        window.dispatchEvent(event);
+      } catch (e) {
+        console.log("Error triggering custom event:", e);
       }
       
       console.log("Force sign-out completed");
@@ -61,28 +58,27 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
     }
   };
 
-  // Helper for signing out securely - with improved sandbox handling
+  // Hjälpfunktion för säker utloggning - med förbättrad sandbox-hantering
   const signOut = async () => {
     try {
       console.log("Starting signOut process");
       
-      // Always check for sandbox environment first and apply special handling
+      // Kontrollera alltid först om det är en sandbox-miljö och tillämpa särskild hantering
       if (isSandboxEnvironment()) {
         console.log("Sandbox environment detected, using aggressive logout handling");
-        // In sandbox, always force clear the session immediately
+        // I sandbox, rensa alltid sessionen omedelbart
         const success = await forceSignOut();
         
         if (success) {
-          toast.success("Du har loggat ut");
           return true;
         } else {
-          // Even if force signout fails, we'll return true to continue the UI flow
+          // Även om forcerad utloggning misslyckas kommer vi att fortsätta flödet i UI
           console.log("Force signout had issues but continuing logout flow");
           return true;
         }
       }
       
-      // Standard logout flow for production
+      // Standardutloggningsflöde för produktion
       console.log("Running standard logout flow");
       const { error } = await supabase.auth.signOut({ scope: 'global' });
       
@@ -90,30 +86,29 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
         console.error("Sign out API error:", error);
         toast.error("Problem vid utloggning. Försöker med alternativ metod...");
         
-        // Even if the API call fails, force clear the session
+        // Även om API-anropet misslyckas, tvinga rensning av sessionen
         const forcedSuccess = await forceSignOut();
-        if (forcedSuccess) {
-          toast.success("Du har loggat ut");
-        }
-        return true; // Return true anyway to continue the UI flow
+        return true; // Returnera true ändå för att fortsätta UI-flödet
       }
       
-      // Clear any refresh timers
+      // Rensa eventuella uppdateringstimers
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
         refreshTimerRef.current = null;
       }
       
-      toast.success("Du har loggat ut");
+      // Extra åtgärd för att säkerställa att alla tokens är borttagna
+      localStorage.clear();
+      sessionStorage.clear();
+      
       return true;
     } catch (error) {
       console.error("Unexpected error during sign out:", error);
-      toast.error("Ett oväntat fel uppstod vid utloggning");
       
-      // Last resort - force the logout
+      // Sista utväg - tvinga utloggningen
       await forceSignOut();
       
-      // Return true anyway to continue the UI flow
+      // Returnera true ändå för att fortsätta UI-flödet
       return true;
     }
   };
