@@ -1,63 +1,8 @@
 
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
+import { Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { useState } from "react";
-import { toast } from "sonner";
-import { LoadingButton } from "../ui/loading-button";
-import { submitPartnerRequest } from "@/hooks/usePartnerRequests";
 
 export const ContactSection = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    business: "",
-    email: "",
-    phone: "",
-    message: ""
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      // Use the custom function to submit partner request (without plan data)
-      const { success, error } = await submitPartnerRequest({
-        name: formData.name,
-        business_name: formData.business,
-        email: formData.email,
-        phone: formData.phone,
-        message: formData.message
-      });
-      
-      if (!success) throw new Error(error);
-      
-      // Show success message
-      toast.success("Tack för ditt meddelande! Vi kontaktar dig inom kort.");
-      
-      // Reset form
-      setFormData({
-        name: "",
-        business: "",
-        email: "",
-        phone: "",
-        message: ""
-      });
-    } catch (error) {
-      console.error("Error submitting contact form:", error);
-      toast.error("Ett fel uppstod. Försök igen senare.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <div id="contact-section" className="py-16 bg-white">
       <div className="container px-4 md:px-8">
@@ -71,72 +16,24 @@ export const ContactSection = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl">Kontaktformulär</CardTitle>
+              <CardTitle className="text-xl">Kontakta oss</CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="text-sm font-medium">Namn</label>
-                    <Input 
-                      id="name" 
-                      placeholder="Ditt namn" 
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="business" className="text-sm font-medium">Företagsnamn</label>
-                    <Input 
-                      id="business" 
-                      placeholder="Ditt företag" 
-                      value={formData.business}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium">E-post</label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="din@email.com" 
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="phone" className="text-sm font-medium">Telefon</label>
-                    <Input 
-                      id="phone" 
-                      placeholder="Ditt telefonnummer" 
-                      value={formData.phone}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+              <div className="flex flex-col items-center justify-center text-center space-y-4">
+                <div className="bg-primary/10 p-4 rounded-full">
+                  <Mail className="h-8 w-8 text-primary" />
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium">Meddelande</label>
-                  <Textarea 
-                    id="message" 
-                    placeholder="Skriv ditt meddelande här..." 
-                    rows={5}
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <LoadingButton 
-                  type="submit" 
-                  className="w-full"
-                  loading={isSubmitting}
+                <h3 className="text-xl font-semibold">Skicka oss ett mejl</h3>
+                <p className="text-gray-600 max-w-md">
+                  Vi svarar på dina frågor så snart vi kan. Kontakta oss på:
+                </p>
+                <a 
+                  href="mailto:info@lyxdeal.se"
+                  className="text-primary font-semibold text-lg hover:underline transition-all"
                 >
-                  Skicka meddelande
-                </LoadingButton>
-              </form>
+                  info@lyxdeal.se
+                </a>
+              </div>
             </CardContent>
           </Card>
         </div>
