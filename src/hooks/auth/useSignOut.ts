@@ -7,24 +7,45 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
   const { isSandboxEnvironment } = useEnvironmentDetection();
   
   // Helper for forcing a sign out without API call
-  const forceSignOut = () => {
+  const forceSignOut = async () => {
     try {
+      console.log("Executing force sign-out procedure");
+      
       // Clear any refresh timers
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
         refreshTimerRef.current = null;
       }
       
-      // Clear browser storage
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.removeItem('supabase.auth.token');
+      // Clear browser storage - be thorough
+      try {
+        localStorage.removeItem('supabase.auth.token');
+        sessionStorage.removeItem('supabase.auth.token');
+        
+        // Also try to clear any other potential auth-related items
+        for (const key of Object.keys(localStorage)) {
+          if (key.includes('supabase.auth')) {
+            localStorage.removeItem(key);
+          }
+        }
+        
+        for (const key of Object.keys(sessionStorage)) {
+          if (key.includes('supabase.auth')) {
+            sessionStorage.removeItem(key);
+          }
+        }
+      } catch (storageErr) {
+        console.error("Error clearing storage during force sign-out:", storageErr);
+      }
       
-      // Force client to clear its state
-      supabase.auth.signOut({ scope: 'local' }).catch(e => {
-        console.log("Ignoring error during force sign-out:", e);
-      });
+      // Force client to clear its state - with additional error handling
+      try {
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch (e) {
+        console.log("Ignoring error during supabase.auth.signOut call:", e);
+      }
       
-      console.log("Force sign-out completed");
+      console.log("Force sign-out completed successfully");
       return true;
     } catch (err) {
       console.error("Error during force sign-out:", err);
@@ -39,7 +60,7 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
       if (isSandboxEnvironment()) {
         console.log("Sandbox environment detected, using special logout handling");
         // In sandbox, force clear the session immediately
-        const success = forceSignOut();
+        const success = await forceSignOut();
         if (success) {
           toast.success("Du har loggat ut");
         }
@@ -55,7 +76,7 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
         toast.error("Det gick inte att logga ut. Försöker med alternativ metod...");
         
         // Even if the API call fails, force clear the session
-        const forcedSuccess = forceSignOut();
+        const forcedSuccess = await forceSignOut();
         if (forcedSuccess) {
           toast.success("Du har loggat ut");
         }
@@ -75,7 +96,7 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
       toast.error("Ett oväntat fel uppstod vid utloggning");
       
       // Last resort - force the logout
-      const forcedSuccess = forceSignOut();
+      const forcedSuccess = await forceSignOut();
       if (forcedSuccess) {
         toast.success("Du har loggat ut trots fel");
       }

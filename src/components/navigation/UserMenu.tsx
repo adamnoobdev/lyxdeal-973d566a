@@ -34,19 +34,24 @@ const UserMenu: React.FC<UserMenuProps> = ({
         return;
       }
       
+      console.log("UserMenu: Initiating logout");
       // Call the improved signOut function from the hook
-      const success = await signOut();
+      await signOut();
       
-      // Always navigate to login page to ensure UI is updated
-      // This will happen even if signOut fails
-      navigate('/salon/login', { replace: true });
+      // Use a small timeout to ensure the state is updated before navigation
+      setTimeout(() => {
+        console.log("UserMenu: Navigating to login page after logout");
+        navigate('/salon/login', { replace: true });
+      }, 100);
       
     } catch (error) {
       console.error('Utloggningsfel:', error);
       toast.error("Det gick inte att logga ut. Försök igen.");
       
       // Even if there's an error, still try to navigate away
-      navigate('/salon/login', { replace: true });
+      setTimeout(() => {
+        navigate('/salon/login', { replace: true });
+      }, 100);
     }
   };
   

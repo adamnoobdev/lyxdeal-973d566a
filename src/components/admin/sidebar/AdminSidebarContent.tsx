@@ -20,17 +20,25 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
   
   const handleLogout = async () => {
     try {
-      // Använd den förbättrade signOut-funktionen
-      const success = await signOut();
+      // Call the signOut function and wait for it to complete
+      await signOut();
       
-      // Alltid navigera till startsidan, oavsett resultat
-      navigate("/salon/login", { replace: true });
+      // Force clear the session and navigate to login page
+      // Use a small timeout to ensure state is updated before navigation
+      setTimeout(() => {
+        // Log the action for debugging
+        console.log("Admin logout: Navigating to login page");
+        navigate("/salon/login", { replace: true });
+      }, 100);
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Ett fel uppstod vid utloggning");
       
-      // Tvinga ändå fram en navigering
-      navigate("/salon/login", { replace: true });
+      // Even if there's an error, still try to redirect
+      setTimeout(() => {
+        console.log("Admin logout (after error): Navigating to login page");
+        navigate("/salon/login", { replace: true });
+      }, 100);
     }
   };
   

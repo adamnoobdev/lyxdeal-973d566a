@@ -1,15 +1,26 @@
 
 import React, { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { Dashboard } from '@/components/admin/Dashboard';
 import { DealsListContainer } from '@/components/admin/deals/DealsListContainer';
 import { SalonsList } from '@/components/admin/salons/SalonsList';
 import { AdminAuthCheck } from '@/components/admin/auth/AdminAuthCheck';
 import { DebugPanel } from '@/components/admin/debug/DebugPanel';
+import { useSession } from '@/hooks/useSession';
 
 const Admin = () => {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const { session } = useSession();
+  const navigate = useNavigate();
+  
+  // Check for auth status changes
+  useEffect(() => {
+    if (!session) {
+      console.log("No session detected in Admin component, redirecting to login");
+      navigate('/salon/login', { replace: true });
+    }
+  }, [session, navigate]);
   
   // Check if we should show debug panel based on query params
   useEffect(() => {
