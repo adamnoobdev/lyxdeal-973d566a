@@ -20,15 +20,15 @@ import { SalonDeals } from './components/salon/SalonDeals';
 import { supabase } from '@/integrations/supabase/client';
 
 function App() {
-  // Säkerställ att supabase-klienten är korrekt konfigurerad för session-hantering
+  // Logga auth-status när appen laddas, men försök inte automatiskt logga in
   useEffect(() => {
-    // Logga eventuell auth-status när appen laddas
+    // Passiv kontroll av auth-status, utan automatisk inloggning
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession();
       console.log("Initial auth check:", data.session ? "User is logged in" : "No session found");
       
       if (data.session) {
-        console.log("Auth: User signed in, checking role:", data.session.user.id);
+        console.log("Auth: User signed in, session expires at:", new Date(data.session.expires_at || 0).toISOString());
       }
     };
     
@@ -38,8 +38,10 @@ function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`Auth state changed in App.tsx: ${event}`, session ? "Session exists" : "No session");
       
-      if (session) {
-        console.log("Auth: User signed in, checking role:", session.user.id);
+      if (event === 'SIGNED_OUT') {
+        console.log("Auth: User signed out, clearing session");
+      } else if (session) {
+        console.log("Auth: Session updated, expires at:", new Date(session.expires_at || 0).toISOString());
       }
     });
     

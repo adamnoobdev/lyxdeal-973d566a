@@ -67,7 +67,13 @@ export const useSession = () => {
         console.log(`Auth state changed: ${event}`, currentSession ? "Session exists" : "No session");
         
         if (isMountedRef.current) {
-          setSession(currentSession);
+          // Om vi får en SIGNED_OUT händelse, säkerställ att vi rensar sessionen
+          if (event === 'SIGNED_OUT') {
+            setSession(null);
+          } else {
+            setSession(currentSession);
+          }
+          
           setIsLoading(false);
           
           // If we have a session, set up token refresh
@@ -92,6 +98,9 @@ export const useSession = () => {
         
         if (error) {
           console.error("Session initialization error:", error);
+          if (isMountedRef.current) {
+            setSession(null);
+          }
         } else {
           console.log("Session check complete:", data.session ? "Session found" : "No session found");
           
@@ -112,6 +121,9 @@ export const useSession = () => {
         }
       } catch (error) {
         console.error("Session initialization error:", error);
+        if (isMountedRef.current) {
+          setSession(null);
+        }
       } finally {
         if (isMountedRef.current) {
           setIsLoading(false);
@@ -144,6 +156,12 @@ export const useSession = () => {
         clearTimeout(refreshTimerRef.current);
         refreshTimerRef.current = null;
       }
+      
+      // Explicit reset av session för att säkerställa att UI uppdateras korrekt
+      if (isMountedRef.current) {
+        setSession(null);
+      }
+      
       return true;
     } catch (error) {
       console.error("Unexpected error during sign out:", error);

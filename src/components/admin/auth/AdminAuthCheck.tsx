@@ -118,7 +118,8 @@ export const AdminAuthCheck = ({ children }: AdminAuthCheckProps) => {
 
   // If the user's session disappears, reset the status
   useEffect(() => {
-    if (!session && !sessionLoading) {
+    if (!session && !sessionLoading && checkPerformed.current) {
+      console.log("AdminAuthCheck: Session lost, resetting status");
       checkPerformed.current = false;
       isCheckingRef.current = false;
       if (isMountedRef.current) {

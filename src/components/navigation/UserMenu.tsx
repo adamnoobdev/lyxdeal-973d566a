@@ -27,8 +27,19 @@ const UserMenu: React.FC<UserMenuProps> = ({
   
   const handleLogout = async () => {
     try {
+      if (!session) {
+        toast.error("Ingen aktiv session att logga ut från");
+        return;
+      }
+      
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Utloggningsfel:', error);
+        toast.error("Det gick inte att logga ut. Försök igen.");
+        return;
+      }
+      
       toast.success("Du har loggats ut");
       navigate('/salon/login');
     } catch (error) {
