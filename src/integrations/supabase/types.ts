@@ -152,6 +152,7 @@ export type Database = {
       }
       partner_requests: {
         Row: {
+          address: string | null
           business_name: string
           created_at: string
           email: string
@@ -167,6 +168,7 @@ export type Database = {
           stripe_session_id: string | null
         }
         Insert: {
+          address?: string | null
           business_name: string
           created_at?: string
           email: string
@@ -182,6 +184,7 @@ export type Database = {
           stripe_session_id?: string | null
         }
         Update: {
+          address?: string | null
           business_name?: string
           created_at?: string
           email?: string

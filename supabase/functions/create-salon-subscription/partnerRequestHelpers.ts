@@ -55,8 +55,8 @@ export async function updatePartnerRequest(supabaseUrl: string, supabaseKey: str
       .from("partner_requests")
       .insert([
         {
-          name: businessName,
-          business_name: businessName,
+          name: "Unknown", // Temporary placeholder
+          business_name: "Unknown", // Temporary placeholder
           email: email,
           phone: "Unknown", // Saknar telefonnummer men behöver fylla i ett värde
           stripe_session_id: sessionId,
