@@ -24,13 +24,13 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
       const success = await signOut();
       
       // Alltid navigera till startsidan, oavsett resultat
-      navigate("/", { replace: true });
+      navigate("/salon/login", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Ett fel uppstod vid utloggning");
       
       // Tvinga ändå fram en navigering
-      navigate("/", { replace: true });
+      navigate("/salon/login", { replace: true });
     }
   };
   

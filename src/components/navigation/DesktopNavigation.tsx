@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { SearchContainer } from "@/components/SearchContainer";
 import { CitySelector } from "@/components/CitySelector";
@@ -48,9 +49,9 @@ export const DesktopNavigation = ({
               <LogOut className="h-4 w-4" />
               <span className="hidden lg:inline">Logga ut</span>
             </Button>
-          </> : <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate("/auth")}>
+          </> : <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate("/salon/login")}>
             <UserRound className="h-4 w-4" />
-            
+            <span className="hidden lg:inline">Logga in</span>
           </Button>}
       </div>
     </div>;

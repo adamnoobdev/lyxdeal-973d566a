@@ -1,5 +1,4 @@
 
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEnvironmentDetection } from "./useEnvironmentDetection";
@@ -9,23 +8,28 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
   
   // Helper for forcing a sign out without API call
   const forceSignOut = () => {
-    // Clear any refresh timers
-    if (refreshTimerRef.current) {
-      clearTimeout(refreshTimerRef.current);
-      refreshTimerRef.current = null;
+    try {
+      // Clear any refresh timers
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+        refreshTimerRef.current = null;
+      }
+      
+      // Clear browser storage
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.removeItem('supabase.auth.token');
+      
+      // Force client to clear its state
+      supabase.auth.signOut({ scope: 'local' }).catch(e => {
+        console.log("Ignoring error during force sign-out:", e);
+      });
+      
+      console.log("Force sign-out completed");
+      return true;
+    } catch (err) {
+      console.error("Error during force sign-out:", err);
+      return false;
     }
-    
-    // Clear browser storage
-    localStorage.removeItem('supabase.auth.token');
-    sessionStorage.removeItem('supabase.auth.token');
-    
-    // Force client to clear its state
-    supabase.auth.signOut({ scope: 'local' }).catch(e => {
-      console.log("Ignoring error during force sign-out:", e);
-    });
-    
-    console.log("Force sign-out completed");
-    return true;
   };
 
   // Helper for signing out securely
@@ -36,7 +40,9 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
         console.log("Sandbox environment detected, using special logout handling");
         // In sandbox, force clear the session immediately
         const success = forceSignOut();
-        toast.success("Du har loggat ut");
+        if (success) {
+          toast.success("Du har loggat ut");
+        }
         return success;
       }
       
