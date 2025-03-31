@@ -29,13 +29,24 @@ export const useMapAddress = (salonId?: number | string | null) => {
         }
         
         // Strategi 1: Försök hämta data direkt med fetchSalonByExactId
+        // Vi skickar in salonId som det är eftersom funktionen hanterar både string och number
         console.log("[useMapAddress] Försöker hämta salongsdata med direkthämtning");
         let salonData = await fetchSalonByExactId(salonId);
         
         // Strategi 2: Om direkthämtning misslyckas, använd resolveSalonData för en mer robust sökning
         if (!salonData) {
           console.log("[useMapAddress] Direkthämtning misslyckades, försöker med resolveSalonData");
-          salonData = await resolveSalonData(salonId);
+          // Konvertera till number om det är en string
+          const numericId = typeof salonId === 'string' ? parseInt(salonId, 10) : salonId;
+          // Kontrollera om vi fick ett giltigt nummer
+          if (typeof numericId === 'number' && !isNaN(numericId)) {
+            salonData = await resolveSalonData(numericId);
+          } else {
+            console.log("[useMapAddress] Kunde inte konvertera salonId till ett giltigt nummer");
+            setError("Ogiltigt salong-ID format");
+            setIsLoading(false);
+            return;
+          }
         }
 
         if (salonData) {
