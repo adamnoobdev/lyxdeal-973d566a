@@ -3,6 +3,7 @@ import { fetchSalonByExactId } from "./queries/fetchSalonByExactId";
 import { SalonData, createDefaultSalonData } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 import { findSalonWithSimilarId } from "./salonSearchUtils";
+import { directFetch } from "./queries/directFetch";
 
 /**
  * Försöker hämta fullständig salongsdata med flera fallback-strategier
@@ -12,11 +13,11 @@ export const resolveSalonData = async (
   city?: string | null
 ): Promise<SalonData> => {
   try {
-    console.log(`[resolveSalonData] Försöker hitta salong med ID: ${salonId}, city: ${city || 'N/A'}`);
+    console.log(`[resolveSalonData] Startar sökning efter salong med ID: ${salonId}, stad: ${city || 'N/A'}`);
     
-    // Direkthämtning via REST API utan autentisering
+    // Strategi 1: Direkthämtning via REST API
     if (salonId) {
-      console.log(`[resolveSalonData] Försöker direkthämta salong med ID: ${salonId}`);
+      console.log(`[resolveSalonData] Strategi 1: Direkthämtning med ID: ${salonId}`);
       const directData = await fetchSalonByExactId(salonId);
       
       if (directData) {
@@ -25,9 +26,9 @@ export const resolveSalonData = async (
       }
     }
     
-    // Fallback till liknande ID-sökningar
+    // Strategi 2: Sök efter liknande ID
     if (salonId) {
-      console.log(`[resolveSalonData] Försöker hitta salong med liknande ID: ${salonId}`);
+      console.log(`[resolveSalonData] Strategi 2: Söker salong med liknande ID: ${salonId}`);
       const similarData = await findSalonWithSimilarId(salonId);
       
       if (similarData) {
@@ -36,45 +37,56 @@ export const resolveSalonData = async (
       }
     }
 
-    // Om vi har stad, försök hämta en salong baserad på staden
+    // Strategi 3: Hämta salong baserad på stad
     if (city) {
-      console.log(`[resolveSalonData] Försöker hitta salong baserad på stad: ${city}`);
+      console.log(`[resolveSalonData] Strategi 3: Söker salong baserad på stad: ${city}`);
       try {
-        // Försök med directFetch via salons API
-        const directData = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL || "https://gmqeqhlhqhyrjquzhuzg.supabase.co"}/rest/v1/salons?select=*&limit=1`,
-          {
-            headers: {
-              'apikey': `${import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs"}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=representation'
-            }
-          }
+        const directData = await directFetch<SalonData>(
+          `salons`, 
+          { "select": "*", "city": `ilike.%${city}%`, "limit": "1" }
         );
         
-        if (directData.ok) {
-          const salons = await directData.json();
-          if (salons && salons.length > 0) {
-            console.log("[resolveSalonData] Hittade salong baserad på stad:", salons[0]);
-            return {
-              ...salons[0],
-              name: `${salons[0].name || 'Salong'} i ${city}`
-            };
-          }
+        if (directData && directData.length > 0) {
+          console.log("[resolveSalonData] Hittade salong baserad på stad:", directData[0]);
+          return {
+            ...directData[0],
+            name: directData[0].name || `Salong i ${city}`
+          };
+        }
+        
+        // Om ingen salong hittades med stadens namn, hämta bara den första tillgängliga salongen
+        const fallbackData = await directFetch<SalonData>('salons', { "select": "*", "limit": "1" });
+        
+        if (fallbackData && fallbackData.length > 0) {
+          console.log("[resolveSalonData] Hittade en generisk salong:", fallbackData[0]);
+          return {
+            ...fallbackData[0],
+            name: `Salong i ${city}`
+          };
         }
       } catch (err) {
-        console.error("[resolveSalonData] Fel vid hämtning av salong baserad på stad:", err);
+        console.error("[resolveSalonData] Fel vid hämtning baserad på stad:", err);
       }
       
-      console.log(`[resolveSalonData] Skapar default salong för stad: ${city}`);
+      // Om allt annat misslyckas, skapa en default-salong för staden
+      console.log(`[resolveSalonData] Skapar default-salong för stad: ${city}`);
       return {
         ...createDefaultSalonData(),
         name: `Salong i ${city}`,
       };
     }
 
-    // Om allt annat misslyckas, returnera en standard salon
-    console.log("[resolveSalonData] Returnerar default salong");
+    // Strategi 4: Hämta vilken salong som helst från databasen
+    console.log("[resolveSalonData] Strategi 4: Hämtar vilken salong som helst");
+    const anyData = await directFetch<SalonData>('salons', { "select": "*", "limit": "1" });
+    
+    if (anyData && anyData.length > 0) {
+      console.log("[resolveSalonData] Hittade en generisk salong:", anyData[0]);
+      return anyData[0];
+    }
+
+    // Strategi 5: Om allt annat misslyckas, returnera en standard-salong
+    console.log("[resolveSalonData] Strategi 5: Returnerar default-salong");
     return createDefaultSalonData();
   } catch (error) {
     console.error(`[resolveSalonData] Fel vid hämtning av salong: ${error instanceof Error ? error.message : String(error)}`);

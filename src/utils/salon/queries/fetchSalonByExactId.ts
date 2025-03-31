@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { SalonData, createDefaultSalonData } from "../types";
-import { directFetch } from "./api/directFetch";
+import { directFetch } from "./directFetch";
 
 /**
  * Hämtar en specifik salong med exakt ID
@@ -15,70 +15,57 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
   try {
     console.log(`[fetchSalonByExactId] Försöker hämta salong med ID: ${salonId}, typ: ${typeof salonId}`);
     
-    // Prioritera direkthämtning utan autentisering
-    console.log(`[fetchSalonByExactId] Försöker direkthämta salong med ID: ${salonId}`);
+    // 1. Försök direkthämtning utan autentisering först (offentlig data)
+    const formattedId = String(salonId); // Konvertera ID till sträng för API-parametrar
     
-    // Säkerställ att salonId är korrekt formaterat för API-anropet
-    const formattedId = typeof salonId === 'string' || typeof salonId === 'number' 
-      ? String(salonId) 
-      : null;
-    
-    if (!formattedId) {
-      console.error(`[fetchSalonByExactId] Ogiltigt salong ID format: ${salonId}`);
-      return null;
-    }
-    
-    // Skicka en förfrågan till REST API-endpunkten som borde kringgå RLS
+    console.log(`[fetchSalonByExactId] Direkthämtar salong med ID: ${formattedId}`);
     const directData = await directFetch<SalonData>(
       `salons`,
       { "id": `eq.${formattedId}`, "select": "*" }
     );
     
     if (directData && directData.length > 0) {
-      console.log(`[fetchSalonByExactId] Hämtade salong via direkthämtning:`, directData[0]);
-      return directData[0] as SalonData;
+      console.log(`[fetchSalonByExactId] Framgångsrik direkthämtning av salong:`, directData[0]);
+      return directData[0];
     } else {
-      console.log(`[fetchSalonByExactId] Kunde inte hitta salong med ID ${salonId} via direkthämtning`);
+      console.log(`[fetchSalonByExactId] Direkthämtning hittade ingen salong med ID ${formattedId}`);
     }
     
-    // Fallback till Supabase klient om direkthämtning misslyckas
-    console.log(`[fetchSalonByExactId] Försöker hämta salong med ID: ${salonId} via Supabase klient`);
+    // 2. Fallback till Supabase-klient (kräver autentisering)
+    console.log(`[fetchSalonByExactId] Försöker hämta salong via Supabase-klient`);
     
-    // Konvertera salonId till nummer för Supabase-fråga om det är en sträng
+    // Konvertera till numeriskt ID för Supabase
     let numericId: number;
-    
     if (typeof salonId === 'string') {
       numericId = parseInt(salonId, 10);
       if (isNaN(numericId)) {
-        console.error(`[fetchSalonByExactId] Ogiltigt salong ID format för Supabase-anrop: ${salonId}`);
+        console.error(`[fetchSalonByExactId] Ogiltigt numeriskt ID format: ${salonId}`);
         return null;
       }
     } else {
       numericId = salonId as number;
     }
     
-    console.log(`[fetchSalonByExactId] Använder numericId: ${numericId}, typ: ${typeof numericId}`);
-    
     const { data, error } = await supabase
       .from("salons")
       .select("*")
       .eq("id", numericId)
-      .maybeSingle();
+      .maybeSingle(); // Använd maybeSingle istället för single för att undvika fel
     
     if (error) {
-      console.error(`[fetchSalonByExactId] Fel vid hämtning av salong: ${error.message}`);
+      console.error(`[fetchSalonByExactId] Supabase-fel: ${error.message}`);
       return null;
     }
     
-    if (!data) {
-      console.log(`[fetchSalonByExactId] Ingen salong hittades med ID: ${salonId}`);
+    if (data) {
+      console.log(`[fetchSalonByExactId] Hämtade salong via Supabase:`, data);
+      return data as SalonData;
+    } else {
+      console.log(`[fetchSalonByExactId] Hittade ingen salong med ID: ${salonId} via Supabase`);
       return null;
     }
-    
-    console.log(`[fetchSalonByExactId] Hämtade salong via Supabase klient:`, data);
-    return data as SalonData;
   } catch (err) {
-    console.error(`[fetchSalonByExactId] Undantag vid hämtning av salong: ${err instanceof Error ? err.message : String(err)}`);
+    console.error(`[fetchSalonByExactId] Undantag: ${err instanceof Error ? err.message : String(err)}`);
     return null;
   }
 };

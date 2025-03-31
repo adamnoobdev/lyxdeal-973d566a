@@ -8,26 +8,36 @@ export async function directFetch<T>(
   params: Record<string, string> = {}
 ): Promise<T[] | null> {
   try {
-    // Bygg URL med parametrar
-    const url = new URL(`${import.meta.env.VITE_SUPABASE_URL || "https://gmqeqhlhqhyrjquzhuzg.supabase.co"}/rest/v1/${endpoint}`);
+    // Säkerställ att vi har rätt URL och API-nyckel
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://gmqeqhlhqhyrjquzhuzg.supabase.co";
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs";
+    
+    // Bygg REST API URL
+    const url = new URL(`${supabaseUrl}/rest/v1/${endpoint}`);
+    
+    // Lägg till select=* som standard om det inte redan finns
+    if (!params['select']) {
+      params['select'] = '*';
+    }
     
     // Lägg till parametrar i URL
     Object.entries(params).forEach(([key, value]) => {
       url.searchParams.append(key, value);
     });
     
-    // Sätt API-nyckel och content-type headers för att använda REST API
+    // Sätt API-nyckel och content-type headers
     const headers = {
-      'apikey': `${import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs"}`,
+      'apikey': supabaseKey,
       'Content-Type': 'application/json',
       'Prefer': 'return=representation'
     };
     
-    // Gör fetch-anropet
-    console.log(`[directFetch] Anropar: ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
+    // Detaljerad loggning för felsökning
+    console.log(`[directFetch] Anropar REST API: ${endpoint}`);
+    console.log(`[directFetch] URL (utan API-nyckel): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
     console.log(`[directFetch] Parametrar: ${JSON.stringify(params)}`);
-    console.log(`[directFetch] Använder headers:`, Object.keys(headers));
     
+    // Gör fetch-anropet
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: headers
@@ -35,36 +45,29 @@ export async function directFetch<T>(
     
     // Kontrollera HTTP-statuskoden
     if (!response.ok) {
+      const errorText = await response.text();
       console.error(`[directFetch] HTTP-fel: ${response.status} - ${response.statusText}`);
-      console.error(`[directFetch] URL: ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
-      
-      // Logga responsens innehåll för felsökning
-      try {
-        const errorText = await response.text();
-        console.error(`[directFetch] Felmeddelande: ${errorText}`);
-      } catch (e) {
-        console.error("[directFetch] Kunde inte läsa felmeddelande från svar");
-      }
-      
+      console.error(`[directFetch] Felmeddelande: ${errorText}`);
+      console.error(`[directFetch] URL (utan API-nyckel): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
       return null;
     }
     
     // Tolka svaret som JSON
     const data = await response.json();
     
-    // Om svaret är en tom array, returnera en tom array
-    if (Array.isArray(data) && data.length === 0) {
-      console.log(`[directFetch] Tomt svar från API`);
+    // Hantera olika svarstyper
+    if (Array.isArray(data)) {
+      console.log(`[directFetch] Hämtade ${data.length} ${endpoint}-poster`);
+      return data.length > 0 ? data as T[] : [];
+    } else if (data && typeof data === 'object') {
+      console.log(`[directFetch] Hämtade en ${endpoint}-post:`, data.id || 'ID saknas');
+      return [data] as T[];
+    } else {
+      console.log(`[directFetch] Tomt eller oförväntat svar från API:`, data);
       return [];
     }
-    
-    // Hantera både array och single-objekt svar
-    const resultArray = Array.isArray(data) ? data : [data];
-    console.log(`[directFetch] Hämtade ${resultArray.length} poster:`, resultArray);
-    
-    return resultArray as T[];
   } catch (error) {
-    console.error(`[directFetch] Fel vid direkthämtning: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`[directFetch] Fel vid direkthämtning av ${endpoint}:`, error);
     return null;
   }
 }
