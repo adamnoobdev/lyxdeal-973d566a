@@ -1,4 +1,3 @@
-
 import { memo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import {
   Scissors, 
   Palmtree, 
   Heart,
-  Tooth,
+  Bone,
   Eye,
   Flower,
   BadgePlus,
@@ -34,7 +33,7 @@ const getCategoryIcon = (category: string) => {
     case 'hårvård': return <Scissors className="w-4 h-4" />;
     case 'naglar': return <Palmtree className="w-4 h-4" />;
     case 'massage': return <Heart className="w-4 h-4" />;
-    case 'tandvård': return <Tooth className="w-4 h-4" />;
+    case 'tandvård': return <Bone className="w-4 h-4" />;
     case 'ögonfransar & bryn': return <Eye className="w-4 h-4" />;
     case 'kroppsvård': return <Flower className="w-4 h-4" />;
     case 'ansiktsbehandling': return <BadgePlus className="w-4 h-4" />;
