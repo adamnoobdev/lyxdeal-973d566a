@@ -1,4 +1,4 @@
 
-export { SalonAddressInfo } from './SalonAddressInfo';
-export { ErrorAlert } from './ErrorAlert';
-export { AddressTipsList } from './AddressTipsList';
+export * from './ErrorAlert';
+export * from './SalonAddressInfo';
+export * from './AddressTipsList';
