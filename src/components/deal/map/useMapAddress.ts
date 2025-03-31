@@ -28,7 +28,8 @@ export const useMapAddress = (salonId?: number | string | null) => {
           return;
         }
         
-        // Always try to fetch salon data without authentication first
+        // Always try to fetch salon data without authentication first using directFetch
+        console.log("[useMapAddress] Trying to fetch salon data without authentication");
         let salonData = await fetchSalonByExactId(salonId);
         console.log("[useMapAddress] Direct fetch result:", salonData);
 
@@ -37,6 +38,13 @@ export const useMapAddress = (salonId?: number | string | null) => {
           console.log("[useMapAddress] Attempting authenticated fetch for salon data");
           salonData = await resolveSalonData(salonId);
           console.log("[useMapAddress] Authenticated fetch result:", salonData);
+        }
+        
+        // If we still don't have data, try resolving without session as fallback
+        if (!salonData) {
+          console.log("[useMapAddress] Attempting fallback resolution without session");
+          salonData = await resolveSalonData(salonId);
+          console.log("[useMapAddress] Fallback resolution result:", salonData);
         }
 
         if (salonData) {

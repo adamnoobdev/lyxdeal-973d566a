@@ -20,7 +20,7 @@ export const resolveSalonData = async (
       const directData = await fetchSalonByExactId(salonId);
       
       if (directData) {
-        console.log("[resolveSalonData] Hittade salong via direkthämtning");
+        console.log("[resolveSalonData] Hittade salong via direkthämtning:", directData);
         return directData;
       }
     }
@@ -31,13 +31,41 @@ export const resolveSalonData = async (
       const similarData = await findSalonWithSimilarId(salonId);
       
       if (similarData) {
-        console.log("[resolveSalonData] Hittade salong med liknande ID");
+        console.log("[resolveSalonData] Hittade salong med liknande ID:", similarData);
         return similarData;
       }
     }
 
-    // Sista utväg: Skapa en standard salon med staden
+    // Om vi har stad, försök hämta en salong baserad på staden
     if (city) {
+      console.log(`[resolveSalonData] Försöker hitta salong baserad på stad: ${city}`);
+      try {
+        // Försök med directFetch via salons API
+        const directData = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL || "https://gmqeqhlhqhyrjquzhuzg.supabase.co"}/rest/v1/salons?select=*&limit=1`,
+          {
+            headers: {
+              'apikey': `${import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs"}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation'
+            }
+          }
+        );
+        
+        if (directData.ok) {
+          const salons = await directData.json();
+          if (salons && salons.length > 0) {
+            console.log("[resolveSalonData] Hittade salong baserad på stad:", salons[0]);
+            return {
+              ...salons[0],
+              name: `${salons[0].name || 'Salong'} i ${city}`
+            };
+          }
+        }
+      } catch (err) {
+        console.error("[resolveSalonData] Fel vid hämtning av salong baserad på stad:", err);
+      }
+      
       console.log(`[resolveSalonData] Skapar default salong för stad: ${city}`);
       return {
         ...createDefaultSalonData(),

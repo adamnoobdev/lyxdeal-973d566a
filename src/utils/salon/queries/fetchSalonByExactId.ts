@@ -31,7 +31,7 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
     // Skicka en förfrågan till REST API-endpunkten som borde kringgå RLS
     const directData = await directFetch<SalonData>(
       `salons`,
-      { "id": `eq.${formattedId}`, "select": "*", "limit": "1" }
+      { "id": `eq.${formattedId}`, "select": "*" }
     );
     
     if (directData && directData.length > 0) {
@@ -63,7 +63,7 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
       .from("salons")
       .select("*")
       .eq("id", numericId)
-      .single();
+      .maybeSingle();
     
     if (error) {
       console.error(`[fetchSalonByExactId] Fel vid hämtning av salong: ${error.message}`);
