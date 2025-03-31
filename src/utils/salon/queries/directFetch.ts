@@ -12,22 +12,25 @@ export async function directFetch<T>(
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://gmqeqhlhqhyrjquzhuzg.supabase.co";
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtcWVxaGxocWh5cmpxdXpodXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYzNDMxNDgsImV4cCI6MjA1MTkxOTE0OH0.AlorwONjeBvh9nex5cm0I1RWqQAEiTlJsXml9n54yMs";
     
+    // KRITISKT - Skapa en kopia av params för att inte modifiera originalet
+    const cleanParams = { ...params };
+    
+    // Lägg till select=* som standard om det inte redan finns
+    if (!cleanParams['select']) {
+      cleanParams['select'] = '*';
+    }
+    
+    // VIKTIGT: Ta bort city-parametern om den finns eftersom kolumnen inte existerar
+    if (cleanParams['city']) {
+      console.log(`[directFetch] Tar bort ogiltigt 'city'-filter: ${cleanParams['city']} eftersom kolumnen inte existerar i ${endpoint}`);
+      delete cleanParams['city'];
+    }
+    
     // Bygg REST API URL
     const url = new URL(`${supabaseUrl}/rest/v1/${endpoint}`);
     
-    // Lägg till select=* som standard om det inte redan finns
-    if (!params['select']) {
-      params['select'] = '*';
-    }
-    
-    // VIKTIGT: Ta bort city-parametern om den finns eftersom den kolumnen inte existerar
-    if (params['city']) {
-      console.log(`[directFetch] Tar bort ogiltigt 'city'-filter: ${params['city']} eftersom kolumnen inte existerar`);
-      delete params['city'];
-    }
-    
     // Lägg till parametrar i URL
-    Object.entries(params).forEach(([key, value]) => {
+    Object.entries(cleanParams).forEach(([key, value]) => {
       url.searchParams.append(key, value);
     });
     
@@ -42,7 +45,7 @@ export async function directFetch<T>(
     // Detaljerad loggning för felsökning
     console.log(`[directFetch] Anropar REST API: ${endpoint}`);
     console.log(`[directFetch] URL (utan API-nyckel): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
-    console.log(`[directFetch] Parametrar: ${JSON.stringify(params)}`);
+    console.log(`[directFetch] Parametrar efter rensning: ${JSON.stringify(cleanParams)}`);
     
     // Gör fetch-anropet
     const response = await fetch(url.toString(), {

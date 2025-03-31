@@ -28,11 +28,11 @@ export const useMapAddress = (salonId?: number | string | null) => {
           return;
         }
         
-        // Strategi 1: Direkthämtning (anpassad för publik åtkomst)
+        // Strategi 1: Försök hämta data direkt med fetchSalonByExactId
         console.log("[useMapAddress] Försöker hämta salongsdata med direkthämtning");
         let salonData = await fetchSalonByExactId(salonId);
         
-        // Strategi 2: Om direkthämtning misslyckas, använd resolveSalonData
+        // Strategi 2: Om direkthämtning misslyckas, använd resolveSalonData för en mer robust sökning
         if (!salonData) {
           console.log("[useMapAddress] Direkthämtning misslyckades, försöker med resolveSalonData");
           salonData = await resolveSalonData(salonId);

@@ -49,41 +49,32 @@ export const resolveSalonData = async (
       }
     }
 
-    // Strategi 3: Hämta en salong (utan sökning på stad eftersom city-kolumnen inte finns)
-    if (city) {
-      console.log(`[resolveSalonData] Strategi 3: Hämtar en salong (stad ${city} specificerad men kolumnen finns inte)`);
-      try {
-        // Eftersom city-kolumnen inte finns, hämtar vi en valfri salong istället
-        const fallbackData = await directFetch<SalonData>('salons', { "select": "*", "limit": "1" });
-        
-        if (fallbackData && fallbackData.length > 0) {
-          console.log("[resolveSalonData] Hittade en generisk salong:", fallbackData[0]);
-          // Säkerställ att city-värdet finns på objektet som lokal data
-          const result = {
-            ...fallbackData[0],
-            name: fallbackData[0].name || `Salong i ${city}`,
-            city: city // Explicit tilldela city-värdet lokalt (finns inte i databasen)
-          };
-          return result;
-        }
-      } catch (err) {
-        console.error("[resolveSalonData] Fel vid hämtning av generisk salong:", err);
-      }
+    // Strategi 3: Hämta en salong utan stad-filtrering (eftersom city-kolumnen inte finns)
+    console.log(`[resolveSalonData] Strategi 3: Hämtar en salong (utan stad-filtrering)`);
+    try {
+      // OBS! Vi skickar inte med city-parametern här eftersom den inte finns i databasen
+      const fallbackData = await directFetch<SalonData>('salons', { "limit": "1" });
       
-      // Om allt annat misslyckas, skapa en default-salong för staden
-      console.log(`[resolveSalonData] Skapar default-salong för stad: ${city}`);
+      if (fallbackData && fallbackData.length > 0) {
+        console.log("[resolveSalonData] Hittade en generisk salong:", fallbackData[0]);
+        // Säkerställ att city-värdet finns på objektet som lokal data
+        const result = {
+          ...fallbackData[0],
+          name: fallbackData[0].name || `Salong i ${city || 'okänd stad'}`,
+          city: city // Explicit tilldela city-värdet lokalt (finns inte i databasen)
+        };
+        return result;
+      }
+    } catch (err) {
+      console.error("[resolveSalonData] Fel vid hämtning av generisk salong:", err);
+    }
+    
+    // Strategi 4: Om vi har city-information, skapa en default-salong för staden
+    if (city) {
+      console.log(`[resolveSalonData] Strategi 4: Skapar default-salong för stad: ${city}`);
       const defaultSalong = createDefaultSalonData(city);
       defaultSalong.city = city; // Säkerställ att city-värdet finns
       return defaultSalong;
-    }
-
-    // Strategi 4: Hämta vilken salong som helst från databasen
-    console.log("[resolveSalonData] Strategi 4: Hämtar vilken salong som helst");
-    const anyData = await directFetch<SalonData>('salons', { "select": "*", "limit": "1" });
-    
-    if (anyData && anyData.length > 0) {
-      console.log("[resolveSalonData] Hittade en generisk salong:", anyData[0]);
-      return anyData[0];
     }
 
     // Strategi 5: Om allt annat misslyckas, returnera en standard-salong
