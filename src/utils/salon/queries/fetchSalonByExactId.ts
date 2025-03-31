@@ -31,10 +31,10 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
       console.log(`[fetchSalonByExactId] Direkthämtning hittade ingen salong med ID ${formattedId}`);
     }
     
-    // 2. Fallback till Supabase-klient (kräver autentisering)
-    console.log(`[fetchSalonByExactId] Försöker hämta salong via Supabase-klient`);
+    // 2. Fallback till Supabase-klient (även för icke-inloggade)
+    console.log(`[fetchSalonByExactId] Försöker hämta salong via Supabase-klient (anonym/publik åtkomst)`);
     
-    // Konvertera till numeriskt ID för Supabase
+    // Konvertera till numeriskt ID för Supabase om det behövs
     let numericId: number;
     if (typeof salonId === 'string') {
       numericId = parseInt(salonId, 10);
@@ -46,14 +46,23 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
       numericId = salonId as number;
     }
     
+    // Viktigt: Använd publik åtkomst till salons-tabellen
     const { data, error } = await supabase
       .from("salons")
       .select("*")
       .eq("id", numericId)
-      .maybeSingle(); // Använd maybeSingle istället för single för att undvika fel
+      .maybeSingle(); 
     
     if (error) {
       console.error(`[fetchSalonByExactId] Supabase-fel: ${error.message}`);
+      
+      // Prova en sista gång med direkthämtning utan filter på ID för att se om tabellen är tillgänglig
+      const testData = await directFetch<SalonData>(`salons`, { "limit": "1" });
+      if (testData) {
+        console.log("[fetchSalonByExactId] Direkthämtning utan filter fungerar, tabellen är tillgänglig.");
+      } else {
+        console.error("[fetchSalonByExactId] Direkthämtning utan filter misslyckades också, tabellen kan ha åtkomstproblem.");
+      }
       return null;
     }
     

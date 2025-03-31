@@ -28,19 +28,13 @@ export const useMapAddress = (salonId?: number | string | null) => {
           return;
         }
         
-        // Strategi 1: Direkthämtning utan autentisering
-        console.log("[useMapAddress] Försöker hämta salongsdata utan autentisering");
+        // Strategi 1: Direkthämtning (anpassad för publik åtkomst)
+        console.log("[useMapAddress] Försöker hämta salongsdata med direkthämtning");
         let salonData = await fetchSalonByExactId(salonId);
         
-        // Strategi 2: Om direkthämtning misslyckas och vi har en session, prova med autentisering
-        if (!salonData && session) {
-          console.log("[useMapAddress] Direkthämtning misslyckades, försöker med autentisering");
-          salonData = await resolveSalonData(salonId);
-        }
-        
-        // Strategi 3: Sista försök utan session
+        // Strategi 2: Om direkthämtning misslyckas, använd resolveSalonData
         if (!salonData) {
-          console.log("[useMapAddress] Autentiserad hämtning misslyckades, sista försök utan session");
+          console.log("[useMapAddress] Direkthämtning misslyckades, försöker med resolveSalonData");
           salonData = await resolveSalonData(salonId);
         }
 

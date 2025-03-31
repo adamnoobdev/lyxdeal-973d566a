@@ -25,9 +25,10 @@ export async function directFetch<T>(
       url.searchParams.append(key, value);
     });
     
-    // Sätt API-nyckel och content-type headers
+    // Kritiskt: Sätt korrekt Supabase API-nyckel i headers
     const headers = {
       'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
       'Content-Type': 'application/json',
       'Prefer': 'return=representation'
     };

@@ -15,7 +15,7 @@ export const resolveSalonData = async (
   try {
     console.log(`[resolveSalonData] Startar sökning efter salong med ID: ${salonId}, stad: ${city || 'N/A'}`);
     
-    // Strategi 1: Direkthämtning via REST API
+    // Strategi 1: Direkthämtning via publik API
     if (salonId) {
       console.log(`[resolveSalonData] Strategi 1: Direkthämtning med ID: ${salonId}`);
       const directData = await fetchSalonByExactId(salonId);
@@ -26,21 +26,26 @@ export const resolveSalonData = async (
       }
     }
     
-    // Strategi 2: Sök efter liknande ID
+    // Strategi 2: Sök efter liknande ID - behåller denna strategi men förbättrar debugging
     if (salonId) {
       console.log(`[resolveSalonData] Strategi 2: Söker salong med liknande ID: ${salonId}`);
-      const similarData = await findSalonWithSimilarId(salonId);
-      
-      if (similarData) {
-        console.log("[resolveSalonData] Hittade salong med liknande ID:", similarData);
-        return similarData;
+      try {
+        const similarData = await findSalonWithSimilarId(salonId);
+        
+        if (similarData) {
+          console.log("[resolveSalonData] Hittade salong med liknande ID:", similarData);
+          return similarData;
+        }
+      } catch (err) {
+        console.error("[resolveSalonData] Fel vid sökning efter liknande ID:", err);
       }
     }
 
-    // Strategi 3: Hämta salong baserad på stad
+    // Strategi 3: Hämta salong baserad på stad (mycket viktig fallback)
     if (city) {
       console.log(`[resolveSalonData] Strategi 3: Söker salong baserad på stad: ${city}`);
       try {
+        // VIKTIGT: Förbättrad direkthämtning för städer - använder ilike för delvis matchning
         const directData = await directFetch<SalonData>(
           `salons`, 
           { "select": "*", "city": `ilike.%${city}%`, "limit": "1" }
@@ -54,14 +59,15 @@ export const resolveSalonData = async (
           };
         }
         
-        // Om ingen salong hittades med stadens namn, hämta bara den första tillgängliga salongen
+        // Om ingen salong hittades med stadens namn via ilike, testa att hämta första salongen
+        console.log("[resolveSalonData] Ingen salong hittades för staden, hämtar första tillgängliga salong");
         const fallbackData = await directFetch<SalonData>('salons', { "select": "*", "limit": "1" });
         
         if (fallbackData && fallbackData.length > 0) {
           console.log("[resolveSalonData] Hittade en generisk salong:", fallbackData[0]);
           return {
             ...fallbackData[0],
-            name: `Salong i ${city}`
+            name: fallbackData[0].name || `Salong i ${city}`
           };
         }
       } catch (err) {
@@ -70,10 +76,10 @@ export const resolveSalonData = async (
       
       // Om allt annat misslyckas, skapa en default-salong för staden
       console.log(`[resolveSalonData] Skapar default-salong för stad: ${city}`);
-      return {
-        ...createDefaultSalonData(),
-        name: `Salong i ${city}`,
-      };
+      const defaultSalong = createDefaultSalonData();
+      defaultSalong.name = `Salong i ${city}`;
+      defaultSalong.city = city;
+      return defaultSalong;
     }
 
     // Strategi 4: Hämta vilken salong som helst från databasen
