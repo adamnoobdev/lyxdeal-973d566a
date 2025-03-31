@@ -4,6 +4,7 @@ export interface SalonData {
   name: string;
   address: string | null;
   phone: string | null;
+  city?: string | null;
 }
 
 /**
@@ -16,6 +17,7 @@ export const createDefaultSalonData = (cityName?: string | null): SalonData => {
     id: null,
     name: cityName ? `Salong i ${cityName}` : 'Okänd salong',
     address: address,
-    phone: null
+    phone: null,
+    city: cityName
   };
 };

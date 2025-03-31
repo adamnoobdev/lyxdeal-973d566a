@@ -22,6 +22,10 @@ export const resolveSalonData = async (
       
       if (directData) {
         console.log("[resolveSalonData] Hittade salong via direkthämtning:", directData);
+        // Om vi har stadsinformation men saknar den i hämtad data, lägg till den
+        if (city && !directData.city) {
+          directData.city = city;
+        }
         return directData;
       }
     }
@@ -34,6 +38,10 @@ export const resolveSalonData = async (
         
         if (similarData) {
           console.log("[resolveSalonData] Hittade salong med liknande ID:", similarData);
+          // Om vi har stadsinformation men saknar den i hämtad data, lägg till den
+          if (city && !similarData.city) {
+            similarData.city = city;
+          }
           return similarData;
         }
       } catch (err) {
@@ -53,10 +61,13 @@ export const resolveSalonData = async (
         
         if (directData && directData.length > 0) {
           console.log("[resolveSalonData] Hittade salong baserad på stad:", directData[0]);
-          return {
+          // Säkerställ att city-värdet finns på objektet
+          const result = {
             ...directData[0],
-            name: directData[0].name || `Salong i ${city}`
+            name: directData[0].name || `Salong i ${city}`,
+            city: city // Explicit tilldela city-värdet
           };
+          return result;
         }
         
         // Om ingen salong hittades med stadens namn via ilike, testa att hämta första salongen
@@ -65,10 +76,13 @@ export const resolveSalonData = async (
         
         if (fallbackData && fallbackData.length > 0) {
           console.log("[resolveSalonData] Hittade en generisk salong:", fallbackData[0]);
-          return {
+          // Säkerställ att city-värdet finns på objektet
+          const result = {
             ...fallbackData[0],
-            name: fallbackData[0].name || `Salong i ${city}`
+            name: fallbackData[0].name || `Salong i ${city}`,
+            city: city // Explicit tilldela city-värdet
           };
+          return result;
         }
       } catch (err) {
         console.error("[resolveSalonData] Fel vid hämtning baserad på stad:", err);
@@ -76,9 +90,8 @@ export const resolveSalonData = async (
       
       // Om allt annat misslyckas, skapa en default-salong för staden
       console.log(`[resolveSalonData] Skapar default-salong för stad: ${city}`);
-      const defaultSalong = createDefaultSalonData();
-      defaultSalong.name = `Salong i ${city}`;
-      defaultSalong.city = city;
+      const defaultSalong = createDefaultSalonData(city);
+      defaultSalong.city = city; // Säkerställ att city-värdet finns
       return defaultSalong;
     }
 
