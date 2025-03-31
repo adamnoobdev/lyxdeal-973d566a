@@ -20,25 +20,36 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
   
   const handleLogout = async () => {
     try {
-      // Call the signOut function and wait for it to complete
-      await signOut();
+      console.log("Admin sidebar: Starting logout process");
       
-      // Force clear the session and navigate to login page
-      // Use a small timeout to ensure state is updated before navigation
-      setTimeout(() => {
-        // Log the action for debugging
-        console.log("Admin logout: Navigating to login page");
-        navigate("/salon/login", { replace: true });
-      }, 100);
+      // Call the signOut function and wait for it to complete
+      const success = await signOut();
+      
+      if (success) {
+        console.log("Admin sidebar: Logout successful, navigating to login page");
+        
+        // Clear local session state before navigation
+        window.localStorage.removeItem('supabase.auth.token');
+        sessionStorage.removeItem('supabase.auth.token');
+        
+        // Use immediate timeout before navigation to allow state updates
+        setTimeout(() => {
+          console.log("Admin sidebar: Forcibly navigating to login page");
+          window.location.href = "/salon/login"; // Force full page reload to clear all state
+        }, 50);
+      } else {
+        console.error("Admin sidebar: Logout failed");
+        toast.error("Ett fel uppstod vid utloggning. Försök igen.");
+      }
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("Admin sidebar logout error:", error);
       toast.error("Ett fel uppstod vid utloggning");
       
-      // Even if there's an error, still try to redirect
+      // Force navigation even on error as fallback
       setTimeout(() => {
-        console.log("Admin logout (after error): Navigating to login page");
-        navigate("/salon/login", { replace: true });
-      }, 100);
+        console.log("Admin sidebar: Forcibly navigating to login page after error");
+        window.location.href = "/salon/login"; // Use window.location for a complete refresh
+      }, 50);
     }
   };
   
