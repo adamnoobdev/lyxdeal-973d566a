@@ -1,3 +1,4 @@
+
 import { fetchSalonByExactId } from "./queries/fetchSalonByExactId";
 import { SalonData, createDefaultSalonData } from "./types";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,6 +82,7 @@ export const resolveSalonData = async (
     return createDefaultSalonData();
   } catch (error) {
     console.error(`[resolveSalonData] Error fetching salon: ${error instanceof Error ? error.message : String(error)}`);
-    return createDefaultSalonData();
+    // Säkerställ att vi alltid returnerar något, även vid fel
+    return city ? createDefaultSalonData(city) : createDefaultSalonData();
   }
 };

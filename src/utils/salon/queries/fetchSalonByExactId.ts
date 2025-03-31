@@ -55,14 +55,6 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
     
     if (error) {
       console.error(`[fetchSalonByExactId] Supabase-fel: ${error.message}`);
-      
-      // Prova en sista gång med direkthämtning utan filter på ID för att se om tabellen är tillgänglig
-      const testData = await directFetch<SalonData>(`salons`, { "limit": "1" });
-      if (testData) {
-        console.log("[fetchSalonByExactId] Direkthämtning utan filter fungerar, tabellen är tillgänglig.");
-      } else {
-        console.error("[fetchSalonByExactId] Direkthämtning utan filter misslyckades också, tabellen kan ha åtkomstproblem.");
-      }
       return null;
     }
     

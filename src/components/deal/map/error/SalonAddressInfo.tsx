@@ -14,14 +14,15 @@ export const SalonAddressInfo = ({
   address, 
   hideAddress = false 
 }: SalonAddressInfoProps) => {
+  // Om salongsnamnet saknas, visa ett standardnamn
+  const displayName = salonName || 'Salong';
+  
   return (
     <div className="space-y-2">
-      {salonName && (
-        <div className="flex items-center gap-2">
-          <Store className="h-4 w-4 text-primary" />
-          <span className="font-medium">{salonName}</span>
-        </div>
-      )}
+      <div className="flex items-center gap-2">
+        <Store className="h-4 w-4 text-primary" />
+        <span className="font-medium">{displayName}</span>
+      </div>
       
       {salonPhone && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

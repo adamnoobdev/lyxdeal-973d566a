@@ -18,14 +18,15 @@ export const formatDealData = (
     dealId: rawDeal.id,
     salonId: rawDeal.salon_id,
     dealTitle: rawDeal.title,
-    bookingUrl: rawDeal.booking_url
+    bookingUrl: rawDeal.booking_url,
+    city: rawDeal.city
   });
   console.log("Salon data for formatting:", salonData);
   
   const daysRemaining = calculateDaysRemaining(rawDeal.expiration_date, rawDeal.time_remaining);
   const isFree = isDealFree(rawDeal.is_free, rawDeal.discounted_price);
 
-  // Säkerställ att vi alltid har ett salongsnamn
+  // Säkerställ att vi alltid har ett salongsnamn, även om inget salongsdata finns
   const salonName = salonData?.name && salonData.name.trim() !== '' 
                    ? salonData.name 
                    : (rawDeal.city ? `Salong i ${rawDeal.city}` : 'Okänd salong');

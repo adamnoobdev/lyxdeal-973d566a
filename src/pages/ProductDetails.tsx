@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -146,7 +147,7 @@ const ProductDetails = () => {
                 <PurchaseSteps />
 
                 <div className="bg-white shadow-sm p-6 space-y-6">
-                  <h2 className="text-xl font-semibold mb-4">Om {deal.salon?.name || "salongen"}</h2>
+                  <h2 className="text-xl font-semibold mb-4">Om {deal.salon?.name || `salongen i ${deal.city}`}</h2>
                   
                   <div className="mt-6">
                     <SalonLocationMap 

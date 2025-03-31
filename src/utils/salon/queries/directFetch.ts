@@ -20,8 +20,8 @@ export async function directFetch<T>(
       cleanParams['select'] = '*';
     }
     
-    // IMPORTANT: Remove the city parameter if it exists as the column doesn't exist
-    // This was causing filtering issues on the salons table which doesn't have a city column
+    // VIKTIGT: Ta bort city-parametern om den finns eftersom kolumnen inte existerar
+    // Detta orsakade filtreringsproblem på salons-tabellen som inte har en city-kolumn
     if (cleanParams['city']) {
       console.log(`[directFetch] REMOVING invalid 'city' filter: ${cleanParams['city']} as the column doesn't exist in ${endpoint}`);
       delete cleanParams['city'];

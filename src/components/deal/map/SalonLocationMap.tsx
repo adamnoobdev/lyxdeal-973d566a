@@ -30,6 +30,9 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
   const hasError = !!addressError || !!mapError;
   const error = addressError || mapError || ((!address && !city) ? "Adress saknas" : null);
   
+  // Skapa ett effektivt salongsnamn, även om salongsdata saknas
+  const effectiveSalonName = salonName || (city ? `Salong i ${city}` : 'Okänd salong');
+  
   // Show map when we have coordinates and no errors
   useEffect(() => {
     if (coordinates && !hasError && !isLoading) {
@@ -43,7 +46,7 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
     if (isLoading) {
       return <MapLoadingState 
         address={displayAddress || ''} 
-        salonName={salonName} 
+        salonName={effectiveSalonName} 
         salonPhone={salonPhone}
         hideAddress={!displayAddress}
       />;
@@ -56,7 +59,7 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
           address={displayAddress || ""}
           coordinates={coordinates}
           destination={displayAddress || ""}
-          salonName={salonName}
+          salonName={effectiveSalonName}
           salonPhone={salonPhone}
           hideAddress={!displayAddress}
           city={city}
@@ -89,7 +92,7 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
   return (
     <div className={`space-y-4 ${className}`}>
       <SalonInfoHeader 
-        salonName={salonName} 
+        salonName={effectiveSalonName} 
         address={displayAddress} 
         salonPhone={salonPhone} 
         hideAddress={!displayAddress}
