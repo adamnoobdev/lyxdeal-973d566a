@@ -1,3 +1,4 @@
+
 export const CITIES = [
   "Alla Städer",
   "Stockholm",
@@ -16,6 +17,12 @@ export const CATEGORIES = [
   "Hårvård",
   "Naglar",
   "Massage",
+  "Tandvård",
+  "Ögonfransar & Bryn",
+  "Kroppsvård",
+  "Ansiktsbehandling",
+  "Makeup",
+  "Spa",
 ] as const;
 
 export type City = (typeof CITIES)[number];

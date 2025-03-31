@@ -6,6 +6,9 @@ import { CATEGORIES } from "@/constants/app-constants";
 export function HeroSection() {
   const navigate = useNavigate();
   const HERO_IMAGE_URL = "https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/hero-background.jpg";
+  
+  // Select categories to display (excluding "Alla Erbjudanden")
+  const displayCategories = CATEGORIES.filter(cat => cat !== "Alla Erbjudanden");
 
   const handleCategorySelect = (category: string) => {
     navigate(`/search?category=${encodeURIComponent(category)}`);
@@ -36,7 +39,7 @@ export function HeroSection() {
           </div>
           
           <div className="flex flex-wrap justify-center gap-2 md:gap-3 mx-auto max-w-3xl">
-            {CATEGORIES.filter(cat => cat !== "Alla Erbjudanden").map((category) => (
+            {displayCategories.map((category) => (
               <CategoryBadge 
                 key={category}
                 category={category}

@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,16 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import { CATEGORIES } from "@/constants/app-constants";
 
-const categories = [
-  { name: "Laserhårborttagning", icon: "✨" },
-  { name: "Fillers", icon: "💉" },
-  { name: "Rynkbehandlingar", icon: "🔄" },
-  { name: "Hudvård", icon: "🧴" },
-  { name: "Hårvård", icon: "💇‍♀️" },
-  { name: "Naglar", icon: "💅" },
-  { name: "Massage", icon: "💆‍♀️" },
-];
+// Filter out "Alla Erbjudanden" for the selector
+const categoryItems = CATEGORIES.filter(cat => cat !== "Alla Erbjudanden");
 
 interface CategorySelectorProps {
   onCategorySelect: (category: string) => void;
@@ -37,15 +32,15 @@ export const CategorySelector = ({
   if (variant === "mobile") {
     return (
       <div className="flex flex-col gap-1">
-        {categories.map((category) => (
+        {categoryItems.map((category) => (
           <Button
-            key={category.name}
+            key={category}
             variant="ghost"
             className="w-full justify-start gap-3 h-10 font-medium"
-            onClick={() => handleCategorySelect(category.name)}
+            onClick={() => handleCategorySelect(category)}
           >
-            <span className="text-lg">{category.icon}</span>
-            <span>{category.name}</span>
+            <span className="text-lg">{getCategoryEmoji(category)}</span>
+            <span>{category}</span>
           </Button>
         ))}
       </div>
@@ -64,19 +59,39 @@ export const CategorySelector = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-56 p-2"
+        className="w-56 p-2 max-h-[70vh] overflow-y-auto"
       >
-        {categories.map((category) => (
+        {categoryItems.map((category) => (
           <DropdownMenuItem
-            key={category.name}
-            onClick={() => handleCategorySelect(category.name)}
+            key={category}
+            onClick={() => handleCategorySelect(category)}
             className="flex items-center gap-3 py-2 px-3 cursor-pointer rounded-md"
           >
-            <span className="text-lg">{category.icon}</span>
-            <span className="font-medium">{category.name}</span>
+            <span className="text-lg">{getCategoryEmoji(category)}</span>
+            <span className="font-medium">{category}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
+};
+
+// Helper function to get emoji for categories
+const getCategoryEmoji = (category: string) => {
+  switch (category.toLowerCase()) {
+    case 'laserhårborttagning': return '⚡';
+    case 'fillers': return '💉';
+    case 'rynkbehandlingar': return '🔄';
+    case 'hudvård': return '✨';
+    case 'hårvård': return '💇‍♀️';
+    case 'naglar': return '💅';
+    case 'massage': return '💆‍♀️';
+    case 'tandvård': return '🦷';
+    case 'ögonfransar & bryn': return '👁️';
+    case 'kroppsvård': return '🌸';
+    case 'ansiktsbehandling': return '🧖‍♀️';
+    case 'makeup': return '🎨';
+    case 'spa': return '🌊';
+    default: return '✨';
+  }
 };

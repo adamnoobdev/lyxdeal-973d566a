@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import * as z from "zod";
@@ -24,7 +25,8 @@ export const LocationFields = ({ form, categories, cities }: LocationFieldsProps
                 {...field}
               >
                 <option value="">Välj kategori...</option>
-                {categories.map((category) => (
+                {/* Filter out "Alla Erbjudanden" since it's not a valid category for deals */}
+                {categories.filter(cat => cat !== "Alla Erbjudanden").map((category) => (
                   <option key={category} value={category}>
                     {category}
                   </option>
@@ -48,7 +50,7 @@ export const LocationFields = ({ form, categories, cities }: LocationFieldsProps
                 {...field}
               >
                 <option value="">Välj stad...</option>
-                {cities.map((city) => (
+                {cities.filter(city => city !== "Alla Städer").map((city) => (
                   <option key={city} value={city}>
                     {city}
                   </option>

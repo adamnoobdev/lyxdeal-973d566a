@@ -29,6 +29,12 @@ export function CategoryBadge({
       case 'naglar': return '💅';
       case 'massage': return '💆‍♀️';
       case 'hårvård': return '💇‍♀️';
+      case 'tandvård': return '🦷';
+      case 'ögonfransar & bryn': return '👁️';
+      case 'kroppsvård': return '🌸';
+      case 'ansiktsbehandling': return '🧖‍♀️';
+      case 'makeup': return '🎨';
+      case 'spa': return '🌊';
       default: return '✨';
     }
   };
