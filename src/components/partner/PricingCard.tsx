@@ -36,7 +36,6 @@ export const PricingCard = ({
   return (
     <div className={`
       p-6 rounded-lg border shadow-md flex flex-col h-full
-      transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1
       ${isPopular ? 'border-primary-300 bg-primary-50/30 ring-2 ring-primary-300' : 'border-gray-200'}
     `}>
       {isPopular && (
