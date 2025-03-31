@@ -70,16 +70,16 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
         const success = await forceSignOut();
         
         if (success) {
-          // KRITISK FÖRÄNDRING: Tvinga helsidomladdning för att säkerställa att all state återställs
+          // Ändrat: Omdirigera till startsidan istället för login
           setTimeout(() => {
-            console.log("Forcing complete page reload to login page");
-            window.location.href = '/salon/login';
+            console.log("Forcing complete page reload to homepage");
+            window.location.href = '/';
           }, 100);
           return true;
         } else {
           // Även om forcerad utloggning misslyckas fortsätter vi och tvingar en sidomladdning
           setTimeout(() => {
-            window.location.href = '/salon/login';
+            window.location.href = '/';
           }, 100);
           return true;
         }
@@ -91,10 +91,10 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
       // Kör force logout först för att säkerställa att all state rensas
       await forceSignOut();
       
-      // Tvinga helsidomladdning efter utloggning
+      // Ändrat: Omdirigera till startsidan istället för login
       setTimeout(() => {
-        console.log("Redirecting to login page after logout");
-        window.location.href = '/salon/login';
+        console.log("Redirecting to homepage after logout");
+        window.location.href = '/';
       }, 100);
       
       return true;
@@ -104,8 +104,9 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
       // Sista utväg - tvinga utloggningen och sidomladdning
       await forceSignOut();
       
+      // Ändrat: Omdirigera till startsidan istället för login
       setTimeout(() => {
-        window.location.href = '/salon/login';
+        window.location.href = '/';
       }, 100);
       
       // Returnera true ändå för att fortsätta UI-flödet

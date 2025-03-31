@@ -26,18 +26,18 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
       // Call the signOut function
       await signOut();
       
-      // Visas en toast innan omdirigering
+      // Visa en toast innan omdirigering
       toast.success("Du har loggats ut");
       
       // Vi använder window.location.href för att säkerställa en full sidomladdning 
-      // och att all autentiseringsstatus rensas
-      window.location.href = "/salon/login";
+      // och att all autentiseringsstatus rensas, men nu till startsidan istället för login
+      window.location.href = "/";
     } catch (error) {
       console.error("Admin sidebar logout error:", error);
       toast.error("Ett fel uppstod vid utloggning");
       
-      // Även vid fel, tvinga omdirigering med full sidomladdning
-      window.location.href = "/salon/login";
+      // Även vid fel, tvinga omdirigering med full sidomladdning till startsidan
+      window.location.href = "/";
     }
   };
   

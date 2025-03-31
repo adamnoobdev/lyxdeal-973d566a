@@ -30,7 +30,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
     try {
       if (!session) {
         toast.error("Ingen aktiv session att logga ut från");
-        navigate('/salon/login');
+        navigate('/');
         return;
       }
       
@@ -44,15 +44,15 @@ const UserMenu: React.FC<UserMenuProps> = ({
       // Framgångsmeddelande
       toast.success("Du har loggats ut");
       
-      // Använd window.location.href för att tvinga en full sidomladdning
-      window.location.href = '/salon/login';
+      // Använd window.location.href för att tvinga en full sidomladdning, men nu till startsidan
+      window.location.href = '/';
       
     } catch (error) {
       console.error('Utloggningsfel:', error);
       toast.error("Det gick inte att logga ut. Försök igen.");
       
       // Även om det finns ett fel, försöker vi fortfarande navigera bort med full sidomladdning
-      window.location.href = '/salon/login';
+      window.location.href = '/';
     }
   };
   
