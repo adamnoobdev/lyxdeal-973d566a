@@ -15,6 +15,11 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
   try {
     console.log(`[fetchSalonByExactId] Försöker hämta salong med ID: ${salonId}, typ: ${typeof salonId}`);
     
+    // Diagnostik för användarens session
+    const { data: sessionData } = await supabase.auth.getSession();
+    const isAuthenticated = !!sessionData?.session?.user;
+    console.log(`[fetchSalonByExactId] Användare är ${isAuthenticated ? 'autentiserad' : 'INTE autentiserad'}`);
+    
     // 1. Försök direkthämtning utan autentisering först (offentlig data)
     const formattedId = String(salonId); // Konvertera ID till sträng för API-parametrar
     
@@ -28,10 +33,27 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
       console.log(`[fetchSalonByExactId] Framgångsrik direkthämtning av salong:`, directData[0]);
       return directData[0];
     } else {
-      console.log(`[fetchSalonByExactId] Direkthämtning hittade ingen salong med ID ${formattedId}`);
+      console.log(`[fetchSalonByExactId] Direkthämtning hittade ingen salong med ID ${formattedId}. Provar Supabase klient istället.`);
     }
     
-    // 2. Fallback till Supabase-klient (även för icke-inloggade)
+    // 2. Testa salongs tabell existens och permissions
+    console.log(`[fetchSalonByExactId] Kontrollerar salong-tabellens existens och behörigheter`);
+    try {
+      const { count, error } = await supabase
+        .from("salons")
+        .select("*", { count: "exact", head: true });
+      
+      if (error) {
+        console.error(`[fetchSalonByExactId] VIKTIGT: Kunde inte komma åt salongs-tabellen:`, error.message);
+        console.error(`[fetchSalonByExactId] Detta indikerar troligen ett PERMISSIONS- eller RLS-problem!`);
+      } else {
+        console.log(`[fetchSalonByExactId] Salong-tabellen är åtkomlig med ${count || 0} rader`);
+      }
+    } catch (tableCheckError) {
+      console.error(`[fetchSalonByExactId] Fel vid kontroll av salong-tabell:`, tableCheckError);
+    }
+    
+    // 3. Fallback till Supabase-klient (även för icke-inloggade)
     console.log(`[fetchSalonByExactId] Försöker hämta salong via Supabase-klient (anonym/publik åtkomst)`);
     
     // Konvertera till numeriskt ID för Supabase om det behövs
@@ -55,6 +77,15 @@ export const fetchSalonByExactId = async (salonId?: number | string | null): Pro
     
     if (error) {
       console.error(`[fetchSalonByExactId] Supabase-fel: ${error.message}`);
+      console.error(`[fetchSalonByExactId] Kod: ${error.code}, Detaljer: ${error.details}`);
+      
+      // Test för att se om det är ett RLS-fel
+      if (error.code === "PGRST116" || error.message.includes("permission denied")) {
+        console.error(`[fetchSalonByExactId] KRITISKT: Detta verkar vara ett Row Level Security (RLS) fel!`);
+        console.error(`[fetchSalonByExactId] Användaren saknar behörighet att läsa från salons-tabellen.`);
+        console.error(`[fetchSalonByExactId] Kontrollera RLS-policyer i Supabase-databasen.`);
+      }
+      
       return null;
     }
     

@@ -14,14 +14,14 @@ export const formatDealData = (
   rawDeal: RawDealData, 
   salonData: { id: number | null; name: string; address: string | null; phone: string | null; } | null
 ): FormattedDealData => {
-  console.log("Formatting deal data:", { 
+  console.log("[formatDealData] Börjar formatera erbjudandedata", { 
     dealId: rawDeal.id,
     salonId: rawDeal.salon_id,
     dealTitle: rawDeal.title,
     bookingUrl: rawDeal.booking_url,
     city: rawDeal.city
   });
-  console.log("Salon data for formatting:", salonData);
+  console.log("[formatDealData] Salongsdata att använda:", salonData);
   
   const daysRemaining = calculateDaysRemaining(rawDeal.expiration_date, rawDeal.time_remaining);
   const isFree = isDealFree(rawDeal.is_free, rawDeal.discounted_price);
@@ -31,7 +31,7 @@ export const formatDealData = (
                    ? salonData.name 
                    : (rawDeal.city ? `Salong i ${rawDeal.city}` : 'Okänd salong');
   
-  console.log("Final salon name to use:", salonName);
+  console.log("[formatDealData] Slutgiltigt salongsnamn:", salonName);
   
   // Skapa ett standard-salongobjekt om inget hittades
   const finalSalonData = salonData ? {
@@ -43,6 +43,8 @@ export const formatDealData = (
     address: rawDeal.city ? `${rawDeal.city}` : null,
     phone: null
   };
+
+  console.log("[formatDealData] Slutgiltigt salongsobjekt:", finalSalonData);
 
   const formattedDeal = {
     id: rawDeal.id,
@@ -62,6 +64,12 @@ export const formatDealData = (
     booking_url: rawDeal.booking_url || null
   };
   
-  console.log("Formatted deal data:", formattedDeal);
+  console.log("[formatDealData] Slutgiltigt formaterat erbjudande:", {
+    id: formattedDeal.id,
+    title: formattedDeal.title,
+    city: formattedDeal.city,
+    salon: formattedDeal.salon
+  });
+  
   return formattedDeal;
 };

@@ -43,17 +43,34 @@ export const useDeal = (id: string | undefined) => {
           throw new Error("Erbjudande hittades inte");
         }
 
-        console.log("[useDeal] Råa erbjudandedata från DB:", dealData);
+        console.log("[useDeal] Erbjudandedata från DB:", {
+          id: dealData.id,
+          title: dealData.title,
+          salon_id: dealData.salon_id,
+          city: dealData.city
+        });
         
-        // Förbättrad salongsdata-hämtning som prioriterar direkta API-anrop
+        // Visa token för debugging
+        const currentToken = supabase.auth.getSession();
+        console.log("[useDeal] Använder Supabase med token:", 
+          currentToken ? "Token finns" : "Ingen token (anonym användare)");
+        
+        // Förbättrad salongsdata-hämtning med detaljerad loggning
         console.log("[useDeal] Försöker hämta salongsdata för ID:", dealData.salon_id);
         
-        // Använd den förbättrade resolveSalonData som prioriterar direkta anrop
-        const salonData = await resolveSalonData(dealData.salon_id, dealData.city);
-        console.log("[useDeal] Resultat av salongsupplösning:", salonData);
-        
-        // Format and return the complete deal data
-        return formatDealData(dealData as RawDealData, salonData);
+        try {
+          // Använd den förbättrade resolveSalonData som prioriterar direkta anrop
+          const salonData = await resolveSalonData(dealData.salon_id, dealData.city);
+          console.log("[useDeal] Resultat av salongsupplösning:", salonData);
+          
+          // Format and return the complete deal data
+          return formatDealData(dealData as RawDealData, salonData);
+        } catch (salonError) {
+          console.error("[useDeal] Fel vid hämtning av salongsdata:", salonError);
+          // Även om salongsdata misslyckas, formatera ändå erbjudandet med null salongsdata
+          console.log("[useDeal] Formaterar erbjudande utan salongsdata");
+          return formatDealData(dealData as RawDealData, null);
+        }
       } catch (error) {
         handleDealError(error);
         throw error;

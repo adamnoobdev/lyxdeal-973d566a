@@ -4,19 +4,31 @@ import { useDeal } from "@/hooks/useDeal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { RelatedDeals } from "@/components/deal/RelatedDeals";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
 import { DealInfo } from "@/components/deal/DealInfo";
 import { PurchaseSteps } from "@/components/deal/PurchaseSteps";
 import { SalonLocationMap } from "@/components/deal/map";
 import { Helmet } from "react-helmet";
+import { DatabaseAccessTester } from "@/components/debug/DatabaseAccessTester";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const { data: deal, isLoading, isError } = useDeal(id);
+  const [showDebug, setShowDebug] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Aktivera debug-läget med Ctrl+Shift+D
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        setShowDebug(prev => !prev);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [id]);
 
   if (isError) {
@@ -104,6 +116,8 @@ const ProductDetails = () => {
 
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
+          {showDebug && <DatabaseAccessTester />}
+          
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-8 space-y-6">

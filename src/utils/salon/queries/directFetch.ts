@@ -45,8 +45,9 @@ export async function directFetch<T>(
     
     // Detailed logging for debugging
     console.log(`[directFetch] Calling REST API: ${endpoint}`);
-    console.log(`[directFetch] URL (without API key): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
-    console.log(`[directFetch] Parameters after cleaning: ${JSON.stringify(cleanParams)}`);
+    console.log(`[directFetch] URL (utan API-nyckel): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
+    console.log(`[directFetch] Parameters: ${JSON.stringify(cleanParams)}`);
+    console.log(`[directFetch] Headers: ${JSON.stringify({...headers, apikey: 'REDACTED', Authorization: 'REDACTED'})}`);
     
     // Make the fetch call
     const response = await fetch(url.toString(), {
@@ -59,7 +60,7 @@ export async function directFetch<T>(
       const errorText = await response.text();
       console.error(`[directFetch] HTTP error: ${response.status} - ${response.statusText}`);
       console.error(`[directFetch] Error message: ${errorText}`);
-      console.error(`[directFetch] URL (without API key): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
+      console.error(`[directFetch] URL (utan API-nyckel): ${url.toString().replace(/apikey=([^&]+)/, 'apikey=REDACTED')}`);
       return null;
     }
     
@@ -69,9 +70,14 @@ export async function directFetch<T>(
     // Handle different response types
     if (Array.isArray(data)) {
       console.log(`[directFetch] Retrieved ${data.length} ${endpoint} records`);
+      if (data.length > 0) {
+        console.log(`[directFetch] First record sample:`, data[0]);
+      } else {
+        console.log(`[directFetch] No records found`);
+      }
       return data.length > 0 ? data as T[] : [];
     } else if (data && typeof data === 'object') {
-      console.log(`[directFetch] Retrieved a single ${endpoint} record:`, data.id || 'ID missing');
+      console.log(`[directFetch] Retrieved a single ${endpoint} record:`, data);
       return [data] as T[];
     } else {
       console.log(`[directFetch] Empty or unexpected response from API:`, data);
