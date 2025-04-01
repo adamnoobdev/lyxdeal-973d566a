@@ -23,20 +23,32 @@ const Terms = () => {
           </p>
         </section>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">2. Ångerrätt och returer</h2>
+        <section className="mb-8 bg-amber-50 p-4 rounded-lg border border-amber-200">
+          <h2 className="text-2xl font-semibold mb-4">2. Rabattkoder och vårt ansvar</h2>
           <p>
-            Enligt Distansavtalslagen har du som privatperson rätt att ångra ditt köp inom 14 dagar från det att du mottagit varan, 
-            utan att ange något särskilt skäl. Ångerfristen börjar löpa den dag du tar emot varan eller en väsentlig del av den.
+            <strong>Viktigt att notera:</strong> Lyxdeal sköter inte betalningar direkt på vår webbplats. Vi tillhandahåller endast
+            rabattkoder som kan användas på respektive salongs bokningssida.
           </p>
           <p className="mt-4">
-            För att utöva ångerrätten måste du meddela oss (Larlid & Co AB) ditt beslut att frånträda avtalet genom ett klart och 
-            tydligt meddelande (t.ex. via e-post till info@larlid.com eller telefon 010-177 44 00). Du kan använda standardformulär 
-            för ångerrätt, men det är inte obligatoriskt.
+            Vi ansvarar endast för att de rabattkoder som du får genom att fylla i dina uppgifter på Lyxdeal ska 
+            fungera på salongens bokningssida. 
           </p>
           <p className="mt-4">
-            Vid utövande av ångerrätten ska varan returneras i originalskick och i originalförpackning om möjligt.
-            Du står själv för returfrakten om inget annat överenskommits.
+            Lyxdeal ansvarar <strong>inte</strong> för:
+          </p>
+          <ul className="list-disc pl-5 mt-2 space-y-2">
+            <li>Salongens utförande av behandlingar</li>
+            <li>Kvaliteten på den service som tillhandahålls av salongen</li>
+            <li>Eventuella missnöjen med behandlingen</li>
+            <li>Återbetalningar för genomförda behandlingar</li>
+            <li>Bokningar, avbokningar eller ombokningar hos salongen</li>
+            <li>Andra transaktioner som sker direkt mellan kund och salong</li>
+          </ul>
+          <p className="mt-4">
+            <strong>Ingen ångerrätt eller retur via Lyxdeal:</strong> Eftersom vi inte sköter betalningar eller 
+            är direkt involverade i tjänsteleveransen, finns det ingen ångerrätt eller returmöjlighet via Lyxdeal. 
+            Eventuella frågor om ångerrätt, avbokning eller återbetalning måste hanteras direkt med den salong där 
+            bokningen gjorts.
           </p>
         </section>
 
@@ -47,15 +59,15 @@ const Terms = () => {
             prisändringar orsakat av tryckfel samt prisändringar av leverantörer.
           </p>
           <p className="mt-4">
-            Betalning sker via våra tillgängliga betalningsmetoder. Alla betalningar hanteras säkert och i enlighet med 
-            gällande lagar och förordningar.
+            Betalningar sker direkt till respektive salong vid bokning eller besök. Lyxdeal tar inget betalningsansvar eller 
+            hanterar några transaktioner mellan kund och salong.
           </p>
         </section>
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">4. Personuppgifter</h2>
           <p>
-            Larlid & Co AB är personuppgiftsansvarig för de personuppgifter som samlas in i samband med din beställning. 
+            Larlid & Co AB är personuppgiftsansvarig för de personuppgifter som samlas in i samband med din användning av Lyxdeal. 
             Vi behandlar dina personuppgifter i enlighet med vår integritetspolicy och gällande dataskyddslagstiftning.
           </p>
           <p className="mt-4">
@@ -73,7 +85,8 @@ const Terms = () => {
             <li>Leverera tjänster i enlighet med beskrivning och av god kvalitet.</li>
             <li>Behandla alla kunder med respekt och professionalitet.</li>
             <li>Följa gällande lagar och förordningar inom din bransch.</li>
-            <li>Meddela Lyxdeal omgående vid eventuella förändringar som kan påverka leverans av tjänster.</li>
+            <li>Meddela Lyxdeal omgående vid eventuella förändringar som kan påverka leverans av tjänster eller rabattkoder.</li>
+            <li>Acceptera och lösa in de rabattkoder som Lyxdeal förmedlar till kunder.</li>
           </ul>
           <p className="mt-4">
             Som salongspartner får du tillgång till en plattform för att marknadsföra dina tjänster men Lyxdeal ansvarar inte för din verksamhet eller 
