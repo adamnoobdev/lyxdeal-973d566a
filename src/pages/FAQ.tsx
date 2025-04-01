@@ -1,6 +1,6 @@
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { HelpCircle, Mail, Tag, ShoppingBag, CreditCard, Calendar, Clock, Star, Shield } from "lucide-react";
+import { HelpCircle, Mail, Tag, ShoppingBag, Calendar, Clock, Star, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -10,12 +10,16 @@ export default function FAQ() {
   
   const faqs = [
     {
-      question: "Hur fungerar rabatter på Lyxdeal?",
-      answer: "På Lyxdeal erbjuder vi exklusiva rabatter på salongtjänster. Du köper en rabattkod som du sedan kan använda direkt hos salongerna. Alla rabatter visas tydligt med både originalpris och rabattpris, så du ser exakt hur mycket du sparar."
+      question: "Vad är Lyxdeal?",
+      answer: "Lyxdeal är en plattform där du kan hitta exklusiva rabattkoder till salongtjänster. Vi samarbetar med kvalitetssäkrade salonger för att erbjuda dig bästa möjliga priser på skönhetsbehandlingar."
     },
     {
-      question: "Hur bokar jag en tid med min rabattkod?",
-      answer: "När du har köpt och säkrat din rabattkod, kontaktar du salongen direkt för att boka din tid. Ha din rabattkod redo när du bokar. Salongens kontaktuppgifter finns alltid på erbjudandet."
+      question: "Hur fungerar Lyxdeal?",
+      answer: "Det är enkelt! Bläddra bland våra erbjudanden, välj det du är intresserad av och säkra din rabattkod. Rabattkoden kan sedan användas direkt på salongen när du bokar din behandling."
+    },
+    {
+      question: "Hur använder jag min rabattkod?",
+      answer: "När du har valt och säkrat en rabattkod får du den direkt. Kontakta sedan salongen direkt för att boka din tid och uppge din rabattkod. Salongens kontaktuppgifter finns alltid på erbjudandet."
     },
     {
       question: "Hur länge är rabattkoderna giltiga?",
@@ -23,7 +27,7 @@ export default function FAQ() {
     },
     {
       question: "Kan jag avboka en bokad tid?",
-      answer: "Ja, du kan avboka din bokade tid enligt salongens egna avbokningsregler. Kontakta salongen direkt för avbokning. Observera att din rabattkod fortfarande är giltig för en ny bokning inom giltighetstiden."
+      answer: "Ja, du kan avboka din bokade tid direkt med salongen enligt deras avbokningsregler. Observera att din rabattkod fortfarande är giltig för en ny bokning inom giltighetstiden."
     },
     {
       question: "Hur vet jag att salongen är kvalitetssäkrad?",
@@ -34,12 +38,8 @@ export default function FAQ() {
       answer: "Vi tar kundnöjdhet på största allvar. Kontakta först salongen direkt för att diskutera din upplevelse. Om du fortfarande är missnöjd, kontakta vår kundtjänst via e-post så hjälper vi dig att lösa situationen."
     },
     {
-      question: "Hur fungerar betalningen på Lyxdeal?",
-      answer: "Vi använder säkra betalningslösningar genom Stripe. Du kan betala med de vanligaste betalkorten och betalningen är alltid krypterad och säker. När du köper en rabattkod får du en bekräftelse via e-post."
-    },
-    {
-      question: "Kan jag köpa flera rabattkoder samtidigt?",
-      answer: "Ja, du kan köpa flera rabattkoder till samma erbjudande, antingen för eget bruk eller som present till vänner och familj. Varje kod har sin egen unika kod och giltighetstid."
+      question: "Kan jag få flera rabattkoder till samma erbjudande?",
+      answer: "Ja, du kan säkra flera rabattkoder till samma erbjudande, antingen för eget bruk eller som present till vänner och familj. Varje kod har sin egen unika kod och giltighetstid."
     }
   ];
 
@@ -49,7 +49,7 @@ export default function FAQ() {
         <div className="max-w-3xl mx-auto space-y-10">
           {/* Header Section */}
           <div className="text-center space-y-5 animate-fade-up">
-            <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
+            <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-none bg-primary/10 mb-4">
               <HelpCircle className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
             </div>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-primary">
@@ -63,15 +63,15 @@ export default function FAQ() {
           {/* FAQ Categories */}
           <div className="hidden md:grid grid-cols-3 gap-4 animate-fade-up [animation-delay:100ms]">
             {[
-              { icon: Tag, title: "Rabatter", description: "Hur rabatter fungerar" },
-              { icon: ShoppingBag, title: "Bokningar", description: "Bokning och avbokning" },
-              { icon: Shield, title: "Trygghet", description: "Säkerhet och kvalitet" }
+              { icon: Tag, title: "Rabattkoder", description: "Så fungerar våra erbjudanden" },
+              { icon: ShoppingBag, title: "Bokningar", description: "Boka hos salongen" },
+              { icon: Shield, title: "Trygghet", description: "Kvalitetssäkrade tjänster" }
             ].map((category, index) => (
               <div 
                 key={index} 
-                className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-accent/10 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
+                className="bg-white/70 backdrop-blur-sm rounded-none p-4 border border-accent/10 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
               >
-                <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-3">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-none bg-primary/10 mb-3">
                   <category.icon className="w-5 h-5 text-primary" />
                 </div>
                 <h3 className="font-semibold text-base mb-1">{category.title}</h3>
@@ -81,7 +81,7 @@ export default function FAQ() {
           </div>
 
           {/* FAQ Accordion */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-md border border-accent/10 animate-fade-up [animation-delay:200ms]">
+          <div className="bg-white/70 backdrop-blur-sm rounded-none p-5 sm:p-6 shadow-md border border-accent/10 animate-fade-up [animation-delay:200ms]">
             <Accordion type="single" collapsible className="w-full">
               {faqs.map((faq, index) => (
                 <AccordionItem 
@@ -108,7 +108,7 @@ export default function FAQ() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 asChild
-                className="gap-2 shadow-sm"
+                className="gap-2 shadow-sm rounded-none"
                 size={isMobile ? "sm" : "default"}
               >
                 <Link to="mailto:support@lyxdeal.se">
@@ -119,7 +119,7 @@ export default function FAQ() {
               <Button 
                 asChild
                 variant="outline" 
-                className="gap-2 shadow-sm border-accent/20 hover:bg-accent/5"
+                className="gap-2 shadow-sm border-accent/20 hover:bg-accent/5 rounded-none"
                 size={isMobile ? "sm" : "default"}
               >
                 <Link to="/partner">
