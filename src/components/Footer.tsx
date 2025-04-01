@@ -4,7 +4,6 @@ import { Separator } from "@/components/ui/separator";
 import { SocialSection } from "@/components/footer/SocialSection";
 import { CustomerServiceSection } from "@/components/footer/CustomerServiceSection";
 import { PartnerSection } from "@/components/footer/PartnerSection";
-import { AboutSection } from "@/components/footer/AboutSection";
 import { CompanyInfoSection } from "@/components/footer/CompanyInfoSection";
 import { CookieSettings } from "@/components/cookie/CookieSettings";
 
@@ -16,8 +15,7 @@ export function Footer() {
   return (
     <footer className="mt-auto bg-gray-50 pt-10 border-t border-gray-200">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
-          <AboutSection onNavigate={handleNavigate} />
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           <CustomerServiceSection onNavigate={handleNavigate} />
           <PartnerSection onNavigate={handleNavigate} />
           <SocialSection />
