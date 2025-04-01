@@ -1,4 +1,3 @@
-
 import { Check } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +35,7 @@ export const PricingCard = ({
   return (
     <div className={`
       p-6 rounded-lg border shadow-md flex flex-col h-full
-      ${isPopular ? 'border-primary-300 bg-primary-50/30 ring-2 ring-primary-300' : 'border-gray-200'}
+      ${isPopular ? 'border-primary-300/30 bg-primary-50/30 ring-2 ring-primary-300/30' : 'border-gray-200/60'}
     `}>
       {isPopular && (
         <div className="mb-4 -mt-2 mx-auto">
@@ -82,7 +81,7 @@ export const PricingCard = ({
         </ul>
       </div>
       
-      <div className="bg-green-50 p-3 rounded-md border border-green-100 mb-6">
+      <div className="bg-green-50 p-3 rounded-md border border-green-100/60 mb-6">
         <p className="text-sm text-green-800 font-medium text-center">
           Använd rabattkoden <span className="font-bold">provmanad</span> för en gratis provmånad!
         </p>
