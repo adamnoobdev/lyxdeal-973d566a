@@ -3,7 +3,7 @@ import { MapPin, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DealsGrid } from "@/components/DealsGrid";
 import { useDeals } from "@/hooks/useDeals";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { CITIES } from "@/constants/app-constants";
 
 interface DealsSectionProps {
@@ -15,6 +15,19 @@ const DealsSectionComponent = ({
   selectedCategory,
   selectedCity
 }: DealsSectionProps) => {
+  // Determine which cities to show and in what order
+  const orderedCities = useMemo(() => {
+    if (selectedCity !== "Alla Städer") {
+      // Put the selected city first, then the rest (excluding "Alla Städer")
+      return [
+        selectedCity,
+        ...CITIES.filter(city => city !== "Alla Städer" && city !== selectedCity)
+      ];
+    }
+    // Default order: all cities except "Alla Städer"
+    return CITIES.filter(city => city !== "Alla Städer");
+  }, [selectedCity]);
+
   return (
     <div className="space-y-8 md:space-y-12">
       <section className="space-y-4 md:space-y-6">
@@ -24,9 +37,14 @@ const DealsSectionComponent = ({
         </div>
         
         <div className="space-y-12">
-          {CITIES.filter(city => city !== "Alla Städer").map(city => (
+          {orderedCities.map(city => (
             <div key={city} className="space-y-4">
-              <h3 className="text-lg md:text-xl font-medium border-b pb-2">{city}</h3>
+              <h3 className="text-lg md:text-xl font-medium border-b pb-2">
+                {city}
+                {city === selectedCity && selectedCity !== "Alla Städer" && (
+                  <span className="ml-2 text-primary font-normal text-sm">(Vald stad)</span>
+                )}
+              </h3>
               
               <CityDeals city={city} selectedCategory={selectedCategory} />
             </div>

@@ -1,12 +1,24 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HeroSection } from "@/components/home/sections/HeroSection";
 import { MainContent } from "@/components/home/index/MainContent";
 import { Helmet } from "react-helmet";
+import { useLocation } from "react-router-dom";
+import { City } from "@/constants/app-constants";
 
 export default function IndexPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Alla Erbjudanden");
   const [selectedCity, setSelectedCity] = useState<string>("Alla Städer");
+  const location = useLocation();
+  
+  // Handle city selection from navigation or direct link
+  useEffect(() => {
+    if (location.state?.selectedCity) {
+      setSelectedCity(location.state.selectedCity as City);
+      // Clear the location state to avoid persisting the selection on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   return (
     <>
