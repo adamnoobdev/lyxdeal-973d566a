@@ -80,8 +80,8 @@ export default function CreateAdmin() {
 
   return (
     <AdminAuthCheck>
-      <div className="container max-w-md py-10">
-        <Card>
+      <div className="container max-w-md py-6 md:py-10">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Skapa ny administratör</CardTitle>
             <CardDescription>
@@ -91,7 +91,7 @@ export default function CreateAdmin() {
           <CardContent>
             {!result ? (
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
                     name="name"
@@ -144,7 +144,7 @@ export default function CreateAdmin() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
                     {isSubmitting ? "Skapar..." : "Skapa administratör"}
                   </Button>
                 </form>
@@ -167,22 +167,24 @@ export default function CreateAdmin() {
                 <p className="text-amber-600 text-sm">
                   OBS! Spara detta lösenord! Det visas bara en gång.
                 </p>
-                <Button 
-                  onClick={() => {
-                    setResult(null);
-                    form.reset();
-                  }}
-                  className="w-full"
-                >
-                  Skapa en till administratör
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => navigate('/admin')}
-                  className="w-full mt-2"
-                >
-                  Återgå till dashboard
-                </Button>
+                <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                  <Button 
+                    onClick={() => {
+                      setResult(null);
+                      form.reset();
+                    }}
+                    className="w-full"
+                  >
+                    Skapa en till administratör
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate('/admin')}
+                    className="w-full"
+                  >
+                    Återgå till dashboard
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
