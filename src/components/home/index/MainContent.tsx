@@ -2,6 +2,7 @@
 import { memo } from "react";
 import { StatsSection } from "../sections/StatsSection";
 import { DealsSection } from "../sections/DealsSection";
+import { PromotionBanner } from "../sections/PromotionBanner";
 
 interface MainContentProps {
   selectedCategory: string;
@@ -18,6 +19,7 @@ const MainContentComponent = ({
 }: MainContentProps) => {
   return (
     <div className="container mx-auto px-4">
+      <PromotionBanner />
       <div className="grid grid-cols-1 gap-6 md:gap-8 max-w-5xl mx-auto">
         <div className="w-full">
           <StatsSection />
