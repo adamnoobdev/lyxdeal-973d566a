@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { X, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import { 
   Dialog,
   DialogContent,
@@ -10,59 +10,36 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-type CookieConsentProps = {
-  onAccept: () => void;
-  onReject: () => void;
-  onPreferences: () => void;
-}
+import { useCookieConsent } from "@/hooks/use-cookie-consent";
 
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+  const { consentStatus, acceptCookies, rejectCookies } = useCookieConsent();
   
   useEffect(() => {
-    // Check if user has already made a choice
-    const cookieConsent = localStorage.getItem('cookie-consent');
-    if (!cookieConsent) {
-      // If no choice has been made, show the banner
+    // Visa banner endast om status är "pending"
+    if (consentStatus === 'pending') {
       setShowBanner(true);
     } else {
-      // If consent was given, initialize GTM
-      if (cookieConsent === 'accepted') {
-        initializeGTM();
-      }
+      setShowBanner(false);
     }
-  }, []);
-
-  const initializeGTM = () => {
-    // Initialize Google Tag Manager
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      'gtm.start': new Date().getTime(),
-      event: 'gtm.js',
-    });
-  };
+  }, [consentStatus]);
 
   const handleAccept = () => {
-    localStorage.setItem('cookie-consent', 'accepted');
-    initializeGTM();
+    acceptCookies();
     setShowBanner(false);
     setShowDialog(false);
   };
 
   const handleReject = () => {
-    localStorage.setItem('cookie-consent', 'rejected');
+    rejectCookies();
     setShowBanner(false);
     setShowDialog(false);
   };
 
   const handlePreferences = () => {
     setShowDialog(true);
-  };
-
-  const handleClose = () => {
-    setShowDialog(false);
   };
 
   if (!showBanner && !showDialog) {

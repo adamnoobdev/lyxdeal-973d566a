@@ -17,15 +17,28 @@
     
     <!-- Google Tag Manager - Will be initialized via cookie consent -->
     <script>
-      // GTM will be initialized through cookie consent
+      // Konfigurera dataLayer för GTM innan GTM-scriptet laddas
       window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
     </script>
+    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-KT69WMZF');</script>
     <!-- End Google Tag Manager -->
     
     <title>Lyxdeal</title>
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) - Will only be used when consent is given -->
+    <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KT69WMZF"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->

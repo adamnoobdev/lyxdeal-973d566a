@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import { SocialSection } from "@/components/footer/SocialSection";
@@ -8,13 +9,17 @@ import { CompanyInfoSection } from "@/components/footer/CompanyInfoSection";
 import { CookieSettings } from "@/components/cookie/CookieSettings";
 
 export function Footer() {
+  const handleNavigate = () => {
+    window.scrollTo(0, 0);
+  };
+
   return (
     <footer className="mt-auto bg-gray-50 pt-10 border-t border-gray-200">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
-          <AboutSection />
-          <CustomerServiceSection />
-          <PartnerSection />
+          <AboutSection onNavigate={handleNavigate} />
+          <CustomerServiceSection onNavigate={handleNavigate} />
+          <PartnerSection onNavigate={handleNavigate} />
           <SocialSection />
           <CompanyInfoSection />
         </div>
