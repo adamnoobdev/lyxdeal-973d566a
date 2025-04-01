@@ -24,7 +24,7 @@ const Logo: React.FC = () => {
   return (
     <Link to="/" className="flex items-center">
       {logoUrl ? (
-        <img src={logoUrl} alt="LyxDeal Logo" className="h-8 w-auto" />
+        <img src={logoUrl} alt="LyxDeal Logo" className="w-full h-auto" />
       ) : (
         <span className="font-bold text-2xl">LyxDeal</span>
       )}
