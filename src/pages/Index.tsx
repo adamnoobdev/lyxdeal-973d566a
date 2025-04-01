@@ -1,74 +1,39 @@
 
-import { useState, useEffect } from "react";
-import { HeroSection } from "@/components/home/sections/HeroSection";
-import { MainContent } from "@/components/home/index/MainContent";
-import { Helmet } from "react-helmet";
-import { useLocation } from "react-router-dom";
-import { City } from "@/constants/app-constants";
+import { useEffect, useState } from 'react';
+import { Layout } from '@/components/layout/Layout';
+import { HeroSection } from '@/components/home/sections/HeroSection';
+import { DealsSection } from '@/components/home/sections/DealsSection';
+import { PromotionBanner } from '@/components/home/sections/PromotionBanner';
+import { StatsSection } from '@/components/home/sections/StatsSection';
+import { CategorySection } from '@/components/home/index/CategorySection';
+import { CreateAdminAccountForm } from '@/components/admin/CreateAdminAccountForm';
 
-export default function IndexPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("Alla Erbjudanden");
-  const [selectedCity, setSelectedCity] = useState<string>("Alla Städer");
-  const location = useLocation();
+const Index = () => {
+  const [showAdminCreator, setShowAdminCreator] = useState(false);
   
-  // Handle city selection from navigation or direct link
   useEffect(() => {
-    if (location.state?.selectedCity) {
-      setSelectedCity(location.state.selectedCity as City);
-      // Clear the location state to avoid persisting the selection on refresh
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state]);
-
+    // Check if URL has ?createAdmin=true
+    const params = new URLSearchParams(window.location.search);
+    setShowAdminCreator(params.get('createAdmin') === 'true');
+  }, []);
+  
   return (
-    <>
-      <Helmet>
-        <title>Lyxdeal - Upptäck Sveriges Bästa Skönhetserbjudanden</title>
-        <meta name="description" content="Hitta och boka de bästa skönhetserbjudandena från Sveriges främsta salonger. Spara pengar på behandlingar och upptäck nya favoritsalonger." />
-        <meta name="keywords" content="skönhetserbjudanden, rabatt på skönhetsvård, skönhetsbehandlingar, hårvård, hudvård, nagelvård, spa, massage, Stockholm, Göteborg, Malmö" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-        <link rel="canonical" href="https://lyxdeal.se" />
-        <meta property="og:title" content="Lyxdeal - Upptäck Sveriges Bästa Skönhetserbjudanden" />
-        <meta property="og:description" content="Hitta och boka de bästa skönhetserbjudandena från Sveriges främsta salonger. Spara pengar på behandlingar och upptäck nya favoritsalonger." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://lyxdeal.se" />
-        <meta property="og:image" content="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Lyxdeal - Upptäck Sveriges Bästa Skönhetserbjudanden" />
-        <meta name="twitter:description" content="Hitta och boka de bästa skönhetserbjudandena från Sveriges främsta salonger." />
-        <meta name="twitter:image" content="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" />
-        
-        {/* Schema.org strukturerad data för Organisation och lokalt företag */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "Lyxdeal",
-            "description": "Platform för skönhetserbjudanden och behandlingar i Sverige",
-            "url": "https://lyxdeal.se",
-            "logo": "https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png",
-            "sameAs": [
-              "https://facebook.com/lyxdeal",
-              "https://instagram.com/lyxdeal_sverige"
-            ],
-            "contactPoint": {
-              "@type": "ContactPoint",
-              "contactType": "customer service",
-              "email": "kontakt@lyxdeal.se"
-            }
-          })}
-        </script>
-      </Helmet>
-      
-      <main className="flex flex-col min-h-screen bg-background pb-12">
-        <HeroSection />
-        <MainContent 
-          selectedCategory={selectedCategory}
-          selectedCity={selectedCity}
-          onSelectCategory={setSelectedCategory}
-          onSelectCity={setSelectedCity}
-        />
-      </main>
-    </>
+    <Layout>
+      {showAdminCreator ? (
+        <div className="container py-12">
+          <CreateAdminAccountForm />
+        </div>
+      ) : (
+        <>
+          <HeroSection />
+          <CategorySection />
+          <DealsSection />
+          <PromotionBanner />
+          <StatsSection />
+        </>
+      )}
+    </Layout>
   );
-}
+};
+
+export default Index;
