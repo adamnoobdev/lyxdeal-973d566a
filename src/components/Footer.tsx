@@ -15,26 +15,26 @@ export function Footer() {
 
   return (
     <footer className="mt-auto bg-gray-50 pt-10 border-t border-gray-200">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 flex flex-col items-center">
         <div className="mb-10 flex justify-center">
           <div className="w-40">
             <Logo className="w-full h-auto" />
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+        <div className="flex flex-col items-center gap-8 max-w-md mx-auto text-center">
           <CustomerServiceSection onNavigate={handleNavigate} />
           <PartnerSection onNavigate={handleNavigate} />
           <SocialSection />
           <CompanyInfoSection />
         </div>
-        <Separator className="my-6" />
-        <div className="flex flex-col sm:flex-row items-center justify-between py-4">
-          <div className="text-center sm:text-left">
+        <Separator className="my-6 max-w-md w-full" />
+        <div className="flex flex-col items-center justify-center py-4">
+          <div className="text-center mb-4">
             <p className="text-sm text-gray-500">
               © {new Date().getFullYear()} Lyxdeal. Alla rättigheter förbehållna.
             </p>
           </div>
-          <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
             <Link to="/terms" className="text-xs text-gray-500 hover:text-gray-700">
               Villkor
             </Link>
