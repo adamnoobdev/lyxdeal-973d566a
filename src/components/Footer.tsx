@@ -16,10 +16,8 @@ export function Footer() {
   return (
     <footer className="mt-auto bg-gray-50 pt-10 border-t border-gray-200">
       <div className="container mx-auto px-4">
-        <div className="mb-10 flex justify-center">
-          <div className="w-40 md:w-48">
-            <Logo />
-          </div>
+        <div className="mb-8 flex justify-center">
+          <Logo />
         </div>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           <CustomerServiceSection onNavigate={handleNavigate} />
