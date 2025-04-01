@@ -3,7 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
-const Logo: React.FC = () => {
+interface LogoProps {
+  className?: string;
+}
+
+const Logo: React.FC<LogoProps> = ({ className = '' }) => {
   const [logoUrl, setLogoUrl] = useState('');
 
   useEffect(() => {
@@ -24,7 +28,7 @@ const Logo: React.FC = () => {
   return (
     <Link to="/" className="flex items-center">
       {logoUrl ? (
-        <img src={logoUrl} alt="LyxDeal Logo" className="h-8 w-auto" />
+        <img src={logoUrl} alt="LyxDeal Logo" className={`h-8 w-auto ${className}`} />
       ) : (
         <span className="font-bold text-2xl">LyxDeal</span>
       )}
