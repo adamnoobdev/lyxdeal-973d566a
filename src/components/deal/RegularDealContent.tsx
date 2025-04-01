@@ -106,4 +106,4 @@ export const RegularDealContent = ({
       </div>
     </div>
   );
-};
+}

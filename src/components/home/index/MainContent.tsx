@@ -18,7 +18,7 @@ const MainContentComponent = ({
   onSelectCity
 }: MainContentProps) => {
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 sm:px-6">
       <div className="grid grid-cols-1 gap-6 md:gap-8 max-w-5xl mx-auto">
         <PromotionBanner />
         <div className="w-full">
