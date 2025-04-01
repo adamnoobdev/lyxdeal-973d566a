@@ -4,9 +4,9 @@ import { Facebook, Instagram, Linkedin } from "lucide-react";
 
 export const SocialSection: FC = () => {
   return (
-    <div className="text-center sm:text-left">
+    <div className="flex flex-col items-center">
       <h3 className="font-semibold text-lg mb-4">Följ oss</h3>
-      <div className="flex flex-row justify-center sm:justify-start space-x-4 mt-2">
+      <div className="flex flex-row space-x-4 mt-2">
         <a 
           href="https://facebook.com" 
           className="text-gray-600 hover:text-primary transition-colors" 

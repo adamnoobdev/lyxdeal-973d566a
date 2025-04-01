@@ -8,7 +8,7 @@ interface CustomerServiceSectionProps {
 
 export const CustomerServiceSection: FC<CustomerServiceSectionProps> = ({ onNavigate }) => {
   return (
-    <div className="text-center sm:text-left">
+    <div className="flex flex-col items-center">
       <h3 className="font-semibold text-lg mb-4">Kundservice</h3>
       <ul className="space-y-2">
         <li>
