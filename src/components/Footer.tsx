@@ -1,36 +1,41 @@
+import { Link } from "react-router-dom";
+import { Separator } from "@/components/ui/separator";
+import { SocialSection } from "@/components/footer/SocialSection";
+import { CustomerServiceSection } from "@/components/footer/CustomerServiceSection";
+import { PartnerSection } from "@/components/footer/PartnerSection";
+import { AboutSection } from "@/components/footer/AboutSection";
+import { CompanyInfoSection } from "@/components/footer/CompanyInfoSection";
+import { CookieSettings } from "@/components/cookie/CookieSettings";
 
-import { useNavigate } from "react-router-dom";
-import { Separator } from "./ui/separator";
-import { CustomerServiceSection } from "./footer/CustomerServiceSection";
-import { SocialSection } from "./footer/SocialSection";
-import { CompanyInfoSection } from "./footer/CompanyInfoSection";
-import { PartnerSection } from "./footer/PartnerSection";
-
-export const Footer = () => {
-  const navigate = useNavigate();
-
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
+export function Footer() {
   return (
-    <footer className="mt-16 bg-secondary-50 py-8">
-      <div className="container px-4 md:px-8">
-        <Separator className="mb-8" />
-        <div className="grid grid-cols-1 gap-y-8 gap-x-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          <CustomerServiceSection onNavigate={handleNavigation} />
-          <PartnerSection onNavigate={handleNavigation} />
+    <footer className="mt-auto bg-gray-50 pt-10 border-t border-gray-200">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+          <AboutSection />
+          <CustomerServiceSection />
+          <PartnerSection />
           <SocialSection />
           <CompanyInfoSection />
         </div>
-        
-        <Separator className="my-8" />
-        
-        <div className="text-center text-gray-600">
-          <p>&copy; {new Date().getFullYear()} Lyxdeal. Alla rättigheter förbehållna.</p>
+        <Separator className="my-6" />
+        <div className="flex flex-col sm:flex-row items-center justify-between py-4">
+          <div className="text-center sm:text-left">
+            <p className="text-sm text-gray-500">
+              © {new Date().getFullYear()} Lyxdeal. Alla rättigheter förbehållna.
+            </p>
+          </div>
+          <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+            <Link to="/terms" className="text-xs text-gray-500 hover:text-gray-700">
+              Villkor
+            </Link>
+            <Link to="/privacy" className="text-xs text-gray-500 hover:text-gray-700">
+              Integritetspolicy
+            </Link>
+            <CookieSettings />
+          </div>
         </div>
       </div>
     </footer>
   );
-};
+}
