@@ -46,7 +46,7 @@ export const RegularDealContent = ({
         <CategoryBadge category={category} className="text-[10px]" />
         <div className="flex items-center text-xs text-muted-foreground bg-gray-100/70 px-1.5 py-0.5 rounded-full">
           <Calendar className="h-3 w-3 mr-0.5" />
-          {daysRemaining}
+          {daysRemaining}d
         </div>
       </div>
 
