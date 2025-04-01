@@ -1,5 +1,6 @@
 
 import { Helmet } from "react-helmet";
+import { Building2, Mail, MapPin, Phone } from "lucide-react";
 
 const Terms = () => {
   return (
@@ -96,14 +97,39 @@ const Terms = () => {
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">6. Kontaktinformation</h2>
-          <p>
-            Larlid & Co AB<br />
-            Org.nr: 5593608051<br />
-            Västra Granittrappan 10<br />
-            131 57 Nacka<br />
-            E-post: info@larlid.com<br />
-            Telefon: 010-177 44 00
-          </p>
+          <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+            <div className="flex flex-col items-center">
+              <h3 className="font-semibold text-lg mb-4">Företagsinformation</h3>
+              <ul className="space-y-4 text-sm text-gray-600">
+                <li className="flex flex-col items-center gap-2">
+                  <Building2 className="h-5 w-5 text-primary shrink-0" />
+                  <div className="flex flex-col items-center">
+                    <p className="font-medium">Larlid & Co AB</p>
+                    <p className="text-gray-500">Org.nr: 559360-8051</p>
+                  </div>
+                </li>
+                <li className="flex flex-col items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary shrink-0" />
+                  <div className="flex flex-col items-center">
+                    <p>Västra Granittrappan 10</p>
+                    <p>131 57 Nacka</p>
+                  </div>
+                </li>
+                <li className="flex flex-col items-center gap-2">
+                  <Mail className="h-5 w-5 text-primary shrink-0" />
+                  <a href="mailto:info@larlid.com" className="hover:text-primary transition-colors">
+                    info@larlid.com
+                  </a>
+                </li>
+                <li className="flex flex-col items-center gap-2">
+                  <Phone className="h-5 w-5 text-primary shrink-0" />
+                  <a href="tel:+46101774400" className="hover:text-primary transition-colors">
+                    010-177 44 00
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </section>
       </div>
     </div>

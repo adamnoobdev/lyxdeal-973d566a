@@ -4,7 +4,6 @@ import { Separator } from "@/components/ui/separator";
 import { SocialSection } from "@/components/footer/SocialSection";
 import { CustomerServiceSection } from "@/components/footer/CustomerServiceSection";
 import { PartnerSection } from "@/components/footer/PartnerSection";
-import { CompanyInfoSection } from "@/components/footer/CompanyInfoSection";
 import { CookieSettings } from "@/components/cookie/CookieSettings";
 import Logo from "@/components/navigation/Logo";
 
@@ -25,7 +24,6 @@ export function Footer() {
           <CustomerServiceSection onNavigate={handleNavigate} />
           <PartnerSection onNavigate={handleNavigate} />
           <SocialSection />
-          <CompanyInfoSection />
         </div>
         <Separator className="my-6 max-w-md w-full" />
         <div className="flex flex-col items-center justify-center py-4">
