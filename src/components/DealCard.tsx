@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { DealImage } from "./deal/DealImage";
 import { RegularDealContent } from "./deal/RegularDealContent";
+import { calculateDaysRemaining } from "@/utils/deal/dealTimeUtils";
 
 interface DealCardProps {
   id: number;
@@ -18,6 +19,7 @@ interface DealCardProps {
   created_at: string;
   quantity_left: number;
   is_free?: boolean;
+  time_remaining?: string;
 }
 
 const DealCardComponent = ({
@@ -33,6 +35,7 @@ const DealCardComponent = ({
   created_at,
   quantity_left,
   is_free = false,
+  time_remaining,
 }: DealCardProps) => {
   const isNew = useCallback(() => {
     const createdDate = new Date(created_at);
@@ -42,24 +45,8 @@ const DealCardComponent = ({
     return diffDays <= 3;
   }, [created_at]);
 
-  // Calculate days remaining
-  const calculateDaysRemaining = () => {
-    if (!expiration_date) return 30; // Default to 30 days if no date provided
-    
-    const expirationDate = new Date(expiration_date);
-    const now = new Date();
-    
-    // Set both dates to midnight to avoid time differences
-    expirationDate.setHours(0, 0, 0, 0);
-    now.setHours(0, 0, 0, 0);
-    
-    const diffTime = expirationDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    return diffDays > 0 ? diffDays : 0;
-  };
-
-  const daysRemaining = calculateDaysRemaining();
+  // Calculate days remaining using the utility function
+  const daysRemaining = calculateDaysRemaining(expiration_date, time_remaining);
 
   return (
     <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-98 bg-white/95 border-muted-200 hover:border-primary/20">

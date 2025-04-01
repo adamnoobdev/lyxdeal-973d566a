@@ -3,6 +3,7 @@ import { CategoryBadge } from "../CategoryBadge";
 import { Clock, Tag, MapPin } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
+import { Badge } from "../ui/badge";
 
 interface RegularDealContentProps {
   title: string;
@@ -45,13 +46,18 @@ export const RegularDealContent = ({
   const savedAmount = originalPrice - discountedPrice;
 
   return (
-    <div className="p-3 flex flex-col h-full justify-between">
+    <div className="p-3 flex flex-col h-full justify-between relative">
       <div className="flex items-start justify-between gap-1 mb-1.5">
         <CategoryBadge category={category} className="text-[10px]" />
-        <div className="flex items-center text-xs text-muted-foreground">
-          <Clock className="h-3 w-3 mr-0.5" />
+        
+        {/* Moved time remaining to a badge at top right */}
+        <Badge 
+          variant="outline" 
+          className="flex items-center gap-0.5 text-[10px] py-0.5 px-1.5 font-normal text-muted-foreground bg-[#F1F0FB]/50 border-[#F1F0FB] hover:bg-[#F1F0FB]"
+        >
+          <Clock className="h-2.5 w-2.5" />
           {timeRemainingText}
-        </div>
+        </Badge>
       </div>
 
       <div className="mb-2">
