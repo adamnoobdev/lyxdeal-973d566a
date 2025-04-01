@@ -9,7 +9,7 @@ export function PromotionBanner() {
     <div className="w-full mb-8 max-w-5xl mx-auto">
       <Link to="/partner" className="block w-full">
         <div className="relative w-full overflow-hidden rounded-md shadow-md" style={{ 
-          paddingTop: isMobile ? '40%' : '30%',
+          paddingTop: isMobile ? '25%' : '20%',
         }}>
           <img 
             src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets//Promotion%20bild.jpg"
