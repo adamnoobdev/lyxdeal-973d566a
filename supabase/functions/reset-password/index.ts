@@ -48,6 +48,7 @@ serve(async (req) => {
     }
 
     console.log(`Skickar lösenordsåterställning till: ${data.email}`);
+    console.log(`Återställnings-URL: ${data.resetUrl}`);
 
     // Skapa HTML för e-postinnehåll
     const htmlContent = `
@@ -71,7 +72,7 @@ serve(async (req) => {
           margin: 0 auto;
           padding: 20px;
           background-color: #ffffff;
-          border-radius: 8px;
+          border-radius: 0;
           box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         .header {
@@ -96,7 +97,7 @@ serve(async (req) => {
           padding: 20px;
           border-top: 1px solid #eee;
           background-color: #f9f0fc;
-          border-radius: 0 0 8px 8px;
+          border-radius: 0;
         }
         .button {
           display: inline-block;
@@ -104,7 +105,7 @@ serve(async (req) => {
           color: white !important;
           text-decoration: none;
           padding: 12px 25px;
-          border-radius: 50px;
+          border-radius: 0;
           margin: 25px 0;
           font-weight: bold;
           text-align: center;
@@ -149,7 +150,7 @@ serve(async (req) => {
     // Skicka e-post med Resend
     try {
       const emailResponse = await resend.emails.send({
-        from: "Lyxdeal <no-reply@lyxdeal.se>",
+        from: "Lyxdeal <info@lyxdeal.se>",
         to: [data.email],
         subject: "Återställ ditt lösenord på Lyxdeal",
         html: htmlContent,

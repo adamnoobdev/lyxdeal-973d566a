@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.stripe-subscription-webhook]
 verify_jwt = false
+
+[functions.reset-password]
+verify_jwt = false

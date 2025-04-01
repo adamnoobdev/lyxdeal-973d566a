@@ -35,19 +35,23 @@ export const usePasswordReset = () => {
       // Skicka också ett anpassat e-postmeddelande via vår edge function
       const resetUrl = `${window.location.origin}/salon/update-password`;
       
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reset-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          resetUrl
-        }),
-      });
+      try {
+        const response = await supabase.functions.invoke("reset-password", {
+          body: {
+            email,
+            resetUrl
+          }
+        });
 
-      if (!response.ok) {
-        console.warn("Kunde inte skicka anpassat återställningsmail, men standardåterställning skickades ändå.");
+        if (!response.error) {
+          console.log("Anpassat återställningsmail skickat", response.data);
+        } else {
+          console.warn("Varning: Kunde inte skicka anpassat återställningsmail:", response.error);
+          console.warn("Standardåterställning från Supabase skickades ändå.");
+        }
+      } catch (customEmailError) {
+        console.warn("Varning: Kunde inte skicka anpassat återställningsmail:", customEmailError);
+        console.warn("Standardåterställning från Supabase skickades ändå.");
       }
 
       setSuccess(true);
