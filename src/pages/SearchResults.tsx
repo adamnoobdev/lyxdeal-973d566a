@@ -174,10 +174,10 @@ export default function SearchResults() {
                 "@type": "Product",
                 "name": deal.title,
                 "description": deal.description.substring(0, 200),
-                "image": deal.imageUrl,
+                "image": deal.image_url,
                 "offers": {
                   "@type": "Offer",
-                  "price": deal.discountedPrice,
+                  "price": deal.discounted_price,
                   "priceCurrency": "SEK",
                   "availability": "https://schema.org/InStock",
                   "url": `https://lyxdeal.se/deal/${deal.id}`
