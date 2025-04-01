@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { Layout } from '@/components/layout/Layout';
+import Layout from '@/components/layout/Layout';
 import { HeroSection } from '@/components/home/sections/HeroSection';
 import { DealsSection } from '@/components/home/sections/DealsSection';
 import { PromotionBanner } from '@/components/home/sections/PromotionBanner';
@@ -10,6 +10,8 @@ import { CreateAdminAccountForm } from '@/components/admin/CreateAdminAccountFor
 
 const Index = () => {
   const [showAdminCreator, setShowAdminCreator] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("Alla Kategorier");
+  const [selectedCity, setSelectedCity] = useState("Alla Städer");
   
   useEffect(() => {
     // Check if URL has ?createAdmin=true
@@ -26,8 +28,22 @@ const Index = () => {
       ) : (
         <>
           <HeroSection />
-          <CategorySection />
-          <DealsSection />
+          <div className="container py-8 md:py-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-1">
+              <CategorySection 
+                selectedCategory={selectedCategory}
+                selectedCity={selectedCity}
+                onSelectCategory={setSelectedCategory}
+                onSelectCity={setSelectedCity}
+              />
+            </div>
+            <div className="md:col-span-3">
+              <DealsSection 
+                selectedCategory={selectedCategory}
+                selectedCity={selectedCity}
+              />
+            </div>
+          </div>
           <PromotionBanner />
           <StatsSection />
         </>
