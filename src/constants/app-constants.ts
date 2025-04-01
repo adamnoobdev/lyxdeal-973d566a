@@ -6,6 +6,13 @@ export const CITIES = [
   "Malmö",
   "Uppsala",
   "Linköping",
+  "Västerås",
+  "Örebro",
+  "Helsingborg",
+  "Norrköping",
+  "Jönköping",
+  "Umeå",
+  "Lund",
 ] as const;
 
 export const CATEGORIES = [

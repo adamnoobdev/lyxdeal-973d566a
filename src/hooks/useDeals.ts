@@ -35,7 +35,7 @@ export const useDeals = (category?: string, city?: string) => {
           throw error;
         }
 
-        console.log(`Hämtade ${data.length} aktiva erbjudanden`);
+        console.log(`Hämtade ${data.length} aktiva erbjudanden för ${city || 'alla städer'} och ${category || 'alla kategorier'}`);
         return data as Deal[];
       } catch (error) {
         console.error("Unexpected error in useDeals:", error);
