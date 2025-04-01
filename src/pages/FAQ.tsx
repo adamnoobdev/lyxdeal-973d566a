@@ -52,7 +52,7 @@ export default function FAQ() {
             <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
               <HelpCircle className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-primary">
               Vanliga frågor
             </h1>
             <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
@@ -67,7 +67,10 @@ export default function FAQ() {
               { icon: ShoppingBag, title: "Bokningar", description: "Bokning och avbokning" },
               { icon: Shield, title: "Trygghet", description: "Säkerhet och kvalitet" }
             ].map((category, index) => (
-              <div key={index} className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-accent/10 flex flex-col items-center text-center hover:shadow-md transition-all duration-300">
+              <div 
+                key={index} 
+                className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-accent/10 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
+              >
                 <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-3">
                   <category.icon className="w-5 h-5 text-primary" />
                 </div>
@@ -78,7 +81,7 @@ export default function FAQ() {
           </div>
 
           {/* FAQ Accordion */}
-          <div className="bg-white/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-lg border border-accent/10 animate-fade-up [animation-delay:200ms]">
+          <div className="bg-white/70 backdrop-blur-sm rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-md border border-accent/10 animate-fade-up [animation-delay:200ms]">
             <Accordion type="single" collapsible className="w-full">
               {faqs.map((faq, index) => (
                 <AccordionItem 
@@ -105,7 +108,7 @@ export default function FAQ() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 asChild
-                className="gap-2"
+                className="gap-2 shadow-sm"
                 size={isMobile ? "sm" : "default"}
               >
                 <Link to="mailto:support@lyxdeal.se">
@@ -116,7 +119,7 @@ export default function FAQ() {
               <Button 
                 asChild
                 variant="outline" 
-                className="gap-2"
+                className="gap-2 shadow-sm border-accent/20 hover:bg-accent/5"
                 size={isMobile ? "sm" : "default"}
               >
                 <Link to="/partner">
