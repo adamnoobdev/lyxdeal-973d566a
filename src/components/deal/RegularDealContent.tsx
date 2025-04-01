@@ -1,6 +1,6 @@
 
 import { CategoryBadge } from "../CategoryBadge";
-import { Clock, Tag, MapPin } from "lucide-react";
+import { Calendar, Tag, MapPin } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 
@@ -34,10 +34,6 @@ export const RegularDealContent = ({
     ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) 
     : 0;
 
-  // Format days remaining text
-  const daysText = daysRemaining === 1 ? "dag" : "dagar";
-  const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
-
   // Check if it's free (either explicitly set or price is 0)
   const isFreeDeal = isFree || discountedPrice === 0;
 
@@ -48,9 +44,9 @@ export const RegularDealContent = ({
     <div className="p-3 flex flex-col h-full justify-between">
       <div className="flex items-start justify-between gap-1 mb-1.5">
         <CategoryBadge category={category} className="text-[10px]" />
-        <div className="flex items-center text-xs text-muted-foreground">
-          <Clock className="h-3 w-3 mr-0.5" />
-          {timeRemainingText}
+        <div className="flex items-center text-xs text-muted-foreground bg-gray-100/70 px-1.5 py-0.5 rounded-full">
+          <Calendar className="h-3 w-3 mr-0.5" />
+          {daysRemaining}
         </div>
       </div>
 
