@@ -17,6 +17,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import SecureDeal from './pages/SecureDeal';
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
+import CreateAdmin from './pages/CreateAdmin';
 import { SalonDeals } from './components/salon/SalonDeals';
 import { supabase } from '@/integrations/supabase/client';
 import { CookieConsent } from './components/cookie/CookieConsent';
@@ -74,6 +75,7 @@ function App() {
             <Route path="/subscription-success" element={<SubscriptionSuccess />} />
             
             <Route path="/admin/*" element={<Admin />} />
+            <Route path="/create-admin" element={<CreateAdmin />} />
             
             <Route path="/salon/login" element={<SalonLogin />} />
             <Route path="/salon/update-password" element={<UpdatePassword />} />

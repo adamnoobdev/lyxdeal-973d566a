@@ -1,6 +1,6 @@
 
 import { useLocation } from "react-router-dom";
-import { LayoutDashboard, Tag, Store } from "lucide-react";
+import { LayoutDashboard, Tag, Store, UserPlus } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
 import { SidebarLink } from "./SidebarLink";
 
@@ -22,6 +22,12 @@ const adminLinks = [
     icon: Store,
     label: "Salonger",
     description: "Hantera salonger",
+  },
+  {
+    href: "/create-admin",
+    icon: UserPlus,
+    label: "Skapa Admin",
+    description: "Lägg till administratörer",
   },
 ] as const;
 
