@@ -49,6 +49,16 @@ serve(async (req) => {
 
     console.log(`Skickar lösenordsåterställning till: ${data.email}`);
     console.log(`Återställnings-URL: ${data.resetUrl}`);
+    
+    // Kontrollera att resetUrl är korrekt formaterad
+    const resetUrlObj = new URL(data.resetUrl);
+    if (!resetUrlObj.pathname.includes("/salon/update-password")) {
+      console.warn("Ogiltig återställnings-URL format, korrigerar:", data.resetUrl);
+      // Säkerställ att URL:en har rätt format
+      const baseUrl = resetUrlObj.origin;
+      data.resetUrl = `${baseUrl}/salon/update-password`;
+      console.log("Korrigerad återställnings-URL:", data.resetUrl);
+    }
 
     // Skapa HTML för e-postinnehåll
     const htmlContent = `

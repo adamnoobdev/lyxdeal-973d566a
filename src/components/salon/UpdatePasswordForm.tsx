@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -14,14 +14,25 @@ export const UpdatePasswordForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Kontrollera om användaren kommit via en återställningslänk
     const checkRecoveryToken = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session || !data.session.user) {
-        setError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
+      try {
+        const { data } = await supabase.auth.getSession();
+        console.log("Session check på update-password sidan:", data.session ? "Har session" : "Ingen session");
+        
+        if (!data.session || !data.session.user) {
+          setError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
+          return;
+        }
+        
+        setIsAuthenticated(true);
+      } catch (err) {
+        console.error("Fel vid sessionskontroll:", err);
+        setError("Ett fel uppstod vid verifiering av din session.");
       }
     };
 
@@ -51,6 +62,7 @@ export const UpdatePasswordForm: React.FC = () => {
 
       if (updateError) {
         setError(updateError.message);
+        console.error("Fel vid lösenordsuppdatering:", updateError);
         return;
       }
 
@@ -68,6 +80,29 @@ export const UpdatePasswordForm: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (!isAuthenticated && error) {
+    return (
+      <div className="space-y-6 py-4">
+        <div className="text-center space-y-4">
+          <AlertTriangle className="mx-auto h-12 w-12 text-amber-500" />
+          <h3 className="text-xl font-medium">Ogiltig eller utgången länk</h3>
+          <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
+            {error}
+          </div>
+          <p className="text-muted-foreground">
+            Vänligen begär en ny återställningslänk från inloggningssidan.
+          </p>
+        </div>
+        <Button 
+          onClick={() => navigate("/salon/login")} 
+          className="w-full"
+        >
+          Gå till inloggning
+        </Button>
+      </div>
+    );
+  }
 
   if (success) {
     return (
@@ -136,7 +171,7 @@ export const UpdatePasswordForm: React.FC = () => {
         <Button
           type="submit"
           className="w-full mt-4"
-          disabled={loading}
+          disabled={loading || !isAuthenticated}
         >
           {loading ? (
             <>
