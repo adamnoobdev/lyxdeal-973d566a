@@ -6,6 +6,7 @@ import { CustomerServiceSection } from "@/components/footer/CustomerServiceSecti
 import { PartnerSection } from "@/components/footer/PartnerSection";
 import { CompanyInfoSection } from "@/components/footer/CompanyInfoSection";
 import { CookieSettings } from "@/components/cookie/CookieSettings";
+import Logo from "@/components/navigation/Logo";
 
 export function Footer() {
   const handleNavigate = () => {
@@ -15,6 +16,9 @@ export function Footer() {
   return (
     <footer className="mt-auto bg-gray-50 pt-10 border-t border-gray-200">
       <div className="container mx-auto px-4">
+        <div className="mb-8 flex justify-center">
+          <Logo />
+        </div>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           <CustomerServiceSection onNavigate={handleNavigate} />
           <PartnerSection onNavigate={handleNavigate} />
