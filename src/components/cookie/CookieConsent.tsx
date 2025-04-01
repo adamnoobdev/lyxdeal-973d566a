@@ -20,7 +20,11 @@ export function CookieConsent() {
   useEffect(() => {
     // Visa banner endast om status är "pending"
     if (consentStatus === 'pending') {
-      setShowBanner(true);
+      // Liten fördröjning för att säkerställa att komponenten har monterats korrekt
+      const timer = setTimeout(() => {
+        setShowBanner(true);
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
       setShowBanner(false);
     }

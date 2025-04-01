@@ -19,6 +19,7 @@ import SecureDeal from './pages/SecureDeal';
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import { SalonDeals } from './components/salon/SalonDeals';
 import { supabase } from '@/integrations/supabase/client';
+import { CookieConsent } from './components/cookie/CookieConsent';
 
 function App() {
   // Logga auth-status när appen laddas, men försök inte automatiskt logga in
@@ -53,36 +54,39 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Index />} />
-          <Route path="auth" element={<Navigate to="/salon/login" replace />} />
-          <Route path="search" element={<SearchResults />} />
-          <Route path="deals/:id" element={<ProductDetails />} />
-          <Route path="deal/:id" element={<ProductDetails />} />
-          <Route path="secure-deal/:id" element={<SecureDeal />} />
-          <Route path="faq" element={<FAQ />} />
-          <Route path="terms" element={<Terms />} />
-          <Route path="privacy" element={<Privacy />} />
-          <Route path="partner" element={<PartnerPage />} />
-          <Route path="partner/signup" element={<PartnerSignup />} />
-          <Route path="bli-partner" element={<PartnerPage />} />
-          <Route path="salons/:id" element={<SalonDetails />} />
-          <Route path="/subscription-success" element={<SubscriptionSuccess />} />
-          
-          <Route path="/admin/*" element={<Admin />} />
-          
-          <Route path="/salon/login" element={<SalonLogin />} />
-          <Route path="/salon/update-password" element={<UpdatePassword />} />
-          <Route path="/salon/dashboard" element={<SalonDashboard />} />
-          <Route path="/salon/deal" element={<SalonDeals />} />
-          <Route path="/salon/deals" element={<SalonDeals />} />
-          <Route path="/salon/customers" element={<SalonDashboard />} />
-          <Route path="/salon/settings" element={<SalonDashboard />} />
-        </Route>
-      </Routes>
-    </Router>
+    <>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Index />} />
+            <Route path="auth" element={<Navigate to="/salon/login" replace />} />
+            <Route path="search" element={<SearchResults />} />
+            <Route path="deals/:id" element={<ProductDetails />} />
+            <Route path="deal/:id" element={<ProductDetails />} />
+            <Route path="secure-deal/:id" element={<SecureDeal />} />
+            <Route path="faq" element={<FAQ />} />
+            <Route path="terms" element={<Terms />} />
+            <Route path="privacy" element={<Privacy />} />
+            <Route path="partner" element={<PartnerPage />} />
+            <Route path="partner/signup" element={<PartnerSignup />} />
+            <Route path="bli-partner" element={<PartnerPage />} />
+            <Route path="salons/:id" element={<SalonDetails />} />
+            <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+            
+            <Route path="/admin/*" element={<Admin />} />
+            
+            <Route path="/salon/login" element={<SalonLogin />} />
+            <Route path="/salon/update-password" element={<UpdatePassword />} />
+            <Route path="/salon/dashboard" element={<SalonDashboard />} />
+            <Route path="/salon/deal" element={<SalonDeals />} />
+            <Route path="/salon/deals" element={<SalonDeals />} />
+            <Route path="/salon/customers" element={<SalonDashboard />} />
+            <Route path="/salon/settings" element={<SalonDashboard />} />
+          </Route>
+        </Routes>
+      </Router>
+      <CookieConsent />
+    </>
   );
 }
 

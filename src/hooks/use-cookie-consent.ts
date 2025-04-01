@@ -20,8 +20,7 @@ export function useCookieConsent() {
     // Initialisera Google Tag Manager när användaren har accepterat cookies
     if (window.dataLayer) {
       window.dataLayer.push({
-        'gtm.start': new Date().getTime(),
-        event: 'gtm.js',
+        event: 'update_consent',
         'analytics_storage': 'granted',
         'ad_storage': 'granted',
         'ad_user_data': 'granted',
@@ -43,6 +42,7 @@ export function useCookieConsent() {
     // Om GTM är laddat, meddela att användaren har avböjt cookies
     if (window.dataLayer) {
       window.dataLayer.push({
+        event: 'update_consent',
         'analytics_storage': 'denied',
         'ad_storage': 'denied',
         'ad_user_data': 'denied',
