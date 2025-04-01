@@ -1,16 +1,12 @@
 
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import NavigationBar from '@/components/NavigationBar';
 import { Footer } from '@/components/Footer';
 import TopBar from './TopBar';
 import { SalonAuthGuard } from '@/components/salon/SalonAuthGuard';
 
-interface LayoutProps {
-  children?: ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC = () => {
   const location = useLocation();
   const path = location.pathname;
   
@@ -27,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <TopBar />
       <NavigationBar />
       <main className="flex-1 pt-36"> {/* Öka padding-top för att undvika överlappning */}
-        {children || <Outlet />}
+        <Outlet />
       </main>
       <Footer />
     </div>
