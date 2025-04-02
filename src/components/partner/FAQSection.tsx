@@ -22,7 +22,11 @@ export const FAQSection = () => {
     },
     {
       question: "Hur får kunderna sina rabattkoder?",
-      answer: "När en kund väljer att köpa ditt erbjudande, genereras en unik rabattkod automatiskt som skickas till kundens e-post. De kan sedan använda denna kod när de bokar tjänsten direkt hos dig."
+      answer: "När en kund väljer att få ditt erbjudande, genereras en unik rabattkod automatiskt som skickas till kundens e-post. Viktigt att notera är att Lyxdeal endast förmedlar rabattkoder - inga köp eller betalningar genomförs på vår hemsida."
+    },
+    {
+      question: "Hur fungerar betalningen för era tjänster?",
+      answer: "Vi förmedlar endast rabattkoder till kunder. All betalning sker direkt mellan kunden och salongen när kunden bokar sin tid med den erhållna rabattkoden. Lyxdeal hanterar inte några betalningar för behandlingar."
     },
     {
       question: "Kan jag ändra eller ta bort erbjudanden?",
@@ -38,7 +42,11 @@ export const FAQSection = () => {
     },
     {
       question: "Hur ser jag statistik över mina erbjudanden?",
-      answer: "I din dashboard hittar du statistik över dina erbjudanden, inklusive antal visningar, sålda koder och konverteringsgrad."
+      answer: "I din dashboard hittar du statistik över dina erbjudanden, inklusive antal visningar, genererade rabattkoder och konverteringsgrad."
+    },
+    {
+      question: "Vad är skillnaden mellan Lyxdeal och andra marknadsföringstjänster?",
+      answer: "Lyxdeal fungerar som en plattform som kopplar ihop kunder med salonger genom rabattkoder. Vi hanterar ingen bokning eller betalning - vi förmedlar endast rabattkoder som kunderna sedan använder direkt hos salongen. Detta ger dig full kontroll över din verksamhet samtidigt som du når nya kunder."
     }
   ];
 
@@ -53,6 +61,14 @@ export const FAQSection = () => {
         </div>
 
         <div className="max-w-3xl mx-auto">
+          <div className="p-6 bg-amber-50 border border-amber-100 rounded-lg mb-8">
+            <h3 className="text-lg font-semibold mb-2 text-amber-800">Viktigt att förstå</h3>
+            <p className="text-amber-700">
+              Lyxdeal är en plattform som endast förmedlar rabattkoder. Vi hanterar inga köp eller betalningar på vår hemsida. 
+              Kunder får rabattkoder via e-post som de sedan kan använda när de bokar behandlingar direkt hos din salong.
+            </p>
+          </div>
+
           <Accordion type="single" collapsible className="w-full">
             {faqItems.map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
