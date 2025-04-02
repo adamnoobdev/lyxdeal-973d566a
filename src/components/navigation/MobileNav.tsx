@@ -13,7 +13,6 @@ import { ScrollArea } from "../ui/scroll-area";
 import { CategorySelector } from "../CategorySelector";
 import { CitySelector } from "../CitySelector";
 import { Separator } from "../ui/separator";
-import { useNavigate } from "react-router-dom";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -32,8 +31,6 @@ export const MobileNav = ({
   onCitySelect,
   onCategorySelect,
 }: MobileNavProps) => {
-  const navigate = useNavigate();
-
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>

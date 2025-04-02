@@ -1,14 +1,15 @@
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from './useSession';
 import { supabase } from '@/integrations/supabase/client';
 
-type UserRole = 'admin' | 'salon_owner' | 'user' | null;
+export type UserRole = 'customer' | 'salon_owner' | 'admin' | null;
 
 export const useUserRole = () => {
   const { session } = useSession();
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -19,20 +20,45 @@ export const useUserRole = () => {
       }
 
       try {
-        const { data, error } = await supabase
-          .from('salons')
-          .select('role')
+        setIsLoading(true);
+        
+        // Check if user is an admin
+        const { data: adminData, error: adminError } = await supabase
+          .from('admin_users')
+          .select('user_id')
           .eq('user_id', session.user.id)
           .single();
-
-        if (error) {
-          console.error('Error fetching user role:', error);
-          setUserRole(null);
-        } else {
-          setUserRole(data?.role as UserRole || null);
+          
+        if (adminError && adminError.code !== 'PGRST116') { // Ignore not found errors
+          throw adminError;
         }
-      } catch (error) {
-        console.error('Error fetching user role:', error);
+        
+        if (adminData) {
+          setUserRole('admin');
+          setIsLoading(false);
+          return;
+        }
+          
+        // Check if user is a salon owner
+        const { data: salonData, error: salonError } = await supabase
+          .from('salons')
+          .select('user_id')
+          .eq('user_id', session.user.id)
+          .single();
+          
+        if (salonError && salonError.code !== 'PGRST116') { // Ignore not found errors
+          throw salonError;
+        }
+          
+        if (salonData) {
+          setUserRole('salon_owner');
+        } else {
+          setUserRole('customer');
+        }
+          
+      } catch (err) {
+        console.error('Error fetching user role:', err);
+        setError(err instanceof Error ? err : new Error('Unknown error fetching user role'));
         setUserRole(null);
       } finally {
         setIsLoading(false);
@@ -40,7 +66,7 @@ export const useUserRole = () => {
     };
 
     fetchUserRole();
-  }, [session?.user?.id]);
+  }, [session]);
 
-  return { userRole, isLoading };
+  return { userRole, isLoading, error };
 };

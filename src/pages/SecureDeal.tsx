@@ -2,7 +2,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDeal } from "@/hooks/useDeal";
-import { SecureDealForm } from "@/components/deal/SecureDealForm";
+import { SecureDealContainer } from "@/components/deal/secure-deal/SecureDealContainer";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { ArrowLeft } from "lucide-react";
@@ -100,7 +100,7 @@ const SecureDeal = () => {
             </div>
             
             <div>
-              <SecureDealForm 
+              <SecureDealContainer 
                 dealId={deal.id} 
                 dealTitle={deal.title}
                 onSuccess={() => {}}
