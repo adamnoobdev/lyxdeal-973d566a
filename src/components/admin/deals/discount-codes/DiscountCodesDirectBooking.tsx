@@ -14,8 +14,8 @@ export const DiscountCodesDirectBooking = ({ deal }: DiscountCodesDirectBookingP
   // Get subscription plan as a string value
   const subscription_plan = "Premiumpaket";
   
-  // Check if the plan is Baspaket by comparing strings directly
-  const hasBasicPackage = subscription_plan === "Baspaket";
+  // Use a type-safe comparison for the subscription plan
+  const hasBasicPackage = subscription_plan.toLowerCase() === "baspaket".toLowerCase();
   
   return (
     <div className="p-4 rounded-lg bg-muted/20 border space-y-4">
