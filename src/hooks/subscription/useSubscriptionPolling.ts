@@ -1,16 +1,21 @@
 
-import { useState, useEffect, useCallback } from "react";
-import { PurchaseDetails, SalonAccount } from "./types";
-import { fetchPartnerRequestBySession, fetchRecentApprovedPartnerRequests, checkSalonAccount } from "./fetchPartnerRequest";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { PurchaseDetails, SalonAccount } from "./types";
+import { 
+  fetchPartnerRequestBySession, 
+  fetchRecentApprovedPartnerRequests,
+  checkSalonAccount 
+} from "./fetchPartnerRequest";
 
-interface UseSubscriptionPollingProps {
+export interface UseSubscriptionPollingProps {
   sessionId: string | null;
+  initialLoading?: boolean;
   maxRetries?: number;
   retryDelay?: number;
 }
 
-interface UseSubscriptionPollingResult {
+export interface UseSubscriptionPollingResult {
   purchaseDetails: PurchaseDetails | null;
   salonAccount: SalonAccount | null;
   loading: boolean;
@@ -18,103 +23,107 @@ interface UseSubscriptionPollingResult {
   retryCount: number;
   isRetrying: boolean;
   manualRetry: () => void;
+  maxRetries: number;
 }
 
 export const useSubscriptionPolling = ({
   sessionId,
+  initialLoading = true,
   maxRetries = 20,
   retryDelay = 3000
 }: UseSubscriptionPollingProps): UseSubscriptionPollingResult => {
   const [purchaseDetails, setPurchaseDetails] = useState<PurchaseDetails | null>(null);
-  const [salonAccount, setSalonAccount] = useState<SalonAccount | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [salonAccount, setSalonAccount] = useState<SalonAccount | null>(null);
 
-  // Main function for fetching data and checking account status
-  const fetchSubscriptionData = useCallback(async (): Promise<boolean> => {
+  const manualRetry = () => {
+    setIsRetrying(true);
+    setRetryCount(prev => prev + 1);
+    toast.info("Kontrollerar kontostatus...");
+  };
+
+  const fetchPurchaseDetails = async () => {
     if (!sessionId) {
       console.warn("No session ID found in URL");
+      setError("Inget sessionID hittades");
       setLoading(false);
-      // We're not setting an error here anymore since we want to show the success page anyway
       return false;
     }
 
     try {
-      console.log("Fetching subscription details for session:", sessionId);
+      console.log("Fetching purchase details for session:", sessionId);
       console.log("Retry count:", retryCount);
       
-      // Strategy 1: Look for partner request with session ID
-      let partnerRequest = await fetchPartnerRequestBySession(sessionId);
+      // First try: Look for partner request with this session ID
+      const partnerRequest = await fetchPartnerRequestBySession(sessionId);
       
-      // If we found a request with this session ID
       if (partnerRequest) {
+        console.log("Found session data:", partnerRequest);
         setPurchaseDetails(partnerRequest);
         
-        // Check if email has a salon account
+        // Now check if this email has a salon account
         if (partnerRequest.email) {
-          const account = await checkSalonAccount(partnerRequest.email);
+          const salonData = await checkSalonAccount(partnerRequest.email);
           
-          if (account) {
-            setSalonAccount(account);
-            toast.success("Your salon account has been created!");
+          if (salonData) {
+            console.log("Found salon account:", salonData);
+            setSalonAccount(salonData);
+            toast.success("Ditt salongskonto har skapats!");
             return true;
+          } else {
+            console.log("No salon account found yet with email:", partnerRequest.email);
+            return false; // Signal to retry
           }
-          
-          return false; // Need to continue checking
         }
       }
       
-      // Strategy 2: Look for recently approved partner requests
-      const recentRequests = await fetchRecentApprovedPartnerRequests();
+      // Second try: Look for recently approved partner requests
+      const partnerRequests = await fetchRecentApprovedPartnerRequests();
+
+      console.log("Found partner requests:", partnerRequests?.length || 0);
       
-      if (recentRequests.length > 0) {
-        // Use the most recent approved request
-        const mostRecent = recentRequests[0];
+      if (partnerRequests && partnerRequests.length > 0) {
+        // Find the most recently approved partner request
+        const mostRecent = partnerRequests[0];
         setPurchaseDetails(mostRecent);
+        console.log("Found partner request:", mostRecent);
         
         // Check if a salon account exists for this email
         if (mostRecent.email) {
-          const account = await checkSalonAccount(mostRecent.email);
+          const salonData = await checkSalonAccount(mostRecent.email);
           
-          if (account) {
-            setSalonAccount(account);
-            toast.success("Your salon account has been created!");
+          if (salonData) {
+            console.log("Found salon account:", salonData);
+            setSalonAccount(salonData);
+            toast.success("Ditt salongskonto har skapats!");
             return true;
+          } else {
+            console.log("No salon account found yet with email:", mostRecent.email);
+            return false; // Signal to retry
           }
-          
-          return false; // Need to continue checking
         }
       }
       
       console.log("No matching partner request or salon account found. Retry count:", retryCount);
-      // Even if we don't find a match, we still want to show the success page
-      return false; // Need to continue checking
+      return false; // Signal to retry
     } catch (err) {
-      console.error("Error fetching subscription details:", err);
-      setError("Could not retrieve your subscription details");
+      console.error("Error fetching purchase details:", err);
+      setError("Kunde inte hämta detaljer om din prenumeration");
       return true; // Error, but stop retrying
     } finally {
       setLoading(false);
       setIsRetrying(false);
     }
-  }, [sessionId, retryCount]);
+  };
 
-  // Function for manual retry
-  const manualRetry = useCallback(() => {
-    setIsRetrying(true);
-    setRetryCount(prev => prev + 1);
-    toast.info("Checking account status...");
-  }, []);
-
-  // Set up initial check and retry logic
   useEffect(() => {
     if (loading || isRetrying || (retryCount > 0 && !salonAccount)) {
       (async () => {
-        const success = await fetchSubscriptionData();
+        const success = await fetchPurchaseDetails();
         
-        // If no salon account was found and we haven't exceeded max retries, try again
         if (!success && retryCount < maxRetries) {
           const timer = setTimeout(() => {
             setRetryCount(prev => prev + 1);
@@ -124,11 +133,11 @@ export const useSubscriptionPolling = ({
           return () => clearTimeout(timer);
         } else if (!success && retryCount >= maxRetries) {
           console.warn("Max retries reached, still no salon account found");
-          toast.error("Could not find your salon account after multiple attempts. Please contact customer support.");
+          toast.error("Kunde inte hitta ditt salongskonto efter flera försök. Vänligen kontakta kundtjänst.");
         }
       })();
     }
-  }, [fetchSubscriptionData, loading, isRetrying, maxRetries, retryCount, retryDelay, salonAccount]);
+  }, [sessionId, retryCount, loading, isRetrying, salonAccount]);
 
   return {
     purchaseDetails,
@@ -137,6 +146,7 @@ export const useSubscriptionPolling = ({
     error,
     retryCount,
     isRetrying,
-    manualRetry
+    manualRetry,
+    maxRetries
   };
 };

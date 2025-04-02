@@ -1,10 +1,9 @@
 
 import { useState, useEffect } from "react";
 
-// A simple hook for counting elapsed time
 export const useElapsedTime = (): number => {
   const [timeElapsed, setTimeElapsed] = useState(0);
-  
+
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeElapsed(prev => prev + 1);
@@ -12,6 +11,6 @@ export const useElapsedTime = (): number => {
     
     return () => clearInterval(timer);
   }, []);
-  
+
   return timeElapsed;
 };
