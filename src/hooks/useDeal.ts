@@ -76,7 +76,8 @@ export const useDeal = (id: string | undefined) => {
             salon_id: dealData.salon_id,
             is_free: dealData.is_free,
             booking_url: dealData.booking_url,
-            requires_discount_code: dealData.requires_discount_code
+            // Provide a default value if requires_discount_code is undefined
+            requires_discount_code: dealData.requires_discount_code !== false ? true : false
           };
           
           // Formatera och returnera komplett erbjudandedata
@@ -111,7 +112,8 @@ export const useDeal = (id: string | undefined) => {
             salon_id: dealData.salon_id,
             is_free: dealData.is_free,
             booking_url: dealData.booking_url,
-            requires_discount_code: dealData.requires_discount_code
+            // Provide a default value if requires_discount_code is undefined
+            requires_discount_code: dealData.requires_discount_code !== false ? true : false
           };
           
           console.log("[useDeal] Använder fallback-salongsdata:", fallbackSalon);
