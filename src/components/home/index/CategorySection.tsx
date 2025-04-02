@@ -19,17 +19,18 @@ export function CategorySection({
     <div className="space-y-8 animate-fade-up">
       <div className="bg-accent/5 rounded-xl p-6 md:p-8 space-y-8 shadow-sm">
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-center text-primary">Kategorier</h2>
-          <Categories 
-            selectedCategory={selectedCategory}
-            onSelectCategory={onSelectCategory}
-          />
-        </div>
-        <div className="space-y-4">
           <h2 className="text-lg font-semibold text-center text-primary">Städer</h2>
           <Cities 
             selectedCity={selectedCity}
             onSelectCity={onSelectCity}
+            selectedCategory={selectedCategory}
+          />
+        </div>
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-center text-primary">Kategorier</h2>
+          <Categories 
+            selectedCategory={selectedCategory}
+            onSelectCategory={onSelectCategory}
           />
         </div>
       </div>
