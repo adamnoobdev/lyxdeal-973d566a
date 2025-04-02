@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,13 +16,22 @@ import { Input } from "@/components/ui/input";
 import { submitPartnerRequest } from "@/hooks/usePartnerRequests";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
+import { MapboxAddressInput, type AddressParts } from "@/components/common/MapboxAddressInput";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Namn måste vara minst 2 tecken." }),
   business_name: z.string().min(2, { message: "Företagsnamn måste vara minst 2 tecken." }),
   email: z.string().email({ message: "Ogiltig e-postadress." }),
   phone: z.string().min(6, { message: "Telefonnummer måste vara minst 6 tecken." }),
-  address: z.string().optional(),
+  address: z.string().min(5, { message: "En fullständig adress krävs." }),
+  termsAccepted: z.literal(true, {
+    errorMap: () => ({ message: "Du måste acceptera våra allmänna villkor" }),
+  }),
+  privacyAccepted: z.literal(true, {
+    errorMap: () => ({ message: "Du måste acceptera vår integritetspolicy" }),
+  }),
 });
 
 export type PartnerFormValues = z.infer<typeof formSchema>;
@@ -37,6 +47,7 @@ interface PartnerFormProps {
 
 export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [addressParts, setAddressParts] = useState<AddressParts | undefined>();
   const navigate = useNavigate();
 
   const form = useForm<PartnerFormValues>({
@@ -47,6 +58,8 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
       email: "",
       phone: "",
       address: "",
+      termsAccepted: false,
+      privacyAccepted: false,
     },
   });
 
@@ -65,7 +78,7 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
         business_name: values.business_name,
         email: values.email,
         phone: values.phone,
-        address: values.address || "",
+        address: values.address,
         message: "", // Tom sträng istället för att ta bort helt för att upprätthålla API-kompatibilitet
         plan_title: selectedPlan.title,
         plan_payment_type: selectedPlan.paymentType,
@@ -97,6 +110,13 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
     }
   };
 
+  const handleAddressChange = (address: string, parts?: AddressParts) => {
+    form.setValue("address", address);
+    if (parts) {
+      setAddressParts(parts);
+    }
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -106,7 +126,7 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Ditt namn</FormLabel>
+                <FormLabel>Ditt namn *</FormLabel>
                 <FormControl>
                   <Input placeholder="Anna Andersson" {...field} />
                 </FormControl>
@@ -120,7 +140,7 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
             name="business_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Företagsnamn</FormLabel>
+                <FormLabel>Företagsnamn *</FormLabel>
                 <FormControl>
                   <Input placeholder="Din Salong AB" {...field} />
                 </FormControl>
@@ -136,7 +156,7 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>E-post</FormLabel>
+                <FormLabel>E-post *</FormLabel>
                 <FormControl>
                   <Input placeholder="ditt@företag.se" type="email" {...field} />
                 </FormControl>
@@ -150,7 +170,7 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Telefon</FormLabel>
+                <FormLabel>Telefon *</FormLabel>
                 <FormControl>
                   <Input placeholder="070-123 45 67" type="tel" {...field} />
                 </FormControl>
@@ -165,14 +185,65 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Adress (frivillig)</FormLabel>
+              <FormLabel>Adress *</FormLabel>
               <FormControl>
-                <Input placeholder="Gatan 123, 123 45 Staden" {...field} />
+                <MapboxAddressInput
+                  id="address" 
+                  defaultValue={field.value}
+                  onChange={handleAddressChange}
+                  placeholder="Sök din adress här..."
+                  required
+                  error={!!form.formState.errors.address}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="termsAccepted"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm font-medium leading-none">
+                    Jag accepterar <Link to="/terms" className="text-primary hover:underline" target="_blank">allmänna villkor</Link> *
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="privacyAccepted"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-sm font-medium leading-none">
+                    Jag accepterar <Link to="/privacy" className="text-primary hover:underline" target="_blank">integritetspolicy</Link> *
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
 
         <Button 
           type="submit" 
