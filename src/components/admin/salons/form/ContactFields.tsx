@@ -1,61 +1,16 @@
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { Phone } from "lucide-react";
-import { MapboxAddressInput, AddressParts } from "@/components/common/MapboxAddressInput";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
 
 interface ContactFieldsProps {
   form: UseFormReturn<any>;
+  includeSubscriptionFields?: boolean;
 }
 
-export const ContactFields = ({ form }: ContactFieldsProps) => {
-  // Hantera mapbox-adressinmatning
-  const handleAddressChange = (value: string, parts?: AddressParts) => {
-    console.log("Address changed:", value, "parts:", parts);
-    
-    // Uppdatera det synliga adressfältet
-    form.setValue('fullAddress', value, { shouldValidate: true });
-    
-    // Om vi har strukturerade detaljer, uppdatera de individuella fälten
-    if (parts) {
-      if (parts.street) form.setValue('street', parts.street, { shouldValidate: true });
-      if (parts.postalCode) form.setValue('postalCode', parts.postalCode, { shouldValidate: true });
-      if (parts.city) form.setValue('city', parts.city, { shouldValidate: true });
-      
-      // Skapa fullständig adress för backend - använd det exakta värdet från Mapbox
-      form.setValue('address', value, { shouldValidate: true });
-    } else if (value) {
-      // Om vi inte har strukturerade detaljer men har ett värde,
-      // använd hela värdet som adress
-      form.setValue('address', value, { shouldValidate: true });
-    }
-  };
-
-  // Skapa en konstruerad defaultValue för Mapbox-inmatningen
-  const getFullAddress = () => {
-    const address = form.watch('address') || '';
-    if (address) return address;
-    
-    const street = form.watch('street') || '';
-    const postalCode = form.watch('postalCode') || '';
-    const city = form.watch('city') || '';
-    
-    if (!street && !postalCode && !city) return '';
-    
-    let fullAddress = '';
-    if (street) fullAddress += street;
-    if (postalCode) {
-      if (fullAddress) fullAddress += ', ';
-      fullAddress += postalCode;
-    }
-    if (city) {
-      if (fullAddress && !fullAddress.endsWith(' ')) fullAddress += ' ';
-      fullAddress += city;
-    }
-    return fullAddress;
-  };
-
+export const ContactFields = ({ form, includeSubscriptionFields = false }: ContactFieldsProps) => {
   return (
     <>
       <FormField
@@ -64,44 +19,108 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Telefon</FormLabel>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <FormControl>
-                <Input placeholder="08-12 34 56..." className="pl-9" {...field} />
-              </FormControl>
-            </div>
+            <FormControl>
+              <Input placeholder="Ange telefonnummer..." {...field} value={field.value || ''} />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
 
-      <div className="space-y-4">
-        <FormDescription>
-          Sök och välj en fullständig adress för korrekt visning på kartan
-        </FormDescription>
-        
+      <FormField
+        control={form.control}
+        name="street"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Gatuadress</FormLabel>
+            <FormControl>
+              <Input placeholder="Ange gatuadress..." {...field} value={field.value || ''} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
-          name="fullAddress"
+          name="postalCode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Adress</FormLabel>
-              <MapboxAddressInput
-                defaultValue={getFullAddress()}
-                onChange={handleAddressChange}
-                error={!!form.formState.errors.address}
-              />
+              <FormLabel>Postnummer</FormLabel>
+              <FormControl>
+                <Input placeholder="Ange postnummer..." {...field} value={field.value || ''} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
-        {/* Dolda fält för att lagra strukturerade adressdelar */}
-        <input type="hidden" {...form.register('street')} />
-        <input type="hidden" {...form.register('postalCode')} />
-        <input type="hidden" {...form.register('city')} />
-        <input type="hidden" {...form.register('address')} />
+
+        <FormField
+          control={form.control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Ort</FormLabel>
+              <FormControl>
+                <Input placeholder="Ange ort..." {...field} value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
+
+      {includeSubscriptionFields && (
+        <>
+          <FormField
+            control={form.control}
+            name="subscriptionPlan"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Prenumerationsplan</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value || "Baspaket"}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Välj plan" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.keys(SUBSCRIPTION_PLANS).map((planKey) => (
+                      <SelectItem key={planKey} value={planKey}>
+                        {SUBSCRIPTION_PLANS[planKey].title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="subscriptionType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Betalningsintervall</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value || "monthly"}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Välj intervall" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="monthly">Månadsvis</SelectItem>
+                    <SelectItem value="yearly">Årsvis</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      )}
     </>
   );
 };

@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fetchAllSalons } from "./salon/queries";
@@ -95,6 +96,13 @@ export const createSalonData = async (values: any) => {
       
       valuesToSend.address = fullAddress || undefined;
       console.log("Built address from parts:", valuesToSend.address);
+    }
+    
+    // Add subscription plan and type if they exist
+    if (values.subscriptionPlan && !values.skipSubscription) {
+      valuesToSend.subscriptionPlan = values.subscriptionPlan;
+      valuesToSend.subscriptionType = values.subscriptionType || "monthly";
+      console.log("Using subscription plan:", valuesToSend.subscriptionPlan, "type:", valuesToSend.subscriptionType);
     }
     
     // Clean up fields we don't want to send to the edge function

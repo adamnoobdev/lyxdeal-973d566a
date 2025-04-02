@@ -14,6 +14,8 @@ interface CreateSalonRequest {
   phone?: string;
   address?: string;
   skipSubscription?: boolean; // Flag to indicate no subscription needed
+  subscriptionPlan?: string;  // Added field for subscription plan
+  subscriptionType?: string;  // Added field for subscription type (monthly/yearly)
 }
 
 serve(async (req) => {
@@ -72,9 +74,9 @@ serve(async (req) => {
     }
 
     // Get request body
-    const { name, email, phone, address, skipSubscription }: CreateSalonRequest = await req.json();
+    const { name, email, phone, address, skipSubscription, subscriptionPlan, subscriptionType }: CreateSalonRequest = await req.json();
     
-    console.log("Request body:", { name, email, phone, address, skipSubscription });
+    console.log("Request body:", { name, email, phone, address, skipSubscription, subscriptionPlan, subscriptionType });
 
     // Check if a user with this email already exists
     const { data: existingUsers, error: existingUserError } = await supabaseClient
@@ -120,7 +122,7 @@ serve(async (req) => {
     }
 
     // Create the salon record
-    const salonData = {
+    const salonData: Record<string, any> = {
       name,
       email,
       phone,
@@ -129,11 +131,20 @@ serve(async (req) => {
       role: "salon_owner",
     };
     
-    // If we're skipping subscription, add default active status
+    // If we're skipping subscription or adding a specific subscription plan directly
     if (skipSubscription) {
+      // For skipped subscriptions, set as active with a far future end date
       Object.assign(salonData, {
-        status: "active", // Set the salon as active by default
+        status: "active", 
         current_period_end: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000), // 10 years in the future
+      });
+    } else if (subscriptionPlan) {
+      // For direct subscription assignment, set the subscription details
+      Object.assign(salonData, {
+        subscription_plan: subscriptionPlan,
+        subscription_type: subscriptionType || "monthly",
+        status: "active",
+        current_period_end: new Date(Date.now() + (subscriptionType === "yearly" ? 365 : 30) * 24 * 60 * 60 * 1000),
       });
     }
     

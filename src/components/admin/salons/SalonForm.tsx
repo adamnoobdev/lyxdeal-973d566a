@@ -20,6 +20,8 @@ const formSchema = z.object({
   city: z.string().optional(),
   password: z.string().optional(),
   skipSubscription: z.boolean().optional().default(false),
+  subscriptionPlan: z.string().optional(),
+  subscriptionType: z.string().optional(),
   termsAccepted: z.boolean().optional().default(true),
   privacyAccepted: z.boolean().optional().default(true),
 });
@@ -43,6 +45,8 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing }: SalonFormProps
     city: "",
     password: "",
     skipSubscription: false,
+    subscriptionPlan: "Baspaket",
+    subscriptionType: "monthly",
     termsAccepted: true,
     privacyAccepted: true,
     ...initialValues,
@@ -64,11 +68,17 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing }: SalonFormProps
     }
   };
 
+  // Watch skipSubscription field to determine whether to show subscription fields
+  const skipSubscription = form.watch("skipSubscription");
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
         <BasicInfoFields form={form} />
-        <ContactFields form={form} />
+        <ContactFields 
+          form={form} 
+          includeSubscriptionFields={!isEditing && !skipSubscription} 
+        />
         
         {isEditing && <TermsFields form={form} />}
         
