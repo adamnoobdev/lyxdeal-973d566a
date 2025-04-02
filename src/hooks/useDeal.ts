@@ -6,6 +6,27 @@ import { formatDealData, type RawDealData } from "@/utils/deal/dealDataUtils";
 import { handleDealError } from "@/utils/deal/dealErrorHandler";
 import { toast } from "sonner";
 
+// Define a type for database deal data that includes requires_discount_code
+type DatabaseDealData = {
+  id: number;
+  title: string;
+  description: string;
+  image_url: string;
+  original_price: number;
+  discounted_price: number;
+  time_remaining: string;
+  expiration_date: string;
+  category: string;
+  city: string;
+  created_at: string;
+  updated_at: string;
+  quantity_left: number;
+  salon_id: number;
+  is_free: boolean;
+  booking_url: string;
+  requires_discount_code?: boolean;
+}
+
 export const useDeal = (id: string | undefined) => {
   return useQuery({
     queryKey: ["deal", id],
@@ -43,41 +64,44 @@ export const useDeal = (id: string | undefined) => {
           throw new Error("Erbjudande hittades inte");
         }
 
+        // Cast the database response to our DatabaseDealData type
+        const typedDealData = dealData as DatabaseDealData;
+
         console.log("[useDeal] Erbjudandedata från DB:", {
-          id: dealData.id,
-          title: dealData.title,
-          salon_id: dealData.salon_id,
-          city: dealData.city,
-          requires_discount_code: dealData.requires_discount_code
+          id: typedDealData.id,
+          title: typedDealData.title,
+          salon_id: typedDealData.salon_id,
+          city: typedDealData.city,
+          requires_discount_code: typedDealData.requires_discount_code
         });
         
         // Hantera salongsdata, med förbättrad felhantering för 404-fel
         try {
           // Försök hämta salongsdata men hantera det explicit om den saknas
-          console.log("[useDeal] Försöker hämta salongsdata för ID:", dealData.salon_id);
-          const salonData = await resolveSalonData(dealData.salon_id, dealData.city);
+          console.log("[useDeal] Försöker hämta salongsdata för ID:", typedDealData.salon_id);
+          const salonData = await resolveSalonData(typedDealData.salon_id, typedDealData.city);
           console.log("[useDeal] Salongsdata resultat:", salonData);
           
           // Cast dealData to RawDealData type to ensure type safety
           const rawDealData: RawDealData = {
-            id: dealData.id,
-            title: dealData.title,
-            description: dealData.description,
-            image_url: dealData.image_url,
-            original_price: dealData.original_price,
-            discounted_price: dealData.discounted_price,
-            time_remaining: dealData.time_remaining,
-            expiration_date: dealData.expiration_date,
-            category: dealData.category,
-            city: dealData.city,
-            created_at: dealData.created_at,
-            updated_at: dealData.updated_at,
-            quantity_left: dealData.quantity_left,
-            salon_id: dealData.salon_id,
-            is_free: dealData.is_free,
-            booking_url: dealData.booking_url,
+            id: typedDealData.id,
+            title: typedDealData.title,
+            description: typedDealData.description,
+            image_url: typedDealData.image_url,
+            original_price: typedDealData.original_price,
+            discounted_price: typedDealData.discounted_price,
+            time_remaining: typedDealData.time_remaining,
+            expiration_date: typedDealData.expiration_date,
+            category: typedDealData.category,
+            city: typedDealData.city,
+            created_at: typedDealData.created_at,
+            updated_at: typedDealData.updated_at,
+            quantity_left: typedDealData.quantity_left,
+            salon_id: typedDealData.salon_id,
+            is_free: typedDealData.is_free,
+            booking_url: typedDealData.booking_url,
             // Provide a default value if requires_discount_code is undefined
-            requires_discount_code: dealData.requires_discount_code !== false
+            requires_discount_code: typedDealData.requires_discount_code
           };
           
           // Formatera och returnera komplett erbjudandedata
@@ -88,32 +112,32 @@ export const useDeal = (id: string | undefined) => {
           
           // Skapa ett placeholder salon-objekt baserat på tillgänglig information
           const fallbackSalon = {
-            id: dealData.salon_id,
-            name: dealData.city ? `Salong i ${dealData.city}` : 'Okänd salong',
-            address: dealData.city || null,
+            id: typedDealData.salon_id,
+            name: typedDealData.city ? `Salong i ${typedDealData.city}` : 'Okänd salong',
+            address: typedDealData.city || null,
             phone: null
           };
           
           // Cast dealData to RawDealData type to ensure type safety
           const rawDealData: RawDealData = {
-            id: dealData.id,
-            title: dealData.title,
-            description: dealData.description,
-            image_url: dealData.image_url,
-            original_price: dealData.original_price,
-            discounted_price: dealData.discounted_price,
-            time_remaining: dealData.time_remaining,
-            expiration_date: dealData.expiration_date,
-            category: dealData.category,
-            city: dealData.city,
-            created_at: dealData.created_at,
-            updated_at: dealData.updated_at,
-            quantity_left: dealData.quantity_left,
-            salon_id: dealData.salon_id,
-            is_free: dealData.is_free,
-            booking_url: dealData.booking_url,
+            id: typedDealData.id,
+            title: typedDealData.title,
+            description: typedDealData.description,
+            image_url: typedDealData.image_url,
+            original_price: typedDealData.original_price,
+            discounted_price: typedDealData.discounted_price,
+            time_remaining: typedDealData.time_remaining,
+            expiration_date: typedDealData.expiration_date,
+            category: typedDealData.category,
+            city: typedDealData.city,
+            created_at: typedDealData.created_at,
+            updated_at: typedDealData.updated_at,
+            quantity_left: typedDealData.quantity_left,
+            salon_id: typedDealData.salon_id,
+            is_free: typedDealData.is_free,
+            booking_url: typedDealData.booking_url,
             // Provide a default value if requires_discount_code is undefined
-            requires_discount_code: dealData.requires_discount_code !== false
+            requires_discount_code: typedDealData.requires_discount_code
           };
           
           console.log("[useDeal] Använder fallback-salongsdata:", fallbackSalon);

@@ -3,9 +3,9 @@
  * Utility functions for formatting deal data
  */
 
-import { calculateDaysRemaining } from "./dealTimeUtils";
-import { isDealFree } from "./dealPriceUtils";
-import { FormattedDealData, RawDealData } from "./types";
+import { calculateDaysRemaining } from "./deal/dealTimeUtils";
+import { isDealFree } from "./deal/dealPriceUtils";
+import { FormattedDealData, RawDealData } from "./deal/types";
 
 /**
  * Formats a deal object with calculated properties
