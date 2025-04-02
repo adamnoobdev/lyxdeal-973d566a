@@ -10,6 +10,7 @@ import { DebugPanel } from '@/components/admin/debug/DebugPanel';
 import { useSession } from '@/hooks/useSession';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import CreateAdmin from './CreateAdmin';
 
 const Admin = () => {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -97,6 +98,7 @@ const Admin = () => {
           <Route path="deals/*" element={<DealsListContainer />} />
           <Route path="salons/*" element={<SalonsList />} />
           <Route path="debug" element={<DebugPanel />} />
+          <Route path="create-admin" element={<CreateAdmin />} />
         </Routes>
       </AdminLayout>
     </AdminAuthCheck>

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useSession } from './hooks/useSession';
 import { useUserRole } from './hooks/useUserRole';
 import AdminUsers from "./pages/AdminUsers";
+import CreateAdmin from "./pages/CreateAdmin";
 import Admin from './pages/Admin';
 import IndexPage from './pages/Index';
 import Layout from './components/layout/Layout';
@@ -77,6 +78,7 @@ function App() {
           {/* Admin routes */}
           <Route path="/admin/*" element={<Admin />} />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/create-admin" element={<CreateAdmin />} />
         </Routes>
         
         <Toaster />

@@ -1,5 +1,5 @@
 
-import { PanelLeft, Store, Tag, Users } from "lucide-react";
+import { PanelLeft, Store, Tag, Users, UserPlus } from "lucide-react";
 import { SidebarLink } from "./SidebarLink";
 import { useLocation } from "react-router-dom";
 
@@ -39,6 +39,13 @@ export const AdminSidebarLinks = ({ currentPath = '' }: AdminSidebarLinksProps) 
         active={path.includes('/admin/users')}
         icon={Users}
         label="Användare"
+      />
+      
+      <SidebarLink
+        href="/admin/create-admin"
+        active={path.includes('/admin/create-admin')}
+        icon={UserPlus}
+        label="Skapa admin"
       />
     </div>
   );
