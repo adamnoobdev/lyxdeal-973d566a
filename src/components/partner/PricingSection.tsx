@@ -9,6 +9,7 @@ export const PricingSection = () => {
     yearSavings: 2000,
     dealCount: 1,
     features: [
+      "Kan köra ett erbjudande åt gången",
       "Synlighet på Lyxdeal.se",
       "Tillgång till administratörspanel",
       "Grundläggande statistik",
@@ -23,6 +24,7 @@ export const PricingSection = () => {
     yearSavings: 3000,
     dealCount: 3,
     features: [
+      "Kan köra tre erbjudanden samtidigt",
       "Synlighet på Lyxdeal.se",
       "Tillgång till administratörspanel",
       "Detaljerad statistik",

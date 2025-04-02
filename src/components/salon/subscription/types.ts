@@ -27,6 +27,7 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     yearSavings: 2000,
     dealCount: 1,
     features: [
+      "Kan köra ett erbjudande åt gången",
       "Synlighet på Lyxdeal.se",
       "Tillgång till administratörspanel",
       "Grundläggande statistik",
@@ -40,6 +41,7 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     yearSavings: 3000,
     dealCount: 3,
     features: [
+      "Kan köra tre erbjudanden samtidigt",
       "Synlighet på Lyxdeal.se",
       "Tillgång till administratörspanel",
       "Detaljerad statistik",
