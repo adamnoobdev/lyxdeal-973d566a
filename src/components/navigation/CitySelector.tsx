@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { MapPin, ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -21,8 +21,8 @@ const CitySelector: React.FC<CitySelectorProps> = ({
   const navigate = useNavigate();
   const { orderedCities, isLoading } = useCityDealsData("Alla Erbjudanden", selectedCity);
   
-  // Always include "Alla Städer" as the first option
-  const citiesToDisplay = ["Alla Städer", ...orderedCities.filter(city => city !== "Alla Städer")];
+  // Always include "Alla Städer" as the first option and ensure all items are of type City
+  const citiesToDisplay = ["Alla Städer" as City, ...orderedCities.filter(city => city !== "Alla Städer")] as City[];
   
   const handleCitySelect = (city: City) => {
     setSelectedCity(city);

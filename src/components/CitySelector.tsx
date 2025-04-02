@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MapPin, ChevronDown } from "lucide-react";
 import { useCityDealsData } from "@/hooks/useCityDealsData";
+import { City } from "@/constants/app-constants";
 
 interface CitySelectorProps {
   currentCity: string;
@@ -27,7 +28,7 @@ const CitySelectorComponent = ({
   const { orderedCities, isLoading } = useCityDealsData("Alla Erbjudanden", currentCity);
   
   // Always include "Alla Städer" as the first option
-  const citiesToDisplay = ["Alla Städer", ...orderedCities.filter(city => city !== "Alla Städer")];
+  const citiesToDisplay = ["Alla Städer" as City, ...orderedCities.filter(city => city !== "Alla Städer")];
 
   const handleCitySelect = (city: string) => {
     onCitySelect(city);

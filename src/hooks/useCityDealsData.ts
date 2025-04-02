@@ -1,6 +1,6 @@
 
 import { useDeals } from "@/hooks/useDeals";
-import { CITIES } from "@/constants/app-constants";
+import { CITIES, City } from "@/constants/app-constants";
 import { useMemo } from "react";
 
 export const useCityDealsData = (selectedCategory: string, selectedCity: string) => {
@@ -12,15 +12,15 @@ export const useCityDealsData = (selectedCategory: string, selectedCity: string)
   
   // Create a list of cities that have active deals
   const citiesWithDeals = useMemo(() => {
-    if (!allDeals) return [];
+    if (!allDeals) return [] as City[];
     
     // Get unique cities from deals
-    const uniqueCities = [...new Set(allDeals.map(deal => deal.city))];
+    const uniqueCities = [...new Set(allDeals.map(deal => deal.city))] as City[];
     
     // Return cities in the order they appear in the CITIES constant
     // but only include cities that have deals
     return CITIES.filter(city => 
-      city === "Alla Städer" || uniqueCities.includes(city)
+      city === "Alla Städer" || uniqueCities.includes(city as City)
     );
   }, [allDeals]);
 
@@ -29,27 +29,27 @@ export const useCityDealsData = (selectedCategory: string, selectedCity: string)
     if (isLoadingAllDeals) {
       // During loading, show a subset of cities to prevent layout jumps
       return selectedCity !== "Alla Städer" 
-        ? [selectedCity] 
-        : CITIES.filter(city => city !== "Alla Städer").slice(0, 3);
+        ? [selectedCity as City] 
+        : CITIES.filter(city => city !== "Alla Städer").slice(0, 3) as City[];
     }
     
     if (selectedCity !== "Alla Städer") {
       // If a specific city is selected, show it first, followed by other cities with deals
       return [
-        selectedCity,
+        selectedCity as City,
         ...citiesWithDeals.filter(city => 
           city !== "Alla Städer" && city !== selectedCity
         )
-      ];
+      ] as City[];
     }
     
     // Default: show all cities with deals except "Alla Städer"
-    return citiesWithDeals.filter(city => city !== "Alla Städer");
+    return citiesWithDeals.filter(city => city !== "Alla Städer") as City[];
   }, [selectedCity, citiesWithDeals, isLoadingAllDeals]);
 
   return {
     isLoading: isLoadingAllDeals,
-    citiesWithDeals,
-    orderedCities
+    citiesWithDeals: citiesWithDeals as City[],
+    orderedCities: orderedCities as City[]
   };
 };
