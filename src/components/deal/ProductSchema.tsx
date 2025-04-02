@@ -1,9 +1,10 @@
 
 import { Helmet } from "react-helmet";
 import { Deal } from "@/types/deal";
+import { FormattedDealData } from "@/utils/deal/types";
 
 interface ProductSchemaProps {
-  deal: Deal;
+  deal: Deal | FormattedDealData;
 }
 
 export const ProductSchema = ({ deal }: ProductSchemaProps) => {
@@ -11,10 +12,21 @@ export const ProductSchema = ({ deal }: ProductSchemaProps) => {
   const datePublished = new Date(deal.created_at).toISOString();
   
   // Calculate offer validity period
-  const expiryDate = new Date(deal.expiration_date).toISOString();
+  const expiryDate = 'expiration_date' in deal 
+    ? new Date(deal.expiration_date).toISOString()
+    : new Date(deal.expirationDate).toISOString();
   
   // Format salon name safely
-  const salonName = deal.salons?.name || `Salong i ${deal.city}`;
+  const salonName = 'salons' in deal && deal.salons?.name 
+    ? deal.salons.name 
+    : deal.salon?.name || `Salong i ${deal.city}`;
+  
+  // Get image URL based on type
+  const imageUrl = 'image_url' in deal ? deal.image_url : deal.imageUrl;
+  
+  // Get prices based on type
+  const originalPrice = 'original_price' in deal ? deal.original_price : deal.originalPrice;
+  const discountedPrice = 'discounted_price' in deal ? deal.discounted_price : deal.discountedPrice;
   
   // JSON-LD structured data for Product
   const productSchema = {
@@ -22,11 +34,11 @@ export const ProductSchema = ({ deal }: ProductSchemaProps) => {
     "@type": "Product",
     "name": deal.title,
     "description": deal.description,
-    "image": deal.image_url,
+    "image": imageUrl,
     "offers": {
       "@type": "Offer",
       "priceCurrency": "SEK",
-      "price": deal.discounted_price,
+      "price": discountedPrice,
       "availability": "https://schema.org/InStock",
       "validFrom": datePublished,
       "validThrough": expiryDate,
@@ -72,7 +84,7 @@ export const ProductSchema = ({ deal }: ProductSchemaProps) => {
     "offers": {
       "@type": "Offer",
       "priceCurrency": "SEK",
-      "price": deal.discounted_price,
+      "price": discountedPrice,
       "eligibleRegion": {
         "@type": "Country",
         "name": "SE"

@@ -42,23 +42,23 @@ const ProductDetails = () => {
     return <ProductLoadingState />;
   }
 
-  // Convert Deal to the expected format for components
+  // Convert FormattedDealData to the expected format for components
   const dealData = {
     id: deal.id,
     title: deal.title,
     description: deal.description,
-    imageUrl: deal.image_url,
-    originalPrice: deal.original_price,
-    discountedPrice: deal.discounted_price,
-    daysRemaining: parseInt(deal.time_remaining) || 30, // Fallback to 30 if not present
+    imageUrl: deal.imageUrl,
+    originalPrice: deal.originalPrice,
+    discountedPrice: deal.discountedPrice,
+    daysRemaining: deal.daysRemaining,
     city: deal.city,
-    quantityLeft: deal.quantity_left,
-    isFree: deal.is_free,
-    salon: deal.salons ? {
-      id: deal.salon_id,
-      name: deal.salons.name,
-      address: null, // Address info not available in Deal type
-      phone: null,   // Phone info not available in Deal type
+    quantityLeft: deal.quantityLeft,
+    isFree: deal.isFree,
+    salon: deal.salon ? {
+      id: deal.salon.id,
+      name: deal.salon.name,
+      address: deal.salon.address,
+      phone: deal.salon.phone,
     } : null,
     booking_url: deal.booking_url,
     category: deal.category
@@ -86,10 +86,12 @@ const ProductDetails = () => {
                   title={dealData.title} 
                 />
                 
-                <ProductHeader 
-                  category={dealData.category} 
-                  city={dealData.city} 
-                />
+                <div className="mt-3">
+                  <ProductHeader 
+                    category={dealData.category} 
+                    city={dealData.city} 
+                  />
+                </div>
                 
                 <div className="block lg:hidden">
                   <DealInfo
