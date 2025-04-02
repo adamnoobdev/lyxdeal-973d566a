@@ -41,7 +41,7 @@ export function CategoryBadge({
   return (
     <div 
       className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium",
+        "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
         variant === "default" 
           ? "bg-primary text-white" 
           : "bg-white text-primary/90 border border-primary/20",
@@ -53,7 +53,7 @@ export function CategoryBadge({
     >
       {children || (
         <>
-          <span className="text-base">{getCategoryEmoji(category)}</span>
+          <span className="text-sm">{getCategoryEmoji(category)}</span>
           <span>{category}</span>
         </>
       )}

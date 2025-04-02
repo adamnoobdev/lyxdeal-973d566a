@@ -62,14 +62,14 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
               key={category}
               onClick={() => handleCategoryClick(category)}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium",
+                "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
                 "shadow-sm hover:shadow-md active:scale-95",
                 selectedCategory === category 
                   ? "bg-primary text-white border-transparent"
                   : "bg-white text-primary/90 border border-primary/20 hover:border-primary/40 hover:bg-primary/5"
               )}
             >
-              <span className="text-base">{getCategoryEmoji(category)}</span>
+              <span className="text-sm">{getCategoryEmoji(category)}</span>
               <span>{category}</span>
             </button>
           ))}
