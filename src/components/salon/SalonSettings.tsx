@@ -54,7 +54,7 @@ export const SalonSettings = () => {
       <div className="space-y-8">
         <h1 className="text-2xl sm:text-3xl font-bold">Inställningar</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-8">
           {/* Subscription Section */}
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Prenumeration</h2>
