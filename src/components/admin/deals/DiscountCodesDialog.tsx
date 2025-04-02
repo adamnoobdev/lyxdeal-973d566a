@@ -69,8 +69,16 @@ export const DiscountCodesDialog = ({
     }
   };
 
+  // Säkerställ att dialog stängs korrekt
+  const handleDialogChange = (open: boolean) => {
+    if (!open) {
+      console.log("[DiscountCodesDialog] Dialog closing via X button");
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>

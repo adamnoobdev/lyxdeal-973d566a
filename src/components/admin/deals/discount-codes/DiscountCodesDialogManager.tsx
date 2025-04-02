@@ -39,14 +39,21 @@ export const DiscountCodesDialogManager = ({
   
   // Hantera stängning av dialogen
   const handleCloseDiscountCodesDialog = useCallback(() => {
+    console.log("[DiscountCodesDialogManager] Closing discount codes dialog");
     setIsClosingCodesDialog(true);
+    
+    // Använd setTimeout för att förhindra att statet uppdateras medan dialogen fortfarande stängs
     setTimeout(() => {
-      setViewingCodesForDeal(null);
+      if (viewingCodesForDeal) {
+        setViewingCodesForDeal(null);
+      }
+      if (justCreatedDeal) {
+        resetJustCreatedDeal();
+      }
       setIsClosingCodesDialog(false);
       setIsViewingCodes(false);
-      resetJustCreatedDeal();
     }, 300);
-  }, [resetJustCreatedDeal]);
+  }, [resetJustCreatedDeal, justCreatedDeal, viewingCodesForDeal]);
   
   // Avgör vilket erbjudande som ska visas (antingen via explicit visning eller auto-visning av nya)
   const activeDeal = viewingCodesForDeal || justCreatedDeal;

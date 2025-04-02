@@ -34,6 +34,7 @@ export const SalonDeals: React.FC = () => {
   const [isProcessingAction, setIsProcessingAction] = useState(false);
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
 
   useEffect(() => {
     if (!editingDeal && isDialogOpen) {
@@ -52,7 +53,15 @@ export const SalonDeals: React.FC = () => {
   const handleCloseDiscountCodesDialog = useCallback(() => {
     if (isProcessingAction) return;
     console.log("[SalonDeals] Closing discount codes dialog");
-    setViewingCodesForDeal(null);
+    
+    // Set closing state to prevent UI freeze
+    setIsClosingCodesDialog(true);
+    
+    // Use setTimeout to delay state updates
+    setTimeout(() => {
+      setViewingCodesForDeal(null);
+      setIsClosingCodesDialog(false);
+    }, 300);
   }, [isProcessingAction]);
   
   const handleEditDeal = useCallback((deal: Deal) => {
@@ -126,6 +135,8 @@ export const SalonDeals: React.FC = () => {
     return <SalonDealsError message={error} />;
   }
 
+  const isDiscountCodesDialogOpen = !!viewingCodesForDeal && !isClosingCodesDialog;
+
   return (
     <div className="container mx-auto p-3 sm:p-6">
       <h1 className="text-lg xs:text-xl sm:text-2xl font-bold mb-3 sm:mb-6">Hantera Erbjudande</h1>
@@ -171,7 +182,7 @@ export const SalonDeals: React.FC = () => {
       )}
 
       <DiscountCodesDialog
-        isOpen={!!viewingCodesForDeal}
+        isOpen={isDiscountCodesDialogOpen}
         onClose={handleCloseDiscountCodesDialog}
         deal={viewingCodesForDeal}
         onGenerateDiscountCodes={handleGenerateDiscountCodes}
