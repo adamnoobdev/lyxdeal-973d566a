@@ -1,49 +1,8 @@
 
 import { PricingCard } from "./PricingCard";
+import { SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
 
 export const PricingSection = () => {
-  const basicPackage = {
-    title: "Baspaket",
-    monthlyPrice: 399,
-    yearlyPrice: 2788,
-    yearSavings: 2000,
-    dealCount: 1,
-    features: [
-      "Synlighet på Lyxdeal.se",
-      "Tillgång till administratörspanel",
-      "Grundläggande statistik",
-      "Kundhantering",
-      "Direkt bokningslänk till din hemsida"
-    ],
-    limitations: [
-      "Max 1 erbjudande åt gången",
-      "Endast direkt bokning (inga rabattkoder)"
-    ]
-  };
-
-  const premiumPackage = {
-    title: "Premiumpaket",
-    monthlyPrice: 699,
-    yearlyPrice: 5388,
-    yearSavings: 3000,
-    dealCount: 3,
-    features: [
-      "Synlighet på Lyxdeal.se",
-      "Tillgång till administratörspanel",
-      "Detaljerad statistik",
-      "Kundhantering",
-      "Prioriterad placering",
-      "Marknadsföringsstöd",
-      "Rabattkodshantering",
-      "1 utvalt erbjudande i månaden"
-    ],
-    limitations: [
-      "Max 3 erbjudanden samtidigt",
-      "Stöd för både rabattkoder och direkt bokning"
-    ],
-    isPopular: true
-  };
-
   return (
     <div id="pricing-section" className="py-12 md:py-16 bg-gradient-to-b from-white to-secondary/5">
       <div className="container px-4 md:px-6">
@@ -59,8 +18,8 @@ export const PricingSection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          <PricingCard {...basicPackage} />
-          <PricingCard {...premiumPackage} />
+          <PricingCard {...SUBSCRIPTION_PLANS["Baspaket"]} />
+          <PricingCard {...SUBSCRIPTION_PLANS["Premiumpaket"]} />
         </div>
         
         <div className="text-center mt-6 text-xs text-muted-foreground">

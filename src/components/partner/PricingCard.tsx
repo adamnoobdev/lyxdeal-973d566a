@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, XCircle } from "lucide-react";
+import { Check, Sparkles, Info } from "lucide-react";
 import { useState } from "react";
 import { SubscriptionPlan } from "@/components/salon/subscription/types";
 
@@ -24,6 +24,7 @@ export const PricingCard = ({
 }: PricingCardProps) => {
   const [billingType, setBillingType] = useState<"monthly" | "yearly">("monthly");
   const price = billingType === "monthly" ? monthlyPrice : yearlyPrice;
+  const isBasic = title === "Baspaket";
 
   const handleSelect = () => {
     if (onSelectPlan) {
@@ -102,21 +103,41 @@ export const PricingCard = ({
             <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
             <span className="font-medium"><strong>{dealCount}</strong> {dealCount === 1 ? 'erbjudande' : 'erbjudanden'} åt gången</span>
           </li>
-          {features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-2 text-xs">
-              <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-              <span>{feature}</span>
-            </li>
-          ))}
+          
+          {/* Visa alla features för baspaket, eller "Allt som ingår i baspaket" + premium-features för premium */}
+          {isBasic ? (
+            // Visa alla features för baspaketet
+            features.map((feature, index) => (
+              <li key={index} className="flex items-start gap-2 text-xs">
+                <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                <span>{feature}</span>
+              </li>
+            ))
+          ) : (
+            // För premiumpaket, visa först "Allt som ingår i baspaket" och sedan de extra funktionerna
+            <>
+              <li className="flex items-start gap-2 text-xs">
+                <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                <span className="font-medium">Allt som ingår i Baspaket</span>
+              </li>
+              {features.filter(feature => 
+                !SUBSCRIPTION_PLANS["Baspaket"].features.includes(feature)
+              ).map((feature, index) => (
+                <li key={index} className="flex items-start gap-2 text-xs">
+                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </>
+          )}
         </ul>
         
         {limitations && limitations.length > 0 && (
           <div className="mt-3 pt-3 border-t border-dashed">
-            <h4 className="text-xs font-medium mb-2 text-muted-foreground">Begränsningar:</h4>
             <ul className="space-y-2">
               {limitations.map((limitation, index) => (
                 <li key={index} className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <XCircle className="h-3.5 w-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <Info className="h-3.5 w-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
                   <span>{limitation}</span>
                 </li>
               ))}
