@@ -4,37 +4,8 @@ import { FormValues } from "@/components/deal-form/schema";
 import { differenceInDays } from "date-fns";
 import { toast } from "sonner";
 
-export const updateDeal = async (
-  values: FormValues,
-  dealId: number
-): Promise<boolean> => {
+export const updateDeal = async (values: FormValues, dealId: number): Promise<boolean> => {
   try {
-    // Hämtar befintligt erbjudande för att kontrollera requires_discount_code
-    const { data: existingDeal, error: fetchError } = await supabase
-      .from('deals')
-      .select('requires_discount_code')
-      .eq('id', dealId)
-      .single();
-      
-    if (fetchError) {
-      console.error('Database error fetching existing deal:', fetchError);
-      throw fetchError;
-    }
-    
-    if (!existingDeal) {
-      console.error('Deal not found');
-      throw new Error('Deal not found');
-    }
-    
-    // Om befintligt erbjudande har requires_discount_code=true, se till att vi inte ändrar det till false
-    let requiresDiscountCode = values.requires_discount_code ?? true;
-    
-    if (existingDeal.requires_discount_code === true && !requiresDiscountCode) {
-      console.warn('Attempt to change requires_discount_code from true to false prevented');
-      toast.warning("Ett erbjudande som använder rabattkoder kan inte ändras till att inte använda dem.");
-      requiresDiscountCode = true;
-    }
-    
     const originalPrice = parseInt(values.originalPrice) || 0;
     const discountedPriceVal = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPriceVal === 0;
@@ -53,16 +24,8 @@ export const updateDeal = async (
       originalPrice,
       discountedPrice,
       is_free: isFree,
-      expirationDate: expirationDate,
-      booking_url: values.booking_url,
-      requires_discount_code: requiresDiscountCode
+      expirationDate: expirationDate
     });
-    
-    // Validate that booking URL is provided when discount codes are not required
-    if (!requiresDiscountCode && !values.booking_url) {
-      toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
-      return false;
-    }
     
     const { error } = await supabase
       .from('deals')
@@ -80,8 +43,8 @@ export const updateDeal = async (
         status: 'pending',
         is_free: isFree, // Set is_free flag for free deals
         quantity_left: parseInt(values.quantity) || 10,
-        booking_url: values.booking_url || null, // Lägg till bokningslänk
-        requires_discount_code: requiresDiscountCode,
+        booking_url: values.booking_url,
+        requires_discount_code: values.requires_discount_code
       })
       .eq('id', dealId);
 

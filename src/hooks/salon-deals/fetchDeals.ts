@@ -25,6 +25,6 @@ export const fetchSalonDeals = async (salonId: number): Promise<Deal[]> => {
     expiration_date: deal.expiration_date || new Date().toISOString()
   }));
 
-  // Add type assertion
+  // Add type assertion to make TypeScript happy
   return transformedDeals as unknown as Deal[];
 };
