@@ -62,30 +62,6 @@ export const DiscountCodesDirectBooking = ({ deal }: DiscountCodesDirectBookingP
           </div>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Statistik</CardTitle>
-          <CardDescription>
-            Statistik för detta erbjudande
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 p-4 rounded border">
-              <div className="text-sm text-gray-500">Antal visningar</div>
-              <div className="text-2xl font-bold">-</div>
-            </div>
-            <div className="bg-gray-50 p-4 rounded border">
-              <div className="text-sm text-gray-500">Klick på bokningslänk</div>
-              <div className="text-2xl font-bold">-</div>
-            </div>
-          </div>
-          <div className="mt-4 text-center text-sm text-gray-500">
-            Statistikfunktionen är under utveckling
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

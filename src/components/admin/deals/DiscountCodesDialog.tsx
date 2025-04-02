@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { DiscountCodesEmptyState } from "./discount-codes/DiscountCodesEmptyState";
 import { DiscountCodesGenerator } from "./discount-codes/DiscountCodesGenerator";
 import { DiscountCodesDirectBooking } from "./discount-codes/DiscountCodesDirectBooking";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DiscountCodesDialogProps {
   isOpen: boolean;
