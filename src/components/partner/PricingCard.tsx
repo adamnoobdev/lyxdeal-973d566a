@@ -67,17 +67,16 @@ export const PricingCard = ({
               Årsvis
             </Button>
           </div>
+          {billingType === "yearly" && (
+            <div className="ml-2 text-xs text-primary font-medium flex items-center">
+              Spara {yearSavings} kr
+            </div>
+          )}
         </div>
         
-        {billingType === "yearly" && (
-          <div className="text-xs text-primary font-medium bg-secondary/20 p-1.5 inline-block">
-            Spara {yearSavings} kr med årsbetalning!
-          </div>
-        )}
-        
-        <div className="text-center">
-          <div className="flex items-center justify-center">
-            <span className="text-3xl font-bold text-primary">{price}</span>
+        <div className="text-left">
+          <div className="flex items-baseline">
+            <span className="text-4xl font-bold text-primary">{price}</span>
             <span className="text-lg font-medium text-primary ml-1">kr</span>
             <span className="text-muted-foreground text-xs ml-2">
               {billingType === "monthly" ? "/mån" : "/år"}
