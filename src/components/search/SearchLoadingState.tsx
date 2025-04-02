@@ -30,8 +30,8 @@ export const SearchLoadingState = ({
 
       {/* Loading breadcrumb */}
       <div className="w-full bg-gray-50/80 py-4 border-b border-gray-100 shadow-sm">
-        <div className="container mx-auto px-4 flex justify-center">
-          <div className="max-w-5xl w-full flex justify-center md:justify-start">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center">
             <Breadcrumb>
               <BreadcrumbList className="text-xs md:text-sm text-gray-600">
                 <BreadcrumbItem>
