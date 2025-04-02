@@ -26,24 +26,6 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
     defaultValue: false
   });
   
-  const bookingUrl = useWatch({
-    control: form.control,
-    name: "booking_url",
-    defaultValue: ""
-  });
-  
-  // When turning off discount codes, we need to ensure a booking URL is provided
-  useEffect(() => {
-    if (!requiresDiscountCode && !bookingUrl) {
-      form.setError("booking_url", {
-        type: "manual",
-        message: "En bokningslänk krävs när erbjudandet inte använder rabattkoder"
-      });
-    } else if (!requiresDiscountCode && bookingUrl) {
-      form.clearErrors("booking_url");
-    }
-  }, [requiresDiscountCode, bookingUrl, form]);
-  
   return (
     <FormField
       control={form.control}
@@ -85,15 +67,7 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
             <Switch
               checked={field.value}
               disabled={readOnly && field.value}
-              onCheckedChange={(checked) => {
-                field.onChange(checked);
-                if (!checked) {
-                  // Highlight the booking URL field if it's empty
-                  if (!form.getValues("booking_url")) {
-                    form.setFocus("booking_url");
-                  }
-                }
-              }}
+              onCheckedChange={field.onChange}
             />
           </FormControl>
         </FormItem>

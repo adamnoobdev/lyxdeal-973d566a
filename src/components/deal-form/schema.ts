@@ -44,7 +44,9 @@ export const formSchema = z.object({
   is_active: z.boolean().default(true),
   booking_url: z.string().url({
     message: "Vänligen ange en giltig URL som börjar med http:// eller https://",
-  }).optional().or(z.literal('')),
+  }).min(1, {
+    message: "En bokningslänk måste anges."
+  }),
   requires_discount_code: z.boolean().default(false),
 });
 
