@@ -47,7 +47,7 @@ export function ManageSubscription() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Din prenumeration</span>
+          <span>Status</span>
           <Badge 
             variant={currentSubscriptionInfo.status === "active" ? "default" : "destructive"}
             className="ml-2"
