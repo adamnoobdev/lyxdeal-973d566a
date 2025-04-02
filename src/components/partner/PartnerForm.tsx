@@ -1,171 +1,203 @@
-
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { usePartnerForm } from "@/hooks/usePartnerForm";
-import { MapboxAddressInput, AddressParts } from "@/components/common/MapboxAddressInput";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Link } from "react-router-dom";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { submitPartnerRequest } from "@/hooks/usePartnerRequests";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
-interface SelectedPlan {
-  title: string;
-  paymentType: 'monthly' | 'yearly';
-  price: number;
-  dealCount: number;
-}
+const formSchema = z.object({
+  name: z.string().min(2, { message: "Namn måste vara minst 2 tecken." }),
+  business_name: z.string().min(2, { message: "Företagsnamn måste vara minst 2 tecken." }),
+  email: z.string().email({ message: "Ogiltig e-postadress." }),
+  phone: z.string().min(6, { message: "Telefonnummer måste vara minst 6 tecken." }),
+  address: z.string().optional(),
+  message: z.string().optional(),
+});
+
+export type PartnerFormValues = z.infer<typeof formSchema>;
 
 interface PartnerFormProps {
-  selectedPlan: SelectedPlan | null;
+  selectedPlan: {
+    title: string;
+    paymentType: 'monthly' | 'yearly';
+    price: number;
+    dealCount: number;
+  } | null;
 }
 
-export const PartnerForm: React.FC<PartnerFormProps> = ({ selectedPlan }) => {
+export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { formData, isSubmitting, handleChange, handleAddressChange, handleSubmit, handleCheckboxChange, formErrors } = usePartnerForm(selectedPlan);
 
-  // Hantera direkt adressinmatning från Mapbox
-  const handleMapboxAddressChange = (value: string, parts?: AddressParts) => {
-    // Uppdatera adressfältet för formuläret
-    handleAddressChange(value);
-    
-    // Om vi har uppdelade delar, uppdatera dem också
-    if (parts) {
-      if (parts.street) handleChange({ target: { id: 'street', value: parts.street } } as any);
-      if (parts.postalCode) handleChange({ target: { id: 'postalCode', value: parts.postalCode } } as any);
-      if (parts.city) handleChange({ target: { id: 'city', value: parts.city } } as any);
+  const form = useForm<PartnerFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      business_name: "",
+      email: "",
+      phone: "",
+      address: "",
+      message: "",
+    },
+  });
+
+  const onSubmit = async (values: PartnerFormValues) => {
+    if (!selectedPlan) {
+      toast.error("Inget paket valt. Vänligen välj ett paket först.");
+      navigate("/partner");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Prepare the data with plan information
+      const requestData = {
+        ...values,
+        plan_title: selectedPlan.title,
+        plan_payment_type: selectedPlan.paymentType,
+        plan_price: selectedPlan.price,
+        plan_deal_count: selectedPlan.dealCount
+      };
+      
+      const result = await submitPartnerRequest(requestData);
+      
+      if (result.success) {
+        toast.success("Din ansökan har skickats!");
+        
+        // If we got a redirect URL, the user will be redirected to Stripe Checkout
+        if (result.redirectUrl) {
+          // The redirect is handled in submitPartnerRequest
+          return;
+        }
+        
+        // Otherwise navigate to success page
+        navigate("/partner/success");
+      } else {
+        throw new Error(result.error || "Ett okänt fel inträffade");
+      }
+    } catch (error) {
+      console.error("Error submitting partner request:", error);
+      toast.error(error.message || "Något gick fel. Vänligen försök igen.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit} aria-label="Partner registreringsformulär">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium">Namn</label>
-          <Input 
-            id="name" 
-            placeholder="Ditt namn" 
-            value={formData.name}
-            onChange={handleChange}
-            required
-            aria-required="true"
-            className="w-full"
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="business" className="text-sm font-medium">Företagsnamn</label>
-          <Input 
-            id="business" 
-            placeholder="Ditt företag" 
-            value={formData.business}
-            onChange={handleChange}
-            required
-            aria-required="true"
-            className="w-full"
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">E-post</label>
-          <Input 
-            id="email" 
-            type="email" 
-            placeholder="din@email.com" 
-            value={formData.email}
-            onChange={handleChange}
-            required
-            aria-required="true"
-            className="w-full"
-            inputMode="email"
-          />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="phone" className="text-sm font-medium">Telefon</label>
-          <Input 
-            id="phone" 
-            placeholder="Ditt telefonnummer" 
-            value={formData.phone}
-            onChange={handleChange}
-            required
-            aria-required="true"
-            className="w-full"
-            inputMode="tel"
-          />
-        </div>
-        
-        {/* Använd Mapbox för adressinmatning */}
-        <div className="md:col-span-2 space-y-2">
-          <label htmlFor="address" className="text-sm font-medium">Adress</label>
-          <MapboxAddressInput
-            defaultValue={formData.address || ''}
-            onChange={handleMapboxAddressChange}
-            id="address"
-            placeholder="Sök efter din adress"
-            required
-          />
-          
-          {/* Dolda fält för att lagra strukturerade adressdelar */}
-          <input type="hidden" id="street" value={formData.street || ''} onChange={() => {}} />
-          <input type="hidden" id="postalCode" value={formData.postalCode || ''} onChange={() => {}} />
-          <input type="hidden" id="city" value={formData.city || ''} onChange={() => {}} />
-        </div>
-      </div>
-      
-      {/* Kombinerad villkorsacceptans för både allmänna villkor och integritetspolicyn */}
-      <div className="space-y-4 bg-gray-50 p-4 rounded-md">
-        <div className="flex items-start space-x-3">
-          <Checkbox 
-            id="termsAndPrivacyAccepted" 
-            checked={(formData.termsAccepted && formData.privacyAccepted) || false}
-            onCheckedChange={(checked) => {
-              const isChecked = checked === true;
-              handleCheckboxChange('termsAccepted', isChecked);
-              handleCheckboxChange('privacyAccepted', isChecked);
-            }}
-            className="mt-1 border-gray-400"
-          />
-          <div>
-            <label 
-              htmlFor="termsAndPrivacyAccepted" 
-              className="text-[#5D1277] font-medium cursor-pointer"
-            >
-              Jag har läst och accepterar <Link to="/terms" className="text-primary hover:underline" target="_blank">allmänna villkor</Link> och <Link to="/privacy" className="text-primary hover:underline" target="_blank">integritetspolicyn</Link>
-            </label>
-            {(formErrors.termsAccepted || formErrors.privacyAccepted) && (
-              <p className="text-sm text-red-500 mt-1">Du måste acceptera våra villkor för att fortsätta</p>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ditt namn</FormLabel>
+                <FormControl>
+                  <Input placeholder="Anna Andersson" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
+
+          <FormField
+            control={form.control}
+            name="business_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Företagsnamn</FormLabel>
+                <FormControl>
+                  <Input placeholder="Din Salong AB" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-      </div>
-      
-      <div className="flex flex-col sm:flex-row gap-4 pt-4">
-        <LoadingButton 
-          type="submit" 
-          className="flex-1 w-full"
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          aria-label={isSubmitting ? "Skickar din information..." : "Fortsätt till betalning"}
-        >
-          {isSubmitting ? "Bearbetar..." : "Fortsätt till betalning"}
-        </LoadingButton>
-        
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>E-post</FormLabel>
+                <FormControl>
+                  <Input placeholder="ditt@företag.se" type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telefon</FormLabel>
+                <FormControl>
+                  <Input placeholder="070-123 45 67" type="tel" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Adress (frivillig)</FormLabel>
+              <FormControl>
+                <Input placeholder="Gatan 123, 123 45 Staden" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="message"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Meddelande (frivillig)</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Om det är något speciellt du vill meddela oss"
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button 
-          type="button" 
-          variant="outline" 
-          className="flex-1 w-full"
-          onClick={() => navigate('/partner')}
+          type="submit" 
+          className="w-full"
           disabled={isSubmitting}
-          aria-label="Avbryt registrering"
         >
-          Avbryt
+          {isSubmitting ? "Skickar..." : "Skicka ansökan"}
         </Button>
-      </div>
-      
-      <div className="mt-4 p-3 bg-muted rounded-md">
-        <p className="text-sm text-muted-foreground">
-          Efter registrering kommer du att skickas till vår betalningspartner för att slutföra din prenumeration. 
-          <strong className="font-medium"> Kom ihåg att använda rabattkoden "provmanad" för att få din första månad gratis!</strong>
-        </p>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 };

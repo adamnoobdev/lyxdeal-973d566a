@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { SubscriptionPlan, SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
+import { useNavigate } from "react-router-dom";
 
 interface PricingCardProps extends SubscriptionPlan {
-  onSelectPlan?: (planTitle: string, planType: "monthly" | "yearly", price: number) => void;
+  onSelectPlan?: (planTitle: string, planType: "monthly" | "yearly", price: number, dealCount: number) => void;
   limitations?: string[];
 }
 
@@ -24,10 +25,14 @@ export const PricingCard = ({
   const [billingType, setBillingType] = useState<"monthly" | "yearly">("monthly");
   const price = billingType === "monthly" ? monthlyPrice : yearlyPrice;
   const isBasic = title === "Baspaket";
+  const navigate = useNavigate();
 
   const handleSelect = () => {
     if (onSelectPlan) {
-      onSelectPlan(title, billingType, price);
+      onSelectPlan(title, billingType, price, dealCount);
+    } else {
+      // If no callback provided, navigate directly to signup with params
+      navigate(`/partner/signup?plan=${encodeURIComponent(title)}&type=${billingType}&price=${price}&deals=${dealCount}`);
     }
   };
 
