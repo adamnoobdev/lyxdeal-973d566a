@@ -6,10 +6,10 @@ export const PartnerHero = () => {
   const navigate = useNavigate();
   
   const handleContactClick = () => {
-    // Navigera till kontaktformuläret längre ner på sidan
-    const contactSection = document.getElementById('contact-section');
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
+    // Navigera till prisformuläret längre ner på sidan
+    const pricingSection = document.getElementById('pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
   
