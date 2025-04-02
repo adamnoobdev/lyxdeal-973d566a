@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSalonDealsManagement } from '@/hooks/salon-deals-management';
@@ -111,7 +112,7 @@ export const SalonDeals: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         <Skeleton className="h-8 w-1/3 mb-4" />
         <div className="space-y-4">
           <Skeleton className="h-32 w-full" />
@@ -126,12 +127,12 @@ export const SalonDeals: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Hantera Erbjudande</h1>
+    <div className="container mx-auto p-4 sm:p-6">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Hantera Erbjudande</h1>
       
-      <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-4 mb-6">
+      <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-2 sm:p-4 mb-4 sm:mb-6">
         <CardHeader className="px-0 pt-0">
-          <CardTitle className="text-lg">Dina erbjudanden</CardTitle>
+          <CardTitle className="text-base sm:text-lg">Dina erbjudanden</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <DealsTable

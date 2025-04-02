@@ -10,8 +10,8 @@ export const DealsHeader = ({ onCreateClick }: DealsHeaderProps) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
       <div>
-        <h1 className="text-3xl font-bold text-primary mb-1">Erbjudanden</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-1">Erbjudanden</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Hantera och övervaka alla erbjudanden
         </p>
       </div>

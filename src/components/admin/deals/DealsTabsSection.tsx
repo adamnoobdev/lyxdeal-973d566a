@@ -26,18 +26,18 @@ export const DealsTabsSection = ({
   isGeneratingCodes
 }: DealsTabsSectionProps) => {
   return (
-    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-4">
+    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-2 sm:p-4">
       <Tabs defaultValue="active" className="w-full">
-        <TabsList className="mb-4 w-full max-w-md bg-secondary/10 border border-secondary/30">
+        <TabsList className="mb-4 w-full sm:max-w-md bg-secondary/10 border border-secondary/30">
           <TabsTrigger
             value="active"
-            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm"
+            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm text-xs sm:text-sm"
           >
             Aktiva erbjudanden ({activeDeals.length})
           </TabsTrigger>
           <TabsTrigger
             value="inactive"
-            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm"
+            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm text-xs sm:text-sm"
           >
             Inaktiva erbjudanden ({inactiveDeals.length})
           </TabsTrigger>

@@ -84,7 +84,7 @@ export const DealsListContainer = () => {
   }
 
   if (error) return (
-    <Alert variant="destructive">
+    <Alert variant="destructive" className="mx-4 sm:mx-0">
       <AlertCircle className="h-4 w-4" />
       <AlertDescription>
         {error instanceof Error ? error.message : "Ett fel uppstod när erbjudanden skulle hämtas"}
@@ -95,10 +95,10 @@ export const DealsListContainer = () => {
   const pendingDeals = deals?.filter(deal => deal.status === 'pending') || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-4 sm:px-0">
       <DealsHeader onCreateClick={handleCreateDeal} />
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {pendingDeals.length > 0 && (
           <PendingDealsSection 
             pendingDeals={pendingDeals}

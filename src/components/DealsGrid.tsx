@@ -15,7 +15,11 @@ const DealsGridComponent = ({ deals, className = "" }: DealsGridProps) => {
   }
 
   return (
-    <ResponsiveGrid className={className} gap="gap-3 sm:gap-4" columns="grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"> {/* Uppdaterar kolumnantalet och gap */}
+    <ResponsiveGrid 
+      className={className} 
+      gap="gap-3 sm:gap-4" 
+      columns="grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+    >
       {deals.map((deal) => (
         <DealCard
           key={deal.id}

@@ -1,3 +1,4 @@
+
 import { useParams } from "react-router-dom";
 import { DealsTable } from "../deals/DealsTable";
 import { EditDealDialog } from "../deals/EditDealDialog";
@@ -113,13 +114,13 @@ export function SalonDeals() {
 
   return (
     <>
-      <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-4">
+      <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-2 sm:p-4">
         <Tabs defaultValue="active" className="w-full">
           <TabsList className="mb-4 w-full max-w-md bg-secondary/10 border border-secondary/30">
-            <TabsTrigger value="active" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
+            <TabsTrigger value="active" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm text-xs sm:text-sm">
               Aktiva erbjudanden ({activeDeals.length})
             </TabsTrigger>
-            <TabsTrigger value="inactive" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">
+            <TabsTrigger value="inactive" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm text-xs sm:text-sm">
               Inaktiva erbjudanden ({inactiveDeals.length})
             </TabsTrigger>
           </TabsList>
