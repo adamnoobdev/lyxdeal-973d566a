@@ -45,7 +45,7 @@ export const RegularDealContent = ({
       <div className="flex items-start justify-between gap-1 mb-1.5">
         <CategoryBadge 
           category={category} 
-          className="text-[10px] py-0.5 px-1.5" 
+          className="text-[9px] py-0.5 px-1" 
         />
         <div className="flex items-center text-xs text-muted-foreground bg-gray-100/70 px-1.5 py-0.5 rounded-full">
           <Calendar className="h-3 w-3 mr-0.5" />
