@@ -53,48 +53,43 @@ export const SearchLoadingState = ({
         </div>
       </div>
 
-      <div className="container mx-auto p-4 md:p-6">
-        <Link to="/">
-          <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Tillbaka till startsidan
-          </Button>
-        </Link>
-
-        <div className="my-6">
-          <Skeleton className="h-10 w-2/3 mb-2" />
-          <Skeleton className="h-5 w-full max-w-lg mb-4" />
-          <Skeleton className="h-4 w-40 mt-2" />
-        </div>
-
-        {/* Categories placeholder */}
-        <div className="mb-6">
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-9 w-24 rounded-full flex-shrink-0" />
-            ))}
+      <div className="container mx-auto p-4 md:p-6 flex flex-col items-center">
+        <div className="max-w-5xl w-full">
+          <div className="flex justify-start w-full">
+            <Link to="/">
+              <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Tillbaka till startsidan
+              </Button>
+            </Link>
           </div>
-        </div>
 
-        {/* Cities placeholder */}
-        <div className="mb-8">
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-9 w-20 rounded-full flex-shrink-0" />
-            ))}
+          <div className="my-6 text-center">
+            <Skeleton className="h-10 w-2/3 mb-2 mx-auto" />
+            <Skeleton className="h-5 w-full max-w-lg mb-4 mx-auto" />
+            <Skeleton className="h-4 w-40 mt-2 mx-auto" />
           </div>
-        </div>
 
-        {/* Deals grid placeholder */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <Skeleton className="h-48 w-full mb-3 rounded-lg" />
-              <Skeleton className="h-6 w-full mb-2" />
-              <Skeleton className="h-4 w-3/4 mb-2" />
-              <Skeleton className="h-6 w-1/2" />
+          {/* Categories placeholder */}
+          <div className="mb-6">
+            <div className="flex gap-2 overflow-x-auto pb-2 justify-center">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="h-9 w-24 rounded-full flex-shrink-0" />
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* Deals grid placeholder */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <Skeleton className="h-48 w-full mb-3 rounded-lg" />
+                <Skeleton className="h-6 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-6 w-1/2" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </>

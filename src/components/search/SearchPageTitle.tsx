@@ -54,7 +54,7 @@ export const SearchPageTitle = ({
   };
 
   return (
-    <div className="my-6">
+    <div className="my-6 text-center">
       <h1 className="text-2xl md:text-3xl font-bold mb-2">{getTitleText()}</h1>
       <p className="text-muted-foreground">{getDescriptionText()}</p>
       <p className="text-sm font-medium mt-4">{deals.length} erbjudanden hittades</p>

@@ -69,14 +69,16 @@ export const SearchResultsContent = ({
         city={city}
       />
       
-      <div className="container mx-auto p-4 md:p-6">
-        <div className="space-y-6">
-          <Link to="/">
-            <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Tillbaka till startsidan
-            </Button>
-          </Link>
+      <div className="container mx-auto p-4 md:p-6 flex flex-col items-center">
+        <div className="space-y-6 max-w-5xl w-full">
+          <div className="flex justify-start w-full">
+            <Link to="/">
+              <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Tillbaka till startsidan
+              </Button>
+            </Link>
+          </div>
 
           <SearchPageTitle
             deals={deals}
@@ -88,11 +90,6 @@ export const SearchResultsContent = ({
           <Categories 
             selectedCategory={selectedCategory} 
             onSelectCategory={onCategorySelect} 
-          />
-          
-          <Cities 
-            selectedCity={selectedCity} 
-            onSelectCity={onCitySelect} 
           />
           
           <DealsGrid deals={deals} />
