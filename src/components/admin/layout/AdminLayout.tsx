@@ -3,25 +3,19 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const [defaultOpen, setDefaultOpen] = useState(window.innerWidth >= 768);
+  const isMobile = useIsMobile();
+  const [defaultOpen, setDefaultOpen] = useState(!isMobile);
   
   useEffect(() => {
-    const handleResize = () => {
-      setDefaultOpen(window.innerWidth >= 768);
-    };
-    
-    // Set initial value
-    handleResize();
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    setDefaultOpen(!isMobile);
+  }, [isMobile]);
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>

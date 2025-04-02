@@ -13,26 +13,17 @@ const MemoizedAdminSidebarContent = memo(AdminSidebarContent);
 export const AdminSidebar = () => {
   const { session } = useSession();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
   const location = useLocation();
 
+  // Uppdaterad useEffect för bättre responsivitet
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (mobile && !isCollapsed) {
-        setIsCollapsed(true);
-      }
+      setIsMobile(window.innerWidth < 768);
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isCollapsed]);
-
-  // Använd useCallback för att förhindra onödiga re-renders när sidebarn öppnas/stängs
-  const handleToggleCollapse = useCallback(() => {
-    setIsCollapsed(!isCollapsed);
-  }, [isCollapsed]);
+  }, []);
 
   // Använd useMemo för queryKey för att minska re-renders
   const queryKey = useMemo(() => ['user-role', session?.user?.id], [session?.user?.id]);
@@ -62,13 +53,12 @@ export const AdminSidebar = () => {
 
   return (
     <Sidebar 
-      className={`border-r bg-white pt-16 z-10 shadow-sm ${isCollapsed ? 'collapsed' : ''}`}
+      className="border-r bg-white pt-16 z-10 shadow-sm"
       variant="inset" 
-      collapsible="icon"
+      collapsible={isMobile ? "offcanvas" : "icon"}
     >
       <SidebarTrigger 
         className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" 
-        onClick={handleToggleCollapse}
       />
       <MemoizedAdminSidebarContent 
         userRole={userData?.role} 
