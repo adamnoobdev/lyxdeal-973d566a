@@ -45,7 +45,7 @@ export const RegularDealContent = ({
   return (
     <div className="p-4 flex flex-col flex-1">
       <div className="flex items-start justify-between gap-2 mb-1.5">
-        <div className="flex flex-col">
+        <div className="flex flex-col items-start"> {/* Lägg till items-start */}
           <CategoryBadge category={category} />
           <h3 className="text-base font-medium line-clamp-2 mt-2 mb-1">{title}</h3>
         </div>
@@ -87,4 +87,4 @@ export const RegularDealContent = ({
       </div>
     </div>
   );
-};
+}

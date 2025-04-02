@@ -45,7 +45,7 @@ export function CategoryBadge({
         variant === "default" 
           ? "bg-primary text-white" 
           : "bg-white text-primary/90 border border-primary/20",
-        "shadow-sm whitespace-nowrap",
+        "shadow-sm whitespace-nowrap w-fit", // Lägg till w-fit för att förhindra stretching
         className
       )}
       onClick={onClick}
