@@ -16,10 +16,15 @@ export const ProductSchema = ({ deal }: ProductSchemaProps) => {
     ? new Date(deal.expiration_date).toISOString()
     : new Date(deal.expirationDate).toISOString();
   
-  // Format salon name safely
-  const salonName = 'salons' in deal && deal.salons?.name 
-    ? deal.salons.name 
-    : deal.salon?.name || `Salong i ${deal.city}`;
+  // Determine the salon name based on the deal type
+  // For Deal type, use salons.name
+  // For FormattedDealData type, use salon.name
+  let salonName = `Salong i ${deal.city}`;
+  if ('salons' in deal && deal.salons?.name) {
+    salonName = deal.salons.name;
+  } else if ('salon' in deal && deal.salon?.name) {
+    salonName = deal.salon.name;
+  }
   
   // Get image URL based on type
   const imageUrl = 'image_url' in deal ? deal.image_url : deal.imageUrl;
