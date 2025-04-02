@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet";
 import { PartnerHero } from "@/components/partner/PartnerHero";
 import { PartnerFeatures } from "@/components/partner/PartnerFeatures";
 import { HowItWorksSection } from "@/components/partner/HowItWorksSection";
+import { ComparisonSection } from "@/components/partner/ComparisonSection";
 import { PricingSection } from "@/components/partner/PricingSection";
 import { FAQSection } from "@/components/partner/FAQSection";
 import { TestimonialSection } from "@/components/partner/TestimonialSection";
@@ -20,6 +21,7 @@ const PartnerPage = () => {
         <PartnerHero />
         <PartnerFeatures />
         <HowItWorksSection />
+        <ComparisonSection />
         <PricingSection />
         <FAQSection />
         <TestimonialSection />
