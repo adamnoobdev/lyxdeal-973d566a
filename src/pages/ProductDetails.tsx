@@ -11,6 +11,10 @@ import { PurchaseSteps } from "@/components/deal/PurchaseSteps";
 import { SalonLocationMap } from "@/components/deal/map";
 import { Helmet } from "react-helmet";
 import { DatabaseAccessTester } from "@/components/debug/DatabaseAccessTester";
+import { CategoryBadge } from "@/components/CategoryBadge";
+import { Badge } from "@/components/ui/badge";
+import { MapPin } from "lucide-react";
+import { SearchBreadcrumbs } from "@/components/search/SearchBreadcrumbs";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -114,6 +118,13 @@ const ProductDetails = () => {
         </script>
       </Helmet>
 
+      {/* Breadcrumbs added here */}
+      <SearchBreadcrumbs 
+        query="" 
+        category={deal.category} 
+        city={deal.city} 
+      />
+
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           {showDebug && <DatabaseAccessTester />}
@@ -121,6 +132,18 @@ const ProductDetails = () => {
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-8 space-y-6">
+                {/* Category and city badges added here */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <CategoryBadge 
+                    category={deal.category} 
+                    className="bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
+                  />
+                  <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                    <MapPin className="h-3 w-3" />
+                    {deal.city}
+                  </Badge>
+                </div>
+                
                 <div className="bg-white shadow-sm overflow-hidden">
                   <ResponsiveImage
                     src={deal.imageUrl}
@@ -174,6 +197,18 @@ const ProductDetails = () => {
 
               <div className="lg:col-span-4 hidden lg:block">
                 <div className="lg:sticky lg:top-8">
+                  {/* Add category and city badges to the desktop sidebar version too */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <CategoryBadge 
+                      category={deal.category} 
+                      className="bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
+                    />
+                    <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                      <MapPin className="h-3 w-3" />
+                      {deal.city}
+                    </Badge>
+                  </div>
+                  
                   <DealInfo
                     id={deal.id}
                     title={deal.title}
