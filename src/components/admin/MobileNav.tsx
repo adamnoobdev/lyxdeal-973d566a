@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { useState } from "react";
 import { AdminSidebarContent } from "./sidebar/AdminSidebarContent";
@@ -43,9 +43,9 @@ export const AdminMobileNav = () => {
         <Button 
           variant="outline"
           size="icon"
-          className="fixed left-1/2 bottom-6 -translate-x-1/2 z-40 shadow-md md:hidden rounded-full"
+          className="fixed left-1/2 bottom-6 -translate-x-1/2 z-40 shadow-md md:hidden bg-primary text-primary-foreground hover:bg-primary/90"
         >
-          <Menu className="h-5 w-5" />
+          <Settings className="h-5 w-5" />
           <span className="sr-only">Admin Meny</span>
         </Button>
       </DrawerTrigger>
