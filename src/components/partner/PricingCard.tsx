@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles, Info } from "lucide-react";
 import { useState } from "react";
-import { SubscriptionPlan } from "@/components/salon/subscription/types";
+import { SubscriptionPlan, SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
 
 interface PricingCardProps extends SubscriptionPlan {
   onSelectPlan?: (planTitle: string, planType: "monthly" | "yearly", price: number) => void;
@@ -104,7 +104,7 @@ export const PricingCard = ({
             <span className="font-medium"><strong>{dealCount}</strong> {dealCount === 1 ? 'erbjudande' : 'erbjudanden'} åt gången</span>
           </li>
           
-          {/* Visa alla features för baspaket, eller "Allt som ingår i baspaket" + premium-features för premium */}
+          {/* Om det är baspaketet, visa alla features, annars visa "Allt i baspaket" plus premium features */}
           {isBasic ? (
             // Visa alla features för baspaketet
             features.map((feature, index) => (
@@ -114,7 +114,6 @@ export const PricingCard = ({
               </li>
             ))
           ) : (
-            // För premiumpaket, visa först "Allt som ingår i baspaket" och sedan de extra funktionerna
             <>
               <li className="flex items-start gap-2 text-xs">
                 <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
@@ -131,19 +130,6 @@ export const PricingCard = ({
             </>
           )}
         </ul>
-        
-        {limitations && limitations.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-dashed">
-            <ul className="space-y-2">
-              {limitations.map((limitation, index) => (
-                <li key={index} className="flex items-start gap-2 text-xs text-muted-foreground">
-                  <Info className="h-3.5 w-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <span>{limitation}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </CardContent>
       
       <CardFooter className="pt-2">
