@@ -1,3 +1,4 @@
+
 import { CategoryBadge } from "../CategoryBadge";
 
 interface DealHeaderProps {

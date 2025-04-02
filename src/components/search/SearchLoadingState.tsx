@@ -63,7 +63,7 @@ export const SearchLoadingState = ({
           <div className="mb-6">
             <div className="flex gap-2 overflow-x-auto pb-2 justify-center">
               {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-5 w-16 flex-shrink-0" />
+                <Skeleton key={i} className="h-6 w-20 flex-shrink-0" />
               ))}
             </div>
           </div>

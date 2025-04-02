@@ -38,13 +38,13 @@ export const FeaturedDealContent = ({
           <CategoryBadge 
             category={category} 
             variant="outline" 
-            className="border-white/80 text-white backdrop-blur-sm bg-white/10 shadow-sm text-[9px] sm:text-xs py-0.5 px-1 sm:px-1.5" 
+            className="border-white/80 text-white backdrop-blur-sm bg-white/10 shadow-sm text-[10px] sm:text-xs py-0.5 px-2 sm:px-2" 
           />
           {isNew && (
             <CategoryBadge
               category="NYTT"
               variant="default"
-              className="bg-yellow-400 text-yellow-950 border-transparent text-[9px] sm:text-xs py-0.5 px-1 sm:px-1.5"
+              className="bg-yellow-400 text-yellow-950 border-transparent text-[10px] sm:text-xs py-0.5 px-2 sm:px-2"
             />
           )}
         </div>

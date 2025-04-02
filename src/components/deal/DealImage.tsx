@@ -21,8 +21,8 @@ export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
       </div>
       {isNew && (
         <div className="absolute left-2 top-2">
-          <CategoryBadge category="NYTT" className="bg-white/90 text-primary-600 text-[10px] shadow-md">
-            <Star className="mr-0.5 h-2.5 w-2.5 text-amber-500" />
+          <CategoryBadge category="NYTT" className="bg-white/90 text-primary-600 text-[11px] shadow-md">
+            <Star className="mr-0.5 h-3 w-3 text-amber-500" />
             Ny
           </CategoryBadge>
         </div>
