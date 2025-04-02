@@ -1,4 +1,3 @@
-
 export interface Deal {
   id: number;
   title: string;
@@ -22,6 +21,7 @@ export interface Deal {
   is_active: boolean;
   expiration_date: string;
   booking_url?: string;
+  requires_discount_code?: boolean;
 }
 
 export interface Salon {

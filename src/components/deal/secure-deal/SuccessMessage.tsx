@@ -5,9 +5,10 @@ import { CheckCircle } from "lucide-react";
 interface SuccessMessageProps {
   onReset: () => void;
   email: string | null;
+  code?: string | null;
 }
 
-export const SuccessMessage = ({ onReset, email }: SuccessMessageProps) => {
+export const SuccessMessage = ({ onReset, email, code }: SuccessMessageProps) => {
   return (
     <div className="flex flex-col items-center text-center space-y-6">
       <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-100">

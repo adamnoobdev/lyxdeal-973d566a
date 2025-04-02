@@ -39,6 +39,10 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
     bookingUrl
   });
 
+  const handleGoBack = () => {
+    window.history.back();
+  };
+
   if (isSuccess && emailSent) {
     return (
       <SuccessMessage 
@@ -50,7 +54,7 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   }
 
   if (hasAlreadyClaimed) {
-    return <AlreadyClaimedMessage />;
+    return <AlreadyClaimedMessage onGoBack={handleGoBack} />;
   }
 
   return (
