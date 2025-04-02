@@ -16,7 +16,7 @@ export const AdminSidebar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const location = useLocation();
 
-  // Uppdaterad useEffect för bättre responsivitet
+  // Update useEffect for better responsiveness
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -26,7 +26,7 @@ export const AdminSidebar = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Använd useMemo för queryKey för att minska re-renders
+  // Use useMemo for queryKey to reduce re-renders
   const queryKey = useMemo(() => ['user-role', session?.user?.id], [session?.user?.id]);
 
   // Fetch user role to determine what sidebar content to show

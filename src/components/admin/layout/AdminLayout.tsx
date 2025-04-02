@@ -29,7 +29,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         
         <div className="flex-1 overflow-hidden pt-12 sm:pt-16">
           <ScrollArea className="h-[calc(100vh-3rem)] sm:h-[calc(100vh-4rem)]">
-            <div className="container mx-auto py-3 sm:py-6 px-0 sm:px-4 max-w-6xl">
+            <div className="container mx-auto py-3 sm:py-6 px-0 sm:px-4 md:px-6 max-w-6xl">
               {children}
             </div>
           </ScrollArea>

@@ -59,7 +59,7 @@ export const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 px-2 xs:px-4 sm:px-0">
+    <div className="space-y-6 px-2 xs:px-4 sm:px-6 md:px-8">
       <div>
         <h1 className="text-2xl xs:text-3xl font-bold tracking-tight text-primary">Översikt</h1>
         <p className="text-muted-foreground text-sm xs:text-base">
@@ -67,7 +67,7 @@ export const Dashboard = () => {
         </p>
       </div>
 
-      <div className="w-full grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+      <div className="w-full grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
         {statCards.map((stat, index) => (
           <Card key={index} className="overflow-hidden border-0 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-white">
