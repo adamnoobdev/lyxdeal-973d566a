@@ -13,13 +13,17 @@ interface UseSecureDealSubmitProps {
   dealTitle: string;
   onSuccess?: () => void;
   hasAlreadyClaimed: boolean;
+  requiresDiscountCode?: boolean;
+  bookingUrl?: string | null;
 }
 
 export const useSecureDealSubmit = ({
   dealId,
   dealTitle,
   onSuccess,
-  hasAlreadyClaimed
+  hasAlreadyClaimed,
+  requiresDiscountCode = true,
+  bookingUrl
 }: UseSecureDealSubmitProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -29,6 +33,12 @@ export const useSecureDealSubmit = ({
   const handleSubmit = async (values: SecureFormValues) => {
     if (hasAlreadyClaimed) {
       toast.error("Du har redan säkrat detta erbjudande.");
+      return;
+    }
+
+    // If this is a direct booking deal, redirect to the booking URL
+    if (!requiresDiscountCode && bookingUrl) {
+      window.open(bookingUrl, '_blank');
       return;
     }
 

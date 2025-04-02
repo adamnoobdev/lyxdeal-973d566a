@@ -1,20 +1,18 @@
-
-import { CategoryBadge } from "../CategoryBadge";
-import { Calendar, Tag, MapPin } from "lucide-react";
-import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
+import { MapPinIcon } from "@radix-ui/react-icons";
+import { CategoryBadge } from "./CategoryBadge";
 
 interface RegularDealContentProps {
   title: string;
   description: string;
   category: string;
   city: string;
-  daysRemaining: number;
   originalPrice: number;
   discountedPrice: number;
+  daysRemaining: number;
   quantityLeft: number;
   isFree?: boolean;
-  id?: number;
+  id: number;
+  requiresDiscountCode?: boolean;
 }
 
 export const RegularDealContent = ({
@@ -26,87 +24,66 @@ export const RegularDealContent = ({
   originalPrice,
   discountedPrice,
   quantityLeft,
-  isFree,
+  isFree = false,
   id,
+  requiresDiscountCode = true
 }: RegularDealContentProps) => {
-  // Calculate discount percentage
-  const discountPercentage = originalPrice > 0 
-    ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) 
-    : 0;
+  const formatCurrency = (price: number) => {
+    return new Intl.NumberFormat("sv-SE", {
+      style: "currency",
+      currency: "SEK",
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
 
-  // Check if it's free (either explicitly set or price is 0)
-  const isFreeDeal = isFree || discountedPrice === 0;
-
-  // Calculate saved amount
-  const savedAmount = originalPrice - discountedPrice;
+  const discountPercentage =
+    originalPrice > 0
+      ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100)
+      : 0;
 
   return (
-    <div className="p-3 flex flex-col h-full justify-between">
-      <div className="flex items-start justify-between gap-1 mb-1.5">
-        <CategoryBadge 
-          category={category} 
-          className="text-[10px] py-0.5 px-1.5" 
-        />
-        <div className="flex items-center text-xs text-muted-foreground bg-gray-100/70 px-1.5 py-0.5 rounded-full">
-          <Calendar className="h-3 w-3 mr-0.5" />
-          {daysRemaining}d
+    <div className="p-4 flex flex-col flex-1">
+      <div className="flex items-start justify-between gap-2 mb-1.5">
+        <div className="flex flex-col">
+          <CategoryBadge category={category} />
+          <h3 className="text-base font-medium line-clamp-2 mt-2 mb-1">{title}</h3>
         </div>
-      </div>
-
-      <div className="mb-2">
-        <h3 className="font-medium text-sm leading-tight line-clamp-2 mb-1">{title}</h3>
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-snug">
-          {description}
-        </p>
       </div>
       
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
-        <MapPin className="h-3 w-3" />
-        <span>{city}</span>
-        <span className="mx-1">•</span>
-        <span>{quantityLeft} kvar</span>
+      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{description}</p>
+      
+      <div className="flex items-center text-xs text-gray-500 mb-1.5">
+        <MapPinIcon className="h-3 w-3 mr-1" /> {city}
       </div>
-
-      <div className="mt-auto">
-        <div className="flex items-end justify-between mb-2">
-          <div className="space-y-0.5">
-            <div className="flex items-baseline gap-1">
-              <span className="text-base font-bold text-primary-600">
-                {isFreeDeal ? "Gratis" : `${discountedPrice} kr`}
-              </span>
-              {originalPrice > discountedPrice && (
-                <span className="text-xs line-through text-muted-foreground">
-                  {originalPrice} kr
+      
+      <div className="mt-auto pt-2 border-t">
+        <div className="flex items-end justify-between">
+          <div>
+            <span className="font-bold text-foreground">
+              {isFree ? "Gratis" : `${formatCurrency(discountedPrice)} kr`}
+            </span>
+            {originalPrice > 0 && !isFree && originalPrice !== discountedPrice && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs line-through text-gray-500">
+                  {formatCurrency(originalPrice)} kr
                 </span>
-              )}
-            </div>
-            {savedAmount > 0 && (
-              <p className="text-xs text-[#ea384c] font-medium">
-                Du sparar {savedAmount} kr
-              </p>
+                <span className="text-xs px-1 py-0.5 bg-red-100 text-red-700 rounded">
+                  -{discountPercentage}%
+                </span>
+              </div>
             )}
           </div>
-          {discountPercentage > 0 && (
-            <span className="text-xs font-medium text-white bg-[#ea384c] px-1.5 py-0.5 shadow-sm">
-              -{discountPercentage}%
-            </span>
+          
+          {requiresDiscountCode && (
+            <div className="flex flex-col text-right">
+              <div className="text-xs">
+                <span className="text-emerald-600 font-medium">{quantityLeft} kvar</span>
+              </div>
+              <div className="text-xs text-gray-500">{daysRemaining} dagar</div>
+            </div>
           )}
         </div>
-        
-        {id && (
-          <Button 
-            size="sm" 
-            className="w-full text-xs h-8 font-medium shadow-sm"
-            variant="default"
-            asChild
-          >
-            <Link to={`/deal/${id}`}>
-              <Tag className="h-3 w-3 mr-1.5" />
-              Säkra rabattkod
-            </Link>
-          </Button>
-        )}
       </div>
     </div>
   );
-}
+};

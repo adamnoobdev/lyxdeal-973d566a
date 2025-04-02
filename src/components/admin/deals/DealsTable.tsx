@@ -96,10 +96,10 @@ export const DealsTable = ({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span>{deal.quantity_left}</span>
+                          <span>{deal.requires_discount_code === false ? "—" : deal.quantity_left}</span>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Antal rabattkoder kvar</p>
+                          <p>{deal.requires_discount_code === false ? "Direkt bokning" : "Antal rabattkoder kvar"}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>

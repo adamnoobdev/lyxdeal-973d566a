@@ -61,7 +61,8 @@ const ProductDetails = () => {
       phone: deal.salon.phone,
     } : null,
     booking_url: deal.booking_url,
-    category: deal.category
+    category: deal.category,
+    requires_discount_code: deal.requires_discount_code
   };
 
   return (
@@ -107,6 +108,7 @@ const ProductDetails = () => {
                     isFree={dealData.isFree}
                     salon={dealData.salon}
                     booking_url={dealData.booking_url}
+                    requires_discount_code={dealData.requires_discount_code}
                   />
                 </div>
 
@@ -136,6 +138,7 @@ const ProductDetails = () => {
                     isFree={dealData.isFree}
                     salon={dealData.salon}
                     booking_url={dealData.booking_url}
+                    requires_discount_code={dealData.requires_discount_code}
                   />
                 </div>
               </div>

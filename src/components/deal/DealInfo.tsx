@@ -22,6 +22,7 @@ interface DealInfoProps {
     phone: string | null;
   } | null;
   booking_url?: string | null;
+  requires_discount_code?: boolean;
 }
 
 export const DealInfo = ({
@@ -34,7 +35,8 @@ export const DealInfo = ({
   salon,
   isFree,
   booking_url,
-  city
+  city,
+  requires_discount_code = true
 }: DealInfoProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -60,6 +62,7 @@ export const DealInfo = ({
   const hasSalonAddress = !!salon?.address;
   const hasSalonPhone = !!salon?.phone;
   const hasBookingUrl = !!booking_url;
+  const isDirectBooking = requires_discount_code === false;
 
   return (
     <div className="bg-white shadow-sm p-4 md:p-6 space-y-5 md:rounded-lg">
@@ -83,32 +86,45 @@ export const DealInfo = ({
           />
         </div>
 
-        {/* Availability information in a visually distinct box */}
-        <div className="p-3 bg-gray-50 rounded-md border border-gray-100">
-          <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
-            <div className="space-y-2 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                <span>{quantityLeft} rabattkoder kvar</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-primary rounded-full" />
-                <span>{timeRemainingText}</span>
+        {/* Availability information - only show for deals requiring discount codes */}
+        {!isDirectBooking && (
+          <div className="p-3 bg-gray-50 rounded-md border border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                  <span>{quantityLeft} rabattkoder kvar</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-primary rounded-full" />
+                  <span>{timeRemainingText}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
         
         {/* Button layout responsively adapts based on screen size */}
         <div className="space-y-3 pt-1">
-          <Button 
-            className="w-full bg-primary hover:bg-primary/90 text-white transition-colors"
-            size={isMobile ? "default" : "lg"}
-            onClick={handleSecureDeal}
-          >
-            <Tag className="mr-2 h-5 w-5" />
-            Säkra rabattkod
-          </Button>
+          {isDirectBooking ? (
+            <Button 
+              className="w-full bg-primary hover:bg-primary/90 text-white transition-colors"
+              size={isMobile ? "default" : "lg"}
+              onClick={handleBooking}
+            >
+              <ExternalLink className="mr-2 h-5 w-5" />
+              Gå till bokning
+            </Button>
+          ) : (
+            <Button 
+              className="w-full bg-primary hover:bg-primary/90 text-white transition-colors"
+              size={isMobile ? "default" : "lg"}
+              onClick={handleSecureDeal}
+            >
+              <Tag className="mr-2 h-5 w-5" />
+              Säkra rabattkod
+            </Button>
+          )}
           
           <div className={`grid ${hasBookingUrl && hasSalonPhone ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"} gap-3`}>
             {hasSalonPhone && (
@@ -123,7 +139,7 @@ export const DealInfo = ({
               </Button>
             )}
 
-            {hasBookingUrl && (
+            {hasBookingUrl && !isDirectBooking && (
               <Button 
                 variant="outline"
                 className="w-full text-primary border border-primary hover:bg-primary/5 hover:text-primary transition-colors"
@@ -138,7 +154,7 @@ export const DealInfo = ({
         </div>
 
         <p className="text-xs text-center text-gray-500 mt-1">
-          {hasBookingUrl 
+          {isDirectBooking 
             ? "Besök salongens hemsida för att boka tid" 
             : "Säkra din rabattkod och kontakta salongen för bokning"}
         </p>

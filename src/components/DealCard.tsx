@@ -18,6 +18,7 @@ interface DealCardProps {
   created_at: string;
   quantity_left: number;
   is_free?: boolean;
+  requires_discount_code?: boolean;
 }
 
 const DealCardComponent = ({
@@ -33,6 +34,7 @@ const DealCardComponent = ({
   created_at,
   quantity_left,
   is_free = false,
+  requires_discount_code = true,
 }: DealCardProps) => {
   const isNew = useCallback(() => {
     const createdDate = new Date(created_at);
@@ -84,6 +86,7 @@ const DealCardComponent = ({
               quantityLeft={quantity_left}
               isFree={is_free}
               id={id}
+              requiresDiscountCode={requires_discount_code}
             />
           </div>
         </div>
