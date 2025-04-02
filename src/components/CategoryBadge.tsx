@@ -41,11 +41,11 @@ export function CategoryBadge({
   return (
     <div 
       className={cn(
-        "flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium",
+        "inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-sm",
         variant === "default" 
           ? "bg-primary text-white" 
           : "bg-white text-primary/90 border border-primary/20",
-        "shadow-sm",
+        "shadow-sm whitespace-nowrap",
         className
       )}
       onClick={onClick}
@@ -53,8 +53,8 @@ export function CategoryBadge({
     >
       {children || (
         <>
-          <span className="text-sm">{getCategoryEmoji(category)}</span>
-          <span>{category}</span>
+          <span className="text-sm flex-shrink-0">{getCategoryEmoji(category)}</span>
+          <span className="truncate">{category}</span>
         </>
       )}
     </div>
