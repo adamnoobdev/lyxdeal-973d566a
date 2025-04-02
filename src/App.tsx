@@ -11,6 +11,14 @@ import IndexPage from './pages/Index';
 import Layout from './components/layout/Layout';
 import ProductDetails from './pages/ProductDetails';
 import SecureDeal from './pages/SecureDeal';
+import SalonLogin from './pages/SalonLogin';
+import SearchResults from './pages/SearchResults';
+import PartnerPage from './pages/PartnerPage';
+import Auth from './pages/Auth';
+
+// Import new pages for the missing routes
+import FAQ from './pages/FAQ';
+import Terms from './pages/Terms';
 
 function App() {
   const queryClient = new QueryClient();
@@ -41,12 +49,13 @@ function App() {
             <Route path="/deal/:id" element={<ProductDetails />} />
             <Route path="/deals/:dealId" element={<ProductDetails />} />
             <Route path="/salons/:salonId" element={<div>Salon Page</div>} />
-            <Route path="/search" element={<div>Search Page</div>} />
-            <Route path="/terms" element={<div>Terms Page</div>} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/privacy" element={<div>Privacy Page</div>} />
             <Route path="/contact" element={<div>Contact Page</div>} />
             <Route path="/cookies" element={<div>Cookies Page</div>} />
-            <Route path="/partner" element={<div>Partner Page</div>} />
+            <Route path="/partner" element={<PartnerPage />} />
 
             {/* User profile - must be logged in */}
             <Route path="/profile" element={session ? <div>Profile Page</div> : <Navigate to="/" replace />} />
@@ -55,8 +64,11 @@ function App() {
           {/* Secure deal page */}
           <Route path="/secure-deal/:id" element={<SecureDeal />} />
 
+          {/* Auth route - redirects to login */}
+          <Route path="/auth" element={<Auth />} />
+
           {/* Salon routes - only accessible if NOT logged in */}
-          <Route path="/salon/login" element={session ? <Navigate to="/salon" replace /> : <div>Salon Login</div>} />
+          <Route path="/salon/login" element={session ? <Navigate to="/salon" replace /> : <SalonLogin />} />
           <Route path="/salon/register" element={session ? <Navigate to="/salon" replace /> : <div>Salon Register</div>} />
 
           {/* Salon routes - only accessible if logged in as a salon */}

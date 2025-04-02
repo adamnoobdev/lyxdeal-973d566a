@@ -1,59 +1,53 @@
 
-import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 export const PartnerHero = () => {
   const navigate = useNavigate();
   
-  const handleContactClick = () => {
-    // Navigera till prisformuläret längre ner på sidan
-    const pricingSection = document.getElementById('pricing-section');
-    if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-  
-  const handleLoginClick = () => {
-    navigate("/salon/login");
-    window.scrollTo(0, 0);
-  };
-  
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-primary to-primary-600">
-      <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-10 bg-repeat bg-center"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-primary/90"></div>
-      <div className="container px-4 md:px-8 relative z-10">
-        <div className="py-16 md:py-28 flex flex-col items-center text-center">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-              Väx din salongsverksamhet med Lyxdeal
-            </h1>
-            <p className="text-base md:text-xl text-white/90 max-w-3xl mx-auto mb-10">
-              Nå nya kunder, öka din försäljning och stärk ditt varumärke genom att bli en av våra värdefulla salongspartners.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto">
-              <Button 
-                size="lg" 
-                className="bg-white text-primary hover:bg-white/90 w-full sm:w-auto font-semibold shadow-lg"
-                onClick={handleContactClick}
-              >
-                Bli partner idag
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="bg-transparent text-white border-white hover:bg-white/10 w-full sm:w-auto font-semibold"
-                onClick={handleLoginClick}
-              >
-                Logga in som partner
-              </Button>
-            </div>
-            <div className="mt-6 text-white/80 text-sm">
-              <p>Använd kod <span className="font-bold text-white">provmanad</span> för en gratis provmånad</p>
-            </div>
+    <section className="relative py-20 overflow-hidden bg-gradient-to-br from-primary-50 to-background">
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="max-w-3xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-6">
+            Väx din salong med <span className="text-primary">Lyxdeal</span>
+          </h1>
+          
+          <p className="text-xl text-gray-600 mb-10 leading-relaxed">
+            Bli partner med Lyxdeal och få nya kunder, öka synligheten för din salong 
+            och maximera din försäljning med ett enkelt och flexibelt system.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg" 
+              className="text-base px-8 py-6"
+              onClick={() => {
+                // Scroll to contact form
+                document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Bli partner idag
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="text-base px-8 py-6"
+              onClick={() => navigate('/salon/login')}
+            >
+              Logga in
+            </Button>
+          </div>
+          
+          <div className="mt-10 text-sm text-gray-500">
+            Redan över 200 salonger använder Lyxdeal för att växa sin verksamhet
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

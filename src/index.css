@@ -2,201 +2,85 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
-    --background: 300 100% 99%;
-    --foreground: 299 100% 16%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
     --card: 0 0% 100%;
-    --card-foreground: 299 100% 16%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
     --popover: 0 0% 100%;
-    --popover-foreground: 299 100% 16%;
-    --primary: 299 100% 16%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 300 100% 85%;
-    --secondary-foreground: 299 100% 16%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 299 100% 16%;
-    --accent-foreground: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --primary-50: 210 40% 96%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 299 100% 16%;
-    --radius: 0;
+    --ring: 222.2 84% 4.9%;
+ 
+    --radius: 0.5rem;
   }
-
+ 
   .dark {
-    --background: 299 100% 16%;
-    --foreground: 0 0% 100%;
-    --card: 299 100% 16%;
-    --card-foreground: 0 0% 100%;
-    --popover: 299 100% 16%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 300 100% 85%;
-    --primary-foreground: 299 100% 16%;
-    --secondary: 299 100% 16%;
-    --secondary-foreground: 0 0% 100%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 300 100% 85%;
-    --accent-foreground: 299 100% 16%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
+ 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 300 100% 85%;
-    --radius: 0;
+    --ring: 212.7 26.8% 83.9%;
   }
-
+}
+ 
+@layer base {
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground antialiased;
-  }
-
-  h1 {
-    @apply text-3xl font-bold tracking-tight lg:text-4xl;
-  }
-
-  h2 {
-    @apply text-2xl font-semibold tracking-tight;
-  }
-
-  h3 {
-    @apply text-xl font-semibold tracking-tight;
-  }
-
-  p {
-    @apply leading-7;
-  }
-
-  small {
-    @apply text-sm font-medium leading-none;
+    @apply bg-background text-foreground;
   }
 }
 
-@layer components {
-  .dropdown-content {
-    @apply z-[100] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60;
-  }
-
-  nav [data-radix-popper-content-wrapper] {
-    @apply !z-[9999] !important;
-  }
-
-  [data-radix-popper-content-wrapper] [role="menu"],
-  [data-radix-popper-content-wrapper] [role="dialog"],
-  [data-radix-popper-content-wrapper] [role="listbox"] {
-    @apply bg-background border shadow-lg z-[9999];
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  button {
-    @apply transition-all duration-200;
-  }
-  
-  .admin-container {
-    @apply p-4 md:p-6 lg:p-8;
-  }
-
-  .touch-manipulation {
-    touch-action: manipulation;
-  }
-  
-  .mobile-nav-item {
-    @apply flex items-center px-3 py-2 text-sm transition-colors;
-  }
-  
-  .mobile-button {
-    @apply min-h-[44px] min-w-[44px];
-  }
-  
-  /* Ta bort Mapbox-logotypen och attributionskontroll från kartan */
-  .mapboxgl-ctrl-logo,
-  .mapboxgl-ctrl-attrib {
-    display: none !important;
-  }
-  
-  /* Anpassa navigationsknapparna för kartan till Lyxdeal-temat */
-  .mapboxgl-ctrl-group {
-    border-radius: 4px !important;
-    box-shadow: 0 1px 3px rgba(155, 135, 245, 0.2) !important;
-    border: 1px solid rgba(155, 135, 245, 0.2) !important;
-  }
-  
-  .mapboxgl-ctrl-group button {
-    background-color: white !important;
-  }
-  
-  .mapboxgl-ctrl-group button:hover {
-    background-color: #f9f6ff !important;
-  }
-  
-  /* Anpassa kartnålens popup stil */
-  .mapboxgl-popup-content {
-    background-color: white !important;
-    border: 1px solid rgba(155, 135, 245, 0.2) !important;
-    box-shadow: 0 2px 6px rgba(155, 135, 245, 0.15) !important;
-    padding: 10px 15px !important;
-    border-radius: 6px !important;
-  }
-  
-  .mapboxgl-popup-tip {
-    border-top-color: white !important;
-    border-bottom-color: white !important;
-  }
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  
-  @media (min-width: 480px) {
-    .xs\:flex {
-      display: flex;
-    }
-    .xs\:hidden {
-      display: none;
-    }
-    .xs\:table-cell {
-      display: table-cell;
-    }
-    .xs\:grid-cols-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .xs\:inline {
-      display: inline;
-    }
-  }
-
-  .tap-highlight-none {
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  .overscroll-none {
-    overscroll-behavior: none;
-  }
-  
-  .touch-target {
-    @apply p-2 md:p-1;
-  }
-
-  /* Ta bort Mapbox-logotypen från kartan */
-  .mapboxgl-map-container .mapboxgl-ctrl-logo,
-  .mapboxgl-map-container .mapboxgl-ctrl-attrib {
-    display: none !important;
-  }
+/* Utility backgrounds */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
