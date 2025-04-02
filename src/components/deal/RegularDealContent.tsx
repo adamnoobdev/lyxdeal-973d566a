@@ -63,14 +63,17 @@ export const RegularDealContent = ({
             <span className="font-bold text-sm text-foreground"> {/* Minskad textstorlek */}
               {isFree ? "Gratis" : `${formatCurrency(discountedPrice)}`}
             </span>
-            {originalPrice > 0 && !isFree && originalPrice !== discountedPrice && (
+            {/* Ändrar villkoret så att vi visar originalpriset även för gratis erbjudanden så länge originalPrice > 0 */}
+            {originalPrice > 0 && (isFree || originalPrice !== discountedPrice) && (
               <div className="flex items-center gap-1.5">
                 <span className="text-xs line-through text-gray-500">
                   {formatCurrency(originalPrice)}
                 </span>
-                <span className="text-xs px-1 py-0.5 bg-red-100 text-red-700 rounded">
-                  -{discountPercentage}%
-                </span>
+                {!isFree && (
+                  <span className="text-xs px-1 py-0.5 bg-red-100 text-red-700 rounded">
+                    -{discountPercentage}%
+                  </span>
+                )}
               </div>
             )}
           </div>
