@@ -9,12 +9,12 @@ interface DealActionsProps {
 
 export const DealActions = ({ onEdit, onDelete }: DealActionsProps) => {
   return (
-    <div className="flex gap-1 flex-wrap">
+    <div className="flex gap-1 flex-wrap justify-end">
       <Button
         variant="outline"
         size="sm"
         onClick={onEdit}
-        className="flex items-center gap-1 whitespace-nowrap text-[10px] xs:text-xs px-1.5 py-0.5 h-7 min-h-0 min-w-0"
+        className="flex items-center gap-1 whitespace-nowrap text-[10px] xs:text-xs px-1.5 py-0.5 h-6 xs:h-7 min-h-0 min-w-0"
       >
         <Pencil className="h-3 w-3" />
         <span className="hidden xs:inline">Redigera</span>
@@ -23,7 +23,7 @@ export const DealActions = ({ onEdit, onDelete }: DealActionsProps) => {
         variant="destructive"
         size="sm"
         onClick={onDelete}
-        className="flex items-center gap-1 whitespace-nowrap text-[10px] xs:text-xs px-1.5 py-0.5 h-7 min-h-0 min-w-0"
+        className="flex items-center gap-1 whitespace-nowrap text-[10px] xs:text-xs px-1.5 py-0.5 h-6 xs:h-7 min-h-0 min-w-0"
       >
         <Trash2 className="h-3 w-3" />
         <span className="hidden xs:inline">Ta bort</span>

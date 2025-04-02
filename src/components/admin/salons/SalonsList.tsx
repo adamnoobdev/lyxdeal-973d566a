@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Salon, SalonFormValues } from "../types";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
@@ -8,6 +7,8 @@ import { CreateSalonDialog } from "./CreateSalonDialog";
 import { SalonsLoadingSkeleton } from "./SalonsLoadingSkeleton";
 import { SalonsHeader } from "./SalonsHeader";
 import { SalonsContent } from "./SalonsContent";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 /**
  * Komponent för att lista och hantera salonger i administratörsgränssnittet
@@ -130,11 +131,20 @@ export const SalonsList = () => {
   const errorMessage = error || null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 xs:px-4 sm:px-0">
       <SalonsHeader 
         error={errorMessage} 
         onCreateClick={() => setIsCreating(true)} 
       />
+
+      {error && (
+        <Alert variant="destructive" className="mx-auto">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-xs xs:text-sm">
+            {errorMessage}
+          </AlertDescription>
+        </Alert>
+      )}
 
       {salons && (
         <SalonsContent

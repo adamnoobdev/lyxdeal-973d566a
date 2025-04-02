@@ -19,11 +19,12 @@ export const SalonsContent = ({
   onDelete,
   onSelect,
 }: SalonsContentProps) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1280);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [showDetails, setShowDetails] = useState(false);
   
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1280);
+      setIsMobile(window.innerWidth < 1024);
     };
     
     window.addEventListener('resize', handleResize);
@@ -32,35 +33,63 @@ export const SalonsContent = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // För mobila enheter, visa detaljer när en salong är vald
+  useEffect(() => {
+    if (selectedSalon && isMobile) {
+      setShowDetails(true);
+    }
+  }, [selectedSalon, isMobile]);
+
+  const handleBackToList = () => {
+    setShowDetails(false);
+  };
+
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-      <div className={`${isMobile || !selectedSalon ? 'xl:col-span-3' : 'xl:col-span-2'}`}>
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold">Salonger</h2>
-          </div>
-          <div className="p-4 overflow-auto">
-            <SalonsTable
-              salons={salons}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onSelect={onSelect}
-              selectedSalon={selectedSalon}
-            />
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      {/* Visa tabellen när inga detaljer visas eller på större skärmar */}
+      {(!showDetails || !isMobile) && (
+        <div className={`${!isMobile && selectedSalon ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+          <div className="bg-white rounded-lg shadow-sm border">
+            <div className="p-3 sm:p-4 border-b">
+              <h2 className="text-base sm:text-lg font-semibold">Salonger</h2>
+            </div>
+            <div className="p-0 sm:p-4 overflow-auto">
+              <SalonsTable
+                salons={salons}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onSelect={(salon) => {
+                  onSelect(salon);
+                  if (isMobile) {
+                    setShowDetails(true);
+                  }
+                }}
+                selectedSalon={selectedSalon}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {(selectedSalon && (!isMobile || (isMobile && selectedSalon))) && (
-        <div className="xl:col-span-1">
+      {/* Visa detaljer i mobilläge eller i sidopanel på större skärmar */}
+      {selectedSalon && (isMobile ? showDetails : true) && (
+        <div className="lg:col-span-1">
+          {isMobile && showDetails && (
+            <button 
+              onClick={handleBackToList}
+              className="mb-2 text-sm text-primary flex items-center"
+            >
+              <span>← Tillbaka till listan</span>
+            </button>
+          )}
           <SalonDetails salon={selectedSalon} />
         </div>
       )}
 
       {!selectedSalon && !isMobile && (
-        <div className="xl:col-span-1 hidden xl:block">
+        <div className="lg:col-span-1 hidden lg:block">
           <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Välj en salong för att se detaljer
             </p>
           </div>

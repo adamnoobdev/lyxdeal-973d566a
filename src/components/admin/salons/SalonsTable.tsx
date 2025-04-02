@@ -10,6 +10,7 @@ import {
 import { Salon } from "../types";
 import { SalonActions } from "./SalonActions";
 import { CheckCircle, XCircle } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface SalonsTableProps {
   salons: Salon[];
@@ -34,19 +35,30 @@ export const SalonsTable = ({
     });
   };
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <div className="border rounded-md">
+    <div className="border rounded-md overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Namn</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Roll</TableHead>
-            <TableHead>Skapad</TableHead>
-            <TableHead>Villkor</TableHead>
-            <TableHead>Integritet</TableHead>
-            <TableHead className="text-right">Hantera</TableHead>
+            <TableHead className="w-12 font-medium text-xs sm:text-sm">ID</TableHead>
+            <TableHead className="font-medium text-xs sm:text-sm">Namn</TableHead>
+            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden md:table-cell">Email</TableHead>}
+            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell">Roll</TableHead>}
+            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden lg:table-cell">Skapad</TableHead>}
+            <TableHead className="font-medium text-xs sm:text-sm w-16 hidden sm:table-cell">Villkor</TableHead>
+            <TableHead className="font-medium text-xs sm:text-sm w-16 hidden sm:table-cell">Integritet</TableHead>
+            <TableHead className="text-right font-medium text-xs sm:text-sm">Hantera</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -56,26 +68,33 @@ export const SalonsTable = ({
               className={`cursor-pointer ${selectedSalon?.id === salon.id ? 'bg-muted/50' : ''}`}
               onClick={() => onSelect(salon)}
             >
-              <TableCell className="font-medium">{salon.id}</TableCell>
-              <TableCell>{salon.name}</TableCell>
-              <TableCell>{salon.email}</TableCell>
-              <TableCell>{salon.role === 'admin' ? 'Admin' : 'Salongägare'}</TableCell>
-              <TableCell>{formatDate(salon.created_at)}</TableCell>
-              <TableCell>
+              <TableCell className="font-medium text-xs sm:text-sm py-2 sm:py-4">{salon.id}</TableCell>
+              <TableCell className="text-xs sm:text-sm py-2 sm:py-4 max-w-[120px] md:max-w-none">
+                <div className="truncate">{salon.name}</div>
+                {isMobile && (
+                  <div className="text-muted-foreground text-[10px] truncate mt-1">
+                    {salon.email}
+                  </div>
+                )}
+              </TableCell>
+              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden md:table-cell">{salon.email}</TableCell>}
+              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">{salon.role === 'admin' ? 'Admin' : 'Salongägare'}</TableCell>}
+              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden lg:table-cell">{formatDate(salon.created_at)}</TableCell>}
+              <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">
                 {salon.terms_accepted !== false ? (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                 ) : (
-                  <XCircle className="h-5 w-5 text-red-500" />
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">
                 {salon.privacy_accepted !== false ? (
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                 ) : (
-                  <XCircle className="h-5 w-5 text-red-500" />
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
                 )}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right py-2 sm:py-4">
                 <SalonActions
                   salonId={salon.id}
                   onDelete={() => onDelete(salon)}
