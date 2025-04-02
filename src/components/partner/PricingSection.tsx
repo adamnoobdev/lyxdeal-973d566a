@@ -50,7 +50,7 @@ export const PricingSection = () => {
         </div>
         
         <div className="text-center mt-10 text-sm text-gray-500">
-          <p>Alla priser exklusive moms. Bindningstid 3 månader vid månadspris, 12 månader vid årspris.</p>
+          <p>Alla priser exklusive moms.</p>
         </div>
       </div>
     </div>
