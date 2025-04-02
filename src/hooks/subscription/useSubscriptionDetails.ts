@@ -3,23 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PurchaseDetails, SalonAccount } from "./types"; 
 
-export interface PurchaseDetails {
-  id?: string;
-  business_name: string;
-  email: string;
-  plan_title?: string;
-  plan_payment_type?: string;
-  status?: string;
-  created_at?: string;
-  stripe_session_id?: string;
-}
-
-export interface SalonAccount {
-  id: number; // Changed from string to number to match the database structure
-  email: string;
-  name?: string;
-}
-
 export const useSubscriptionDetails = (sessionId: string | null) => {
   const [purchaseDetails, setPurchaseDetails] = useState<PurchaseDetails | null>(null);
   const [loading, setLoading] = useState(true);

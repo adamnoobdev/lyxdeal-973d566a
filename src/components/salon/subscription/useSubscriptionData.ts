@@ -22,7 +22,7 @@ export const useSubscriptionData = () => {
         // Hämta salongsdata inklusive prenumerationsinformation
         const { data: salons, error: salonError } = await supabase
           .from("salons")
-          .select("subscription_plan, subscription_type, stripe_customer_id, stripe_subscription_id, current_period_end, current_period_start, status, cancel_at_period_end")
+          .select("subscription_plan, subscription_type, stripe_customer_id, stripe_subscription_id, current_period_end, status, cancel_at_period_end")
           .eq("user_id", session.user.id)
           .single();
         
@@ -33,16 +33,21 @@ export const useSubscriptionData = () => {
           return;
         }
         
-        setSubscriptionInfo({
-          plan_title: salons.subscription_plan || 'Baspaket',
-          subscription_type: salons.subscription_type || 'monthly',
-          stripe_customer_id: salons.stripe_customer_id || '',
-          stripe_subscription_id: salons.stripe_subscription_id || '',
-          current_period_end: salons.current_period_end,
-          current_period_start: salons.current_period_start,
-          status: salons.status || 'inactive',
-          cancel_at_period_end: salons.cancel_at_period_end || false
-        });
+        // Ensure we have actual data before trying to set subscription info
+        if (salons) {
+          setSubscriptionInfo({
+            plan_title: salons.subscription_plan || 'Baspaket',
+            subscription_type: salons.subscription_type || 'monthly',
+            stripe_customer_id: salons.stripe_customer_id || '',
+            stripe_subscription_id: salons.stripe_subscription_id || '',
+            current_period_end: salons.current_period_end,
+            current_period_start: null, // Since this column doesn't exist in the database yet
+            status: salons.status || 'inactive',
+            cancel_at_period_end: salons.cancel_at_period_end || false
+          });
+        } else {
+          setError("Ingen salongsdata hittades");
+        }
         
       } catch (err) {
         console.error("Fel vid hämtning av prenumerationsinformation:", err);
