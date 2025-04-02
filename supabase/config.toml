@@ -1,4 +1,6 @@
 
+# A string used to distinguish different Supabase projects on the same host. Defaults to the
+# working directory name when running `supabase init`.
 project_id = "gmqeqhlhqhyrjquzhuzg"
 
 [api]
@@ -42,7 +44,6 @@ enable_signup = true
 enabled = true
 port = 54327
 
-# Individual settings for each function
 [functions.add-newsletter-subscriber]
 verify_jwt = false
 
