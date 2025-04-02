@@ -56,11 +56,11 @@ const PartnerSignup = () => {
               
               <PlanSummary 
                 plan={selectedPlan} 
-                className="mx-auto transition-all duration-300 animate-fade-up" 
+                className="mx-auto" 
               />
             </div>
 
-            <Card className="shadow-lg animate-fade-up" style={{ animationDelay: "100ms" }}>
+            <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl">Fyll i dina uppgifter</CardTitle>
               </CardHeader>

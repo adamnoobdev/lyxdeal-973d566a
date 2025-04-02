@@ -36,8 +36,8 @@ export const ComparisonSection = () => {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          {/* Comparison table with modern styling */}
-          <Card className="border-none shadow-lg overflow-hidden mb-10 transition-all duration-300 hover:shadow-xl">
+          {/* Comparison table with modern styling - removed hover and transition animations */}
+          <Card className="border-none shadow-lg overflow-hidden mb-10">
             <CardHeader className="bg-primary-50 border-b border-primary-100">
               <div className="grid grid-cols-3 gap-4">
                 <div className="font-semibold text-primary-700"></div>
@@ -46,36 +46,36 @@ export const ComparisonSection = () => {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              {/* Comparison items */}
+              {/* Comparison items - removed transition and hover effects */}
               {comparisonItems.map((item, index) => (
                 <div 
                   key={index} 
                   className={`grid grid-cols-3 gap-4 p-5 ${
                     index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } transition-colors hover:bg-primary-50/30 ${
+                  } ${
                     index < comparisonItems.length - 1 ? "border-b border-gray-100" : ""
                   }`}
                 >
                   <div className="font-medium text-gray-800">{item.title}</div>
-                  <div className="flex items-start group">
+                  <div className="flex items-start">
                     <div className="mt-1 mr-3 flex-shrink-0 bg-red-100 rounded-full p-1">
                       <X className="h-4 w-4 text-red-500" />
                     </div>
-                    <p className="text-gray-600 group-hover:text-gray-800 transition-colors">{item.agency}</p>
+                    <p className="text-gray-600">{item.agency}</p>
                   </div>
-                  <div className="flex items-start group">
+                  <div className="flex items-start">
                     <div className="mt-1 mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
                       <Check className="h-4 w-4 text-green-500" />
                     </div>
-                    <p className="text-primary-700 font-medium group-hover:text-primary-800 transition-colors">{item.lyxdeal}</p>
+                    <p className="text-primary-700 font-medium">{item.lyxdeal}</p>
                   </div>
                 </div>
               ))}
             </CardContent>
           </Card>
 
-          {/* Summary card */}
-          <Card className="border-primary/10 bg-gradient-to-r from-primary-50/40 to-primary-50/20 shadow-md transition-all duration-300 hover:shadow-lg">
+          {/* Summary card - removed transition and hover effects */}
+          <Card className="border-primary/10 bg-gradient-to-r from-primary-50/40 to-primary-50/20 shadow-md">
             <CardHeader className="pb-2">
               <CardTitle className="text-xl text-primary-700">Sammanfattning av fördelarna med Lyxdeal</CardTitle>
             </CardHeader>
