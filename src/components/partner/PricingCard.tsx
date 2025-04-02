@@ -32,7 +32,7 @@ export const PricingCard = ({
   return (
     <Card className={`relative flex flex-col h-full ${isPopular ? 'border-primary shadow-lg' : 'border-muted-300'}`}>
       {isPopular && (
-        <Badge className="absolute -top-3 right-4 bg-primary text-white px-3 py-1 text-xs font-medium rounded-full shadow-sm">
+        <Badge className="absolute -top-3 right-4 bg-primary text-white px-3 py-1 text-xs font-medium shadow-sm">
           Populärast
         </Badge>
       )}
@@ -49,11 +49,11 @@ export const PricingCard = ({
       
       <CardContent className="flex-grow">
         <div className="flex justify-center mb-6">
-          <div className="flex border rounded-full overflow-hidden shadow-sm">
+          <div className="flex border rounded-none overflow-hidden shadow-sm">
             <Button
               type="button"
               variant={billingType === "monthly" ? "default" : "outline"}
-              className={`text-xs py-1 px-4 h-9 rounded-full ${billingType === "monthly" ? "bg-primary text-white" : ""}`}
+              className={`text-xs py-1 px-4 h-9 rounded-none ${billingType === "monthly" ? "bg-primary text-white" : ""}`}
               onClick={() => setBillingType("monthly")}
             >
               Månadsvis
@@ -61,13 +61,15 @@ export const PricingCard = ({
             <Button
               type="button"
               variant={billingType === "yearly" ? "default" : "outline"}
-              className={`text-xs py-1 px-4 h-9 rounded-full flex items-center gap-2 ${billingType === "yearly" ? "bg-primary text-white" : ""}`}
+              className={`text-xs py-1 px-4 h-9 rounded-none ${billingType === "yearly" ? "bg-primary text-white" : ""}`}
               onClick={() => setBillingType("yearly")}
             >
               Årsvis
-              <span className="bg-green-100 text-green-800 text-[10px] px-1.5 py-0.5 rounded-full">
-                Spara {yearSavings} kr
-              </span>
+              {billingType === "yearly" && (
+                <span className="ml-1 text-xs text-white/80">
+                  (spara {yearSavings} kr)
+                </span>
+              )}
             </Button>
           </div>
         </div>
@@ -84,12 +86,12 @@ export const PricingCard = ({
         
         <ul className="space-y-3 mt-6">
           <li className="flex items-start gap-3 text-sm">
-            <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+            <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
             <span className="font-medium"><strong>{dealCount}</strong> {dealCount === 1 ? 'erbjudande' : 'erbjudanden'} åt gången</span>
           </li>
           {features.map((feature, index) => (
             <li key={index} className="flex items-start gap-3 text-sm">
-              <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+              <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
               <span>{feature}</span>
             </li>
           ))}
@@ -98,7 +100,7 @@ export const PricingCard = ({
       
       <CardFooter className="pt-4">
         <Button 
-          className={`w-full py-6 text-base font-medium transition-all duration-200 ${
+          className={`w-full py-6 text-base font-medium transition-all duration-200 rounded-none ${
             isPopular 
               ? "bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg" 
               : "bg-white hover:bg-primary/10 text-primary border-2 border-primary"
