@@ -35,6 +35,7 @@ export function SalonDeals() {
   } = useSalonDealsManagement(salonId);
 
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
+  const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEdit = useCallback((deal) => {
@@ -58,7 +59,14 @@ export function SalonDeals() {
   }, []);
 
   const handleCloseDiscountCodesDialog = useCallback(() => {
-    setViewingCodesForDeal(null);
+    console.log("[AdminSalonDeals] Closing discount codes dialog");
+    setIsClosingCodesDialog(true);
+    
+    // Use setTimeout to delay state updates and prevent UI freeze
+    setTimeout(() => {
+      setViewingCodesForDeal(null);
+      setIsClosingCodesDialog(false);
+    }, 300);
   }, []);
   
   const handleUpdateSubmit = useCallback(async (values: any) => {
@@ -112,6 +120,9 @@ export function SalonDeals() {
     return <SalonDealsEmpty />;
   }
 
+  // Compute whether the dialog should be open based on both the viewing deal and closing state
+  const isDiscountCodesDialogOpen = !!viewingCodesForDeal && !isClosingCodesDialog;
+
   return (
     <>
       <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-2 sm:p-4">
@@ -162,7 +173,7 @@ export function SalonDeals() {
       />
 
       <DiscountCodesDialog
-        isOpen={!!viewingCodesForDeal}
+        isOpen={isDiscountCodesDialogOpen}
         onClose={handleCloseDiscountCodesDialog}
         deal={viewingCodesForDeal}
       />

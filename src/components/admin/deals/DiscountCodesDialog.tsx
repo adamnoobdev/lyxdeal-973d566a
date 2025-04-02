@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Deal } from "@/types/deal";
 import { DiscountCodesList } from "./discount-codes/DiscountCodesList";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DiscountCodesEmptyState } from "./discount-codes/DiscountCodesEmptyState";
 import { DiscountCodesGenerator } from "./discount-codes/DiscountCodesGenerator";
 import { DiscountCodesDirectBooking } from "./discount-codes/DiscountCodesDirectBooking";
@@ -29,6 +29,7 @@ export const DiscountCodesDialog = ({
 }: DiscountCodesDialogProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [codes, setCodes] = useState<any[]>([]);
+  const closingTimerRef = useRef<number | null>(null);
   
   // If the deal doesn't require discount codes, we don't need to load them
   const requiresDiscountCode = deal?.requires_discount_code !== false;
@@ -46,6 +47,14 @@ export const DiscountCodesDialog = ({
         setCodes([]);
       }
     }
+    
+    // Clean up any pending timers when unmounting or when dialog state changes
+    return () => {
+      if (closingTimerRef.current) {
+        clearTimeout(closingTimerRef.current);
+        closingTimerRef.current = null;
+      }
+    };
   }, [isOpen, deal?.id, requiresDiscountCode]);
 
   const fetchCodes = async () => {
@@ -69,11 +78,21 @@ export const DiscountCodesDialog = ({
     }
   };
 
-  // Säkerställ att dialog stängs korrekt
+  // Improved dialog closing handler with debouncing
   const handleDialogChange = (open: boolean) => {
     if (!open) {
       console.log("[DiscountCodesDialog] Dialog closing via X button");
-      onClose();
+      
+      // Cancel any existing timers
+      if (closingTimerRef.current) {
+        clearTimeout(closingTimerRef.current);
+      }
+      
+      // Add a slight delay to ensure the animation completes
+      closingTimerRef.current = window.setTimeout(() => {
+        onClose();
+        closingTimerRef.current = null;
+      }, 50); // A short delay to ensure it happens after the animation starts
     }
   };
 
