@@ -15,9 +15,15 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
     // Kontrollera salongens prenumerationsplan
     const { data: salonData } = await supabase
       .from('salons')
-      .select('subscription_plan')
+      .select('subscription_plan, status')
       .eq('id', salonId)
       .single();
+    
+    // First check if subscription is active
+    if (salonData?.status !== 'active') {
+      toast.error("Din prenumeration är inte aktiv. Vänligen aktivera din prenumeration för att skapa erbjudanden.");
+      return false;
+    }
     
     const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
     

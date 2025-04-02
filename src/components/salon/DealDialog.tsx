@@ -1,128 +1,131 @@
 
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter
 } from "@/components/ui/dialog";
-import { DealForm } from "@/components/DealForm";
-import { FormValues } from "@/components/deal-form/schema";
-import { useState, useEffect } from "react";
-import { DealFormProvider } from "@/components/deal-form/DealFormContext";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { FormFields } from '@/components/deal-form/FormFields';
+import { z } from "zod";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { schema, FormValues } from '@/components/deal-form/schema';
+import { useSubscriptionData } from './subscription/useSubscriptionData';
+import { getPlanDetails } from './subscription/utils';
 
 interface DealDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (values: FormValues) => Promise<void>;
-  initialValues?: FormValues;
+  onSubmit: (values: FormValues) => void;
+  initialValues?: Partial<FormValues>;
 }
 
-export const DealDialog = ({
+export const DealDialog: React.FC<DealDialogProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  initialValues,
-}: DealDialogProps) => {
+  initialValues = {}
+}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Säkerställ att komponenten är monterad
-  useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
-
-  // Reset state when dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      setIsSubmitting(false);
-    }
-  }, [isOpen]);
-
-  // Safe close function that checks submission state
-  const handleClose = () => {
-    if (!isSubmitting) {
-      console.log("[DealDialog] Closing dialog");
-      onClose();
-    } else {
-      console.log("[DealDialog] Cannot close during submission");
-    }
+  const { subscriptionInfo } = useSubscriptionData();
+  const isBasicPlan = subscriptionInfo?.plan_title === 'Baspaket';
+  
+  const defaultValues: Partial<FormValues> = {
+    title: '',
+    description: '',
+    originalPrice: '0',
+    discountedPrice: '0',
+    category: '',
+    city: '',
+    featured: false,
+    imageUrl: '',
+    booking_url: '',
+    requires_discount_code: !isBasicPlan, // Default based on plan
+    quantity: '10',
+    expirationDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+    ...initialValues
   };
 
-  const handleSubmit = async (values: FormValues) => {
-    if (isSubmitting) {
-      console.log("[DealDialog] Submission already in progress, ignoring");
-      return;
+  const methods = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues
+  });
+
+  // Update the form when initial values change
+  useEffect(() => {
+    if (initialValues && Object.keys(initialValues).length > 0) {
+      Object.entries(initialValues).forEach(([key, value]) => {
+        methods.setValue(key as keyof FormValues, value as any);
+      });
     }
-    
+  }, [initialValues, methods]);
+  
+  // Update requires_discount_code based on subscription when it loads
+  useEffect(() => {
+    if (subscriptionInfo && !initialValues.requires_discount_code) {
+      methods.setValue('requires_discount_code', !isBasicPlan);
+    }
+  }, [subscriptionInfo, isBasicPlan, methods, initialValues]);
+
+  const handleSubmit = async (data: FormValues) => {
     try {
       setIsSubmitting(true);
-      console.log("[DealDialog] Starting submission");
-      await onSubmit(values);
-      console.log("[DealDialog] Submission successful");
-      handleClose(); // Auto-close after successful submission
-    } catch (error) {
-      console.error("[DealDialog] Error submitting form:", error);
-      setIsSubmitting(false); // Reset submission state on error
+      
+      // Apply subscription-based restrictions
+      if (isBasicPlan) {
+        data.requires_discount_code = false;
+      }
+      
+      await onSubmit(data);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (!isMounted) return null;
-
-  // Använd Sheet på mobil för bättre UX
-  const isMobile = window.innerWidth < 768;
-
-  if (isMobile) {
-    return (
-      <Sheet 
-        open={isOpen} 
-        onOpenChange={(open) => {
-          if (!open) handleClose();
-        }}
-      >
-        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto flex flex-col bg-background">
-          <SheetHeader>
-            <SheetTitle>
-              {initialValues ? "Redigera Erbjudande" : "Skapa Erbjudande"}
-            </SheetTitle>
-          </SheetHeader>
-          <div className="flex-1 overflow-auto mt-4">
-            <DealFormProvider initialValues={initialValues} externalIsSubmitting={isSubmitting}>
-              <DealForm 
-                onSubmit={handleSubmit} 
-                initialValues={initialValues}
-                isSubmitting={isSubmitting}
-              />
-            </DealFormProvider>
-          </div>
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
   return (
-    <Dialog 
-      open={isOpen} 
-      onOpenChange={(open) => {
-        if (!open) handleClose();
-      }}
-    >
-      <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-hidden flex flex-col bg-background">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {initialValues ? "Redigera Erbjudande" : "Skapa Erbjudande"}
-          </DialogTitle>
+          <DialogTitle>Erbjudande</DialogTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-auto">
-          <DealFormProvider initialValues={initialValues} externalIsSubmitting={isSubmitting}>
-            <DealForm 
-              onSubmit={handleSubmit} 
-              initialValues={initialValues}
-              isSubmitting={isSubmitting}
+        
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-6">
+            {subscriptionInfo && isBasicPlan && (
+              <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+                <p className="text-sm text-blue-700">
+                  <strong>OBS:</strong> Med Baspaket kan du endast använda direkt bokning, inte rabattkoder.
+                </p>
+              </div>
+            )}
+            
+            <FormFields 
+              disableDiscountCodeField={isBasicPlan} 
+              forceDirectBooking={isBasicPlan}
             />
-          </DealFormProvider>
-        </div>
+            
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Avbryt
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="ml-2"
+              >
+                {isSubmitting ? "Sparar..." : (initialValues?.id ? "Uppdatera" : "Skapa")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );
