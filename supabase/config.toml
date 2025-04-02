@@ -43,3 +43,4 @@ port = 54327
 
 [functions.add-newsletter-subscriber]
 verify_jwt = false
+

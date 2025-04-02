@@ -150,6 +150,30 @@ export type Database = {
           },
         ]
       }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          interests: string[] | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          interests?: string[] | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          interests?: string[] | null
+          name?: string
+        }
+        Relationships: []
+      }
       partner_requests: {
         Row: {
           address: string | null
@@ -390,6 +414,14 @@ export type Database = {
       }
     }
     Functions: {
+      add_newsletter_subscriber: {
+        Args: {
+          p_email: string
+          p_name: string
+          p_interests?: string[]
+        }
+        Returns: boolean
+      }
       create_test_salon: {
         Args: {
           user_id: string
