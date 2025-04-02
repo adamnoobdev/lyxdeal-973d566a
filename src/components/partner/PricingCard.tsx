@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { SubscriptionPlan } from "@/components/salon/subscription/types";
 
@@ -48,7 +48,7 @@ export const PricingCard = ({
       </CardHeader>
       
       <CardContent className="flex-grow pt-1 space-y-4">
-        <div className="flex justify-start items-center">
+        <div className="flex justify-start">
           <div className="flex border rounded-none overflow-hidden shadow-sm">
             <Button
               type="button"
@@ -67,17 +67,11 @@ export const PricingCard = ({
               Årsvis
             </Button>
           </div>
-          <div className="ml-3 flex items-center">
-            {billingType === "yearly" ? (
-              <span className="text-xs text-white font-medium bg-primary px-3 py-1 rounded-sm flex items-center gap-1 shadow-sm">
-                <Sparkles className="h-3 w-3" /> Spara {yearSavings} kr
-              </span>
-            ) : (
-              <span className="text-xs bg-primary/10 text-primary font-medium px-3 py-1 rounded-sm border border-primary/20 flex items-center gap-1">
-                <Sparkles className="h-3 w-3" /> Spara {yearSavings} kr med årsbetalning
-              </span>
-            )}
-          </div>
+          {billingType === "yearly" && (
+            <div className="ml-2 text-xs text-primary font-medium flex items-center">
+              Spara {yearSavings} kr
+            </div>
+          )}
         </div>
         
         <div className="text-left">
