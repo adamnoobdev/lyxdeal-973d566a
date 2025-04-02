@@ -112,9 +112,9 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>Prenumerera på nyhetsbrev</FormLabel>
+                <FormLabel>Ta del av exklusiva rabatter</FormLabel>
                 <p className="text-sm text-muted-foreground">
-                  Få exklusiva erbjudanden och nyheter direkt till din inkorg.
+                  Få exklusiva erbjudanden och uppdateringar skickade direkt till din inkorg.
                 </p>
               </div>
             </FormItem>
