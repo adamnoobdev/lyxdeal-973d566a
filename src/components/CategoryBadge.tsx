@@ -53,7 +53,7 @@ export function CategoryBadge({
     >
       {children || (
         <>
-          <span className="text-lg">{getCategoryEmoji(category)}</span>
+          <span className="text-base">{getCategoryEmoji(category)}</span>
           <span>{category}</span>
         </>
       )}

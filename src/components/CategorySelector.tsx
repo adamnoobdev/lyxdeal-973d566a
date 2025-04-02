@@ -58,7 +58,7 @@ export const CategorySelector = ({
             className="w-full justify-start gap-3 h-10 font-medium"
             onClick={() => handleCategorySelect(category)}
           >
-            <span className="text-lg">{getCategoryEmoji(category)}</span>
+            <span className="text-base">{getCategoryEmoji(category)}</span>
             <span>{category}</span>
           </Button>
         ))}
@@ -86,7 +86,7 @@ export const CategorySelector = ({
             onClick={() => handleCategorySelect(category)}
             className="flex items-center gap-3 py-2 px-3 cursor-pointer rounded-md"
           >
-            <span className="text-lg">{getCategoryEmoji(category)}</span>
+            <span className="text-base">{getCategoryEmoji(category)}</span>
             <span className="font-medium">{category}</span>
           </DropdownMenuItem>
         ))}

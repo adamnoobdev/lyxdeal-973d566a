@@ -44,7 +44,7 @@ export function HeroSection() {
                 key={category}
                 category={category}
                 variant="outline"
-                className="cursor-pointer bg-white/90 hover:bg-white text-primary hover:text-primary-600 shadow-lg text-sm md:text-base"
+                className="cursor-pointer bg-white/90 hover:bg-white text-primary hover:text-primary-600 shadow-lg"
                 onClick={() => handleCategorySelect(category)}
               />
             ))}
