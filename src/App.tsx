@@ -1,24 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
-import { LandingPage } from './pages/LandingPage';
-import { DealPage } from './pages/DealPage';
-import { SalonPage } from './pages/SalonPage';
-import { SearchPage } from './pages/SearchPage';
-import { SalonAuthGuard } from './components/salon/SalonAuthGuard';
-import Salon from './pages/Salon';
-import SalonLogin from './pages/SalonLogin';
-import SalonRegister from './pages/SalonRegister';
-import Admin from './pages/Admin';
+import { toast } from "sonner";
 import { useSession } from './hooks/useSession';
-import { Profile } from './pages/Profile';
-import { Terms } from './pages/Terms';
-import { Privacy } from './pages/Privacy';
-import { Contact } from './pages/Contact';
-import { Cookies } from './pages/Cookies';
 import { useUserRole } from './hooks/useUserRole';
 import AdminUsers from "./pages/AdminUsers";
+import Admin from './pages/Admin';
 
 function App() {
   const queryClient = new QueryClient();
@@ -43,28 +32,26 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/deals/:dealId" element={<DealPage />} />
-          <Route path="/salons/:salonId" element={<SalonPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/cookies" element={<Cookies />} />
+          <Route path="/" element={<div>Landing Page</div>} />
+          <Route path="/deals/:dealId" element={<div>Deal Page</div>} />
+          <Route path="/salons/:salonId" element={<div>Salon Page</div>} />
+          <Route path="/search" element={<div>Search Page</div>} />
+          <Route path="/terms" element={<div>Terms Page</div>} />
+          <Route path="/privacy" element={<div>Privacy Page</div>} />
+          <Route path="/contact" element={<div>Contact Page</div>} />
+          <Route path="/cookies" element={<div>Cookies Page</div>} />
 
           {/* Salon routes - only accessible if NOT logged in */}
-          <Route path="/salon/login" element={session ? <Navigate to="/salon" replace /> : <SalonLogin />} />
-          <Route path="/salon/register" element={session ? <Navigate to="/salon" replace /> : <SalonRegister />} />
+          <Route path="/salon/login" element={session ? <Navigate to="/salon" replace /> : <div>Salon Login</div>} />
+          <Route path="/salon/register" element={session ? <Navigate to="/salon" replace /> : <div>Salon Register</div>} />
 
           {/* Salon routes - only accessible if logged in as a salon */}
           <Route path="/salon" element={
-            <SalonAuthGuard>
-              <Salon />
-            </SalonAuthGuard>
+            session ? <div>Salon Dashboard</div> : <Navigate to="/salon/login" replace />
           } />
 
           {/* User profile - must be logged in */}
-           <Route path="/profile" element={session ? <Profile /> : <Navigate to="/" replace />} />
+           <Route path="/profile" element={session ? <div>Profile Page</div> : <Navigate to="/" replace />} />
 
           {/* Admin routes */}
           <Route path="/admin" element={<Admin />} />

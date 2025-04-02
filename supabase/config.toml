@@ -37,11 +37,14 @@ enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
 enable_signup = true
 
+# Edge Functions configuration
 [functions]
-# Settings that apply to all functions
-enabled = false
+enabled = true
 port = 54327
 
 # Individual settings for each function
 [functions.add-newsletter-subscriber]
 verify_jwt = false
+
+[functions.delete-user]
+verify_jwt = true

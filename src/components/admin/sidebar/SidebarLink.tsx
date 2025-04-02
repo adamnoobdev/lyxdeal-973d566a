@@ -2,10 +2,11 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { LucideIcon } from "lucide-react";
 
 interface SidebarLinkProps {
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   children?: React.ReactNode;
   active?: boolean;
   label?: string;
