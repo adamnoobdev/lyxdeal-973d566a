@@ -54,12 +54,14 @@ export const AdminSidebar = () => {
 
   return (
     <>
-      {/* Make the trigger always visible and fixed on top */}
-      <SidebarTrigger 
-        className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-md bg-white shadow-md hover:bg-accent md:left-8 md:top-4" 
-      >
-        <MenuIcon className="h-5 w-5" />
-      </SidebarTrigger>
+      {/* Only show the desktop sidebar trigger on non-mobile screens */}
+      {!isMobile && (
+        <SidebarTrigger 
+          className="fixed left-8 top-4 z-40 flex h-10 w-10 items-center justify-center rounded-md bg-white shadow-md hover:bg-accent md:left-8 md:top-4" 
+        >
+          <MenuIcon className="h-5 w-5" />
+        </SidebarTrigger>
+      )}
       
       <Sidebar 
         className="border-r bg-white pt-16 z-10 shadow-sm"
