@@ -43,24 +43,24 @@ export const RegularDealContent = ({
       : 0;
 
   return (
-    <div className="p-4 flex flex-col flex-1">
-      <div className="flex items-start justify-between gap-2 mb-1.5">
-        <div className="flex flex-col items-start"> {/* Lägg till items-start */}
-          <CategoryBadge category={category} />
-          <h3 className="text-base font-medium line-clamp-2 mt-2 mb-1">{title}</h3>
+    <div className="p-3 flex flex-col flex-1"> {/* Minskad padding från p-4 till p-3 */}
+      <div className="flex items-start justify-between gap-2 mb-1">
+        <div className="flex flex-col items-start">
+          <CategoryBadge category={category} className="text-xs px-1.5 py-0.5" /> {/* Minskad storlek på badge */}
+          <h3 className="text-sm font-medium line-clamp-2 mt-1.5 mb-1">{title}</h3> {/* Minskad textstorlek från text-base till text-sm */}
         </div>
       </div>
       
-      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{description}</p>
+      <p className="text-xs text-muted-foreground line-clamp-2 mb-1.5">{description}</p> {/* Minskad textstorlek och margin */}
       
-      <div className="flex items-center text-xs text-gray-500 mb-1.5">
+      <div className="flex items-center text-xs text-gray-500 mb-1">
         <MapPin className="h-3 w-3 mr-1" /> {city}
       </div>
       
-      <div className="mt-auto pt-2 border-t">
+      <div className="mt-auto pt-1.5 border-t"> {/* Minskad padding-top */}
         <div className="flex items-end justify-between">
           <div>
-            <span className="font-bold text-foreground">
+            <span className="font-bold text-sm text-foreground"> {/* Minskad textstorlek */}
               {isFree ? "Gratis" : `${formatCurrency(discountedPrice)}`}
             </span>
             {originalPrice > 0 && !isFree && originalPrice !== discountedPrice && (

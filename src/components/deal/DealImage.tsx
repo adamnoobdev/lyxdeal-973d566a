@@ -1,31 +1,37 @@
 
-import { CategoryBadge } from "../CategoryBadge";
-import { Star } from "lucide-react";
-import { ResponsiveImage } from "../common/ResponsiveImage";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface DealImageProps {
   imageUrl: string;
   title: string;
   isNew?: boolean;
+  className?: string;
 }
 
-export const DealImage = ({ imageUrl, title, isNew }: DealImageProps) => {
+export const DealImage = ({ 
+  imageUrl, 
+  title, 
+  isNew = false,
+  className
+}: DealImageProps) => {
   return (
     <div className="relative overflow-hidden">
-      <div className="aspect-[16/9] overflow-hidden bg-muted-50">
-        <ResponsiveImage
+      <AspectRatio ratio={16 / 9} className={cn("bg-muted", className)}>
+        <img
           src={imageUrl}
           alt={title}
-          className="h-full w-full object-cover"
+          className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
         />
-      </div>
+      </AspectRatio>
+      
       {isNew && (
-        <div className="absolute left-2 top-2">
-          <CategoryBadge category="NYTT" className="bg-white/90 text-primary-600 text-[11px] shadow-md">
-            <Star className="mr-0.5 h-3 w-3 text-amber-500" />
-            Ny
-          </CategoryBadge>
-        </div>
+        <Badge 
+          className="absolute top-2 right-2 bg-yellow-400 text-yellow-950 hover:bg-yellow-400 border-none text-xs font-medium py-0.5 px-1.5"
+        >
+          Nytt
+        </Badge>
       )}
     </div>
   );

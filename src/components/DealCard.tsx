@@ -72,6 +72,7 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
+              className="h-40 sm:h-44 md:h-48" /* Minskad höjd på bilden */
             />
           </div>
           <div className="flex-1 flex flex-col">
