@@ -4,20 +4,31 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { CITIES } from "@/constants/app-constants";
 import { cn } from "@/lib/utils";
 import { MapPin } from "lucide-react";
+import { useCityDealsData } from "@/hooks/useCityDealsData";
 
 interface CitiesProps {
   selectedCity: string;
   onSelectCity: (city: string) => void;
+  selectedCategory?: string;
 }
 
-const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
+const CitiesComponent = ({ 
+  selectedCity, 
+  onSelectCity, 
+  selectedCategory = "Alla Erbjudanden" 
+}: CitiesProps) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isSearchPage = window.location.pathname === "/search";
 
+  // Use the hook to get cities with active deals
+  const { orderedCities, isLoading } = useCityDealsData(selectedCategory, selectedCity);
+  
+  // Always include "Alla Städer" as the first option
+  const citiesToDisplay = ["Alla Städer", ...orderedCities.filter(city => city !== "Alla Städer")];
+
   const handleCityClick = (city: string) => {
     onSelectCity(city);
-    const category = searchParams.get('category') || '';
     
     if (city !== "Alla Städer") {
       const newParams = new URLSearchParams(searchParams);
@@ -30,10 +41,25 @@ const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className={`relative ${isSearchPage ? 'mx-0' : '-mx-4 md:mx-0'}`}>
+        <div className="flex flex-wrap gap-2 px-4 pb-4 justify-center">
+          {["Alla Städer", ...CITIES.filter(city => city !== "Alla Städer").slice(0, 3)].map((city) => (
+            <div
+              key={city}
+              className="flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium bg-accent/20 animate-pulse h-5 w-16"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`relative ${isSearchPage ? 'mx-0' : '-mx-4 md:mx-0'}`}>
       <div className="flex flex-wrap gap-2 px-4 pb-4 justify-center">
-        {CITIES.map((city) => (
+        {citiesToDisplay.map((city) => (
           <button
             key={city}
             onClick={() => handleCityClick(city)}
