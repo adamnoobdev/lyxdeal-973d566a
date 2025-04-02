@@ -3,6 +3,8 @@ import { Salon } from "../types";
 import { SalonsTable } from "./SalonsTable";
 import { SalonDetails } from "./SalonDetails";
 import { useState, useEffect } from "react";
+import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface SalonsContentProps {
   salons: Salon[];
@@ -19,7 +21,7 @@ export const SalonsContent = ({
   onDelete,
   onSelect,
 }: SalonsContentProps) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   
   useEffect(() => {
@@ -75,12 +77,15 @@ export const SalonsContent = ({
       {selectedSalon && (isMobile ? showDetails : true) && (
         <div className="lg:col-span-1">
           {isMobile && showDetails && (
-            <button 
+            <Button 
               onClick={handleBackToList}
-              className="mb-2 text-sm text-primary flex items-center"
+              variant="ghost" 
+              size="sm"
+              className="mb-2 text-xs text-primary flex items-center gap-1 px-2 py-1 h-8"
             >
-              <span>← Tillbaka till listan</span>
-            </button>
+              <ChevronLeft className="h-4 w-4" />
+              <span>Tillbaka till listan</span>
+            </Button>
           )}
           <SalonDetails salon={selectedSalon} />
         </div>

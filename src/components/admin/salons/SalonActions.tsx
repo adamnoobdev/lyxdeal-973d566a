@@ -1,86 +1,38 @@
 
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Package } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface SalonActionsProps {
   salonId: number;
-  onEdit: (e: React.MouseEvent) => void;
-  onDelete: (e: React.MouseEvent) => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 export const SalonActions = ({ salonId, onEdit, onDelete }: SalonActionsProps) => {
-  const [width, setWidth] = useState(window.innerWidth);
+  const handleClick = (e: React.MouseEvent, action: () => void) => {
+    e.stopPropagation(); // Förhindra att klicket triggar radklicket
+    action();
+  };
 
-  // Uppdatera bredden när fönstret ändrar storlek
-  window.addEventListener('resize', () => setWidth(window.innerWidth));
-
-  // Kompakt mobilversion
-  if (width < 640) {
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onEdit}>
-            <Pencil className="h-4 w-4 mr-2" />
-            Redigera
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={onDelete}
-            className="text-destructive"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Ta bort
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link to={`/admin/salons/${salonId}/deals`} className="w-full flex items-center">
-              <Package className="h-4 w-4 mr-2" />
-              Erbjudanden
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  }
-
-  // Fullständig version för större skärmar
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-1 justify-end">
       <Button
         variant="outline"
         size="sm"
-        onClick={onEdit}
-        className="flex items-center gap-2"
+        onClick={(e) => handleClick(e, onEdit)}
+        className="h-6 xs:h-7 min-h-0 px-1.5 py-0.5 text-[10px] xs:text-xs flex items-center gap-1"
       >
-        <Pencil className="h-4 w-4" />
-        <span className="hidden sm:inline">Redigera</span>
+        <Pencil className="h-3 w-3" />
+        <span className="hidden xs:inline">Redigera</span>
       </Button>
       <Button
         variant="destructive"
         size="sm"
-        onClick={onDelete}
-        className="flex items-center gap-2"
+        onClick={(e) => handleClick(e, onDelete)}
+        className="h-6 xs:h-7 min-h-0 px-1.5 py-0.5 text-[10px] xs:text-xs flex items-center gap-1"
       >
-        <Trash2 className="h-4 w-4" />
-        <span className="hidden sm:inline">Ta bort</span>
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        asChild
-        className="flex items-center gap-2"
-      >
-        <Link to={`/admin/salons/${salonId}/deals`}>
-          <Package className="h-4 w-4" />
-          <span className="hidden sm:inline">Erbjudanden</span>
-        </Link>
+        <Trash2 className="h-3 w-3" />
+        <span className="hidden xs:inline">Ta bort</span>
       </Button>
     </div>
   );

@@ -35,11 +35,11 @@ export const SalonsTable = ({
     });
   };
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 640);
     };
     
     window.addEventListener('resize', handleResize);
@@ -53,11 +53,11 @@ export const SalonsTable = ({
           <TableRow>
             <TableHead className="w-12 font-medium text-xs sm:text-sm">ID</TableHead>
             <TableHead className="font-medium text-xs sm:text-sm">Namn</TableHead>
-            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden md:table-cell">Email</TableHead>}
-            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell">Roll</TableHead>}
+            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell">Email</TableHead>}
+            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden md:table-cell">Roll</TableHead>}
             {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden lg:table-cell">Skapad</TableHead>}
-            <TableHead className="font-medium text-xs sm:text-sm w-16 hidden sm:table-cell">Villkor</TableHead>
-            <TableHead className="font-medium text-xs sm:text-sm w-16 hidden sm:table-cell">Integritet</TableHead>
+            <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell w-14">Villkor</TableHead>
+            <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell w-14">Integritet</TableHead>
             <TableHead className="text-right font-medium text-xs sm:text-sm">Hantera</TableHead>
           </TableRow>
         </TableHeader>
@@ -69,16 +69,18 @@ export const SalonsTable = ({
               onClick={() => onSelect(salon)}
             >
               <TableCell className="font-medium text-xs sm:text-sm py-2 sm:py-4">{salon.id}</TableCell>
-              <TableCell className="text-xs sm:text-sm py-2 sm:py-4 max-w-[120px] md:max-w-none">
-                <div className="truncate">{salon.name}</div>
-                {isMobile && (
-                  <div className="text-muted-foreground text-[10px] truncate mt-1">
-                    {salon.email}
-                  </div>
-                )}
+              <TableCell className="text-xs sm:text-sm py-2 sm:py-4">
+                <div className="truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[150px] md:max-w-full">
+                  {salon.name}
+                  {isMobile && (
+                    <div className="text-muted-foreground text-[10px] truncate mt-0.5">
+                      {salon.email}
+                    </div>
+                  )}
+                </div>
               </TableCell>
-              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden md:table-cell">{salon.email}</TableCell>}
-              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">{salon.role === 'admin' ? 'Admin' : 'Salongägare'}</TableCell>}
+              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">{salon.email}</TableCell>}
+              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden md:table-cell">{salon.role === 'admin' ? 'Admin' : 'Salongägare'}</TableCell>}
               {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden lg:table-cell">{formatDate(salon.created_at)}</TableCell>}
               <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">
                 {salon.terms_accepted !== false ? (
