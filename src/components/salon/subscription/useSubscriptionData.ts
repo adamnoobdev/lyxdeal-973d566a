@@ -22,7 +22,7 @@ export const useSubscriptionData = () => {
         // Hämta salongsdata inklusive prenumerationsinformation
         const { data: salons, error: salonError } = await supabase
           .from("salons")
-          .select("subscription_plan, subscription_type, stripe_customer_id, stripe_subscription_id, current_period_end, status, cancel_at_period_end")
+          .select("subscription_plan, subscription_type, stripe_customer_id, stripe_subscription_id, current_period_end, current_period_start, status, cancel_at_period_end")
           .eq("user_id", session.user.id)
           .single();
         
@@ -39,7 +39,7 @@ export const useSubscriptionData = () => {
           stripe_customer_id: salons.stripe_customer_id || '',
           stripe_subscription_id: salons.stripe_subscription_id || '',
           current_period_end: salons.current_period_end,
-          current_period_start: null, // Since this column doesn't exist, we'll set it to null
+          current_period_start: salons.current_period_start,
           status: salons.status || 'inactive',
           cancel_at_period_end: salons.cancel_at_period_end || false
         });

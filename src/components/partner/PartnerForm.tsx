@@ -65,12 +65,12 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
     try {
       // Prepare the data with plan information and ensure required fields are present
       const requestData = {
-        ...values,
-        // Make sure all required fields from PartnerRequestData are included
         name: values.name,
         business_name: values.business_name,
         email: values.email,
         phone: values.phone,
+        address: values.address || "",
+        message: values.message || "",
         plan_title: selectedPlan.title,
         plan_payment_type: selectedPlan.paymentType,
         plan_price: selectedPlan.price,

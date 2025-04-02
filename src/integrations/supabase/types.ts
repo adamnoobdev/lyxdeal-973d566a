@@ -339,6 +339,7 @@ export type Database = {
           cancel_at_period_end: boolean | null
           created_at: string
           current_period_end: string | null
+          current_period_start: string | null
           email: string
           id: number
           name: string
@@ -358,6 +359,7 @@ export type Database = {
           cancel_at_period_end?: boolean | null
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
           email: string
           id?: number
           name: string
@@ -377,6 +379,7 @@ export type Database = {
           cancel_at_period_end?: boolean | null
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
           email?: string
           id?: number
           name?: string
