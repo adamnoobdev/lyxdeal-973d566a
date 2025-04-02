@@ -25,6 +25,7 @@ export type Database = {
           is_free: boolean | null
           original_price: number
           quantity_left: number
+          requires_discount_code: boolean | null
           salon_id: number | null
           status: string
           stripe_price_id: string | null
@@ -47,6 +48,7 @@ export type Database = {
           is_free?: boolean | null
           original_price: number
           quantity_left?: number
+          requires_discount_code?: boolean | null
           salon_id?: number | null
           status?: string
           stripe_price_id?: string | null
@@ -69,6 +71,7 @@ export type Database = {
           is_free?: boolean | null
           original_price?: number
           quantity_left?: number
+          requires_discount_code?: boolean | null
           salon_id?: number | null
           status?: string
           stripe_price_id?: string | null
