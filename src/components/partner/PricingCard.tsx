@@ -75,7 +75,7 @@ export const PricingCard = ({
             {billingType === "yearly" ? (
               <Badge variant="default" className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 flex items-center gap-1">
                 <Sparkles className="h-3 w-3" />
-                <span>Spara {yearSavings} kr</span>
+                <span>Spara {yearSavings} kr (ordinarie {monthlyPrice * 12} kr/år)</span>
               </Badge>
             ) : (
               <Badge variant="outline" className="bg-secondary/10 text-muted-foreground border border-secondary/20 px-3 py-1">
