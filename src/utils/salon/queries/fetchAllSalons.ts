@@ -15,7 +15,7 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
     
     const directData = await directFetch<SalonData>(
       `salons`,
-      { "select": "id,name,address,phone", "limit": "50" }
+      { "select": "id,name,address,phone,email,created_at,user_id,role,subscription_plan,subscription_type,stripe_customer_id,stripe_subscription_id,current_period_end,status,cancel_at_period_end,terms_accepted,privacy_accepted" }
     );
     
     if (directData && directData.length > 0) {
@@ -30,25 +30,25 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
     
     const { data: salonData, error: salonError, status } = await supabase
       .from("salons")
-      .select("id, name, address, phone")
+      .select("*")
       .order('id', { ascending: true });
     
     console.log("[fetchAllSalons] Supabase förfrågan status:", status);
       
     if (salonError) {
       console.error("[fetchAllSalons] Fel vid hämtning:", salonError);
-      return null;
+      throw salonError;
     }
     
     if (!salonData || salonData.length === 0) {
       console.log("[fetchAllSalons] Inga salonger hittades via Supabase klient");
-      return null;
+      return [];
     }
     
     console.log("[fetchAllSalons] Hämtade salonger via Supabase klient, antal:", salonData.length);
     return salonData as SalonData[];
   } catch (err) {
     console.error("[fetchAllSalons] Undantag vid hämtning:", err);
-    return null;
+    throw err;
   }
 };

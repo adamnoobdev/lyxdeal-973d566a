@@ -13,42 +13,20 @@ interface SalonsContentProps {
   onCreateClick: () => void;
   onEditClick: (salon: Salon) => void;
   onDeleteClick: (salon: Salon) => void;
+  salons?: Salon[];
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 export const SalonsContent = ({
   onCreateClick,
   onEditClick,
   onDeleteClick,
+  salons = [],
+  isLoading = false,
+  error = null
 }: SalonsContentProps) => {
-  const { salons, isLoading, error, fetchSalons } = useSalonsAdmin();
-  const [hasAutoFetched, setHasAutoFetched] = useState(false);
   const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
-
-  useEffect(() => {
-    if (!hasAutoFetched) {
-      fetchSalons();
-      setHasAutoFetched(true);
-    }
-  }, [fetchSalons, hasAutoFetched]);
-
-  if (isLoading && !salons.length) {
-    return <SalonsLoadingSkeleton />;
-  }
-
-  if (error) {
-    return (
-      <div className="mt-4 p-4 border rounded bg-red-50 text-red-600">
-        <p>Ett fel uppstod: {error}</p>
-        <Button
-          onClick={() => fetchSalons()}
-          variant="outline"
-          className="mt-2"
-        >
-          Försök igen
-        </Button>
-      </div>
-    );
-  }
 
   // Function to approve all salons
   const handleApproveAll = async () => {
@@ -59,6 +37,25 @@ export const SalonsContent = ({
       toast.error("Ett fel uppstod vid godkännande");
     }
   };
+
+  if (isLoading) {
+    return <SalonsLoadingSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <div className="mt-4 p-4 border rounded bg-red-50 text-red-600">
+        <p>Ett fel uppstod: {error}</p>
+        <Button
+          onClick={onCreateClick}
+          variant="outline"
+          className="mt-2"
+        >
+          Försök igen
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

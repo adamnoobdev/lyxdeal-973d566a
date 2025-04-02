@@ -29,10 +29,16 @@ export const useSalonsAdmin = () => {
     }
 
     try {
+      console.log("Försöker hämta salonger med fetchSalonsData()");
+      setIsLoading(true);
+      setError(null);
+      
       const data = await fetchSalonsData();
       setSalons(data || []);
-      setError(null);
+      
+      console.log("Hämtade salonger:", data?.length || 0);
     } catch (err) {
+      console.error("Error fetching salons:", err);
       const errorMessage = err instanceof Error ? err.message : "Ett fel uppstod vid hämtning av salonger";
       setError(errorMessage);
       toast.error(errorMessage);

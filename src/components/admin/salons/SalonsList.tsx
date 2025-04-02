@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Salon, SalonFormValues } from "../types";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
@@ -22,7 +21,9 @@ export const SalonsList = () => {
   
   const { salons, isLoading, error, handleDelete, handleUpdate, handleCreate, fetchSalons } = useSalonsAdmin();
 
+  // Fetch salons when component mounts
   useEffect(() => {
+    console.log("SalonsList mounting, fetching salons data...");
     fetchSalons();
   }, [fetchSalons]);
 
@@ -120,21 +121,20 @@ export const SalonsList = () => {
       }
     }
     
-    console.log("Final initial values:", initialValues);
-    return initialValues;
+    console.log("Final initial values:", { name: salon.name, email: salon.email, phone: salon.phone || "", address: salon.address || "" });
+    return {
+      name: salon.name,
+      email: salon.email,
+      phone: salon.phone || "",
+      address: salon.address || "",
+      termsAccepted: salon.terms_accepted !== false,
+      privacyAccepted: salon.privacy_accepted !== false,
+    };
   };
-
-  if (isLoading) {
-    return <SalonsLoadingSkeleton />;
-  }
-
-  // Eftersom error redan är string eller null i useSalonsAdmin behöver vi inte kolla instanceof
-  const errorMessage = error || null;
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 xs:px-4 sm:px-0">
       <SalonsHeader 
-        error={errorMessage} 
         onCreateClick={() => setIsCreating(true)} 
       />
 
@@ -142,18 +142,19 @@ export const SalonsList = () => {
         <Alert variant="destructive" className="mx-auto">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs xs:text-sm">
-            {errorMessage}
+            {error}
           </AlertDescription>
         </Alert>
       )}
 
-      {salons && (
-        <SalonsContent
-          onCreateClick={() => setIsCreating(true)}
-          onEditClick={setEditingSalon}
-          onDeleteClick={setDeletingSalon}
-        />
-      )}
+      <SalonsContent
+        salons={salons}
+        isLoading={isLoading}
+        error={error}
+        onCreateClick={() => setIsCreating(true)}
+        onEditClick={setEditingSalon}
+        onDeleteClick={setDeletingSalon}
+      />
 
       <EditSalonDialog
         isOpen={!!editingSalon}
