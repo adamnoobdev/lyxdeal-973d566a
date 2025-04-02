@@ -29,6 +29,7 @@ export const DiscountCodesDialog = ({
 }: DiscountCodesDialogProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [codes, setCodes] = useState<any[]>([]);
+  const [isClosing, setIsClosing] = useState(false);
   const closingTimerRef = useRef<number | null>(null);
   
   // If the deal doesn't require discount codes, we don't need to load them
@@ -36,7 +37,7 @@ export const DiscountCodesDialog = ({
 
   useEffect(() => {
     // Reset state when dialog opens
-    if (isOpen && deal) {
+    if (isOpen && deal && !isClosing) {
       setIsLoading(true);
       
       // Only fetch discount codes if the deal requires them
@@ -51,11 +52,11 @@ export const DiscountCodesDialog = ({
     // Clean up any pending timers when unmounting or when dialog state changes
     return () => {
       if (closingTimerRef.current) {
-        clearTimeout(closingTimerRef.current);
+        window.clearTimeout(closingTimerRef.current);
         closingTimerRef.current = null;
       }
     };
-  }, [isOpen, deal?.id, requiresDiscountCode]);
+  }, [isOpen, deal?.id, requiresDiscountCode, isClosing]);
 
   const fetchCodes = async () => {
     if (!deal) return;
@@ -80,19 +81,29 @@ export const DiscountCodesDialog = ({
 
   // Improved dialog closing handler with debouncing
   const handleDialogChange = (open: boolean) => {
-    if (!open) {
-      console.log("[DiscountCodesDialog] Dialog closing via X button");
+    if (!open && !isClosing) {
+      console.log("[DiscountCodesDialog] Dialog closing via X button or Escape key");
+      
+      // Set closing state to prevent duplicate close triggers
+      setIsClosing(true);
       
       // Cancel any existing timers
       if (closingTimerRef.current) {
-        clearTimeout(closingTimerRef.current);
+        window.clearTimeout(closingTimerRef.current);
       }
       
       // Add a slight delay to ensure the animation completes
       closingTimerRef.current = window.setTimeout(() => {
+        console.log("[DiscountCodesDialog] Executing onClose callback");
         onClose();
+        
+        // Reset the closing state after a short delay
+        window.setTimeout(() => {
+          setIsClosing(false);
+        }, 100);
+        
         closingTimerRef.current = null;
-      }, 50); // A short delay to ensure it happens after the animation starts
+      }, 50);
     }
   };
 

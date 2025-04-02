@@ -17,28 +17,28 @@ export const DiscountCodesDialogManager = ({
 }: DiscountCodesDialogManagerProps) => {
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
   const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
-  const [isViewingCodes, setIsViewingCodes] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // Track timeouts to clear them if needed
   const closeTimeoutRef = useRef<number | null>(null);
   
   // Effect för att automatiskt visa rabattkoder för nyligen skapade erbjudanden
   useEffect(() => {
-    if (justCreatedDeal && !viewingCodesForDeal && !isClosingCodesDialog && !isViewingCodes) {
+    if (justCreatedDeal && !viewingCodesForDeal && !isClosingCodesDialog && !isDialogOpen) {
       console.log("[DiscountCodesDialogManager] Auto-showing discount codes for newly created deal:", justCreatedDeal.id);
       logIdInfo("DiscountCodesDialogManager justCreatedDeal", justCreatedDeal.id);
-      setIsViewingCodes(true);
+      setIsDialogOpen(true);
       setViewingCodesForDeal(justCreatedDeal);
     }
     
     // Cleanup timeouts on unmount or when dependencies change
     return () => {
       if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
+        window.clearTimeout(closeTimeoutRef.current);
         closeTimeoutRef.current = null;
       }
     };
-  }, [justCreatedDeal, viewingCodesForDeal, isClosingCodesDialog, isViewingCodes]);
+  }, [justCreatedDeal, viewingCodesForDeal, isClosingCodesDialog, isDialogOpen]);
   
   // Hantera öppning av dialogen för ett specifikt erbjudande
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
@@ -48,11 +48,11 @@ export const DiscountCodesDialogManager = ({
     // Clear any closing states first to prevent conflicts
     setIsClosingCodesDialog(false);
     if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
+      window.clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = null;
     }
     
-    setIsViewingCodes(true);
+    setIsDialogOpen(true);
     setViewingCodesForDeal(deal);
   }, []);
   
@@ -66,11 +66,13 @@ export const DiscountCodesDialogManager = ({
       return;
     }
     
+    // Set the closing state first to prevent UI interactions
     setIsClosingCodesDialog(true);
+    setIsDialogOpen(false);
     
     // Clear any existing timeout
     if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
+      window.clearTimeout(closeTimeoutRef.current);
     }
     
     // Använd setTimeout för att förhindra att statet uppdateras medan dialogen fortfarande stängs
@@ -78,23 +80,19 @@ export const DiscountCodesDialogManager = ({
       console.log("[DiscountCodesDialogManager] Timeout completed, resetting states");
       
       // Reset states in the correct order
-      if (viewingCodesForDeal) {
-        setViewingCodesForDeal(null);
-      }
+      setViewingCodesForDeal(null);
       
       if (justCreatedDeal) {
         resetJustCreatedDeal();
       }
       
-      setIsViewingCodes(false);
       setIsClosingCodesDialog(false);
       closeTimeoutRef.current = null;
     }, 300);
-  }, [resetJustCreatedDeal, justCreatedDeal, viewingCodesForDeal, isClosingCodesDialog]);
+  }, [resetJustCreatedDeal, justCreatedDeal, isClosingCodesDialog]);
   
   // Avgör vilket erbjudande som ska visas (antingen via explicit visning eller auto-visning av nya)
   const activeDeal = viewingCodesForDeal || justCreatedDeal;
-  const isDialogOpen = !!activeDeal && !isClosingCodesDialog;
   
   // Logga aktivt deal för felsökning
   useEffect(() => {
@@ -107,7 +105,7 @@ export const DiscountCodesDialogManager = ({
   return {
     discountCodesDialog: (
       <DiscountCodesDialog
-        isOpen={isDialogOpen}
+        isOpen={isDialogOpen && !isClosingCodesDialog && !!activeDeal}
         onClose={handleCloseDiscountCodesDialog}
         deal={activeDeal}
         onGenerateDiscountCodes={onGenerateDiscountCodes}
