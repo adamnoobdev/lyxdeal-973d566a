@@ -1,89 +1,94 @@
 
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from "@/components/ui/toaster";
-import { useSession } from './hooks/useSession';
-import { useUserRole } from './hooks/useUserRole';
-import AdminUsers from "./pages/AdminUsers";
-import CreateAdmin from "./pages/CreateAdmin";
-import Admin from './pages/Admin';
-import IndexPage from './pages/Index';
-import Layout from './components/layout/Layout';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from '@/components/layout/Layout';
+import Index from './pages/Index';
 import ProductDetails from './pages/ProductDetails';
-import SecureDeal from './pages/SecureDeal';
-import SalonLogin from './pages/SalonLogin';
 import SearchResults from './pages/SearchResults';
+import Admin from './pages/Admin';
+import SalonDashboard from './pages/SalonDashboard';
+import SalonLogin from './pages/SalonLogin';
+import UpdatePassword from './pages/UpdatePassword';
+import SalonDetails from './pages/SalonDetails';
 import PartnerPage from './pages/PartnerPage';
-import Auth from './pages/Auth';
+import PartnerSignup from './pages/PartnerSignup';
 import FAQ from './pages/FAQ';
 import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import SecureDeal from './pages/SecureDeal';
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
+import CreateAdmin from './pages/CreateAdmin';
+import { SalonDeals } from './components/salon/SalonDeals';
+import { supabase } from '@/integrations/supabase/client';
+import { CookieConsent } from './components/cookie/CookieConsent';
 
 function App() {
-  const queryClient = new QueryClient();
-  const { session } = useSession();
-  const { userRole, isLoading: isRoleLoading } = useUserRole();
-  const [hasCheckedInitialSession, setHasCheckedInitialSession] = useState(false);
-
+  // Logga auth-status när appen laddas, men försök inte automatiskt logga in
   useEffect(() => {
-    // Mark that we've checked the initial session, so we don't redirect unnecessarily
-    if (!hasCheckedInitialSession && session !== undefined) {
-      setHasCheckedInitialSession(true);
-    }
-  }, [session, hasCheckedInitialSession]);
-
-  // Show a loading indicator if we're still checking the session or user role
-  if (!hasCheckedInitialSession || isRoleLoading) {
-    return <div>Loading...</div>; // Replace with a more appropriate loading indicator
-  }
+    // Passiv kontroll av auth-status, utan automatisk inloggning
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      console.log("Initial auth check:", data.session ? "User is logged in" : "No session found");
+      
+      if (data.session) {
+        console.log("Auth: User signed in, session expires at:", new Date(data.session.expires_at || 0).toISOString());
+      }
+    };
+    
+    checkAuth();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log(`Auth state changed in App.tsx: ${event}`, session ? "Session exists" : "No session");
+      
+      if (event === 'SIGNED_OUT') {
+        console.log("Auth: User signed out, clearing session");
+      } else if (session) {
+        console.log("Auth: Session updated, expires at:", new Date(session.expires_at || 0).toISOString());
+      }
+    });
+    
+    // Clean up subscription
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+    <>
+      <Router>
         <Routes>
-          {/* Main layout with common elements like header and footer */}
-          <Route element={<Layout />}>
-            {/* Public routes */}
-            <Route path="/" element={<IndexPage />} />
-            <Route path="/deal/:id" element={<ProductDetails />} />
-            <Route path="/deals/:dealId" element={<ProductDetails />} />
-            <Route path="/salons/:salonId" element={<div>Salon Page</div>} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/privacy" element={<div>Privacy Page</div>} />
-            <Route path="/contact" element={<div>Contact Page</div>} />
-            <Route path="/cookies" element={<div>Cookies Page</div>} />
-            <Route path="/partner" element={<PartnerPage />} />
-
-            {/* User profile - must be logged in */}
-            <Route path="/profile" element={session ? <div>Profile Page</div> : <Navigate to="/" replace />} />
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Index />} />
+            <Route path="auth" element={<Navigate to="/salon/login" replace />} />
+            <Route path="search" element={<SearchResults />} />
+            <Route path="deals/:id" element={<ProductDetails />} />
+            <Route path="deal/:id" element={<ProductDetails />} />
+            <Route path="secure-deal/:id" element={<SecureDeal />} />
+            <Route path="faq" element={<FAQ />} />
+            <Route path="terms" element={<Terms />} />
+            <Route path="privacy" element={<Privacy />} />
+            <Route path="partner" element={<PartnerPage />} />
+            <Route path="partner/signup" element={<PartnerSignup />} />
+            <Route path="bli-partner" element={<PartnerPage />} />
+            <Route path="salons/:id" element={<SalonDetails />} />
+            <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+            
+            <Route path="/admin/*" element={<Admin />} />
+            <Route path="/create-admin" element={<CreateAdmin />} />
+            
+            <Route path="/salon/login" element={<SalonLogin />} />
+            <Route path="/salon/update-password" element={<UpdatePassword />} />
+            <Route path="/salon/dashboard" element={<SalonDashboard />} />
+            <Route path="/salon/deal" element={<SalonDeals />} />
+            <Route path="/salon/deals" element={<SalonDeals />} />
+            <Route path="/salon/customers" element={<SalonDashboard />} />
+            <Route path="/salon/settings" element={<SalonDashboard />} />
           </Route>
-
-          {/* Secure deal page */}
-          <Route path="/secure-deal/:id" element={<SecureDeal />} />
-
-          {/* Auth route - redirects to login */}
-          <Route path="/auth" element={<Auth />} />
-
-          {/* Salon routes - only accessible if NOT logged in */}
-          <Route path="/salon/login" element={session ? <Navigate to="/salon" replace /> : <SalonLogin />} />
-          <Route path="/salon/register" element={session ? <Navigate to="/salon" replace /> : <div>Salon Register</div>} />
-
-          {/* Salon routes - only accessible if logged in as a salon */}
-          <Route path="/salon" element={
-            session ? <div>Salon Dashboard</div> : <Navigate to="/salon/login" replace />
-          } />
-
-          {/* Admin routes */}
-          <Route path="/admin/*" element={<Admin />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/create-admin" element={<CreateAdmin />} />
         </Routes>
-        
-        <Toaster />
-      </BrowserRouter>
-    </QueryClientProvider>
+      </Router>
+      <CookieConsent />
+    </>
   );
 }
 

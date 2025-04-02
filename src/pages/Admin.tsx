@@ -1,6 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
-import { Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { Dashboard } from '@/components/admin/Dashboard';
 import { DealsListContainer } from '@/components/admin/deals/DealsListContainer';
@@ -10,14 +10,12 @@ import { DebugPanel } from '@/components/admin/debug/DebugPanel';
 import { useSession } from '@/hooks/useSession';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import CreateAdmin from './CreateAdmin';
 
 const Admin = () => {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const { session, isLoading } = useSession();
   const navigate = useNavigate();
   const [forceRedirect, setForceRedirect] = useState(false);
-  const location = useLocation();
   
   // Lyssna på auth-ändringar för att hantera utloggning bättre
   useEffect(() => {
@@ -82,9 +80,6 @@ const Admin = () => {
     return null;
   }
   
-  // Lägg till console.log för debugging
-  console.log("Admin rendering with path:", location.pathname);
-  
   return (
     <AdminAuthCheck>
       <AdminLayout>
@@ -98,7 +93,6 @@ const Admin = () => {
           <Route path="deals/*" element={<DealsListContainer />} />
           <Route path="salons/*" element={<SalonsList />} />
           <Route path="debug" element={<DebugPanel />} />
-          <Route path="create-admin" element={<CreateAdmin />} />
         </Routes>
       </AdminLayout>
     </AdminAuthCheck>

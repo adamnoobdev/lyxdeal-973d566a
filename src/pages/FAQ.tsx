@@ -1,68 +1,134 @@
 
-import React from 'react';
-import { Helmet } from 'react-helmet';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { HelpCircle, Mail, Tag, ShoppingBag, Calendar, Clock, Star, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function FAQ() {
+  const isMobile = useIsMobile();
+  
+  const faqs = [
+    {
+      question: "Vad är Lyxdeal?",
+      answer: "Lyxdeal är en plattform där du kan hitta exklusiva rabattkoder till salongtjänster. Vi samarbetar med kvalitetssäkrade salonger för att erbjuda dig bästa möjliga priser på skönhetsbehandlingar."
+    },
+    {
+      question: "Hur fungerar Lyxdeal?",
+      answer: "Det är enkelt! Bläddra bland våra erbjudanden, välj det du är intresserad av och säkra din rabattkod. Rabattkoden kan sedan användas direkt på salongen när du bokar din behandling."
+    },
+    {
+      question: "Hur använder jag min rabattkod?",
+      answer: "När du har valt och säkrat en rabattkod får du den direkt. Kontakta sedan salongen direkt för att boka din tid och uppge din rabattkod. Salongens kontaktuppgifter finns alltid på erbjudandet."
+    },
+    {
+      question: "Hur länge är rabattkoderna giltiga?",
+      answer: "Varje rabattkod har en specifik giltighetstid som tydligt visas på erbjudandet. Vanligtvis är våra koder giltiga i 3-6 månader från köpdatum, vilket ger dig gott om tid att boka din behandling."
+    },
+    {
+      question: "Kan jag avboka en bokad tid?",
+      answer: "Ja, du kan avboka din bokade tid direkt med salongen enligt deras avbokningsregler. Observera att din rabattkod fortfarande är giltig för en ny bokning inom giltighetstiden."
+    },
+    {
+      question: "Hur vet jag att salongen är kvalitetssäkrad?",
+      answer: "Alla salonger på Lyxdeal genomgår en noggrann kvalitetskontroll innan de får erbjuda sina tjänster på vår plattform. Vi kontrollerar licenser, certifieringar och kundrecensioner för att säkerställa att du får en kvalitetsupplevelse."
+    },
+    {
+      question: "Vad händer om jag är missnöjd med min behandling?",
+      answer: "Vi tar kundnöjdhet på största allvar. Kontakta först salongen direkt för att diskutera din upplevelse. Om du fortfarande är missnöjd, kontakta vår kundtjänst via e-post så hjälper vi dig att lösa situationen."
+    },
+    {
+      question: "Kan jag få flera rabattkoder till samma erbjudande?",
+      answer: "Ja, du kan säkra flera rabattkoder till samma erbjudande, antingen för eget bruk eller som present till vänner och familj. Varje kod har sin egen unika kod och giltighetstid."
+    }
+  ];
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <Helmet>
-        <title>Vanliga frågor | Lyxdeal</title>
-        <meta name="description" content="Hitta svar på vanliga frågor om Lyxdeal, användning av vår tjänst, och hur våra erbjudanden fungerar." />
-      </Helmet>
+    <div className="min-h-screen bg-gradient-to-b from-accent/5 to-background">
+      <div className="container mx-auto px-4 sm:px-6 py-12 md:py-16">
+        <div className="max-w-3xl mx-auto space-y-10">
+          {/* Header Section */}
+          <div className="text-center space-y-5 animate-fade-up">
+            <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-none bg-primary/10 mb-4">
+              <HelpCircle className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-primary">
+              Vanliga frågor
+            </h1>
+            <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
+              Här hittar du svar på vanliga frågor om Lyxdeal och hur våra rabattkoder fungerar.
+            </p>
+          </div>
 
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">Vanliga frågor</h1>
-        
-        <Accordion type="single" collapsible className="space-y-4">
-          <AccordionItem value="item-1" className="border rounded-lg px-4 py-2">
-            <AccordionTrigger className="text-lg font-medium">Hur fungerar Lyxdeal?</AccordionTrigger>
-            <AccordionContent className="text-gray-600">
-              Lyxdeal är en plattform som samlar exklusiva erbjudanden från salonger och skönhetsverksamheter. Du kan bläddra bland erbjudanden, säkra dem genom vår plattform, och sedan besöka salongen för att nyttja erbjudandet.
-            </AccordionContent>
-          </AccordionItem>
+          {/* FAQ Categories */}
+          <div className="hidden md:grid grid-cols-3 gap-4 animate-fade-up [animation-delay:100ms]">
+            {[
+              { icon: Tag, title: "Rabattkoder", description: "Så fungerar våra erbjudanden" },
+              { icon: ShoppingBag, title: "Bokningar", description: "Boka hos salongen" },
+              { icon: Shield, title: "Trygghet", description: "Kvalitetssäkrade tjänster" }
+            ].map((category, index) => (
+              <div 
+                key={index} 
+                className="bg-white/70 backdrop-blur-sm rounded-none p-4 border border-accent/10 shadow-md hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center"
+              >
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-none bg-primary/10 mb-3">
+                  <category.icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-base mb-1">{category.title}</h3>
+                <p className="text-sm text-muted-foreground">{category.description}</p>
+              </div>
+            ))}
+          </div>
 
-          <AccordionItem value="item-2" className="border rounded-lg px-4 py-2">
-            <AccordionTrigger className="text-lg font-medium">Hur säkrar jag ett erbjudande?</AccordionTrigger>
-            <AccordionContent className="text-gray-600">
-              När du hittar ett erbjudande du vill nyttja, klickar du på "Säkra erbjudande". Du får sedan fylla i dina uppgifter och får en unik rabattkod skickad till din e-post. Denna kod visar du sedan upp i salongen.
-            </AccordionContent>
-          </AccordionItem>
+          {/* FAQ Accordion */}
+          <div className="bg-white/70 backdrop-blur-sm rounded-none p-5 sm:p-6 shadow-md border border-accent/10 animate-fade-up [animation-delay:200ms]">
+            <Accordion type="single" collapsible className="w-full">
+              {faqs.map((faq, index) => (
+                <AccordionItem 
+                  key={index} 
+                  value={`item-${index}`}
+                  className="border-b border-accent/10 last:border-0"
+                >
+                  <AccordionTrigger className="text-left hover:text-primary transition-colors text-base sm:text-lg py-4">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground text-sm sm:text-base">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
 
-          <AccordionItem value="item-3" className="border rounded-lg px-4 py-2">
-            <AccordionTrigger className="text-lg font-medium">Kostar det något att använda Lyxdeal?</AccordionTrigger>
-            <AccordionContent className="text-gray-600">
-              Det är helt gratis att använda Lyxdeal för att hitta och säkra erbjudanden. Du betalar endast för behandlingen när du besöker salongen, då till det rabatterade priset som visas på erbjudandet.
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="item-4" className="border rounded-lg px-4 py-2">
-            <AccordionTrigger className="text-lg font-medium">Hur lång tid är rabattkoden giltig?</AccordionTrigger>
-            <AccordionContent className="text-gray-600">
-              Rabattkoden är vanligtvis giltig i 72 timmar från det att du säkrar erbjudandet, men detta kan variera beroende på erbjudandet. Den exakta giltighetstiden anges tydligt vid varje erbjudande.
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="item-5" className="border rounded-lg px-4 py-2">
-            <AccordionTrigger className="text-lg font-medium">Kan jag avboka ett säkrat erbjudande?</AccordionTrigger>
-            <AccordionContent className="text-gray-600">
-              Om du inte använder din rabattkod inom giltighetstiden förfaller den automatiskt. Det finns ingen formell avbokningsprocess, men om du har problem kan du kontakta oss via vår kontaktsida.
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="item-6" className="border rounded-lg px-4 py-2">
-            <AccordionTrigger className="text-lg font-medium">Jag är salongsägare, hur blir jag partner?</AccordionTrigger>
-            <AccordionContent className="text-gray-600">
-              Vi välkomnar nya salonger att bli partners! Besök vår <a href="/partner" className="text-primary underline">partnerssida</a> för mer information, eller kontakta oss direkt via e-post.
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-
-        <div className="mt-12 text-center">
-          <p className="text-gray-600">Hittade du inte svar på din fråga?</p>
-          <a href="/contact" className="mt-2 inline-flex items-center text-primary hover:underline">
-            Kontakta oss
-          </a>
+          {/* Contact Section */}
+          <div className="text-center pt-4 sm:pt-8 space-y-5 animate-fade-up [animation-delay:400ms]">
+            <p className="text-lg text-muted-foreground">
+              Hittade du inte svaret på din fråga?
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                asChild
+                className="gap-2 shadow-sm rounded-none"
+                size={isMobile ? "sm" : "default"}
+              >
+                <Link to="mailto:support@lyxdeal.se">
+                  <Mail className="w-4 h-4" />
+                  Kontakta kundtjänst
+                </Link>
+              </Button>
+              <Button 
+                asChild
+                variant="outline" 
+                className="gap-2 shadow-sm border-accent/20 hover:bg-accent/5 rounded-none"
+                size={isMobile ? "sm" : "default"}
+              >
+                <Link to="/partner">
+                  <Tag className="w-4 h-4" />
+                  Se våra erbjudanden
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

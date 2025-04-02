@@ -1,52 +1,61 @@
 
-import { PanelLeft, Store, Tag, Users, UserPlus } from "lucide-react";
-import { SidebarLink } from "./SidebarLink";
 import { useLocation } from "react-router-dom";
+import { LayoutDashboard, Tag, Store, UserPlus } from "lucide-react";
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
+import { SidebarLink } from "./SidebarLink";
+
+const adminLinks = [
+  {
+    href: "/admin",
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    description: "Översikt och statistik",
+  },
+  {
+    href: "/admin/deals",
+    icon: Tag,
+    label: "Erbjudanden",
+    description: "Hantera erbjudanden",
+  },
+  {
+    href: "/admin/salons",
+    icon: Store,
+    label: "Salonger",
+    description: "Hantera salonger",
+  },
+  {
+    href: "/create-admin",
+    icon: UserPlus,
+    label: "Skapa Admin",
+    description: "Lägg till administratörer",
+  },
+] as const;
 
 interface AdminSidebarLinksProps {
   currentPath?: string;
 }
 
-export const AdminSidebarLinks = ({ currentPath = '' }: AdminSidebarLinksProps) => {
+export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
   const location = useLocation();
-  const path = currentPath || location.pathname;
-  
+  const currentLocation = currentPath || location.pathname;
+
   return (
-    <div className="space-y-1">
-      <SidebarLink
-        href="/admin"
-        active={path === '/admin'}
-        icon={PanelLeft}
-        label="Dashboard"
-      />
-
-      <SidebarLink
-        href="/admin/deals"
-        active={path.includes('/admin/deals')}
-        icon={Tag}
-        label="Erbjudanden"
-      />
-
-      <SidebarLink
-        href="/admin/salons"
-        active={path.includes('/admin/salons')}
-        icon={Store}
-        label="Salonger"
-      />
-
-      <SidebarLink
-        href="/admin/users"
-        active={path.includes('/admin/users')}
-        icon={Users}
-        label="Användare"
-      />
-      
-      <SidebarLink
-        href="/admin/create-admin"
-        active={path.includes('/admin/create-admin')}
-        icon={UserPlus}
-        label="Skapa admin"
-      />
-    </div>
+    <SidebarGroup>
+      <SidebarGroupLabel className="text-primary font-medium">Admin</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {adminLinks.map((link) => (
+            <SidebarLink
+              key={link.href}
+              href={link.href}
+              icon={link.icon}
+              isCurrentPath={currentLocation === link.href || currentLocation.startsWith(link.href)}
+            >
+              {link.label}
+            </SidebarLink>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
   );
 };

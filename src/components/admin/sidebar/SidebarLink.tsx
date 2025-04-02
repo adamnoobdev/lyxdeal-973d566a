@@ -2,11 +2,10 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import { LucideIcon } from "lucide-react";
 
 interface SidebarLinkProps {
   href: string;
-  icon: LucideIcon;
+  icon: React.ComponentType<{ className?: string }>;
   children?: React.ReactNode;
   active?: boolean;
   label?: string;
@@ -22,10 +21,10 @@ export function SidebarLink({
   isCurrentPath 
 }: SidebarLinkProps) {
   return (
-    <li className="flex list-none">
+    <li className="flex">
       <NavLink
         to={href}
-        end={href === '/admin'}
+        end
         className={({ isActive: linkActive }) =>
           cn(
             buttonVariants({ variant: "ghost" }),
@@ -35,7 +34,7 @@ export function SidebarLink({
         }
       >
         <Icon className="h-4 w-4" />
-        <span>{children || label}</span>
+        {children || label}
       </NavLink>
     </li>
   );
