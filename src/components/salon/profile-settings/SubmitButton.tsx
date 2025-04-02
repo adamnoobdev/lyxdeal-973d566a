@@ -8,11 +8,11 @@ interface SubmitButtonProps {
 
 export const SubmitButton = ({ isSubmitting }: SubmitButtonProps) => {
   return (
-    <div className="flex justify-end pt-2">
+    <div className="flex justify-end pt-4">
       <Button 
         type="submit" 
         disabled={isSubmitting}
-        className="w-full sm:w-auto"
+        className="px-6"
       >
         {isSubmitting ? (
           <>

@@ -18,7 +18,9 @@ export const ProfileSettings = ({ salon, onUpdate }: ProfileSettingsProps) => {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold mb-2">Profilinställningar</h2>
-        <p className="text-muted-foreground text-sm">Uppdatera din salongs kontaktinformation</p>
+        <p className="text-muted-foreground text-sm">
+          Uppdatera din salongs kontaktinformation
+        </p>
       </div>
 
       <ProfileSettingsForm salon={salon} onUpdate={onUpdate} />

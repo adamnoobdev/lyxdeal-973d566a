@@ -1,0 +1,28 @@
+
+.mapboxgl-ctrl-attrib,
+.mapboxgl-ctrl-logo {
+  display: none !important;
+}
+
+.mapbox-suggestions-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.mapbox-suggestion-item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.mapbox-suggestion-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.mapbox-error-state {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}

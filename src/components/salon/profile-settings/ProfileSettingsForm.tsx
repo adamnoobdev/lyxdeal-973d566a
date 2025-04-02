@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { BasicInfoFields } from "./BasicInfoFields";
-import { ContactFields } from "@/components/admin/salons/form/ContactFields";
+import { ContactInfoFields } from "./ContactInfoFields";
 import { SubmitButton } from "./SubmitButton";
 import { profileSchema, ProfileFormValues } from "./schema";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,10 +32,6 @@ export const ProfileSettingsForm = ({ salon, onUpdate }: ProfileSettingsFormProp
       name: salon.name,
       email: salon.email,
       phone: salon.phone || "",
-      fullAddress: salon.address || "",
-      street: "",
-      postalCode: "",
-      city: "",
       address: salon.address || "",
     },
   });
@@ -43,15 +39,11 @@ export const ProfileSettingsForm = ({ salon, onUpdate }: ProfileSettingsFormProp
   const onSubmit = async (values: ProfileFormValues) => {
     setIsSubmitting(true);
     try {
-      // Ta bort extra fält innan uppdatering
-      const { fullAddress, street, postalCode, city, ...salonData } = values;
-      
-      // Uppdatera bara telefon och adress, inte namn eller mejl
       const { error } = await supabase
         .from("salons")
         .update({
-          phone: salonData.phone,
-          address: values.address || values.fullAddress
+          phone: values.phone,
+          address: values.address
         })
         .eq("id", salon.id);
 
@@ -68,15 +60,15 @@ export const ProfileSettingsForm = ({ salon, onUpdate }: ProfileSettingsFormProp
   };
 
   return (
-    <Card className="border border-muted-200">
-      <CardHeader className="border-b bg-muted-50 pb-4">
-        <CardTitle className="text-xl">Kontaktuppgifter</CardTitle>
+    <Card className="border border-muted-foreground/10 shadow-sm">
+      <CardHeader className="border-b bg-muted/30 pb-4">
+        <CardTitle className="text-xl font-medium">Kontaktuppgifter</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <BasicInfoFields form={form} readOnly={true} />
-            <ContactFields form={form} />
+            <ContactInfoFields form={form} />
             <SubmitButton isSubmitting={isSubmitting} />
           </form>
         </Form>

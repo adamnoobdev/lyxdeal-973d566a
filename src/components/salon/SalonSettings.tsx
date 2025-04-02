@@ -6,6 +6,7 @@ import { SalonLayout } from './layout/SalonLayout';
 import { ProfileSettings } from './ProfileSettings';
 import { ManageSubscription } from './ManageSubscription';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 
 export const SalonSettings = () => {
   const { session } = useSession();
@@ -51,24 +52,27 @@ export const SalonSettings = () => {
 
   return (
     <SalonLayout>
-      <div className="space-y-10">
-        <div className="border-b pb-5">
+      <div className="max-w-4xl mx-auto space-y-8 pb-8">
+        <div className="border-b pb-4">
           <h1 className="text-3xl font-bold text-primary">Inställningar</h1>
         </div>
         
-        <div className="space-y-10">
+        <div className="space-y-12">
           {/* Subscription Section */}
           <section>
             <h2 className="text-2xl font-semibold mb-6">Prenumeration</h2>
             <ManageSubscription />
           </section>
           
+          <Separator className="my-6 opacity-50" />
+          
           {/* Profile Section */}
           <section>
             {isLoading ? (
               <div className="space-y-4">
-                <Skeleton className="h-8 w-3/4" />
-                <Skeleton className="h-32 w-full rounded-md" />
+                <Skeleton className="h-8 w-64" />
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-64 w-full rounded-md mt-6" />
               </div>
             ) : salonData ? (
               <ProfileSettings 
@@ -76,7 +80,9 @@ export const SalonSettings = () => {
                 onUpdate={handleProfileUpdate} 
               />
             ) : (
-              <p className="text-muted-foreground">Kunde inte ladda salongsdata.</p>
+              <div className="p-6 bg-muted/50 rounded-md text-center">
+                <p className="text-muted-foreground">Kunde inte ladda salongsdata.</p>
+              </div>
             )}
           </section>
         </div>
