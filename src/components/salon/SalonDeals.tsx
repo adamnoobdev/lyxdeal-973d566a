@@ -12,9 +12,35 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DealsTable } from '@/components/admin/deals/DealsTable';
 import { generateDiscountCodes } from '@/utils/discount-codes';
 import { toast } from 'sonner';
+import { SalonLayout } from './layout/SalonLayout';
+import { useSession } from '@/hooks/useSession';
+import { supabase } from '@/integrations/supabase/client';
 
 export const SalonDeals: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { session } = useSession();
+  const [salonId, setSalonId] = useState<string | undefined>(undefined);
+  
+  useEffect(() => {
+    const fetchSalonId = async () => {
+      if (!session?.user?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('salons')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (error) throw error;
+        setSalonId(data.id);
+      } catch (err) {
+        console.error("Error fetching salon ID:", err);
+      }
+    };
+    
+    fetchSalonId();
+  }, [session?.user?.id]);
+  
   const { 
     deals, 
     activeDeals,
@@ -28,7 +54,7 @@ export const SalonDeals: React.FC = () => {
     handleDelete,
     handleUpdate,
     refetch
-  } = useSalonDealsManagement(id);
+  } = useSalonDealsManagement(salonId);
   
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
   const [isProcessingAction, setIsProcessingAction] = useState(false);
@@ -119,28 +145,21 @@ export const SalonDeals: React.FC = () => {
     }
   }, [isGeneratingCodes]);
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-3 sm:p-6 space-y-3 sm:space-y-6">
-        <Skeleton className="h-6 sm:h-8 w-1/3 mb-2 sm:mb-4" />
+  const renderContent = () => {
+    if (isLoading) {
+      return (
         <div className="space-y-3 sm:space-y-4">
           <Skeleton className="h-24 sm:h-32 w-full" />
           <Skeleton className="h-24 sm:h-32 w-full" />
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (error) {
-    return <SalonDealsError message={error} />;
-  }
+    if (error) {
+      return <SalonDealsError message={error} />;
+    }
 
-  const isDiscountCodesDialogOpen = !!viewingCodesForDeal && !isClosingCodesDialog;
-
-  return (
-    <div className="container mx-auto p-3 sm:p-6">
-      <h1 className="text-lg xs:text-xl sm:text-2xl font-bold mb-3 sm:mb-6">Hantera Erbjudande</h1>
-      
+    return (
       <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-1 xs:p-2 sm:p-4 mb-3 sm:mb-6">
         <CardHeader className="px-0 pt-0">
           <CardTitle className="text-sm xs:text-base sm:text-lg">Dina erbjudanden</CardTitle>
@@ -157,36 +176,48 @@ export const SalonDeals: React.FC = () => {
           />
         </CardContent>
       </Card>
+    );
+  };
 
-      {editingDeal && isDialogOpen && (
-        <DealDialog
-          isOpen={isDialogOpen}
-          onClose={handleCloseDealDialog}
-          onSubmit={handleUpdateDeal}
-          initialValues={{
-            title: editingDeal.title,
-            description: editingDeal.description,
-            imageUrl: editingDeal.image_url,
-            originalPrice: editingDeal.original_price.toString(),
-            discountedPrice: editingDeal.discounted_price.toString(),
-            category: editingDeal.category,
-            city: editingDeal.city,
-            featured: editingDeal.featured,
-            salon_id: editingDeal.salon_id,
-            is_free: editingDeal.is_free || editingDeal.discounted_price === 0,
-            is_active: editingDeal.is_active,
-            quantity: editingDeal.quantity_left?.toString() || "10",
-            expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : new Date(),
-          }}
+  const isDiscountCodesDialogOpen = !!viewingCodesForDeal && !isClosingCodesDialog;
+
+  return (
+    <SalonLayout>
+      <div className="space-y-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">Hantera Erbjudanden</h1>
+        
+        {renderContent()}
+
+        {editingDeal && isDialogOpen && (
+          <DealDialog
+            isOpen={isDialogOpen}
+            onClose={handleCloseDealDialog}
+            onSubmit={handleUpdateDeal}
+            initialValues={{
+              title: editingDeal.title,
+              description: editingDeal.description,
+              imageUrl: editingDeal.image_url,
+              originalPrice: editingDeal.original_price.toString(),
+              discountedPrice: editingDeal.discounted_price.toString(),
+              category: editingDeal.category,
+              city: editingDeal.city,
+              featured: editingDeal.featured,
+              salon_id: editingDeal.salon_id,
+              is_free: editingDeal.is_free || editingDeal.discounted_price === 0,
+              is_active: editingDeal.is_active,
+              quantity: editingDeal.quantity_left?.toString() || "10",
+              expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : new Date(),
+            }}
+          />
+        )}
+
+        <DiscountCodesDialog
+          isOpen={isDiscountCodesDialogOpen}
+          onClose={handleCloseDiscountCodesDialog}
+          deal={viewingCodesForDeal}
+          onGenerateDiscountCodes={handleGenerateDiscountCodes}
         />
-      )}
-
-      <DiscountCodesDialog
-        isOpen={isDiscountCodesDialogOpen}
-        onClose={handleCloseDiscountCodesDialog}
-        deal={viewingCodesForDeal}
-        onGenerateDiscountCodes={handleGenerateDiscountCodes}
-      />
-    </div>
+      </div>
+    </SalonLayout>
   );
 };
