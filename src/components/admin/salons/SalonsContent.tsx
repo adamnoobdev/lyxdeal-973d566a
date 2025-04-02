@@ -1,8 +1,7 @@
 
-import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
 import { SalonsTable } from "./SalonsTable";
 import { SalonsLoadingSkeleton } from "./SalonsLoadingSkeleton";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -13,6 +12,8 @@ interface SalonsContentProps {
   onCreateClick: () => void;
   onEditClick: (salon: Salon) => void;
   onDeleteClick: (salon: Salon) => void;
+  onSelect?: (salon: Salon | null) => void;
+  selectedSalon?: Salon | null;
   salons?: Salon[];
   isLoading?: boolean;
   error?: string | null;
@@ -22,12 +23,12 @@ export const SalonsContent = ({
   onCreateClick,
   onEditClick,
   onDeleteClick,
+  onSelect,
+  selectedSalon,
   salons = [],
   isLoading = false,
   error = null
 }: SalonsContentProps) => {
-  const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
-
   // Function to approve all salons
   const handleApproveAll = async () => {
     try {
@@ -79,7 +80,7 @@ export const SalonsContent = ({
           salons={salons}
           onEdit={onEditClick}
           onDelete={onDeleteClick}
-          onSelect={setSelectedSalon}
+          onSelect={onSelect}
           selectedSalon={selectedSalon}
         />
       </div>

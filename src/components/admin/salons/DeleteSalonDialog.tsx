@@ -69,7 +69,7 @@ export const DeleteSalonDialog = ({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-w-md mx-auto">
         <AlertDialogHeader>
           <AlertDialogTitle>Är du säker?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -78,12 +78,17 @@ export const DeleteSalonDialog = ({
             ångras.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Avbryt</AlertDialogCancel>
+        <AlertDialogFooter className="flex-col space-y-2 sm:space-y-0 sm:flex-row">
+          <AlertDialogCancel 
+            disabled={isDeleting}
+            className="w-full sm:w-auto"
+          >
+            Avbryt
+          </AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleDelete} 
             disabled={isDeleting}
-            className={isDeleting ? "opacity-70 cursor-not-allowed" : ""}
+            className={`w-full sm:w-auto ${isDeleting ? "opacity-70 cursor-not-allowed" : ""}`}
           >
             {isDeleting ? "Tar bort..." : "Ta bort"}
           </AlertDialogAction>
