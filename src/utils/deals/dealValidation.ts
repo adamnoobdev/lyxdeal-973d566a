@@ -10,7 +10,7 @@ export const validateDealInput = async (
   dealId: number,
   email: string,
   phone: string
-): Promise<{ isValid: boolean; message?: string }> => {
+): Promise<{ isValid: boolean; message?: string; formattedPhone?: string }> => {
   // Validate email format
   if (!validateEmail(email)) {
     return { isValid: false, message: "Vänligen ange en giltig e-postadress" };

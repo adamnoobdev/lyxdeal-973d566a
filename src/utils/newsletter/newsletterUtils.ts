@@ -11,18 +11,14 @@ export const addToNewsletter = async (
   interests: string[] = ["deals"]
 ): Promise<boolean> => {
   try {
-    // Attempt to add the user to the newsletter table
-    const { error: newsletterError } = await supabase
-      .from("newsletter_subscribers")
-      .insert({
-        email: email,
-        name: name,
-        interests: interests
-      });
+    // Call our edge function to add subscriber
+    const { error: newsletterError } = await supabase.functions.invoke("add-newsletter-subscriber", {
+      body: { email, name, interests }
+    });
       
     if (newsletterError) {
       // If the error is a duplicate key violation, user is already subscribed
-      if (newsletterError.message.includes("duplicate")) {
+      if (newsletterError.message && newsletterError.message.includes("duplicate")) {
         console.log("User already subscribed to newsletter:", email);
         return true;
       } else {
