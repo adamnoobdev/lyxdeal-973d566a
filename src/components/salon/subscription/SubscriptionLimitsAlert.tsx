@@ -1,6 +1,6 @@
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoCircle, AlertTriangle } from "lucide-react";
+import { Info, AlertTriangle } from "lucide-react";
 import { SubscriptionInfo } from "./types";
 import { canCreateDeal } from "./utils";
 
@@ -25,7 +25,7 @@ export const SubscriptionLimitsAlert = ({
     
     return (
       <Alert variant="default" className="bg-blue-50 border-blue-200 shadow-sm">
-        <InfoCircle className="h-5 w-5 text-blue-600" />
+        <Info className="h-5 w-5 text-blue-600" />
         <AlertTitle className="text-blue-800 text-base font-medium mb-1">
           Prenumerationsinformation
         </AlertTitle>

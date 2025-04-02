@@ -12,7 +12,7 @@ import { FormFields } from '@/components/deal-form/FormFields';
 import { z } from "zod";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { schema, FormValues } from '@/components/deal-form/schema';
+import { formSchema as schema, FormValues } from '@/components/deal-form/schema';
 import { useSubscriptionData } from './subscription/useSubscriptionData';
 import { getPlanDetails } from './subscription/utils';
 
@@ -103,8 +103,9 @@ export const DealDialog: React.FC<DealDialogProps> = ({
             )}
             
             <FormFields 
-              disableDiscountCodeField={isBasicPlan} 
-              forceDirectBooking={isBasicPlan}
+              form={methods}
+              handleImageSelected={(imageUrl) => methods.setValue('imageUrl', imageUrl)}
+              initialImageUrl={initialValues?.imageUrl}
             />
             
             <DialogFooter>
@@ -121,7 +122,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
                 disabled={isSubmitting}
                 className="ml-2"
               >
-                {isSubmitting ? "Sparar..." : (initialValues?.id ? "Uppdatera" : "Skapa")}
+                {isSubmitting ? "Sparar..." : (initialValues && 'id' in initialValues ? "Uppdatera" : "Skapa")}
               </Button>
             </DialogFooter>
           </form>

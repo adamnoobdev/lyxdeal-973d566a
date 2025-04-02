@@ -11,9 +11,17 @@ interface FormFieldsProps {
   form: UseFormReturn<z.infer<typeof formSchema>>;
   handleImageSelected: (imageUrl: string) => void;
   initialImageUrl?: string;
+  disableDiscountCodeField?: boolean;
+  forceDirectBooking?: boolean;
 }
 
-export const FormFields = ({ form, handleImageSelected, initialImageUrl }: FormFieldsProps) => {
+export const FormFields = ({ 
+  form, 
+  handleImageSelected, 
+  initialImageUrl,
+  disableDiscountCodeField,
+  forceDirectBooking
+}: FormFieldsProps) => {
   return (
     <>
       <FormField
