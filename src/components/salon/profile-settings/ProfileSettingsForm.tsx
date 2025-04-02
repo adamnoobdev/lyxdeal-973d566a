@@ -10,6 +10,7 @@ import { profileSchema, ProfileFormValues } from "./schema";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ProfileSettingsFormProps {
   salon: {
@@ -77,13 +78,17 @@ export const ProfileSettingsForm = ({ salon, onUpdate }: ProfileSettingsFormProp
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <BasicInfoFields form={form} />
-        <ContactFields form={form} />
-        <PasswordField form={form} />
-        <SubmitButton isSubmitting={isSubmitting} />
-      </form>
-    </Form>
+    <Card>
+      <CardContent className="pt-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <BasicInfoFields form={form} />
+            <ContactFields form={form} />
+            <PasswordField form={form} />
+            <SubmitButton isSubmitting={isSubmitting} />
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 };
