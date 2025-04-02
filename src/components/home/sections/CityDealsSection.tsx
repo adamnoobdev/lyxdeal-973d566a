@@ -4,6 +4,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { memo, useMemo } from "react";
 import { CITIES } from "@/constants/app-constants";
 import { CityDeals } from "./CityDeals";
+import { useCityDealsData } from "@/hooks/useCityDealsData";
 
 interface CityDealsSectionProps {
   selectedCategory: string;
