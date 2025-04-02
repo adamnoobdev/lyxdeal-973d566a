@@ -22,10 +22,10 @@ export function SidebarLink({
   isCurrentPath 
 }: SidebarLinkProps) {
   return (
-    <li className="flex">
+    <li className="flex list-none">
       <NavLink
         to={href}
-        end
+        end={href === '/admin'}
         className={({ isActive: linkActive }) =>
           cn(
             buttonVariants({ variant: "ghost" }),
@@ -35,7 +35,7 @@ export function SidebarLink({
         }
       >
         <Icon className="h-4 w-4" />
-        {children || label}
+        <span>{children || label}</span>
       </NavLink>
     </li>
   );

@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { Dashboard } from '@/components/admin/Dashboard';
 import { DealsListContainer } from '@/components/admin/deals/DealsListContainer';
@@ -16,6 +16,7 @@ const Admin = () => {
   const { session, isLoading } = useSession();
   const navigate = useNavigate();
   const [forceRedirect, setForceRedirect] = useState(false);
+  const location = useLocation();
   
   // Lyssna på auth-ändringar för att hantera utloggning bättre
   useEffect(() => {

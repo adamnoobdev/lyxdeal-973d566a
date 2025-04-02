@@ -15,10 +15,12 @@ import SalonLogin from './pages/SalonLogin';
 import SearchResults from './pages/SearchResults';
 import PartnerPage from './pages/PartnerPage';
 import Auth from './pages/Auth';
-
-// Import new pages for the missing routes
 import FAQ from './pages/FAQ';
 import Terms from './pages/Terms';
+
+// Import DealsList component for admin deals route
+import { DealsList } from './components/admin/deals';
+import { SalonsList } from './components/admin/salons/SalonsList';
 
 function App() {
   const queryClient = new QueryClient();
@@ -78,8 +80,8 @@ function App() {
 
           {/* Admin routes */}
           <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/deals" element={<Admin />} />
-          <Route path="/admin/salons" element={<Admin />} />
+          <Route path="/admin/deals/*" element={<Admin />} />
+          <Route path="/admin/salons/*" element={<Admin />} />
           <Route path="/admin/users" element={<AdminUsers />} />
         </Routes>
         
