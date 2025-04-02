@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -62,9 +63,14 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
 
     setIsSubmitting(true);
     try {
-      // Prepare the data with plan information
+      // Prepare the data with plan information and ensure required fields are present
       const requestData = {
         ...values,
+        // Make sure all required fields from PartnerRequestData are included
+        name: values.name,
+        business_name: values.business_name,
+        email: values.email,
+        phone: values.phone,
         plan_title: selectedPlan.title,
         plan_payment_type: selectedPlan.paymentType,
         plan_price: selectedPlan.price,
