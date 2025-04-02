@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, memo, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
+import { MenuIcon } from "lucide-react";
 
 // Memoize the sidebar content to prevent unnecessary re-renders
 const MemoizedAdminSidebarContent = memo(AdminSidebarContent);
@@ -58,8 +59,10 @@ export const AdminSidebar = () => {
       collapsible={isMobile ? "offcanvas" : "icon"}
     >
       <SidebarTrigger 
-        className="fixed right-4 top-20 z-50 bg-background shadow-sm hover:bg-accent md:right-8" 
-      />
+        className="fixed left-4 top-4 z-50 bg-background shadow-sm hover:bg-accent md:left-8 md:top-20" 
+      >
+        <MenuIcon className="h-5 w-5" />
+      </SidebarTrigger>
       <MemoizedAdminSidebarContent 
         userRole={userData?.role} 
         currentPath={location.pathname}

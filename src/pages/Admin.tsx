@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { Dashboard } from '@/components/admin/Dashboard';
@@ -82,19 +82,21 @@ const Admin = () => {
   
   return (
     <AdminAuthCheck>
-      <AdminLayout>
-        <Routes>
-          <Route index element={
-            <>
-              <Dashboard />
-              {showDebugPanel && <div className="mt-6"><DebugPanel /></div>}
-            </>
-          } />
-          <Route path="deals/*" element={<DealsListContainer />} />
-          <Route path="salons/*" element={<SalonsList />} />
-          <Route path="debug" element={<DebugPanel />} />
-        </Routes>
-      </AdminLayout>
+      <div className="flex w-full min-h-screen">
+        <AdminLayout>
+          <Routes>
+            <Route index element={
+              <>
+                <Dashboard />
+                {showDebugPanel && <div className="mt-6"><DebugPanel /></div>}
+              </>
+            } />
+            <Route path="deals/*" element={<DealsListContainer />} />
+            <Route path="salons/*" element={<SalonsList />} />
+            <Route path="debug" element={<DebugPanel />} />
+          </Routes>
+        </AdminLayout>
+      </div>
     </AdminAuthCheck>
   );
 };
