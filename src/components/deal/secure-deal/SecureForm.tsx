@@ -13,11 +13,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Vänligen ange ditt namn" }),
   email: z.string().email({ message: "Vänligen ange en giltig e-postadress" }),
   phone: z.string().min(6, { message: "Vänligen ange ett giltigt telefonnummer" }),
+  subscribeToNewsletter: z.boolean().default(false),
 });
 
 export type SecureFormValues = z.infer<typeof formSchema>;
@@ -34,6 +36,7 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
       name: "",
       email: "",
       phone: "",
+      subscribeToNewsletter: false,
     },
   });
 
@@ -92,6 +95,28 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
                 />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="subscribeToNewsletter"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isSubmitting}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Prenumerera på nyhetsbrev</FormLabel>
+                <p className="text-sm text-muted-foreground">
+                  Få exklusiva erbjudanden och nyheter direkt till din inkorg.
+                </p>
+              </div>
             </FormItem>
           )}
         />

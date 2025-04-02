@@ -1,37 +1,68 @@
 
-import { sendDiscountEmail } from "./emailSender.ts";
-import { RequestPayload } from "./types.ts";
 import { corsHeaders } from "./corsConfig.ts";
+import { emailSender } from "./emailSender.ts";
+import { generateEmailHtml } from "./emailTemplate.ts";
 
-export async function handleRequest(req: Request) {
-  console.log("Received request to send-discount-email function");
-  
+export async function requestHandler(req: Request) {
   try {
-    const payload: RequestPayload = await req.json();
-    const { email, name, code, dealTitle, phone, bookingUrl } = payload;
+    // Parse the JSON body
+    const { email, name, code, dealTitle, phone, subscribedToNewsletter } = await req.json();
 
     // Validate required fields
-    if (!email || !name || !code || !dealTitle) {
-      console.error("Missing required fields", { email, name, code, dealTitle });
+    if (!email || !code || !dealTitle) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields", fields: { email, name, code, dealTitle } }),
+        JSON.stringify({
+          error: "Missing required fields: email, code, and dealTitle are required",
+        }),
         {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
     }
 
-    // Send email and return response
-    return await sendDiscountEmail(payload);
+    const testMode = Deno.env.get("ENVIRONMENT") !== "production";
+    const recipientEmail = testMode ? "test@example.com" : email;
     
-  } catch (error) {
-    console.error("Request parsing error:", error);
+    // Generate HTML content for the email
+    const htmlContent = generateEmailHtml({
+      name: name || "Kund",
+      code,
+      dealTitle,
+      subscribedToNewsletter,
+    });
+
+    // Send the email
+    const emailResponse = await emailSender({
+      to: recipientEmail,
+      subject: `Din rabattkod för: ${dealTitle}`,
+      html: htmlContent,
+    });
+
+    // Return the response
     return new Response(
-      JSON.stringify({ error: "Invalid request format", message: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({
+        success: true,
+        message: "Email sent successfully",
+        emailId: emailResponse.id,
+        productionMode: !testMode,
+        redirectedTo: testMode ? recipientEmail : null,
+      }),
       {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
+  } catch (error) {
+    console.error("Error processing request:", error);
+
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "An unknown error occurred",
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
       }
     );
   }

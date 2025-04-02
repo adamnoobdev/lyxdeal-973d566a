@@ -111,7 +111,36 @@ export const useSecureDealSubmit = ({
         return;
       }
       
-      // 4. Vi försöker skapa en purchase-post, men fortsätter även om det misslyckas
+      // 4. Om användaren valt att prenumerera på nyhetsbrevet
+      if (values.subscribeToNewsletter) {
+        try {
+          // Lägg till användaren i nyhetsbrevstabellen
+          const { error: newsletterError } = await supabase
+            .from("newsletter_subscribers")
+            .insert({
+              email: values.email,
+              name: values.name,
+              interests: ["deals"]  // Standard-intresse, kan anpassas
+            })
+            .single();
+            
+          if (newsletterError) {
+            // Om felmeddelandet innehåller "duplicate", har användaren redan prenumererat
+            if (newsletterError.message.includes("duplicate")) {
+              console.log("User already subscribed to newsletter:", values.email);
+            } else {
+              console.error("Error adding user to newsletter:", newsletterError);
+            }
+          } else {
+            console.log("Successfully added to newsletter:", values.email);
+          }
+        } catch (newsletterException) {
+          console.error("Exception adding to newsletter:", newsletterException);
+          // Vi fortsätter trots fel med nyhetsbrevet
+        }
+      }
+      
+      // 5. Vi försöker skapa en purchase-post, men fortsätter även om det misslyckas
       // eftersom vi har den viktigaste informationen i discount_codes-tabellen
       try {
         const { error: purchaseError } = await supabase
@@ -131,7 +160,7 @@ export const useSecureDealSubmit = ({
         // Vi fortsätter trots fel med purchase-posten
       }
       
-      // 5. Skicka e-post med rabattkoden för att verifiera e-postadressen
+      // 6. Skicka e-post med rabattkoden för att verifiera e-postadressen
       let emailSent = false;
       let emailResponse;
       try {
@@ -141,7 +170,8 @@ export const useSecureDealSubmit = ({
             name: values.name,
             phone: formattedPhone,
             code: code,
-            dealTitle: dealTitle
+            dealTitle: dealTitle,
+            subscribedToNewsletter: values.subscribeToNewsletter
           },
         });
         
@@ -156,13 +186,20 @@ export const useSecureDealSubmit = ({
         console.error("Exception sending email:", emailError);
       }
       
-      // 6. Visa bekräftelse oavsett om e-post skickades eller inte
+      // 7. Visa bekräftelse oavsett om e-post skickades eller inte
       if (emailSent) {
         // Check if we're in testing mode and emails are being redirected
         if (emailResponse && emailResponse.productionMode === false) {
           toast.success("Rabattkoden har genererats, men vi är i testläge så e-post skickades till en testadress.");
         } else {
           toast.success("Grattis! Din rabattkod har skickats till din e-post.");
+          
+          if (values.subscribeToNewsletter) {
+            toast.success("Du har också lagts till i vårt nyhetsbrev. Välkommen!", {
+              duration: 5000,
+              position: "bottom-center"
+            });
+          }
         }
       } else {
         toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Kontakta kundtjänst om du inte får din kod.");
@@ -179,7 +216,7 @@ export const useSecureDealSubmit = ({
       setDiscountCode(code);
       setIsSuccess(true);
       
-      // 7. Anropa success callback om tillhandahållen
+      // 8. Anropa success callback om tillhandahållen
       if (onSuccess) {
         onSuccess();
       }
