@@ -4,8 +4,6 @@ import { Deal } from "@/types/deal";
 import { Categories } from "@/components/Categories";
 import { Cities } from "@/components/Cities";
 import { DealsGrid } from "@/components/DealsGrid";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SearchStructuredData } from "./SearchStructuredData";
 import { SearchBreadcrumbs } from "./SearchBreadcrumbs";
@@ -71,15 +69,6 @@ export const SearchResultsContent = ({
       
       <div className="container mx-auto p-4 md:p-6 flex flex-col items-center">
         <div className="space-y-6 max-w-5xl w-full">
-          <div className="flex justify-start w-full">
-            <Link to="/">
-              <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Tillbaka till startsidan
-              </Button>
-            </Link>
-          </div>
-
           <SearchPageTitle
             deals={deals}
             query={query}

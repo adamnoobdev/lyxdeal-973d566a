@@ -1,7 +1,6 @@
 
 import { Helmet } from "react-helmet";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -12,7 +11,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight } from "lucide-react";
 
 interface SearchLoadingStateProps {
   pageTitle: string;
@@ -55,15 +53,6 @@ export const SearchLoadingState = ({
 
       <div className="container mx-auto p-4 md:p-6 flex flex-col items-center">
         <div className="max-w-5xl w-full">
-          <div className="flex justify-start w-full">
-            <Link to="/">
-              <Button variant="ghost" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Tillbaka till startsidan
-              </Button>
-            </Link>
-          </div>
-
           <div className="my-6 text-center">
             <Skeleton className="h-10 w-2/3 mb-2 mx-auto" />
             <Skeleton className="h-5 w-full max-w-lg mb-4 mx-auto" />
