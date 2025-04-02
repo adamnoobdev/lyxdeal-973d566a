@@ -17,7 +17,7 @@ const DealsGridComponent = ({ deals, className = "" }: DealsGridProps) => {
   return (
     <ResponsiveGrid 
       className={className} 
-      gap="gap-3 sm:gap-4" 
+      gap="gap-2 xs:gap-3 sm:gap-4" 
       columns="grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
     >
       {deals.map((deal) => (

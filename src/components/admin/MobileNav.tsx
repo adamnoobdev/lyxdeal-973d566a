@@ -43,13 +43,13 @@ export const AdminMobileNav = () => {
         <Button 
           variant="outline"
           size="icon"
-          className="fixed left-1/2 bottom-6 -translate-x-1/2 z-40 shadow-md md:hidden bg-primary text-primary-foreground hover:bg-primary/90"
+          className="fixed left-1/2 bottom-6 -translate-x-1/2 z-40 shadow-md md:hidden bg-primary text-primary-foreground hover:bg-primary/90 h-12 w-12"
         >
           <Settings className="h-5 w-5" />
           <span className="sr-only">Admin Meny</span>
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-[80vh] pt-10">
+      <DrawerContent className="h-[80vh] pt-8">
         <div className="px-4 overflow-y-auto">
           <AdminSidebarContent 
             userRole={userData?.role}

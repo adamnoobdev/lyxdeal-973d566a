@@ -61,38 +61,38 @@ export const DealsTable = ({
   return (
     <div className="rounded-lg overflow-hidden border border-secondary/10 bg-white">
       <ScrollArea className="w-full max-w-full overflow-auto">
-        <div className="min-w-[640px]">
+        <div className="min-w-[280px]">
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow>
-                <TableHead className="min-w-[180px] font-medium text-primary">Titel</TableHead>
-                <TableHead className="min-w-[120px] font-medium text-primary hidden md:table-cell">Salong</TableHead>
-                <TableHead className="min-w-[90px] font-medium text-primary">Pris</TableHead>
-                <TableHead className="min-w-[100px] font-medium text-primary hidden sm:table-cell">Rabatterat</TableHead>
-                <TableHead className="min-w-[60px] font-medium text-primary hidden md:table-cell">Kvar</TableHead>
-                <TableHead className="min-w-[80px] font-medium text-primary">Status</TableHead>
-                <TableHead className="min-w-[80px] text-right font-medium text-primary">Åtgärder</TableHead>
+                <TableHead className="min-w-[120px] font-medium text-primary">Titel</TableHead>
+                <TableHead className="min-w-[80px] font-medium text-primary hidden lg:table-cell">Salong</TableHead>
+                <TableHead className="min-w-[70px] font-medium text-primary">Pris</TableHead>
+                <TableHead className="min-w-[80px] font-medium text-primary hidden sm:table-cell">Rabatt</TableHead>
+                <TableHead className="min-w-[50px] font-medium text-primary hidden md:table-cell">Kvar</TableHead>
+                <TableHead className="min-w-[60px] font-medium text-primary">Status</TableHead>
+                <TableHead className="min-w-[60px] text-right font-medium text-primary">Åtgärd</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {deals.map((deal) => (
                 <TableRow key={deal.id} className="border-b border-gray-100">
                   <TableCell className="font-medium">
-                    <div className="flex flex-col max-w-[200px] sm:max-w-[250px] md:max-w-[300px]">
-                      <span className="truncate font-medium">{deal.title}</span>
-                      <span className="text-xs text-muted-foreground truncate">{deal.category} - {deal.city}</span>
+                    <div className="flex flex-col max-w-[120px] xs:max-w-[180px] sm:max-w-[250px] lg:max-w-[300px]">
+                      <span className="truncate font-medium text-xs xs:text-sm">{deal.title}</span>
+                      <span className="text-xs text-muted-foreground truncate hidden xs:inline-block">{deal.category} - {deal.city}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">{deal.salons?.name || "—"}</TableCell>
+                  <TableCell className="hidden lg:table-cell text-xs lg:text-sm">{deal.salons?.name || "—"}</TableCell>
                   <TableCell>
-                    <span>{formatCurrency(deal.original_price)} kr</span>
+                    <span className="text-xs xs:text-sm">{formatCurrency(deal.original_price)} kr</span>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    <span className="text-primary font-medium">
+                    <span className="text-primary font-medium text-xs xs:text-sm">
                       {deal.is_free || deal.discounted_price === 0 ? "Gratis" : `${formatCurrency(deal.discounted_price)} kr`}
                     </span>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
+                  <TableCell className="hidden md:table-cell text-xs md:text-sm">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -112,7 +112,7 @@ export const DealsTable = ({
                           : deal.status === 'pending' 
                             ? 'secondary' 
                             : 'destructive'
-                      }>
+                      } className="text-[10px] xs:text-xs px-1 py-0.5">
                         {deal.status === 'approved' 
                           ? (deal.is_active ? 'Aktiv' : 'Inaktiv')
                           : deal.status === 'pending' 
@@ -143,7 +143,7 @@ export const DealsTable = ({
               ))}
               {deals.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center h-24 text-muted-foreground text-sm">
                     Inga erbjudanden hittades
                   </TableCell>
                 </TableRow>

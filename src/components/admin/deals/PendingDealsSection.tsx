@@ -30,8 +30,8 @@ export const PendingDealsSection = ({
 
   return (
     <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
-      <CardHeader className="bg-secondary/10 pb-2">
-        <CardTitle className="text-lg font-medium">
+      <CardHeader className="bg-secondary/10 pb-1 sm:pb-2 px-3 sm:px-6 py-2 sm:py-4">
+        <CardTitle className="text-base sm:text-lg font-medium">
           Väntande erbjudanden ({pendingDeals.length})
         </CardTitle>
       </CardHeader>
