@@ -48,11 +48,7 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     features: [
       "Synlighet på Lyxdeal.se",
       "Tillgång till administratörspanel",
-      "Detaljerad statistik",
       "Kundhantering",
-      "Prioriterad placering",
-      "Marknadsföringsstöd",
-      "Rabattkodshantering",
       "1 utvalt erbjudande i månaden"
     ],
     limitations: [
