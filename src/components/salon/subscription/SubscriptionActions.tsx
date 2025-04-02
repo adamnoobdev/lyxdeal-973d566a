@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -158,7 +157,7 @@ export const SubscriptionActions = ({
       <LoadingButton 
         onClick={handleManageBilling}
         variant="outline"
-        className="flex-1"
+        className="flex-1 hover:bg-primary-100 hover:text-primary-700"
         loading={isManagingBilling}
         disabled={isManagingBilling}
       >

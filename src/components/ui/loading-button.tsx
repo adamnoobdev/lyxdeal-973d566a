@@ -10,14 +10,9 @@ interface LoadingButtonProps extends ButtonProps {
 
 export const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
   ({ children, loading = false, className, disabled, variant, ...props }, ref) => {
-    // Lägg till hover:text-primary för outline-knappar
-    const buttonClassName = variant === "outline" 
-      ? cn(className, "hover:text-primary") 
-      : className;
-
     return (
       <Button
-        className={cn(buttonClassName, "whitespace-normal break-words w-full xs:w-auto")}
+        className={cn(className, "whitespace-normal break-words w-full xs:w-auto")}
         disabled={disabled || loading}
         ref={ref}
         variant={variant}
