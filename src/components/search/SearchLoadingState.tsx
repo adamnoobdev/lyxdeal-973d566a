@@ -31,7 +31,7 @@ export const SearchLoadingState = ({
       </Helmet>
 
       {/* Loading breadcrumb */}
-      <div className="w-full bg-gray-50 py-3 border-b">
+      <div className="w-full bg-gray-50 py-3 border-b sticky top-[104px] z-30">
         <div className="container mx-auto px-4 flex justify-center">
           <Breadcrumb>
             <BreadcrumbList>

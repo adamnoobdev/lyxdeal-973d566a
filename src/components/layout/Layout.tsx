@@ -18,9 +18,9 @@ const Layout: React.FC = () => {
   // Kontrollera om vi är på admin sidan
   const isAdmin = path.startsWith('/admin');
 
-  // Använd en mindre padding på söksidan för att undvika gap mellan navbar och breadcrumbs
+  // Använd ingen top-padding på söksidan för att breadcrumbs ska ligga direkt under navbar
   const isSearchPage = path.startsWith('/search');
-  const mainPaddingClass = isSearchPage ? 'pt-26' : 'pt-36';
+  const mainPaddingClass = isSearchPage ? 'pt-0' : 'pt-36';
 
   const content = (
     <div className="flex flex-col min-h-screen">
