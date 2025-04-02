@@ -10,7 +10,6 @@ export const profileSchema = z.object({
   postalCode: z.string().optional(),
   city: z.string().optional(),
   address: z.string().optional(),
-  password: z.string().min(6, "Lösenordet måste vara minst 6 tecken").optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;

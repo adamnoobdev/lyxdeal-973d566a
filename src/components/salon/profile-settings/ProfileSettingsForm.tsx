@@ -2,9 +2,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { BasicInfoFields } from "@/components/admin/salons/form/BasicInfoFields";
+import { BasicInfoFields } from "./BasicInfoFields";
 import { ContactFields } from "@/components/admin/salons/form/ContactFields";
-import { PasswordField } from "@/components/admin/salons/form/PasswordField";
 import { SubmitButton } from "./SubmitButton";
 import { profileSchema, ProfileFormValues } from "./schema";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,31 +37,22 @@ export const ProfileSettingsForm = ({ salon, onUpdate }: ProfileSettingsFormProp
       postalCode: "",
       city: "",
       address: salon.address || "",
-      password: "",
     },
   });
 
   const onSubmit = async (values: ProfileFormValues) => {
     setIsSubmitting(true);
     try {
-      // If a new password is provided, update it
-      if (values.password && salon.user_id) {
-        const { error: passwordError } = await supabase.functions.invoke("update-salon-password", {
-          body: { 
-            userId: salon.user_id,
-            newPassword: values.password
-          }
-        });
-
-        if (passwordError) throw passwordError;
-      }
-
       // Ta bort extra fält innan uppdatering
-      const { password, fullAddress, street, postalCode, city, ...salonData } = values;
+      const { fullAddress, street, postalCode, city, ...salonData } = values;
       
+      // Uppdatera bara telefon och adress, inte namn eller mejl
       const { error } = await supabase
         .from("salons")
-        .update(salonData)
+        .update({
+          phone: salonData.phone,
+          address: values.address || values.fullAddress
+        })
         .eq("id", salon.id);
 
       if (error) throw error;
@@ -82,9 +72,8 @@ export const ProfileSettingsForm = ({ salon, onUpdate }: ProfileSettingsFormProp
       <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <BasicInfoFields form={form} />
+            <BasicInfoFields form={form} readOnly={true} />
             <ContactFields form={form} />
-            <PasswordField form={form} />
             <SubmitButton isSubmitting={isSubmitting} />
           </form>
         </Form>
