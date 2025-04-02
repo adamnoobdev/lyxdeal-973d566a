@@ -4,7 +4,6 @@ import { useSecureDealSubmit } from "@/hooks/useSecureDealSubmit";
 import { SecureForm, SecureFormValues } from "./SecureForm";
 import { SuccessMessage } from "./SuccessMessage";
 import { AlreadyClaimedMessage } from "./AlreadyClaimedMessage";
-import { Loader2 } from "lucide-react";
 
 interface SecureDealContainerProps {
   dealId: number;
@@ -42,9 +41,8 @@ export const SecureDealContainer = ({
   if (isCheckingClaim) {
     return (
       <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-        <div className="flex flex-col items-center justify-center min-h-[200px] py-6">
-          <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
-          <p className="text-gray-600 font-medium">Kontrollerar tidigare anspråk...</p>
+        <div className="text-center">
+          <p className="text-gray-600 animate-pulse">Kontrollerar tidigare anspråk...</p>
         </div>
       </div>
     );
