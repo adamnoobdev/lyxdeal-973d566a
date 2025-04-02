@@ -34,7 +34,7 @@ export function SidebarLink({
             buttonVariants({ variant: "ghost" }),
             "w-full justify-start gap-2 font-normal hover:text-accent-foreground",
             isCollapsed ? "justify-center px-2" : "",
-            (linkActive || active || isCurrentPath) && "bg-muted font-medium"
+            (linkActive || active || isCurrentPath) && "font-medium text-primary" // Removed bg-muted, added text-primary
           )
         }
         title={label || (typeof children === 'string' ? children : undefined)}
