@@ -29,16 +29,25 @@ export const DiscountCodesDialog = ({
 }: DiscountCodesDialogProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [codes, setCodes] = useState<any[]>([]);
-  const [isClosing, setIsClosing] = useState(false);
-  const closingTimerRef = useRef<number | null>(null);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const safeToUpdateRef = useRef(true);
   
   // If the deal doesn't require discount codes, we don't need to load them
   const requiresDiscountCode = deal?.requires_discount_code !== false;
 
+  // Synkronisera den interna open-staten med props
+  useEffect(() => {
+    if (isOpen) {
+      setInternalIsOpen(true);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     // Reset state when dialog opens
-    if (isOpen && deal && !isClosing) {
+    if (isOpen && deal) {
+      console.log("[DiscountCodesDialog] Dialog opened, resetting states and loading data");
       setIsLoading(true);
+      safeToUpdateRef.current = true;
       
       // Only fetch discount codes if the deal requires them
       if (requiresDiscountCode) {
@@ -49,19 +58,16 @@ export const DiscountCodesDialog = ({
       }
     }
     
-    // Clean up any pending timers when unmounting or when dialog state changes
     return () => {
-      if (closingTimerRef.current) {
-        window.clearTimeout(closingTimerRef.current);
-        closingTimerRef.current = null;
-      }
+      console.log("[DiscountCodesDialog] Dialog component unmounting or dependencies changing");
     };
-  }, [isOpen, deal?.id, requiresDiscountCode, isClosing]);
+  }, [isOpen, deal?.id, requiresDiscountCode]);
 
   const fetchCodes = async () => {
     if (!deal) return;
     
     try {
+      console.log(`[DiscountCodesDialog] Fetching codes for deal ID: ${deal.id}`);
       // Use the Deal ID to fetch all discount codes for this deal
       const { data, error } = await supabase
         .from('discount_codes')
@@ -71,44 +77,42 @@ export const DiscountCodesDialog = ({
       
       if (error) throw error;
       
-      setCodes(data || []);
+      if (safeToUpdateRef.current) {
+        console.log(`[DiscountCodesDialog] Setting ${data?.length || 0} codes for deal ID: ${deal.id}`);
+        setCodes(data || []);
+        setIsLoading(false);
+      }
     } catch (error) {
-      console.error('Error fetching discount codes:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('[DiscountCodesDialog] Error fetching discount codes:', error);
+      if (safeToUpdateRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
-  // Improved dialog closing handler with debouncing
-  const handleDialogChange = (open: boolean) => {
-    if (!open && !isClosing) {
-      console.log("[DiscountCodesDialog] Dialog closing via X button or Escape key");
-      
-      // Set closing state to prevent duplicate close triggers
-      setIsClosing(true);
-      
-      // Cancel any existing timers
-      if (closingTimerRef.current) {
-        window.clearTimeout(closingTimerRef.current);
-      }
-      
-      // Add a slight delay to ensure the animation completes
-      closingTimerRef.current = window.setTimeout(() => {
-        console.log("[DiscountCodesDialog] Executing onClose callback");
-        onClose();
-        
-        // Reset the closing state after a short delay
-        window.setTimeout(() => {
-          setIsClosing(false);
-        }, 100);
-        
-        closingTimerRef.current = null;
-      }, 50);
-    }
+  // Förbättrad stängningshantering med en säker uppdateringsmetod
+  const handleClose = () => {
+    console.log("[DiscountCodesDialog] handleClose called, starting safe closing sequence");
+    
+    // Markera först att det inte är säkert att uppdatera tillståndet
+    safeToUpdateRef.current = false;
+    
+    // Stäng den interna dialogen
+    setInternalIsOpen(false);
+    
+    // Notifiera föräldern om stängning
+    setTimeout(() => {
+      console.log("[DiscountCodesDialog] Delayed onClose callback execution");
+      onClose();
+    }, 100);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleDialogChange}>
+    <Dialog open={internalIsOpen} onOpenChange={(open) => {
+      if (!open) {
+        handleClose();
+      }
+    }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
