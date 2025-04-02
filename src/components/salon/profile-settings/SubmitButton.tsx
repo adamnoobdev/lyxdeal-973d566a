@@ -12,7 +12,7 @@ export const SubmitButton = ({ isSubmitting }: SubmitButtonProps) => {
       <Button 
         type="submit" 
         disabled={isSubmitting}
-        className="px-6"
+        className="px-6 bg-primary hover:bg-primary/90 text-white"
       >
         {isSubmitting ? (
           <>

@@ -66,17 +66,17 @@ export const DealStatistics = ({ dealId, salonId }: DealStatisticsProps) => {
         <StatCard 
           title="Intresserade kunder" 
           value={dealStat.customer_signups}
-          icon={<Users className="h-5 w-5 text-blue-500" />}
+          icon={<Users className="h-5 w-5 text-secondary" />}
         />
         <StatCard 
           title="Skapade rabattkoder" 
           value={dealStat.total_codes}
-          icon={<Tag className="h-5 w-5 text-purple-500" />}
+          icon={<Tag className="h-5 w-5 text-secondary" />}
         />
         <StatCard 
           title="Använda rabattkoder" 
           value={dealStat.used_codes}
-          icon={<CheckCircle2 className="h-5 w-5 text-green-500" />}
+          icon={<CheckCircle2 className="h-5 w-5 text-secondary" />}
         />
       </div>
     );
@@ -88,17 +88,17 @@ export const DealStatistics = ({ dealId, salonId }: DealStatisticsProps) => {
       <StatCard 
         title="Totalt intresserade kunder" 
         value={stats?.reduce((sum, stat) => sum + stat.customer_signups, 0) || 0}
-        icon={<Users className="h-5 w-5 text-blue-500" />}
+        icon={<Users className="h-5 w-5 text-secondary" />}
       />
       <StatCard 
         title="Totalt skapade rabattkoder" 
         value={stats?.reduce((sum, stat) => sum + stat.total_codes, 0) || 0}
-        icon={<Tag className="h-5 w-5 text-purple-500" />}
+        icon={<Tag className="h-5 w-5 text-secondary" />}
       />
       <StatCard 
         title="Totalt använda rabattkoder" 
         value={stats?.reduce((sum, stat) => sum + stat.used_codes, 0) || 0}
-        icon={<CheckCircle2 className="h-5 w-5 text-green-500" />}
+        icon={<CheckCircle2 className="h-5 w-5 text-secondary" />}
       />
     </div>
   );
@@ -112,13 +112,17 @@ interface StatCardProps {
 
 const StatCard = ({ title, value, icon }: StatCardProps) => {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {icon}
+    <Card className="border border-secondary/20 overflow-hidden shadow-sm hover:shadow transition-shadow duration-200">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 bg-white">
+        <CardTitle className="text-sm xs:text-base font-medium text-primary">
+          {title}
+        </CardTitle>
+        <div className="bg-secondary/10 p-2 rounded-full">
+          {icon}
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+      <CardContent className="pt-4">
+        <div className="text-3xl xs:text-4xl font-bold text-primary">{value}</div>
       </CardContent>
     </Card>
   );

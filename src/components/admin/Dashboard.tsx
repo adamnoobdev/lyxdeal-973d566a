@@ -69,13 +69,13 @@ export const Dashboard = () => {
 
       <div className="w-full grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
         {statCards.map((stat, index) => (
-          <Card key={index} className="overflow-hidden border shadow-sm">
+          <Card key={index} className="overflow-hidden border border-secondary/20 shadow-sm hover:shadow transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-white">
               <CardTitle className="text-base xs:text-lg font-medium text-primary">
                 {stat.title}
               </CardTitle>
-              <div className="bg-primary/10 p-2 rounded-full">
-                <stat.icon className="h-4 w-4 text-primary" />
+              <div className="bg-secondary/10 p-2 rounded-full">
+                <stat.icon className="h-4 w-4 text-secondary" />
               </div>
             </CardHeader>
             <CardContent className="pt-4">
