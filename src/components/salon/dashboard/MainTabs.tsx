@@ -10,6 +10,7 @@ import { useSession } from "@/hooks/useSession";
 import { useSalonDeals } from "@/hooks/salon-deals";
 import { Deal } from "@/types/deal";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function MainTabs() {
   const { session } = useSession();
@@ -59,60 +60,42 @@ export function MainTabs() {
   const emptyDeals: Deal[] = [];
 
   return (
-    <Tabs defaultValue="deals" className="w-full">
-      <TabsList className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} w-full max-w-2xl mb-4 sm:mb-8`}>
-        <TabsTrigger value="deals">Erbjudanden</TabsTrigger>
-        <TabsTrigger value="customers">Rabattkoder</TabsTrigger>
-        {!isMobile && (
-          <>
-            <TabsTrigger value="subscription">Prenumeration</TabsTrigger>
-            <TabsTrigger value="profile">Profil</TabsTrigger>
-          </>
-        )}
-        {isMobile && (
-          <TabsTrigger value="more">Mer</TabsTrigger>
-        )}
-      </TabsList>
-      
-      <TabsContent value="deals" className="space-y-6">
-        <DealsSection 
-          title="Dina erbjudanden"
-          deals={emptyDeals} 
-          onEdit={() => {}} 
-          onDelete={() => {}}
-        />
-      </TabsContent>
-      
-      <TabsContent value="customers" className="space-y-6">
-        <PurchasesTableContainer />
-      </TabsContent>
-      
-      <TabsContent value="subscription" className="space-y-6">
-        <ManageSubscription />
-      </TabsContent>
-      
-      <TabsContent value="profile" className="space-y-6">
-        {!isLoading && salonData && (
-          <ProfileSettings 
-            salon={salonData} 
-            onUpdate={handleProfileUpdate} 
-          />
-        )}
-      </TabsContent>
-      
-      {isMobile && (
-        <TabsContent value="more" className="space-y-6">
-          <Tabs defaultValue="subscription" className="w-full">
-            <TabsList className="grid grid-cols-2 w-full mb-4">
-              <TabsTrigger value="subscription">Prenumeration</TabsTrigger>
-              <TabsTrigger value="profile">Profil</TabsTrigger>
-            </TabsList>
+    <Card className="border shadow-sm overflow-hidden">
+      <CardContent className="p-0">
+        <Tabs defaultValue="deals" className="w-full">
+          <TabsList className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} w-full mb-0 rounded-none border-b`}>
+            <TabsTrigger value="deals" className="rounded-none data-[state=active]:bg-primary/5">Erbjudanden</TabsTrigger>
+            <TabsTrigger value="customers" className="rounded-none data-[state=active]:bg-primary/5">Rabattkoder</TabsTrigger>
+            {!isMobile && (
+              <>
+                <TabsTrigger value="subscription" className="rounded-none data-[state=active]:bg-primary/5">Prenumeration</TabsTrigger>
+                <TabsTrigger value="profile" className="rounded-none data-[state=active]:bg-primary/5">Profil</TabsTrigger>
+              </>
+            )}
+            {isMobile && (
+              <TabsTrigger value="more" className="rounded-none data-[state=active]:bg-primary/5">Mer</TabsTrigger>
+            )}
+          </TabsList>
+          
+          <div className="p-4 sm:p-6">
+            <TabsContent value="deals" className="space-y-4 sm:space-y-6 mt-0">
+              <DealsSection 
+                title="Dina erbjudanden"
+                deals={emptyDeals} 
+                onEdit={() => {}} 
+                onDelete={() => {}}
+              />
+            </TabsContent>
             
-            <TabsContent value="subscription" className="space-y-6">
+            <TabsContent value="customers" className="space-y-4 sm:space-y-6 mt-0">
+              <PurchasesTableContainer />
+            </TabsContent>
+            
+            <TabsContent value="subscription" className="space-y-4 sm:space-y-6 mt-0">
               <ManageSubscription />
             </TabsContent>
             
-            <TabsContent value="profile" className="space-y-6">
+            <TabsContent value="profile" className="space-y-4 sm:space-y-6 mt-0">
               {!isLoading && salonData && (
                 <ProfileSettings 
                   salon={salonData} 
@@ -120,9 +103,33 @@ export function MainTabs() {
                 />
               )}
             </TabsContent>
-          </Tabs>
-        </TabsContent>
-      )}
-    </Tabs>
+            
+            {isMobile && (
+              <TabsContent value="more" className="space-y-4 sm:space-y-6 mt-0">
+                <Tabs defaultValue="subscription" className="w-full">
+                  <TabsList className="grid grid-cols-2 w-full mb-4">
+                    <TabsTrigger value="subscription">Prenumeration</TabsTrigger>
+                    <TabsTrigger value="profile">Profil</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="subscription" className="space-y-4 sm:space-y-6 mt-0">
+                    <ManageSubscription />
+                  </TabsContent>
+                  
+                  <TabsContent value="profile" className="space-y-4 sm:space-y-6 mt-0">
+                    {!isLoading && salonData && (
+                      <ProfileSettings 
+                        salon={salonData} 
+                        onUpdate={handleProfileUpdate} 
+                      />
+                    )}
+                  </TabsContent>
+                </Tabs>
+              </TabsContent>
+            )}
+          </div>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 }
