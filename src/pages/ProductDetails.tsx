@@ -6,7 +6,6 @@ import { DealInfo } from "@/components/deal/DealInfo";
 import { PurchaseSteps } from "@/components/deal/PurchaseSteps";
 import { DatabaseAccessTester } from "@/components/debug/DatabaseAccessTester";
 import { SearchBreadcrumbs } from "@/components/search/SearchBreadcrumbs";
-import { ProductHeader } from "@/components/deal/ProductHeader";
 import { ProductImageDisplay } from "@/components/deal/ProductImageDisplay";
 import { ProductDescription } from "@/components/deal/ProductDescription";
 import { ProductSalonInfo } from "@/components/deal/ProductSalonInfo";
@@ -14,6 +13,7 @@ import { ProductRelatedDeals } from "@/components/deal/ProductRelatedDeals";
 import { ProductSchema } from "@/components/deal/ProductSchema";
 import { ProductErrorState } from "@/components/deal/ProductErrorState";
 import { ProductLoadingState } from "@/components/deal/ProductLoadingState";
+import { ProductHeader } from "@/components/deal/ProductHeader";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -42,6 +42,28 @@ const ProductDetails = () => {
     return <ProductLoadingState />;
   }
 
+  // Convert Deal to the expected format for components
+  const dealData = {
+    id: deal.id,
+    title: deal.title,
+    description: deal.description,
+    imageUrl: deal.image_url,
+    originalPrice: deal.original_price,
+    discountedPrice: deal.discounted_price,
+    daysRemaining: parseInt(deal.time_remaining) || 30, // Fallback to 30 if not present
+    city: deal.city,
+    quantityLeft: deal.quantity_left,
+    isFree: deal.is_free,
+    salon: deal.salons ? {
+      id: deal.salon_id,
+      name: deal.salons.name,
+      address: null, // Address info not available in Deal type
+      phone: null,   // Phone info not available in Deal type
+    } : null,
+    booking_url: deal.booking_url,
+    category: deal.category
+  };
+
   return (
     <>
       <ProductSchema deal={deal} />
@@ -59,72 +81,67 @@ const ProductDetails = () => {
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-8 space-y-6">
-                <ProductHeader 
-                  category={deal.category} 
-                  city={deal.city} 
+                <ProductImageDisplay 
+                  imageUrl={dealData.imageUrl} 
+                  title={dealData.title} 
                 />
                 
-                <ProductImageDisplay 
-                  imageUrl={deal.imageUrl} 
-                  title={deal.title} 
+                <ProductHeader 
+                  category={dealData.category} 
+                  city={dealData.city} 
                 />
                 
                 <div className="block lg:hidden">
                   <DealInfo
-                    id={deal.id}
-                    title={deal.title}
-                    description={deal.description}
-                    category={deal.category}
-                    originalPrice={deal.originalPrice}
-                    discountedPrice={deal.discountedPrice}
-                    daysRemaining={deal.daysRemaining}
-                    city={deal.city}
-                    quantityLeft={deal.quantityLeft}
-                    isFree={deal.isFree}
-                    salon={deal.salon}
-                    booking_url={deal.booking_url}
+                    id={dealData.id}
+                    title={dealData.title}
+                    description={dealData.description}
+                    category={dealData.category}
+                    originalPrice={dealData.originalPrice}
+                    discountedPrice={dealData.discountedPrice}
+                    daysRemaining={dealData.daysRemaining}
+                    city={dealData.city}
+                    quantityLeft={dealData.quantityLeft}
+                    isFree={dealData.isFree}
+                    salon={dealData.salon}
+                    booking_url={dealData.booking_url}
                   />
                 </div>
 
-                <ProductDescription description={deal.description} />
+                <ProductDescription description={dealData.description} />
 
                 <PurchaseSteps />
 
                 <ProductSalonInfo 
-                  salonId={deal.salon?.id || null} 
-                  salonName={deal.salon?.name} 
-                  city={deal.city} 
+                  salonId={dealData.salon?.id || null} 
+                  salonName={dealData.salon?.name} 
+                  city={dealData.city} 
                 />
               </div>
 
               <div className="lg:col-span-4 hidden lg:block">
                 <div className="lg:sticky lg:top-8">
-                  <ProductHeader 
-                    category={deal.category} 
-                    city={deal.city} 
-                  />
-                  
                   <DealInfo
-                    id={deal.id}
-                    title={deal.title}
-                    description={deal.description}
-                    category={deal.category}
-                    originalPrice={deal.originalPrice}
-                    discountedPrice={deal.discountedPrice}
-                    daysRemaining={deal.daysRemaining}
-                    city={deal.city}
-                    quantityLeft={deal.quantityLeft}
-                    isFree={deal.isFree}
-                    salon={deal.salon}
-                    booking_url={deal.booking_url}
+                    id={dealData.id}
+                    title={dealData.title}
+                    description={dealData.description}
+                    category={dealData.category}
+                    originalPrice={dealData.originalPrice}
+                    discountedPrice={dealData.discountedPrice}
+                    daysRemaining={dealData.daysRemaining}
+                    city={dealData.city}
+                    quantityLeft={dealData.quantityLeft}
+                    isFree={dealData.isFree}
+                    salon={dealData.salon}
+                    booking_url={dealData.booking_url}
                   />
                 </div>
               </div>
             </div>
 
             <ProductRelatedDeals 
-              currentDealId={deal.id} 
-              category={deal.category} 
+              currentDealId={dealData.id} 
+              category={dealData.category} 
             />
           </div>
         </div>

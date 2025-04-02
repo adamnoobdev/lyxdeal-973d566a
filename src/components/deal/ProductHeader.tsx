@@ -13,9 +13,9 @@ export const ProductHeader = ({ category, city }: ProductHeaderProps) => {
     <div className="flex flex-wrap gap-2 mb-4">
       <CategoryBadge 
         category={category} 
-        className="bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
+        className="bg-primary/5 text-primary hover:bg-primary/10 transition-colors rounded-full"
       />
-      <Badge variant="outline" className="flex items-center gap-1 text-xs">
+      <Badge variant="outline" className="flex items-center gap-1 text-xs rounded-full pl-2 pr-3 py-1">
         <MapPin className="h-3 w-3" />
         {city}
       </Badge>

@@ -9,7 +9,7 @@ interface ProductImageDisplayProps {
 
 export const ProductImageDisplay = ({ imageUrl, title }: ProductImageDisplayProps) => {
   return (
-    <div className="bg-white shadow-sm overflow-hidden">
+    <div className="bg-white shadow-sm overflow-hidden rounded-sm">
       <ResponsiveImage
         src={imageUrl}
         alt={title}

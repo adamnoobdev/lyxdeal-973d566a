@@ -1,5 +1,4 @@
 
-import React from "react";
 import { Helmet } from "react-helmet";
 import { Deal } from "@/types/deal";
 
@@ -8,47 +7,88 @@ interface ProductSchemaProps {
 }
 
 export const ProductSchema = ({ deal }: ProductSchemaProps) => {
-  const schemaData = {
+  // Convert date to ISO format for schema
+  const datePublished = new Date(deal.created_at).toISOString();
+  
+  // Calculate offer validity period
+  const expiryDate = new Date(deal.expiration_date).toISOString();
+  
+  // Format salon name safely
+  const salonName = deal.salons?.name || `Salong i ${deal.city}`;
+  
+  // JSON-LD structured data for Product
+  const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": deal.title,
     "description": deal.description,
-    "image": deal.imageUrl,
+    "image": deal.image_url,
     "offers": {
       "@type": "Offer",
-      "price": deal.discountedPrice,
       "priceCurrency": "SEK",
-      "url": `https://lyxdeal.se/deal/${deal.id}`,
+      "price": deal.discounted_price,
       "availability": "https://schema.org/InStock",
-      "priceValidUntil": new Date(Date.now() + deal.daysRemaining * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      "validFrom": datePublished,
+      "validThrough": expiryDate,
       "seller": {
-        "@type": "Organization",
-        "name": deal.salon?.name || `Salong i ${deal.city}`
+        "@type": "BeautySalon",
+        "name": salonName
+      },
+      "priceValidUntil": expiryDate,
+      "url": window.location.href,
+      "hasMerchantReturnPolicy": false,
+      "itemOffered": {
+        "@type": "Service",
+        "name": deal.title,
+        "description": deal.description,
+        "provider": {
+          "@type": "BeautySalon",
+          "name": salonName,
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": deal.city,
+            "addressCountry": "SE"
+          }
+        }
+      }
+    }
+  };
+
+  // Service schema
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": deal.title,
+    "description": deal.description,
+    "provider": {
+      "@type": "BeautySalon",
+      "name": salonName,
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": deal.city,
+        "addressCountry": "SE"
+      }
+    },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "SEK",
+      "price": deal.discounted_price,
+      "eligibleRegion": {
+        "@type": "Country",
+        "name": "SE"
       }
     }
   };
 
   return (
     <Helmet>
-      <title>{`${deal.title} - ${deal.salon?.name || deal.city} | Lyxdeal`}</title>
-      <meta name="description" content={`${deal.description.split('\n')[0].substring(0, 150)}... Spara ${deal.originalPrice - deal.discountedPrice} kr på detta erbjudande från ${deal.salon?.name || `salon i ${deal.city}`}.`} />
-      <link rel="canonical" href={`https://lyxdeal.se/deal/${deal.id}`} />
-      
-      <meta property="og:title" content={`${deal.title} - ${deal.salon?.name || deal.city}`} />
-      <meta property="og:description" content={`${deal.description.split('\n')[0].substring(0, 150)}... Spara ${deal.originalPrice - deal.discountedPrice} kr.`} />
-      <meta property="og:image" content={deal.imageUrl} />
-      <meta property="og:type" content="product" />
-      <meta property="og:url" content={`https://lyxdeal.se/deal/${deal.id}`} />
-      <meta property="product:price:amount" content={`${deal.discountedPrice}`} />
-      <meta property="product:price:currency" content="SEK" />
-      
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={`${deal.title} - ${deal.salon?.name || deal.city}`} />
-      <meta name="twitter:description" content={`${deal.description.split('\n')[0].substring(0, 150)}... Spara ${deal.originalPrice - deal.discountedPrice} kr.`} />
-      <meta name="twitter:image" content={deal.imageUrl} />
-      
+      <title>{deal.title} | {deal.city} | Lyxdeal</title>
+      <meta name="description" content={`${deal.title} - ${deal.description.substring(0, 120)}...`} />
       <script type="application/ld+json">
-        {JSON.stringify(schemaData)}
+        {JSON.stringify(productSchema)}
+      </script>
+      <script type="application/ld+json">
+        {JSON.stringify(serviceSchema)}
       </script>
     </Helmet>
   );
