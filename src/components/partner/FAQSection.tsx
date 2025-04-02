@@ -53,20 +53,20 @@ export const FAQSection = () => {
   ];
 
   return (
-    <div id="faq-section" className="py-16 bg-white">
+    <div id="faq-section" className="py-10 md:py-16 bg-white">
       <div className="container px-4 md:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Vanliga frågor</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+        <div className="text-center mb-6 md:mb-12">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2 md:mb-4">Vanliga frågor</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
             Här hittar du svar på de vanligaste frågorna om att vara partner med Lyxdeal.
           </p>
         </div>
 
         <div className="max-w-3xl mx-auto">
-          <Alert variant="warning" className="mb-8">
-            <InfoIcon className="h-5 w-5" />
-            <AlertTitle>Viktigt att förstå</AlertTitle>
-            <AlertDescription>
+          <Alert variant="warning" className="mb-6 md:mb-8 text-xs md:text-sm">
+            <InfoIcon className="h-4 w-4 md:h-5 md:w-5" />
+            <AlertTitle className="text-sm md:text-base">Viktigt att förstå</AlertTitle>
+            <AlertDescription className="text-xs md:text-sm">
               Lyxdeal är en plattform som endast förmedlar rabattkoder. Vi hanterar inga köp eller betalningar på vår hemsida. 
               Kunder får rabattkoder via e-post som de sedan kan använda när de bokar behandlingar direkt hos din salong.
             </AlertDescription>
@@ -75,9 +75,9 @@ export const FAQSection = () => {
           <Accordion type="single" collapsible className="w-full">
             {faqItems.map((item, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">{item.question}</AccordionTrigger>
+                <AccordionTrigger className="text-left text-sm md:text-base py-3 md:py-4">{item.question}</AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-gray-600">{item.answer}</p>
+                  <p className="text-gray-600 text-xs md:text-sm pb-1">{item.answer}</p>
                 </AccordionContent>
               </AccordionItem>
             ))}
