@@ -5,7 +5,6 @@ import { useSession } from '@/hooks/useSession';
 import { SalonLayout } from './layout/SalonLayout';
 import { ProfileSettings } from './ProfileSettings';
 import { ManageSubscription } from './ManageSubscription';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const SalonSettings = () => {
@@ -52,16 +51,18 @@ export const SalonSettings = () => {
 
   return (
     <SalonLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <h1 className="text-2xl sm:text-3xl font-bold">Inställningar</h1>
         
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="profile">Profil</TabsTrigger>
-            <TabsTrigger value="subscription">Prenumeration</TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Subscription Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Prenumeration</h2>
+            <ManageSubscription />
+          </div>
           
-          <TabsContent value="profile" className="space-y-4">
+          {/* Profile Section */}
+          <div className="space-y-4">
             {isLoading ? (
               <div className="space-y-4">
                 <Skeleton className="h-4 w-3/4" />
@@ -77,12 +78,8 @@ export const SalonSettings = () => {
             ) : (
               <p>Kunde inte ladda salongsdata.</p>
             )}
-          </TabsContent>
-          
-          <TabsContent value="subscription" className="space-y-4">
-            <ManageSubscription />
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
     </SalonLayout>
   );
