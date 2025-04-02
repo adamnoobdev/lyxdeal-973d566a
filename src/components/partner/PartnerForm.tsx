@@ -26,11 +26,11 @@ const formSchema = z.object({
   email: z.string().email({ message: "Ogiltig e-postadress." }),
   phone: z.string().min(6, { message: "Telefonnummer måste vara minst 6 tecken." }),
   address: z.string().min(5, { message: "En fullständig adress krävs." }),
-  termsAccepted: z.literal(true, {
-    errorMap: () => ({ message: "Du måste acceptera våra allmänna villkor" }),
+  termsAccepted: z.boolean().refine(val => val === true, {
+    message: "Du måste acceptera våra allmänna villkor"
   }),
-  privacyAccepted: z.literal(true, {
-    errorMap: () => ({ message: "Du måste acceptera vår integritetspolicy" }),
+  privacyAccepted: z.boolean().refine(val => val === true, {
+    message: "Du måste acceptera vår integritetspolicy"
   }),
 });
 
