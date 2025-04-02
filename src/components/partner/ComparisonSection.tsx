@@ -26,7 +26,7 @@ export const ComparisonSection = () => {
   ];
 
   return (
-    <div id="comparison-section" className="py-16 bg-gray-50">
+    <div id="comparison-section" className="py-16 bg-gradient-to-b from-gray-50 to-white">
       <div className="container px-4 md:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Lyxdeal vs. Traditionell Annonsbyrå</h2>
@@ -35,65 +35,81 @@ export const ComparisonSection = () => {
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto overflow-x-auto">
-          <Card className="border-none shadow-md mb-8">
-            <CardHeader className="bg-primary-50 pb-2">
-              <CardTitle className="text-xl text-center">Jämförelse</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="grid grid-cols-3 gap-4 p-4 border-b bg-gray-50">
-                <div className="font-semibold"></div>
-                <div className="font-semibold text-center">Traditionell Annonsbyrå</div>
+        <div className="max-w-4xl mx-auto">
+          {/* Comparison table with modern styling */}
+          <Card className="border-none shadow-lg overflow-hidden mb-10 transition-all duration-300 hover:shadow-xl">
+            <CardHeader className="bg-primary-50 border-b border-primary-100">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="font-semibold text-primary-700"></div>
+                <div className="font-semibold text-center text-gray-700">Traditionell Annonsbyrå</div>
                 <div className="font-semibold text-center text-primary">Lyxdeal</div>
               </div>
-
+            </CardHeader>
+            <CardContent className="p-0">
               {/* Comparison items */}
               {comparisonItems.map((item, index) => (
                 <div 
                   key={index} 
-                  className={`grid grid-cols-3 gap-4 p-4 ${index < comparisonItems.length - 1 ? "border-b" : ""}`}
+                  className={`grid grid-cols-3 gap-4 p-5 ${
+                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  } transition-colors hover:bg-primary-50/30 ${
+                    index < comparisonItems.length - 1 ? "border-b border-gray-100" : ""
+                  }`}
                 >
-                  <div className="font-medium">{item.title}</div>
-                  <div className="flex items-start">
-                    <div className="mr-2 mt-1 flex-shrink-0">
-                      <X className="h-5 w-5 text-red-500" />
+                  <div className="font-medium text-gray-800">{item.title}</div>
+                  <div className="flex items-start group">
+                    <div className="mt-1 mr-3 flex-shrink-0 bg-red-100 rounded-full p-1">
+                      <X className="h-4 w-4 text-red-500" />
                     </div>
-                    <p className="text-gray-600">{item.agency}</p>
+                    <p className="text-gray-600 group-hover:text-gray-800 transition-colors">{item.agency}</p>
                   </div>
-                  <div className="flex items-start">
-                    <div className="mr-2 mt-1 flex-shrink-0">
-                      <Check className="h-5 w-5 text-green-500" />
+                  <div className="flex items-start group">
+                    <div className="mt-1 mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
+                      <Check className="h-4 w-4 text-green-500" />
                     </div>
-                    <p className="text-primary-700">{item.lyxdeal}</p>
+                    <p className="text-primary-700 font-medium group-hover:text-primary-800 transition-colors">{item.lyxdeal}</p>
                   </div>
                 </div>
               ))}
             </CardContent>
           </Card>
 
-          <Card className="border-primary-100 bg-primary-50/30">
+          {/* Summary card */}
+          <Card className="border-primary/10 bg-gradient-to-r from-primary-50/40 to-primary-50/20 shadow-md transition-all duration-300 hover:shadow-lg">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Sammanfattning av fördelarna med Lyxdeal</CardTitle>
+              <CardTitle className="text-xl text-primary-700">Sammanfattning av fördelarna med Lyxdeal</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3">
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 shrink-0" />
-                  <span>Automatiserad kundkontakt och bokningsprocess</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 shrink-0" />
-                  <span>Betydligt lägre kostnad utan dolda avgifter</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 shrink-0" />
-                  <span>Riktad marknadsföring till intresserade kunder</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 shrink-0" />
-                  <span>Ingen annonsbudget krävs - vi driver trafiken till er</span>
-                </li>
-              </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <div className="mt-0.5 mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
+                      <Check className="h-4 w-4 text-green-500" />
+                    </div>
+                    <span className="text-gray-700">Automatiserad kundkontakt och bokningsprocess</span>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="mt-0.5 mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
+                      <Check className="h-4 w-4 text-green-500" />
+                    </div>
+                    <span className="text-gray-700">Betydligt lägre kostnad utan dolda avgifter</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <div className="mt-0.5 mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
+                      <Check className="h-4 w-4 text-green-500" />
+                    </div>
+                    <span className="text-gray-700">Riktad marknadsföring till intresserade kunder</span>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="mt-0.5 mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
+                      <Check className="h-4 w-4 text-green-500" />
+                    </div>
+                    <span className="text-gray-700">Ingen annonsbudget krävs - vi driver trafiken till er</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
