@@ -1,5 +1,5 @@
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useEffect } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeal";
 import { SecureDealForm } from "@/components/deal/SecureDealForm";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
@@ -13,6 +13,11 @@ const SecureDeal = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: deal, isLoading, isError } = useDeal(id);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   if (isError) {
     return (
