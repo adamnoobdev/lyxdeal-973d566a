@@ -3,16 +3,17 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Deal } from "@/types/deal";
 import { Tag, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface SecureDealButtonProps {
   deal: Deal;
-  onClick: () => void;
   isExpired: boolean;
   isSoldOut: boolean;
 }
 
-export const SecureDealButton = ({ deal, onClick, isExpired, isSoldOut }: SecureDealButtonProps) => {
+export const SecureDealButton = ({ deal, isExpired, isSoldOut }: SecureDealButtonProps) => {
   const [isHovering, setIsHovering] = useState(false);
+  const navigate = useNavigate();
   
   // Check if the deal uses direct booking
   const isDirectBooking = deal.requires_discount_code === false;
@@ -47,7 +48,8 @@ export const SecureDealButton = ({ deal, onClick, isExpired, isSoldOut }: Secure
       return;
     }
     
-    onClick();
+    // Navigate to the secure deal page
+    navigate(`/secure-deal/${deal.id}`);
   };
   
   return (

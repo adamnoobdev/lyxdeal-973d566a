@@ -9,6 +9,8 @@ import AdminUsers from "./pages/AdminUsers";
 import Admin from './pages/Admin';
 import IndexPage from './pages/Index';
 import Layout from './components/layout/Layout';
+import ProductDetails from './pages/ProductDetails';
+import SecureDeal from './pages/SecureDeal';
 
 function App() {
   const queryClient = new QueryClient();
@@ -36,7 +38,8 @@ function App() {
           <Route element={<Layout />}>
             {/* Public routes */}
             <Route path="/" element={<IndexPage />} />
-            <Route path="/deals/:dealId" element={<div>Deal Page</div>} />
+            <Route path="/deal/:id" element={<ProductDetails />} />
+            <Route path="/deals/:dealId" element={<ProductDetails />} />
             <Route path="/salons/:salonId" element={<div>Salon Page</div>} />
             <Route path="/search" element={<div>Search Page</div>} />
             <Route path="/terms" element={<div>Terms Page</div>} />
@@ -48,6 +51,9 @@ function App() {
             {/* User profile - must be logged in */}
             <Route path="/profile" element={session ? <div>Profile Page</div> : <Navigate to="/" replace />} />
           </Route>
+
+          {/* Secure deal page */}
+          <Route path="/secure-deal/:id" element={<SecureDeal />} />
 
           {/* Salon routes - only accessible if NOT logged in */}
           <Route path="/salon/login" element={session ? <Navigate to="/salon" replace /> : <div>Salon Login</div>} />

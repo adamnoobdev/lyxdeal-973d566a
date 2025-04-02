@@ -43,6 +43,10 @@ export const DealInfo = ({
   const daysText = daysRemaining === 1 ? "dag" : "dagar";
   const timeRemainingText = `${daysRemaining} ${daysText} kvar`;
 
+  // Calculate whether deal is expired or sold out
+  const isExpired = daysRemaining <= 0;
+  const isSoldOut = quantityLeft <= 0;
+
   // Handle securing the deal
   const handleSecureDeal = () => {
     navigate(`/secure-deal/${id}`);
@@ -105,6 +109,7 @@ export const DealInfo = ({
             className="w-full bg-primary hover:bg-primary/90 text-white transition-colors"
             size={isMobile ? "default" : "lg"}
             onClick={handleSecureDeal}
+            disabled={isExpired || isSoldOut}
           >
             <Tag className="mr-2 h-5 w-5" />
             Säkra rabattkod
