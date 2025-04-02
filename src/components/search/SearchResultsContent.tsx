@@ -76,10 +76,15 @@ export const SearchResultsContent = ({
             city={city}
           />
 
-          <div className="w-full">
+          <div className="w-full space-y-4">
             <Categories 
               selectedCategory={selectedCategory} 
               onSelectCategory={onCategorySelect} 
+            />
+            
+            <Cities
+              selectedCity={selectedCity}
+              onSelectCity={onCitySelect}
             />
           </div>
           

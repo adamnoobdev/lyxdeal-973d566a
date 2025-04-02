@@ -1,9 +1,8 @@
 
 import { memo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CITIES } from "@/constants/app-constants";
+import { cn } from "@/lib/utils";
 import { MapPin } from "lucide-react";
 
 interface CitiesProps {
@@ -14,6 +13,7 @@ interface CitiesProps {
 const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const isSearchPage = window.location.pathname === "/search";
 
   const handleCityClick = (city: string) => {
     onSelectCity(city);
@@ -31,35 +31,25 @@ const CitiesComponent = ({ selectedCity, onSelectCity }: CitiesProps) => {
   };
 
   return (
-    <div className="relative -mx-4 md:mx-0">
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex w-full gap-3 px-4 pb-4 justify-start md:justify-center">
-          {CITIES.map((city) => (
-            <Button
-              key={city}
-              variant={selectedCity === city ? "default" : "outline"}
-              onClick={() => handleCityClick(city)}
-              className={`
-                group relative overflow-hidden min-w-[140px]
-                ${selectedCity === city 
-                  ? "bg-primary hover:bg-primary/90 shadow-lg" 
-                  : "hover:bg-primary/20 border-primary/20"}
-                h-10 px-4 transition-all duration-300
-                hover:shadow-md active:scale-95
-              `}
-            >
-              <span className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <span className="font-medium">{city}</span>
-              </span>
-              {selectedCity === city && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-gradient" />
-              )}
-            </Button>
-          ))}
-        </div>
-        <ScrollBar orientation="horizontal" className="hidden" />
-      </ScrollArea>
+    <div className={`relative ${isSearchPage ? 'mx-0' : '-mx-4 md:mx-0'}`}>
+      <div className="flex flex-wrap gap-2 px-4 pb-4 justify-center">
+        {CITIES.map((city) => (
+          <button
+            key={city}
+            onClick={() => handleCityClick(city)}
+            className={cn(
+              "flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium",
+              "shadow-sm hover:shadow-md active:scale-95",
+              selectedCity === city 
+                ? "bg-primary text-white border-transparent"
+                : "bg-white text-primary/90 border border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+            )}
+          >
+            <MapPin className="w-3 h-3" />
+            <span>{city}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

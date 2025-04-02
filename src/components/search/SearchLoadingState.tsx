@@ -63,11 +63,20 @@ export const SearchLoadingState = ({
             <Skeleton className="h-4 w-40 mt-2 mx-auto" />
           </div>
 
-          {/* Categories placeholder - now showing as a flex-wrap grid */}
-          <div className="mb-6">
+          {/* Categories placeholder */}
+          <div className="mb-3">
             <div className="flex flex-wrap gap-2 justify-center">
               {[...Array(8)].map((_, i) => (
-                <Skeleton key={i} className="h-6 w-20 flex-shrink-0" />
+                <Skeleton key={`cat-${i}`} className="h-6 w-20 flex-shrink-0" />
+              ))}
+            </div>
+          </div>
+          
+          {/* Cities placeholder */}
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2 justify-center">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={`city-${i}`} className="h-6 w-24 flex-shrink-0" />
               ))}
             </div>
           </div>
