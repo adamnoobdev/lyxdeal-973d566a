@@ -8,3 +8,45 @@ export interface SubscriptionInfo {
   status: string;
   cancel_at_period_end: boolean;
 }
+
+export interface SubscriptionPlan {
+  title: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  yearSavings: number;
+  dealCount: number;
+  features: string[];
+  isPopular?: boolean;
+}
+
+export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
+  "Baspaket": {
+    title: "Baspaket",
+    monthlyPrice: 399,
+    yearlyPrice: 2788,
+    yearSavings: 2000,
+    dealCount: 1,
+    features: [
+      "Synlighet på Lyxdeal.se",
+      "Tillgång till administratörspanel",
+      "Grundläggande statistik",
+      "Kundhantering"
+    ]
+  },
+  "Premiumpaket": {
+    title: "Premiumpaket",
+    monthlyPrice: 699,
+    yearlyPrice: 5388,
+    yearSavings: 3000,
+    dealCount: 3,
+    features: [
+      "Synlighet på Lyxdeal.se",
+      "Tillgång till administratörspanel",
+      "Detaljerad statistik",
+      "Kundhantering",
+      "Prioriterad placering",
+      "Marknadsföringsstöd"
+    ],
+    isPopular: true
+  }
+};

@@ -44,16 +44,24 @@ export async function createCheckoutSession(
   origin: string
 ) {
   try {
-    // Logga parametrar för felsökning
-    console.log("Creating checkout session with params:", {
-      customer: customer.id,
-      planTitle,
-      planType,
-      price,
-      businessName,
-      email,
-      origin
-    });
+    // Get pricing info - this should match the frontend
+    const planPrices = {
+      "Baspaket": {
+        monthly: 399,
+        yearly: 2788
+      },
+      "Premiumpaket": {
+        monthly: 699,
+        yearly: 5388
+      }
+    };
+    
+    // Determine correct price based on plan and type
+    const actualPlanTitle = planTitle in planPrices ? planTitle : "Baspaket";
+    const actualPlanType = planType === "yearly" ? "yearly" : "monthly";
+    const actualPrice = planPrices[actualPlanTitle][actualPlanType];
+    
+    console.log(`Pricing info for ${actualPlanTitle} (${actualPlanType}): ${actualPrice} SEK`);
     
     // Förbättrad konfiguration av checkout session med fler detaljer
     const sessionParams = {
@@ -64,12 +72,12 @@ export async function createCheckoutSession(
           price_data: {
             currency: "sek",
             product_data: {
-              name: `${planTitle} - ${planType === "yearly" ? "Årsbetalning" : "Månadsbetalning"}`,
-              description: `Prenumeration på ${planTitle} med ${planType === "yearly" ? "årsbetalning" : "månadsbetalning"}`,
+              name: `${actualPlanTitle} - ${actualPlanType === "yearly" ? "Årsbetalning" : "Månadsbetalning"}`,
+              description: `Prenumeration på ${actualPlanTitle} med ${actualPlanType === "yearly" ? "årsbetalning" : "månadsbetalning"}`,
             },
-            unit_amount: Math.round(price * 100), // Convert to cents, ensure integer
+            unit_amount: Math.round(actualPrice * 100), // Convert to cents, ensure integer
             recurring: {
-              interval: planType === "yearly" ? "year" : "month",
+              interval: actualPlanType === "yearly" ? "year" : "month",
             },
           },
           quantity: 1,
@@ -81,8 +89,8 @@ export async function createCheckoutSession(
       metadata: {
         business_name: businessName,
         email,
-        plan_title: planTitle,
-        plan_type: planType,
+        plan_title: actualPlanTitle,
+        plan_type: actualPlanType,
       },
       locale: "sv",
       allow_promotion_codes: true, // Enable promotion codes directly in Stripe UI
@@ -99,16 +107,9 @@ export async function createCheckoutSession(
     
     const session = await stripe.checkout.sessions.create(sessionParams);
     console.log("Created checkout session:", session.id);
-    console.log("Full session object:", JSON.stringify(session));
 
     if (!session.url) {
       throw new Error("No checkout URL returned from Stripe");
-    }
-    
-    // Extra validering av URL:en
-    console.log("Validating checkout URL:", session.url);
-    if (!session.url.startsWith("https://checkout.stripe.com/")) {
-      console.warn("Unexpected Stripe URL format:", session.url);
     }
     
     console.log("Checkout URL:", session.url);

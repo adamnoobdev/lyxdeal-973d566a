@@ -1,30 +1,33 @@
 
 import { SubscriptionInfo } from "./types";
-import { formatDate } from "./utils";
-import { Calendar, CheckCircle, XCircle, CreditCard } from "lucide-react";
+import { formatDate, getSubscriptionTypeLabel, getCurrentPrice, getPlanDetails } from "./utils";
+import { Calendar, CheckCircle, XCircle, CreditCard, Package } from "lucide-react";
 
 interface SubscriptionMetadataProps {
   subscriptionInfo: SubscriptionInfo;
 }
 
 export const SubscriptionMetadata = ({ subscriptionInfo }: SubscriptionMetadataProps) => {
+  const planDetails = getPlanDetails(subscriptionInfo.plan_title);
+  const currentPrice = getCurrentPrice(subscriptionInfo.plan_title, subscriptionInfo.subscription_type);
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground flex items-center">
-          <CreditCard className="mr-2 h-4 w-4" />
-          Plan
+          <Package className="mr-2 h-4 w-4" />
+          Paket
         </p>
-        <p className="font-medium">{subscriptionInfo.plan_title || "Standard"}</p>
+        <p className="font-medium">{subscriptionInfo.plan_title || "Baspaket"}</p>
       </div>
       
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground flex items-center">
-          <Calendar className="mr-2 h-4 w-4" />
-          Fakturaperiod
+          <CreditCard className="mr-2 h-4 w-4" />
+          Pris
         </p>
         <p className="font-medium">
-          {subscriptionInfo.subscription_type === "yearly" ? "Årsvis" : "Månadsvis"}
+          {currentPrice} kr {getSubscriptionTypeLabel(subscriptionInfo.subscription_type).toLowerCase()}
         </p>
       </div>
       

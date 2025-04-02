@@ -1,17 +1,13 @@
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
-import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
+import { SubscriptionPlan } from "@/components/salon/subscription/types";
 
-interface PricingCardProps {
-  title: string;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  yearSavings: number;
-  dealCount: number;
-  features: string[];
-  isPopular?: boolean;
+interface PricingCardProps extends SubscriptionPlan {
+  onSelectPlan?: (planTitle: string, planType: "monthly" | "yearly", price: number) => void;
 }
 
 export const PricingCard = ({
@@ -21,91 +17,91 @@ export const PricingCard = ({
   yearSavings,
   dealCount,
   features,
-  isPopular = false,
+  isPopular,
+  onSelectPlan
 }: PricingCardProps) => {
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const [billingType, setBillingType] = useState<"monthly" | "yearly">("monthly");
+  const price = billingType === "monthly" ? monthlyPrice : yearlyPrice;
 
-  const handleSignupClick = (paymentType: 'monthly' | 'yearly') => {
-    const price = paymentType === 'monthly' ? monthlyPrice : yearlyPrice;
-    
-    // Navigate to signup page with plan information as query parameters
-    navigate(`/partner/signup?plan=${encodeURIComponent(title)}&type=${paymentType}&price=${price}&deals=${dealCount}`);
+  const handleSelect = () => {
+    if (onSelectPlan) {
+      onSelectPlan(title, billingType, price);
+    }
   };
 
   return (
-    <div className={`
-      p-4 rounded-lg border shadow-md flex flex-col h-full
-      ${isPopular ? 'border-primary-300/30 bg-primary-50/30 ring-2 ring-primary-300/30' : 'border-gray-200/60'}
-    `}>
+    <Card className={`relative flex flex-col ${isPopular ? 'border-primary shadow-md' : ''}`}>
       {isPopular && (
-        <div className="mb-3 -mt-2 mx-auto">
-          <span className="bg-primary text-primary-foreground px-3 py-0.5 rounded-full text-xs font-semibold inline-block">
-            Populärt val
-          </span>
-        </div>
+        <Badge className="absolute -top-2 -right-2 bg-primary text-white">
+          Populärast
+        </Badge>
       )}
       
-      <h3 className="text-lg font-bold mb-1">{title}</h3>
-      <p className="text-xs text-gray-500 mb-4">Perfekt för {dealCount === 1 ? 'ett enstaka erbjudande' : 'flera erbjudanden'}</p>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg md:text-xl">{title}</CardTitle>
+        <CardDescription className="text-sm">
+          {dealCount === 1 
+            ? "Perfekt för mindre salonger"
+            : "Bäst för växande salonger"
+          }
+        </CardDescription>
+      </CardHeader>
       
-      <div className="mb-4">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-baseline">
-            <span className="text-2xl font-bold">{monthlyPrice}</span>
-            <span className="text-gray-500 ml-1 text-sm"> SEK/mån</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xs">
-              Årspris: <span className="font-semibold">{yearlyPrice} SEK</span>
-            </span>
-            <span className="text-xs text-green-600 font-medium">
-              Spara {yearSavings} SEK per år
-            </span>
+      <CardContent className="flex-grow">
+        <div className="flex justify-center mb-4">
+          <div className="flex border rounded-md overflow-hidden">
+            <Button
+              type="button"
+              variant={billingType === "monthly" ? "default" : "outline"}
+              className={`text-xs py-1 h-auto rounded-none`}
+              onClick={() => setBillingType("monthly")}
+            >
+              Månadsvis
+            </Button>
+            <Button
+              type="button"
+              variant={billingType === "yearly" ? "default" : "outline"}
+              className={`text-xs py-1 h-auto rounded-none flex items-center gap-2`}
+              onClick={() => setBillingType("yearly")}
+            >
+              Årsvis
+              <span className="bg-green-100 text-green-800 text-[10px] px-1.5 py-0.5 rounded">
+                Spara {yearSavings} kr
+              </span>
+            </Button>
           </div>
         </div>
-      </div>
-      
-      <div className="mb-4 flex-grow">
-        <h4 className="font-medium mb-2 text-gray-700 text-sm">Inkluderar:</h4>
-        <ul className="space-y-2">
-          <li className="flex items-start gap-2">
-            <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-            <span className="text-xs">{dealCount} erbjudande{dealCount > 1 ? 'n' : ''}</span>
+        
+        <div className="text-center mb-4">
+          <span className="text-3xl font-bold">{price} kr</span>
+          <span className="text-gray-500 text-sm ml-1">
+            {billingType === "monthly" ? "/mån" : "/år"}
+          </span>
+        </div>
+        
+        <ul className="space-y-2 mt-4">
+          <li className="flex items-start gap-2 text-sm">
+            <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+            <span><strong>{dealCount}</strong> {dealCount === 1 ? 'erbjudande' : 'erbjudanden'} åt gången</span>
           </li>
           {features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-2">
-              <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-              <span className="text-xs">{feature}</span>
+            <li key={index} className="flex items-start gap-2 text-sm">
+              <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+              <span>{feature}</span>
             </li>
           ))}
         </ul>
-      </div>
+      </CardContent>
       
-      <div className="bg-green-50 p-2 rounded-md border border-green-100/60 mb-4 text-center">
-        <p className="text-xs text-green-800 font-medium">
-          Använd rabattkoden <span className="font-bold">provmanad</span> för en gratis provmånad!
-        </p>
-      </div>
-      
-      <div className="space-y-2 mt-auto">
+      <CardFooter>
         <Button 
-          className="w-full bg-primary hover:bg-primary/90 font-medium text-xs py-1" 
-          size={isMobile ? "sm" : "default"}
-          onClick={() => handleSignupClick('monthly')}
+          className="w-full" 
+          variant={isPopular ? "default" : "outline"}
+          onClick={handleSelect}
         >
-          Betala månadsvis
+          Välj {title}
         </Button>
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={() => handleSignupClick('yearly')}
-          className="w-full hover:bg-primary/5 hover:text-primary font-medium text-xs py-1"
-          size={isMobile ? "sm" : "default"}
-        >
-          Betala årsvis
-        </Button>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 };
