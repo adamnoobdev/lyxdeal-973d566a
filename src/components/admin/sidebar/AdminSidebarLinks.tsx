@@ -1,61 +1,41 @@
 
-import { useLocation } from "react-router-dom";
-import { LayoutDashboard, Tag, Store, UserPlus } from "lucide-react";
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
+import { PanelLeft, Store, Tag, Users } from "lucide-react";
 import { SidebarLink } from "./SidebarLink";
-
-const adminLinks = [
-  {
-    href: "/admin",
-    icon: LayoutDashboard,
-    label: "Dashboard",
-    description: "Översikt och statistik",
-  },
-  {
-    href: "/admin/deals",
-    icon: Tag,
-    label: "Erbjudanden",
-    description: "Hantera erbjudanden",
-  },
-  {
-    href: "/admin/salons",
-    icon: Store,
-    label: "Salonger",
-    description: "Hantera salonger",
-  },
-  {
-    href: "/create-admin",
-    icon: UserPlus,
-    label: "Skapa Admin",
-    description: "Lägg till administratörer",
-  },
-] as const;
 
 interface AdminSidebarLinksProps {
   currentPath?: string;
 }
 
-export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
-  const location = useLocation();
-  const currentLocation = currentPath || location.pathname;
-
+export const AdminSidebarLinks = ({ currentPath = '' }: AdminSidebarLinksProps) => {
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel className="text-primary font-medium">Admin</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {adminLinks.map((link) => (
-            <SidebarLink
-              key={link.href}
-              href={link.href}
-              icon={link.icon}
-              isCurrentPath={currentLocation === link.href || currentLocation.startsWith(link.href)}
-            >
-              {link.label}
-            </SidebarLink>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+    <div className="space-y-1">
+      <SidebarLink
+        href="/admin"
+        active={currentPath === '/admin'}
+        icon={<PanelLeft className="mr-2 h-4 w-4" />}
+        label="Dashboard"
+      />
+
+      <SidebarLink
+        href="/admin/deals"
+        active={currentPath.includes('/admin/deals')}
+        icon={<Tag className="mr-2 h-4 w-4" />}
+        label="Erbjudanden"
+      />
+
+      <SidebarLink
+        href="/admin/salons"
+        active={currentPath.includes('/admin/salons')}
+        icon={<Store className="mr-2 h-4 w-4" />}
+        label="Salonger"
+      />
+
+      <SidebarLink
+        href="/admin/users"
+        active={currentPath.includes('/admin/users')}
+        icon={<Users className="mr-2 h-4 w-4" />}
+        label="Användare"
+      />
+    </div>
   );
 };
