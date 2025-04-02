@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -13,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { submitPartnerRequest } from "@/hooks/usePartnerRequests";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +22,6 @@ const formSchema = z.object({
   email: z.string().email({ message: "Ogiltig e-postadress." }),
   phone: z.string().min(6, { message: "Telefonnummer måste vara minst 6 tecken." }),
   address: z.string().optional(),
-  message: z.string().optional(),
 });
 
 export type PartnerFormValues = z.infer<typeof formSchema>;
@@ -50,7 +47,6 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
       email: "",
       phone: "",
       address: "",
-      message: "",
     },
   });
 
@@ -70,7 +66,7 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
         email: values.email,
         phone: values.phone,
         address: values.address || "",
-        message: values.message || "",
+        message: "", // Tom sträng istället för att ta bort helt för att upprätthålla API-kompatibilitet
         plan_title: selectedPlan.title,
         plan_payment_type: selectedPlan.paymentType,
         plan_price: selectedPlan.price,
@@ -172,24 +168,6 @@ export const PartnerForm = ({ selectedPlan }: PartnerFormProps) => {
               <FormLabel>Adress (frivillig)</FormLabel>
               <FormControl>
                 <Input placeholder="Gatan 123, 123 45 Staden" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="message"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Meddelande (frivillig)</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Om det är något speciellt du vill meddela oss"
-                  className="resize-none"
-                  {...field}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>
