@@ -40,24 +40,30 @@ export const SalonsHeader = ({ error, onCreateClick }: SalonsHeaderProps) => {
   
   return (
     <div className="flex flex-col space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col xs:flex-row space-y-3 xs:space-y-0 items-start xs:items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Salonger</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Salonger</h2>
+          <p className="text-muted-foreground text-sm">
             Hantera salonger och deras konton
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col xs:flex-row w-full xs:w-auto gap-2 mt-2 xs:mt-0">
           <Button 
             variant="outline" 
             onClick={handleUpdateAllTerms}
             disabled={isUpdating}
+            className="text-xs w-full xs:w-auto"
+            size="sm"
           >
-            <CheckCircle className="mr-2 h-4 w-4" />
+            <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
             {isUpdating ? "Uppdaterar..." : "Godkänn alla villkor"}
           </Button>
-          <Button onClick={onCreateClick}>
-            <PlusCircle className="mr-2 h-4 w-4" />
+          <Button 
+            onClick={onCreateClick}
+            className="text-xs w-full xs:w-auto"
+            size="sm"
+          >
+            <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
             Ny salong
           </Button>
         </div>

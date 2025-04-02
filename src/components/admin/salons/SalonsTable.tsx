@@ -11,6 +11,7 @@ import { Salon } from "../types";
 import { SalonActions } from "./SalonActions";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SalonsTableProps {
   salons: Salon[];
@@ -35,19 +36,10 @@ export const SalonsTable = ({
     });
   };
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  const isMobile = useIsMobile();
   
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   return (
-    <div className="border rounded-md overflow-x-auto">
+    <div className="border rounded-md overflow-x-auto max-w-full">
       <Table>
         <TableHeader>
           <TableRow>
@@ -58,7 +50,7 @@ export const SalonsTable = ({
             {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden lg:table-cell">Skapad</TableHead>}
             <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell w-14">Villkor</TableHead>
             <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell w-14">Integritet</TableHead>
-            <TableHead className="text-right font-medium text-xs sm:text-sm">Hantera</TableHead>
+            <TableHead className="font-medium text-xs sm:text-sm text-right">Hantera</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -96,7 +88,7 @@ export const SalonsTable = ({
                   <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
                 )}
               </TableCell>
-              <TableCell className="text-right py-2 sm:py-4">
+              <TableCell className="text-right py-2 px-2 sm:px-4 sm:py-4 w-20 xs:w-24 sm:w-auto">
                 <SalonActions
                   salonId={salon.id}
                   onDelete={() => onDelete(salon)}

@@ -5,6 +5,7 @@ import { SalonDetails } from "./SalonDetails";
 import { useState, useEffect } from "react";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SalonsContentProps {
   salons: Salon[];
@@ -21,19 +22,8 @@ export const SalonsContent = ({
   onDelete,
   onSelect,
 }: SalonsContentProps) => {
-  const [isMobile, setIsMobile] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const isMobile = useIsMobile();
 
   // För mobila enheter, visa detaljer när en salong är vald
   useEffect(() => {
