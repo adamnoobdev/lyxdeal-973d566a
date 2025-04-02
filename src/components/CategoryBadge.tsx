@@ -1,6 +1,5 @@
 
-import { Badge } from "@/components/ui/badge";
-import { Award } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { CSSProperties } from "react";
 
 interface CategoryBadgeProps {
@@ -40,28 +39,24 @@ export function CategoryBadge({
   };
 
   return (
-    <Badge 
-      variant={variant} 
-      className={`!inline-flex !items-center !gap-1 !w-fit !min-w-0 !text-xs !leading-none !px-2 !py-1 whitespace-nowrap ${
-        category === "NYTT" 
-          ? "bg-amber-100 hover:bg-amber-200 text-black border-transparent" 
-          : variant === "default" 
-            ? "bg-primary hover:bg-primary/90 text-primary-foreground border-transparent"
-            : "border-primary/20 text-primary hover:bg-primary/10"
-      } ${className}`}
+    <div 
+      className={cn(
+        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium",
+        variant === "default" 
+          ? "bg-primary text-white" 
+          : "bg-white text-primary/90 border border-primary/20",
+        "shadow-sm",
+        className
+      )}
       onClick={onClick}
       style={style}
     >
       {children || (
         <>
-          {category === "NYTT" ? (
-            <Award className="!h-3.5 !w-3.5 !shrink-0 text-black" />
-          ) : (
-            <span className="!shrink-0">{getCategoryEmoji(category)}</span>
-          )} 
-          <span className="!truncate">{category}</span>
+          <span className="text-lg">{getCategoryEmoji(category)}</span>
+          <span>{category}</span>
         </>
       )}
-    </Badge>
+    </div>
   );
 }

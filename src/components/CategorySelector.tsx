@@ -29,6 +29,25 @@ export const CategorySelector = ({
     navigate(`/search?category=${encodeURIComponent(category)}`);
   };
 
+  const getCategoryEmoji = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'laserhårborttagning': return '⚡';
+      case 'fillers': return '💉';
+      case 'rynkbehandlingar': return '🔄';
+      case 'hudvård': return '✨';
+      case 'hårvård': return '💇‍♀️';
+      case 'naglar': return '💅';
+      case 'massage': return '💆‍♀️';
+      case 'tandvård': return '🦷';
+      case 'ögonfransar & bryn': return '👁️';
+      case 'kroppsvård': return '🌸';
+      case 'ansiktsbehandling': return '🧖‍♀️';
+      case 'makeup': return '🎨';
+      case 'spa': return '🌊';
+      default: return '✨';
+    }
+  };
+
   if (variant === "mobile") {
     return (
       <div className="flex flex-col gap-1">
@@ -74,24 +93,4 @@ export const CategorySelector = ({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
-
-// Helper function to get emoji for categories
-const getCategoryEmoji = (category: string) => {
-  switch (category.toLowerCase()) {
-    case 'laserhårborttagning': return '⚡';
-    case 'fillers': return '💉';
-    case 'rynkbehandlingar': return '🔄';
-    case 'hudvård': return '✨';
-    case 'hårvård': return '💇‍♀️';
-    case 'naglar': return '💅';
-    case 'massage': return '💆‍♀️';
-    case 'tandvård': return '🦷';
-    case 'ögonfransar & bryn': return '👁️';
-    case 'kroppsvård': return '🌸';
-    case 'ansiktsbehandling': return '🧖‍♀️';
-    case 'makeup': return '🎨';
-    case 'spa': return '🌊';
-    default: return '✨';
-  }
 };
