@@ -21,10 +21,15 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       throw fetchError;
     }
     
+    if (!existingDeal) {
+      console.error('Deal not found');
+      throw new Error('Deal not found');
+    }
+    
     // Om befintligt erbjudande har requires_discount_code=true, se till att vi inte ändrar det till false
     let requiresDiscountCode = values.requires_discount_code ?? true;
     
-    if (existingDeal?.requires_discount_code === true && !requiresDiscountCode) {
+    if (existingDeal.requires_discount_code === true && !requiresDiscountCode) {
       console.warn('Attempt to change requires_discount_code from true to false prevented');
       toast.warning("Ett erbjudande som använder rabattkoder kan inte ändras till att inte använda dem.");
       requiresDiscountCode = true;
