@@ -18,6 +18,7 @@ export async function createSalonRecord(supabaseAdmin: any, session: any, userDa
         cancel_at_period_end: subscriptionData.cancel_at_period_end
       };
 
+      // Viktigt: Sök efter salon baserat på e-postadress, INTE user_id, eftersom vi får type mismatch mellan UUID och bigint
       const { data: salonData, error: salonError } = await supabaseAdmin
         .from("salons")
         .update(updateData)
@@ -44,7 +45,7 @@ export async function createSalonRecord(supabaseAdmin: any, session: any, userDa
       console.log("User ID type:", typeof userData.user.id);
       console.log("User ID value:", userData.user.id);
       
-      // Vi måste hitta salon-ID baserat på email istället för user-ID
+      // Vi måste hitta salon-ID baserat på email istället för user-ID för att undvika typfel
       if (session.metadata && session.metadata.email) {
         console.log("Looking up salon by email:", session.metadata.email);
         
@@ -71,13 +72,15 @@ export async function createSalonRecord(supabaseAdmin: any, session: any, userDa
             status: subscriptionData.status,
             current_period_end: subscriptionData.current_period_end,
             cancel_at_period_end: subscriptionData.cancel_at_period_end,
+            // Notera att vi här använder user_id som är en UUID, vilket är korrekt
             user_id: userData.user.id // Detta är en UUID, vilket är korrekt för user_id
           };
 
+          // Uppdatera baserat på salon-ID vilket är ett bigint, inte user-ID
           const { data: salonData, error: salonError } = await supabaseAdmin
             .from("salons")
             .update(updateData)
-            .eq("id", existingSalon[0].id)
+            .eq("id", existingSalon[0].id) // Använd salon_id, inte user_id
             .select();
 
           if (salonError) {
