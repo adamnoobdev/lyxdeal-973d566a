@@ -7,6 +7,7 @@ import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useSession } from "@/hooks/useSession";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface AdminSidebarContentProps {
   userRole?: string;
@@ -17,6 +18,8 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
   const isAdmin = userRole === 'admin';
   const navigate = useNavigate();
   const { signOut } = useSession();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   
   const handleLogout = async () => {
     try {
@@ -51,9 +54,14 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
       <div className="p-4 mt-auto">
         <Separator className="mb-4" />
         <div className="space-y-2">
-          <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Logga ut</span>
+          <Button 
+            variant="outline" 
+            className={`w-full justify-start text-destructive hover:text-destructive ${isCollapsed ? "px-0" : ""}`} 
+            onClick={handleLogout}
+            title="Logga ut"
+          >
+            <LogOut className="h-4 w-4" />
+            {!isCollapsed && <span className="ml-2">Logga ut</span>}
           </Button>
         </div>
       </div>
