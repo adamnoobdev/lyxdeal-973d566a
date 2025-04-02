@@ -1,3 +1,4 @@
+
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
@@ -34,13 +35,17 @@ const CitySelectorComponent = ({
 
   const handleCitySelect = (city: string) => {
     onCitySelect(city);
-    const newParams = new URLSearchParams(searchParams);
+    
+    // Always navigate to search page with the selected city
     if (city !== "Alla Städer") {
+      const newParams = new URLSearchParams(searchParams);
       newParams.set('city', city);
+      navigate(`/search?${newParams.toString()}`);
     } else {
+      const newParams = new URLSearchParams(searchParams);
       newParams.delete('city');
+      navigate(`/search?${newParams.toString()}`);
     }
-    navigate(`/search?${newParams.toString()}`);
   };
 
   if (variant === "mobile") {

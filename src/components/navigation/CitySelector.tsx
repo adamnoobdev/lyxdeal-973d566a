@@ -4,7 +4,7 @@ import { MapPin, ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { City, CITIES } from '@/constants/app-constants';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface CitySelectorProps {
   selectedCity: City;
@@ -17,20 +17,17 @@ const CitySelector: React.FC<CitySelectorProps> = ({
   setSelectedCity,
   className = ''
 }) => {
-  const location = useLocation();
   const navigate = useNavigate();
   
   const handleCitySelect = (city: City) => {
     setSelectedCity(city);
     
-    // If we're on the homepage, stay there but with the updated city
-    if (location.pathname === '/') {
-      // City selection is handled by state update, no navigation needed
-      return;
+    // Navigate to search page with the selected city
+    if (city !== "Alla Städer") {
+      navigate(`/search?city=${city}`);
+    } else {
+      navigate('/search');
     }
-    
-    // If we're on another page, navigate to the homepage with the selected city
-    navigate('/', { state: { selectedCity: city } });
   };
   
   return (

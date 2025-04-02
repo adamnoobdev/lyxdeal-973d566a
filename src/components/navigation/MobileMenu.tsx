@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, ChevronDown, Home, Gift, HelpCircle, User, Store } from 'lucide-react';
@@ -29,6 +29,19 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   userRole,
   isLoggedIn
 }) => {
+  const navigate = useNavigate();
+
+  const handleCitySelect = (city: City) => {
+    setSelectedCity(city);
+    
+    // Navigate to search page with the selected city
+    if (city !== "Alla Städer") {
+      navigate(`/search?city=${city}`);
+    } else {
+      navigate('/search');
+    }
+  };
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -53,7 +66,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[200px]">
                   {CITIES.map(city => (
-                    <DropdownMenuItem key={city} onClick={() => setSelectedCity(city)}>
+                    <DropdownMenuItem key={city} onClick={() => handleCitySelect(city)}>
                       {city}
                     </DropdownMenuItem>
                   ))}

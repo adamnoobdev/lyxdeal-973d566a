@@ -13,6 +13,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { CategorySelector } from "../CategorySelector";
 import { CitySelector } from "../CitySelector";
 import { Separator } from "../ui/separator";
+import { useNavigate } from "react-router-dom";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -31,6 +32,19 @@ export const MobileNav = ({
   onCitySelect,
   onCategorySelect,
 }: MobileNavProps) => {
+  const navigate = useNavigate();
+
+  const handleCitySelect = (city: string) => {
+    onCitySelect(city);
+    
+    // Navigate to search page with the selected city
+    if (city !== "Alla Städer") {
+      navigate(`/search?city=${city}`);
+    } else {
+      navigate('/search');
+    }
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -59,7 +73,7 @@ export const MobileNav = ({
                 <h3 className="font-medium mb-3 text-sm text-muted-foreground">Städer</h3>
                 <CitySelector 
                   currentCity={currentCity}
-                  onCitySelect={onCitySelect}
+                  onCitySelect={handleCitySelect}
                   variant="mobile"
                 />
               </div>
