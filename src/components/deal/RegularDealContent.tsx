@@ -1,5 +1,6 @@
-import { MapPinIcon } from "@radix-ui/react-icons";
-import { CategoryBadge } from "./CategoryBadge";
+
+import { MapPin } from "lucide-react";
+import { CategoryBadge } from "@/components/CategoryBadge";
 
 interface RegularDealContentProps {
   title: string;
@@ -53,19 +54,19 @@ export const RegularDealContent = ({
       <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{description}</p>
       
       <div className="flex items-center text-xs text-gray-500 mb-1.5">
-        <MapPinIcon className="h-3 w-3 mr-1" /> {city}
+        <MapPin className="h-3 w-3 mr-1" /> {city}
       </div>
       
       <div className="mt-auto pt-2 border-t">
         <div className="flex items-end justify-between">
           <div>
             <span className="font-bold text-foreground">
-              {isFree ? "Gratis" : `${formatCurrency(discountedPrice)} kr`}
+              {isFree ? "Gratis" : `${formatCurrency(discountedPrice)}`}
             </span>
             {originalPrice > 0 && !isFree && originalPrice !== discountedPrice && (
               <div className="flex items-center gap-1.5">
                 <span className="text-xs line-through text-gray-500">
-                  {formatCurrency(originalPrice)} kr
+                  {formatCurrency(originalPrice)}
                 </span>
                 <span className="text-xs px-1 py-0.5 bg-red-100 text-red-700 rounded">
                   -{discountPercentage}%

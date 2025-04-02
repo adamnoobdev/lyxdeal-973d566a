@@ -65,7 +65,8 @@ export const formatDealData = (
     quantityLeft: rawDeal.quantity_left,
     isFree,
     salon: effectiveSalonData,
-    booking_url: rawDeal.booking_url || null
+    booking_url: rawDeal.booking_url || null,
+    requires_discount_code: rawDeal.requires_discount_code !== false
   };
   
   console.log("[formatDealData] Slutgiltigt formaterat erbjudande:", {

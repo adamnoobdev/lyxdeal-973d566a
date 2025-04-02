@@ -1,27 +1,4 @@
 
-/**
- * Type definitions for deal operations
- */
-
-import { Database } from "@/integrations/supabase/types";
-
-// Deal information from database
-export type Deal = Database['public']['Tables']['deals']['Row'];
-
-// Deal status types
-export type DealStatus = 'pending' | 'approved' | 'rejected';
-
-// Deal with possible salon information
-export interface DealWithSalon extends Deal {
-  salons?: {
-    name: string;
-    id?: number;
-  } | null;
-}
-
-/**
- * Raw deal data from the database
- */
 export interface RawDealData {
   id: number;
   title: string;
@@ -29,20 +6,19 @@ export interface RawDealData {
   image_url: string;
   original_price: number;
   discounted_price: number;
-  expiration_date?: string | null;
   time_remaining?: string;
+  expiration_date?: string;
   category: string;
   city: string;
   created_at: string;
+  updated_at?: string;
   quantity_left: number;
-  is_free?: boolean | null;
-  salon_id?: number | null;
-  booking_url?: string | null;
+  salon_id?: number;
+  is_free?: boolean;
+  booking_url?: string;
+  requires_discount_code?: boolean;
 }
 
-/**
- * Formatted deal data for UI consumption
- */
 export interface FormattedDealData {
   id: number;
   title: string;
@@ -62,6 +38,7 @@ export interface FormattedDealData {
     name: string;
     address: string | null;
     phone: string | null;
-  };
-  booking_url?: string | null;
+  } | null;
+  booking_url: string | null;
+  requires_discount_code?: boolean;
 }

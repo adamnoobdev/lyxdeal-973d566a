@@ -47,7 +47,8 @@ export const useDeal = (id: string | undefined) => {
           id: dealData.id,
           title: dealData.title,
           salon_id: dealData.salon_id,
-          city: dealData.city
+          city: dealData.city,
+          requires_discount_code: dealData.requires_discount_code
         });
         
         // Hantera salongsdata, med förbättrad felhantering för 404-fel
