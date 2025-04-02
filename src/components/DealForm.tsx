@@ -62,8 +62,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
             initialImageUrl={initialValues?.imageUrl}
           />
           <PriceFields form={form} />
-          <LocationFields form={form} categories={["Hårvård", "Nagelvård", "Ansiktsbehandling", "Massage", "Makeup", "Ögonfransar & Bryn", "Kroppsvård", "Fotvård", "Hudvård", "Annat"]} 
-                         cities={["Stockholm", "Göteborg", "Malmö", "Uppsala", "Västerås", "Örebro", "Linköping", "Helsingborg", "Jönköping", "Norrköping"]} />
+          <LocationFields form={form} />
           <BookingUrlField form={form} />
           <QuantityField form={form} readOnly={!!initialValues} />
           <AdditionalFields form={form} />
