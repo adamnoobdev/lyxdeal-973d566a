@@ -2,12 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, XCircle } from "lucide-react";
 import { useState } from "react";
 import { SubscriptionPlan } from "@/components/salon/subscription/types";
 
 interface PricingCardProps extends SubscriptionPlan {
   onSelectPlan?: (planTitle: string, planType: "monthly" | "yearly", price: number) => void;
+  limitations?: string[];
 }
 
 export const PricingCard = ({
@@ -18,6 +19,7 @@ export const PricingCard = ({
   dealCount,
   features,
   isPopular,
+  limitations,
   onSelectPlan
 }: PricingCardProps) => {
   const [billingType, setBillingType] = useState<"monthly" | "yearly">("monthly");
@@ -107,6 +109,20 @@ export const PricingCard = ({
             </li>
           ))}
         </ul>
+        
+        {limitations && limitations.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-dashed">
+            <h4 className="text-xs font-medium mb-2 text-muted-foreground">Begränsningar:</h4>
+            <ul className="space-y-2">
+              {limitations.map((limitation, index) => (
+                <li key={index} className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <XCircle className="h-3.5 w-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <span>{limitation}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </CardContent>
       
       <CardFooter className="pt-2">

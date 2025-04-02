@@ -12,7 +12,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
     // Hämtar befintligt erbjudande för att kontrollera requires_discount_code
     const { data: existingDeal, error: fetchError } = await supabase
       .from('deals')
-      .select('requires_discount_code')
+      .select('requires_discount_code, salon_id')
       .eq('id', id)
       .single();
       
@@ -24,6 +24,21 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
     if (!existingDeal) {
       console.error('Deal not found');
       throw new Error('Deal not found');
+    }
+    
+    // Kontrollera salongens prenumerationsplan om de försöker aktivera rabattkoder
+    if (values.requires_discount_code && !existingDeal.requires_discount_code && existingDeal.salon_id) {
+      const { data: salonData } = await supabase
+        .from('salons')
+        .select('subscription_plan')
+        .eq('id', existingDeal.salon_id)
+        .single();
+      
+      // Om basic-paketet, förhindra aktivering av rabattkoder
+      if (salonData?.subscription_plan === 'Baspaket') {
+        toast.warning("Baspaketet stödjer inte rabattkoder. Uppgradera till Premiumpaket för att få tillgång till rabattkoder.");
+        values.requires_discount_code = false;
+      }
     }
     
     // Om befintligt erbjudande har requires_discount_code=true, se till att vi inte ändrar det till false

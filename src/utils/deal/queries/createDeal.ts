@@ -13,7 +13,26 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
     const originalPrice = parseInt(values.originalPrice) || 0;
     let discountedPrice = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPrice === 0;
-    const requiresDiscountCode = values.requires_discount_code ?? true;
+    
+    // Hämta salong för att kontrollera prenumerationsplan
+    let requiresDiscountCode = values.requires_discount_code ?? false;
+    let subscription_plan = null;
+    
+    if (values.salon_id) {
+      const { data: salonData } = await supabase
+        .from('salons')
+        .select('subscription_plan')
+        .eq('id', values.salon_id)
+        .single();
+      
+      subscription_plan = salonData?.subscription_plan;
+      
+      // Om basic-paketet, tvinga direkt bokning (inga rabattkoder)
+      if (subscription_plan === 'Baspaket') {
+        requiresDiscountCode = false;
+      }
+    }
+    
     const quantity = requiresDiscountCode ? parseInt(values.quantity) || 10 : 0;
     
     // For free deals, set discounted_price to 1 to avoid database constraint

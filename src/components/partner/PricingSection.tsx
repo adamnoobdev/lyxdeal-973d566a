@@ -12,7 +12,12 @@ export const PricingSection = () => {
       "Synlighet på Lyxdeal.se",
       "Tillgång till administratörspanel",
       "Grundläggande statistik",
-      "Kundhantering"
+      "Kundhantering",
+      "Direkt bokningslänk till din hemsida"
+    ],
+    limitations: [
+      "Max 1 erbjudande åt gången",
+      "Endast direkt bokning (inga rabattkoder)"
     ]
   };
 
@@ -28,7 +33,13 @@ export const PricingSection = () => {
       "Detaljerad statistik",
       "Kundhantering",
       "Prioriterad placering",
-      "Marknadsföringsstöd"
+      "Marknadsföringsstöd",
+      "Rabattkodshantering",
+      "1 utvalt erbjudande i månaden"
+    ],
+    limitations: [
+      "Max 3 erbjudanden samtidigt",
+      "Stöd för både rabattkoder och direkt bokning"
     ],
     isPopular: true
   };

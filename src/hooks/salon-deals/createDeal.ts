@@ -12,13 +12,56 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       return false;
     }
 
+    // Kontrollera salongens prenumerationsplan
+    const { data: salonData } = await supabase
+      .from('salons')
+      .select('subscription_plan')
+      .eq('id', salonId)
+      .single();
+    
+    const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
+    
+    // Kontrollera antal aktiva erbjudanden för denna salong
+    const { data: activeDeals, error: countError } = await supabase
+      .from('deals')
+      .select('id', { count: 'exact' })
+      .eq('salon_id', salonId)
+      .eq('is_active', true)
+      .not('status', 'eq', 'rejected');
+    
+    if (countError) {
+      console.error('Error counting active deals:', countError);
+      toast.error("Kunde inte kontrollera antal aktiva erbjudanden.");
+      return false;
+    }
+    
+    const activeDealsCount = activeDeals?.length || 0;
+    const maxDealsAllowed = isBasicPlan ? 1 : 3;
+    
+    if (activeDealsCount >= maxDealsAllowed) {
+      toast.error(`Du har redan nått maxgränsen på ${maxDealsAllowed} aktiva erbjudanden för din prenumerationsnivå.`);
+      return false;
+    }
+    
+    // Tvinga direkt bokning för basic-paketet
+    let requiresDiscountCode = values.requires_discount_code ?? false;
+    if (isBasicPlan) {
+      requiresDiscountCode = false;
+    }
+
     const originalPrice = parseInt(values.originalPrice) || 0;
     const discountedPriceVal = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPriceVal === 0;
-    const quantity = parseInt(values.quantity) || 10;
+    const quantity = requiresDiscountCode ? parseInt(values.quantity) || 10 : 0;
     
     // For free deals, set discounted_price to 1 to avoid database constraint
     const discountedPrice = isFree ? 1 : discountedPriceVal;
+    
+    // Kontrollera att bokningslänk finns för direkt bokning
+    if (!requiresDiscountCode && !values.booking_url) {
+      toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
+      return false;
+    }
     
     // Calculate days remaining and time remaining text
     const today = new Date();
@@ -32,7 +75,8 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       discountedPrice,
       is_free: isFree,
       expirationDate: expirationDate,
-      quantity
+      quantity,
+      requiresDiscountCode
     });
     
     const { data: newDeal, error } = await supabase.from('deals').insert({
@@ -51,7 +95,7 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       is_free: isFree, // Set is_free flag for free deals
       quantity_left: quantity,
       booking_url: values.booking_url,
-      requires_discount_code: values.requires_discount_code
+      requires_discount_code: requiresDiscountCode
     }).select();
 
     if (error) {
@@ -59,8 +103,8 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       throw error;
     }
     
-    // Om erbjudandet skapades, generera rabattkoder automatiskt
-    if (newDeal && newDeal.length > 0) {
+    // Om erbjudandet skapades och kräver rabattkoder, generera rabattkoder automatiskt
+    if (newDeal && newDeal.length > 0 && requiresDiscountCode) {
       const dealId = newDeal[0].id;
       console.log(`Automatically generating ${quantity} discount codes for new salon deal ID: ${dealId}`);
       

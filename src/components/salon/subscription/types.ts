@@ -16,6 +16,7 @@ export interface SubscriptionPlan {
   yearSavings: number;
   dealCount: number;
   features: string[];
+  limitations?: string[];
   isPopular?: boolean;
 }
 
@@ -30,7 +31,12 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
       "Synlighet på Lyxdeal.se",
       "Tillgång till administratörspanel",
       "Grundläggande statistik",
-      "Kundhantering"
+      "Kundhantering",
+      "Direkt bokningslänk till din hemsida"
+    ],
+    limitations: [
+      "Max 1 erbjudande åt gången",
+      "Endast direkt bokning (inga rabattkoder)"
     ]
   },
   "Premiumpaket": {
@@ -45,7 +51,13 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
       "Detaljerad statistik",
       "Kundhantering",
       "Prioriterad placering",
-      "Marknadsföringsstöd"
+      "Marknadsföringsstöd",
+      "Rabattkodshantering",
+      "1 utvalt erbjudande i månaden"
+    ],
+    limitations: [
+      "Max 3 erbjudanden samtidigt",
+      "Stöd för både rabattkoder och direkt bokning"
     ],
     isPopular: true
   }

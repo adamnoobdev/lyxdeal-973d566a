@@ -1,10 +1,7 @@
 
 import { Deal } from "@/types/deal";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Globe } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 interface DiscountCodesDirectBookingProps {
   deal: Deal | null;
@@ -12,80 +9,56 @@ interface DiscountCodesDirectBookingProps {
 
 export const DiscountCodesDirectBooking = ({ deal }: DiscountCodesDirectBookingProps) => {
   if (!deal) return null;
-
-  if (!deal.booking_url) {
-    return (
-      <Alert variant="destructive">
-        <InfoIcon className="h-4 w-4" />
-        <AlertTitle>Ingen bokningslänk</AlertTitle>
-        <AlertDescription>
-          Detta erbjudande har ingen bokningslänk satt. Kunder kommer inte kunna boka erbjudandet.
-          Vänligen uppdatera erbjudandet och lägg till en bokningslänk.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
+  
+  const subscription_plan = "Premiumpaket";
+  const hasBasicPackage = subscription_plan === "Baspaket";
+  
   return (
-    <div className="space-y-4">
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertTitle>Direkt bokning</AlertTitle>
-        <AlertDescription>
-          Detta erbjudande använder direkt bokning istället för rabattkoder. Kunder kommer att länkas direkt till din bokningssida.
-        </AlertDescription>
-      </Alert>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Globe className="h-4 w-4" /> Bokningslänk
-          </CardTitle>
-          <CardDescription>
-            Kunder kommer att skickas till denna länk när de vill utnyttja erbjudandet
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <div className="break-all max-w-full overflow-hidden">
-              {deal.booking_url}
+    <div className="p-4 rounded-lg bg-muted/20 border space-y-4">
+      <div className="space-y-2">
+        <h3 className="font-medium text-lg">Direkt bokning</h3>
+        <p className="text-sm text-muted-foreground">
+          Detta erbjudande använder direkt bokning utan rabattkoder. 
+          När kunder väljer att köpa erbjudandet kommer de att dirigeras till din bokningssida.
+        </p>
+        
+        {deal.booking_url ? (
+          <div className="mt-4 space-y-3">
+            <div className="p-3 bg-background border rounded-md">
+              <div className="text-xs text-muted-foreground mb-1">Bokningslänk:</div>
+              <div className="font-medium break-all text-sm">{deal.booking_url}</div>
             </div>
+            
             <Button 
-              variant="outline" 
               size="sm" 
-              className="shrink-0"
+              variant="outline"
+              className="w-full sm:w-auto"
               onClick={() => window.open(deal.booking_url, '_blank')}
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              Öppna länk
+              Testa länken
             </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Statistik</CardTitle>
-          <CardDescription>
-            Statistik för detta erbjudande
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 p-4 rounded border">
-              <div className="text-sm text-gray-500">Antal visningar</div>
-              <div className="text-2xl font-bold">-</div>
-            </div>
-            <div className="bg-gray-50 p-4 rounded border">
-              <div className="text-sm text-gray-500">Klick på bokningslänk</div>
-              <div className="text-2xl font-bold">-</div>
-            </div>
+        ) : (
+          <div className="p-4 border border-orange-200 bg-orange-50 text-orange-700 rounded-md text-sm mt-4">
+            <p className="font-medium">Varning: Ingen bokningslänk angiven</p>
+            <p className="mt-1">
+              Detta erbjudande saknar en bokningslänk. Kunder kommer inte att kunna slutföra sina köp.
+              Uppdatera erbjudandet för att lägga till en bokningslänk.
+            </p>
           </div>
-          <div className="mt-4 text-center text-sm text-gray-500">
-            Statistikfunktionen är under utveckling
+        )}
+        
+        {hasBasicPackage && (
+          <div className="p-4 border border-blue-200 bg-blue-50 text-blue-600 rounded-md text-sm mt-4">
+            <p className="font-medium">Baspaketet använder endast direkt bokning</p>
+            <p className="mt-1">
+              Ditt Baspaket inkluderar endast direkt bokning utan rabattkoder. 
+              Uppgradera till Premiumpaket för att få tillgång till rabattkoder.
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   );
 };
