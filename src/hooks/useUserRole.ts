@@ -22,37 +22,28 @@ export const useUserRole = () => {
       try {
         setIsLoading(true);
         
-        // Check if user is an admin
-        const { data: adminData, error: adminError } = await supabase
-          .from('admin_users')
-          .select('user_id')
-          .eq('user_id', session.user.id)
-          .single();
-          
-        if (adminError && adminError.code !== 'PGRST116') { // Ignore not found errors
-          throw adminError;
-        }
-        
-        if (adminData) {
-          setUserRole('admin');
-          setIsLoading(false);
-          return;
-        }
-          
-        // Check if user is a salon owner
+        // Check if user is a salon owner with admin role
         const { data: salonData, error: salonError } = await supabase
           .from('salons')
-          .select('user_id')
+          .select('role')
           .eq('user_id', session.user.id)
           .single();
           
         if (salonError && salonError.code !== 'PGRST116') { // Ignore not found errors
           throw salonError;
         }
+        
+        if (salonData && salonData.role === 'admin') {
+          setUserRole('admin');
+          setIsLoading(false);
+          return;
+        }
           
+        // If found, but not admin
         if (salonData) {
           setUserRole('salon_owner');
         } else {
+          // If no salon data found, user is a customer
           setUserRole('customer');
         }
           
