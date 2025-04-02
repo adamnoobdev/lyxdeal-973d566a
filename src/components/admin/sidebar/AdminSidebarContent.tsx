@@ -56,11 +56,11 @@ export const AdminSidebarContent = ({ userRole, currentPath }: AdminSidebarConte
         <div className="space-y-2">
           <Button 
             variant="outline" 
-            className={`w-full justify-start text-destructive hover:text-destructive ${isCollapsed ? "px-0" : ""}`} 
+            className={`w-full text-destructive hover:text-destructive ${isCollapsed ? "justify-center px-2" : "justify-start"}`} 
             onClick={handleLogout}
             title="Logga ut"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4 flex-shrink-0" />
             {!isCollapsed && <span className="ml-2">Logga ut</span>}
           </Button>
         </div>

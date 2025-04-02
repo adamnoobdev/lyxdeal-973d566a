@@ -1,7 +1,7 @@
 
 import { useLocation } from "react-router-dom";
 import { LayoutDashboard, Tags, Users, Settings } from "lucide-react";
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, useSidebar } from "@/components/ui/sidebar";
 import { SidebarLink } from "./SidebarLink";
 
 const salonLinks = [
@@ -34,10 +34,12 @@ interface SalonSidebarLinksProps {
 export const SalonSidebarLinks = ({ currentPath }: SalonSidebarLinksProps) => {
   const location = useLocation();
   const currentLocation = currentPath || location.pathname;
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Salong</SidebarGroupLabel>
+      <SidebarGroupLabel className={`${isCollapsed ? "sr-only" : ""}`}>Salong</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {salonLinks.map((link) => (
@@ -45,6 +47,7 @@ export const SalonSidebarLinks = ({ currentPath }: SalonSidebarLinksProps) => {
               key={link.href}
               href={link.href}
               icon={link.icon}
+              label={link.label}
               isCurrentPath={currentLocation.startsWith(link.href)}
             >
               {link.label}

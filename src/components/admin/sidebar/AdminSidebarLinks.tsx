@@ -1,7 +1,7 @@
 
 import { useLocation } from "react-router-dom";
 import { LayoutDashboard, Tag, Store, UserPlus } from "lucide-react";
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, useSidebar } from "@/components/ui/sidebar";
 import { SidebarLink } from "./SidebarLink";
 
 const adminLinks = [
@@ -38,10 +38,14 @@ interface AdminSidebarLinksProps {
 export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
   const location = useLocation();
   const currentLocation = currentPath || location.pathname;
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="text-primary font-medium">Admin</SidebarGroupLabel>
+      <SidebarGroupLabel className={`text-primary font-medium ${isCollapsed ? "sr-only" : ""}`}>
+        Admin
+      </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {adminLinks.map((link) => (
@@ -49,6 +53,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
               key={link.href}
               href={link.href}
               icon={link.icon}
+              label={link.label}
               isCurrentPath={currentLocation === link.href || currentLocation.startsWith(link.href)}
             >
               {link.label}
