@@ -1,5 +1,6 @@
 
-import { useParams, useNavigate, useEffect } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { useDeal } from "@/hooks/useDeal";
 import { SecureDealForm } from "@/components/deal/SecureDealForm";
 import { ResponsiveImage } from "@/components/common/ResponsiveImage";
