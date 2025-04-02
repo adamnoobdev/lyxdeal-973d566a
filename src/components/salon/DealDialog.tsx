@@ -61,12 +61,10 @@ export const DealDialog = ({
       console.log("[DealDialog] Starting submission");
       await onSubmit(values);
       console.log("[DealDialog] Submission successful");
+      handleClose(); // Auto-close after successful submission
     } catch (error) {
       console.error("[DealDialog] Error submitting form:", error);
-    } finally {
-      setIsSubmitting(false);
-      console.log("[DealDialog] Finished submission, will close dialog");
-      handleClose();
+      setIsSubmitting(false); // Reset submission state on error
     }
   };
 
@@ -83,7 +81,7 @@ export const DealDialog = ({
           if (!open) handleClose();
         }}
       >
-        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto flex flex-col">
+        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto flex flex-col bg-background">
           <SheetHeader>
             <SheetTitle>
               {initialValues ? "Redigera Erbjudande" : "Skapa Erbjudande"}
@@ -110,7 +108,7 @@ export const DealDialog = ({
         if (!open) handleClose();
       }}
     >
-      <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-hidden flex flex-col bg-background">
         <DialogHeader>
           <DialogTitle>
             {initialValues ? "Redigera Erbjudande" : "Skapa Erbjudande"}

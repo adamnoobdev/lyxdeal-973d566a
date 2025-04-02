@@ -52,14 +52,16 @@ export const useFormSubmission = (
 
         await onSubmit(values);
         toast.success("Erbjudandet har sparats!");
+        return Promise.resolve(); // Successful submission
       } catch (error) {
         console.error("[useFormSubmission] Error during form submission:", error);
         toast.error("Ett fel uppstod när erbjudandet skulle sparas");
+        setCurrentlySubmitting(false); // Reset state on error
+        return Promise.reject(error); // Propagate error to caller
       } finally {
-        // Viktig förändring: återställ isSubmitting oavsett resultat
         console.log("[useFormSubmission] Resetting submission state");
-        setCurrentlySubmitting(false);
-        console.log("[useFormSubmission] Submission complete, state reset");
+        // Note: We don't reset the state here to allow parent components to handle the dialog closing
+        // The dialog components will handle resetting this state once the dialog is closed
       }
     },
     [onSubmit, isSubmitting, setIsSubmitting, localIsSubmitting, isContextAvailable]

@@ -52,11 +52,10 @@ export const EditDealDialog = ({
       console.log("[EditDealDialog] Starting submission");
       await onSubmit(values);
       console.log("[EditDealDialog] Submission successful");
+      handleClose(); // Auto-close after successful submission
     } catch (error) {
       console.error("[EditDealDialog] Error submitting form:", error);
-    } finally {
-      setIsSubmitting(false);
-      console.log("[EditDealDialog] Finished submission, will close dialog");
+      setIsSubmitting(false); // Reset submission state on error
     }
   };
 
@@ -83,7 +82,7 @@ export const EditDealDialog = ({
           if (!open) handleClose();
         }}
       >
-        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto flex flex-col">
+        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto flex flex-col bg-background">
           <SheetHeader className="space-y-2">
             <SheetTitle>
               {initialValues ? "Redigera erbjudande" : "Skapa erbjudande"}
@@ -113,7 +112,7 @@ export const EditDealDialog = ({
         if (!open) handleClose();
       }}
     >
-      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col">
+      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col bg-background">
         <DialogHeader className="space-y-2">
           <DialogTitle>
             {initialValues ? "Redigera erbjudande" : "Skapa erbjudande"}
