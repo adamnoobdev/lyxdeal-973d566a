@@ -1,7 +1,7 @@
 
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertOctagon } from "lucide-react";
 
 interface ErrorStateProps {
   error: string;
@@ -10,13 +10,13 @@ interface ErrorStateProps {
 export const ErrorState = ({ error }: ErrorStateProps) => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Hantera prenumeration</CardTitle>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertOctagon className="h-4 w-4" />
+          <AlertTitle>Ett fel uppstod</AlertTitle>
+          <AlertDescription>
+            {error || "Det gick inte att hämta information om din prenumeration."}
+          </AlertDescription>
         </Alert>
       </CardContent>
     </Card>
