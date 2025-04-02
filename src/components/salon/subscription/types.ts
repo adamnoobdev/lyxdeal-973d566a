@@ -50,8 +50,9 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
       "Synlighet på Lyxdeal.se",
       "Kundhantering",
       "Stöd för både rabattkoder och direkt bokning",
-      "Max 3 erbjudanden samtidigt",
-      "1 utvalt erbjudande i månaden"
+      "1 utvalt erbjudande i månaden",
+      "Tillgång till beta-funktioner",
+      "Prioriterad support"
     ],
     isPopular: true
   }
