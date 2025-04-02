@@ -12,36 +12,36 @@ export const SubscriptionMetadata = ({ subscriptionInfo }: SubscriptionMetadataP
   const currentPrice = getCurrentPrice(subscriptionInfo.plan_title, subscriptionInfo.subscription_type);
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-      <div className="space-y-1">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="space-y-2">
         <p className="text-sm text-muted-foreground flex items-center">
-          <Package className="mr-2 h-4 w-4" />
+          <Package className="mr-2 h-4 w-4 text-primary" />
           Paket
         </p>
-        <p className="font-medium">{subscriptionInfo.plan_title || "Baspaket"}</p>
+        <p className="font-semibold text-base">{subscriptionInfo.plan_title || "Baspaket"}</p>
       </div>
       
-      <div className="space-y-1">
+      <div className="space-y-2">
         <p className="text-sm text-muted-foreground flex items-center">
-          <CreditCard className="mr-2 h-4 w-4" />
+          <CreditCard className="mr-2 h-4 w-4 text-primary" />
           Pris
         </p>
-        <p className="font-medium">
+        <p className="font-semibold text-base">
           {currentPrice} kr {getSubscriptionTypeLabel(subscriptionInfo.subscription_type).toLowerCase()}
         </p>
       </div>
       
-      <div className="space-y-1">
+      <div className="space-y-2">
         <p className="text-sm text-muted-foreground flex items-center">
-          <Calendar className="mr-2 h-4 w-4" />
+          <Calendar className="mr-2 h-4 w-4 text-primary" />
           Nästa fakturadatum
         </p>
-        <p className="font-medium">
+        <p className="font-semibold text-base">
           {formatDate(subscriptionInfo.current_period_end)}
         </p>
       </div>
       
-      <div className="space-y-1">
+      <div className="space-y-2">
         <p className="text-sm text-muted-foreground flex items-center">
           {subscriptionInfo.cancel_at_period_end ? (
             <XCircle className="mr-2 h-4 w-4 text-destructive" />
@@ -50,7 +50,7 @@ export const SubscriptionMetadata = ({ subscriptionInfo }: SubscriptionMetadataP
           )}
           Förnyas automatiskt
         </p>
-        <p className="font-medium">
+        <p className="font-semibold text-base">
           {subscriptionInfo.cancel_at_period_end ? "Nej" : "Ja"}
         </p>
       </div>

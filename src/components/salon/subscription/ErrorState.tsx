@@ -9,12 +9,12 @@ interface ErrorStateProps {
 
 export const ErrorState = ({ error }: ErrorStateProps) => {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <Alert variant="destructive">
-          <AlertOctagon className="h-4 w-4" />
-          <AlertTitle>Ett fel uppstod</AlertTitle>
-          <AlertDescription>
+    <Card className="border border-muted-200">
+      <CardContent className="p-6">
+        <Alert variant="destructive" className="bg-destructive-50 border-destructive-200 shadow-sm">
+          <AlertOctagon className="h-5 w-5 text-destructive" />
+          <AlertTitle className="text-destructive-800 text-base font-medium mb-1">Ett fel uppstod</AlertTitle>
+          <AlertDescription className="text-destructive-700 text-sm">
             {error || "Det gick inte att hämta information om din prenumeration."}
           </AlertDescription>
         </Alert>

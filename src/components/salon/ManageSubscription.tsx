@@ -21,50 +21,47 @@ export function ManageSubscription() {
   // Hantera uppdateringar av prenumerationsinformation
   const handleSubscriptionUpdate = (updated: Partial<SubscriptionInfo>) => {
     if (currentSubscriptionInfo) {
-      // Kombinera nuvarande data med uppdateringarna
       const updatedInfo = { ...currentSubscriptionInfo, ...updated };
       setLocalSubscriptionInfo(updatedInfo);
     }
   };
 
-  // Visa laddningsskelett medan data hämtas
   if (loading) {
     return <LoadingState />;
   }
 
-  // Visa felmeddelande om något gick fel
   if (error) {
     return <ErrorState error={error} />;
   }
 
-  // Visa meddelande om ingen prenumeration hittades
   if (!currentSubscriptionInfo) {
     return <EmptyState />;
   }
 
-  // Renderera prenumerationsuppgifter och knappar för hantering
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border border-muted-200">
+      <CardHeader className="border-b bg-muted-50 pb-4">
         <CardTitle className="flex items-center justify-between">
-          <span>Status</span>
+          <span className="text-xl">Status</span>
           <Badge 
             variant={currentSubscriptionInfo.status === "active" ? "default" : "destructive"}
-            className="ml-2"
+            className="ml-2 text-sm px-2 py-0.5"
           >
             {currentSubscriptionInfo.status === "active" ? "Aktiv" : "Inaktiv"}
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8 p-6">
         <SubscriptionAlert subscriptionInfo={currentSubscriptionInfo} />
         
         <SubscriptionMetadata subscriptionInfo={currentSubscriptionInfo} />
         
-        <SubscriptionActions 
-          subscriptionInfo={currentSubscriptionInfo}
-          onSubscriptionUpdate={handleSubscriptionUpdate}
-        />
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <SubscriptionActions 
+            subscriptionInfo={currentSubscriptionInfo}
+            onSubscriptionUpdate={handleSubscriptionUpdate}
+          />
+        </div>
       </CardContent>
     </Card>
   );

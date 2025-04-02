@@ -1,22 +1,31 @@
 
 import { Button } from "@/components/ui/button";
-import { FC } from "react";
+import { Loader2, Save } from "lucide-react";
 
 interface SubmitButtonProps {
   isSubmitting: boolean;
 }
 
-export const SubmitButton: FC<SubmitButtonProps> = ({ isSubmitting }) => {
+export const SubmitButton = ({ isSubmitting }: SubmitButtonProps) => {
   return (
-    <Button type="submit" disabled={isSubmitting}>
-      {isSubmitting ? (
-        <span className="flex items-center">
-          <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-          Sparar...
-        </span>
-      ) : (
-        "Spara ändringar"
-      )}
-    </Button>
+    <div className="flex justify-end pt-2">
+      <Button 
+        type="submit" 
+        disabled={isSubmitting}
+        className="w-full sm:w-auto"
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Sparar...
+          </>
+        ) : (
+          <>
+            <Save className="mr-2 h-4 w-4" />
+            Spara ändringar
+          </>
+        )}
+      </Button>
+    </div>
   );
 };

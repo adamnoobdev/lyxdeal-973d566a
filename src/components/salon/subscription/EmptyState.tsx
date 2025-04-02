@@ -5,12 +5,12 @@ import { Info } from "lucide-react";
 
 export const EmptyState = () => {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <Alert variant="default">
-          <Info className="h-4 w-4" />
-          <AlertTitle>Ingen prenumeration hittades</AlertTitle>
-          <AlertDescription>
+    <Card className="border border-muted-200">
+      <CardContent className="p-6">
+        <Alert variant="default" className="bg-blue-50 border-blue-200 shadow-sm">
+          <Info className="h-5 w-5 text-blue-600" />
+          <AlertTitle className="text-blue-800 text-base font-medium mb-1">Ingen prenumeration hittades</AlertTitle>
+          <AlertDescription className="text-blue-700 text-sm">
             Vi kunde inte hitta någon aktiv prenumeration för ditt konto. Om du tror att detta är ett fel, kontakta kundtjänst.
           </AlertDescription>
         </Alert>

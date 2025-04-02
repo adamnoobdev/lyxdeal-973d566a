@@ -9,7 +9,7 @@ import { profileSchema, ProfileFormValues } from "./schema";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ProfileSettingsFormProps {
   salon: {
@@ -68,10 +68,13 @@ export const ProfileSettingsForm = ({ salon, onUpdate }: ProfileSettingsFormProp
   };
 
   return (
-    <Card>
-      <CardContent className="pt-6">
+    <Card className="border border-muted-200">
+      <CardHeader className="border-b bg-muted-50 pb-4">
+        <CardTitle className="text-xl">Kontaktuppgifter</CardTitle>
+      </CardHeader>
+      <CardContent className="p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <BasicInfoFields form={form} readOnly={true} />
             <ContactFields form={form} />
             <SubmitButton isSubmitting={isSubmitting} />

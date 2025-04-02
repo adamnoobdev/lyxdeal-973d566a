@@ -51,24 +51,24 @@ export const SalonSettings = () => {
 
   return (
     <SalonLayout>
-      <div className="space-y-8">
-        <h1 className="text-2xl sm:text-3xl font-bold">Inställningar</h1>
+      <div className="space-y-10">
+        <div className="border-b pb-5">
+          <h1 className="text-3xl font-bold text-primary">Inställningar</h1>
+        </div>
         
-        <div className="space-y-8">
+        <div className="space-y-10">
           {/* Subscription Section */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Prenumeration</h2>
+          <section>
+            <h2 className="text-2xl font-semibold mb-6">Prenumeration</h2>
             <ManageSubscription />
-          </div>
+          </section>
           
           {/* Profile Section */}
-          <div className="space-y-4">
+          <section>
             {isLoading ? (
               <div className="space-y-4">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-4 w-2/3" />
-                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-32 w-full rounded-md" />
               </div>
             ) : salonData ? (
               <ProfileSettings 
@@ -76,9 +76,9 @@ export const SalonSettings = () => {
                 onUpdate={handleProfileUpdate} 
               />
             ) : (
-              <p>Kunde inte ladda salongsdata.</p>
+              <p className="text-muted-foreground">Kunde inte ladda salongsdata.</p>
             )}
-          </div>
+          </section>
         </div>
       </div>
     </SalonLayout>
