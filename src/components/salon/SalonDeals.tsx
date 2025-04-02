@@ -32,7 +32,8 @@ export const SalonDeals: React.FC = () => {
           .single();
         
         if (error) throw error;
-        setSalonId(data.id);
+        // Convert the numeric salon ID to string to match the expected state type
+        setSalonId(data.id.toString());
       } catch (err) {
         console.error("Error fetching salon ID:", err);
       }
