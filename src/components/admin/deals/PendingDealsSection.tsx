@@ -1,16 +1,8 @@
 
-import { Deal } from "@/components/admin/types";
-import { DealsTable } from "./DealsTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface PendingDealsSectionProps {
-  pendingDeals: Deal[];
-  setEditingDeal: (deal: Deal) => void;
-  setDeletingDeal: (deal: Deal) => void;
-  handleToggleActive: (deal: Deal) => Promise<boolean | void>;
-  handleStatusChange: (dealId: number, status: string) => Promise<void>;
-  onViewDiscountCodes?: (deal: Deal) => void;
-}
+import { DealsList } from "./DealsList";
+import { ApprovalActions } from "./actions/ApprovalActions";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const PendingDealsSection = ({
   pendingDeals,
@@ -18,34 +10,33 @@ export const PendingDealsSection = ({
   setDeletingDeal,
   handleToggleActive,
   handleStatusChange,
-  onViewDiscountCodes
-}: PendingDealsSectionProps) => {
-  const handleApprove = async (dealId: number) => {
-    await handleStatusChange(dealId, 'approved');
-  };
-
-  const handleReject = async (dealId: number) => {
-    await handleStatusChange(dealId, 'rejected');
-  };
-
+  onViewDiscountCodes,
+}) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm">
-      <CardHeader className="bg-secondary/10 pb-1 sm:pb-2 px-3 sm:px-6 py-2 sm:py-4">
-        <CardTitle className="text-base sm:text-lg font-medium">
-          Väntande erbjudanden ({pendingDeals.length})
+    <Card className="overflow-hidden border shadow-sm">
+      <CardHeader className="bg-amber-50 border-b border-amber-100 pb-2">
+        <CardTitle className="text-amber-800 text-base font-medium">
+          Väntande godkännande ({pendingDeals.length})
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
-        <DealsTable
-          deals={pendingDeals}
-          onEdit={setEditingDeal}
-          onDelete={setDeletingDeal}
-          onToggleActive={handleToggleActive}
-          showApprovalActions={true}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          onViewDiscountCodes={onViewDiscountCodes}
-        />
+      <CardContent className={`${isMobile ? "p-0" : "p-2"} pt-0`}>
+        {pendingDeals.length > 0 ? (
+          <DealsList
+            deals={pendingDeals}
+            onEdit={setEditingDeal}
+            onDelete={setDeletingDeal}
+            onToggleActive={handleToggleActive}
+            onViewDiscountCodes={onViewDiscountCodes}
+            ActionComponent={ApprovalActions}
+            actionProps={{ onStatusChange: handleStatusChange }}
+          />
+        ) : (
+          <div className="text-center py-6 text-muted-foreground">
+            Inga erbjudanden väntar på godkännande
+          </div>
+        )}
       </CardContent>
     </Card>
   );

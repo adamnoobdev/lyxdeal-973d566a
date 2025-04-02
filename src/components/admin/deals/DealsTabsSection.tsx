@@ -1,19 +1,8 @@
 
-import { Deal } from "@/components/admin/types";
-import { DealsTable } from "./DealsTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DealsList } from "./DealsList";
 import { Card } from "@/components/ui/card";
-
-interface DealsTabsSectionProps {
-  activeDeals: Deal[];
-  inactiveDeals: Deal[];
-  setEditingDeal: (deal: Deal) => void;
-  setDeletingDeal: (deal: Deal) => void;
-  handleToggleActive: (deal: Deal) => Promise<boolean | void>;
-  onViewDiscountCodes?: (deal: Deal) => void;
-  onGenerateDiscountCodes?: (deal: Deal, quantity?: number) => Promise<void>;
-  isGeneratingCodes?: boolean;
-}
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const DealsTabsSection = ({
   activeDeals,
@@ -23,48 +12,56 @@ export const DealsTabsSection = ({
   handleToggleActive,
   onViewDiscountCodes,
   onGenerateDiscountCodes,
-  isGeneratingCodes
-}: DealsTabsSectionProps) => {
+  isGeneratingCodes,
+}) => {
+  const isMobile = useIsMobile();
+
   return (
-    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm p-1 xs:p-2 sm:p-4">
-      <Tabs defaultValue="active" className="w-full">
-        <TabsList className="mb-2 sm:mb-4 w-full sm:max-w-md bg-secondary/10 border border-secondary/30">
-          <TabsTrigger
-            value="active"
-            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm text-[10px] xs:text-xs sm:text-sm py-1 sm:py-2"
-          >
+    <Card className="overflow-hidden border shadow-sm p-4">
+      <Tabs defaultValue="active">
+        <TabsList className="mb-4 bg-muted/20 border border-muted/20">
+          <TabsTrigger value="active" className="text-sm">
             Aktiva ({activeDeals.length})
           </TabsTrigger>
-          <TabsTrigger
-            value="inactive"
-            className="flex-1 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm text-[10px] xs:text-xs sm:text-sm py-1 sm:py-2"
-          >
+          <TabsTrigger value="inactive" className="text-sm">
             Inaktiva ({inactiveDeals.length})
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="active">
-          <DealsTable
-            deals={activeDeals}
-            onEdit={setEditingDeal}
-            onDelete={setDeletingDeal}
-            onToggleActive={handleToggleActive}
-            onViewDiscountCodes={onViewDiscountCodes}
-            onGenerateDiscountCodes={onGenerateDiscountCodes}
-            isGeneratingCodes={isGeneratingCodes}
-          />
+        
+        <TabsContent value="active" className={isMobile ? "px-0" : "px-1"}>
+          {activeDeals.length > 0 ? (
+            <DealsList
+              deals={activeDeals}
+              onEdit={setEditingDeal}
+              onDelete={setDeletingDeal}
+              onToggleActive={handleToggleActive}
+              onViewDiscountCodes={onViewDiscountCodes}
+              onGenerateDiscountCodes={onGenerateDiscountCodes}
+              isGeneratingCodes={isGeneratingCodes}
+            />
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              Inga aktiva erbjudanden att visa
+            </div>
+          )}
         </TabsContent>
-
-        <TabsContent value="inactive">
-          <DealsTable
-            deals={inactiveDeals}
-            onEdit={setEditingDeal}
-            onDelete={setDeletingDeal}
-            onToggleActive={handleToggleActive}
-            onViewDiscountCodes={onViewDiscountCodes}
-            onGenerateDiscountCodes={onGenerateDiscountCodes}
-            isGeneratingCodes={isGeneratingCodes}
-          />
+        
+        <TabsContent value="inactive" className={isMobile ? "px-0" : "px-1"}>
+          {inactiveDeals.length > 0 ? (
+            <DealsList
+              deals={inactiveDeals}
+              onEdit={setEditingDeal}
+              onDelete={setDeletingDeal}
+              onToggleActive={handleToggleActive}
+              onViewDiscountCodes={onViewDiscountCodes}
+              onGenerateDiscountCodes={onGenerateDiscountCodes}
+              isGeneratingCodes={isGeneratingCodes}
+            />
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              Inga inaktiva erbjudanden att visa
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </Card>

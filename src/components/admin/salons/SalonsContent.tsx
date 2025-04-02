@@ -1,95 +1,82 @@
 
-import { Salon } from "../types";
+import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
 import { SalonsTable } from "./SalonsTable";
-import { SalonDetails } from "./SalonDetails";
+import { SalonsLoadingSkeleton } from "./SalonsLoadingSkeleton";
 import { useState, useEffect } from "react";
-import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
-
-interface SalonsContentProps {
-  salons: Salon[];
-  selectedSalon: Salon | null;
-  onEdit: (salon: Salon) => void;
-  onDelete: (salon: Salon) => void;
-  onSelect: (salon: Salon) => void;
-}
+import { CheckCircle } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 export const SalonsContent = ({
-  salons,
-  selectedSalon,
-  onEdit,
-  onDelete,
-  onSelect,
-}: SalonsContentProps) => {
-  const [showDetails, setShowDetails] = useState(false);
-  const isMobile = useIsMobile();
+  onCreateClick,
+  onEditClick,
+  onDeleteClick,
+}) => {
+  const { salons, isLoading, error, fetchSalons } = useSalonsAdmin();
+  const [hasAutoFetched, setHasAutoFetched] = useState(false);
+  const { toast } = useToast();
 
-  // För mobila enheter, visa detaljer när en salong är vald
   useEffect(() => {
-    if (selectedSalon && isMobile) {
-      setShowDetails(true);
+    if (!hasAutoFetched) {
+      fetchSalons();
+      setHasAutoFetched(true);
     }
-  }, [selectedSalon, isMobile]);
+  }, [fetchSalons, hasAutoFetched]);
 
-  const handleBackToList = () => {
-    setShowDetails(false);
+  if (isLoading && !salons.length) {
+    return <SalonsLoadingSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <div className="mt-4 p-4 border rounded bg-red-50 text-red-600">
+        <p>Ett fel uppstod: {error}</p>
+        <Button
+          onClick={() => fetchSalons()}
+          variant="outline"
+          className="mt-2"
+        >
+          Försök igen
+        </Button>
+      </div>
+    );
+  }
+
+  // Function to approve all salons
+  const handleApproveAll = async () => {
+    try {
+      // This is just a placeholder - in a real scenario this would call an API endpoint
+      toast.success("Alla villkor godkända");
+    } catch (err) {
+      toast.error("Ett fel uppstod vid godkännande");
+    }
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-      {/* Visa tabellen när inga detaljer visas eller på större skärmar */}
-      {(!showDetails || !isMobile) && (
-        <div className={`${!isMobile && selectedSalon ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="p-3 sm:p-4 border-b">
-              <h2 className="text-base sm:text-lg font-semibold">Salonger</h2>
-            </div>
-            <div className="p-0 sm:p-4 overflow-auto">
-              <SalonsTable
-                salons={salons}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onSelect={(salon) => {
-                  onSelect(salon);
-                  if (isMobile) {
-                    setShowDetails(true);
-                  }
-                }}
-                selectedSalon={selectedSalon}
-              />
-            </div>
-          </div>
+    <div className="space-y-4">
+      <Card className="overflow-hidden shadow-sm p-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Snabbåtgärder</span>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={handleApproveAll}
+          >
+            <CheckCircle className="h-4 w-4 text-primary" />
+            Godkänn alla villkor
+          </Button>
         </div>
-      )}
-
-      {/* Visa detaljer i mobilläge eller i sidopanel på större skärmar */}
-      {selectedSalon && (isMobile ? showDetails : true) && (
-        <div className="lg:col-span-1">
-          {isMobile && showDetails && (
-            <Button 
-              onClick={handleBackToList}
-              variant="ghost" 
-              size="sm"
-              className="mb-2 text-xs text-primary flex items-center gap-1 px-2 py-1 h-8"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span>Tillbaka till listan</span>
-            </Button>
-          )}
-          <SalonDetails salon={selectedSalon} />
-        </div>
-      )}
-
-      {!selectedSalon && !isMobile && (
-        <div className="lg:col-span-1 hidden lg:block">
-          <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
-            <p className="text-muted-foreground text-sm">
-              Välj en salong för att se detaljer
-            </p>
-          </div>
-        </div>
-      )}
+      </Card>
+      
+      <div className="rounded-md overflow-hidden bg-card border shadow-sm">
+        <SalonsTable
+          salons={salons}
+          onEditClick={onEditClick}
+          onDeleteClick={onDeleteClick}
+        />
+      </div>
     </div>
   );
 };

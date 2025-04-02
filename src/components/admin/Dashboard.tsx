@@ -69,12 +69,12 @@ export const Dashboard = () => {
 
       <div className="w-full grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
         {statCards.map((stat, index) => (
-          <Card key={index} className="overflow-hidden border-0 shadow-md">
+          <Card key={index} className="overflow-hidden border shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-white">
               <CardTitle className="text-base xs:text-lg font-medium text-primary">
                 {stat.title}
               </CardTitle>
-              <div className="bg-primary-50 p-2 rounded-full">
+              <div className="bg-primary/10 p-2 rounded-full">
                 <stat.icon className="h-4 w-4 text-primary" />
               </div>
             </CardHeader>
