@@ -30,16 +30,16 @@ export const PricingCard = ({
   };
 
   return (
-    <Card className={`relative flex flex-col ${isPopular ? 'border-primary shadow-md' : ''}`}>
+    <Card className={`relative flex flex-col h-full ${isPopular ? 'border-primary shadow-lg' : 'border-muted-300'}`}>
       {isPopular && (
-        <Badge className="absolute -top-2 -right-2 bg-primary text-white">
+        <Badge className="absolute -top-3 right-4 bg-primary text-white px-3 py-1 text-xs font-medium rounded-full shadow-sm">
           Populärast
         </Badge>
       )}
       
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg md:text-xl">{title}</CardTitle>
-        <CardDescription className="text-sm">
+        <CardTitle className="text-2xl font-bold text-primary">{title}</CardTitle>
+        <CardDescription className="text-sm mt-1 text-muted-foreground">
           {dealCount === 1 
             ? "Perfekt för mindre salonger"
             : "Bäst för växande salonger"
@@ -48,12 +48,12 @@ export const PricingCard = ({
       </CardHeader>
       
       <CardContent className="flex-grow">
-        <div className="flex justify-center mb-4">
-          <div className="flex border rounded-md overflow-hidden">
+        <div className="flex justify-center mb-6">
+          <div className="flex border rounded-full overflow-hidden shadow-sm">
             <Button
               type="button"
               variant={billingType === "monthly" ? "default" : "outline"}
-              className={`text-xs py-1 h-auto rounded-none`}
+              className={`text-xs py-1 px-4 h-9 rounded-full ${billingType === "monthly" ? "bg-primary text-white" : ""}`}
               onClick={() => setBillingType("monthly")}
             >
               Månadsvis
@@ -61,42 +61,48 @@ export const PricingCard = ({
             <Button
               type="button"
               variant={billingType === "yearly" ? "default" : "outline"}
-              className={`text-xs py-1 h-auto rounded-none flex items-center gap-2`}
+              className={`text-xs py-1 px-4 h-9 rounded-full flex items-center gap-2 ${billingType === "yearly" ? "bg-primary text-white" : ""}`}
               onClick={() => setBillingType("yearly")}
             >
               Årsvis
-              <span className="bg-green-100 text-green-800 text-[10px] px-1.5 py-0.5 rounded">
+              <span className="bg-green-100 text-green-800 text-[10px] px-1.5 py-0.5 rounded-full">
                 Spara {yearSavings} kr
               </span>
             </Button>
           </div>
         </div>
         
-        <div className="text-center mb-4">
-          <span className="text-3xl font-bold">{price} kr</span>
-          <span className="text-gray-500 text-sm ml-1">
-            {billingType === "monthly" ? "/mån" : "/år"}
-          </span>
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center">
+            <span className="text-4xl font-bold text-primary">{price}</span>
+            <span className="text-xl font-medium text-primary ml-1">kr</span>
+            <span className="text-muted-foreground text-sm ml-2">
+              {billingType === "monthly" ? "/mån" : "/år"}
+            </span>
+          </div>
         </div>
         
-        <ul className="space-y-2 mt-4">
-          <li className="flex items-start gap-2 text-sm">
-            <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-            <span><strong>{dealCount}</strong> {dealCount === 1 ? 'erbjudande' : 'erbjudanden'} åt gången</span>
+        <ul className="space-y-3 mt-6">
+          <li className="flex items-start gap-3 text-sm">
+            <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+            <span className="font-medium"><strong>{dealCount}</strong> {dealCount === 1 ? 'erbjudande' : 'erbjudanden'} åt gången</span>
           </li>
           {features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-2 text-sm">
-              <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+            <li key={index} className="flex items-start gap-3 text-sm">
+              <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
               <span>{feature}</span>
             </li>
           ))}
         </ul>
       </CardContent>
       
-      <CardFooter>
+      <CardFooter className="pt-4">
         <Button 
-          className="w-full" 
-          variant={isPopular ? "default" : "outline"}
+          className={`w-full py-6 text-base font-medium transition-all duration-200 ${
+            isPopular 
+              ? "bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg" 
+              : "bg-white hover:bg-primary/10 text-primary border-2 border-primary"
+          }`}
           onClick={handleSelect}
         >
           Välj {title}
