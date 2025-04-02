@@ -45,7 +45,7 @@ export const formSchema = z.object({
   booking_url: z.string().url({
     message: "Vänligen ange en giltig URL som börjar med http:// eller https://",
   }).optional().or(z.literal('')),
-  requires_discount_code: z.boolean().default(true),
+  requires_discount_code: z.boolean().default(false),
 });
 
 export type FormValues = z.infer<typeof formSchema>;

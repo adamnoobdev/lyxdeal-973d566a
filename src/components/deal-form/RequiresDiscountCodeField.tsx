@@ -23,7 +23,7 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
   const requiresDiscountCode = useWatch({
     control: form.control,
     name: "requires_discount_code",
-    defaultValue: true
+    defaultValue: false
   });
   
   const bookingUrl = useWatch({

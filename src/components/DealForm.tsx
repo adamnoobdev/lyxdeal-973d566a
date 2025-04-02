@@ -42,7 +42,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       is_free: false,
       is_active: true,
       booking_url: "",
-      requires_discount_code: true,
+      requires_discount_code: false,
     },
   });
 
