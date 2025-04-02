@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -38,7 +37,6 @@ export const useSubscriptionDetails = (sessionId: string | null) => {
     toast.info("Kontrollerar kontostatus...");
   };
 
-  // Fetch purchase details and check salon account status
   const fetchPurchaseDetails = async () => {
     if (!sessionId) {
       console.warn("No session ID found in URL");
@@ -159,7 +157,6 @@ export const useSubscriptionDetails = (sessionId: string | null) => {
     }
   };
 
-  // Start timer to track elapsed time
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeElapsed(prev => prev + 1);
@@ -168,13 +165,11 @@ export const useSubscriptionDetails = (sessionId: string | null) => {
     return () => clearInterval(timer);
   }, []);
 
-  // Set up retry logic
   useEffect(() => {
     if (loading || isRetrying || (retryCount > 0 && !salonAccount)) {
       (async () => {
         const success = await fetchPurchaseDetails();
         
-        // If no salon account was found and we haven't exceeded max retries, try again
         if (!success && retryCount < maxRetries) {
           const timer = setTimeout(() => {
             setRetryCount(prev => prev + 1);

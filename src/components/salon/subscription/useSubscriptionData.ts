@@ -34,7 +34,7 @@ export const useSubscriptionData = () => {
         }
         
         setSubscriptionInfo({
-          plan_title: salons.subscription_plan || 'Standard',
+          plan_title: salons.subscription_plan || 'Baspaket',
           subscription_type: salons.subscription_type || 'monthly',
           stripe_customer_id: salons.stripe_customer_id || '',
           stripe_subscription_id: salons.stripe_subscription_id || '',
