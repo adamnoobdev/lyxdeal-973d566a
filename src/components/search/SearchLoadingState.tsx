@@ -29,17 +29,19 @@ export const SearchLoadingState = ({
       </Helmet>
 
       {/* Loading breadcrumb */}
-      <div className="w-full bg-gray-50 py-3 border-b">
-        <div className="container mx-auto px-4 flex justify-center">
+      <div className="w-full bg-gray-50/80 py-4 border-b border-gray-100 shadow-sm">
+        <div className="container mx-auto px-4 md:max-w-5xl">
           <Breadcrumb>
-            <BreadcrumbList>
+            <BreadcrumbList className="text-xs md:text-sm text-gray-600">
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="/">lyxdeal.se</Link>
+                  <Link to="/" className="text-primary font-medium hover:text-primary/80 transition-colors">
+                    lyxdeal.se
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3 w-3 text-gray-400" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
                 <BreadcrumbPage>

@@ -37,31 +37,36 @@ export const SearchBreadcrumbs = ({
   };
 
   return (
-    <div className="w-full bg-gray-50 py-3 border-b">
-      <div className="container mx-auto px-4 flex justify-center">
+    <div className="w-full bg-gray-50/80 py-4 border-b border-gray-100 shadow-sm">
+      <div className="container mx-auto px-4 md:max-w-5xl">
         <Breadcrumb>
-          <BreadcrumbList>
+          <BreadcrumbList className="text-xs md:text-sm text-gray-600">
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/">lyxdeal.se</Link>
+                <Link to="/" className="text-primary font-medium hover:text-primary/80 transition-colors">
+                  lyxdeal.se
+                </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             
             <BreadcrumbSeparator>
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3 text-gray-400" />
             </BreadcrumbSeparator>
             
             {city !== "Alla Städer" && (
               <>
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to={`/search?city=${encodeURIComponent(city)}`}>
+                    <Link 
+                      to={`/search?city=${encodeURIComponent(city)}`}
+                      className="text-primary/90 hover:text-primary transition-colors"
+                    >
                       {city}
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator>
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3 w-3 text-gray-400" />
                 </BreadcrumbSeparator>
               </>
             )}
@@ -70,13 +75,16 @@ export const SearchBreadcrumbs = ({
               <>
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to={`/search?category=${encodeURIComponent(category)}`}>
+                    <Link 
+                      to={`/search?category=${encodeURIComponent(category)}`}
+                      className="text-primary/90 hover:text-primary transition-colors"
+                    >
                       {category}
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator>
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3 w-3 text-gray-400" />
                 </BreadcrumbSeparator>
               </>
             )}
@@ -84,14 +92,14 @@ export const SearchBreadcrumbs = ({
             {query && (
               <>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>{query}</BreadcrumbPage>
+                  <BreadcrumbPage className="font-medium">{query}</BreadcrumbPage>
                 </BreadcrumbItem>
               </>
             )}
             
             {!query && !category && !city && (
               <BreadcrumbItem>
-                <BreadcrumbPage>Alla erbjudanden</BreadcrumbPage>
+                <BreadcrumbPage className="font-medium">Alla erbjudanden</BreadcrumbPage>
               </BreadcrumbItem>
             )}
           </BreadcrumbList>
