@@ -76,10 +76,12 @@ export const SearchResultsContent = ({
             city={city}
           />
 
-          <Categories 
-            selectedCategory={selectedCategory} 
-            onSelectCategory={onCategorySelect} 
-          />
+          <div className="w-full">
+            <Categories 
+              selectedCategory={selectedCategory} 
+              onSelectCategory={onCategorySelect} 
+            />
+          </div>
           
           <DealsGrid deals={deals} />
         </div>

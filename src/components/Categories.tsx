@@ -1,7 +1,5 @@
-
 import { memo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { CATEGORIES } from "@/constants/app-constants";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +30,7 @@ const getCategoryEmoji = (category: string) => {
 const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesProps) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const isSearchPage = window.location.pathname === "/search";
 
   const handleCategoryClick = (category: string) => {
     onSelectCategory(category);
@@ -54,9 +53,10 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
   };
 
   return (
-    <div className="relative mb-6 -mx-4 md:mx-0">
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex w-full gap-2 px-4 pb-4 justify-start md:justify-center">
+    <div className={`relative mb-6 ${isSearchPage ? 'mx-0' : '-mx-4 md:mx-0'}`}>
+      {isSearchPage ? (
+        // For search page: show all categories without ScrollArea
+        <div className="flex flex-wrap gap-2 px-4 pb-4 justify-center">
           {CATEGORIES.map((category) => (
             <button
               key={category}
@@ -74,8 +74,27 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
             </button>
           ))}
         </div>
-        <ScrollBar orientation="horizontal" className="hidden" />
-      </ScrollArea>
+      ) : (
+        // For other pages: keep using the ScrollArea
+        <div className="flex w-full gap-2 px-4 pb-4 justify-start md:justify-center overflow-x-auto">
+          {CATEGORIES.map((category) => (
+            <button
+              key={category}
+              onClick={() => handleCategoryClick(category)}
+              className={cn(
+                "flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium",
+                "shadow-sm hover:shadow-md active:scale-95",
+                selectedCategory === category 
+                  ? "bg-primary text-white border-transparent"
+                  : "bg-white text-primary/90 border border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+              )}
+            >
+              <span className="text-sm">{getCategoryEmoji(category)}</span>
+              <span>{category}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
