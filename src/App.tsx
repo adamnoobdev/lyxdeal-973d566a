@@ -18,10 +18,6 @@ import Auth from './pages/Auth';
 import FAQ from './pages/FAQ';
 import Terms from './pages/Terms';
 
-// Import DealsList component for admin deals route
-import { DealsList } from './components/admin/deals';
-import { SalonsList } from './components/admin/salons/SalonsList';
-
 function App() {
   const queryClient = new QueryClient();
   const { session } = useSession();
@@ -79,9 +75,7 @@ function App() {
           } />
 
           {/* Admin routes */}
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/deals/*" element={<Admin />} />
-          <Route path="/admin/salons/*" element={<Admin />} />
+          <Route path="/admin/*" element={<Admin />} />
           <Route path="/admin/users" element={<AdminUsers />} />
         </Routes>
         

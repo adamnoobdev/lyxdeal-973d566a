@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { Dashboard } from '@/components/admin/Dashboard';
@@ -80,6 +80,9 @@ const Admin = () => {
   if (!session && !isLoading) {
     return null;
   }
+  
+  // Lägg till console.log för debugging
+  console.log("Admin rendering with path:", location.pathname);
   
   return (
     <AdminAuthCheck>

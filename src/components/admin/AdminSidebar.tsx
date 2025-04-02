@@ -29,12 +29,12 @@ export const AdminSidebar = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [isCollapsed]);
 
-  // Använd useCallback för att förhindra onödiga re-renders när sidebarn öppnas/stängs
+  // Använda useCallback för att förhindra onödiga re-renders när sidebarn öppnas/stängs
   const handleToggleCollapse = useCallback(() => {
     setIsCollapsed(!isCollapsed);
   }, [isCollapsed]);
 
-  // Använd useMemo för queryKey för att minska re-renders
+  // Använda useMemo för queryKey för att minska re-renders
   const queryKey = useMemo(() => ['user-role', session?.user?.id], [session?.user?.id]);
 
   // Fetch user role to determine what sidebar content to show
@@ -59,6 +59,9 @@ export const AdminSidebar = () => {
     enabled: !!session?.user?.id,
     staleTime: 5 * 60 * 1000, // Cache data for 5 minutes to prevent frequent refetches
   });
+
+  // Logga den aktuella sökvägen för felsökning
+  console.log('Current path in AdminSidebar:', location.pathname);
 
   return (
     <Sidebar 
