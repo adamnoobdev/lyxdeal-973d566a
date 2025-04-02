@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { useCallback } from "react";
 import { 
@@ -8,6 +7,7 @@ import {
   createSalonData, 
   updateSalonData 
 } from "@/utils/salonAdminUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Hook för att hantera salongsoperationer (skapa, uppdatera, ta bort)
@@ -26,6 +26,26 @@ export const useSalonOperations = (fetchSalons: () => Promise<void>) => {
       if (hasDeals) {
         toast.error("Kan inte ta bort salongen eftersom den har aktiva erbjudanden");
         return false;
+      }
+
+      // Hämta salongen för att kontrollera om den har en user_id koppling
+      const { data: salon } = await supabase
+        .from("salons")
+        .select("user_id")
+        .eq("id", id)
+        .single();
+
+      // Ta bort salon_user_status om det finns en user_id
+      if (salon?.user_id) {
+        const { error: statusError } = await supabase
+          .from('salon_user_status')
+          .delete()
+          .eq('user_id', salon.user_id);
+          
+        if (statusError) {
+          console.error("Kunde inte ta bort salon_user_status:", statusError);
+          // Fortsätt ändå med borttagningen av salongen
+        }
       }
 
       await deleteSalonData(id);

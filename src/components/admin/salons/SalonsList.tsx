@@ -4,7 +4,6 @@ import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
 import { EditSalonDialog } from "./EditSalonDialog";
 import { DeleteSalonDialog } from "./DeleteSalonDialog";
 import { CreateSalonDialog } from "./CreateSalonDialog";
-import { SalonsLoadingSkeleton } from "./SalonsLoadingSkeleton";
 import { SalonsHeader } from "./SalonsHeader";
 import { SalonsContent } from "./SalonsContent";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -154,6 +153,8 @@ export const SalonsList = () => {
         onCreateClick={() => setIsCreating(true)}
         onEditClick={setEditingSalon}
         onDeleteClick={setDeletingSalon}
+        onSelect={setSelectedSalon}
+        selectedSalon={selectedSalon}
       />
 
       <EditSalonDialog
@@ -168,6 +169,8 @@ export const SalonsList = () => {
         onClose={() => setDeletingSalon(null)}
         onConfirm={onDelete}
         salonName={deletingSalon?.name}
+        salonId={deletingSalon?.id}
+        userId={deletingSalon?.user_id}
       />
 
       <CreateSalonDialog
