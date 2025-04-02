@@ -28,8 +28,8 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     yearSavings: 2000,
     dealCount: 1,
     features: [
-      "Synlighet på Lyxdeal.se",
       "Tillgång till administratörspanel",
+      "Synlighet på Lyxdeal.se",
       "Grundläggande statistik",
       "Kundhantering",
       "Direkt bokningslänk till din hemsida"
@@ -46,14 +46,12 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     yearSavings: 3000,
     dealCount: 3,
     features: [
-      "Synlighet på Lyxdeal.se",
       "Tillgång till administratörspanel",
+      "Synlighet på Lyxdeal.se",
       "Kundhantering",
-      "1 utvalt erbjudande i månaden"
-    ],
-    limitations: [
+      "Stöd för både rabattkoder och direkt bokning",
       "Max 3 erbjudanden samtidigt",
-      "Stöd för både rabattkoder och direkt bokning"
+      "1 utvalt erbjudande i månaden"
     ],
     isPopular: true
   }

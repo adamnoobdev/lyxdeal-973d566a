@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, Info } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { SubscriptionPlan, SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
 
@@ -19,7 +19,6 @@ export const PricingCard = ({
   dealCount,
   features,
   isPopular,
-  limitations,
   onSelectPlan
 }: PricingCardProps) => {
   const [billingType, setBillingType] = useState<"monthly" | "yearly">("monthly");
@@ -43,7 +42,7 @@ export const PricingCard = ({
       <CardHeader className="pb-1">
         <CardTitle className="text-xl font-bold text-primary">{title}</CardTitle>
         <CardDescription className="text-xs mt-1 text-muted-foreground">
-          {dealCount === 1 
+          {isBasic 
             ? "Perfekt för mindre salonger"
             : "Bäst för växande salonger"
           }
@@ -104,9 +103,16 @@ export const PricingCard = ({
             <span className="font-medium"><strong>{dealCount}</strong> {dealCount === 1 ? 'erbjudande' : 'erbjudanden'} åt gången</span>
           </li>
           
-          {/* Om det är baspaketet, visa alla features, annars visa "Allt i baspaket" plus premium features */}
+          {/* För premiumpaket, visa först ett meddelande om att det inkluderar baspaket */}
+          {!isBasic && (
+            <li className="flex items-start gap-2 text-xs">
+              <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <span className="font-medium">Allt som ingår i Baspaket</span>
+            </li>
+          )}
+          
+          {/* Visa alla features för baspaketet, eller bara de unika för premiumpaket */}
           {isBasic ? (
-            // Visa alla features för baspaketet
             features.map((feature, index) => (
               <li key={index} className="flex items-start gap-2 text-xs">
                 <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
@@ -114,20 +120,14 @@ export const PricingCard = ({
               </li>
             ))
           ) : (
-            <>
-              <li className="flex items-start gap-2 text-xs">
+            features.filter(feature => 
+              !SUBSCRIPTION_PLANS["Baspaket"].features.includes(feature)
+            ).map((feature, index) => (
+              <li key={index} className="flex items-start gap-2 text-xs">
                 <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                <span className="font-medium">Allt som ingår i Baspaket</span>
+                <span>{feature}</span>
               </li>
-              {features.filter(feature => 
-                !SUBSCRIPTION_PLANS["Baspaket"].features.includes(feature)
-              ).map((feature, index) => (
-                <li key={index} className="flex items-start gap-2 text-xs">
-                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </>
+            ))
           )}
         </ul>
       </CardContent>
