@@ -30,26 +30,28 @@ export const SearchLoadingState = ({
 
       {/* Loading breadcrumb */}
       <div className="w-full bg-gray-50/80 py-4 border-b border-gray-100 shadow-sm">
-        <div className="container mx-auto px-4 md:max-w-5xl">
-          <Breadcrumb>
-            <BreadcrumbList className="text-xs md:text-sm text-gray-600">
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to="/" className="text-primary font-medium hover:text-primary/80 transition-colors">
-                    lyxdeal.se
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-3 w-3 text-gray-400" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbPage>
-                  <Skeleton className="h-4 w-24" />
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+        <div className="container mx-auto px-4 flex justify-center">
+          <div className="max-w-5xl w-full flex justify-center md:justify-start">
+            <Breadcrumb>
+              <BreadcrumbList className="text-xs md:text-sm text-gray-600">
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link to="/" className="text-primary font-medium hover:text-primary/80 transition-colors">
+                      lyxdeal.se
+                    </Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator>
+                  <ChevronRight className="h-3 w-3 text-gray-400" />
+                </BreadcrumbSeparator>
+                <BreadcrumbItem>
+                  <BreadcrumbPage>
+                    <Skeleton className="h-4 w-24" />
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
         </div>
       </div>
 
