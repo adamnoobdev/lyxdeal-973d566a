@@ -10,7 +10,6 @@ export const PartnerSection = ({ onNavigate }: PartnerSectionProps) => {
   
   const handlePartnerClick = () => {
     navigate("/partner");
-    window.scrollTo(0, 0);
   };
   
   return (

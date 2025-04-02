@@ -21,6 +21,7 @@ import CreateAdmin from './pages/CreateAdmin';
 import { SalonDeals } from './components/salon/SalonDeals';
 import { supabase } from '@/integrations/supabase/client';
 import { CookieConsent } from './components/cookie/CookieConsent';
+import { ScrollToTop } from './components/navigation/ScrollToTop';
 
 function App() {
   // Logga auth-status när appen laddas, men försök inte automatiskt logga in
@@ -57,6 +58,7 @@ function App() {
   return (
     <>
       <Router>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Index />} />

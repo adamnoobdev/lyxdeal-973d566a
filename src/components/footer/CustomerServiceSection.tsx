@@ -16,7 +16,6 @@ export const CustomerServiceSection: FC<CustomerServiceSectionProps> = ({ onNavi
             to="/faq" 
             className="text-gray-600 hover:text-gray-900 transition-colors"
             aria-label="Visa vanliga frågor"
-            onClick={() => window.scrollTo(0, 0)}
           >
             Vanliga frågor
           </Link>
@@ -26,7 +25,6 @@ export const CustomerServiceSection: FC<CustomerServiceSectionProps> = ({ onNavi
             to="/terms" 
             className="text-gray-600 hover:text-gray-900 transition-colors"
             aria-label="Visa allmänna villkor"
-            onClick={() => window.scrollTo(0, 0)}
           >
             Allmänna villkor
           </Link>
@@ -36,7 +34,6 @@ export const CustomerServiceSection: FC<CustomerServiceSectionProps> = ({ onNavi
             to="/privacy" 
             className="text-gray-600 hover:text-gray-900 transition-colors"
             aria-label="Visa integritetspolicy"
-            onClick={() => window.scrollTo(0, 0)}
           >
             Integritetspolicy
           </Link>
