@@ -5,6 +5,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { InfoIcon } from "lucide-react";
 
 export const FAQSection = () => {
   const faqItems = [
@@ -61,13 +63,14 @@ export const FAQSection = () => {
         </div>
 
         <div className="max-w-3xl mx-auto">
-          <div className="p-6 bg-amber-50 border border-amber-100 rounded-lg mb-8">
-            <h3 className="text-lg font-semibold mb-2 text-amber-800">Viktigt att förstå</h3>
-            <p className="text-amber-700">
+          <Alert variant="warning" className="mb-8">
+            <InfoIcon className="h-5 w-5" />
+            <AlertTitle>Viktigt att förstå</AlertTitle>
+            <AlertDescription>
               Lyxdeal är en plattform som endast förmedlar rabattkoder. Vi hanterar inga köp eller betalningar på vår hemsida. 
               Kunder får rabattkoder via e-post som de sedan kan använda när de bokar behandlingar direkt hos din salong.
-            </p>
-          </div>
+            </AlertDescription>
+          </Alert>
 
           <Accordion type="single" collapsible className="w-full">
             {faqItems.map((item, index) => (

@@ -18,13 +18,20 @@ const PartnerPage = () => {
       </Helmet>
 
       <div className="min-h-screen">
+        {/* Introduction */}
         <PartnerHero />
         <PartnerFeatures />
+        
+        {/* How it works */}
         <HowItWorksSection />
+        
+        {/* Why choose us */}
         <ComparisonSection />
+        <TestimonialSection />
+        
+        {/* Take action */}
         <PricingSection />
         <FAQSection />
-        <TestimonialSection />
         <ContactSection />
       </div>
     </>
