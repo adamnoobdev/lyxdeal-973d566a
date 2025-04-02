@@ -83,7 +83,7 @@ export const EditDealDialog = ({
           if (!open) handleClose();
         }}
       >
-        <SheetContent className="w-full h-[90vh] p-4 overflow-auto flex flex-col">
+        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto flex flex-col">
           <SheetHeader className="space-y-2">
             <SheetTitle>
               {initialValues ? "Redigera erbjudande" : "Skapa erbjudande"}

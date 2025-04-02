@@ -9,6 +9,7 @@ import { DealForm } from "@/components/DealForm";
 import { FormValues } from "@/components/deal-form/schema";
 import { useState, useEffect } from "react";
 import { DealFormProvider } from "@/components/deal-form/DealFormContext";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 interface DealDialogProps {
   isOpen: boolean;
@@ -24,6 +25,13 @@ export const DealDialog = ({
   initialValues,
 }: DealDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Säkerställ att komponenten är monterad
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   // Reset state when dialog opens
   useEffect(() => {
@@ -61,6 +69,39 @@ export const DealDialog = ({
       handleClose();
     }
   };
+
+  if (!isMounted) return null;
+
+  // Använd Sheet på mobil för bättre UX
+  const isMobile = window.innerWidth < 768;
+
+  if (isMobile) {
+    return (
+      <Sheet 
+        open={isOpen} 
+        onOpenChange={(open) => {
+          if (!open) handleClose();
+        }}
+      >
+        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto flex flex-col">
+          <SheetHeader>
+            <SheetTitle>
+              {initialValues ? "Redigera Erbjudande" : "Skapa Erbjudande"}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 overflow-auto mt-4">
+            <DealFormProvider initialValues={initialValues} externalIsSubmitting={isSubmitting}>
+              <DealForm 
+                onSubmit={handleSubmit} 
+                initialValues={initialValues}
+                isSubmitting={isSubmitting}
+              />
+            </DealFormProvider>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
 
   return (
     <Dialog 
