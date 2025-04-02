@@ -43,7 +43,7 @@ export const AdminMobileNav = () => {
         <Button 
           variant="outline"
           size="icon"
-          className="fixed left-4 top-4 z-40 md:hidden"
+          className="fixed left-4 top-16 z-40 md:hidden" // Ändrade top-position till top-16 för att undvika överlappning
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Meny</span>
