@@ -43,7 +43,10 @@ export const RegularDealContent = ({
   return (
     <div className="p-3 flex flex-col h-full justify-between">
       <div className="flex items-start justify-between gap-1 mb-1.5">
-        <CategoryBadge category={category} className="text-[10px]" />
+        <CategoryBadge 
+          category={category} 
+          className="text-[10px] py-0.5 px-1.5" 
+        />
         <div className="flex items-center text-xs text-muted-foreground bg-gray-100/70 px-1.5 py-0.5 rounded-full">
           <Calendar className="h-3 w-3 mr-0.5" />
           {daysRemaining}d
