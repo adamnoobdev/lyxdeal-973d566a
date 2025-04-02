@@ -23,6 +23,7 @@ export interface Deal {
   is_free: boolean;
   is_active: boolean;
   booking_url?: string;
+  requires_discount_code?: boolean;
 }
 
 export type DealFormData = {
@@ -40,4 +41,5 @@ export type DealFormData = {
   is_active?: boolean;
   quantity?: string;
   booking_url?: string;
+  requires_discount_code?: boolean;
 }

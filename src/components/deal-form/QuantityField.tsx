@@ -8,7 +8,7 @@ import {
   FormDescription
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import { FormValues } from "./schema";
 
 interface QuantityFieldProps {
@@ -17,6 +17,15 @@ interface QuantityFieldProps {
 }
 
 export const QuantityField = ({ form, readOnly = false }: QuantityFieldProps) => {
+  const requiresDiscountCode = useWatch({
+    control: form.control,
+    name: "requires_discount_code",
+    defaultValue: true
+  });
+  
+  // If discount codes are not required, this field should be disabled
+  const isDisabled = readOnly || !requiresDiscountCode;
+  
   return (
     <FormField
       control={form.control}
@@ -30,14 +39,17 @@ export const QuantityField = ({ form, readOnly = false }: QuantityFieldProps) =>
               placeholder="t.ex. 10" 
               {...field} 
               min="1"
-              disabled={readOnly}
-              readOnly={readOnly}
-              className={readOnly ? "bg-gray-100" : ""}
+              disabled={isDisabled}
+              readOnly={isDisabled}
+              className={isDisabled ? "bg-gray-100" : ""}
+              value={requiresDiscountCode ? field.value : "0"}
             />
           </FormControl>
           <FormDescription>
-            Ange hur många rabattkoder som ska genereras för detta erbjudande. 
-            Detta kan inte ändras efter att erbjudandet har skapats.
+            {requiresDiscountCode 
+              ? "Ange hur många rabattkoder som ska genereras för detta erbjudande. Detta kan inte ändras efter att erbjudandet har skapats."
+              : "Inga rabattkoder kommer att genereras för detta erbjudande eftersom det använder direkt bokning."
+            }
           </FormDescription>
           <FormMessage />
         </FormItem>

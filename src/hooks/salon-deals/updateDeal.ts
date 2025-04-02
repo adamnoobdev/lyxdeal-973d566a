@@ -12,6 +12,7 @@ export const updateDeal = async (
     const originalPrice = parseInt(values.originalPrice) || 0;
     const discountedPriceVal = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPriceVal === 0;
+    const requiresDiscountCode = values.requires_discount_code ?? true;
     
     // For free deals, set discounted_price to 1 to avoid database constraint
     const discountedPrice = isFree ? 1 : discountedPriceVal;
@@ -28,8 +29,15 @@ export const updateDeal = async (
       discountedPrice,
       is_free: isFree,
       expirationDate: expirationDate,
-      booking_url: values.booking_url
+      booking_url: values.booking_url,
+      requires_discount_code: requiresDiscountCode
     });
+    
+    // Validate that booking URL is provided when discount codes are not required
+    if (!requiresDiscountCode && !values.booking_url) {
+      toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
+      return false;
+    }
     
     const { error } = await supabase
       .from('deals')
@@ -48,6 +56,7 @@ export const updateDeal = async (
         is_free: isFree, // Set is_free flag for free deals
         quantity_left: parseInt(values.quantity) || 10,
         booking_url: values.booking_url || null, // Lägg till bokningslänk
+        requires_discount_code: requiresDiscountCode,
       })
       .eq('id', dealId);
 

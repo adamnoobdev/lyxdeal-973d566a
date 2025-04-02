@@ -9,6 +9,7 @@ import { SalonField } from "./deal-form/SalonField";
 import { QuantityField } from "./deal-form/QuantityField";
 import { AdditionalFields } from "./deal-form/AdditionalFields";
 import { BookingUrlField } from "./deal-form/BookingUrlField";
+import { RequiresDiscountCodeField } from "./deal-form/RequiresDiscountCodeField";
 import { formSchema, FormValues } from "./deal-form/schema";
 import { useCallback } from "react";
 import { endOfMonth } from "date-fns";
@@ -41,6 +42,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
       is_free: false,
       is_active: true,
       booking_url: "",
+      requires_discount_code: true,
     },
   });
 
@@ -63,6 +65,7 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           />
           <PriceFields form={form} />
           <LocationFields form={form} />
+          <RequiresDiscountCodeField form={form} />
           <BookingUrlField form={form} />
           <QuantityField form={form} readOnly={!!initialValues} />
           <AdditionalFields form={form} />

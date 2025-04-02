@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { FormValues } from "@/components/deal-form/schema";
 import { differenceInDays } from "date-fns";
@@ -11,11 +12,18 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
     const originalPrice = parseInt(values.originalPrice) || 0;
     let discountedPrice = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPrice === 0;
+    const requiresDiscountCode = values.requires_discount_code ?? true;
     
     // For free deals, set discounted_price to 1 to avoid database constraint
     // but keep is_free flag as true
     if (isFree) {
       discountedPrice = 1;
+    }
+    
+    // Validate that booking URL is provided when discount codes are not required
+    if (!requiresDiscountCode && !values.booking_url) {
+      toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
+      return false;
     }
     
     // Calculate days remaining and time remaining text
@@ -29,7 +37,8 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       originalPrice,
       discountedPrice,
       expirationDate: expirationDate,
-      booking_url: values.booking_url
+      booking_url: values.booking_url,
+      requires_discount_code: requiresDiscountCode
     });
     
     // Update the deal with all information
@@ -52,6 +61,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
         is_free: isFree, // Set is_free based on original discounted price
         status: 'approved', // Always approve deals,
         booking_url: values.booking_url || null, // Lägg till bokningslänk
+        requires_discount_code: requiresDiscountCode,
       })
       .eq('id', id);
 

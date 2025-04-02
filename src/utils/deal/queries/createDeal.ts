@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { FormValues } from "@/components/deal-form/schema";
 import { differenceInDays } from "date-fns";
@@ -12,12 +13,19 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
     const originalPrice = parseInt(values.originalPrice) || 0;
     let discountedPrice = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPrice === 0;
-    const quantity = parseInt(values.quantity) || 10;
+    const requiresDiscountCode = values.requires_discount_code ?? true;
+    const quantity = requiresDiscountCode ? parseInt(values.quantity) || 10 : 0;
     
     // For free deals, set discounted_price to 1 to avoid database constraint
     // but keep is_free flag as true
     if (isFree) {
       discountedPrice = 1;
+    }
+    
+    // Validate that booking URL is provided when discount codes are not required
+    if (!requiresDiscountCode && !values.booking_url) {
+      toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
+      return false;
     }
     
     // Calculate days remaining and time remaining text
@@ -33,7 +41,8 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       isFree,
       expirationDate: expirationDate,
       quantity,
-      booking_url: values.booking_url
+      booking_url: values.booking_url,
+      requires_discount_code: requiresDiscountCode
     });
     
     // Create a new deal
@@ -56,6 +65,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
         is_active: values.is_active !== undefined ? values.is_active : true,
         quantity_left: quantity,
         booking_url: values.booking_url || null, // Lägg till bokningslänk
+        requires_discount_code: requiresDiscountCode,
       }])
       .select();
 
@@ -64,8 +74,8 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       throw error;
     }
 
-    // Om vi fick tillbaka ett ID, generera rabattkoder
-    if (newDeal && newDeal.length > 0) {
+    // Om vi fick tillbaka ett ID och erbjudandet kräver rabattkoder, generera rabattkoder
+    if (newDeal && newDeal.length > 0 && requiresDiscountCode) {
       const dealId = newDeal[0].id;
       console.log(`Automatically generating ${quantity} discount codes for new deal ID: ${dealId}`);
       

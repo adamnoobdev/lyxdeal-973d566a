@@ -17,7 +17,8 @@ export const createDeal = async (
     const originalPrice = parseInt(values.originalPrice) || 0;
     const discountedPriceVal = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPriceVal === 0;
-    const quantity = parseInt(values.quantity) || 10;
+    const requiresDiscountCode = values.requires_discount_code ?? true;
+    const quantity = requiresDiscountCode ? parseInt(values.quantity) || 10 : 0;
     
     // For free deals, set discounted_price to 1 to avoid database constraint
     const discountedPrice = isFree ? 1 : discountedPriceVal;
@@ -35,8 +36,15 @@ export const createDeal = async (
       is_free: isFree,
       expirationDate: expirationDate,
       quantity,
-      booking_url: values.booking_url
+      booking_url: values.booking_url,
+      requires_discount_code: requiresDiscountCode
     });
+    
+    // Validate that booking URL is provided when discount codes are not required
+    if (!requiresDiscountCode && !values.booking_url) {
+      toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
+      return false;
+    }
     
     const { data: newDeal, error } = await supabase.from('deals').insert({
       title: values.title,
@@ -54,6 +62,7 @@ export const createDeal = async (
       is_free: isFree, // Set is_free flag for free deals
       quantity_left: quantity,
       booking_url: values.booking_url || null, // Lägg till bokningslänk
+      requires_discount_code: requiresDiscountCode,
     }).select();
 
     if (error) {
@@ -61,8 +70,8 @@ export const createDeal = async (
       throw error;
     }
     
-    // Om erbjudandet skapades, generera rabattkoder automatiskt
-    if (newDeal && newDeal.length > 0) {
+    // Om erbjudandet skapades och kräver rabattkoder, generera rabattkoder automatiskt
+    if (newDeal && newDeal.length > 0 && requiresDiscountCode) {
       const dealId = newDeal[0].id;
       console.log(`Automatically generating ${quantity} discount codes for new salon deal ID: ${dealId}`);
       

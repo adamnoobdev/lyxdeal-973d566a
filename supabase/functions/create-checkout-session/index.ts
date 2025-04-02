@@ -80,6 +80,35 @@ serve(async (req) => {
       );
     }
 
+    // Check if the deal uses direct booking
+    if (deal.requires_discount_code === false) {
+      if (!deal.booking_url) {
+        console.error('Deal requires direct booking but has no booking URL:', dealId);
+        return new Response(
+          JSON.stringify({ error: 'This deal requires direct booking but has no booking URL' }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        );
+      }
+      
+      console.log(`Deal ${dealId} uses direct booking. Redirecting to: ${deal.booking_url}`);
+      
+      // Return the direct booking URL
+      return new Response(
+        JSON.stringify({ 
+          direct_booking: true, 
+          booking_url: deal.booking_url
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      );
+    }
+
+    // For regular discount code deals:
     if (deal.quantity_left <= 0) {
       console.error('Deal is sold out:', dealId);
       return new Response(
