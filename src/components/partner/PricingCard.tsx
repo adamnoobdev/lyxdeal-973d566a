@@ -48,7 +48,7 @@ export const PricingCard = ({
       </CardHeader>
       
       <CardContent className="flex-grow pt-1 space-y-4">
-        <div className="flex justify-start">
+        <div className="flex justify-start items-center">
           <div className="flex border rounded-none overflow-hidden shadow-sm">
             <Button
               type="button"
@@ -67,11 +67,9 @@ export const PricingCard = ({
               Årsvis
             </Button>
           </div>
-          {billingType === "yearly" && (
-            <div className="ml-2 text-xs text-primary font-medium flex items-center">
-              Spara {yearSavings} kr
-            </div>
-          )}
+          <div className="ml-2 text-xs text-primary font-medium flex items-center">
+            {billingType === "yearly" ? `Spara ${yearSavings} kr` : `Spara ${yearSavings} kr med årsbetalning`}
+          </div>
         </div>
         
         <div className="text-left">
