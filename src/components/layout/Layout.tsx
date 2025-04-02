@@ -3,7 +3,6 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import NavigationBar from '@/components/NavigationBar';
 import { Footer } from '@/components/Footer';
-import TopBar from './TopBar';
 import { SalonAuthGuard } from '@/components/salon/SalonAuthGuard';
 
 const Layout: React.FC = () => {
@@ -27,7 +26,6 @@ const Layout: React.FC = () => {
 
   const content = (
     <div className="flex flex-col min-h-screen">
-      <TopBar />
       <NavigationBar />
       <main className={`flex-1 ${mainPaddingClass}`}>
         <Outlet />

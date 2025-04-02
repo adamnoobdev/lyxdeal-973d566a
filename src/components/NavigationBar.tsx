@@ -44,7 +44,7 @@ const NavigationBar = ({
 
   return (
     <header 
-      className={`sticky top-10 w-full z-40 transition-all duration-200 ${
+      className={`sticky top-0 w-full z-40 transition-all duration-200 ${
         isScrolled ? 'bg-white shadow-sm' : 'bg-white/95 backdrop-blur-sm'
       }`}
     >
