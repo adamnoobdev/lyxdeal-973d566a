@@ -54,12 +54,12 @@ export const AdminSidebar = () => {
 
   return (
     <>
-      {/* Only show the desktop sidebar trigger on non-mobile screens */}
+      {/* Only show the desktop sidebar trigger on non-mobile screens, position adjusted */}
       {!isMobile && (
         <SidebarTrigger 
-          className="fixed left-8 top-4 z-40 flex h-10 w-10 items-center justify-center rounded-md bg-white shadow-md hover:bg-accent md:left-8 md:top-4" 
+          className="fixed top-4 z-40 flex h-8 w-8 items-center justify-center rounded-md bg-background border shadow-sm hover:bg-accent ml-[13.5rem] md:ml-[13.5rem]" 
         >
-          <MenuIcon className="h-5 w-5" />
+          <MenuIcon className="h-4 w-4 text-primary" />
         </SidebarTrigger>
       )}
       

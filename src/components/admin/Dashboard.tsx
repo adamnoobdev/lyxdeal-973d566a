@@ -59,7 +59,7 @@ export const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 px-2 xs:px-4 sm:px-6 md:px-8">
+    <div className="space-y-6 px-1 xs:px-2 sm:px-3 md:px-4">
       <div>
         <h1 className="text-2xl xs:text-3xl font-bold tracking-tight text-primary">Översikt</h1>
         <p className="text-muted-foreground text-sm xs:text-base">
