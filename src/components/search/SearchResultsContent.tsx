@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SearchStructuredData } from "./SearchStructuredData";
+import { SearchBreadcrumbs } from "./SearchBreadcrumbs";
+import { SearchPageTitle } from "./SearchPageTitle";
 
 interface SearchResultsContentProps {
   deals: Deal[];
@@ -60,6 +62,13 @@ export const SearchResultsContent = ({
         searchParams={searchParams}
       />
     
+      {/* Breadcrumb navigation */}
+      <SearchBreadcrumbs 
+        query={query}
+        category={category}
+        city={city}
+      />
+      
       <div className="container mx-auto p-4 md:p-6">
         <div className="space-y-6">
           <Link to="/">
@@ -69,18 +78,22 @@ export const SearchResultsContent = ({
             </Button>
           </Link>
 
+          <SearchPageTitle
+            deals={deals}
+            query={query}
+            category={category}
+            city={city}
+          />
+
           <Categories 
             selectedCategory={selectedCategory} 
             onSelectCategory={onCategorySelect} 
           />
+          
           <Cities 
             selectedCity={selectedCity} 
             onSelectCity={onCitySelect} 
           />
-          
-          <h1 className="text-2xl font-bold">
-            {deals.length} erbjudanden hittades {city !== "Alla Städer" ? `i ${city}` : ""}
-          </h1>
           
           <DealsGrid deals={deals} />
         </div>
