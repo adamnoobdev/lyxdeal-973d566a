@@ -2,6 +2,7 @@
 import { Deal } from "@/types/deal";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
+import { SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
 
 interface DiscountCodesDirectBookingProps {
   deal: Deal | null;
@@ -10,7 +11,10 @@ interface DiscountCodesDirectBookingProps {
 export const DiscountCodesDirectBooking = ({ deal }: DiscountCodesDirectBookingProps) => {
   if (!deal) return null;
   
+  // Get subscription plan as a string value
   const subscription_plan = "Premiumpaket";
+  
+  // Check if the plan is Baspaket by comparing strings directly
   const hasBasicPackage = subscription_plan === "Baspaket";
   
   return (
