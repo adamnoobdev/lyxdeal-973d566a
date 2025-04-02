@@ -4,7 +4,7 @@ import { AdminSidebarContent } from "./sidebar/AdminSidebarContent";
 import { useSession } from "@/hooks/useSession";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect, memo, useCallback, useMemo } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { MenuIcon } from "lucide-react";
 
@@ -53,20 +53,24 @@ export const AdminSidebar = () => {
   });
 
   return (
-    <Sidebar 
-      className="border-r bg-white pt-16 z-10 shadow-sm"
-      variant="inset" 
-      collapsible={isMobile ? "offcanvas" : "icon"}
-    >
+    <>
+      {/* Make the trigger always visible and fixed on top */}
       <SidebarTrigger 
-        className="fixed left-4 top-4 z-50 bg-background shadow-sm hover:bg-accent md:left-8 md:top-20" 
+        className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-md bg-white shadow-md hover:bg-accent md:left-8 md:top-4" 
       >
         <MenuIcon className="h-5 w-5" />
       </SidebarTrigger>
-      <MemoizedAdminSidebarContent 
-        userRole={userData?.role} 
-        currentPath={location.pathname}
-      />
-    </Sidebar>
+      
+      <Sidebar 
+        className="border-r bg-white pt-16 z-10 shadow-sm"
+        variant="inset" 
+        collapsible={isMobile ? "offcanvas" : "icon"}
+      >
+        <MemoizedAdminSidebarContent 
+          userRole={userData?.role} 
+          currentPath={location.pathname}
+        />
+      </Sidebar>
+    </>
   );
 };

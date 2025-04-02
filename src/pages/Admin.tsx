@@ -82,21 +82,19 @@ const Admin = () => {
   
   return (
     <AdminAuthCheck>
-      <div className="flex w-full min-h-screen">
-        <AdminLayout>
-          <Routes>
-            <Route index element={
-              <>
-                <Dashboard />
-                {showDebugPanel && <div className="mt-6"><DebugPanel /></div>}
-              </>
-            } />
-            <Route path="deals/*" element={<DealsListContainer />} />
-            <Route path="salons/*" element={<SalonsList />} />
-            <Route path="debug" element={<DebugPanel />} />
-          </Routes>
-        </AdminLayout>
-      </div>
+      <AdminLayout>
+        <Routes>
+          <Route index element={
+            <>
+              <Dashboard />
+              {showDebugPanel && <div className="mt-6"><DebugPanel /></div>}
+            </>
+          } />
+          <Route path="deals/*" element={<DealsListContainer />} />
+          <Route path="salons/*" element={<SalonsList />} />
+          <Route path="debug" element={<DebugPanel />} />
+        </Routes>
+      </AdminLayout>
     </AdminAuthCheck>
   );
 };
