@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { SubscriptionPlan } from "@/components/salon/subscription/types";
 
@@ -48,30 +48,41 @@ export const PricingCard = ({
       </CardHeader>
       
       <CardContent className="flex-grow pt-1 space-y-4">
-        <div className="flex justify-start">
-          <div className="flex border rounded-none overflow-hidden shadow-sm">
-            <Button
-              type="button"
-              variant={billingType === "monthly" ? "default" : "outline"}
-              className={`text-xs py-1 px-3 h-8 rounded-none ${billingType === "monthly" ? "bg-primary text-white" : ""}`}
-              onClick={() => setBillingType("monthly")}
-            >
-              Månadsvis
-            </Button>
-            <Button
-              type="button"
-              variant={billingType === "yearly" ? "default" : "outline"}
-              className={`text-xs py-1 px-3 h-8 rounded-none ${billingType === "yearly" ? "bg-primary text-white" : ""}`}
-              onClick={() => setBillingType("yearly")}
-            >
-              Årsvis
-            </Button>
-          </div>
-          {billingType === "yearly" && (
-            <div className="ml-2 text-xs text-primary font-medium flex items-center">
-              Spara {yearSavings} kr
+        <div className="flex flex-col space-y-2">
+          <div className="flex justify-start">
+            <div className="flex border rounded-none overflow-hidden shadow-sm">
+              <Button
+                type="button"
+                variant={billingType === "monthly" ? "default" : "outline"}
+                className={`text-xs py-1 px-3 h-8 rounded-none ${billingType === "monthly" ? "bg-primary text-white" : ""}`}
+                onClick={() => setBillingType("monthly")}
+              >
+                Månadsvis
+              </Button>
+              <Button
+                type="button"
+                variant={billingType === "yearly" ? "default" : "outline"}
+                className={`text-xs py-1 px-3 h-8 rounded-none ${billingType === "yearly" ? "bg-primary text-white" : ""}`}
+                onClick={() => setBillingType("yearly")}
+              >
+                Årsvis
+              </Button>
             </div>
-          )}
+          </div>
+          
+          {/* Always show savings information */}
+          <div className="flex items-center">
+            {billingType === "yearly" ? (
+              <Badge variant="default" className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                <span>Spara {yearSavings} kr</span>
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-secondary/10 text-muted-foreground border border-secondary/20 px-3 py-1">
+                Spara {yearSavings} kr med årsbetalning
+              </Badge>
+            )}
+          </div>
         </div>
         
         <div className="text-left">
