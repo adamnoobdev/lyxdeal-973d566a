@@ -9,15 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MapPin, ChevronDown } from "lucide-react";
-
-const cities = [
-  "Alla Städer",
-  "Stockholm",
-  "Göteborg",
-  "Malmö",
-  "Uppsala",
-  "Linköping"
-] as const;
+import { useCityDealsData } from "@/hooks/useCityDealsData";
 
 interface CitySelectorProps {
   currentCity: string;
@@ -32,6 +24,10 @@ const CitySelectorComponent = ({
 }: CitySelectorProps) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { orderedCities, isLoading } = useCityDealsData("Alla Erbjudanden", currentCity);
+  
+  // Always include "Alla Städer" as the first option
+  const citiesToDisplay = ["Alla Städer", ...orderedCities.filter(city => city !== "Alla Städer")];
 
   const handleCitySelect = (city: string) => {
     onCitySelect(city);
@@ -51,7 +47,7 @@ const CitySelectorComponent = ({
   if (variant === "mobile") {
     return (
       <div className="flex flex-col gap-1">
-        {cities.map((city) => (
+        {citiesToDisplay.map((city) => (
           <Button
             key={city}
             variant="ghost"
@@ -80,9 +76,9 @@ const CitySelectorComponent = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-56 p-2"
+        className="w-56 p-2 bg-white"
       >
-        {cities.map((city) => (
+        {citiesToDisplay.map((city) => (
           <DropdownMenuItem
             key={city}
             onClick={() => handleCitySelect(city)}

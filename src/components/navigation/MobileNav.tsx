@@ -34,17 +34,6 @@ export const MobileNav = ({
 }: MobileNavProps) => {
   const navigate = useNavigate();
 
-  const handleCitySelect = (city: string) => {
-    onCitySelect(city);
-    
-    // Navigate to search page with the selected city
-    if (city !== "Alla Städer") {
-      navigate(`/search?city=${city}`);
-    } else {
-      navigate('/search');
-    }
-  };
-
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -73,7 +62,7 @@ export const MobileNav = ({
                 <h3 className="font-medium mb-3 text-sm text-muted-foreground">Städer</h3>
                 <CitySelector 
                   currentCity={currentCity}
-                  onCitySelect={handleCitySelect}
+                  onCitySelect={onCitySelect}
                   variant="mobile"
                 />
               </div>

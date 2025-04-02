@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapPin, ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { City, CITIES } from '@/constants/app-constants';
+import { City } from '@/constants/app-constants';
 import { useNavigate } from 'react-router-dom';
+import { useCityDealsData } from '@/hooks/useCityDealsData';
 
 interface CitySelectorProps {
   selectedCity: City;
@@ -18,6 +19,10 @@ const CitySelector: React.FC<CitySelectorProps> = ({
   className = ''
 }) => {
   const navigate = useNavigate();
+  const { orderedCities, isLoading } = useCityDealsData("Alla Erbjudanden", selectedCity);
+  
+  // Always include "Alla Städer" as the first option
+  const citiesToDisplay = ["Alla Städer", ...orderedCities.filter(city => city !== "Alla Städer")];
   
   const handleCitySelect = (city: City) => {
     setSelectedCity(city);
@@ -38,7 +43,7 @@ const CitySelector: React.FC<CitySelectorProps> = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[200px] bg-white">
-        {CITIES.map(city => (
+        {citiesToDisplay.map(city => (
           <DropdownMenuItem 
             key={city} 
             onClick={() => handleCitySelect(city)}
