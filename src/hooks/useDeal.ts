@@ -58,8 +58,29 @@ export const useDeal = (id: string | undefined) => {
           const salonData = await resolveSalonData(dealData.salon_id, dealData.city);
           console.log("[useDeal] Salongsdata resultat:", salonData);
           
+          // Cast dealData to RawDealData type to ensure type safety
+          const rawDealData: RawDealData = {
+            id: dealData.id,
+            title: dealData.title,
+            description: dealData.description,
+            image_url: dealData.image_url,
+            original_price: dealData.original_price,
+            discounted_price: dealData.discounted_price,
+            time_remaining: dealData.time_remaining,
+            expiration_date: dealData.expiration_date,
+            category: dealData.category,
+            city: dealData.city,
+            created_at: dealData.created_at,
+            updated_at: dealData.updated_at,
+            quantity_left: dealData.quantity_left,
+            salon_id: dealData.salon_id,
+            is_free: dealData.is_free,
+            booking_url: dealData.booking_url,
+            requires_discount_code: dealData.requires_discount_code
+          };
+          
           // Formatera och returnera komplett erbjudandedata
-          return formatDealData(dealData as RawDealData, salonData);
+          return formatDealData(rawDealData, salonData);
         } catch (salonError) {
           console.error("[useDeal] Fel vid hämtning av salongsdata:", salonError);
           console.log("[useDeal] Fortsätter med erbjudandet utan salongsdetaljer");
@@ -72,8 +93,29 @@ export const useDeal = (id: string | undefined) => {
             phone: null
           };
           
+          // Cast dealData to RawDealData type to ensure type safety
+          const rawDealData: RawDealData = {
+            id: dealData.id,
+            title: dealData.title,
+            description: dealData.description,
+            image_url: dealData.image_url,
+            original_price: dealData.original_price,
+            discounted_price: dealData.discounted_price,
+            time_remaining: dealData.time_remaining,
+            expiration_date: dealData.expiration_date,
+            category: dealData.category,
+            city: dealData.city,
+            created_at: dealData.created_at,
+            updated_at: dealData.updated_at,
+            quantity_left: dealData.quantity_left,
+            salon_id: dealData.salon_id,
+            is_free: dealData.is_free,
+            booking_url: dealData.booking_url,
+            requires_discount_code: dealData.requires_discount_code
+          };
+          
           console.log("[useDeal] Använder fallback-salongsdata:", fallbackSalon);
-          return formatDealData(dealData as RawDealData, fallbackSalon);
+          return formatDealData(rawDealData, fallbackSalon);
         }
       } catch (error) {
         // Om error är ett 404-fel, hantera det särskilt

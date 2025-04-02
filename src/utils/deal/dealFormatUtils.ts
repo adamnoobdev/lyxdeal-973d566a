@@ -19,7 +19,8 @@ export const formatDealData = (
     salonId: rawDeal.salon_id,
     dealTitle: rawDeal.title,
     bookingUrl: rawDeal.booking_url,
-    city: rawDeal.city
+    city: rawDeal.city,
+    requiresDiscountCode: rawDeal.requires_discount_code
   });
   
   // Extra loggning för att spåra salongsdata-parametern
@@ -73,7 +74,8 @@ export const formatDealData = (
     id: formattedDeal.id,
     title: formattedDeal.title,
     city: formattedDeal.city,
-    salon: formattedDeal.salon
+    salon: formattedDeal.salon,
+    requiresDiscountCode: formattedDeal.requires_discount_code
   });
   
   return formattedDeal;
