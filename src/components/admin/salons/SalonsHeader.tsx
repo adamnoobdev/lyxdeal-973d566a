@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState } from "react";
 import { updateAllSalonsTermsAcceptance } from "@/utils/salon/queries";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SalonsHeaderProps {
   error: string | null;
@@ -13,6 +14,7 @@ interface SalonsHeaderProps {
 
 export const SalonsHeader = ({ error, onCreateClick }: SalonsHeaderProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
+  const isMobile = useIsMobile();
   
   const handleUpdateAllTerms = async () => {
     try {

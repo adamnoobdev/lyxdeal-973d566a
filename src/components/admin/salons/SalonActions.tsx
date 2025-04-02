@@ -17,10 +17,10 @@ export const SalonActions = ({ salonId, onEdit, onDelete }: SalonActionsProps) =
     action();
   };
 
-  // For very small screens, render vertical buttons
+  // För mobila enheter, rendera vertikala knappar
   if (isMobile) {
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 w-full">
         <Button
           variant="outline"
           size="sm"
@@ -43,7 +43,7 @@ export const SalonActions = ({ salonId, onEdit, onDelete }: SalonActionsProps) =
     );
   }
   
-  // For larger screens, render horizontal buttons
+  // För större skärmar, fortsätt med horisontella knappar
   return (
     <div className="flex gap-1 justify-end">
       <Button

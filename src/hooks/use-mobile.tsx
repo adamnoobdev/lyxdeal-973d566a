@@ -1,33 +1,29 @@
 
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 640 // Changed from 768 to 640 to better match the current design
+const MOBILE_BREAKPOINT = 640 // Samma som Tailwind's "sm" breakpoint
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    
-    const onChange = () => {
+    // Funktion för att kontrollera om skärmen är mobil
+    const checkIsMobile = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
     
-    // Add event listener for window resize to handle orientation changes
-    window.addEventListener("resize", onChange)
+    // Lägg till event listeners
+    window.addEventListener("resize", checkIsMobile)
     
-    // Add media query listener
-    mql.addEventListener("change", onChange)
+    // Sätt initialt värde
+    checkIsMobile()
     
-    // Set initial value
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    
-    // Cleanup event listeners
+    // Städa upp event listeners
     return () => {
-      mql.removeEventListener("change", onChange)
-      window.removeEventListener("resize", onChange)
+      window.removeEventListener("resize", checkIsMobile)
     }
   }, [])
 
+  // Om isMobile är undefined (vid första renderingen på server), anta att det inte är mobil
   return isMobile === undefined ? false : isMobile
 }

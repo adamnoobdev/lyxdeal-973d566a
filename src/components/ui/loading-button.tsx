@@ -17,7 +17,7 @@ export const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonPr
 
     return (
       <Button
-        className={cn(buttonClassName, "whitespace-normal break-words")}
+        className={cn(buttonClassName, "whitespace-normal break-words w-full xs:w-auto")}
         disabled={disabled || loading}
         ref={ref}
         variant={variant}
