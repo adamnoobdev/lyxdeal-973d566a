@@ -30,10 +30,10 @@ export function HeroSection() {
       <div className="container mx-auto px-4">
         <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 md:space-y-8 py-12 md:py-16">
           <div className="space-y-4">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-secondary-200 leading-tight drop-shadow-lg border border-secondary-200 py-3 px-4 md:px-8 rounded-md inline-block mx-auto">
               Upptäck Sveriges Bästa Skönhetserbjudanden
             </h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto font-medium drop-shadow">
+            <p className="text-lg md:text-xl text-secondary-100/95 max-w-3xl mx-auto font-medium drop-shadow">
               Exklusiva erbjudanden från Sveriges främsta skönhetssalonger
             </p>
           </div>
