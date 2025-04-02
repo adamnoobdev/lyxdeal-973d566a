@@ -37,9 +37,9 @@ export const PricingCard = ({
         </Badge>
       )}
       
-      <CardHeader className="pb-2">
-        <CardTitle className="text-2xl font-bold text-primary">{title}</CardTitle>
-        <CardDescription className="text-sm mt-1 text-muted-foreground">
+      <CardHeader className="pb-1">
+        <CardTitle className="text-xl font-bold text-primary">{title}</CardTitle>
+        <CardDescription className="text-xs mt-1 text-muted-foreground">
           {dealCount === 1 
             ? "Perfekt för mindre salonger"
             : "Bäst för växande salonger"
@@ -47,13 +47,13 @@ export const PricingCard = ({
         </CardDescription>
       </CardHeader>
       
-      <CardContent className="flex-grow">
-        <div className="flex justify-center mb-6">
+      <CardContent className="flex-grow pt-1 space-y-4">
+        <div className="flex justify-start">
           <div className="flex border rounded-none overflow-hidden shadow-sm">
             <Button
               type="button"
               variant={billingType === "monthly" ? "default" : "outline"}
-              className={`text-xs py-1 px-4 h-9 rounded-none ${billingType === "monthly" ? "bg-primary text-white" : ""}`}
+              className={`text-xs py-1 px-3 h-8 rounded-none ${billingType === "monthly" ? "bg-primary text-white" : ""}`}
               onClick={() => setBillingType("monthly")}
             >
               Månadsvis
@@ -61,46 +61,47 @@ export const PricingCard = ({
             <Button
               type="button"
               variant={billingType === "yearly" ? "default" : "outline"}
-              className={`text-xs py-1 px-4 h-9 rounded-none ${billingType === "yearly" ? "bg-primary text-white" : ""}`}
+              className={`text-xs py-1 px-3 h-8 rounded-none ${billingType === "yearly" ? "bg-primary text-white" : ""}`}
               onClick={() => setBillingType("yearly")}
             >
               Årsvis
-              {billingType === "yearly" && (
-                <span className="ml-1 text-xs text-white/80">
-                  (spara {yearSavings} kr)
-                </span>
-              )}
             </Button>
           </div>
         </div>
         
-        <div className="text-center mb-6">
+        {billingType === "yearly" && (
+          <div className="text-xs text-primary font-medium bg-secondary/20 p-1.5 inline-block">
+            Spara {yearSavings} kr med årsbetalning!
+          </div>
+        )}
+        
+        <div className="text-center">
           <div className="flex items-center justify-center">
-            <span className="text-4xl font-bold text-primary">{price}</span>
-            <span className="text-xl font-medium text-primary ml-1">kr</span>
-            <span className="text-muted-foreground text-sm ml-2">
+            <span className="text-3xl font-bold text-primary">{price}</span>
+            <span className="text-lg font-medium text-primary ml-1">kr</span>
+            <span className="text-muted-foreground text-xs ml-2">
               {billingType === "monthly" ? "/mån" : "/år"}
             </span>
           </div>
         </div>
         
-        <ul className="space-y-3 mt-6">
-          <li className="flex items-start gap-3 text-sm">
-            <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+        <ul className="space-y-2 mt-2">
+          <li className="flex items-start gap-2 text-xs">
+            <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
             <span className="font-medium"><strong>{dealCount}</strong> {dealCount === 1 ? 'erbjudande' : 'erbjudanden'} åt gången</span>
           </li>
           {features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-3 text-sm">
-              <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+            <li key={index} className="flex items-start gap-2 text-xs">
+              <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <span>{feature}</span>
             </li>
           ))}
         </ul>
       </CardContent>
       
-      <CardFooter className="pt-4">
+      <CardFooter className="pt-2">
         <Button 
-          className={`w-full py-6 text-base font-medium transition-all duration-200 rounded-none ${
+          className={`w-full py-4 text-sm font-medium transition-all duration-200 rounded-none ${
             isPopular 
               ? "bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg" 
               : "bg-white hover:bg-primary/10 text-primary border-2 border-primary"
