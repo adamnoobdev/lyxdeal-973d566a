@@ -20,7 +20,10 @@ const Layout: React.FC = () => {
 
   // Använd ingen top-padding på söksidan för att breadcrumbs ska ligga direkt under navbar
   const isSearchPage = path.startsWith('/search');
-  const mainPaddingClass = isSearchPage ? 'pt-0' : 'pt-36';
+  
+  // Huvudinnehåll får padding-top baserat på sidobehov
+  // Söksidan behöver mindre padding för att passa med breadcrumbs
+  const mainPaddingClass = isSearchPage ? 'pt-26' : 'pt-26';
 
   const content = (
     <div className="flex flex-col min-h-screen">
