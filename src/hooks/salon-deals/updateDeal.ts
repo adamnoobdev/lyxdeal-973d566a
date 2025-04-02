@@ -9,10 +9,30 @@ export const updateDeal = async (
   dealId: number
 ): Promise<boolean> => {
   try {
+    // Hämtar befintligt erbjudande för att kontrollera requires_discount_code
+    const { data: existingDeal, error: fetchError } = await supabase
+      .from('deals')
+      .select('requires_discount_code')
+      .eq('id', dealId)
+      .single();
+      
+    if (fetchError) {
+      console.error('Database error fetching existing deal:', fetchError);
+      throw fetchError;
+    }
+    
+    // Om befintligt erbjudande har requires_discount_code=true, se till att vi inte ändrar det till false
+    let requiresDiscountCode = values.requires_discount_code ?? true;
+    
+    if (existingDeal?.requires_discount_code === true && !requiresDiscountCode) {
+      console.warn('Attempt to change requires_discount_code from true to false prevented');
+      toast.warning("Ett erbjudande som använder rabattkoder kan inte ändras till att inte använda dem.");
+      requiresDiscountCode = true;
+    }
+    
     const originalPrice = parseInt(values.originalPrice) || 0;
     const discountedPriceVal = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPriceVal === 0;
-    const requiresDiscountCode = values.requires_discount_code ?? true;
     
     // For free deals, set discounted_price to 1 to avoid database constraint
     const discountedPrice = isFree ? 1 : discountedPriceVal;

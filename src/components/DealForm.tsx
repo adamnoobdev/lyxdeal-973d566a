@@ -53,6 +53,11 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
   // Create a handler that passes form values to parent onSubmit
   const handleFormSubmit = useFormSubmission(onSubmit, isSubmitting).handleSubmit;
 
+  // Bestäm om formuläret är i redigeringsläge för ett befintligt erbjudande
+  const isEditing = !!initialValues;
+  // Bestäm om rabattkodsfältet ska vara i skrivskyddat läge
+  const discountCodeFieldReadOnly = isEditing && initialValues?.requires_discount_code === true;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
@@ -65,9 +70,9 @@ export const DealForm = ({ onSubmit, isSubmitting = false, initialValues }: Deal
           />
           <PriceFields form={form} />
           <LocationFields form={form} />
-          <RequiresDiscountCodeField form={form} />
+          <RequiresDiscountCodeField form={form} readOnly={discountCodeFieldReadOnly} />
           <BookingUrlField form={form} />
-          <QuantityField form={form} readOnly={!!initialValues} />
+          <QuantityField form={form} readOnly={isEditing} />
           <AdditionalFields form={form} />
         </div>
 

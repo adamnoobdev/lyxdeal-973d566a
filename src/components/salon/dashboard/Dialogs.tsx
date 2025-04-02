@@ -61,6 +61,7 @@ export const DashboardDialogs = ({
           is_free: editingDeal.is_free,
           quantity: editingDeal.quantity_left?.toString() || "10",
           booking_url: editingDeal.booking_url || "",
+          requires_discount_code: editingDeal.requires_discount_code !== false,
           expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
         } : undefined}
       />
