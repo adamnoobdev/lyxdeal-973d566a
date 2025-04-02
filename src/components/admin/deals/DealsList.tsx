@@ -1,13 +1,39 @@
 
-import { DealsListContainer } from "./DealsListContainer";
-import { Card, CardContent } from "@/components/ui/card";
+import { Deal } from "@/types/deal";
+import { DealsTable } from "./DealsTable";
 
-export const DealsList = () => {
+interface DealsListProps {
+  deals: Deal[];
+  onEdit?: (deal: Deal) => void;
+  onDelete?: (deal: Deal) => void;
+  onToggleActive?: (deal: Deal) => Promise<boolean | void>;
+  onViewDiscountCodes?: (deal: Deal) => void;
+  onGenerateDiscountCodes?: (deal: Deal, quantity?: number) => Promise<void>;
+  isGeneratingCodes?: boolean;
+  ActionComponent?: React.ComponentType<any>;
+  actionProps?: Record<string, any>;
+}
+
+export const DealsList: React.FC<DealsListProps> = ({ 
+  deals, 
+  onEdit, 
+  onDelete, 
+  onToggleActive,
+  onViewDiscountCodes,
+  onGenerateDiscountCodes,
+  isGeneratingCodes,
+  ActionComponent,
+  actionProps = {}
+}) => {
   return (
-    <Card className="border border-secondary/20">
-      <CardContent className="p-0 xs:p-2 sm:p-6">
-        <DealsListContainer />
-      </CardContent>
-    </Card>
+    <DealsTable 
+      deals={deals}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      onToggleActive={onToggleActive}
+      onViewDiscountCodes={onViewDiscountCodes}
+      onGenerateDiscountCodes={onGenerateDiscountCodes}
+      isGeneratingCodes={isGeneratingCodes}
+    />
   );
 };

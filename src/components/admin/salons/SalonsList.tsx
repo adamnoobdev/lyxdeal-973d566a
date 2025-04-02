@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Salon, SalonFormValues } from "../types";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
@@ -148,11 +149,9 @@ export const SalonsList = () => {
 
       {salons && (
         <SalonsContent
-          salons={salons}
-          selectedSalon={selectedSalon}
-          onEdit={setEditingSalon}
-          onDelete={setDeletingSalon}
-          onSelect={setSelectedSalon}
+          onCreateClick={() => setIsCreating(true)}
+          onEditClick={setEditingSalon}
+          onDeleteClick={setDeletingSalon}
         />
       )}
 

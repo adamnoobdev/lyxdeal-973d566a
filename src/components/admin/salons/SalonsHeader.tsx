@@ -1,12 +1,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface SalonsHeaderProps {
   onCreateClick: () => void;
+  error?: string | null;
 }
 
-export const SalonsHeader = ({ onCreateClick }: SalonsHeaderProps) => {
+export const SalonsHeader = ({ onCreateClick, error }: SalonsHeaderProps) => {
   return (
     <div className="space-y-2">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
@@ -24,6 +27,15 @@ export const SalonsHeader = ({ onCreateClick }: SalonsHeaderProps) => {
           Ny salong
         </Button>
       </div>
+      
+      {error && (
+        <Alert variant="destructive" className="mx-auto mt-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-xs xs:text-sm">
+            {error}
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 };

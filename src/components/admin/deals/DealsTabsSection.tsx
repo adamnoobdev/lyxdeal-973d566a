@@ -3,8 +3,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DealsList } from "./DealsList";
 import { Card } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Deal } from "@/types/deal";
 
-export const DealsTabsSection = ({
+interface DealsTabsSectionProps {
+  activeDeals: Deal[];
+  inactiveDeals: Deal[];
+  setEditingDeal: (deal: Deal) => void;
+  setDeletingDeal: (deal: Deal) => void;
+  handleToggleActive: (deal: Deal) => Promise<boolean | void>;
+  onViewDiscountCodes: (deal: Deal) => void;
+  onGenerateDiscountCodes?: (deal: Deal, quantity?: number) => Promise<void>;
+  isGeneratingCodes?: boolean;
+}
+
+export const DealsTabsSection: React.FC<DealsTabsSectionProps> = ({
   activeDeals,
   inactiveDeals,
   setEditingDeal,

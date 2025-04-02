@@ -3,8 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DealsList } from "./DealsList";
 import { ApprovalActions } from "./actions/ApprovalActions";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Deal } from "@/types/deal";
 
-export const PendingDealsSection = ({
+interface PendingDealsSectionProps {
+  pendingDeals: Deal[];
+  setEditingDeal: (deal: Deal) => void;
+  setDeletingDeal: (deal: Deal) => void;
+  handleToggleActive: (deal: Deal) => Promise<boolean | void>;
+  handleStatusChange: (dealId: number, status: string) => Promise<void>;
+  onViewDiscountCodes: (deal: Deal) => void;
+}
+
+export const PendingDealsSection: React.FC<PendingDealsSectionProps> = ({
   pendingDeals,
   setEditingDeal,
   setDeletingDeal,

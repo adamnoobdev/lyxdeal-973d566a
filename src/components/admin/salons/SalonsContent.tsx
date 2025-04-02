@@ -6,16 +6,23 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { Salon } from "../types";
+
+interface SalonsContentProps {
+  onCreateClick: () => void;
+  onEditClick: (salon: Salon) => void;
+  onDeleteClick: (salon: Salon) => void;
+}
 
 export const SalonsContent = ({
   onCreateClick,
   onEditClick,
   onDeleteClick,
-}) => {
+}: SalonsContentProps) => {
   const { salons, isLoading, error, fetchSalons } = useSalonsAdmin();
   const [hasAutoFetched, setHasAutoFetched] = useState(false);
-  const { toast } = useToast();
+  const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
 
   useEffect(() => {
     if (!hasAutoFetched) {
@@ -73,8 +80,10 @@ export const SalonsContent = ({
       <div className="rounded-md overflow-hidden bg-card border shadow-sm">
         <SalonsTable
           salons={salons}
-          onEditClick={onEditClick}
-          onDeleteClick={onDeleteClick}
+          onEdit={onEditClick}
+          onDelete={onDeleteClick}
+          onSelect={setSelectedSalon}
+          selectedSalon={selectedSalon}
         />
       </div>
     </div>

@@ -13,10 +13,10 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-interface SalonsTableProps {
+export interface SalonsTableProps {
   salons: Salon[];
-  onDelete: (salon: Salon) => void;
   onEdit: (salon: Salon) => void;
+  onDelete: (salon: Salon) => void;
   onSelect: (salon: Salon) => void;
   selectedSalon: Salon | null;
 }
