@@ -73,10 +73,10 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
-              className="h-24 xs:h-32 sm:h-36"
+              className="h-28 xs:h-36 sm:h-40"
             />
-            <div className="px-1.5 sm:px-3 -mt-1">
-              <CategoryBadge category={category} className="text-[10px] xs:text-xs px-1.5 py-0.5" />
+            <div className="px-2 sm:px-4 -mt-2 mb-1">
+              <CategoryBadge category={category} className="text-[10px] xs:text-xs px-2 py-1" />
             </div>
           </div>
           <div className="flex-1 flex flex-col">
