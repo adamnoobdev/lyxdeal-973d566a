@@ -16,7 +16,7 @@ export const HowItWorksSection = () => {
           <div className="grid gap-4 md:gap-8 grid-cols-1 md:grid-cols-3">
             {/* Steg 1 */}
             <div className="bg-white rounded-lg shadow-sm p-5 md:p-6 flex flex-col items-center text-center space-y-3 md:space-y-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-none flex items-center justify-center">
                 <span className="font-bold text-primary">1</span>
               </div>
               <h3 className="text-base md:text-lg font-semibold">Registrera dig</h3>
@@ -30,7 +30,7 @@ export const HowItWorksSection = () => {
 
             {/* Steg 2 */}
             <div className="bg-white rounded-lg shadow-sm p-5 md:p-6 flex flex-col items-center text-center space-y-3 md:space-y-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-none flex items-center justify-center">
                 <span className="font-bold text-primary">2</span>
               </div>
               <h3 className="text-base md:text-lg font-semibold">Skapa erbjudanden</h3>
@@ -44,7 +44,7 @@ export const HowItWorksSection = () => {
 
             {/* Steg 3 */}
             <div className="bg-white rounded-lg shadow-sm p-5 md:p-6 flex flex-col items-center text-center space-y-3 md:space-y-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-none flex items-center justify-center">
                 <span className="font-bold text-primary">3</span>
               </div>
               <h3 className="text-base md:text-lg font-semibold">Få nya kunder</h3>
