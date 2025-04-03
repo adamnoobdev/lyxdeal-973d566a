@@ -1,4 +1,3 @@
-
 // We replace Resend-npm-package with a simple fetch-implementation
 import { createEmailContent } from "./emailTemplates/template.ts";
 import { RequestPayload } from "./types.ts";
@@ -46,7 +45,7 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       to: recipient,
       subject: `Din rabattkod för "${dealTitle}"`,
       html: emailContent,
-      reply_to: "info@lyxdeal.se"
+      reply_to: "support@lyxdeal.se"
     };
     
     // Log if we're redirecting emails in non-production mode

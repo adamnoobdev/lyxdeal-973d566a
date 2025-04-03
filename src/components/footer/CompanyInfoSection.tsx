@@ -1,6 +1,6 @@
 
 import { FC } from "react";
-import { Building2, Mail, Phone, MapPin } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, HelpCircle } from "lucide-react";
 
 export const CompanyInfoSection: FC = () => {
   return (
@@ -25,6 +25,12 @@ export const CompanyInfoSection: FC = () => {
           <Mail className="h-5 w-5 text-primary shrink-0" />
           <a href="mailto:info@lyxdeal.se" className="hover:text-primary transition-colors">
             info@lyxdeal.se
+          </a>
+        </li>
+        <li className="flex flex-col items-center gap-2">
+          <HelpCircle className="h-5 w-5 text-primary shrink-0" />
+          <a href="mailto:support@lyxdeal.se" className="hover:text-primary transition-colors">
+            support@lyxdeal.se
           </a>
         </li>
         <li className="flex flex-col items-center gap-2">

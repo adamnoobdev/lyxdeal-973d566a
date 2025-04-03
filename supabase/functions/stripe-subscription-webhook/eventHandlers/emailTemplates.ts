@@ -103,6 +103,21 @@ export function generateWelcomeEmailHtml(
           position: absolute;
           left: 0;
         }
+        .contact-info {
+          margin-top: 20px;
+          padding: 15px;
+          background-color: #fff9fe;
+          border-radius: 0;
+          border-left: 4px solid #520053;
+        }
+        .contact-info p {
+          margin: 5px 0;
+        }
+        .contact-info a {
+          color: #520053;
+          text-decoration: none;
+          font-weight: bold;
+        }
       </style>
     </head>
     <body>
@@ -144,7 +159,12 @@ export function generateWelcomeEmailHtml(
             <a href="https://lyxdeal.se/salon/login" class="button">Logga in nu</a>
           </div>
           
-          <p>Om du har några frågor eller behöver hjälp, kontakta oss på <a href="mailto:info@lyxdeal.se" style="color: #520053;">info@lyxdeal.se</a>.</p>
+          <div class="contact-info">
+            <h3 style="color: #520053; margin-top: 0;">Behöver du hjälp?</h3>
+            <p>Om du har några frågor eller behöver support, kontakta oss på:</p>
+            <p><a href="mailto:support@lyxdeal.se">support@lyxdeal.se</a></p>
+            <p>För allmänna frågor: <a href="mailto:info@lyxdeal.se">info@lyxdeal.se</a></p>
+          </div>
           
           <p>Med vänliga hälsningar,<br>Teamet på Lyxdeal</p>
         </div>

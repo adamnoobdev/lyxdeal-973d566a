@@ -1,5 +1,5 @@
 
-import { Mail } from "lucide-react";
+import { Mail, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 
@@ -33,15 +33,30 @@ export const ContactSection = () => {
                   <Mail className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                 </div>
                 <h3 className="text-lg md:text-xl font-semibold">Skicka oss ett mejl</h3>
-                <p className="text-gray-600 max-w-md text-sm md:text-base">
-                  Vi svarar på dina frågor så snart vi kan. Kontakta oss på:
-                </p>
-                <a 
-                  href="mailto:info@lyxdeal.se"
-                  className="text-primary font-semibold text-base md:text-lg hover:underline transition-all"
-                >
-                  info@lyxdeal.se
-                </a>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-gray-600 mb-1 text-sm md:text-base">
+                      Allmänna frågor:
+                    </p>
+                    <a 
+                      href="mailto:info@lyxdeal.se"
+                      className="text-primary font-semibold text-base md:text-lg hover:underline transition-all"
+                    >
+                      info@lyxdeal.se
+                    </a>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 mb-1 text-sm md:text-base">
+                      Support för salongspartners:
+                    </p>
+                    <a 
+                      href="mailto:support@lyxdeal.se"
+                      className="text-primary font-semibold text-base md:text-lg hover:underline transition-all"
+                    >
+                      support@lyxdeal.se
+                    </a>
+                  </div>
+                </div>
                 <Button 
                   onClick={handlePartnerClick} 
                   className="mt-2 md:mt-4 bg-primary hover:bg-primary/90 text-white text-sm md:text-base"

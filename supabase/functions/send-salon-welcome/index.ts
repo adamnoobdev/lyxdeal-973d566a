@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
@@ -218,6 +217,21 @@ serve(async (req) => {
           position: absolute;
           left: 0;
         }
+        .contact-info {
+          margin-top: 20px;
+          padding: 15px;
+          background-color: #fff9fe;
+          border-radius: 8px;
+          border-left: 4px solid #520053;
+        }
+        .contact-info p {
+          margin: 5px 0;
+        }
+        .contact-info a {
+          color: #520053;
+          text-decoration: none;
+          font-weight: bold;
+        }
         @media only screen and (max-width: 600px) {
           .container {
             border-radius: 0;
@@ -240,8 +254,6 @@ serve(async (req) => {
           <p>Hej <span class="highlight">${data.business_name}</span>!</p>
           
           <p>Vi är glada att välkomna dig som partner till Lyxdeal! Ditt konto har nu skapats och du kan komma igång direkt med att skapa fantastiska erbjudanden.</p>
-          
-          <p>Här är dina inloggningsuppgifter till salongsportalen:</p>
           
           <div class="credentials">
             <p><strong>E-post:</strong> ${data.email}</p>
@@ -285,9 +297,14 @@ serve(async (req) => {
             <li>Uppdatera din profil och prenumerationsinformation</li>
           </ul>
           
-          <p>Vi är övertygade om att vårt samarbete kommer att bidra till ökad synlighet och fler kunder till din verksamhet!</p>
+          <div class="contact-info">
+            <h3 style="color: #520053; margin-top: 0;">Behöver du hjälp?</h3>
+            <p>Om du har några frågor eller behöver support, kontakta oss på:</p>
+            <p><a href="mailto:support@lyxdeal.se">support@lyxdeal.se</a></p>
+            <p>För allmänna frågor: <a href="mailto:info@lyxdeal.se">info@lyxdeal.se</a></p>
+          </div>
           
-          <p>Om du har några frågor eller behöver hjälp, tveka inte att kontakta oss på <a href="mailto:info@lyxdeal.se" style="color: #520053;">info@lyxdeal.se</a>.</p>
+          <p>Vi är övertygade om att vårt samarbete kommer att bidra till ökad synlighet och fler kunder till din verksamhet!</p>
           
           <p>Med vänliga hälsningar,<br>Teamet på Lyxdeal</p>
         </div>
@@ -310,6 +327,7 @@ serve(async (req) => {
         to: [data.email],
         subject: "Välkommen till Lyxdeal - Din inloggningsinformation",
         html: htmlContent,
+        reply_to: "support@lyxdeal.se"
       });
 
       console.log("Email sending response:", emailResponse);
