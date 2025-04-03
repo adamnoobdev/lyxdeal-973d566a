@@ -11,20 +11,20 @@ import { handleWebhookEvent } from "./eventHandler.ts";
  * Primary webhook handler function that processes Stripe webhook events
  */
 serve(async (req) => {
-  // Utökad loggning för att spåra alla inkommande förfrågningar
+  // Enhanced logging for all incoming requests
   console.log("================================================================");
-  console.log("==== STRIPE WEBHOOK FÖRFRÅGAN MOTTAGEN ====");
-  console.log("Förfrågan tid:", new Date().toISOString());
-  console.log("Metod:", req.method);
+  console.log("==== STRIPE WEBHOOK REQUEST RECEIVED ====");
+  console.log("Request time:", new Date().toISOString());
+  console.log("Method:", req.method);
   console.log("URL:", req.url);
   
-  // Logga alla request headers för debugging
+  // Log all request headers for debugging
   const headersMap = Object.fromEntries(req.headers.entries());
-  console.log("Request headers (KOMPLETT):", JSON.stringify(headersMap, null, 2));
+  console.log("Request headers (COMPLETE):", JSON.stringify(headersMap, null, 2));
 
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    console.log("Hanterar OPTIONS preflight-förfrågan");
+    console.log("Handling OPTIONS preflight request");
     return new Response(null, { 
       headers: {
         ...corsHeaders,
@@ -33,25 +33,25 @@ serve(async (req) => {
     });
   }
   
-  // Verifiera att vi använder live-miljö i produktion
+  // Verify that we're using live environment in production
   try {
     const stripeClient = getStripeClient();
     const apiKey = stripeClient?.apiKey || '';
     
     if (!apiKey.startsWith("sk_live")) {
-      console.log("INFO: Använder TEST-nyckel (sk_test) i aktuell miljö");
+      console.log("INFO: Using TEST key (sk_test) in current environment");
     } else {
-      console.log("INFO: Använder LIVE Stripe-nyckel (sk_live)");
+      console.log("INFO: Using LIVE Stripe key (sk_live)");
     }
   } catch (e) {
-    console.error("Kunde inte verifiera Stripe-nyckel:", e.message);
+    console.error("Could not verify Stripe key:", e.message);
   }
   
-  // Lägg till en special path för att testa om webhook-endpointen fungerar
+  // Add a special path for testing if the webhook endpoint is working
   const url = new URL(req.url);
   if (url.pathname.endsWith("/test")) {
-    console.log("TEST ENDPOINT ANROPAD - webhook-funktionen är tillgänglig!");
-    // Verifiera webhook-konfigurationen direkt
+    console.log("TEST ENDPOINT CALLED - webhook function is available!");
+    // Verify webhook configuration directly
     try {
       const webhookConfig = await verifyWebhookConfiguration();
       return new Response(
@@ -87,31 +87,31 @@ serve(async (req) => {
   }
 
   try {
-    // Få stripe-signatur från headers
+    // Get stripe signature from headers
     const signature = req.headers.get("stripe-signature");
     const authHeader = req.headers.get("authorization");
     
-    console.log("======= AUTENTISERINGS INFORMATION =======");
-    console.log("Stripe signature finns:", !!signature, signature ? signature.substring(0, 20) + "..." : "saknas");
-    console.log("Auth header finns:", !!authHeader, authHeader ? authHeader.substring(0, 15) + "..." : "saknas");
-    console.log("JWT-validering: HELT INAKTIVERAD");
+    console.log("======= AUTHENTICATION INFORMATION =======");
+    console.log("Stripe signature exists:", !!signature, signature ? signature.substring(0, 20) + "..." : "missing");
+    console.log("Auth header exists:", !!authHeader, authHeader ? authHeader.substring(0, 15) + "..." : "missing");
+    console.log("JWT validation: COMPLETELY DISABLED");
     console.log("=========================================");
     
-    // ALL TRAFIK TILLÅTS UTAN VALIDERING
-    console.log("VIKTIGT: ALL TRAFIK TILLÅTS UTAN JWT-VALIDERING");
+    // ALL TRAFFIC IS ALLOWED WITHOUT VALIDATION
+    console.log("IMPORTANT: ALL TRAFFIC IS ALLOWED WITHOUT JWT VALIDATION");
     
     if (signature) {
-      console.log("Behandlar förfrågan med Stripe-signatur");
+      console.log("Processing request with Stripe signature");
       
-      // Få raw request body som text
+      // Get raw request body as text
       const payload = await req.text();
-      console.log("Request payload storlek:", payload.length, "bytes");
-      console.log("Request payload förhandsvisning:", payload.substring(0, 200) + "...");
+      console.log("Request payload size:", payload.length, "bytes");
+      console.log("Request payload preview:", payload.substring(0, 200) + "...");
       
-      console.log("Behandlar Stripe webhook-händelse...");
+      console.log("Processing Stripe webhook event...");
       const result = await handleWebhookEvent(signature, payload);
       
-      console.log("Webhook-behandling slutförd med resultat:", JSON.stringify(result));
+      console.log("Webhook processing completed with result:", JSON.stringify(result));
       
       return new Response(
         JSON.stringify(result),
@@ -122,7 +122,7 @@ serve(async (req) => {
       );
     } 
     else {
-      console.log("Icke-webhook-förfrågan mottagen - JWT-validering helt kringgången");
+      console.log("Non-webhook request received - JWT validation completely bypassed");
       
       // Safely determine environment
       let environment = "UNKNOWN";

@@ -16,8 +16,18 @@ export function getSupabaseAdmin() {
     throw new Error("Missing Supabase environment variables (SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY)");
   }
   
-  console.log("Creating new Supabase admin client");
-  supabaseAdminInstance = createClient(supabaseUrl, supabaseKey);
+  console.log("Creating new Supabase admin client with service role");
+  console.log("Supabase URL:", supabaseUrl);
+  console.log("Service role key length:", supabaseKey.length);
+  
+  // Create client with service_role key for admin privileges
+  supabaseAdminInstance = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+  
   return supabaseAdminInstance;
 }
 
