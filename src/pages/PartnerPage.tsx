@@ -20,7 +20,6 @@ const PartnerPage = () => {
       <div className="min-h-screen">
         {/* Introduction */}
         <PartnerHero />
-        <PartnerFeatures />
         
         {/* How it works */}
         <HowItWorksSection />
