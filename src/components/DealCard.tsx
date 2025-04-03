@@ -64,7 +64,7 @@ const DealCardComponent = ({
   const daysRemaining = calculateDaysRemaining();
 
   return (
-    <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-98 bg-white/95 border-muted-200 hover:border-primary/20">
+    <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] bg-white/95 border-muted-200 hover:border-primary/20">
       <Link to={`/deal/${id}`} className="block h-full flex flex-col touch-manipulation">
         <div className="flex flex-col h-full">
           <div className="w-full">
@@ -72,7 +72,7 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
-              className="h-32 sm:h-36" // Mindre höjd på bilden för att passa två kort per rad
+              className="h-28 xs:h-32 sm:h-36" // Anpassad höjd för mobilvy
             />
           </div>
           <div className="flex-1 flex flex-col">

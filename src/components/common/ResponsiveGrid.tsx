@@ -13,7 +13,7 @@ export const ResponsiveGrid = ({ children, className, columns, gap }: Responsive
   return (
     <div className={cn(
       "grid", 
-      columns || "grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4", 
+      columns || "grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4", 
       gap || "gap-2 xs:gap-3 md:gap-4 lg:gap-6",
       className
     )}>

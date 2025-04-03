@@ -20,7 +20,7 @@ const DealsGridComponent = ({ deals, className = "", scrollable = false }: Deals
       <div className={`overflow-x-auto pb-4 -mx-4 px-4 ${className}`}>
         <div className="flex gap-3 min-w-max">
           {deals.map((deal) => (
-            <div key={deal.id} className="w-[calc(50%-6px)] xs:w-[240px] min-w-[240px] flex-shrink-0">
+            <div key={deal.id} className="w-[180px] xs:w-[240px] min-w-[180px] flex-shrink-0">
               <DealCard {...deal} />
             </div>
           ))}
@@ -33,7 +33,7 @@ const DealsGridComponent = ({ deals, className = "", scrollable = false }: Deals
     <ResponsiveGrid 
       className={className} 
       gap="gap-3" 
-      columns="grid-cols-2"
+      columns="grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
     >
       {deals.map((deal) => (
         <DealCard
