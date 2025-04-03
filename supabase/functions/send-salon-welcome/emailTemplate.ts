@@ -1,0 +1,239 @@
+
+// Email template generation for welcome emails
+export function generateWelcomeEmailHtml(
+  businessName: string,
+  email: string,
+  password: string,
+  planInfo?: {
+    plan: string;
+    type: string;
+    startDate: string;
+    nextBillingDate: string;
+  }
+): string {
+  // Format subscription data if available
+  const planTypeText = planInfo?.type === "yearly" ? "årsvis" : "månadsvis";
+  const nextBillingDate = planInfo?.nextBillingDate || "N/A";
+
+  return `
+    <!DOCTYPE html>
+    <html lang="sv">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Välkommen till Lyxdeal</title>
+      <style>
+        body { 
+          font-family: Arial, sans-serif; 
+          line-height: 1.6;
+          color: #333;
+          margin: 0;
+          padding: 0;
+          background-color: #fef5ff;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .header {
+          text-align: center;
+          padding: 25px 20px;
+          border-bottom: 3px solid #520053;
+          background: linear-gradient(to right, #520053, #9c27b0);
+        }
+        .header h1 {
+          color: white;
+          margin: 0;
+          font-size: 28px;
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .content {
+          padding: 30px 20px;
+        }
+        .credentials {
+          background-color: #fff9fe;
+          padding: 20px;
+          margin: 25px 0;
+          border-radius: 8px;
+          border-left: 4px solid #520053;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .footer {
+          text-align: center;
+          font-size: 12px;
+          color: #666;
+          padding: 20px;
+          border-top: 1px solid #eee;
+          background-color: #f9f0fc;
+          border-radius: 0 0 8px 8px;
+        }
+        .button {
+          display: inline-block;
+          background-color: #520053;
+          color: white;
+          text-decoration: none;
+          padding: 12px 25px;
+          border-radius: 50px;
+          margin: 25px 0;
+          font-weight: bold;
+          text-align: center;
+          box-shadow: 0 4px 6px rgba(82,0,83,0.2);
+          transition: all 0.3s ease;
+        }
+        .button:hover {
+          background-color: #6a006c;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 8px rgba(82,0,83,0.25);
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 20px 0;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        table, th, td {
+          border: 1px solid #f0d4f2;
+        }
+        th, td {
+          padding: 12px 15px;
+          text-align: left;
+        }
+        th {
+          background-color: #f0d4f2;
+          color: #520053;
+        }
+        td {
+          background-color: #fff;
+        }
+        .logo {
+          max-width: 150px;
+          margin-bottom: 15px;
+        }
+        .highlight {
+          color: #520053;
+          font-weight: bold;
+        }
+        .feature-list {
+          background-color: #fff9fe;
+          padding: 15px;
+          border-radius: 8px;
+          margin: 20px 0;
+        }
+        .feature-list li {
+          margin-bottom: 10px;
+          position: relative;
+          padding-left: 25px;
+        }
+        .feature-list li:before {
+          content: "✓";
+          color: #520053;
+          font-weight: bold;
+          position: absolute;
+          left: 0;
+        }
+        .contact-info {
+          margin-top: 20px;
+          padding: 15px;
+          background-color: #fff9fe;
+          border-radius: 8px;
+          border-left: 4px solid #520053;
+        }
+        .contact-info p {
+          margin: 5px 0;
+        }
+        .contact-info a {
+          color: #520053;
+          text-decoration: none;
+          font-weight: bold;
+        }
+        @media only screen and (max-width: 600px) {
+          .container {
+            border-radius: 0;
+          }
+          .header {
+            padding: 20px 15px;
+          }
+          .content {
+            padding: 20px 15px;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Välkommen till Lyxdeal</h1>
+        </div>
+        <div class="content">
+          <p>Hej <span class="highlight">${businessName}</span>!</p>
+          
+          <p>Vi är glada att välkomna dig som partner till Lyxdeal! Ditt konto har nu skapats och du kan komma igång direkt med att skapa fantastiska erbjudanden.</p>
+          
+          <div class="credentials">
+            <p><strong>E-post:</strong> ${email}</p>
+            <p><strong>Lösenord:</strong> ${password}</p>
+            <p style="font-size: 0.9em; color: #777;">Vi rekommenderar att du ändrar ditt lösenord vid första inloggningen.</p>
+          </div>
+          
+          ${planInfo ? `
+          <h3 style="color: #520053; margin-top: 30px;">Din prenumeration</h3>
+          <table>
+            <tr>
+              <th>Plan</th>
+              <td>${planInfo.plan}</td>
+            </tr>
+            <tr>
+              <th>Betalning</th>
+              <td>${planTypeText}</td>
+            </tr>
+            <tr>
+              <th>Startdatum</th>
+              <td>${planInfo.startDate}</td>
+            </tr>
+            <tr>
+              <th>Nästa fakturering</th>
+              <td>${nextBillingDate}</td>
+            </tr>
+          </table>
+          ` : ''}
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="https://www.lyxdeal.se/salon/login" class="button">Logga in på salongsportalen</a>
+          </div>
+          
+          <h3 style="color: #520053;">Vad kan du göra i salongsportalen?</h3>
+          
+          <ul class="feature-list">
+            <li>Skapa och hantera exklusiva erbjudanden</li>
+            <li>Övervaka kampanjresultat i realtid</li>
+            <li>Hantera rabattkoder för dina kunder</li>
+            <li>Se statistik över dina kampanjer</li>
+            <li>Uppdatera din profil och prenumerationsinformation</li>
+          </ul>
+          
+          <div class="contact-info">
+            <h3 style="color: #520053; margin-top: 0;">Behöver du hjälp?</h3>
+            <p>Om du har några frågor eller behöver support, kontakta oss på:</p>
+            <p><a href="mailto:support@lyxdeal.se">support@lyxdeal.se</a></p>
+            <p>För allmänna frågor: <a href="mailto:info@lyxdeal.se">info@lyxdeal.se</a></p>
+          </div>
+          
+          <p>Vi är övertygade om att vårt samarbete kommer att bidra till ökad synlighet och fler kunder till din verksamhet!</p>
+          
+          <p>Med vänliga hälsningar,<br>Teamet på Lyxdeal</p>
+        </div>
+        <div class="footer">
+          <p>© ${new Date().getFullYear()} Lyxdeal. Alla rättigheter förbehållna.</p>
+          <p>Detta är ett automatiskt genererat meddelande. Vänligen svara inte på detta e-postmeddelande.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
