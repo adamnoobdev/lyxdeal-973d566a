@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { endOfMonth } from "date-fns";
 import { useSalonDealsManagement } from "@/hooks/salon-deals-management";
 import { Deal } from "@/components/admin/types";
+import { toggleDealActive } from "@/utils/deal/queries/toggleActive";
 
 export const useSalonDealsManager = () => {
   const { salonId } = useParams();
@@ -19,7 +20,7 @@ export const useSalonDealsManager = () => {
     setDeletingDeal,
     handleDelete: handleDeleteDeal,
     handleUpdate,
-    handleToggleActive,
+    refetch,
   } = useSalonDealsManagement(salonId);
 
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
@@ -71,6 +72,11 @@ export const useSalonDealsManager = () => {
       }, 0);
     }
   }, [handleUpdate, handleClose, isSubmitting]);
+  
+  // Modified to use the direct toggleDealActive function that returns boolean
+  const handleToggleActive = useCallback(async (deal: Deal): Promise<boolean> => {
+    return await toggleDealActive(deal);
+  }, []);
   
   // Use useMemo for initialValues to prevent unnecessary calculations on re-renders
   const initialValues = useMemo(() => {
