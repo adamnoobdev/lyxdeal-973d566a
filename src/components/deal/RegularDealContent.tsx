@@ -43,17 +43,17 @@ export const RegularDealContent = ({
       : 0;
 
   return (
-    <div className="p-2 sm:p-3 flex flex-col flex-1"> {/* Förbättrad padding för mobilvy */}
-      <div className="flex items-start justify-between gap-1 mb-1">
+    <div className="p-2 sm:p-3 flex flex-col flex-1"> 
+      <div className="flex items-start justify-between gap-1 mb-0.5">
         <div className="flex flex-col items-start">
           <CategoryBadge category={category} className="text-[10px] xs:text-xs px-1 py-0.5" />
-          <h3 className="text-xs xs:text-sm font-medium line-clamp-2 mt-1 mb-0.5">{title}</h3>
+          <h3 className="text-xs xs:text-sm font-medium line-clamp-2 mt-0.5 mb-0.5">{title}</h3>
         </div>
       </div>
       
-      <p className="text-[10px] xs:text-xs text-muted-foreground line-clamp-2 mb-1">{description}</p>
+      <p className="text-[10px] xs:text-xs text-muted-foreground line-clamp-2 mb-0.5">{description}</p>
       
-      <div className="flex items-center text-[10px] xs:text-xs text-gray-500 mb-1">
+      <div className="flex items-center text-[10px] xs:text-xs text-gray-500 mb-0.5">
         <MapPin className="h-2.5 w-2.5 mr-0.5" /> {city}
       </div>
       

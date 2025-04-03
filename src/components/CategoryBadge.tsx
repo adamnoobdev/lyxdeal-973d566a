@@ -34,6 +34,7 @@ export function CategoryBadge({
       case 'ansiktsbehandling': return '🧖‍♀️';
       case 'makeup': return '🎨';
       case 'spa': return '🌊';
+      case 'hifu': return '✨';
       default: return '✨';
     }
   };
@@ -41,11 +42,11 @@ export function CategoryBadge({
   return (
     <div 
       className={cn(
-        "inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-sm",
+        "inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded-sm",
         variant === "default" 
           ? "bg-primary text-white" 
           : "bg-white text-primary/90 border border-primary/20",
-        "shadow-sm whitespace-nowrap w-fit", // Lägg till w-fit för att förhindra stretching
+        "shadow-sm whitespace-nowrap w-fit",
         className
       )}
       onClick={onClick}
@@ -53,7 +54,7 @@ export function CategoryBadge({
     >
       {children || (
         <>
-          <span className="text-sm flex-shrink-0">{getCategoryEmoji(category)}</span>
+          <span className="text-xs flex-shrink-0">{getCategoryEmoji(category)}</span>
           <span className="truncate">{category}</span>
         </>
       )}

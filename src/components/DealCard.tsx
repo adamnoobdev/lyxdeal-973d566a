@@ -72,7 +72,7 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
-              className="h-28 xs:h-32 sm:h-36" // Anpassad höjd för mobilvy
+              className="h-24 xs:h-28 sm:h-32"
             />
           </div>
           <div className="flex-1 flex flex-col">
