@@ -2,19 +2,17 @@
 import { Deal } from "@/types/deal";
 
 interface SearchStructuredDataProps {
-  deals: Deal[];
   query: string;
   category: string;
   city: string;
-  searchParams: URLSearchParams;
+  resultCount: number;
 }
 
 export const SearchStructuredData = ({
-  deals,
   query,
   category,
   city,
-  searchParams,
+  resultCount,
 }: SearchStructuredDataProps) => {
   const pageTitle = query 
     ? `${query} - Skönhetserbjudanden i ${city !== "Alla Städer" ? city : "Sverige"}`
@@ -69,24 +67,8 @@ export const SearchStructuredData = ({
           "@type": "ItemList",
           "name": pageTitle,
           "description": pageDescription,
-          "numberOfItems": deals.length,
-          "itemListElement": deals.slice(0, 10).map((deal, index) => ({
-            "@type": "ListItem",
-            "position": index + 1,
-            "item": {
-              "@type": "Product",
-              "name": deal.title,
-              "description": deal.description.substring(0, 200),
-              "image": deal.image_url,
-              "offers": {
-                "@type": "Offer",
-                "price": deal.discounted_price,
-                "priceCurrency": "SEK",
-                "availability": "https://schema.org/InStock",
-                "url": `https://lyxdeal.se/deal/${deal.id}`
-              }
-            }
-          }))
+          "numberOfItems": resultCount,
+          "itemListElement": [] // This would normally contain deal data
         })}
       </script>
     </>

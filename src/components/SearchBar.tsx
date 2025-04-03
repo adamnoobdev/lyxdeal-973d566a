@@ -1,4 +1,6 @@
-import { Search } from "lucide-react";
+
+import React from 'react';
+import { Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 
 interface SearchBarProps {
@@ -8,24 +10,24 @@ interface SearchBarProps {
   className?: string;
 }
 
-export const SearchBar = ({ 
-  searchQuery, 
-  onSearchChange, 
+export const SearchBar: React.FC<SearchBarProps> = ({
+  searchQuery,
+  onSearchChange,
   onSubmit,
   className = ""
-}: SearchBarProps) => {
+}) => {
   return (
-    <form onSubmit={onSubmit} className={className}>
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Sök erbjudanden..."
-          className="w-full pl-9 py-5 md:py-6 bg-white border border-input hover:border-primary/20 focus-visible:ring-1 focus-visible:ring-primary/30 focus-visible:border-primary/20 transition-all text-base md:text-lg rounded-lg md:rounded-xl"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          autoComplete="off"
-          autoFocus={false}
+    <form onSubmit={onSubmit} className={`relative flex items-center w-full ${className}`}>
+      <div className="relative flex-1">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-4 w-4 text-gray-400" />
+        </div>
+        <Input 
+          type="search" 
+          placeholder="Sök på LyxDeal" 
+          className="pl-10 pr-4 py-2 w-full rounded-md border-gray-300" 
+          value={searchQuery} 
+          onChange={e => onSearchChange(e.target.value)} 
         />
       </div>
     </form>
