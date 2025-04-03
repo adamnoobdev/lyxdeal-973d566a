@@ -37,6 +37,8 @@ export async function requestHandler(req: Request) {
       to: recipientEmail,
       subject: `Din rabattkod för: ${dealTitle}`,
       html: htmlContent,
+      from: "Lyxdeal <info@lyxdeal.se>",
+      reply_to: "info@lyxdeal.se"
     });
 
     // Return the response

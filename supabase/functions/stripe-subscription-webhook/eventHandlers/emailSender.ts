@@ -43,6 +43,7 @@ export async function sendEmail(
       to: [recipientEmail],
       subject: subject,
       html: htmlContent,
+      reply_to: "info@lyxdeal.se"
     });
     
     console.log("Email response from Resend:", emailResponse);

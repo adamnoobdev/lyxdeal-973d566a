@@ -23,8 +23,8 @@ export const CompanyInfoSection: FC = () => {
         </li>
         <li className="flex flex-col items-center gap-2">
           <Mail className="h-5 w-5 text-primary shrink-0" />
-          <a href="mailto:info@larlid.com" className="hover:text-primary transition-colors">
-            info@larlid.com
+          <a href="mailto:info@lyxdeal.se" className="hover:text-primary transition-colors">
+            info@lyxdeal.se
           </a>
         </li>
         <li className="flex flex-col items-center gap-2">
