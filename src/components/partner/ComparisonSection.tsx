@@ -103,45 +103,6 @@ export const ComparisonSection = () => {
               ))}
             </CardContent>
           </Card>
-
-          {/* Summary card - responsive for all screen sizes */}
-          <Card className="border-primary/10 bg-gradient-to-r from-primary-50/40 to-primary-50/20 shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base md:text-xl text-primary-700">Sammanfattning av fördelarna med Lyxdeal</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                <div className="space-y-2 md:space-y-3">
-                  <div className="flex items-start">
-                    <div className="mt-0.5 mr-2 md:mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
-                      <Check className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
-                    </div>
-                    <span className="text-xs md:text-sm text-gray-700">Automatiserad kundkontakt och bokningsprocess</span>
-                  </div>
-                  <div className="flex items-start">
-                    <div className="mt-0.5 mr-2 md:mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
-                      <Check className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
-                    </div>
-                    <span className="text-xs md:text-sm text-gray-700">Betydligt lägre kostnad utan dolda avgifter</span>
-                  </div>
-                </div>
-                <div className="space-y-2 md:space-y-3">
-                  <div className="flex items-start">
-                    <div className="mt-0.5 mr-2 md:mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
-                      <Check className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
-                    </div>
-                    <span className="text-xs md:text-sm text-gray-700">Riktad marknadsföring till intresserade kunder</span>
-                  </div>
-                  <div className="flex items-start">
-                    <div className="mt-0.5 mr-2 md:mr-3 flex-shrink-0 bg-green-100 rounded-full p-1">
-                      <Check className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
-                    </div>
-                    <span className="text-xs md:text-sm text-gray-700">Ingen annonsbudget krävs - vi driver trafiken till er</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
