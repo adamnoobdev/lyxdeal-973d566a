@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { getSharedEmailStyles } from "../shared/emailStyles.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,7 +61,9 @@ serve(async (req) => {
       console.log("Korrigerad återställnings-URL:", data.resetUrl);
     }
 
-    // Skapa HTML för e-postinnehåll
+    const currentYear = new Date().getFullYear();
+
+    // Skapa HTML för e-postinnehåll med vår uppdaterade design
     const htmlContent = `
     <!DOCTYPE html>
     <html lang="sv">
@@ -69,68 +72,13 @@ serve(async (req) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Återställ ditt lösenord på Lyxdeal</title>
       <style>
-        body { 
-          font-family: Arial, sans-serif; 
-          line-height: 1.6;
-          color: #333;
-          margin: 0;
-          padding: 0;
-          background-color: #fef5ff;
-        }
-        .container {
-          max-width: 600px;
-          margin: 0 auto;
-          padding: 20px;
-          background-color: #ffffff;
-          border-radius: 0;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        }
-        .header {
-          text-align: center;
-          padding: 25px 20px;
-          border-bottom: 3px solid #520053;
-          background: linear-gradient(to right, #520053, #9c27b0);
-        }
-        .header h1 {
-          color: white;
-          margin: 0;
-          font-size: 28px;
-          text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        }
-        .content {
-          padding: 30px 20px;
-        }
-        .footer {
-          text-align: center;
-          font-size: 12px;
-          color: #666;
-          padding: 20px;
-          border-top: 1px solid #eee;
-          background-color: #f9f0fc;
-          border-radius: 0;
-        }
-        .button {
-          display: inline-block;
-          background-color: #520053;
-          color: white !important;
-          text-decoration: none;
-          padding: 12px 25px;
-          border-radius: 0;
-          margin: 25px 0;
-          font-weight: bold;
-          text-align: center;
-          box-shadow: 0 4px 6px rgba(82,0,83,0.2);
-          transition: all 0.3s ease;
-        }
-        .highlight {
-          color: #520053;
-          font-weight: bold;
-        }
+        ${getSharedEmailStyles()}
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
+          <img src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets//Lyxdeal-logo.svg" alt="Lyxdeal" />
           <h1>Återställ ditt lösenord</h1>
         </div>
         <div class="content">
@@ -142,14 +90,15 @@ serve(async (req) => {
             <a href="${data.resetUrl}" class="button">Återställ lösenord</a>
           </div>
           
-          <p>Om du inte begärt att återställa ditt lösenord kan du ignorera detta mejl.</p>
-          
-          <p>Återställningslänken är giltig i 1 timme.</p>
+          <div class="card">
+            <p>Om du inte begärt att återställa ditt lösenord kan du ignorera detta mejl.</p>
+            <p>Återställningslänken är giltig i 1 timme.</p>
+          </div>
           
           <p>Med vänliga hälsningar,<br>Teamet på Lyxdeal</p>
         </div>
         <div class="footer">
-          <p>© ${new Date().getFullYear()} Lyxdeal. Alla rättigheter förbehållna.</p>
+          <p>© ${currentYear} Lyxdeal. Alla rättigheter förbehållna.</p>
           <p>Detta är ett automatiskt genererat meddelande. Vänligen svara inte på detta e-postmeddelande.</p>
         </div>
       </div>
