@@ -29,28 +29,29 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
 
   return (
     <>
-      {editingDeal && isDialogOpen && (
-        <DealDialog
-          isOpen={isDialogOpen}
-          onClose={onCloseDealDialog}
-          onSubmit={onUpdateDeal}
-          initialValues={{
-            title: editingDeal.title,
-            description: editingDeal.description,
-            imageUrl: editingDeal.image_url,
-            originalPrice: editingDeal.original_price.toString(),
-            discountedPrice: editingDeal.discounted_price.toString(),
-            category: editingDeal.category,
-            city: editingDeal.city,
-            featured: editingDeal.featured,
-            salon_id: editingDeal.salon_id,
-            is_free: editingDeal.is_free || editingDeal.discounted_price === 0,
-            is_active: editingDeal.is_active,
-            quantity: editingDeal.quantity_left?.toString() || "10",
-            expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : new Date(),
-          }}
-        />
-      )}
+      {/* Visa dialogen både för redigering OCH för att skapa nya erbjudanden */}
+      <DealDialog
+        isOpen={isDialogOpen}
+        onClose={onCloseDealDialog}
+        onSubmit={onUpdateDeal}
+        initialValues={editingDeal ? {
+          title: editingDeal.title,
+          description: editingDeal.description,
+          imageUrl: editingDeal.image_url,
+          originalPrice: editingDeal.original_price.toString(),
+          discountedPrice: editingDeal.discounted_price.toString(),
+          category: editingDeal.category,
+          city: editingDeal.city,
+          featured: editingDeal.featured,
+          salon_id: editingDeal.salon_id,
+          is_free: editingDeal.is_free || editingDeal.discounted_price === 0,
+          is_active: editingDeal.is_active,
+          quantity: editingDeal.quantity_left?.toString() || "10",
+          expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : new Date(),
+          booking_url: editingDeal.booking_url || "",
+          requires_discount_code: editingDeal.requires_discount_code
+        } : {}}
+      />
 
       <DiscountCodesDialog
         isOpen={isDiscountCodesDialogOpen}

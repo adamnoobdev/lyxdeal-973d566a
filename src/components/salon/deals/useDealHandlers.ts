@@ -56,15 +56,15 @@ export const useDealHandlers = (
     if (isProcessingAction) return;
     
     try {
-      console.log("[SalonDeals] Starting deal update");
+      console.log("[SalonDeals] Starting deal update or creation");
       setIsProcessingAction(true);
       await handleUpdate(values);
       await refetch();
     } catch (error) {
-      console.error("[SalonDeals] Error updating deal:", error);
+      console.error("[SalonDeals] Error updating/creating deal:", error);
     } finally {
       setIsProcessingAction(false);
-      console.log("[SalonDeals] Finished deal update, closing dialog");
+      console.log("[SalonDeals] Finished deal update/creation, closing dialog");
       handleCloseDealDialog();
     }
   }, [handleUpdate, handleCloseDealDialog, isProcessingAction, refetch, setIsProcessingAction]);
