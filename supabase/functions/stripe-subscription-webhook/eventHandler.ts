@@ -6,15 +6,15 @@ import { getStripeClient } from "./stripeClient.ts";
 export async function handleWebhookEvent(signature: string, payload: string) {
   try {
     console.log("=== WEBHOOK EVENT PROCESSING STARTED ===");
-    console.log("Timestamp:", new Date().toISOString());
+    console.log("Tidsstämpel:", new Date().toISOString());
     
     if (!signature) {
-      console.error("No stripe-signature header found");
+      console.error("Ingen stripe-signature header hittades");
       return { error: "Missing stripe-signature header" };
     }
     
     if (!payload || payload.trim() === '') {
-      console.error("Empty or invalid payload received");
+      console.error("Tom eller ogiltig payload mottagen");
       return { error: "Empty or invalid payload" };
     }
     
@@ -22,16 +22,14 @@ export async function handleWebhookEvent(signature: string, payload: string) {
     const webhookSecret = await getStripeWebhookSecret();
     
     if (!webhookSecret) {
-      console.error("STRIPE_WEBHOOK_SECRET not found in environment variables or Supabase secrets");
+      console.error("STRIPE_WEBHOOK_SECRET hittades inte i miljövariabler");
       return { 
         error: "Webhook secret not configured", 
-        suggestion: "Check Edge Function environment variables",
-        credentials_error: true
+        suggestion: "Check Edge Function environment variables"
       };
     }
     
-    console.log("Webhook secret retrieved, length:", webhookSecret.length);
-    console.log("First characters of secret:", webhookSecret.substring(0, 5) + "...");
+    console.log("Webhook-hemlighet hämtad, längd:", webhookSecret.length);
     
     // Initialize Stripe
     const stripe = getStripeClient();
@@ -39,32 +37,33 @@ export async function handleWebhookEvent(signature: string, payload: string) {
     let event;
     try {
       // Verify the event with Stripe USING THE ASYNC VERSION
-      console.log("Verifying Stripe signature with secret (using async method)");
-      console.log("Payload size:", payload.length, "bytes");
-      console.log("Signature first 20 characters:", signature.substring(0, 20) + "...");
+      console.log("Verifierar Stripe-signatur med hemlighet (använder async-metod)");
+      console.log("Payload storlek:", payload.length, "bytes");
+      console.log("Signatur första 20 tecken:", signature.substring(0, 20) + "...");
       
       try {
         // Use constructEventAsync instead of constructEvent for better async handling
         event = await stripe.webhooks.constructEventAsync(payload, signature, webhookSecret);
-        console.log("SIGNATURE VERIFICATION SUCCESSFUL!");
+        console.log("SIGNATUR VERIFIERING LYCKADES!");
       } catch (err) {
-        console.error("STRIPE SIGNATURE VERIFICATION FAILED:", err.message);
-        console.error("Details:", err);
+        console.error("STRIPE SIGNATUR VERIFIERING MISSLYCKADES:", err.message);
+        console.error("Detaljer:", err);
         
-        // Despite verification failure, we'll continue for testing purposes
-        console.warn("⚠️ PROCEEDING DESPITE VERIFICATION FAILURE FOR TESTING PURPOSES ⚠️");
+        // Despite verification failure, we'll continue for testing purposes with extra caution
+        console.warn("⚠️ FORTSÄTTER TROTS VERIFIERINGSFEL FÖR TESTSYFTE ⚠️");
         
+        // Try parsing the payload manually as a fallback
+        console.log("Försöker tolka payload manuellt som en fallback");
         try {
-          // Try to parse the payload anyway to get some event data
           const payloadData = JSON.parse(payload);
           if (payloadData.type && payloadData.data && payloadData.data.object) {
-            console.log("Parsed event from payload:", payloadData.type);
+            console.log("Manuellt tolkad händelse från payload:", payloadData.type);
             event = payloadData;
           } else {
-            throw new Error("Invalid payload format");
+            throw new Error("Ogiltigt payload-format");
           }
         } catch (parseErr) {
-          console.error("Failed to parse payload as fallback:", parseErr);
+          console.error("Misslyckades med att tolka payload som fallback:", parseErr);
           return {
             error: "Signature verification failed and payload parsing failed",
             details: err.message,
@@ -73,11 +72,15 @@ export async function handleWebhookEvent(signature: string, payload: string) {
         }
       }
       
-      console.log("Event type:", event.type);
-      console.log("Event ID:", event.id);
+      console.log("Händelsetyp:", event.type);
+      console.log("Händelse ID:", event.id);
+      
+      // Dump full event for testing
+      console.log("FULL EVENT OBJECT:", JSON.stringify(event, null, 2));
+      
     } catch (err) {
-      console.error("Webhook processing failed:", err);
-      console.error("Error message:", err.message);
+      console.error("Webhook-bearbetning misslyckades:", err);
+      console.error("Felmeddelande:", err.message);
       
       // Detailed error reporting for debugging
       return { 
@@ -93,18 +96,28 @@ export async function handleWebhookEvent(signature: string, payload: string) {
       };
     }
     
-    console.log("Processing event of type:", event.type);
+    console.log("Bearbetar händelse av typ:", event.type);
     
     // Handle different event types
     switch (event.type) {
       case 'checkout.session.completed':
-        console.log("Processing checkout.session.completed event");
-        console.log("Customer:", event.data.object.customer);
-        console.log("Customer email:", event.data.object.customer_details?.email);
-        console.log("Subscription:", event.data.object.subscription);
-        return await handleCheckoutCompleted(event.data.object);
+        console.log("Bearbetar checkout.session.completed händelse");
+        console.log("Kund:", event.data.object.customer);
+        console.log("Kund e-post:", event.data.object.customer_details?.email);
+        console.log("Prenumeration:", event.data.object.subscription);
+        console.log("Fullständigt objekt:", JSON.stringify(event.data.object, null, 2));
+        
+        try {
+          const result = await handleCheckoutCompleted(event.data.object);
+          console.log("Checkout-bearbetning klar:", JSON.stringify(result, null, 2));
+          return result;
+        } catch (checkoutError) {
+          console.error("Fel vid bearbetning av checkout:", checkoutError);
+          throw checkoutError; // Låt huvudhanteraren fånga detta
+        }
+        
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`Ohanterad händelsetyp: ${event.type}`);
         return { 
           received: true,
           event_type: event.type,
@@ -112,8 +125,8 @@ export async function handleWebhookEvent(signature: string, payload: string) {
         };
     }
   } catch (error) {
-    console.error("Error handling webhook event:", error);
-    console.error("Error message:", error.message);
+    console.error("Fel vid hantering av webhook-händelse:", error);
+    console.error("Felmeddelande:", error.message);
     console.error("Stack trace:", error.stack);
     return { 
       error: "Error handling webhook event", 

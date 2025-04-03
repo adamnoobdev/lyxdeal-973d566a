@@ -11,20 +11,22 @@ import {
 } from "./subscriptionHelpers.ts";
 
 export async function handleCheckoutCompleted(session: any) {
-  console.log("Checkout session completed:", session.id);
-  console.log("Full session object:", JSON.stringify(session, null, 2));
+  console.log("Checkout-session slutförd:", session.id);
+  console.log("Fullständigt session-objekt:", JSON.stringify(session, null, 2));
   
   if (!session.metadata || !session.metadata.email || !session.metadata.business_name) {
-    console.error("Missing required metadata in session:", JSON.stringify(session.metadata || {}, null, 2));
-    throw new Error("Missing required metadata in session");
+    console.error("Saknar obligatorisk metadata i session:", JSON.stringify(session.metadata || {}, null, 2));
+    throw new Error("Saknar obligatorisk metadata i session");
   }
   
   const supabaseAdmin = getSupabaseAdmin();
   
   try {
-    // First, update the partner request with the session ID
+    // Först, uppdatera partner-förfrågan med session-ID
     try {
-      console.log("Updating partner request with session ID:", session.id);
+      console.log("Uppdaterar partner-förfrågan med session-ID:", session.id);
+      console.log("För e-post:", session.metadata.email);
+      
       const { data: updateData, error: updateError } = await supabaseAdmin
         .from("partner_requests")
         .update({ 
@@ -35,86 +37,102 @@ export async function handleCheckoutCompleted(session: any) {
         .select();
         
       if (updateError) {
-        console.error("Error updating partner request with session ID:", updateError);
+        console.error("Fel vid uppdatering av partner-förfrågan med session-ID:", updateError);
       } else {
-        console.log("Partner request updated with session ID:", updateData);
+        console.log("Partner-förfrågan uppdaterad med session-ID:", updateData);
       }
     } catch (updateError) {
-      console.error("Exception updating partner request:", updateError);
-      // Continue despite error
+      console.error("Undantag vid uppdatering av partner-förfrågan:", updateError);
+      // Fortsätt trots fel
     }
     
-    // Retrieve subscription information from Stripe
-    const subscription = session.subscription 
-      ? await getSubscriptionDetails(session.subscription) 
-      : null;
+    // Hämta prenumerationsinformation från Stripe
+    let subscription = null;
+    try {
+      if (session.subscription) {
+        console.log("Hämtar prenumerationsdetaljer från Stripe för:", session.subscription);
+        subscription = await getSubscriptionDetails(session.subscription);
+        console.log("Prenumerationsdetaljer:", JSON.stringify(subscription, null, 2));
+      } else {
+        console.log("Ingen prenumerations-ID i sessionen, hoppar över prenumerationsdetaljer");
+      }
+    } catch (subscriptionError) {
+      console.error("Fel vid hämtning av Stripe-prenumeration:", subscriptionError);
+      // Fortsätt utan prenumerationsdetaljer
+    }
     
-    // Generate a secure random password
+    // Generera ett säkert slumpmässigt lösenord
     const password = generateRandomPassword();
-    console.log(`Generated secure password of length: ${password.length}`);
+    console.log(`Genererat säkert lösenord med längd: ${password.length}`);
     
-    // Begin transaction - we'll try to create everything in a consistent manner
-    console.log("Beginning account creation process for:", session.metadata.email);
+    // Börja transaktion - vi försöker skapa allt på ett konsekvent sätt
+    console.log("Påbörjar kontoregistrering för:", session.metadata.email);
     
-    // Create a new salon account with simplified approach
-    console.log("Creating salon account for:", session.metadata.email);
+    // Skapa ett nytt salongskonto med förenklad metod
+    console.log("Skapar salongskonto för:", session.metadata.email);
     const userData = await createSalonAccount(supabaseAdmin, session, password);
     
     if (!userData || !userData.user) {
-      console.error("Failed to create salon account: No user data returned");
-      throw new Error("Failed to create salon account: No user data returned");
+      console.error("Kunde inte skapa salongskonto: Ingen användardata returnerades");
+      throw new Error("Kunde inte skapa salongskonto: Ingen användardata returnerades");
     }
     
-    console.log("User/salon account processed successfully with ID:", userData.user.id);
+    console.log("Användare/salongskonto bearbetat framgångsrikt med ID:", userData.user.id);
+    console.log("Användardata:", JSON.stringify(userData, null, 2));
     
-    // Get subscription data
+    // Hämta prenumerationsdata
     const subscriptionData = formatSubscriptionData(session, subscription);
+    console.log("Formaterad prenumerationsdata:", JSON.stringify(subscriptionData, null, 2));
     
-    // Create/update salon record
+    // Skapa/uppdatera salongspost
+    console.log("Skapar/uppdaterar salongspost");
     const salonData = await createSalonRecord(supabaseAdmin, session, userData, subscriptionData);
+    console.log("Salongsdata efter skapande/uppdatering:", JSON.stringify(salonData, null, 2));
     
-    // Update partner request status
+    // Uppdatera status för partner-förfrågan
     try {
-      console.log("Updating partner request status for:", session.metadata.email);
+      console.log("Uppdaterar status för partner-förfrågan för:", session.metadata.email);
       const partnerResult = await updatePartnerRequestStatus(supabaseAdmin, session.metadata.email);
-      console.log("Partner request update result:", partnerResult);
+      console.log("Resultat för uppdatering av partner-förfrågan:", partnerResult);
     } catch (partnerError) {
-      console.error("Error updating partner request:", partnerError);
-      // Non-blocking - continue with account creation
+      console.error("Fel vid uppdatering av partner-förfrågan:", partnerError);
+      // Ej blockerande - fortsätt med kontoskapande
     }
     
-    // Send welcome email with temporary password
-    console.log("Sending welcome email to:", session.metadata.email);
+    // Skicka välkomstmail med temporärt lösenord
+    console.log("Skickar välkomstmail till:", session.metadata.email);
     let emailResult;
     try {
       emailResult = await sendWelcomeEmail(session, password, subscription);
       
       if (!emailResult.success) {
-        console.error("Failed to send welcome email:", emailResult.error);
-        // Log but continue with account creation
+        console.error("Kunde inte skicka välkomstmail:", emailResult.error);
+        // Logga men fortsätt med kontoskapande
       } else {
-        console.log("Welcome email sent successfully");
+        console.log("Välkomstmail skickat framgångsrikt");
       }
     } catch (emailError) {
-      console.error("Exception sending welcome email:", emailError);
+      console.error("Undantag vid skickande av välkomstmail:", emailError);
       emailResult = { success: false, error: emailError.message };
-      // Non-blocking - continue with account creation
+      // Ej blockerande - fortsätt med kontoskapande
     }
     
-    // Check for first login tracking
+    // Kontrollera första inloggningsspårning
     const loginTrackingResult = await setupFirstLoginTracking(supabaseAdmin, userData.user.id);
+    console.log("Resultat för första inloggningsspårning:", loginTrackingResult);
     
     return { 
       success: true, 
       userId: userData.user.id,
       salonCreated: true,
       emailSent: emailResult?.success || false,
-      email: session.metadata.email
+      email: session.metadata.email,
+      timestamp: new Date().toISOString()
     };
   } catch (error) {
-    console.error("Critical error in handleCheckoutCompleted:", error);
-    console.error("Error stack:", error.stack);
-    // Rethrow to ensure webhook processing fails and can be retried
+    console.error("Kritiskt fel i handleCheckoutCompleted:", error);
+    console.error("Felstack:", error.stack);
+    // Kasta om för att säkerställa att webhook-bearbetning misslyckas och kan försökas igen
     throw error;
   }
 }

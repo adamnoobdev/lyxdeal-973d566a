@@ -5,22 +5,26 @@ let stripeInstance: Stripe | null = null;
 
 export function getStripeClient(): Stripe {
   if (stripeInstance) {
-    console.log("Using cached Stripe instance");
+    console.log("Använder cachad Stripe-instans");
     return stripeInstance;
   }
 
   const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
   if (!stripeSecretKey) {
-    console.error("KRITISKT FEL: STRIPE_SECRET_KEY är inte konfigurerad i live-miljön");
+    console.error("KRITISKT FEL: STRIPE_SECRET_KEY är inte konfigurerad i miljön");
     throw new Error("STRIPE_SECRET_KEY is not configured");
   }
   
-  console.log("Initializing new Stripe client");
+  console.log("Initialiserar ny Stripe-klient");
+  console.log("Stripe API-nyckel konfigurerad, längd:", stripeSecretKey.length);
   
   // Verifiera att live-nycklar används i produktionsmiljö
-  if (!stripeSecretKey.startsWith("sk_live")) {
-    console.error("VARNING: Använder TEST-nyckel i produktionsmiljö!");
-    console.error("Nyckeltyp:", stripeSecretKey.startsWith("sk_test") ? "TEST" : "ANNAN");
+  if (!stripeSecretKey.startsWith("sk_live") && !stripeSecretKey.startsWith("sk_test")) {
+    console.error("VARNING: Ogiltig Stripe-nyckel (börjar inte med sk_live eller sk_test)!");
+    console.error("Nyckeltyp: OGILTIG");
+  } else if (!stripeSecretKey.startsWith("sk_live")) {
+    console.warn("VARNING: Använder TEST-nyckel i miljö!");
+    console.warn("Nyckeltyp:", stripeSecretKey.startsWith("sk_test") ? "TEST" : "ANNAN");
   } else {
     console.log("Använder korrekt LIVE Stripe-nyckel");
   }
@@ -32,10 +36,10 @@ export function getStripeClient(): Stripe {
       timeout: 30000,
     });
     
-    console.log("Stripe client initialized successfully");
+    console.log("Stripe-klient initialiserad framgångsrikt");
     return stripeInstance;
   } catch (error) {
-    console.error("Error initializing Stripe client:", error.message);
+    console.error("Fel vid initialisering av Stripe-klient:", error.message);
     throw error;
   }
 }
@@ -45,43 +49,44 @@ export async function verifyWebhookConfiguration() {
     const stripe = getStripeClient();
     const webhooks = await stripe.webhookEndpoints.list();
     
-    console.log(`Found ${webhooks.data.length} webhook endpoints`);
+    console.log(`Hittade ${webhooks.data.length} webhook-endpoints`);
     
     const subscriptionWebhook = webhooks.data.find(
       webhook => webhook.url.includes('stripe-subscription-webhook')
     );
     
     if (!subscriptionWebhook) {
-      console.warn("No subscription webhook found in Stripe configuration");
+      console.warn("Hittade ingen prenumerations-webhook i Stripe-konfigurationen");
       
       // Lista alla webhook-endpoints för felsökning
-      console.log("All registered webhook endpoints:");
+      console.log("Alla registrerade webhook-endpoints:");
       webhooks.data.forEach((webhook, index) => {
         console.log(`${index + 1}. URL: ${webhook.url}`);
         console.log(`   Status: ${webhook.status}`);
-        console.log(`   Events: ${webhook.enabled_events.join(', ')}`);
+        console.log(`   Händelser: ${webhook.enabled_events.join(', ')}`);
       });
       
       return {
         status: "missing",
         message: "No stripe-subscription-webhook endpoint found in Stripe",
         suggestions: [
-          "Go to the Stripe Dashboard and add a webhook endpoint",
-          "The URL should be: https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/stripe-subscription-webhook",
-          "Include 'checkout.session.completed' in enabled events"
+          "Gå till Stripe Dashboard och lägg till en webhook-endpoint",
+          "URL:en bör vara: https://gmqeqhlhqhyrjquzhuzg.functions.supabase.co/stripe-subscription-webhook",
+          "Inkludera 'checkout.session.completed' i aktiverade händelser"
         ],
-        available_webhooks: webhooks.data.map(w => ({ url: w.url, status: w.status }))
+        available_webhooks: webhooks.data.map(w => ({ url: w.url, status: w.status })),
+        timestamp: new Date().toISOString()
       };
     }
     
-    console.log("Found subscription webhook:", subscriptionWebhook.id);
+    console.log("Hittade prenumerations-webhook:", subscriptionWebhook.id);
     console.log("Webhook URL:", subscriptionWebhook.url);
-    console.log("Webhook status:", subscriptionWebhook.status);
-    console.log("Webhook enabled events:", subscriptionWebhook.enabled_events);
+    console.log("Webhook-status:", subscriptionWebhook.status);
+    console.log("Webhook aktiverade händelser:", subscriptionWebhook.enabled_events);
     
     const hasCheckoutEvent = subscriptionWebhook.enabled_events.includes('checkout.session.completed');
     if (!hasCheckoutEvent) {
-      console.warn("VARNING: Webhook saknar checkout.session.completed event!");
+      console.warn("VARNING: Webhook saknar checkout.session.completed händelse!");
     }
     
     // Verifiera att webhook secret finns konfigurerat
@@ -89,18 +94,9 @@ export async function verifyWebhookConfiguration() {
     const secretConfigured = !!webhookSecret;
     
     if (!secretConfigured) {
-      console.error("KRITISKT FEL: STRIPE_WEBHOOK_SECRET är inte konfigurerad i live-miljön");
+      console.error("KRITISKT FEL: STRIPE_WEBHOOK_SECRET är inte konfigurerad i miljön");
     } else {
       console.log("STRIPE_WEBHOOK_SECRET är korrekt konfigurerad");
-    }
-    
-    // Safely determine environment
-    let environment = "UNKNOWN";
-    try {
-      const apiKey = stripe?.apiKey || '';
-      environment = apiKey.startsWith("sk_live") ? "LIVE" : "TEST";
-    } catch (err) {
-      console.error("Error determining environment:", err.message);
     }
     
     return {
@@ -109,18 +105,20 @@ export async function verifyWebhookConfiguration() {
       status: subscriptionWebhook.status,
       eventsConfigured: hasCheckoutEvent,
       secretConfigured: secretConfigured,
-      environment: environment,
-      suggestions: !hasCheckoutEvent ? ["Add 'checkout.session.completed' to enabled events"] : 
-                   !secretConfigured ? ["Configure STRIPE_WEBHOOK_SECRET in Edge Function settings"] : []
+      environment: process.env.NODE_ENV || "UNKNOWN",
+      timestamp: new Date().toISOString(),
+      suggestions: !hasCheckoutEvent ? ["Lägg till 'checkout.session.completed' till aktiverade händelser"] : 
+                   !secretConfigured ? ["Konfigurera STRIPE_WEBHOOK_SECRET i Edge Function-inställningar"] : []
     };
   } catch (error) {
-    console.error("Error verifying webhook configuration:", error.message);
+    console.error("Fel vid verifiering av webhook-konfiguration:", error.message);
     return {
       status: "error",
-      message: `Error checking webhook configuration: ${error.message}`,
+      message: `Fel vid kontroll av webhook-konfiguration: ${error.message}`,
+      timestamp: new Date().toISOString(),
       suggestions: [
-        "Verify Stripe API key is correct",
-        "Check if your account has permission to list webhooks"
+        "Verifiera att Stripe API-nyckeln är korrekt",
+        "Kontrollera om ditt konto har behörighet att lista webhooks"
       ]
     };
   }

@@ -1,30 +1,42 @@
 
+# Project ID for your Supabase project
 project_id = "gmqeqhlhqhyrjquzhuzg"
 
 [api]
-enabled = true
+# Port that the API server listens on
 port = 54321
 schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
 [db]
+# Port that the DB server listens on
 port = 54322
+shadow_port = 54320
+major_version = 15
 
 [studio]
-enabled = true
+# Port that the Studio server listens on
 port = 54323
 
-[inbucket]
-enabled = true
+[storage]
+# Port that the storage server listens on
 port = 54324
 
 [auth]
-enabled = true
+# Port that the auth server listens on
+port = 54324
 
-[storage]
-enabled = true
+[inbucket]
+# Port that the inbucket server listens on
+port = 54325
+smtp_port = 54326
+pop3_port = 54327
 
-[realtime]
-enabled = true
+[vector]
+# Port that the vector server listens on
+port = 54328
 
-[functions.verify-stripe-plans]
+[functions]
+[functions.stripe-subscription-webhook]
 verify_jwt = false
