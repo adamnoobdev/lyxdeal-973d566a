@@ -73,7 +73,7 @@ const DealCardComponent = ({
               className="h-28 xs:h-36 sm:h-40 md:h-44"
             />
             <div className="px-1.5 sm:px-3 mt-1.5">
-              <CategoryBadge category={category} className="text-[10px] xs:text-xs sm:text-xs px-1.5 py-0.5" />
+              <CategoryBadge category={category} />
             </div>
           </div>
           <div className="flex-1 flex flex-col">

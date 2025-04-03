@@ -42,7 +42,7 @@ export function CategoryBadge({
   return (
     <div 
       className={cn(
-        "inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded-sm",
+        "inline-flex items-center gap-0.5 text-xs px-2 py-0.5 font-medium rounded-sm",
         variant === "default" 
           ? "bg-primary text-white" 
           : "bg-white text-primary/90 border border-primary/20",

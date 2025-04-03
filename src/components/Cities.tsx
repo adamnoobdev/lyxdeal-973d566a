@@ -64,7 +64,7 @@ const CitiesComponent = ({
             key={city}
             onClick={() => handleCityClick(city)}
             className={cn(
-              "flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium",
+              "flex items-center gap-1 px-2 py-0.5 text-xs font-medium",
               "shadow-sm hover:shadow-md active:scale-95",
               selectedCity === city 
                 ? "bg-primary text-white border-transparent"

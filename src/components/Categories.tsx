@@ -1,3 +1,4 @@
+
 import { memo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CATEGORIES } from "@/constants/app-constants";
@@ -62,14 +63,14 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
               key={category}
               onClick={() => handleCategoryClick(category)}
               className={cn(
-                "flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium",
+                "flex items-center gap-1 px-2 py-0.5 text-xs font-medium",
                 "shadow-sm hover:shadow-md active:scale-95",
                 selectedCategory === category 
                   ? "bg-primary text-white border-transparent"
                   : "bg-white text-primary/90 border border-primary/20 hover:border-primary/40 hover:bg-primary/5"
               )}
             >
-              <span className="text-sm">{getCategoryEmoji(category)}</span>
+              <span className="text-xs">{getCategoryEmoji(category)}</span>
               <span>{category}</span>
             </button>
           ))}
@@ -82,14 +83,14 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
               key={category}
               onClick={() => handleCategoryClick(category)}
               className={cn(
-                "flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium",
+                "flex items-center gap-1 px-2 py-0.5 text-xs font-medium",
                 "shadow-sm hover:shadow-md active:scale-95",
                 selectedCategory === category 
                   ? "bg-primary text-white border-transparent"
                   : "bg-white text-primary/90 border border-primary/20 hover:border-primary/40 hover:bg-primary/5"
               )}
             >
-              <span className="text-sm">{getCategoryEmoji(category)}</span>
+              <span className="text-xs">{getCategoryEmoji(category)}</span>
               <span>{category}</span>
             </button>
           ))}
