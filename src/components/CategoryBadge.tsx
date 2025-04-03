@@ -54,8 +54,8 @@ export function CategoryBadge({
     >
       {children || (
         <>
-          <span className="text-xs flex-shrink-0">{getCategoryEmoji(category)}</span>
-          <span className="truncate">{category}</span>
+          <span className="text-xs flex-shrink-0 leading-none">{getCategoryEmoji(category)}</span>
+          <span className="truncate leading-none">{category}</span>
         </>
       )}
     </div>

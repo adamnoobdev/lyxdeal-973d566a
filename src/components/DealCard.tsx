@@ -72,7 +72,7 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
-              className="h-24 xs:h-28 sm:h-32"
+              className="h-20 xs:h-24 sm:h-28"
             />
           </div>
           <div className="flex-1 flex flex-col">

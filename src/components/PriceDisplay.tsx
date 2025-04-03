@@ -40,13 +40,13 @@ export function PriceDisplay({
   const savedAmount = originalPrice - discountedPrice;
 
   return (
-    <div className={`space-y-1 ${className}`}>
-      <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-bold text-gray-900">
+    <div className={`space-y-0.5 ${className}`}>
+      <div className="flex items-baseline gap-2">
+        <span className="text-3xl font-bold text-gray-900 leading-tight">
           {isFree ? "Gratis" : formatPrice(discountedPrice)}
         </span>
         {showDiscountBadge && discountPercentage > 0 && !isFree && (
-          <span className="text-sm px-2 py-0.5 bg-[#ea384c] text-white font-medium">
+          <span className="text-sm px-2 py-0.5 bg-[#ea384c] text-white font-medium leading-none">
             -{discountPercentage}%
           </span>
         )}
@@ -60,7 +60,7 @@ export function PriceDisplay({
             </span>
           </div>
           {showSavedAmount && savedAmount > 0 && !isFree && (
-            <span className="text-sm text-[#ea384c] font-medium mt-1">
+            <span className="text-sm text-[#ea384c] font-medium mt-0.5">
               Du sparar {formatPrice(savedAmount)}
             </span>
           )}
