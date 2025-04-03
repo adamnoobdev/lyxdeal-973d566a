@@ -15,7 +15,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative w-full min-h-[500px] md:min-h-[600px] flex items-center justify-center overflow-hidden my-8">
+    <section className="relative w-full min-h-[400px] md:min-h-[500px] flex items-center justify-center overflow-hidden my-6">
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-90"
         style={{ 
@@ -28,8 +28,8 @@ export function HeroSection() {
         className="absolute inset-0 bg-black/20"
       />
       <div className="container mx-auto px-4">
-        <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8 md:space-y-10 py-16 md:py-20">
-          <div className="space-y-6">
+        <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6 md:space-y-8 py-12 md:py-16">
+          <div className="space-y-4">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg">
               Upptäck Sveriges Bästa Skönhetserbjudanden
             </h1>
@@ -38,7 +38,7 @@ export function HeroSection() {
             </p>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-3 mx-auto max-w-3xl mt-4">
+          <div className="flex flex-wrap justify-center gap-2 mx-auto max-w-3xl">
             {displayCategories.map((category) => (
               <CategoryBadge 
                 key={category}
