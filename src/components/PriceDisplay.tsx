@@ -40,7 +40,7 @@ export function PriceDisplay({
   const savedAmount = originalPrice - discountedPrice;
 
   return (
-    <div className={`space-y-1.5 ${className}`}>
+    <div className={`space-y-1 ${className}`}>
       <div className="flex items-baseline gap-3">
         <span className="text-3xl font-bold text-gray-900">
           {isFree ? "Gratis" : formatPrice(discountedPrice)}
@@ -51,7 +51,6 @@ export function PriceDisplay({
           </span>
         )}
       </div>
-      {/* Ändrar villkoret så att vi visar originalpriset även för gratis erbjudanden så länge originalPrice > 0 */}
       {originalPrice > 0 && (isFree || discountedPrice < originalPrice) && ( 
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5 text-gray-500">
