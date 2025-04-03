@@ -1,27 +1,11 @@
-
-import { Link } from "react-router-dom";
-import { Deal } from "@/types/deal";
-import { Categories } from "@/components/Categories";
-import { Cities } from "@/components/Cities";
 import { DealsGrid } from "@/components/DealsGrid";
-import { Helmet } from "react-helmet";
-import { SearchStructuredData } from "./SearchStructuredData";
-import { SearchBreadcrumbs } from "./SearchBreadcrumbs";
-import { SearchPageTitle } from "./SearchPageTitle";
+import { SearchBreadcrumbs } from "@/components/search/SearchBreadcrumbs";
+import { SearchPageTitle } from "@/components/search/SearchPageTitle";
+import { SearchStructuredData } from "@/components/search/SearchStructuredData";
+import { CategoryFilter } from "@/components/search/filters/CategoryFilter";
+import { CityFilter } from "@/components/search/filters/CityFilter";
 
-interface SearchResultsContentProps {
-  deals: Deal[];
-  query: string;
-  category: string;
-  city: string;
-  selectedCategory: string;
-  selectedCity: string;
-  searchParams: URLSearchParams;
-  onCategorySelect: (category: string) => void;
-  onCitySelect: (city: string) => void;
-}
-
-export const SearchResultsContent = ({
+export function SearchResultsContent({
   deals,
   query,
   category,
@@ -30,68 +14,70 @@ export const SearchResultsContent = ({
   selectedCity,
   searchParams,
   onCategorySelect,
-  onCitySelect,
-}: SearchResultsContentProps) => {
-  const pageTitle = query 
+  onCitySelect
+}) {
+  const getHeaderText = (query, category, city) => {
+    if (query) {
+      return `Sökresultat för "${query}" i ${city}`;
+    }
+    return `${category} i ${city}`;
+  };
+
+  const pageTitle = query
     ? `${query} - Skönhetserbjudanden i ${city !== "Alla Städer" ? city : "Sverige"}`
     : `${category !== "Alla Erbjudanden" ? category : "Skönhetserbjudanden"} i ${city !== "Alla Städer" ? city : "Sverige"}`;
-  
+
   const pageDescription = `Hitta de bästa ${category !== "Alla Erbjudanden" ? category.toLowerCase() : "skönhetserbjudandena"} i ${city !== "Alla Städer" ? city : "hela Sverige"}. Spara pengar på kvalitetsbehandlingar.`;
 
   return (
     <>
-      <Helmet>
-        <title>{`${pageTitle} | Lyxdeal`}</title>
-        <meta name="description" content={pageDescription} />
-        <link rel="canonical" href={`https://lyxdeal.se/search?${searchParams.toString()}`} />
-        
-        <meta property="og:title" content={`${pageTitle} | Lyxdeal`} />
-        <meta property="og:description" content={pageDescription} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://lyxdeal.se/search?${searchParams.toString()}`} />
-      </Helmet>
+      <SearchPageTitle 
+        title={pageTitle}
+        description={pageDescription}
+      />
       
-      {/* Structured Data Component */}
       <SearchStructuredData 
-        deals={deals}
         query={query}
-        category={category}
         city={city}
-        searchParams={searchParams}
-      />
-    
-      {/* Breadcrumb navigation */}
-      <SearchBreadcrumbs 
-        query={query}
         category={category}
-        city={city}
+        resultCount={deals?.length || 0}
       />
       
-      <div className="container mx-auto p-4 md:p-6 flex flex-col items-center">
-        <div className="space-y-6 max-w-5xl w-full">
-          <SearchPageTitle
-            deals={deals}
-            query={query}
-            category={category}
-            city={city}
-          />
-
-          <div className="w-full space-y-4">
-            <Cities
-              selectedCity={selectedCity}
-              onSelectCity={onCitySelect}
+      <div className="container mx-auto px-4 py-6 mb-8">
+        <SearchBreadcrumbs query={query} category={category} city={city} />
+        
+        <div className="mt-4 flex flex-col md:flex-row gap-6">
+          {/* Filters Section */}
+          <div className="w-full md:w-64 flex-shrink-0">
+            <CategoryFilter
               selectedCategory={selectedCategory}
+              onCategorySelect={onCategorySelect}
             />
-            
-            <Categories 
-              selectedCategory={selectedCategory} 
-              onSelectCategory={onCategorySelect} 
+            <CityFilter
+              selectedCity={selectedCity}
+              onCitySelect={onCitySelect}
             />
           </div>
           
-          <DealsGrid deals={deals} />
+          {/* Results Section */}
+          <div className="flex-grow">
+            <div className="flex flex-col space-y-4">
+              <h1 className="text-2xl font-bold text-primary">
+                {getHeaderText(query, category, city)}
+              </h1>
+              
+              {deals && deals.length > 0 ? (
+                <DealsGrid deals={deals} />
+              ) : (
+                <div className="p-6 border border-muted rounded-lg bg-white/50 text-center">
+                  <p className="text-muted-foreground">Inga erbjudanden hittades för din sökning.</p>
+                  <p className="text-sm text-muted-foreground mt-2">Prova att ändra dina sökfilter.</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>
   );
-};
+}

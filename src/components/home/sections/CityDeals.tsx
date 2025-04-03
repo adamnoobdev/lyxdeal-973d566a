@@ -45,13 +45,13 @@ const CityDealsComponent = ({
     );
   }
   
-  return <DealsGrid deals={deals} />;
+  return <DealsGrid deals={deals} scrollable={true} />;
 };
 
 export const CityDealsLoadingSkeleton = () => (
-  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+  <div className="grid grid-cols-2 gap-3">
     {[...Array(4)].map((_, i) => (
-      <div key={i} className="h-48 md:h-64 bg-accent/5 rounded-lg animate-pulse" />
+      <div key={i} className="h-48 bg-accent/5 rounded-lg animate-pulse" />
     ))}
   </div>
 );
