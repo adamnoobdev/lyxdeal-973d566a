@@ -1,16 +1,16 @@
 
-import { DealsSection } from "@/components/salon/DealsSection";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
-import { useSalonDeals } from "@/hooks/salon-deals";
-import { Deal } from "@/types/deal";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export function MainTabs() {
   const { session } = useSession();
   const [salonData, setSalonData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSalonData = async () => {
@@ -35,19 +35,24 @@ export function MainTabs() {
     fetchSalonData();
   }, [session?.user?.id]);
 
-  const salonId = salonData?.id;
-  const emptyDeals: Deal[] = [];
+  const goToDealsPage = () => {
+    navigate('/salon/deal');
+  };
 
   return (
     <Card className="border shadow-sm overflow-hidden">
       <CardContent className="p-6">
-        <h3 className="text-lg font-medium mb-4">Dina erbjudanden</h3>
-        <DealsSection 
-          title=""
-          deals={emptyDeals} 
-          onEdit={() => {}} 
-          onDelete={() => {}}
-        />
+        <h3 className="text-lg font-medium mb-4">Översikt</h3>
+        <p className="text-muted-foreground mb-6">
+          Här kan du se en översikt över dina aktiviteter. För att hantera dina erbjudanden, gå till "Erbjudanden"-fliken.
+        </p>
+        <Button 
+          variant="outline" 
+          onClick={goToDealsPage}
+          className="mt-2"
+        >
+          Gå till erbjudanden
+        </Button>
       </CardContent>
     </Card>
   );
