@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { DealImage } from "./deal/DealImage";
 import { RegularDealContent } from "./deal/RegularDealContent";
+import { CategoryBadge } from "./CategoryBadge";
 
 interface DealCardProps {
   id: number;
@@ -72,8 +73,11 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
-              className="h-20 xs:h-24 sm:h-28"
+              className="h-24 xs:h-32 sm:h-36"
             />
+            <div className="px-1.5 sm:px-3 -mt-1">
+              <CategoryBadge category={category} className="text-[10px] xs:text-xs px-1.5 py-0.5" />
+            </div>
           </div>
           <div className="flex-1 flex flex-col">
             <RegularDealContent

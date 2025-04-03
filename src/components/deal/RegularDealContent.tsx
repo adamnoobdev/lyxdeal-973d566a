@@ -45,21 +45,18 @@ export const RegularDealContent = ({
 
   return (
     <div className="p-1.5 sm:p-3 flex flex-col flex-1"> 
-      <div className="flex flex-col items-start gap-0.5">
-        <CategoryBadge category={category} className="text-[10px] xs:text-xs px-1 py-0.5" />
-        <h3 className="text-xs xs:text-sm font-medium line-clamp-2 leading-tight">{title}</h3>
-      </div>
+      <h3 className="text-xs xs:text-sm font-medium line-clamp-2 leading-tight mt-2">{title}</h3>
       
-      <p className="text-[10px] xs:text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-tight">{description}</p>
+      <p className="text-[10px] xs:text-xs text-muted-foreground line-clamp-2 mt-1 leading-tight">{description}</p>
       
-      <div className="flex items-center text-[10px] xs:text-xs text-gray-500 mt-0.5">
+      <div className="flex items-center text-[10px] xs:text-xs text-gray-500 mt-1">
         <MapPin className="h-2.5 w-2.5 mr-0.5" /> {city}
       </div>
       
-      <div className="mt-auto pt-1 border-t mt-1">
+      <div className="mt-auto pt-1 border-t mt-1.5">
         <div className="flex items-end justify-between">
           <div>
-            <span className="font-bold text-sm xs:text-base text-foreground">
+            <span className="font-bold text-base xs:text-lg text-foreground">
               {isFree ? "Gratis" : `${formatCurrency(discountedPrice)}`}
             </span>
             {originalPrice > 0 && (isFree || originalPrice !== discountedPrice) && (
