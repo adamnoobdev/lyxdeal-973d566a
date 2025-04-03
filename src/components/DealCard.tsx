@@ -75,7 +75,7 @@ const DealCardComponent = ({
               isNew={isNew()}
               className="h-28 xs:h-36 sm:h-40"
             />
-            <div className="px-1.5 sm:px-3 mt-2">
+            <div className="px-1.5 sm:px-3 mt-1.5">
               <CategoryBadge category={category} className="text-[10px] xs:text-xs px-1.5 py-0.5" />
             </div>
           </div>

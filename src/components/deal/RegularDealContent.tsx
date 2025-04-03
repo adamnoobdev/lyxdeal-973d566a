@@ -45,11 +45,11 @@ export const RegularDealContent = ({
 
   return (
     <div className="p-1.5 sm:p-3 flex flex-col flex-1"> 
-      <h3 className="text-xs xs:text-sm font-medium line-clamp-2 leading-tight mt-2">{title}</h3>
+      <h3 className="text-xs xs:text-sm font-medium line-clamp-2 leading-tight mt-1">{title}</h3>
       
       <p className="text-[10px] xs:text-xs text-muted-foreground line-clamp-2 mt-1 leading-tight">{description}</p>
       
-      <div className="flex items-center text-[10px] xs:text-xs text-gray-500 mt-1.5 mb-2">
+      <div className="flex items-center text-[10px] xs:text-xs text-gray-500 mt-1.5 mb-2.5">
         <MapPin className="h-2.5 w-2.5 mr-0.5" /> {city}
       </div>
       
