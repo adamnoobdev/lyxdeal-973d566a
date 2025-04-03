@@ -81,9 +81,7 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     yearSavings: 2100,
     dealCount: 3,
     features: [
-      "3 erbjudanden åt gången",
       "Direktbokning och rabattkoder",
-      "Personligt dashboard",
       "Avancerad statistik och överblick",
       "Prioriterad kundtjänst",
       "Tillgång till beta-funktioner"

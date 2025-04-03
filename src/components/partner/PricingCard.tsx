@@ -118,21 +118,24 @@ export const PricingCard = ({
           
           {/* Visa alla features för baspaketet, eller bara de unika för premiumpaket */}
           {isBasic ? (
-            features.map((feature, index) => (
+            features.filter(feature => !feature.includes(`${dealCount} erbjudande`)).map((feature, index) => (
               <li key={index} className="flex items-start gap-2 text-xs">
                 <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                 <span>{feature}</span>
               </li>
             ))
           ) : (
-            features.filter(feature => 
-              !SUBSCRIPTION_PLANS["Baspaket"].features.includes(feature)
-            ).map((feature, index) => (
-              <li key={index} className="flex items-start gap-2 text-xs">
-                <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                <span>{feature}</span>
-              </li>
-            ))
+            features
+              .filter(feature => 
+                !SUBSCRIPTION_PLANS["Baspaket"].features.includes(feature) && 
+                !feature.includes(`${dealCount} erbjudande`)
+              )
+              .map((feature, index) => (
+                <li key={index} className="flex items-start gap-2 text-xs">
+                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>{feature}</span>
+                </li>
+              ))
           )}
         </ul>
       </CardContent>
