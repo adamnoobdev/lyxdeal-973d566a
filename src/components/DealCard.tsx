@@ -68,14 +68,14 @@ const DealCardComponent = ({
     <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] bg-white/95 border-muted-200 hover:border-primary/20">
       <Link to={`/deal/${id}`} className="block h-full flex flex-col touch-manipulation">
         <div className="flex flex-col h-full">
-          <div className="w-full relative">
+          <div className="w-full">
             <DealImage
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
               className="h-28 xs:h-36 sm:h-40"
             />
-            <div className="absolute bottom-1 left-1.5 sm:left-3 z-10">
+            <div className="px-1.5 sm:px-3 mt-1.5">
               <CategoryBadge category={category} className="text-[10px] xs:text-xs px-1.5 py-0.5" />
             </div>
           </div>
