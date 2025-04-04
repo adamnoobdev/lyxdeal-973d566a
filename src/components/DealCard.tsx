@@ -71,7 +71,7 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
-              className="h-32 xs:h-40 sm:h-44 md:h-48"
+              className="h-36 xs:h-40 sm:h-44 md:h-48"
             />
             <div className="px-1.5 sm:px-3 mt-1.5">
               <CategoryBadge category={category} />
