@@ -43,6 +43,9 @@ const CitySelector: React.FC<CitySelectorProps> = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[200px] bg-white">
+        <div className="text-xs text-muted-foreground px-3 py-2 border-b">
+          Svenska städer
+        </div>
         {citiesToDisplay.map(city => (
           <DropdownMenuItem 
             key={city} 

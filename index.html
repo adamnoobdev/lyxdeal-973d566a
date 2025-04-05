@@ -11,12 +11,51 @@
     <meta name="language" content="sv" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Lyxdeal" />
+    <meta name="geo.region" content="SE" />
+    <meta name="geo.placename" content="Sweden" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Google Tag Manager - Will be initialized via cookie consent -->
+    <!-- Geo-targeting script -->
     <script>
+      // Funktion för att kontrollera och omdirigera användare baserat på geografisk plats
+      function checkGeoLocation() {
+        try {
+          // Försök hämta besökarens land från time zone
+          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const isSwedishTimezone = timezone === 'Europe/Stockholm';
+          
+          // Spara resultat i sessionStorage för att undvika upprepade kontroller
+          sessionStorage.setItem('isSwedishVisitor', isSwedishTimezone);
+          
+          // Om användaren inte är från Sverige och inte på redirected-sidan
+          if (!isSwedishTimezone && !window.location.href.includes('redirect.html')) {
+            // Spara nuvarande URL för att kunna återkomma
+            localStorage.setItem('originalUrl', window.location.href);
+            
+            // Endast omdirigera om användaren inte explicit har valt att fortsätta
+            if (!sessionStorage.getItem('userAllowedAccess')) {
+              console.log('Redirecting non-Swedish visitor to info page');
+              // Kommentera bort faktisk omdirigering för testning
+              // window.location.href = '/redirect.html';
+            }
+          }
+        } catch (e) {
+          console.error('Geo-check error:', e);
+        }
+      }
+      
+      // Välj om du vill aktivera geo-kontroll
+      const enableGeoCheck = false; // Sätt till true för att aktivera
+      if (enableGeoCheck) {
+        // Kör kontrollen när sidan laddar
+        if (!sessionStorage.getItem('geoChecked')) {
+          checkGeoLocation();
+          sessionStorage.setItem('geoChecked', 'true');
+        }
+      }
+      
       // Konfigurera dataLayer för GTM innan GTM-scriptet laddas
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({

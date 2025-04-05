@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lyxdeal - Endast tillgänglig i Sverige</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" />
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f9f9f9;
+    }
+    .container {
+      max-width: 600px;
+      padding: 2rem;
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #9333ea;
+      margin-bottom: 1.5rem;
+    }
+    p {
+      color: #333;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .button {
+      background-color: #9333ea;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-block;
+      transition: background-color 0.2s;
+    }
+    .button:hover {
+      background-color: #7928ca;
+    }
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 1.5rem;
+    }
+    .secondary-button {
+      background-color: transparent;
+      color: #9333ea;
+      border: 1px solid #9333ea;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-block;
+      margin-left: 0.5rem;
+      transition: background-color 0.2s;
+    }
+    .secondary-button:hover {
+      background-color: rgba(147, 51, 234, 0.1);
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <img src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" alt="Lyxdeal Logo" class="logo">
+    <h1>Välkommen till Lyxdeal</h1>
+    <p>För närvarande är Lyxdeal endast tillgänglig för användare i Sverige. Vi expanderar snart till fler länder!</p>
+    <p>Currently, Lyxdeal is only available for users in Sweden. We are expanding to more countries soon!</p>
+    
+    <div class="buttons">
+      <a href="/" class="secondary-button" onclick="goBack(event)">Tillbaka</a>
+      <a href="/" class="button" onclick="continueAnyway(event)">Fortsätt ändå</a>
+    </div>
+  </div>
+
+  <script>
+    function goBack(e) {
+      e.preventDefault();
+      window.history.back();
+    }
+    
+    function continueAnyway(e) {
+      e.preventDefault();
+      // Markera att användaren har valt att fortsätta
+      sessionStorage.setItem('userAllowedAccess', 'true');
+      
+      // Återvänd till ursprunglig sida om sådan finns sparad
+      const originalUrl = localStorage.getItem('originalUrl');
+      if (originalUrl) {
+        window.location.href = originalUrl;
+      } else {
+        window.location.href = '/';
+      }
+    }
+  </script>
+</body>
+</html>
