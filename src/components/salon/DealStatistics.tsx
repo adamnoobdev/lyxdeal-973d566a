@@ -73,13 +73,13 @@ export const DealStatistics = ({ dealId, salonId }: DealStatisticsProps) => {
           title="Skapade rabattkoder" 
           value={dealStat.total_codes}
           icon={<Tag className="h-5 w-5 text-white" />}
-          color="secondary"
+          color="primary"
         />
         <StatCard 
           title="Använda rabattkoder" 
           value={dealStat.used_codes}
           icon={<CheckCircle2 className="h-5 w-5 text-white" />}
-          color="success"
+          color="primary"
         />
       </div>
     );
@@ -98,13 +98,13 @@ export const DealStatistics = ({ dealId, salonId }: DealStatisticsProps) => {
         title="Totalt skapade rabattkoder" 
         value={stats?.reduce((sum, stat) => sum + stat.total_codes, 0) || 0}
         icon={<Tag className="h-5 w-5 text-white" />}
-        color="secondary"
+        color="primary"
       />
       <StatCard 
         title="Totalt använda rabattkoder" 
         value={stats?.reduce((sum, stat) => sum + stat.used_codes, 0) || 0}
         icon={<CheckCircle2 className="h-5 w-5 text-white" />}
-        color="success"
+        color="primary"
       />
     </div>
   );
@@ -132,7 +132,7 @@ const StatCard = ({ title, value, icon, color }: StatCardProps) => {
         <CardTitle className="text-sm xs:text-base font-medium text-primary">
           {title}
         </CardTitle>
-        <div className={`${bgColor} p-2`}>
+        <div className={`${bgColor} p-2.5`}>
           {icon}
         </div>
       </CardHeader>

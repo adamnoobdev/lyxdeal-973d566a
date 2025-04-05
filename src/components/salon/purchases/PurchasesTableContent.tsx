@@ -55,7 +55,7 @@ const PurchaseTableRow = ({ purchase }: PurchaseTableRowProps) => {
       <TableCell>{purchase.customer_email}</TableCell>
       <TableCell className="font-mono">{purchase.discount_code}</TableCell>
       <TableCell>
-        <Badge variant="secondary">{status}</Badge>
+        <Badge variant="primary">{status}</Badge>
       </TableCell>
       <TableCell>
         {format(new Date(purchase.created_at), "d MMMM yyyy", { locale: sv })}

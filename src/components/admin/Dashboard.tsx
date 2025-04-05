@@ -74,7 +74,7 @@ export const Dashboard = () => {
               <CardTitle className="text-base xs:text-lg font-medium text-primary">
                 {stat.title}
               </CardTitle>
-              <div className="bg-primary p-2">
+              <div className="bg-primary p-2.5">
                 <stat.icon className="h-4 w-4 text-white" />
               </div>
             </CardHeader>

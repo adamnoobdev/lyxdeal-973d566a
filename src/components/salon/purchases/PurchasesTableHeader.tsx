@@ -17,7 +17,7 @@ export const PurchasesTableHeader = ({ onExport }: PurchasesTableHeaderProps) =>
       </div>
       <Button 
         onClick={onExport} 
-        className="gap-2"
+        className="gap-2 bg-primary text-white hover:bg-primary/90"
       >
         <Download className="h-4 w-4" />
         <span className="hidden sm:inline">Exportera CSV</span>
