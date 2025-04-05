@@ -1,48 +1,42 @@
-export interface Deal {
-  id: number;
-  title: string;
-  description: string;
-  image_url: string;
-  original_price: number;
-  discounted_price: number;
-  category: string;
-  city: string;
-  time_remaining: string;
-  featured: boolean;
-  created_at: string;
-  updated_at: string;
-  quantity_left: number;
-  salon_id?: number;
-  status: 'pending' | 'approved' | 'rejected';
-  salons?: {
-    name: string;
-  };
-  is_free: boolean;
-  is_active: boolean;
-  expiration_date: string;
-  booking_url?: string;
-  requires_discount_code?: boolean;
-}
+
+// Befintliga importeringar behålls
+import { Deal } from "@/types/deal";
 
 export interface Salon {
   id: number;
   name: string;
-  email: string;
+  email?: string;
   phone: string | null;
   address: string | null;
-  created_at: string;
-  user_id: string | null;
-  role: string;
+  created_at?: string;
+  user_id?: string | null;
+  role?: string;
   terms_accepted?: boolean;
   privacy_accepted?: boolean;
+  rating?: number;
+  rating_comment?: string;
 }
 
-export interface SalonFormValues {
-  name: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  password?: string;
-  termsAccepted?: boolean;
-  privacyAccepted?: boolean;
+// Resten av filen behålls som den är
+export interface CategorizedDeals {
+  all: Deal[];
+  active: Deal[];
+  inactive: Deal[];
+  pending: Deal[];
+}
+
+export interface DealsTabProps {
+  deals: Deal[];
+  onEdit: (deal: Deal) => void;
+  onDelete: (deal: Deal) => void;
+  onToggleActive: (deal: Deal) => void;
+  handleViewDiscountCodes: (deal: Deal) => void;
+}
+
+export interface DealStats {
+  totalDeals: number;
+  activeDeals: number;
+  pendingDeals: number;
+  totalVisits?: number;
+  totalSignups?: number;
 }

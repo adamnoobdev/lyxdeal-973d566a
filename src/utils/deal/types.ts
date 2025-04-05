@@ -38,6 +38,7 @@ export interface FormattedDealData {
     name: string;
     address: string | null;
     phone: string | null;
+    rating?: number;
   } | null;
   booking_url: string | null;
   requires_discount_code?: boolean;

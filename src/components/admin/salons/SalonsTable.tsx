@@ -1,102 +1,84 @@
 
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { Salon } from "../types";
+import { Salon } from "@/components/admin/types";
 import { SalonActions } from "./SalonActions";
-import { CheckCircle, XCircle } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatDate } from "@/utils/salon/salonDataUtils";
+import { Rating } from "@/components/ui/rating";
 
-export interface SalonsTableProps {
+interface SalonsTableProps {
   salons: Salon[];
   onEdit: (salon: Salon) => void;
   onDelete: (salon: Salon) => void;
-  onSelect: (salon: Salon) => void;
-  selectedSalon: Salon | null;
+  onViewDetails: (salon: Salon) => void;
+  onRate?: (salon: Salon) => void;
 }
 
 export const SalonsTable = ({ 
-  salons, 
-  onDelete, 
-  onEdit, 
-  onSelect, 
-  selectedSalon 
+  salons,
+  onEdit,
+  onDelete,
+  onViewDetails,
+  onRate
 }: SalonsTableProps) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('sv-SE', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const isMobile = useIsMobile();
-  
   return (
-    <div className="border rounded-md overflow-x-auto max-w-full">
+    <div className="border rounded-md overflow-hidden">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-muted/30">
           <TableRow>
-            <TableHead className="w-12 font-medium text-xs sm:text-sm">ID</TableHead>
-            <TableHead className="font-medium text-xs sm:text-sm">Namn</TableHead>
-            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell">Email</TableHead>}
-            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden md:table-cell">Roll</TableHead>}
-            {!isMobile && <TableHead className="font-medium text-xs sm:text-sm hidden lg:table-cell">Skapad</TableHead>}
-            <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell w-14">Villkor</TableHead>
-            <TableHead className="font-medium text-xs sm:text-sm hidden sm:table-cell w-14">Integritet</TableHead>
-            <TableHead className="font-medium text-xs sm:text-sm text-right">Hantera</TableHead>
+            <TableHead>Namn</TableHead>
+            <TableHead>Kontakt</TableHead>
+            <TableHead>Adress</TableHead>
+            <TableHead>Betyg</TableHead>
+            <TableHead>Registrerad</TableHead>
+            <TableHead className="text-right">Åtgärder</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {salons.map((salon) => (
-            <TableRow 
-              key={salon.id} 
-              className={`cursor-pointer ${selectedSalon?.id === salon.id ? 'bg-muted/50' : ''}`}
-              onClick={() => onSelect(salon)}
-            >
-              <TableCell className="font-medium text-xs sm:text-sm py-2 sm:py-4">{salon.id}</TableCell>
-              <TableCell className="text-xs sm:text-sm py-2 sm:py-4">
-                <div className="truncate max-w-[100px] xs:max-w-[120px] sm:max-w-[150px] md:max-w-full">
-                  {salon.name}
-                  {isMobile && (
-                    <div className="text-muted-foreground text-[10px] truncate mt-0.5">
-                      {salon.email}
-                    </div>
-                  )}
-                </div>
-              </TableCell>
-              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">{salon.email}</TableCell>}
-              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden md:table-cell">{salon.role === 'admin' ? 'Admin' : 'Salongägare'}</TableCell>}
-              {!isMobile && <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden lg:table-cell">{formatDate(salon.created_at)}</TableCell>}
-              <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">
-                {salon.terms_accepted !== false ? (
-                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
-                ) : (
-                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
-                )}
-              </TableCell>
-              <TableCell className="text-xs sm:text-sm py-2 sm:py-4 hidden sm:table-cell">
-                {salon.privacy_accepted !== false ? (
-                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
-                ) : (
-                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
-                )}
-              </TableCell>
-              <TableCell className="text-right py-2 px-2 sm:px-4 sm:py-4 w-20 xs:w-24 sm:w-auto">
-                <SalonActions
-                  salonId={salon.id}
-                  onDelete={() => onDelete(salon)}
-                  onEdit={() => onEdit(salon)}
-                />
+          {salons.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                Inga salonger hittades
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            salons.map(salon => (
+              <TableRow key={salon.id} className="cursor-pointer hover:bg-muted/50">
+                <TableCell 
+                  className="font-medium"
+                  onClick={() => onViewDetails(salon)}
+                >
+                  {salon.name}
+                </TableCell>
+                <TableCell onClick={() => onViewDetails(salon)}>
+                  <div>
+                    <div>{salon.email}</div>
+                    <div className="text-sm text-muted-foreground">{salon.phone || "-"}</div>
+                  </div>
+                </TableCell>
+                <TableCell onClick={() => onViewDetails(salon)}>
+                  {salon.address || "-"}
+                </TableCell>
+                <TableCell onClick={() => onViewDetails(salon)}>
+                  {salon.rating ? (
+                    <Rating value={salon.rating} size="md" />
+                  ) : (
+                    <span className="text-muted-foreground text-sm">Ej betygsatt</span>
+                  )}
+                </TableCell>
+                <TableCell onClick={() => onViewDetails(salon)}>
+                  {salon.created_at ? formatDate(salon.created_at) : "-"}
+                </TableCell>
+                <TableCell className="text-right">
+                  <SalonActions 
+                    salon={salon} 
+                    onEdit={onEdit} 
+                    onDelete={onDelete} 
+                    onRate={onRate}
+                  />
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>

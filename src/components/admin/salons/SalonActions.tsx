@@ -1,69 +1,64 @@
 
+import { useState } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { MoreVertical, Pencil, Trash2, Star } from "lucide-react";
+import { Salon } from "@/components/admin/types";
 
 interface SalonActionsProps {
-  salonId: number;
-  onEdit: () => void;
-  onDelete: () => void;
+  salon: Salon;
+  onEdit: (salon: Salon) => void;
+  onDelete: (salon: Salon) => void;
+  onRate?: (salon: Salon) => void;
 }
 
-export const SalonActions = ({ salonId, onEdit, onDelete }: SalonActionsProps) => {
-  const isMobile = useIsMobile();
-  
-  const handleClick = (e: React.MouseEvent, action: () => void) => {
-    e.stopPropagation(); // Förhindra att klicket triggar radklicket
-    action();
-  };
+export const SalonActions = ({ salon, onEdit, onDelete, onRate }: SalonActionsProps) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  // För mobila enheter, rendera vertikala knappar
-  if (isMobile) {
-    return (
-      <div className="flex flex-col gap-1 w-full">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={(e) => handleClick(e, onEdit)}
-          className="h-7 min-h-0 px-2 py-0.5 text-xs w-full justify-center"
-        >
-          <Pencil className="h-3 w-3 mr-1" />
-          <span>Redigera</span>
-        </Button>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={(e) => handleClick(e, onDelete)}
-          className="h-7 min-h-0 px-2 py-0.5 text-xs w-full justify-center"
-        >
-          <Trash2 className="h-3 w-3 mr-1" />
-          <span>Ta bort</span>
-        </Button>
-      </div>
-    );
-  }
-  
-  // För större skärmar, fortsätt med horisontella knappar
   return (
-    <div className="flex gap-1 justify-end">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={(e) => handleClick(e, onEdit)}
-        className="h-6 xs:h-7 min-h-0 px-1.5 py-0.5 text-[10px] xs:text-xs flex items-center gap-1"
-      >
-        <Pencil className="h-3 w-3" />
-        <span className="hidden xs:inline">Redigera</span>
-      </Button>
-      <Button
-        variant="destructive"
-        size="sm"
-        onClick={(e) => handleClick(e, onDelete)}
-        className="h-6 xs:h-7 min-h-0 px-1.5 py-0.5 text-[10px] xs:text-xs flex items-center gap-1"
-      >
-        <Trash2 className="h-3 w-3" />
-        <span className="hidden xs:inline">Ta bort</span>
-      </Button>
-    </div>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <MoreVertical className="h-4 w-4" />
+          <span className="sr-only">Öppna meny</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-[160px]">
+        <DropdownMenuItem
+          onClick={() => {
+            setIsOpen(false);
+            onEdit(salon);
+          }}
+        >
+          <Pencil className="h-4 w-4 mr-2" />
+          Redigera
+        </DropdownMenuItem>
+        
+        {onRate && (
+          <DropdownMenuItem
+            onClick={() => {
+              setIsOpen(false);
+              onRate(salon);
+            }}
+          >
+            <Star className="h-4 w-4 mr-2" />
+            Betygsätt
+          </DropdownMenuItem>
+        )}
+        
+        <DropdownMenuSeparator />
+        
+        <DropdownMenuItem
+          onClick={() => {
+            setIsOpen(false);
+            onDelete(salon);
+          }}
+          className="text-destructive focus:text-destructive"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Ta bort
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

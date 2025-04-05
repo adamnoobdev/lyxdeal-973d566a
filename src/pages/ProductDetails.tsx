@@ -59,6 +59,7 @@ const ProductDetails = () => {
       name: deal.salon.name,
       address: deal.salon.address,
       phone: deal.salon.phone,
+      rating: deal.salon.rating || undefined, // Lägg till betyg om det finns
     } : null,
     booking_url: deal.booking_url,
     category: deal.category,
@@ -120,6 +121,7 @@ const ProductDetails = () => {
                   salonId={dealData.salon?.id || null} 
                   salonName={dealData.salon?.name} 
                   city={dealData.city} 
+                  salonRating={dealData.salon?.rating}
                 />
               </div>
 

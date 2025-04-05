@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { DealImage } from "./deal/DealImage";
 import { RegularDealContent } from "./deal/RegularDealContent";
 import { CategoryBadge } from "./CategoryBadge";
+import { Rating } from "./ui/rating";
 
 interface DealCardProps {
   id: number;
@@ -20,6 +21,7 @@ interface DealCardProps {
   quantity_left: number;
   is_free?: boolean;
   requires_discount_code?: boolean;
+  salon_rating?: number;
 }
 
 const DealCardComponent = ({
@@ -36,6 +38,7 @@ const DealCardComponent = ({
   quantity_left,
   is_free = false,
   requires_discount_code = true,
+  salon_rating,
 }: DealCardProps) => {
   const isNew = useCallback(() => {
     const createdDate = new Date(created_at);
@@ -73,8 +76,11 @@ const DealCardComponent = ({
               isNew={isNew()}
               className="h-36 xs:h-40 sm:h-44 md:h-48"
             />
-            <div className="px-1.5 sm:px-3 mt-1.5">
+            <div className="px-1.5 sm:px-3 mt-1.5 flex items-center justify-between">
               <CategoryBadge category={category} />
+              {salon_rating && (
+                <Rating value={salon_rating} size="sm" maxStars={1} showValue={true} />
+              )}
             </div>
           </div>
           <div className="flex-1 flex flex-col">
