@@ -39,18 +39,18 @@ export const useSalonsAdmin = () => {
       // Transform the data to match the Salon type
       if (data) {
         const transformedData: Salon[] = data.map(salon => ({
-          id: salon.id || 0,
-          name: salon.name,
-          email: 'email' in salon ? salon.email : '',
-          phone: salon.phone || null,
-          address: salon.address || null,
-          created_at: 'created_at' in salon ? salon.created_at : new Date().toISOString(),
-          user_id: 'user_id' in salon ? salon.user_id : null,
-          role: 'role' in salon ? salon.role : 'salon_owner',
-          terms_accepted: 'terms_accepted' in salon ? salon.terms_accepted : true,
-          privacy_accepted: 'privacy_accepted' in salon ? salon.privacy_accepted : true,
-          rating: 'rating' in salon ? salon.rating : null,
-          rating_comment: 'rating_comment' in salon ? salon.rating_comment : null
+          id: Number(salon.id) || 0,
+          name: String(salon.name || ''),
+          email: typeof salon.email === 'string' ? salon.email : '',
+          phone: salon.phone !== null ? String(salon.phone) : null,
+          address: salon.address !== null ? String(salon.address) : null,
+          created_at: typeof salon.created_at === 'string' ? salon.created_at : new Date().toISOString(),
+          user_id: typeof salon.user_id === 'string' ? salon.user_id : null,
+          role: typeof salon.role === 'string' ? salon.role : 'salon_owner',
+          terms_accepted: typeof salon.terms_accepted === 'boolean' ? salon.terms_accepted : true,
+          privacy_accepted: typeof salon.privacy_accepted === 'boolean' ? salon.privacy_accepted : true,
+          rating: salon.rating !== null ? Number(salon.rating) : null,
+          rating_comment: salon.rating_comment !== null ? String(salon.rating_comment) : null
         }));
         
         setSalons(transformedData);
