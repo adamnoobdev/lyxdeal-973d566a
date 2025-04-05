@@ -14,7 +14,12 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema as schema, FormValues } from '@/components/deal-form/schema';
 import { useSubscriptionData } from './subscription/useSubscriptionData';
-import { getPlanDetails } from './subscription/utils';
+import { PriceFields } from '@/components/deal-form/PriceFields';
+import { LocationFields } from '@/components/deal-form/LocationFields';
+import { QuantityField } from '@/components/deal-form/QuantityField';
+import { BookingUrlField } from '@/components/deal-form/BookingUrlField';
+import { AdditionalFields } from '@/components/deal-form/AdditionalFields';
+import { RequiresDiscountCodeField } from '@/components/deal-form/RequiresDiscountCodeField';
 
 interface DealDialogProps {
   isOpen: boolean;
@@ -106,7 +111,26 @@ export const DealDialog: React.FC<DealDialogProps> = ({
               form={methods}
               handleImageSelected={(imageUrl) => methods.setValue('imageUrl', imageUrl)}
               initialImageUrl={initialValues?.imageUrl}
+              forceDirectBooking={isBasicPlan}
             />
+            
+            <PriceFields form={methods} />
+            
+            <LocationFields form={methods} />
+            
+            <RequiresDiscountCodeField 
+              form={methods} 
+              readOnly={isBasicPlan}
+            />
+            
+            <BookingUrlField form={methods} />
+            
+            <QuantityField 
+              form={methods} 
+              readOnly={isBasicPlan || (initialValues && 'id' in initialValues)}
+            />
+            
+            <AdditionalFields form={methods} />
             
             <DialogFooter>
               <Button
