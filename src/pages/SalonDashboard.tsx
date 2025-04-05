@@ -13,6 +13,7 @@ import { WelcomeAlert } from "@/components/salon/dashboard/WelcomeAlert";
 import { MainTabs } from "@/components/salon/dashboard/MainTabs";
 import { DashboardDialogs } from "@/components/salon/dashboard/Dialogs";
 import { SalonLayout } from "@/components/salon/layout/SalonLayout";
+import { Helmet } from "react-helmet";
 
 export default function SalonDashboard() {
   const { session } = useSession();
@@ -95,6 +96,9 @@ export default function SalonDashboard() {
 
   return (
     <SalonLayout>
+      <Helmet>
+        <title>Översikt | Lyxdeal</title>
+      </Helmet>
       <div className="space-y-4 sm:space-y-6">
         <DashboardHeader onCreateClick={() => setIsCreateDialogOpen(true)} />
         <WelcomeAlert />
