@@ -56,8 +56,12 @@ export const SalonDeals: React.FC = () => {
 
   // Funktion för att öppna dialogrutan för att skapa ett nytt erbjudande
   const handleCreateDeal = () => {
-    setEditingDeal(null); // Säkerställ att vi inte redigerar ett befintligt erbjudande
-    setIsDialogOpen(true); // Öppna dialogrutan
+    // Säkerställ att vi inte redigerar ett befintligt erbjudande
+    setEditingDeal(null); 
+    // Öppna dialogrutan explicit
+    setIsDialogOpen(true);
+    
+    console.log("[SalonDeals] Creating new deal, dialog opened");
   };
 
   return (

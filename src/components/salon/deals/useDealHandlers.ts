@@ -47,9 +47,11 @@ export const useDealHandlers = (
     if (isProcessingAction) return;
     console.log("[SalonDeals] Closing deal dialog");
     setIsDialogOpen(false);
+    
+    // Fördröj återställning av editingDeal för att förhindra UI-flimmer
     setTimeout(() => {
       setEditingDeal(null);
-    }, 100);
+    }, 300);
   }, [setEditingDeal, isProcessingAction, setIsDialogOpen]);
   
   const handleUpdateDeal = useCallback(async (values: any) => {

@@ -40,10 +40,11 @@ export const useSalonDealsState = () => {
   // Get deal management functionality
   const dealManagement = useSalonDealsManagement(salonId);
   
+  // Håll isDialogOpen synkroniserad med editingDeal, men bara i ena riktningen
+  // Om editingDeal finns, öppna dialogrutan
+  // Om editingDeal blir null, stäng INTE dialogrutan automatiskt (detta tillåter att skapa nya erbjudanden)
   useEffect(() => {
-    if (!dealManagement.editingDeal && isDialogOpen) {
-      setIsDialogOpen(false);
-    } else if (dealManagement.editingDeal && !isDialogOpen) {
+    if (dealManagement.editingDeal && !isDialogOpen) {
       setIsDialogOpen(true);
     }
   }, [dealManagement.editingDeal, isDialogOpen]);
