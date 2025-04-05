@@ -122,19 +122,6 @@
     @apply min-h-[44px] min-w-[44px];
   }
   
-  /* Styling för header containern */
-  .header-container {
-    @apply w-full;
-  }
-  
-  .header-container > div:first-child {
-    @apply sticky top-0 z-40;
-  }
-  
-  .header-container > header {
-    @apply sticky top-0 z-50;
-  }
-  
   /* Ta bort Mapbox-logotypen och attributionskontroll från kartan */
   .mapboxgl-ctrl-logo,
   .mapboxgl-ctrl-attrib {

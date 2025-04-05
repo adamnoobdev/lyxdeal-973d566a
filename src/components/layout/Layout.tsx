@@ -27,10 +27,8 @@ const Layout: React.FC = () => {
 
   const content = (
     <div className="flex flex-col min-h-screen">
-      <div className="header-container">
-        <TopBar />
-        <NavigationBar />
-      </div>
+      <TopBar />
+      <NavigationBar />
       <main className={`flex-1 ${mainPaddingClass}`}>
         <Outlet />
       </main>

@@ -16,6 +16,7 @@ export const useScroll = (threshold: number = 50): ScrollState => {
   const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY;
     
+    // Use requestAnimationFrame to optimize performance
     requestAnimationFrame(() => {
       setScrollState({
         isScrolled: currentScrollY > threshold,
