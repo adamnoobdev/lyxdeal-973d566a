@@ -32,9 +32,13 @@ export const DiscountCodesList = ({ codes }: DiscountCodesListProps) => {
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0">
               {code.is_used ? (
-                <XCircle className="h-5 w-5 text-red-500" />
+                <div className="bg-destructive p-2">
+                  <XCircle className="h-4 w-4 text-white" />
+                </div>
               ) : (
-                <CheckCircle className="h-5 w-5 text-green-500" />
+                <div className="bg-success-500 p-2">
+                  <CheckCircle className="h-4 w-4 text-white" />
+                </div>
               )}
             </div>
             
