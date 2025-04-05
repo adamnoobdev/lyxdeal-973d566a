@@ -13,6 +13,7 @@ interface SalonRatingDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (salonId: number, rating: number, comment: string) => Promise<boolean>;
+  isSubmitting?: boolean;
 }
 
 export const SalonRatingDialog = ({
@@ -20,10 +21,14 @@ export const SalonRatingDialog = ({
   isOpen,
   onClose,
   onSave,
+  isSubmitting = false,
 }: SalonRatingDialogProps) => {
   const [rating, setRating] = useState<number>(salon?.rating || 0);
-  const [comment, setComment] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [comment, setComment] = useState<string>(salon?.rating_comment || "");
+  const [localSubmitting, setLocalSubmitting] = useState(false);
+  
+  // Använd antingen extern eller lokal isSubmitting status
+  const submitting = isSubmitting || localSubmitting;
 
   const handleStarClick = (value: number) => {
     setRating(value);
@@ -32,22 +37,39 @@ export const SalonRatingDialog = ({
   const handleSave = async () => {
     if (!salon) return;
     
-    setIsSubmitting(true);
     try {
+      setLocalSubmitting(true);
       const success = await onSave(salon.id, rating, comment);
       if (success) {
         toast.success("Salongens betyg har uppdaterats");
         onClose();
       }
+    } catch (error) {
+      console.error("Error saving rating:", error);
+      toast.error("Ett fel uppstod vid betygsättning");
     } finally {
-      setIsSubmitting(false);
+      setLocalSubmitting(false);
     }
   };
+
+  const handleClose = () => {
+    if (!submitting) {
+      onClose();
+    }
+  };
+
+  // Reset values when salon changes
+  useState(() => {
+    if (salon) {
+      setRating(salon.rating || 0);
+      setComment(salon.rating_comment || "");
+    }
+  });
 
   if (!salon) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => !isSubmitting && onClose()}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Betygsätt salong: {salon.name}</DialogTitle>
@@ -64,6 +86,7 @@ export const SalonRatingDialog = ({
                   variant={rating === value ? "default" : "outline"}
                   onClick={() => handleStarClick(value)}
                   className="w-10 h-10 p-0"
+                  disabled={submitting}
                 >
                   {value}
                 </Button>
@@ -82,6 +105,7 @@ export const SalonRatingDialog = ({
               onChange={(e) => setComment(e.target.value)}
               placeholder="Skriv en motivering för betyget..."
               rows={4}
+              disabled={submitting}
             />
             <p className="text-xs text-muted-foreground">
               Förklara varför du ger detta betyg så att andra administratörer förstår.
@@ -90,11 +114,11 @@ export const SalonRatingDialog = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <Button variant="outline" onClick={handleClose} disabled={submitting}>
             Avbryt
           </Button>
-          <Button onClick={handleSave} disabled={rating === 0 || isSubmitting}>
-            {isSubmitting ? "Sparar..." : "Spara betyg"}
+          <Button onClick={handleSave} disabled={rating === 0 || submitting}>
+            {submitting ? "Sparar..." : "Spara betyg"}
           </Button>
         </DialogFooter>
       </DialogContent>

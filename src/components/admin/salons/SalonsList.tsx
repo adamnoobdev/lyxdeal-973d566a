@@ -22,6 +22,7 @@ export const SalonsList = () => {
   const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [ratingSalon, setRatingSalon] = useState<Salon | null>(null);
+  const [isRating, setIsRating] = useState(false);
   
   const { salons, isLoading, error, handleDelete, handleUpdate, handleCreate, fetchSalons } = useSalonsAdmin();
 
@@ -72,6 +73,8 @@ export const SalonsList = () => {
    */
   const onRate = async (salonId: number, rating: number, comment: string) => {
     try {
+      setIsRating(true);
+      
       // Uppdatera salongens rating i salons-tabellen
       const { error: updateError } = await supabase
         .from('salons')
@@ -110,11 +113,12 @@ export const SalonsList = () => {
       // Uppdatera lokala salong-data
       await fetchSalons();
       return true;
-      
     } catch (error) {
       console.error("Error in rating salon:", error);
       toast.error("Ett fel uppstod när betyget skulle sparas");
       return false;
+    } finally {
+      setIsRating(false);
     }
   };
 
@@ -241,6 +245,7 @@ export const SalonsList = () => {
         isOpen={!!ratingSalon}
         onClose={() => setRatingSalon(null)}
         onSave={onRate}
+        isSubmitting={isRating}
       />
     </div>
   );
