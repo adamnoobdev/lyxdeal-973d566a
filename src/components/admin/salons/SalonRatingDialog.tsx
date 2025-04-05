@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -23,8 +23,8 @@ export const SalonRatingDialog = ({
   onSave,
   isSubmitting = false,
 }: SalonRatingDialogProps) => {
-  const [rating, setRating] = useState<number>(salon?.rating || 0);
-  const [comment, setComment] = useState<string>(salon?.rating_comment || "");
+  const [rating, setRating] = useState<number>(0);
+  const [comment, setComment] = useState<string>("");
   const [localSubmitting, setLocalSubmitting] = useState(false);
   
   // Använd antingen extern eller lokal isSubmitting status
@@ -58,13 +58,13 @@ export const SalonRatingDialog = ({
     }
   };
 
-  // Reset values when salon changes
-  useState(() => {
+  // Reset values when salon changes - using useEffect instead of useState
+  useEffect(() => {
     if (salon) {
       setRating(salon.rating || 0);
       setComment(salon.rating_comment || "");
     }
-  });
+  }, [salon]);
 
   if (!salon) return null;
 

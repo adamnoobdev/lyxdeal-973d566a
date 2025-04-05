@@ -74,6 +74,7 @@ export const SalonsList = () => {
   const onRate = async (salonId: number, rating: number, comment: string) => {
     try {
       setIsRating(true);
+      console.log("Betygsätter salong:", salonId, "betyg:", rating, "kommentar:", comment);
       
       // Uppdatera salongens rating i salons-tabellen
       const { error: updateError } = await supabase
@@ -110,8 +111,10 @@ export const SalonsList = () => {
         console.warn("Couldn't save rating history:", historyError);
       }
       
-      // Uppdatera lokala salong-data
+      // Uppdatera lokala salong-data genom att hämta alla salonger igen
+      console.log("Rating saved, fetching updated salon data...");
       await fetchSalons();
+      
       return true;
     } catch (error) {
       console.error("Error in rating salon:", error);
