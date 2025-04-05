@@ -48,7 +48,9 @@ export const useSalonsAdmin = () => {
           user_id: 'user_id' in salon ? salon.user_id : null,
           role: 'role' in salon ? salon.role : 'salon_owner',
           terms_accepted: 'terms_accepted' in salon ? salon.terms_accepted : true,
-          privacy_accepted: 'privacy_accepted' in salon ? salon.privacy_accepted : true
+          privacy_accepted: 'privacy_accepted' in salon ? salon.privacy_accepted : true,
+          rating: 'rating' in salon ? salon.rating : null,
+          rating_comment: 'rating_comment' in salon ? salon.rating_comment : null
         }));
         
         setSalons(transformedData);

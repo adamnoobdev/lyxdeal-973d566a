@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Salon, SalonFormValues } from "../types";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
@@ -11,7 +12,6 @@ import { AlertCircle } from "lucide-react";
 import { SalonRatingDialog } from "./SalonRatingDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { SalonRatingFormData } from "@/types/salon-rating";
 
 /**
  * Komponent för att lista och hantera salonger i administratörsgränssnittet
@@ -87,14 +87,21 @@ export const SalonsList = () => {
         return false;
       }
       
-      // Lägg till i betygshistorik om det finns en sådan tabell
+      // Lägg till i betygshistorik
       try {
-        await supabase.from('salon_ratings').insert({
-          salon_id: salonId,
-          rating: rating,
-          comment: comment,
-          created_by: 'admin'
-        });
+        const { error: ratingError } = await supabase
+          .from('salon_ratings')
+          .insert({
+            salon_id: salonId,
+            rating: rating,
+            comment: comment,
+            created_by: 'admin'
+          });
+          
+        if (ratingError) {
+          console.warn("Could not save rating history:", ratingError);
+          // Continue anyway as the main rating update succeeded
+        }
       } catch (historyError) {
         // Ignorera fel här eftersom detta är en sekundär lagring
         console.warn("Couldn't save rating history:", historyError);

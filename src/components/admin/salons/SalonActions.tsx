@@ -1,9 +1,13 @@
 
-import { useState } from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Pencil, Trash2, Star } from "lucide-react";
-import { Salon } from "@/components/admin/types";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash, Star } from "lucide-react";
+import { Salon } from "../types";
 
 interface SalonActionsProps {
   salon: Salon;
@@ -12,51 +16,37 @@ interface SalonActionsProps {
   onRate?: (salon: Salon) => void;
 }
 
-export const SalonActions = ({ salon, onEdit, onDelete, onRate }: SalonActionsProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-
+export const SalonActions = ({ 
+  salon, 
+  onEdit, 
+  onDelete,
+  onRate
+}: SalonActionsProps) => {
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <MoreVertical className="h-4 w-4" />
+        <Button variant="ghost" className="h-8 w-8 p-0">
           <span className="sr-only">Öppna meny</span>
+          <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem
-          onClick={() => {
-            setIsOpen(false);
-            onEdit(salon);
-          }}
-        >
-          <Pencil className="h-4 w-4 mr-2" />
-          Redigera
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => onEdit(salon)}>
+          <Pencil className="mr-2 h-4 w-4" />
+          <span>Redigera</span>
         </DropdownMenuItem>
-        
         {onRate && (
-          <DropdownMenuItem
-            onClick={() => {
-              setIsOpen(false);
-              onRate(salon);
-            }}
-          >
-            <Star className="h-4 w-4 mr-2" />
-            Betygsätt
+          <DropdownMenuItem onClick={() => onRate(salon)}>
+            <Star className="mr-2 h-4 w-4" />
+            <span>Betygsätt</span>
           </DropdownMenuItem>
         )}
-        
-        <DropdownMenuSeparator />
-        
-        <DropdownMenuItem
-          onClick={() => {
-            setIsOpen(false);
-            onDelete(salon);
-          }}
-          className="text-destructive focus:text-destructive"
+        <DropdownMenuItem 
+          onClick={() => onDelete(salon)}
+          className="text-red-600 hover:text-red-700 focus:text-red-700"
         >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Ta bort
+          <Trash className="mr-2 h-4 w-4" />
+          <span>Ta bort</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

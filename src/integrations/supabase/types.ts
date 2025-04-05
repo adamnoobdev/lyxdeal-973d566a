@@ -315,6 +315,41 @@ export type Database = {
           },
         ]
       }
+      salon_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          created_by: string
+          id: number
+          rating: number
+          salon_id: number | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          created_by: string
+          id?: number
+          rating: number
+          salon_id?: number | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          created_by?: string
+          id?: number
+          rating?: number
+          salon_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salon_ratings_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       salon_user_status: {
         Row: {
           created_at: string
@@ -345,6 +380,8 @@ export type Database = {
           name: string
           phone: string | null
           privacy_accepted: boolean | null
+          rating: number | null
+          rating_comment: string | null
           role: string
           status: string | null
           stripe_customer_id: string | null
@@ -365,6 +402,8 @@ export type Database = {
           name: string
           phone?: string | null
           privacy_accepted?: boolean | null
+          rating?: number | null
+          rating_comment?: string | null
           role?: string
           status?: string | null
           stripe_customer_id?: string | null
@@ -385,6 +424,8 @@ export type Database = {
           name?: string
           phone?: string | null
           privacy_accepted?: boolean | null
+          rating?: number | null
+          rating_comment?: string | null
           role?: string
           status?: string | null
           stripe_customer_id?: string | null
