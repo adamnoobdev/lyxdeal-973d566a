@@ -19,6 +19,16 @@ export interface Salon {
   rating_comment?: string;
 }
 
+// Add SalonFormValues interface that was missing
+export interface SalonFormValues {
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  termsAccepted?: boolean;
+  privacyAccepted?: boolean;
+}
+
 // Resten av filen behålls som den är
 export interface CategorizedDeals {
   all: Deal[];

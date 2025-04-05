@@ -9,7 +9,9 @@ interface SalonsTableProps {
   salons: Salon[];
   onEdit: (salon: Salon) => void;
   onDelete: (salon: Salon) => void;
-  onViewDetails: (salon: Salon) => void;
+  onViewDetails?: (salon: Salon) => void;
+  onSelect?: (salon: Salon | null) => void;
+  selectedSalon?: Salon | null;
   onRate?: (salon: Salon) => void;
 }
 
@@ -17,9 +19,20 @@ export const SalonsTable = ({
   salons,
   onEdit,
   onDelete,
-  onViewDetails,
+  onViewDetails = () => {}, // Default function if not provided
+  onSelect,
+  selectedSalon,
   onRate
 }: SalonsTableProps) => {
+  // Handle cell click when onSelect is provided
+  const handleRowClick = (salon: Salon) => {
+    if (onSelect) {
+      onSelect(salon);
+    } else if (onViewDetails) {
+      onViewDetails(salon);
+    }
+  };
+  
   return (
     <div className="border rounded-md overflow-hidden">
       <Table>
@@ -42,30 +55,33 @@ export const SalonsTable = ({
             </TableRow>
           ) : (
             salons.map(salon => (
-              <TableRow key={salon.id} className="cursor-pointer hover:bg-muted/50">
+              <TableRow 
+                key={salon.id} 
+                className={`cursor-pointer hover:bg-muted/50 ${selectedSalon?.id === salon.id ? 'bg-muted/40' : ''}`}
+              >
                 <TableCell 
                   className="font-medium"
-                  onClick={() => onViewDetails(salon)}
+                  onClick={() => handleRowClick(salon)}
                 >
                   {salon.name}
                 </TableCell>
-                <TableCell onClick={() => onViewDetails(salon)}>
+                <TableCell onClick={() => handleRowClick(salon)}>
                   <div>
                     <div>{salon.email}</div>
                     <div className="text-sm text-muted-foreground">{salon.phone || "-"}</div>
                   </div>
                 </TableCell>
-                <TableCell onClick={() => onViewDetails(salon)}>
+                <TableCell onClick={() => handleRowClick(salon)}>
                   {salon.address || "-"}
                 </TableCell>
-                <TableCell onClick={() => onViewDetails(salon)}>
+                <TableCell onClick={() => handleRowClick(salon)}>
                   {salon.rating ? (
                     <Rating value={salon.rating} size="md" />
                   ) : (
                     <span className="text-muted-foreground text-sm">Ej betygsatt</span>
                   )}
                 </TableCell>
-                <TableCell onClick={() => onViewDetails(salon)}>
+                <TableCell onClick={() => handleRowClick(salon)}>
                   {salon.created_at ? formatDate(salon.created_at) : "-"}
                 </TableCell>
                 <TableCell className="text-right">
