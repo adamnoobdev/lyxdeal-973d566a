@@ -7,7 +7,14 @@ export interface SalonData {
   name: string;
   address: string | null;
   phone: string | null;
-  rating?: number;
+  email?: string;
+  created_at?: string;
+  user_id?: string | null;
+  role?: string;
+  terms_accepted?: boolean;
+  privacy_accepted?: boolean;
+  rating?: number | null;
+  rating_comment?: string | null;
 }
 
 // Re-export relevant types for backward compatibility
