@@ -79,7 +79,12 @@ const DealCardComponent = ({
             <div className="px-1.5 sm:px-3 mt-1.5 flex items-center justify-between">
               <CategoryBadge category={category} />
               {salon_rating && (
-                <Rating value={salon_rating} size="sm" maxStars={1} showValue={true} />
+                <Rating 
+                  value={salon_rating} 
+                  size="sm" 
+                  maxStars={1} 
+                  showValue={true} 
+                />
               )}
             </div>
           </div>

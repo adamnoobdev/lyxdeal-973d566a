@@ -15,8 +15,8 @@ export interface Salon {
   role?: string;
   terms_accepted?: boolean;
   privacy_accepted?: boolean;
-  rating?: number;
-  rating_comment?: string;
+  rating?: number | null;
+  rating_comment?: string | null;
 }
 
 // Add SalonFormValues interface that was missing

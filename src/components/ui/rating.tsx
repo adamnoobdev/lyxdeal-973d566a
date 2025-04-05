@@ -6,9 +6,17 @@ interface RatingProps {
   value: number;
   size?: "sm" | "md" | "lg";
   className?: string;
+  maxStars?: number;
+  showValue?: boolean;
 }
 
-export const Rating = ({ value, size = "md", className = "" }: RatingProps) => {
+export const Rating = ({ 
+  value, 
+  size = "md", 
+  className = "", 
+  maxStars = 5,
+  showValue = false 
+}: RatingProps) => {
   // Determine star size based on prop
   const starSize = {
     sm: "h-3 w-3",
@@ -18,7 +26,7 @@ export const Rating = ({ value, size = "md", className = "" }: RatingProps) => {
   
   return (
     <div className={`flex items-center gap-1 ${className}`}>
-      {[1, 2, 3, 4, 5].map((star) => (
+      {Array.from({ length: maxStars }, (_, i) => i + 1).map((star) => (
         <Star
           key={star}
           className={`${starSize} ${
@@ -26,6 +34,9 @@ export const Rating = ({ value, size = "md", className = "" }: RatingProps) => {
           }`}
         />
       ))}
+      {showValue && (
+        <span className="text-sm font-medium ml-1">{value.toFixed(1)}</span>
+      )}
     </div>
   );
 };
