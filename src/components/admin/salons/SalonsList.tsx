@@ -8,6 +8,10 @@ import { SalonsHeader } from "./SalonsHeader";
 import { SalonsContent } from "./SalonsContent";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { SalonRatingDialog } from "./SalonRatingDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { SalonRatingFormData } from "@/types/salon-rating";
 
 /**
  * Komponent för att lista och hantera salonger i administratörsgränssnittet
@@ -17,6 +21,7 @@ export const SalonsList = () => {
   const [deletingSalon, setDeletingSalon] = useState<Salon | null>(null);
   const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [ratingSalon, setRatingSalon] = useState<Salon | null>(null);
   
   const { salons, isLoading, error, handleDelete, handleUpdate, handleCreate, fetchSalons } = useSalonsAdmin();
 
@@ -60,6 +65,50 @@ export const SalonsList = () => {
   const onCreate = async (values: any) => {
     const response = await handleCreate(values);
     return response;
+  };
+
+  /**
+   * Hantera betygsättning av salong
+   */
+  const onRate = async (salonId: number, rating: number, comment: string) => {
+    try {
+      // Uppdatera salongens rating i salons-tabellen
+      const { error: updateError } = await supabase
+        .from('salons')
+        .update({ 
+          rating: rating,
+          rating_comment: comment
+        })
+        .eq('id', salonId);
+      
+      if (updateError) {
+        console.error("Error updating salon rating:", updateError);
+        toast.error("Kunde inte spara betyg");
+        return false;
+      }
+      
+      // Lägg till i betygshistorik om det finns en sådan tabell
+      try {
+        await supabase.from('salon_ratings').insert({
+          salon_id: salonId,
+          rating: rating,
+          comment: comment,
+          created_by: 'admin'
+        });
+      } catch (historyError) {
+        // Ignorera fel här eftersom detta är en sekundär lagring
+        console.warn("Couldn't save rating history:", historyError);
+      }
+      
+      // Uppdatera lokala salong-data
+      await fetchSalons();
+      return true;
+      
+    } catch (error) {
+      console.error("Error in rating salon:", error);
+      toast.error("Ett fel uppstod när betyget skulle sparas");
+      return false;
+    }
   };
 
   /**
@@ -155,6 +204,7 @@ export const SalonsList = () => {
         onDeleteClick={setDeletingSalon}
         onSelect={setSelectedSalon}
         selectedSalon={selectedSalon}
+        onRate={setRatingSalon}
       />
 
       <EditSalonDialog
@@ -177,6 +227,13 @@ export const SalonsList = () => {
         isOpen={isCreating}
         onClose={() => setIsCreating(false)}
         onSubmit={onCreate}
+      />
+
+      <SalonRatingDialog
+        salon={ratingSalon}
+        isOpen={!!ratingSalon}
+        onClose={() => setRatingSalon(null)}
+        onSave={onRate}
       />
     </div>
   );

@@ -13,6 +13,7 @@ interface SalonsContentProps {
   onEditClick: (salon: Salon) => void;
   onDeleteClick: (salon: Salon) => void;
   onSelect?: (salon: Salon | null) => void;
+  onRate?: (salon: Salon) => void;
   selectedSalon?: Salon | null;
   salons?: Salon[];
   isLoading?: boolean;
@@ -27,7 +28,8 @@ export const SalonsContent = ({
   selectedSalon,
   salons = [],
   isLoading = false,
-  error = null
+  error = null,
+  onRate
 }: SalonsContentProps) => {
   // Function to approve all salons
   const handleApproveAll = async () => {
@@ -82,6 +84,7 @@ export const SalonsContent = ({
           onDelete={onDeleteClick}
           onSelect={onSelect}
           selectedSalon={selectedSalon}
+          onRate={onRate}
         />
       </div>
     </div>
