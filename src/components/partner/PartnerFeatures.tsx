@@ -9,7 +9,7 @@ interface FeatureItemProps {
 
 const FeatureItem = ({ icon, title, description }: FeatureItemProps) => (
   <div className="flex gap-3 md:gap-4">
-    <div className="mt-1 flex-shrink-0 text-primary">
+    <div className="mt-1 flex-shrink-0 bg-primary p-2">
       {icon}
     </div>
     <div>
@@ -22,32 +22,32 @@ const FeatureItem = ({ icon, title, description }: FeatureItemProps) => (
 export const PartnerFeatures = () => {
   const features = [
     {
-      icon: <Users className="h-5 w-5 md:h-6 md:w-6" />,
+      icon: <Users className="h-5 w-5 md:h-6 md:w-6 text-white" />,
       title: "Nå fler kunder",
       description: "Få tillgång till vår växande kundbas av kvalitetsmedvetna konsumenter som letar efter skönhetserbjudanden."
     },
     {
-      icon: <Zap className="h-5 w-5 md:h-6 md:w-6" />,
+      icon: <Zap className="h-5 w-5 md:h-6 md:w-6 text-white" />,
       title: "Ökad synlighet",
       description: "Dina erbjudanden visas för intresserade kunder på vår plattform och i våra marknadsföringskanaler."
     },
     {
-      icon: <LineChart className="h-5 w-5 md:h-6 md:w-6" />,
+      icon: <LineChart className="h-5 w-5 md:h-6 md:w-6 text-white" />,
       title: "Detaljerad statistik",
       description: "Få insikter om hur dina erbjudanden presterar och vilka som är mest populära bland kunderna."
     },
     {
-      icon: <BellRing className="h-5 w-5 md:h-6 md:w-6" />,
+      icon: <BellRing className="h-5 w-5 md:h-6 md:w-6 text-white" />,
       title: "Notifikationer",
       description: "Få direkta notifikationer när en kund köper ditt erbjudande så att du kan planera ditt schema."
     },
     {
-      icon: <CircleCheck className="h-5 w-5 md:h-6 md:w-6" />,
+      icon: <CircleCheck className="h-5 w-5 md:h-6 md:w-6 text-white" />,
       title: "Enkel hantering",
       description: "Använd vår intuitiva dashboard för att enkelt hantera och uppdatera dina erbjudanden."
     },
     {
-      icon: <Clock className="h-5 w-5 md:h-6 md:w-6" />,
+      icon: <Clock className="h-5 w-5 md:h-6 md:w-6 text-white" />,
       title: "Spara tid",
       description: "Låt oss hantera marknadsföringen medan du fokuserar på att leverera bästa möjliga service till dina kunder."
     },

@@ -66,17 +66,20 @@ export const DealStatistics = ({ dealId, salonId }: DealStatisticsProps) => {
         <StatCard 
           title="Intresserade kunder" 
           value={dealStat.customer_signups}
-          icon={<Users className="h-5 w-5 text-secondary" />}
+          icon={<Users className="h-5 w-5 text-white" />}
+          color="primary"
         />
         <StatCard 
           title="Skapade rabattkoder" 
           value={dealStat.total_codes}
-          icon={<Tag className="h-5 w-5 text-secondary" />}
+          icon={<Tag className="h-5 w-5 text-white" />}
+          color="secondary"
         />
         <StatCard 
           title="Använda rabattkoder" 
           value={dealStat.used_codes}
-          icon={<CheckCircle2 className="h-5 w-5 text-secondary" />}
+          icon={<CheckCircle2 className="h-5 w-5 text-white" />}
+          color="success"
         />
       </div>
     );
@@ -88,17 +91,20 @@ export const DealStatistics = ({ dealId, salonId }: DealStatisticsProps) => {
       <StatCard 
         title="Totalt intresserade kunder" 
         value={stats?.reduce((sum, stat) => sum + stat.customer_signups, 0) || 0}
-        icon={<Users className="h-5 w-5 text-secondary" />}
+        icon={<Users className="h-5 w-5 text-white" />}
+        color="primary"
       />
       <StatCard 
         title="Totalt skapade rabattkoder" 
         value={stats?.reduce((sum, stat) => sum + stat.total_codes, 0) || 0}
-        icon={<Tag className="h-5 w-5 text-secondary" />}
+        icon={<Tag className="h-5 w-5 text-white" />}
+        color="secondary"
       />
       <StatCard 
         title="Totalt använda rabattkoder" 
         value={stats?.reduce((sum, stat) => sum + stat.used_codes, 0) || 0}
-        icon={<CheckCircle2 className="h-5 w-5 text-secondary" />}
+        icon={<CheckCircle2 className="h-5 w-5 text-white" />}
+        color="success"
       />
     </div>
   );
@@ -108,16 +114,25 @@ interface StatCardProps {
   title: string;
   value: number;
   icon: React.ReactNode;
+  color: "primary" | "secondary" | "success";
 }
 
-const StatCard = ({ title, value, icon }: StatCardProps) => {
+const StatCard = ({ title, value, icon, color }: StatCardProps) => {
+  const bgColorMap = {
+    primary: "bg-primary",
+    secondary: "bg-secondary",
+    success: "bg-success-500"
+  };
+  
+  const bgColor = bgColorMap[color];
+  
   return (
     <Card className="border border-secondary/20 overflow-hidden shadow-sm hover:shadow transition-shadow duration-200">
       <CardHeader className="flex flex-row items-center justify-between pb-2 bg-white">
         <CardTitle className="text-sm xs:text-base font-medium text-primary">
           {title}
         </CardTitle>
-        <div className="bg-secondary/10 p-2 rounded-full">
+        <div className={`${bgColor} p-2`}>
           {icon}
         </div>
       </CardHeader>

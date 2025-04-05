@@ -1,3 +1,4 @@
+
 import { QrCode, Star, Percent } from "lucide-react";
 
 const STATS = [
@@ -26,7 +27,7 @@ export function StatsSection() {
           key={index} 
           className="bg-accent/50 rounded-xl p-6 text-center transition-all duration-300 hover:bg-accent hover:shadow-lg"
         >
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-primary text-white mb-4">
             <stat.icon className="h-6 w-6" />
           </div>
           <h3 className="text-2xl font-bold text-primary">{stat.title}</h3>

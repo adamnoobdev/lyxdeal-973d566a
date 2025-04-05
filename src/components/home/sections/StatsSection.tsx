@@ -30,8 +30,8 @@ export function StatsSection() {
             key={index} 
             className="flex flex-col items-center text-center p-6 space-y-3 bg-white/50 border border-muted-200 shadow-sm relative"
           >
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10">
-              <stat.icon className="h-6 w-6 text-primary/80" />
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary">
+              <stat.icon className="h-6 w-6 text-white" />
             </div>
             
             <div className="space-y-1.5">
