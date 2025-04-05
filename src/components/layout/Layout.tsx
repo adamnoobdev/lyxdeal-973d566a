@@ -5,10 +5,13 @@ import NavigationBar from '@/components/NavigationBar';
 import TopBar from '@/components/layout/TopBar';
 import { Footer } from '@/components/Footer';
 import { SalonAuthGuard } from '@/components/salon/SalonAuthGuard';
+import { useSession } from '@/hooks/useSession';
 
 const Layout: React.FC = () => {
   const location = useLocation();
   const path = location.pathname;
+  const { session } = useSession();
+  const isLoggedIn = !!session?.user;
   
   // Kontrollera om vi är på en sida som kräver salon autentisering
   const requiresSalonAuth = path.startsWith('/salon') && 
@@ -25,11 +28,14 @@ const Layout: React.FC = () => {
   // Minskat lite för söksidan så breadcrumbs får plats fint
   const mainPaddingClass = isSearchPage ? 'pt-2' : 'pt-6';
 
+  // Adjust top margin based on whether the user is logged in or not
+  const topMargin = isLoggedIn ? 'mt-[56px]' : 'mt-[96px]';
+
   const content = (
     <div className="flex flex-col min-h-screen">
       <TopBar />
-      <NavigationBar />
-      <main className={`flex-1 ${mainPaddingClass} mt-[96px]`}>
+      <NavigationBar userRole={isAdmin ? 'admin' : undefined} />
+      <main className={`flex-1 ${mainPaddingClass} ${topMargin}`}>
         <Outlet />
       </main>
       <Footer />

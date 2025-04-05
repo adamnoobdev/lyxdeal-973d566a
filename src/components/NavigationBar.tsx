@@ -41,10 +41,12 @@ const NavigationBar = ({
 
   const hasDashboard = !!userRole;
   const dashboardPath = userRole === 'admin' ? '/admin' : '/salon/dashboard';
+  const isLoggedIn = !!session?.user;
+  const topPosition = isLoggedIn ? 'top-0' : 'top-[40px]';
 
   return (
     <header 
-      className={`fixed top-[40px] w-full z-40 transition-all duration-200 ${
+      className={`fixed ${topPosition} w-full z-40 transition-all duration-200 ${
         isScrolled ? 'bg-white shadow-sm' : 'bg-white/95 backdrop-blur-sm'
       }`}
     >

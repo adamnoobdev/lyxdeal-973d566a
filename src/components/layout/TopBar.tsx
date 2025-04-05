@@ -2,8 +2,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Store } from 'lucide-react';
+import { useSession } from '@/hooks/useSession';
 
 const TopBar = () => {
+  const { session } = useSession();
+  
+  // Don't render the TopBar if user is logged in
+  if (session?.user) {
+    return null;
+  }
+
   return (
     <div className="w-full bg-primary text-white py-2 text-center text-sm fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4">
