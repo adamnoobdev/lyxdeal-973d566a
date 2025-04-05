@@ -27,7 +27,7 @@ const Layout: React.FC = () => {
 
   const content = (
     <div className="flex flex-col min-h-screen">
-      <div className="sticky-header-container">
+      <div className="header-container">
         <TopBar />
         <NavigationBar />
       </div>
