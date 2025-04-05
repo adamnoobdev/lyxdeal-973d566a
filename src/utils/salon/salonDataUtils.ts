@@ -5,6 +5,27 @@
 import { fetchSalonByExactId } from "./queries/fetchSalonByExactId";
 
 /**
+ * Formats a date string into a more readable format
+ * @param dateString The date string to format
+ * @returns A formatted date string
+ */
+export const formatDate = (dateString: string): string => {
+  if (!dateString) return "-";
+  
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('sv-SE', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    }).format(date);
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+};
+
+/**
  * Creates a default salon data object
  * @param name Optional salon name
  * @param id Optional salon ID

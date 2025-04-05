@@ -2,6 +2,8 @@
 // Befintliga importeringar behålls
 import { Deal } from "@/types/deal";
 
+export type { Deal }; // Export Deal så att andra filer kan importera den från denna fil
+
 export interface Salon {
   id: number;
   name: string;
