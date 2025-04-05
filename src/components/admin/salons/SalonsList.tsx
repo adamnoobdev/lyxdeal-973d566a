@@ -115,6 +115,7 @@ export const SalonsList = () => {
       console.log("Rating saved, fetching updated salon data...");
       await fetchSalons();
       
+      setRatingSalon(null); // Stäng dialogen
       return true;
     } catch (error) {
       console.error("Error in rating salon:", error);

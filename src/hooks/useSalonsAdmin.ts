@@ -54,11 +54,11 @@ export const useSalonsAdmin = () => {
         }));
         
         setSalons(transformedData);
+        console.log("Salon data transformation complete. Found", transformedData.length, "salons");
       } else {
         setSalons([]);
+        console.log("No salon data returned from fetchSalonsData");
       }
-      
-      console.log("Hämtade salonger:", data?.length || 0);
     } catch (err) {
       console.error("Error fetching salons:", err);
       const errorMessage = err instanceof Error ? err.message : "Ett fel uppstod vid hämtning av salonger";
