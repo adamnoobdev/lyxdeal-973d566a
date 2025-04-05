@@ -29,7 +29,7 @@ const Layout: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       <TopBar />
       <NavigationBar />
-      <main className={`flex-1 ${mainPaddingClass}`}>
+      <main className={`flex-1 ${mainPaddingClass} mt-[96px]`}>
         <Outlet />
       </main>
       <Footer />

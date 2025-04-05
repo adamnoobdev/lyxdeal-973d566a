@@ -6,7 +6,7 @@ interface ScrollState {
   showMobileSearch: boolean;
 }
 
-export const useScroll = (threshold: number = 50): ScrollState => {
+export const useScroll = (threshold: number = 10): ScrollState => {
   const [scrollState, setScrollState] = useState<ScrollState>({
     isScrolled: false,
     showMobileSearch: true,
