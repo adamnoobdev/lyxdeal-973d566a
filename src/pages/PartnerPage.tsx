@@ -21,6 +21,9 @@ const PartnerPage = () => {
         {/* Introduction */}
         <PartnerHero />
         
+        {/* Benefits */}
+        <PartnerFeatures />
+        
         {/* How it works */}
         <HowItWorksSection />
         
