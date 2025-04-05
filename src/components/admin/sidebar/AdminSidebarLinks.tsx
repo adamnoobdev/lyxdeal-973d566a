@@ -8,7 +8,7 @@ const adminLinks = [
   {
     href: "/admin",
     icon: LayoutDashboard,
-    label: "Dashboard",
+    label: "Översikt",
     description: "Översikt och statistik",
   },
   {

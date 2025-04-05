@@ -8,7 +8,7 @@ const salonLinks = [
   {
     href: "/salon/dashboard",
     icon: LayoutDashboard,
-    label: "Dashboard",
+    label: "Översikt",
   },
   {
     href: "/salon/deal",
