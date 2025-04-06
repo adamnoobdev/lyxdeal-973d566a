@@ -1,8 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
 import { Rating } from "@/components/ui/rating";
 
 interface ProductSalonInfoProps {
@@ -10,13 +8,15 @@ interface ProductSalonInfoProps {
   salonName: string | undefined;
   city: string;
   salonRating?: number;
+  phone?: string | null;
 }
 
 export const ProductSalonInfo = ({ 
   salonId, 
   salonName, 
   city, 
-  salonRating 
+  salonRating,
+  phone 
 }: ProductSalonInfoProps) => {
   if (!salonId) return null;
 
@@ -32,22 +32,21 @@ export const ProductSalonInfo = ({
             <span className="text-gray-600">{city}</span>
           </div>
           
+          {phone && (
+            <div className="flex items-center space-x-2 mt-1">
+              <Phone className="h-4 w-4 text-gray-500" />
+              <a href={`tel:${phone}`} className="text-gray-600 hover:text-primary hover:underline">{phone}</a>
+            </div>
+          )}
+          
           {salonRating !== undefined && (
             <div className="mt-2">
-              <Rating value={salonRating} size="md" />
+              <Rating value={salonRating} size="md" showValue={true} />
               <p className="text-sm text-muted-foreground mt-1">
                 Detta är salongens kvalitetsomdöme baserat på kundbedömningar
               </p>
             </div>
           )}
-        </div>
-        
-        <div className="pt-2">
-          <Button variant="outline" asChild className="w-full sm:w-auto">
-            <Link to={`/salon/${salonId}`}>
-              Se mer om salongen
-            </Link>
-          </Button>
         </div>
       </div>
     </section>

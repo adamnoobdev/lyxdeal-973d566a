@@ -17,6 +17,9 @@ export const Rating = ({
   maxStars = 5,
   showValue = false 
 }: RatingProps) => {
+  // Format the numeric value correctly before display (handle values like 47 -> 4.7)
+  const formattedValue = value > 10 ? value / 10 : value;
+  
   // Determine star size based on prop
   const starSize = {
     sm: "h-3 w-3",
@@ -28,7 +31,7 @@ export const Rating = ({
   const renderStars = () => {
     return Array.from({ length: maxStars }, (_, i) => {
       const starPosition = i + 1;
-      const difference = value - i;
+      const difference = formattedValue - i;
       
       // Full star
       if (difference >= 1) {
@@ -69,7 +72,9 @@ export const Rating = ({
     <div className={`flex items-center gap-1 ${className}`}>
       {renderStars()}
       {showValue && (
-        <span className="text-sm font-medium ml-1">{value.toFixed(1)}</span>
+        <span className="text-sm font-medium ml-1">
+          {formattedValue.toFixed(1)}
+        </span>
       )}
     </div>
   );

@@ -14,6 +14,7 @@ import { ProductSchema } from "@/components/deal/ProductSchema";
 import { ProductErrorState } from "@/components/deal/ProductErrorState";
 import { ProductLoadingState } from "@/components/deal/ProductLoadingState";
 import { ProductHeader } from "@/components/deal/ProductHeader";
+import { SalonLocationMap } from "@/components/deal/map/SalonLocationMap";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -59,12 +60,12 @@ const ProductDetails = () => {
       name: deal.salon.name,
       address: deal.salon.address,
       phone: deal.salon.phone,
-      rating: deal.salon.rating || undefined, // Lägg till betyg om det finns
+      rating: deal.salon.rating || undefined,
     } : null,
     booking_url: deal.booking_url,
     category: deal.category,
     requires_discount_code: deal.requires_discount_code,
-    salon_rating: deal.salon?.rating // Explicit passa betyget så det syns på relaterade erbjudanden
+    salon_rating: deal.salon?.rating
   };
 
   return (
@@ -123,7 +124,19 @@ const ProductDetails = () => {
                   salonName={dealData.salon?.name} 
                   city={dealData.city} 
                   salonRating={dealData.salon?.rating}
+                  phone={dealData.salon?.phone}
                 />
+
+                {/* Återställer Mapbox-karta */}
+                {dealData.salon && (
+                  <div className="mt-6">
+                    <h3 className="text-lg font-medium mb-3">Hitta hit</h3>
+                    <SalonLocationMap 
+                      salonId={dealData.salon.id} 
+                      city={dealData.city} 
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="lg:col-span-4 hidden lg:block">
