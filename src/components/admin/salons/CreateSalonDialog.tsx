@@ -7,7 +7,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { SalonForm } from "./SalonForm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
@@ -31,6 +31,22 @@ export const CreateSalonDialog = ({
 }: CreateSalonDialogProps) => {
   const [password, setPassword] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Ensure component is mounted
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
+  // Reset state when dialog opens
+  useEffect(() => {
+    if (isOpen && isMounted) {
+      setIsClosing(false);
+      setIsSubmitting(false);
+    }
+  }, [isOpen, isMounted]);
 
   const handleSubmit = async (values: any) => {
     if (isSubmitting) return;
@@ -54,7 +70,9 @@ export const CreateSalonDialog = ({
       console.error("Error creating salon:", error);
       toast.error("Ett fel uppstod vid skapande av salong");
     } finally {
-      setIsSubmitting(false);
+      if (isMounted) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -65,14 +83,26 @@ export const CreateSalonDialog = ({
     }
   };
 
+  // Controlled close function to prevent UI freeze
   const handleClose = () => {
-    setPassword(null);
-    setIsSubmitting(false);
-    onClose();
+    if (isSubmitting) return;
+    
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setPassword(null);
+      setTimeout(() => {
+        if (isMounted) {
+          setIsClosing(false);
+        }
+      }, 100);
+    }, 200);
   };
 
+  if (!isMounted) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen && !isClosing} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Skapa ny salong</DialogTitle>
@@ -108,7 +138,7 @@ export const CreateSalonDialog = ({
             </div>
           </div>
         ) : (
-          <SalonForm onSubmit={handleSubmit} />
+          <SalonForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
         )}
       </DialogContent>
     </Dialog>

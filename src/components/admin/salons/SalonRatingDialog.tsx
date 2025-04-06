@@ -26,23 +26,35 @@ export const SalonRatingDialog = ({
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
   const [localSubmitting, setLocalSubmitting] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   
   // Använd antingen extern eller lokal isSubmitting status
   const submitting = isSubmitting || localSubmitting;
+
+  // Properly reset values when dialog opens with new salon
+  useEffect(() => {
+    if (salon && isOpen) {
+      setRating(salon.rating || 0);
+      setComment(salon.rating_comment || "");
+      setIsClosing(false);
+    }
+  }, [salon, isOpen]);
 
   const handleStarClick = (value: number) => {
     setRating(value);
   };
 
   const handleSave = async () => {
-    if (!salon) return;
+    if (!salon || submitting) return;
     
     try {
       setLocalSubmitting(true);
+      console.log("Saving rating for salon:", salon.id, "rating:", rating, "comment:", comment);
       const success = await onSave(salon.id, rating, comment);
+      
       if (success) {
         toast.success("Salongens betyg har uppdaterats");
-        onClose();
+        handleClose();
       }
     } catch (error) {
       console.error("Error saving rating:", error);
@@ -52,24 +64,32 @@ export const SalonRatingDialog = ({
     }
   };
 
+  // Controlled dialog closing with state to prevent freezing
   const handleClose = () => {
-    if (!submitting) {
+    if (submitting) return;
+    
+    setIsClosing(true);
+    // Use timeout to allow animations to complete before state changes
+    setTimeout(() => {
       onClose();
-    }
+      // Only reset after dialog is fully closed to prevent UI flicker
+      setTimeout(() => {
+        if (!isOpen) {
+          setIsClosing(false);
+        }
+      }, 100);
+    }, 300);
   };
-
-  // Reset values when salon changes - using useEffect instead of useState
-  useEffect(() => {
-    if (salon) {
-      setRating(salon.rating || 0);
-      setComment(salon.rating_comment || "");
-    }
-  }, [salon]);
 
   if (!salon) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog 
+      open={isOpen && !isClosing}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Betygsätt salong: {salon.name}</DialogTitle>

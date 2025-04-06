@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { EditDealDialog } from "../../deals/EditDealDialog";
 import { DeleteDealDialog } from "../../deals/DeleteDealDialog";
 import { DiscountCodesDialog } from "../../deals/DiscountCodesDialog";
@@ -32,9 +32,23 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
   handleUpdateSubmit,
   handleDeleteDeal
 }) => {
+  // Add logging to help diagnose issues
+  useEffect(() => {
+    console.log("[SalonDealsDialogs] Rendering with dialogs:", { 
+      isEditingOpen: !!editingDeal,
+      isDeletingOpen: !!deletingDeal,
+      isDiscountDialogOpen: isDiscountCodesDialogOpen
+    });
+    
+    return () => {
+      console.log("[SalonDealsDialogs] Component unmounting");
+    };
+  }, [editingDeal, deletingDeal, isDiscountCodesDialogOpen]);
+
   return (
     <>
       <EditDealDialog
+        key={`edit-${editingDeal?.id || 'new'}`}
         isOpen={!!editingDeal}
         onClose={handleClose}
         onSubmit={handleUpdateSubmit}
@@ -42,6 +56,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
       />
 
       <DeleteDealDialog
+        key={`delete-${deletingDeal?.id || 'none'}`}
         isOpen={!!deletingDeal}
         onClose={handleCloseDelete}
         onConfirm={handleDeleteDeal}
@@ -49,6 +64,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
       />
 
       <DiscountCodesDialog
+        key={`codes-${viewingCodesForDeal?.id || 'none'}`}
         isOpen={isDiscountCodesDialogOpen}
         onClose={handleCloseDiscountCodesDialog}
         deal={viewingCodesForDeal}

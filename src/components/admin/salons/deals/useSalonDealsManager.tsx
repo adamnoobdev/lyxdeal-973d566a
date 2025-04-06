@@ -1,5 +1,5 @@
 
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import { endOfMonth } from "date-fns";
 import { useSalonDealsManagement } from "@/hooks/salon-deals-management";
@@ -26,6 +26,22 @@ export const useSalonDealsManager = () => {
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
   const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Track component mount status to prevent state updates after unmount
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  // Safe state updater functions
+  const safeSetState = useCallback(<T,>(setter: React.Dispatch<React.SetStateAction<T>>, value: T) => {
+    if (isMountedRef.current) {
+      setter(value);
+    }
+  }, []);
 
   const handleEdit = useCallback((deal: Deal) => {
     setEditingDeal(deal);
@@ -44,34 +60,38 @@ export const useSalonDealsManager = () => {
   }, [setDeletingDeal]);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
-    setViewingCodesForDeal(deal);
-  }, []);
+    safeSetState(setViewingCodesForDeal, deal);
+  }, [safeSetState]);
 
   const handleCloseDiscountCodesDialog = useCallback(() => {
-    console.log("[AdminSalonDeals] Closing discount codes dialog");
-    setIsClosingCodesDialog(true);
+    console.log("[useSalonDealsManager] Closing discount codes dialog");
+    safeSetState(setIsClosingCodesDialog, true);
     
     // Use setTimeout to delay state updates and prevent UI freeze
     setTimeout(() => {
-      setViewingCodesForDeal(null);
-      setIsClosingCodesDialog(false);
+      if (isMountedRef.current) {
+        safeSetState(setViewingCodesForDeal, null);
+        safeSetState(setIsClosingCodesDialog, false);
+      }
     }, 300);
-  }, []);
+  }, [safeSetState]);
   
   const handleUpdateSubmit = useCallback(async (values: any) => {
     if (isSubmitting) return;
     
     try {
-      setIsSubmitting(true);
+      safeSetState(setIsSubmitting, true);
       await handleUpdate(values);
     } finally {
-      setIsSubmitting(false);
-      // Use setTimeout to delay state update to next event loop
-      setTimeout(() => {
-        handleClose();
-      }, 0);
+      if (isMountedRef.current) {
+        // Use setTimeout to delay state update to next event loop
+        setTimeout(() => {
+          safeSetState(setIsSubmitting, false);
+          handleClose();
+        }, 100);
+      }
     }
-  }, [handleUpdate, handleClose, isSubmitting]);
+  }, [handleUpdate, handleClose, isSubmitting, safeSetState]);
   
   // Modified to use the direct toggleDealActive function that returns boolean
   const handleToggleActive = useCallback(async (deal: Deal): Promise<boolean> => {

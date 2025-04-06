@@ -25,27 +25,38 @@ export const EditSalonDialog = ({
 }: EditSalonDialogProps) => {
   const [isClosing, setIsClosing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
+  // Ensure component is mounted
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+  
   // Reset state when dialog opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && isMounted) {
       setIsClosing(false);
       setIsSubmitting(false);
     }
-  }, [isOpen]);
+  }, [isOpen, isMounted]);
 
-  // Handle controlled closing
+  // Handle controlled closing with timeout to allow animations
   const handleClose = () => {
     if (isSubmitting) return;
     
     setIsClosing(true);
     setTimeout(() => {
       onClose();
-      setIsClosing(false);
-    }, 300);
+      setTimeout(() => {
+        if (isMounted) {
+          setIsClosing(false);
+        }
+      }, 100);
+    }, 200);
   };
 
-  // Handle form submission
+  // Handle form submission with improved state management
   const handleSubmit = async (values: any) => {
     if (isSubmitting) return;
     
@@ -59,15 +70,19 @@ export const EditSalonDialog = ({
       }
       
       await onSubmit(values);
-      handleClose();
       toast.success("Salonginformationen har uppdaterats");
+      handleClose();
     } catch (error) {
       console.error("Error in form submission:", error);
       toast.error("Ett fel uppstod när salongen skulle uppdateras");
     } finally {
-      setIsSubmitting(false);
+      if (isMounted) {
+        setIsSubmitting(false);
+      }
     }
   };
+
+  if (!isMounted) return null;
 
   return (
     <Dialog 

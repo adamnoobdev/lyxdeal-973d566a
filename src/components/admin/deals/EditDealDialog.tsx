@@ -27,6 +27,7 @@ export const EditDealDialog = ({
 }: EditDealDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   
   // Säkerställ att komponenten är monterad innan den visas
   useEffect(() => {
@@ -36,10 +37,30 @@ export const EditDealDialog = ({
 
   // Reset state when dialog opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && isMounted) {
       setIsSubmitting(false);
+      setIsClosing(false);
     }
-  }, [isOpen]);
+  }, [isOpen, isMounted]);
+
+  // Controlled close function to prevent UI freeze
+  const handleClose = () => {
+    if (isSubmitting) {
+      console.log("[EditDealDialog] Cannot close during submission");
+      return;
+    }
+    
+    setIsClosing(true);
+    console.log("[EditDealDialog] Closing dialog");
+    setTimeout(() => {
+      onClose();
+      setTimeout(() => {
+        if (isMounted) {
+          setIsClosing(false);
+        }
+      }, 100);
+    }, 200);
+  };
 
   const handleSubmit = async (values: FormValues) => {
     if (isSubmitting) {
@@ -55,17 +76,9 @@ export const EditDealDialog = ({
       handleClose(); // Auto-close after successful submission
     } catch (error) {
       console.error("[EditDealDialog] Error submitting form:", error);
-      setIsSubmitting(false); // Reset submission state on error
-    }
-  };
-
-  // Safe close function that checks submission state
-  const handleClose = () => {
-    if (!isSubmitting) {
-      console.log("[EditDealDialog] Closing dialog");
-      onClose();
-    } else {
-      console.log("[EditDealDialog] Cannot close during submission");
+      if (isMounted) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -77,7 +90,7 @@ export const EditDealDialog = ({
   if (isMobile) {
     return (
       <Sheet 
-        open={isOpen} 
+        open={isOpen && !isClosing}
         onOpenChange={(open) => {
           if (!open) handleClose();
         }}
@@ -107,7 +120,7 @@ export const EditDealDialog = ({
 
   return (
     <Dialog 
-      open={isOpen} 
+      open={isOpen && !isClosing}
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}

@@ -1,5 +1,5 @@
 
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { EditDealDialog } from "./EditDealDialog";
 import { DeleteDealDialog } from "./DeleteDealDialog";
 import { Deal } from "../types";
@@ -25,16 +25,25 @@ const DealsDialogsComponent = ({
   onCreate,
   onDelete,
 }: DealsDialogsProps) => {
-  console.log("[DealsDialogs] Rendering with:", {
-    isEditing: !!editingDeal,
-    isCreating,
-    isDeleting: !!deletingDeal
-  });
+  // Add logging for state changes to help with debugging
+  useEffect(() => {
+    console.log("[DealsDialogs] State changed:", {
+      isEditing: !!editingDeal,
+      isCreating,
+      isDeleting: !!deletingDeal
+    });
+    
+    return () => {
+      console.log("[DealsDialogs] Component state cleanup");
+    };
+  }, [editingDeal, isCreating, deletingDeal]);
 
+  // Render dialogs with unique keys to ensure proper mounting/unmounting
   return (
     <>
       {(!!editingDeal || isCreating) && (
         <EditDealDialog
+          key={`edit-${editingDeal?.id || 'new'}-${Date.now()}`}
           isOpen={true}
           onClose={onClose}
           onSubmit={editingDeal ? onUpdate : onCreate}
@@ -64,6 +73,7 @@ const DealsDialogsComponent = ({
 
       {!!deletingDeal && (
         <DeleteDealDialog
+          key={`delete-${deletingDeal?.id || 'none'}-${Date.now()}`}
           isOpen={true}
           onClose={onClose}
           onConfirm={onDelete}

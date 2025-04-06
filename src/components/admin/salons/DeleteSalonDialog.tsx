@@ -9,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -31,12 +31,29 @@ export const DeleteSalonDialog = ({
   userId,
 }: DeleteSalonDialogProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  
+  // Reset state when the dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsDeleting(false);
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
+  // Controlled close function to prevent UI freeze
+  const handleClose = () => {
+    if (isDeleting) return;
+    
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setTimeout(() => setIsClosing(false), 100);
+    }, 200);
+  };
 
   const handleDelete = async () => {
-    if (!salonId) {
-      onConfirm();
-      return;
-    }
+    if (!salonId || isDeleting) return;
 
     setIsDeleting(true);
     
@@ -57,18 +74,18 @@ export const DeleteSalonDialog = ({
         }
       }
       
-      // Anropa onConfirm callback som hanterar borttagning av salongdata
+      // Call the onConfirm callback that handles deletion of salon data
       onConfirm();
+      handleClose();
     } catch (error) {
       console.error("Error in delete process:", error);
       toast.error("Ett fel uppstod vid borttagning");
-    } finally {
       setIsDeleting(false);
     }
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
+    <AlertDialog open={isOpen && !isClosing} onOpenChange={(open) => !open && handleClose()}>
       <AlertDialogContent className="max-w-md mx-auto">
         <AlertDialogHeader>
           <AlertDialogTitle>Är du säker?</AlertDialogTitle>
@@ -82,11 +99,18 @@ export const DeleteSalonDialog = ({
           <AlertDialogCancel 
             disabled={isDeleting}
             className="w-full sm:w-auto"
+            onClick={(e) => {
+              e.preventDefault();
+              if (!isDeleting) handleClose();
+            }}
           >
             Avbryt
           </AlertDialogCancel>
           <AlertDialogAction 
-            onClick={handleDelete} 
+            onClick={(e) => {
+              e.preventDefault();
+              handleDelete();
+            }} 
             disabled={isDeleting}
             className={`w-full sm:w-auto ${isDeleting ? "opacity-70 cursor-not-allowed" : ""}`}
           >

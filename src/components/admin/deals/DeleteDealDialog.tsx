@@ -26,6 +26,7 @@ export const DeleteDealDialog = ({
 }: DeleteDealDialogProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   
   // Säkerställ att komponenten är monterad innan den visas
   useEffect(() => {
@@ -33,12 +34,28 @@ export const DeleteDealDialog = ({
     return () => setIsMounted(false);
   }, []);
   
-  // Reset isDeleting when dialog opens
+  // Reset state when dialog opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && isMounted) {
       setIsDeleting(false);
+      setIsClosing(false);
     }
-  }, [isOpen]);
+  }, [isOpen, isMounted]);
+  
+  // Controlled close function to prevent UI freeze
+  const handleClose = () => {
+    if (isDeleting) return;
+    
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setTimeout(() => {
+        if (isMounted) {
+          setIsClosing(false);
+        }
+      }, 100);
+    }, 200);
+  };
   
   // Controlled delete with state tracking
   const handleDelete = async () => {
@@ -47,11 +64,12 @@ export const DeleteDealDialog = ({
     try {
       setIsDeleting(true);
       await onConfirm();
+      handleClose();
     } catch (error) {
       console.error("Error during delete:", error);
-    } finally {
-      setIsDeleting(false);
-      onClose();
+      if (isMounted) {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -59,10 +77,10 @@ export const DeleteDealDialog = ({
 
   return (
     <AlertDialog 
-      open={isOpen} 
+      open={isOpen && !isClosing} 
       onOpenChange={(open) => {
         if (!open && !isDeleting) {
-          onClose();
+          handleClose();
         }
       }}
     >
@@ -77,15 +95,19 @@ export const DeleteDealDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel 
-            onClick={() => {
-              if (!isDeleting) onClose();
+            onClick={(e) => {
+              e.preventDefault();
+              if (!isDeleting) handleClose();
             }} 
             disabled={isDeleting}
           >
             Avbryt
           </AlertDialogCancel>
           <AlertDialogAction 
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.preventDefault();
+              handleDelete();
+            }}
             disabled={isDeleting}
           >
             {isDeleting ? "Tar bort..." : "Ta bort"}
