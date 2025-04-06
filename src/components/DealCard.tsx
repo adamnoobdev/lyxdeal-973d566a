@@ -6,6 +6,7 @@ import { DealImage } from "./deal/DealImage";
 import { RegularDealContent } from "./deal/RegularDealContent";
 import { CategoryBadge } from "./CategoryBadge";
 import { Rating } from "./ui/rating";
+import { Star } from "lucide-react";
 
 interface DealCardProps {
   id: number;
@@ -76,11 +77,14 @@ const DealCardComponent = ({
               isNew={isNew()}
               className="h-36 xs:h-40 sm:h-44 md:h-48"
             />
-            <div className="px-2 sm:px-3 mt-1.5 flex justify-between items-center">
-              <CategoryBadge category={category} />
+            <div className="px-1.5 sm:px-3 mt-1.5 flex items-center justify-between flex-wrap">
+              <div className="flex-shrink-0 mr-1">
+                <CategoryBadge category={category} />
+              </div>
               {salon_rating !== undefined && salon_rating > 0 && (
-                <div className="flex items-center">
-                  <Rating value={salon_rating} size="sm" showValue={true} className="flex-shrink-0" />
+                <div className="flex items-center gap-1 text-xs shrink-0">
+                  <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                  <span>{salon_rating.toFixed(1)}</span>
                 </div>
               )}
             </div>
