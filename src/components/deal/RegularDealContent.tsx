@@ -1,5 +1,5 @@
 
-import { MapPin } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { formatPrice } from "@/utils/deal/dealPriceUtils";
 
@@ -15,6 +15,7 @@ interface RegularDealContentProps {
   isFree?: boolean;
   id: number;
   requiresDiscountCode?: boolean;
+  formattedRating?: number;
 }
 
 export const RegularDealContent = ({
@@ -28,7 +29,8 @@ export const RegularDealContent = ({
   quantityLeft,
   isFree = false,
   id,
-  requiresDiscountCode = true
+  requiresDiscountCode = true,
+  formattedRating = 0,
 }: RegularDealContentProps) => {
   const formatCurrency = (price: number) => {
     return new Intl.NumberFormat("sv-SE", {
@@ -49,8 +51,16 @@ export const RegularDealContent = ({
       
       <p className="text-xs xs:text-sm text-muted-foreground line-clamp-2 mt-1 leading-tight">{description}</p>
       
-      <div className="flex items-center text-xs text-gray-500 mt-1.5 mb-2">
-        <MapPin className="h-3 w-3 mr-0.5" /> {city}
+      <div className="flex items-center justify-between text-xs text-gray-500 mt-1.5 mb-2">
+        <div className="flex items-center">
+          <MapPin className="h-3 w-3 mr-0.5" /> {city}
+        </div>
+        {formattedRating > 0 && (
+          <div className="flex items-center gap-1 shrink-0">
+            <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+            <span>{formattedRating.toFixed(1)}</span>
+          </div>
+        )}
       </div>
       
       <div className="mt-auto pt-1.5 border-t mt-1">

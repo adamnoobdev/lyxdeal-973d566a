@@ -1,4 +1,3 @@
-
 import { memo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -82,15 +81,9 @@ const DealCardComponent = ({
               className="h-36 xs:h-40 sm:h-44 md:h-48"
             />
             <div className="px-1.5 sm:px-3 mt-1.5 flex items-center justify-between flex-wrap">
-              <div className="flex-shrink-0 mr-1">
+              <div className="flex-shrink-0">
                 <CategoryBadge category={category} />
               </div>
-              {formattedRating > 0 && (
-                <div className="flex items-center gap-1 text-xs shrink-0">
-                  <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                  <span>{formattedRating.toFixed(1)}</span>
-                </div>
-              )}
             </div>
           </div>
           <div className="flex-1 flex flex-col">
@@ -106,6 +99,7 @@ const DealCardComponent = ({
               isFree={is_free}
               id={id}
               requiresDiscountCode={requires_discount_code}
+              formattedRating={formattedRating}
             />
           </div>
         </div>
