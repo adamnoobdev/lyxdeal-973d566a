@@ -1,12 +1,12 @@
+
 import { toast } from "sonner";
 import { useCallback } from "react";
 import { 
-  fetchSalonsData, 
   checkSalonHasDeals, 
   deleteSalonData, 
   createSalonData, 
   updateSalonData 
-} from "@/utils/salonAdminUtils";
+} from "@/utils/salon/admin";
 import { supabase } from "@/integrations/supabase/client";
 
 /**

@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { Salon } from "@/components/admin/types";
 import { toast } from "sonner";
 import { useSession } from "@/hooks/useSession";
-import { fetchSalonsData } from "@/utils/salonAdminUtils";
+import { fetchSalonsData } from "@/utils/salon/admin/fetchSalons";
 import { useSalonOperations } from "@/hooks/useSalonOperations";
 import { SalonData } from "@/utils/salon/types";
 
