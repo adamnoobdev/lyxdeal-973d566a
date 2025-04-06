@@ -83,7 +83,7 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
-              className={compact ? "h-40 xs:h-44 sm:h-48 md:h-52" : "h-48 xs:h-56 sm:h-64 md:h-72"}
+              className={compact ? "h-36 xs:h-40 sm:h-44 md:h-48 lg:h-44" : "h-48 xs:h-52 sm:h-56 md:h-60"}
             />
             <div className="px-3 mt-2 flex items-center justify-between flex-wrap">
               <div className="flex-shrink-0">
