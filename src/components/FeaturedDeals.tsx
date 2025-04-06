@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DealCard } from "./DealCard";
@@ -14,7 +15,12 @@ export function FeaturedDeals() {
         console.log('Executing featured deals query...');
         const { data, error } = await supabase
           .from('deals')
-          .select('*')
+          .select(`
+            *,
+            salons (
+              rating
+            )
+          `)
           .eq('featured', true)
           .order('created_at', { ascending: false });
 
@@ -24,16 +30,22 @@ export function FeaturedDeals() {
           throw error;
         }
 
-        console.log('Raw featured deals response:', data);
-        console.log('Featured deals fetch successful. Number of deals:', data?.length);
-        if (data && data.length > 0) {
-          console.log('First featured deal:', data[0]);
-          console.log('All featured deals:', data);
+        // Transformera data för att lägga till salon_rating
+        const processedData = data.map(deal => {
+          return {
+            ...deal,
+            salon_rating: deal.salons?.rating || null
+          };
+        });
+        
+        console.log('Featured deals fetch successful. Number of deals:', processedData?.length);
+        if (processedData && processedData.length > 0) {
+          console.log('First featured deal:', processedData[0]);
         } else {
           console.log('No featured deals found in database');
         }
         
-        return data as Deal[];
+        return processedData as Deal[];
       } catch (error) {
         console.error('Unexpected error in featured deals:', error);
         if (error instanceof Error) {

@@ -38,7 +38,7 @@ export const formatDealData = (
   
   // Använd nullish coalescing för att hantera både null och undefined
   const effectiveSalonData = salonData ?? {
-    id: rawDeal.salon_id,
+    id: rawDeal.salon_id ?? null,
     name: fallbackSalonName,
     address: rawDeal.city ?? null,
     phone: null,

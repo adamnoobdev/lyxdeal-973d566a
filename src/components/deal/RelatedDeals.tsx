@@ -21,7 +21,12 @@ const RelatedDealsComponent = ({ currentDealId, category, city, salonRating }: R
       // Först hämta några erbjudanden från samma kategori
       const { data: categoryDeals } = await supabase
         .from('deals')
-        .select('*')
+        .select(`
+          *,
+          salons (
+            rating
+          )
+        `)
         .eq('category', category)
         .neq('id', currentDealId)
         .limit(3)
@@ -30,14 +35,30 @@ const RelatedDealsComponent = ({ currentDealId, category, city, salonRating }: R
       // Sedan några populära erbjudanden från andra kategorier
       const { data: otherDeals } = await supabase
         .from('deals')
-        .select('*')
+        .select(`
+          *,
+          salons (
+            rating
+          )
+        `)
         .neq('category', category)
         .neq('id', currentDealId)
         .limit(3)
         .order('created_at', { ascending: false });
 
-      // Kombinera resultaten
-      return [...(categoryDeals || []), ...(otherDeals || [])].slice(0, 6) as Deal[];
+      // Kombinera och transformera resultaten
+      const combinedDeals = [
+        ...(categoryDeals || []).map(deal => ({
+          ...deal,
+          salon_rating: deal.salons?.rating || null
+        })),
+        ...(otherDeals || []).map(deal => ({
+          ...deal,
+          salon_rating: deal.salons?.rating || null
+        }))
+      ].slice(0, 6);
+      
+      return combinedDeals as Deal[];
     },
     staleTime: 5 * 60 * 1000, // Cache i 5 minuter
     refetchOnWindowFocus: false,

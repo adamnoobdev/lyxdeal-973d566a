@@ -12,7 +12,12 @@ export const useDeals = (category?: string, city?: string) => {
         // Skapa basqueryn - hämta endast aktiva erbjudanden som standard
         let query = supabase
           .from("deals")
-          .select("*")
+          .select(`
+            *,
+            salons (
+              rating
+            )
+          `)
           .eq("is_active", true) // Endast aktiva erbjudanden
           .eq("status", "approved") // Endast godkända erbjudanden
           .order("created_at", { ascending: false });
@@ -35,8 +40,17 @@ export const useDeals = (category?: string, city?: string) => {
           throw error;
         }
 
-        console.log(`Hämtade ${data.length} aktiva erbjudanden för ${city || 'alla städer'} och ${category || 'alla kategorier'}`);
-        return data as Deal[];
+        // Transformera data för att lägga till salon_rating från salons-relationen
+        const processedData = data.map(deal => {
+          // Om vi har en salon, lägg till dess betyg direkt på deal-objektet
+          return {
+            ...deal,
+            salon_rating: deal.salons?.rating || null
+          };
+        });
+
+        console.log(`Hämtade ${processedData.length} aktiva erbjudanden för ${city || 'alla städer'} och ${category || 'alla kategorier'}`);
+        return processedData as Deal[];
       } catch (error) {
         console.error("Unexpected error in useDeals:", error);
         toast.error("Ett oväntat fel uppstod. Försök igen senare.");
