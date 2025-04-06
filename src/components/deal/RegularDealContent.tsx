@@ -16,6 +16,7 @@ interface RegularDealContentProps {
   id: number;
   requiresDiscountCode?: boolean;
   formattedRating?: number;
+  compact?: boolean;
 }
 
 export const RegularDealContent = ({
@@ -31,6 +32,7 @@ export const RegularDealContent = ({
   id,
   requiresDiscountCode = true,
   formattedRating = 0,
+  compact = false,
 }: RegularDealContentProps) => {
   const formatCurrency = (price: number) => {
     return new Intl.NumberFormat("sv-SE", {
@@ -46,12 +48,12 @@ export const RegularDealContent = ({
       : 0;
 
   return (
-    <div className="p-1.5 sm:p-2.5 flex flex-col flex-1"> 
-      <h3 className="text-sm xs:text-base sm:text-base font-medium line-clamp-2 leading-tight mt-1">{title}</h3>
+    <div className={compact ? "p-1.5 flex flex-col flex-1" : "p-1.5 sm:p-2.5 flex flex-col flex-1"}> 
+      <h3 className={compact ? "text-sm font-medium line-clamp-2 leading-tight mt-0.5" : "text-sm xs:text-base sm:text-base font-medium line-clamp-2 leading-tight mt-1"}>{title}</h3>
       
-      <p className="text-xs xs:text-sm text-muted-foreground line-clamp-2 mt-1 leading-tight">{description}</p>
+      <p className={compact ? "text-xs text-muted-foreground line-clamp-1 mt-0.5 leading-tight" : "text-xs xs:text-sm text-muted-foreground line-clamp-2 mt-1 leading-tight"}>{description}</p>
       
-      <div className="flex items-center justify-between text-xs text-gray-500 mt-1.5 mb-2">
+      <div className={compact ? "flex items-center justify-between text-xs text-gray-500 mt-1 mb-1" : "flex items-center justify-between text-xs text-gray-500 mt-1.5 mb-2"}>
         <div className="flex items-center">
           <MapPin className="h-3 w-3 mr-0.5" /> {city}
         </div>
@@ -63,14 +65,14 @@ export const RegularDealContent = ({
         )}
       </div>
       
-      <div className="mt-auto pt-1.5 border-t mt-1">
+      <div className={compact ? "mt-auto pt-1 border-t mt-0.5" : "mt-auto pt-1.5 border-t mt-1"}>
         <div className="flex items-end justify-between">
           <div>
-            <span className="font-bold text-base xs:text-lg text-foreground">
+            <span className={compact ? "font-bold text-sm xs:text-base text-foreground" : "font-bold text-base xs:text-lg text-foreground"}>
               {isFree ? "Gratis" : `${formatCurrency(discountedPrice)}`}
             </span>
             {originalPrice > 0 && (isFree || originalPrice !== discountedPrice) && (
-              <div className="flex items-center gap-1 mt-0.5">
+              <div className={compact ? "flex items-center gap-0.5 mt-0.5" : "flex items-center gap-1 mt-0.5"}>
                 <span className="text-xs line-through text-gray-500">
                   {formatCurrency(originalPrice)}
                 </span>

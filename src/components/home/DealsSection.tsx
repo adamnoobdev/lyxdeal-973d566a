@@ -37,9 +37,9 @@ export function DealsSection({ selectedCategory, selectedCity }: DealsSectionPro
             </AlertDescription>
           </Alert>
         ) : isLoading ? (
-          <div className="grid grid-cols-1 xs:grid-cols-2 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-64 sm:h-72 bg-accent/50 rounded-xl animate-pulse" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-48 sm:h-56 bg-accent/50 rounded-xl animate-pulse" />
             ))}
           </div>
         ) : deals && deals.length > 0 ? (

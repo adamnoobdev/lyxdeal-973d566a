@@ -60,9 +60,9 @@ export function FeaturedDeals() {
 
   if (isLoading) {
     return (
-      <ResponsiveGrid columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" gap="gap-4">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-64 sm:h-72 bg-accent/50 rounded-xl animate-pulse" />
+      <ResponsiveGrid columns="grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" gap="gap-3">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="h-48 sm:h-56 bg-accent/50 rounded-xl animate-pulse" />
         ))}
       </ResponsiveGrid>
     );
@@ -87,12 +87,13 @@ export function FeaturedDeals() {
 
   console.log('Rendering featured deals:', deals);
   return (
-    <ResponsiveGrid columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" gap="gap-4">
+    <ResponsiveGrid columns="grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" gap="gap-3">
       {deals.map((deal) => (
         <DealCard
           key={deal.id}
           {...deal}
           className="h-full"
+          compact={true}
         />
       ))}
     </ResponsiveGrid>

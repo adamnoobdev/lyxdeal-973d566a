@@ -24,6 +24,7 @@ interface DealCardProps {
   requires_discount_code?: boolean;
   salon_rating?: number;
   className?: string;
+  compact?: boolean;
 }
 
 const DealCardComponent = ({
@@ -42,6 +43,7 @@ const DealCardComponent = ({
   requires_discount_code = true,
   salon_rating,
   className = "",
+  compact = false,
 }: DealCardProps) => {
   const isNew = useCallback(() => {
     const createdDate = new Date(created_at);
@@ -81,9 +83,9 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
-              className="h-36 xs:h-40 sm:h-44 md:h-48"
+              className={compact ? "h-28 xs:h-32 sm:h-36 md:h-40" : "h-36 xs:h-40 sm:h-44 md:h-48"}
             />
-            <div className="px-1.5 sm:px-3 mt-1.5 flex items-center justify-between flex-wrap">
+            <div className="px-1.5 sm:px-2 mt-1 flex items-center justify-between flex-wrap">
               <div className="flex-shrink-0">
                 <CategoryBadge category={category} />
               </div>
@@ -103,6 +105,7 @@ const DealCardComponent = ({
               id={id}
               requiresDiscountCode={requires_discount_code}
               formattedRating={formattedRating}
+              compact={compact}
             />
           </div>
         </div>

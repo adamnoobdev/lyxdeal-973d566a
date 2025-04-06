@@ -19,6 +19,7 @@ export const ProductRelatedDeals = ({ currentDealId, category, city, salonRating
           category={category}
           city={city}
           salonRating={salonRating}
+          compact={true}
         />
       </div>
     </div>
