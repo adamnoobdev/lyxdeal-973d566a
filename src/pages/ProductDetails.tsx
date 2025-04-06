@@ -127,13 +127,13 @@ const ProductDetails = () => {
                   phone={dealData.salon?.phone}
                 />
 
-                {/* Återställer Mapbox-karta */}
                 {dealData.salon && (
                   <div className="mt-6">
                     <h3 className="text-lg font-medium mb-3">Hitta hit</h3>
                     <SalonLocationMap 
                       salonId={dealData.salon.id} 
-                      city={dealData.city} 
+                      city={dealData.city}
+                      hidePhone={true} // Lägg till hidePhone här för att undvika dubbel visning
                     />
                   </div>
                 )}

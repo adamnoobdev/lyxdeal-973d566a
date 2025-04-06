@@ -1,40 +1,41 @@
 
-import { Store, Phone, MapPin } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
 
 interface SalonAddressInfoProps {
   salonName?: string;
+  address?: string;
   salonPhone?: string | null;
-  address: string;
   hideAddress?: boolean;
+  hidePhone?: boolean;
 }
 
 export const SalonAddressInfo = ({ 
   salonName, 
-  salonPhone, 
   address, 
-  hideAddress = false 
+  salonPhone,
+  hideAddress = false,
+  hidePhone = false
 }: SalonAddressInfoProps) => {
-  // Om salongsnamnet saknas, visa ett standardnamn
-  const displayName = salonName || 'Salong';
-  
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <Store className="h-4 w-4 text-primary" />
-        <span className="font-medium">{displayName}</span>
-      </div>
+    <div className="flex flex-col">
+      {salonName && <h4 className="text-base font-medium">{salonName}</h4>}
       
-      {salonPhone && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Phone className="h-4 w-4" />
-          <a href={`tel:${salonPhone}`} className="hover:underline">{salonPhone}</a>
+      {!hideAddress && address && (
+        <div className="flex items-center space-x-2 mt-1">
+          <MapPin className="h-4 w-4 text-gray-500" />
+          <span className="text-gray-600">{address}</span>
         </div>
       )}
       
-      {!hideAddress && address && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <MapPin className="h-4 w-4" />
-          <span>{address}</span>
+      {!hidePhone && salonPhone && (
+        <div className="flex items-center space-x-2 mt-1">
+          <Phone className="h-4 w-4 text-gray-500" />
+          <a 
+            href={`tel:${salonPhone}`} 
+            className="text-gray-600 hover:text-primary hover:underline"
+          >
+            {salonPhone}
+          </a>
         </div>
       )}
     </div>

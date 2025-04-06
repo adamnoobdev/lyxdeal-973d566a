@@ -1,61 +1,36 @@
-
-import { MapPin, Store, Phone } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import React from "react";
+import { SalonAddressInfo } from "./error/SalonAddressInfo";
 
 interface MapLoadingStateProps {
+  salonName?: string;
   address?: string;
-  hideAddress?: boolean;
-  salonName?: string | null;
   salonPhone?: string | null;
+  hideAddress?: boolean;
+  hidePhone?: boolean;
 }
 
 export const MapLoadingState = ({ 
-  address = '', 
+  salonName, 
+  address, 
+  salonPhone,
   hideAddress = false,
-  salonName,
-  salonPhone
+  hidePhone = false
 }: MapLoadingStateProps) => {
   return (
-    <div className="space-y-4">
-      {/* Salon info section */}
-      <div className="space-y-2">
-        {salonName ? (
-          <div className="flex items-center gap-2">
-            <Store className="h-4 w-4 text-primary" />
-            <span className="font-medium">{salonName}</span>
-          </div>
-        ) : (
-          <Skeleton className="h-5 w-32" />
-        )}
+    <div className="border rounded-md p-4 bg-gray-50">
+      <div className="flex flex-col space-y-4">
+        <SalonAddressInfo 
+          salonName={salonName} 
+          address={address} 
+          salonPhone={salonPhone}
+          hideAddress={hideAddress}
+          hidePhone={hidePhone}
+        />
         
-        {salonPhone ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Phone className="h-4 w-4" />
-            <a href={`tel:${salonPhone}`} className="hover:underline">{salonPhone}</a>
-          </div>
-        ) : (
-          <Skeleton className="h-4 w-28" />
-        )}
-        
-        {!hideAddress && address ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4" />
-            <span>{address}</span>
-          </div>
-        ) : !hideAddress && (
-          <Skeleton className="h-4 w-48" />
-        )}
-      </div>
-      
-      {/* Map placeholder */}
-      <div className="h-48 w-full rounded-md overflow-hidden border border-border">
-        <div className="h-full w-full bg-accent/5 animate-pulse flex items-center justify-center">
-          <div className="text-sm text-muted-foreground">Laddar karta...</div>
+        <div className="h-[200px] w-full bg-gray-200 animate-pulse rounded-md flex items-center justify-center">
+          <span className="text-gray-500">Laddar karta...</span>
         </div>
       </div>
-      
-      {/* Button placeholder */}
-      <Skeleton className="h-10 w-full" />
     </div>
   );
 };

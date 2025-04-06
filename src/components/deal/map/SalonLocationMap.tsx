@@ -13,9 +13,10 @@ interface SalonLocationMapProps {
   salonId?: number | string | null;
   className?: string;
   city?: string;
+  hidePhone?: boolean;
 }
 
-export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocationMapProps) => {
+export const SalonLocationMap = ({ salonId, className = "", city, hidePhone = false }: SalonLocationMapProps) => {
   const [showMap, setShowMap] = useState(false);
   const { mapboxToken } = useMapboxToken() || { mapboxToken: undefined };
   
@@ -66,6 +67,7 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
         salonName={effectiveSalonName} 
         salonPhone={salonPhone}
         hideAddress={!displayAddress}
+        hidePhone={hidePhone}
       />;
     }
     
@@ -79,6 +81,7 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
           salonName={effectiveSalonName}
           salonPhone={salonPhone}
           hideAddress={!displayAddress}
+          hidePhone={hidePhone}
           city={city}
         />
       );
@@ -111,6 +114,7 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
         salonName={effectiveSalonName}
         salonPhone={salonPhone}
         hideAddress={!displayAddress}
+        hidePhone={hidePhone}
         city={city}
       />
     );
@@ -123,6 +127,7 @@ export const SalonLocationMap = ({ salonId, className = "", city }: SalonLocatio
         address={displayAddress} 
         salonPhone={salonPhone} 
         hideAddress={!displayAddress}
+        hidePhone={hidePhone}
       />
       {renderContent()}
     </div>
