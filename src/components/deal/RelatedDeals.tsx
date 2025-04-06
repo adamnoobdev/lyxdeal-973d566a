@@ -12,9 +12,10 @@ interface RelatedDealsProps {
   category: string;
   city: string;
   salonRating?: number | null;
+  compact?: boolean;
 }
 
-const RelatedDealsComponent = ({ currentDealId, category, city, salonRating }: RelatedDealsProps) => {
+const RelatedDealsComponent = ({ currentDealId, category, city, salonRating, compact = true }: RelatedDealsProps) => {
   const { data: relatedDeals, isLoading } = useQuery({
     queryKey: ['relatedDeals', currentDealId, category],
     queryFn: async () => {
@@ -88,7 +89,7 @@ const RelatedDealsComponent = ({ currentDealId, category, city, salonRating }: R
       </div>
       <ResponsiveGrid>
         {relatedDeals.map((deal) => (
-          <DealCard key={deal.id} {...deal} />
+          <DealCard key={deal.id} {...deal} compact={compact} />
         ))}
       </ResponsiveGrid>
     </div>
