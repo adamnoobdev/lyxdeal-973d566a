@@ -24,6 +24,7 @@ export interface Deal {
   is_active: boolean;
   booking_url?: string;
   requires_discount_code?: boolean;
+  salon_rating?: number;
 }
 
 export type DealFormData = {
