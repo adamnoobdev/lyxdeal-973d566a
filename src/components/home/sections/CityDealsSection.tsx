@@ -83,9 +83,9 @@ const CityDealsSectionLoading = memo(({ selectedCity }: { selectedCity: string }
                 )}
               </h3>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-48 md:h-64 bg-accent/5 rounded-lg animate-pulse" />
+                  <div key={i} className="h-56 md:h-64 lg:h-72 bg-accent/5 rounded-lg animate-pulse" />
                 ))}
               </div>
             </div>
