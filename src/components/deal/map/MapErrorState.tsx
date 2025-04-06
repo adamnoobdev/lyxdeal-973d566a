@@ -1,5 +1,7 @@
+
 import React from "react";
-import { ErrorAlert } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ErrorAlert } from "./error/ErrorAlert";
 import { DirectionsButton } from "./DirectionsButton";
 import { AddressTipsList } from "./error/AddressTipsList";
 import { SalonAddressInfo } from "./error/SalonAddressInfo";
