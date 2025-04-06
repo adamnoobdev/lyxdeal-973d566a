@@ -1,0 +1,92 @@
+
+import { useCallback, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+/**
+ * Hook for handling salon rating operations
+ */
+export const useSalonRating = (
+  fetchSalons: () => Promise<void>,
+  isMountedRef: React.MutableRefObject<boolean>,
+  setIsRating: (value: boolean) => void,
+  setRatingSalon: (salon: any | null) => void
+) => {
+  // Reference to track if an operation is in progress
+  const actionInProgressRef = useRef(false);
+
+  /**
+   * Handle salon rating with action tracking
+   */
+  const onRate = useCallback(async (salonId: number, rating: number, comment: string) => {
+    try {
+      if (actionInProgressRef.current) {
+        console.log("[useSalonRating] Rating operation already in progress");
+        return false;
+      }
+      
+      actionInProgressRef.current = true;
+      setIsRating(true);
+      
+      // Ensure rating is properly formatted (up to 1 decimal place)
+      const formattedRating = Math.round(rating * 10) / 10;
+      
+      console.log("[useSalonRating] Rating salon:", salonId, "rating:", formattedRating, "comment:", comment);
+      
+      // Update the salon's rating
+      const { error: updateError } = await supabase
+        .from('salons')
+        .update({ 
+          rating: formattedRating,
+          rating_comment: comment
+        })
+        .eq('id', salonId);
+      
+      if (updateError) {
+        console.error("[useSalonRating] Error updating salon rating:", updateError);
+        toast.error("Kunde inte spara betyg");
+        return false;
+      }
+      
+      // Add to rating history
+      try {
+        const { error: ratingError } = await supabase
+          .from('salon_ratings')
+          .insert({
+            salon_id: salonId,
+            rating: formattedRating,
+            comment: comment,
+            created_by: 'admin'
+          });
+          
+        if (ratingError) {
+          console.warn("[useSalonRating] Could not save rating history:", ratingError);
+        }
+      } catch (historyError) {
+        console.warn("[useSalonRating] Couldn't save rating history:", historyError);
+      }
+      
+      // Update local salon data
+      console.log("[useSalonRating] Rating saved, fetching updated salon data...");
+      await fetchSalons();
+      
+      if (isMountedRef.current) {
+        setRatingSalon(null);
+      }
+      return true;
+    } catch (error) {
+      console.error("[useSalonRating] Error in rating salon:", error);
+      toast.error("Ett fel uppstod när betyget skulle sparas");
+      return false;
+    } finally {
+      actionInProgressRef.current = false;
+      if (isMountedRef.current) {
+        setIsRating(false);
+      }
+    }
+  }, [fetchSalons, isMountedRef, setIsRating, setRatingSalon]);
+
+  return {
+    onRate
+  };
+};
