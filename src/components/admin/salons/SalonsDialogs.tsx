@@ -1,10 +1,9 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Salon, SalonFormValues } from "../types";
 import { EditSalonDialog } from "./EditSalonDialog";
 import { DeleteSalonDialog } from "./DeleteSalonDialog";
 import { CreateSalonDialog } from "./CreateSalonDialog";
-import { SalonRatingDialog } from "./SalonRatingDialog";
+import { SalonRatingDialog } from "./rating/SalonRatingDialog";
 
 interface SalonsDialogsProps {
   editingSalon: Salon | null;
@@ -39,13 +38,11 @@ export const SalonsDialogs: React.FC<SalonsDialogsProps> = ({
   onRate,
   getInitialValuesForEdit
 }) => {
-  // Add component mount tracking for safe state updates
   const isMountedRef = useRef(true);
   
   useEffect(() => {
     isMountedRef.current = true;
     
-    // Log dialog state for debugging
     console.log("[SalonsDialogs] Rendering with states:", {
       editDialogOpen: !!editingSalon,
       deleteDialogOpen: !!deletingSalon,
@@ -59,7 +56,6 @@ export const SalonsDialogs: React.FC<SalonsDialogsProps> = ({
     };
   }, [editingSalon, deletingSalon, isCreating, ratingSalon]);
 
-  // Safe wrapper for callbacks to prevent state updates after unmounting
   const safeHandleUpdate = async (values: any) => {
     if (isMountedRef.current) {
       await onUpdate(values);
@@ -88,7 +84,6 @@ export const SalonsDialogs: React.FC<SalonsDialogsProps> = ({
 
   return (
     <>
-      {/* Each dialog gets a unique key to ensure proper re-rendering */}
       <EditSalonDialog
         key={`edit-dialog-${editingSalon?.id || 'none'}`}
         isOpen={!!editingSalon}
