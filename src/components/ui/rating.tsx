@@ -22,15 +22,15 @@ export const Rating = ({
   
   // Determine star size based on prop
   const starSize = {
-    sm: "h-3 w-3",
-    md: "h-4 w-4",
-    lg: "h-5 w-5"
+    sm: "h-3.5 w-3.5",
+    md: "h-4.5 w-4.5",
+    lg: "h-5.5 w-5.5"
   }[size];
   
   return (
     <div className={`flex items-center gap-1 ${className}`}>
       <Star className={`${starSize} text-yellow-500 fill-yellow-500`} />
-      <span className={`text-${size === 'sm' ? 'xs' : 'sm'} font-medium`}>
+      <span className={`text-${size === 'sm' ? 'sm' : 'base'} font-medium`}>
         {formattedValue.toFixed(1)}
       </span>
     </div>
