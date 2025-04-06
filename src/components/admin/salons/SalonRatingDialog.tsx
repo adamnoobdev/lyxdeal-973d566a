@@ -54,6 +54,7 @@ export const SalonRatingDialog = ({
   useEffect(() => {
     if (salon && isOpen && isMounted) {
       console.log("[SalonRatingDialog] Dialog opening with salon:", salon.name);
+      console.log("[SalonRatingDialog] Salon rating from database (already converted to decimal):", salon.rating);
       // Set initial rating (it's already in decimal format from useSalonsAdmin)
       setRating(salon.rating || 0);
       setComment(salon.rating_comment || "");
@@ -65,6 +66,7 @@ export const SalonRatingDialog = ({
     if (submitting) return;
     // Round to 1 decimal place for display
     const newRating = Math.round(value[0] * 10) / 10;
+    console.log("[SalonRatingDialog] Setting rating to:", newRating);
     setRating(newRating);
   };
 

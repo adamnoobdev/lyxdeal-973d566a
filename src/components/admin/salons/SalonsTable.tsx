@@ -54,49 +54,54 @@ export const SalonsTable = ({
               </TableCell>
             </TableRow>
           ) : (
-            salons.map(salon => (
-              <TableRow 
-                key={salon.id} 
-                className={`cursor-pointer hover:bg-muted/50 ${selectedSalon?.id === salon.id ? 'bg-muted/40' : ''}`}
-              >
-                <TableCell 
-                  className="font-medium"
-                  onClick={() => handleRowClick(salon)}
+            salons.map(salon => {
+              // Debug log for each salon's rating
+              console.log(`[SalonsTable] Salon ${salon.name} rating:`, salon.rating);
+              
+              return (
+                <TableRow 
+                  key={salon.id} 
+                  className={`cursor-pointer hover:bg-muted/50 ${selectedSalon?.id === salon.id ? 'bg-muted/40' : ''}`}
                 >
-                  {salon.name}
-                </TableCell>
-                <TableCell onClick={() => handleRowClick(salon)}>
-                  <div>
-                    <div>{salon.email}</div>
-                    <div className="text-sm text-muted-foreground">{salon.phone || "-"}</div>
-                  </div>
-                </TableCell>
-                <TableCell onClick={() => handleRowClick(salon)}>
-                  {salon.address || "-"}
-                </TableCell>
-                <TableCell onClick={() => handleRowClick(salon)}>
-                  {salon.rating ? (
-                    <div className="flex items-center gap-2">
-                      <Rating value={salon.rating} size="md" />
-                      <span className="text-sm font-medium">{salon.rating.toFixed(1)}</span>
+                  <TableCell 
+                    className="font-medium"
+                    onClick={() => handleRowClick(salon)}
+                  >
+                    {salon.name}
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(salon)}>
+                    <div>
+                      <div>{salon.email}</div>
+                      <div className="text-sm text-muted-foreground">{salon.phone || "-"}</div>
                     </div>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">Ej betygsatt</span>
-                  )}
-                </TableCell>
-                <TableCell onClick={() => handleRowClick(salon)}>
-                  {salon.created_at ? formatDate(salon.created_at) : "-"}
-                </TableCell>
-                <TableCell className="text-right">
-                  <SalonActions 
-                    salon={salon} 
-                    onEdit={onEdit} 
-                    onDelete={onDelete} 
-                    onRate={onRate}
-                  />
-                </TableCell>
-              </TableRow>
-            ))
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(salon)}>
+                    {salon.address || "-"}
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(salon)}>
+                    {salon.rating ? (
+                      <div className="flex items-center gap-2">
+                        <Rating value={salon.rating} size="md" />
+                        <span className="text-sm font-medium">{salon.rating.toFixed(1)}</span>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Ej betygsatt</span>
+                    )}
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(salon)}>
+                    {salon.created_at ? formatDate(salon.created_at) : "-"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <SalonActions 
+                      salon={salon} 
+                      onEdit={onEdit} 
+                      onDelete={onDelete} 
+                      onRate={onRate}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })
           )}
         </TableBody>
       </Table>

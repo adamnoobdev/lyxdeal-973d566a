@@ -14,6 +14,10 @@ export const fetchSalonsData = async () => {
       const salonsData = await fetchAllSalons();
       if (salonsData && salonsData.length > 0) {
         console.log("Hämtade salonger via fetchAllSalons, antal:", salonsData.length);
+        // Log the first salon's rating for debugging
+        if (salonsData[0]) {
+          console.log("First salon rating from fetchAllSalons:", salonsData[0].rating);
+        }
         return salonsData;
       }
     } catch (e) {
@@ -33,6 +37,10 @@ export const fetchSalonsData = async () => {
     }
     
     console.log("Hämtade salonger via direkt Supabase anrop, antal:", data?.length || 0);
+    // Log the first salon's rating for debugging
+    if (data && data.length > 0) {
+      console.log("First salon raw rating from direct query:", data[0].rating);
+    }
     return data;
   } catch (error) {
     console.error("Error i fetchSalonsData:", error);

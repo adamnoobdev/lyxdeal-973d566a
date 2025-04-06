@@ -36,6 +36,8 @@ export const useSalonRating = (
       // Convert to integer in database by multiplying by 10 (store 4.7 as 47)
       const dbRating = Math.round(formattedRating * 10);
       
+      console.log("[useSalonRating] Storing rating in database as:", dbRating);
+      
       // Update the salon's rating - store as integer by multiplying by 10
       const { error: updateError } = await supabase
         .from('salons')
@@ -76,6 +78,8 @@ export const useSalonRating = (
       if (isMountedRef.current) {
         setRatingSalon(null);
       }
+      
+      toast.success("Betyg sparat");
       return true;
     } catch (error) {
       console.error("[useSalonRating] Error in rating salon:", error);

@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { useSession } from "@/hooks/useSession";
 import { fetchSalonsData } from "@/utils/salon/admin/fetchSalons";
 import { useSalonOperations } from "@/hooks/useSalonOperations";
-import { SalonData } from "@/utils/salon/types";
 
 /**
  * Hook för att hantera salongsadministration
@@ -38,21 +37,26 @@ export const useSalonsAdmin = () => {
       
       // Transform the data to match the Salon type
       if (data) {
-        const transformedData: Salon[] = data.map(salon => ({
-          id: Number(salon.id) || 0,
-          name: String(salon.name || ''),
-          email: typeof salon.email === 'string' ? salon.email : '',
-          phone: salon.phone !== null ? String(salon.phone) : null,
-          address: salon.address !== null ? String(salon.address) : null,
-          created_at: typeof salon.created_at === 'string' ? salon.created_at : new Date().toISOString(),
-          user_id: typeof salon.user_id === 'string' ? salon.user_id : null,
-          role: typeof salon.role === 'string' ? salon.role : 'salon_owner',
-          terms_accepted: typeof salon.terms_accepted === 'boolean' ? salon.terms_accepted : true,
-          privacy_accepted: typeof salon.privacy_accepted === 'boolean' ? salon.privacy_accepted : true,
-          // Convert rating from integer to decimal (divide by 10)
-          rating: salon.rating !== null ? Number(salon.rating) / 10 : null,
-          rating_comment: salon.rating_comment !== null ? String(salon.rating_comment) : null
-        }));
+        const transformedData: Salon[] = data.map(salon => {
+          // Log the raw rating value from database
+          console.log(`Salon ${salon.name} raw rating:`, salon.rating);
+          
+          return {
+            id: Number(salon.id) || 0,
+            name: String(salon.name || ''),
+            email: typeof salon.email === 'string' ? salon.email : '',
+            phone: salon.phone !== null ? String(salon.phone) : null,
+            address: salon.address !== null ? String(salon.address) : null,
+            created_at: typeof salon.created_at === 'string' ? salon.created_at : new Date().toISOString(),
+            user_id: typeof salon.user_id === 'string' ? salon.user_id : null,
+            role: typeof salon.role === 'string' ? salon.role : 'salon_owner',
+            terms_accepted: typeof salon.terms_accepted === 'boolean' ? salon.terms_accepted : true,
+            privacy_accepted: typeof salon.privacy_accepted === 'boolean' ? salon.privacy_accepted : true,
+            // Convert rating from integer to decimal (divide by 10)
+            rating: salon.rating !== null ? Number(salon.rating) / 10 : null,
+            rating_comment: salon.rating_comment !== null ? String(salon.rating_comment) : null
+          };
+        });
         
         setSalons(transformedData);
         console.log("Salon data transformation complete. Found", transformedData.length, "salons");
