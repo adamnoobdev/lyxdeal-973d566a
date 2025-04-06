@@ -19,9 +19,9 @@ const DealsGridComponent = ({ deals, className = "", scrollable = false, compact
   if (scrollable) {
     return (
       <div className={`overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 ${className}`}>
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           {deals.map((deal) => (
-            <div key={deal.id} className="w-[180px] xs:w-[210px] sm:w-[230px] md:w-[240px] min-w-[180px] flex-shrink-0">
+            <div key={deal.id} className="w-[200px] xs:w-[220px] sm:w-[240px] md:w-[260px] min-w-[200px] flex-shrink-0">
               <DealCard {...deal} className="h-full" compact={compact} />
             </div>
           ))}
