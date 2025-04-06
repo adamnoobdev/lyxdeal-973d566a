@@ -43,7 +43,7 @@ export function DealsSection({ selectedCategory, selectedCity }: DealsSectionPro
             ))}
           </div>
         ) : deals && deals.length > 0 ? (
-          <DealsGrid deals={deals} scrollable={true} />
+          <DealsGrid deals={deals} scrollable={true} compact={true} />
         ) : (
           <p className="text-center text-muted-foreground py-6">
             Inga erbjudanden hittades.

@@ -8,9 +8,10 @@ interface DealsGridProps {
   deals: Deal[];
   className?: string;
   scrollable?: boolean;
+  compact?: boolean;
 }
 
-const DealsGridComponent = ({ deals, className = "", scrollable = false }: DealsGridProps) => {
+const DealsGridComponent = ({ deals, className = "", scrollable = false, compact = true }: DealsGridProps) => {
   if (!deals?.length) {
     return null;
   }
@@ -21,7 +22,7 @@ const DealsGridComponent = ({ deals, className = "", scrollable = false }: Deals
         <div className="flex gap-2 min-w-max">
           {deals.map((deal) => (
             <div key={deal.id} className="w-[160px] xs:w-[180px] sm:w-[200px] md:w-[220px] min-w-[160px] flex-shrink-0">
-              <DealCard {...deal} className="h-full" compact={true} />
+              <DealCard {...deal} className="h-full" compact={compact} />
             </div>
           ))}
         </div>
@@ -40,7 +41,7 @@ const DealsGridComponent = ({ deals, className = "", scrollable = false }: Deals
           key={deal.id}
           {...deal}
           className="h-full"
-          compact={true}
+          compact={compact}
         />
       ))}
     </ResponsiveGrid>

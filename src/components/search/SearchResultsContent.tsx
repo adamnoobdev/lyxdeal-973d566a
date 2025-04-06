@@ -106,7 +106,7 @@ export function SearchResultsContent({
               </h1>
               
               {deals && deals.length > 0 ? (
-                <DealsGrid deals={deals} />
+                <DealsGrid deals={deals} compact={true} />
               ) : (
                 <div className="p-4 xs:p-6 border border-muted rounded-lg bg-white/50 text-center">
                   <p className="text-muted-foreground">Inga erbjudanden hittades för din sökning.</p>

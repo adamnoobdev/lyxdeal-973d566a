@@ -45,7 +45,7 @@ const CityDealsComponent = ({
     );
   }
   
-  return <DealsGrid deals={deals} scrollable={true} />;
+  return <DealsGrid deals={deals} scrollable={true} compact={true} />;
 };
 
 export const CityDealsLoadingSkeleton = () => (
