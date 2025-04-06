@@ -90,10 +90,10 @@ export function SearchResultsContent({
           </div>
         )}
         
-        <div className="mt-4 flex flex-col md:flex-row gap-4">
+        <div className="mt-4 flex flex-col md:flex-row gap-6">
           {/* Desktop Filters Section */}
           {!isMobile && (
-            <div className="w-full md:w-52 flex-shrink-0">
+            <div className="w-full md:w-64 flex-shrink-0">
               <FiltersSection />
             </div>
           )}
@@ -101,7 +101,7 @@ export function SearchResultsContent({
           {/* Results Section */}
           <div className="flex-grow">
             <div className="flex flex-col space-y-4">
-              <h1 className="text-lg xs:text-xl font-bold text-primary">
+              <h1 className="text-xl xs:text-2xl font-bold text-primary">
                 {getHeaderText(query, category, city)}
               </h1>
               

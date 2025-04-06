@@ -6,6 +6,7 @@ import { DealImage } from "./deal/DealImage";
 import { RegularDealContent } from "./deal/RegularDealContent";
 import { CategoryBadge } from "./CategoryBadge";
 import { Rating } from "./ui/rating";
+import { Star } from "lucide-react";
 
 interface DealCardProps {
   id: number;
@@ -42,7 +43,7 @@ const DealCardComponent = ({
   requires_discount_code = true,
   salon_rating,
   className = "",
-  compact = true,
+  compact = false,
 }: DealCardProps) => {
   const isNew = useCallback(() => {
     const createdDate = new Date(created_at);
@@ -70,7 +71,7 @@ const DealCardComponent = ({
   const daysRemaining = calculateDaysRemaining();
 
   // Format the salon rating properly - if it's stored as an integer (47), convert it to a decimal (4.7)
-  const formattedRating = salon_rating !== undefined && salon_rating !== null ? 
+  const formattedRating = salon_rating !== undefined ? 
     (salon_rating > 10 ? salon_rating / 10 : salon_rating) : 0;
 
   return (
@@ -82,9 +83,9 @@ const DealCardComponent = ({
               imageUrl={image_url}
               title={title}
               isNew={isNew()}
-              className={compact ? "h-36 xs:h-40 sm:h-44" : "h-40 xs:h-44 sm:h-48 md:h-52"}
+              className={compact ? "h-28 xs:h-32 sm:h-36 md:h-40" : "h-36 xs:h-40 sm:h-44 md:h-48"}
             />
-            <div className="px-2 sm:px-3 mt-1.5 flex items-center justify-between flex-wrap">
+            <div className="px-1.5 sm:px-2 mt-1 flex items-center justify-between flex-wrap">
               <div className="flex-shrink-0">
                 <CategoryBadge category={category} />
               </div>
