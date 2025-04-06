@@ -39,9 +39,9 @@ export const ProductSalonInfo = ({
             </div>
           )}
           
-          {salonRating !== undefined && (
+          {salonRating !== undefined && salonRating > 0 && (
             <div className="mt-2">
-              <Rating value={salonRating} size="md" showValue={true} />
+              <Rating value={salonRating} size="md" />
               <p className="text-sm text-muted-foreground mt-1">
                 Detta är salongens kvalitetsomdöme baserat på kundbedömningar
               </p>
