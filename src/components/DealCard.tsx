@@ -6,7 +6,6 @@ import { DealImage } from "./deal/DealImage";
 import { RegularDealContent } from "./deal/RegularDealContent";
 import { CategoryBadge } from "./CategoryBadge";
 import { Rating } from "./ui/rating";
-import { Star } from "lucide-react";
 
 interface DealCardProps {
   id: number;
@@ -43,7 +42,7 @@ const DealCardComponent = ({
   requires_discount_code = true,
   salon_rating,
   className = "",
-  compact = false,
+  compact = true,
 }: DealCardProps) => {
   const isNew = useCallback(() => {
     const createdDate = new Date(created_at);
@@ -71,7 +70,7 @@ const DealCardComponent = ({
   const daysRemaining = calculateDaysRemaining();
 
   // Format the salon rating properly - if it's stored as an integer (47), convert it to a decimal (4.7)
-  const formattedRating = salon_rating !== undefined ? 
+  const formattedRating = salon_rating !== undefined && salon_rating !== null ? 
     (salon_rating > 10 ? salon_rating / 10 : salon_rating) : 0;
 
   return (

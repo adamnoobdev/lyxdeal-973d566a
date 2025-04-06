@@ -2,6 +2,7 @@
 import { MapPin, Star } from "lucide-react";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { formatPrice } from "@/utils/deal/dealPriceUtils";
+import { Rating } from "@/components/ui/rating";
 
 interface RegularDealContentProps {
   title: string;
@@ -59,8 +60,7 @@ export const RegularDealContent = ({
         </div>
         {formattedRating > 0 && (
           <div className="flex items-center gap-1 shrink-0">
-            <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-            <span>{formattedRating.toFixed(1)}</span>
+            <Rating value={formattedRating} size="sm" />
           </div>
         )}
       </div>
