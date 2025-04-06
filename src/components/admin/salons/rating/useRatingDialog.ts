@@ -65,7 +65,6 @@ export const useRatingDialog = ({
       const success = await onSave(salon.id, rating, comment);
       
       if (success && isMounted) {
-        toast.success("Salongens betyg har uppdaterats");
         handleClose();
       }
     } catch (error) {

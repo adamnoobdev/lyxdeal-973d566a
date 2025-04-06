@@ -15,7 +15,7 @@ export const fetchAllSalons = async (): Promise<SalonData[] | null> => {
     
     const directData = await directFetch<SalonData>(
       `salons`,
-      { "select": "id,name,address,phone,email,created_at,user_id,role,subscription_plan,subscription_type,stripe_customer_id,stripe_subscription_id,current_period_end,status,cancel_at_period_end,terms_accepted,privacy_accepted" }
+      { "select": "id,name,address,phone,email,created_at,user_id,role,subscription_plan,subscription_type,stripe_customer_id,stripe_subscription_id,current_period_end,status,cancel_at_period_end,terms_accepted,privacy_accepted,rating,rating_comment" }
     );
     
     if (directData && directData.length > 0) {

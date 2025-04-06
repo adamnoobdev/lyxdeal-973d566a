@@ -24,11 +24,11 @@ export const fetchSalonsData = async () => {
       console.warn("Kunde inte hämta via fetchAllSalons, försöker med direkt Supabase anrop", e);
     }
     
-    // Fallback till direkt Supabase anrop
-    console.log("Försöker med direkt Supabase anrop");
+    // Force a direct query with asterisk to ensure we get all fields including rating
+    console.log("Gör direkt Supabase anrop med explicit kolumnförfrågan");
     const { data, error } = await supabase
       .from("salons")
-      .select("*")
+      .select("id, name, email, phone, address, created_at, user_id, role, terms_accepted, privacy_accepted, rating, rating_comment")
       .order("created_at", { ascending: false });
 
     if (error) {

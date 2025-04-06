@@ -54,21 +54,18 @@ export const useSalonRating = (
       }
       
       // Add to rating history - also store as integer
-      try {
-        const { error: ratingError } = await supabase
-          .from('salon_ratings')
-          .insert({
-            salon_id: salonId,
-            rating: dbRating,
-            comment: comment,
-            created_by: 'admin'
-          });
+      const { error: ratingError } = await supabase
+        .from('salon_ratings')
+        .insert({
+          salon_id: salonId,
+          rating: dbRating,
+          comment: comment,
+          created_by: 'admin'
+        });
           
-        if (ratingError) {
-          console.warn("[useSalonRating] Could not save rating history:", ratingError);
-        }
-      } catch (historyError) {
-        console.warn("[useSalonRating] Couldn't save rating history:", historyError);
+      if (ratingError) {
+        console.warn("[useSalonRating] Could not save rating history:", ratingError);
+        // Continue execution even if history saving fails
       }
       
       // Update local salon data
