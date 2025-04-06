@@ -33,11 +33,14 @@ export const useSalonRating = (
       
       console.log("[useSalonRating] Rating salon:", salonId, "rating:", formattedRating, "comment:", comment);
       
-      // Update the salon's rating
+      // Convert to integer in database by multiplying by 10 (store 4.7 as 47)
+      const dbRating = Math.round(formattedRating * 10);
+      
+      // Update the salon's rating - store as integer by multiplying by 10
       const { error: updateError } = await supabase
         .from('salons')
         .update({ 
-          rating: formattedRating,
+          rating: dbRating,
           rating_comment: comment
         })
         .eq('id', salonId);
@@ -48,13 +51,13 @@ export const useSalonRating = (
         return false;
       }
       
-      // Add to rating history
+      // Add to rating history - also store as integer
       try {
         const { error: ratingError } = await supabase
           .from('salon_ratings')
           .insert({
             salon_id: salonId,
-            rating: formattedRating,
+            rating: dbRating,
             comment: comment,
             created_by: 'admin'
           });

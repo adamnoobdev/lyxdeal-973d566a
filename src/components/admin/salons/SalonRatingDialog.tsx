@@ -54,6 +54,7 @@ export const SalonRatingDialog = ({
   useEffect(() => {
     if (salon && isOpen && isMounted) {
       console.log("[SalonRatingDialog] Dialog opening with salon:", salon.name);
+      // Set initial rating (it's already in decimal format from useSalonsAdmin)
       setRating(salon.rating || 0);
       setComment(salon.rating_comment || "");
       setIsClosing(false);

@@ -49,7 +49,8 @@ export const useSalonsAdmin = () => {
           role: typeof salon.role === 'string' ? salon.role : 'salon_owner',
           terms_accepted: typeof salon.terms_accepted === 'boolean' ? salon.terms_accepted : true,
           privacy_accepted: typeof salon.privacy_accepted === 'boolean' ? salon.privacy_accepted : true,
-          rating: salon.rating !== null ? Number(salon.rating) : null,
+          // Convert rating from integer to decimal (divide by 10)
+          rating: salon.rating !== null ? Number(salon.rating) / 10 : null,
           rating_comment: salon.rating_comment !== null ? String(salon.rating_comment) : null
         }));
         
