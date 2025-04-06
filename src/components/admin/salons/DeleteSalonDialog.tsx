@@ -9,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -32,10 +32,17 @@ export const DeleteSalonDialog = ({
 }: DeleteSalonDialogProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const isMountedRef = useRef(true);
   
-  // Reset state when the dialog opens
+  // Track mount status
   useEffect(() => {
-    if (isOpen) {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
+  
+  // Reset state when the dialog opens with mount check
+  useEffect(() => {
+    if (isOpen && isMountedRef.current) {
       setIsDeleting(false);
       setIsClosing(false);
     }
@@ -47,8 +54,14 @@ export const DeleteSalonDialog = ({
     
     setIsClosing(true);
     setTimeout(() => {
-      onClose();
-      setTimeout(() => setIsClosing(false), 100);
+      if (isMountedRef.current) {
+        onClose();
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            setIsClosing(false);
+          }
+        }, 100);
+      }
     }, 200);
   };
 
@@ -75,12 +88,18 @@ export const DeleteSalonDialog = ({
       }
       
       // Call the onConfirm callback that handles deletion of salon data
-      onConfirm();
-      handleClose();
+      await onConfirm();
+      
+      if (isMountedRef.current) {
+        handleClose();
+      }
     } catch (error) {
       console.error("Error in delete process:", error);
       toast.error("Ett fel uppstod vid borttagning");
-      setIsDeleting(false);
+      
+      if (isMountedRef.current) {
+        setIsDeleting(false);
+      }
     }
   };
 

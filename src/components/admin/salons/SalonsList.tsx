@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Salon, SalonFormValues } from "../types";
 import { useSalonsAdmin } from "@/hooks/useSalonsAdmin";
 import { EditSalonDialog } from "./EditSalonDialog";
@@ -23,14 +23,30 @@ export const SalonsList = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [ratingSalon, setRatingSalon] = useState<Salon | null>(null);
   const [isRating, setIsRating] = useState(false);
+  const isMountedRef = useRef(true);
   
   const { salons, isLoading, error, handleDelete, handleUpdate, handleCreate, fetchSalons } = useSalonsAdmin();
+
+  // Ensure component is mounted
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { 
+      isMountedRef.current = false; 
+    };
+  }, []);
 
   // Fetch salons when component mounts
   useEffect(() => {
     console.log("SalonsList mounting, fetching salons data...");
     fetchSalons();
   }, [fetchSalons]);
+
+  // Safe state setter for component unmount protection
+  const safeSetState = useCallback(<T,>(setter: React.Dispatch<React.SetStateAction<T>>, value: T) => {
+    if (isMountedRef.current) {
+      setter(value);
+    }
+  }, []);
 
   /**
    * Hantera borttagning av en salong
@@ -39,9 +55,9 @@ export const SalonsList = () => {
     if (deletingSalon) {
       const success = await handleDelete(deletingSalon.id);
       if (success) {
-        setDeletingSalon(null);
+        safeSetState(setDeletingSalon, null);
         if (selectedSalon?.id === deletingSalon.id) {
-          setSelectedSalon(null);
+          safeSetState(setSelectedSalon, null);
         }
       }
     }
@@ -54,8 +70,8 @@ export const SalonsList = () => {
     if (editingSalon) {
       console.log("Updating salon with values:", values);
       const success = await handleUpdate(values, editingSalon.id);
-      if (success) {
-        setEditingSalon(null);
+      if (success && isMountedRef.current) {
+        safeSetState(setEditingSalon, null);
       }
     }
   };
@@ -73,7 +89,7 @@ export const SalonsList = () => {
    */
   const onRate = async (salonId: number, rating: number, comment: string) => {
     try {
-      setIsRating(true);
+      safeSetState(setIsRating, true);
       console.log("Betygsätter salong:", salonId, "betyg:", rating, "kommentar:", comment);
       
       // Uppdatera salongens rating i salons-tabellen
@@ -115,14 +131,18 @@ export const SalonsList = () => {
       console.log("Rating saved, fetching updated salon data...");
       await fetchSalons();
       
-      setRatingSalon(null); // Stäng dialogen
+      if (isMountedRef.current) {
+        safeSetState(setRatingSalon, null); // Stäng dialogen
+      }
       return true;
     } catch (error) {
       console.error("Error in rating salon:", error);
       toast.error("Ett fel uppstod när betyget skulle sparas");
       return false;
     } finally {
-      setIsRating(false);
+      if (isMountedRef.current) {
+        safeSetState(setIsRating, false);
+      }
     }
   };
 
@@ -184,21 +204,14 @@ export const SalonsList = () => {
       }
     }
     
-    console.log("Final initial values:", { name: salon.name, email: salon.email, phone: salon.phone || "", address: salon.address || "" });
-    return {
-      name: salon.name,
-      email: salon.email,
-      phone: salon.phone || "",
-      address: salon.address || "",
-      termsAccepted: salon.terms_accepted !== false,
-      privacyAccepted: salon.privacy_accepted !== false,
-    };
+    console.log("Final initial values:", initialValues);
+    return initialValues;
   };
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 xs:px-4 sm:px-0">
       <SalonsHeader 
-        onCreateClick={() => setIsCreating(true)} 
+        onCreateClick={() => safeSetState(setIsCreating, true)} 
       />
 
       {error && (
@@ -214,24 +227,24 @@ export const SalonsList = () => {
         salons={salons}
         isLoading={isLoading}
         error={error}
-        onCreateClick={() => setIsCreating(true)}
-        onEditClick={setEditingSalon}
-        onDeleteClick={setDeletingSalon}
-        onSelect={setSelectedSalon}
+        onCreateClick={() => safeSetState(setIsCreating, true)}
+        onEditClick={(salon) => safeSetState(setEditingSalon, salon)}
+        onDeleteClick={(salon) => safeSetState(setDeletingSalon, salon)}
+        onSelect={(salon) => safeSetState(setSelectedSalon, salon)}
         selectedSalon={selectedSalon}
-        onRate={setRatingSalon}
+        onRate={(salon) => safeSetState(setRatingSalon, salon)}
       />
 
       <EditSalonDialog
         isOpen={!!editingSalon}
-        onClose={() => setEditingSalon(null)}
+        onClose={() => safeSetState(setEditingSalon, null)}
         onSubmit={onUpdate}
         initialValues={editingSalon ? getInitialValuesForEdit(editingSalon) : undefined}
       />
 
       <DeleteSalonDialog
         isOpen={!!deletingSalon}
-        onClose={() => setDeletingSalon(null)}
+        onClose={() => safeSetState(setDeletingSalon, null)}
         onConfirm={onDelete}
         salonName={deletingSalon?.name}
         salonId={deletingSalon?.id}
@@ -240,14 +253,14 @@ export const SalonsList = () => {
 
       <CreateSalonDialog
         isOpen={isCreating}
-        onClose={() => setIsCreating(false)}
+        onClose={() => safeSetState(setIsCreating, false)}
         onSubmit={onCreate}
       />
 
       <SalonRatingDialog
         salon={ratingSalon}
         isOpen={!!ratingSalon}
-        onClose={() => setRatingSalon(null)}
+        onClose={() => safeSetState(setRatingSalon, null)}
         onSave={onRate}
         isSubmitting={isRating}
       />

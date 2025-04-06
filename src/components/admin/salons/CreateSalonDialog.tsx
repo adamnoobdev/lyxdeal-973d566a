@@ -7,7 +7,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { SalonForm } from "./SalonForm";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
@@ -32,33 +32,40 @@ export const CreateSalonDialog = ({
   const [password, setPassword] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const isMountedRef = useRef(true);
 
-  // Ensure component is mounted
+  // Track mount status
   useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
   }, []);
 
-  // Reset state when dialog opens
+  // Reset state when dialog opens with mount check
   useEffect(() => {
-    if (isOpen && isMounted) {
+    if (isOpen && isMountedRef.current) {
       setIsClosing(false);
       setIsSubmitting(false);
     }
-  }, [isOpen, isMounted]);
+  }, [isOpen]);
+
+  // Safe state setter for component unmount protection
+  const safeSetState = <T,>(setter: React.Dispatch<React.SetStateAction<T>>, value: T) => {
+    if (isMountedRef.current) {
+      setter(value);
+    }
+  };
 
   const handleSubmit = async (values: any) => {
     if (isSubmitting) return;
     
     try {
-      setIsSubmitting(true);
+      safeSetState(setIsSubmitting, true);
       console.log("Submitting salon creation values:", values);
       const response = await onSubmit(values);
       console.log("Response from salon creation:", response);
       
       if (response && response.temporaryPassword) {
-        setPassword(response.temporaryPassword);
+        safeSetState(setPassword, response.temporaryPassword);
       } else if (response === false) {
         // Error was already handled in onSubmit
         return;
@@ -70,8 +77,8 @@ export const CreateSalonDialog = ({
       console.error("Error creating salon:", error);
       toast.error("Ett fel uppstod vid skapande av salong");
     } finally {
-      if (isMounted) {
-        setIsSubmitting(false);
+      if (isMountedRef.current) {
+        safeSetState(setIsSubmitting, false);
       }
     }
   };
@@ -87,19 +94,18 @@ export const CreateSalonDialog = ({
   const handleClose = () => {
     if (isSubmitting) return;
     
-    setIsClosing(true);
+    safeSetState(setIsClosing, true);
     setTimeout(() => {
       onClose();
-      setPassword(null);
+      safeSetState(setPassword, null);
+      
       setTimeout(() => {
-        if (isMounted) {
-          setIsClosing(false);
+        if (isMountedRef.current) {
+          safeSetState(setIsClosing, false);
         }
       }, 100);
     }, 200);
   };
-
-  if (!isMounted) return null;
 
   return (
     <Dialog open={isOpen && !isClosing} onOpenChange={(open) => !open && handleClose()}>

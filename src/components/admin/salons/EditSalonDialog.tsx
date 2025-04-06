@@ -7,7 +7,7 @@ import {
   DialogDescription
 } from "@/components/ui/dialog";
 import { SalonForm } from "./SalonForm";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 interface EditSalonDialogProps {
@@ -26,6 +26,7 @@ export const EditSalonDialog = ({
   const [isClosing, setIsClosing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const initialRenderRef = useRef(true);
 
   // Ensure component is mounted
   useEffect(() => {
@@ -33,8 +34,14 @@ export const EditSalonDialog = ({
     return () => setIsMounted(false);
   }, []);
   
-  // Reset state when dialog opens
+  // Reset state when dialog opens with improved handling
   useEffect(() => {
+    // Skip the first render to avoid state flashing
+    if (initialRenderRef.current) {
+      initialRenderRef.current = false;
+      return;
+    }
+
     if (isOpen && isMounted) {
       setIsClosing(false);
       setIsSubmitting(false);
@@ -43,22 +50,24 @@ export const EditSalonDialog = ({
 
   // Handle controlled closing with timeout to allow animations
   const handleClose = () => {
-    if (isSubmitting) return;
+    if (isSubmitting || !isMounted) return;
     
     setIsClosing(true);
     setTimeout(() => {
-      onClose();
-      setTimeout(() => {
-        if (isMounted) {
-          setIsClosing(false);
-        }
-      }, 100);
+      if (isMounted) {
+        onClose();
+        setTimeout(() => {
+          if (isMounted) {
+            setIsClosing(false);
+          }
+        }, 100);
+      }
     }, 200);
   };
 
   // Handle form submission with improved state management
   const handleSubmit = async (values: any) => {
-    if (isSubmitting) return;
+    if (isSubmitting || !isMounted) return;
     
     try {
       setIsSubmitting(true);
@@ -70,11 +79,16 @@ export const EditSalonDialog = ({
       }
       
       await onSubmit(values);
-      toast.success("Salonginformationen har uppdaterats");
-      handleClose();
+      
+      if (isMounted) {
+        toast.success("Salonginformationen har uppdaterats");
+        handleClose();
+      }
     } catch (error) {
       console.error("Error in form submission:", error);
-      toast.error("Ett fel uppstod när salongen skulle uppdateras");
+      if (isMounted) {
+        toast.error("Ett fel uppstod när salongen skulle uppdateras");
+      }
     } finally {
       if (isMounted) {
         setIsSubmitting(false);
@@ -82,12 +96,13 @@ export const EditSalonDialog = ({
     }
   };
 
+  // Don't render anything if not mounted
   if (!isMounted) return null;
 
   return (
     <Dialog 
       open={isOpen && !isClosing} 
-      onOpenChange={(open) => !open && handleClose()}
+      onOpenChange={(open) => !open && !isSubmitting && handleClose()}
     >
       <DialogContent className="max-w-2xl">
         <DialogHeader>
@@ -100,6 +115,7 @@ export const EditSalonDialog = ({
           onSubmit={handleSubmit} 
           initialValues={initialValues} 
           isEditing={true}
+          isSubmitting={isSubmitting}
         />
       </DialogContent>
     </Dialog>

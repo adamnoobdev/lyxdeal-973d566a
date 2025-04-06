@@ -27,67 +27,82 @@ export const SalonRatingDialog = ({
   const [comment, setComment] = useState<string>("");
   const [localSubmitting, setLocalSubmitting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Track component mount state
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
   
   // Använd antingen extern eller lokal isSubmitting status
   const submitting = isSubmitting || localSubmitting;
 
-  // Properly reset values when dialog opens with new salon
+  // Reset values when dialog opens with new salon and ensure component is mounted
   useEffect(() => {
-    if (salon && isOpen) {
+    if (salon && isOpen && isMounted) {
       setRating(salon.rating || 0);
       setComment(salon.rating_comment || "");
       setIsClosing(false);
     }
-  }, [salon, isOpen]);
+  }, [salon, isOpen, isMounted]);
 
   const handleStarClick = (value: number) => {
+    if (submitting) return;
     setRating(value);
   };
 
   const handleSave = async () => {
-    if (!salon || submitting) return;
+    if (!salon || submitting || !isMounted) return;
     
     try {
       setLocalSubmitting(true);
       console.log("Saving rating for salon:", salon.id, "rating:", rating, "comment:", comment);
       const success = await onSave(salon.id, rating, comment);
       
-      if (success) {
+      if (success && isMounted) {
         toast.success("Salongens betyg har uppdaterats");
         handleClose();
       }
     } catch (error) {
       console.error("Error saving rating:", error);
-      toast.error("Ett fel uppstod vid betygsättning");
+      if (isMounted) {
+        toast.error("Ett fel uppstod vid betygsättning");
+      }
     } finally {
-      setLocalSubmitting(false);
+      if (isMounted) {
+        setLocalSubmitting(false);
+      }
     }
   };
 
-  // Controlled dialog closing with state to prevent freezing
+  // Improved controlled dialog closing with better state management
   const handleClose = () => {
     if (submitting) return;
     
     setIsClosing(true);
     // Use timeout to allow animations to complete before state changes
     setTimeout(() => {
-      onClose();
-      // Only reset after dialog is fully closed to prevent UI flicker
-      setTimeout(() => {
-        if (!isOpen) {
-          setIsClosing(false);
-        }
-      }, 100);
-    }, 300);
+      if (isMounted) {
+        onClose();
+        // Only reset after dialog is fully closed to prevent UI flicker
+        setTimeout(() => {
+          if (isMounted) {
+            setIsClosing(false);
+          }
+        }, 100);
+      }
+    }, 200);
   };
 
-  if (!salon) return null;
+  // Don't render if component is not mounted or if there's no salon
+  if (!isMounted || !salon) return null;
 
   return (
     <Dialog 
       open={isOpen && !isClosing}
       onOpenChange={(open) => {
-        if (!open) handleClose();
+        if (!open && !submitting) handleClose();
       }}
     >
       <DialogContent className="sm:max-w-[500px]">
