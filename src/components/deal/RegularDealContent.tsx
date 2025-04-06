@@ -32,7 +32,7 @@ export const RegularDealContent = ({
   id,
   requiresDiscountCode = true,
   formattedRating = 0,
-  compact = false,
+  compact = true,
 }: RegularDealContentProps) => {
   const formatCurrency = (price: number) => {
     return new Intl.NumberFormat("sv-SE", {
