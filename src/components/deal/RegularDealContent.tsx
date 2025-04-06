@@ -49,16 +49,16 @@ export const RegularDealContent = ({
       : 0;
 
   return (
-    <div className={compact ? "p-1 flex flex-col flex-1" : "p-1.5 sm:p-2 flex flex-col flex-1"}> 
-      <h3 className={compact ? "text-xs font-medium line-clamp-2 leading-tight" : "text-sm font-medium line-clamp-2 leading-tight mt-1"}>
+    <div className={compact ? "p-1.5 sm:p-2 flex flex-col flex-1" : "p-2 sm:p-3 flex flex-col flex-1"}> 
+      <h3 className={compact ? "text-sm font-medium line-clamp-2 leading-tight" : "text-sm font-medium line-clamp-2 leading-tight mt-1"}>
         {title}
       </h3>
       
-      <p className={compact ? "text-xs text-muted-foreground line-clamp-1 mt-0.5 leading-tight" : "text-xs text-muted-foreground line-clamp-2 mt-1 leading-tight"}>
+      <p className={compact ? "text-xs text-muted-foreground line-clamp-1 mt-1 leading-tight" : "text-xs text-muted-foreground line-clamp-2 mt-1 leading-tight"}>
         {description}
       </p>
       
-      <div className={compact ? "flex items-center justify-between text-xs text-gray-500 mt-1 mb-0.5" : "flex items-center justify-between text-xs text-gray-500 mt-1.5 mb-1.5"}>
+      <div className={compact ? "flex items-center justify-between text-xs text-gray-500 mt-1.5 mb-1" : "flex items-center justify-between text-xs text-gray-500 mt-1.5 mb-1.5"}>
         <div className="flex items-center">
           <MapPin className="h-3 w-3 mr-0.5" /> {city}
         </div>
@@ -69,10 +69,10 @@ export const RegularDealContent = ({
         )}
       </div>
       
-      <div className={compact ? "mt-auto pt-1 border-t" : "mt-auto pt-1.5 border-t mt-1"}>
+      <div className={compact ? "mt-auto pt-1.5 border-t mt-1.5" : "mt-auto pt-1.5 border-t mt-1"}>
         <div className="flex items-end justify-between">
           <div>
-            <span className={compact ? "font-bold text-xs xs:text-sm text-foreground" : "font-bold text-sm xs:text-base text-foreground"}>
+            <span className={compact ? "font-bold text-sm text-foreground" : "font-bold text-sm xs:text-base text-foreground"}>
               {isFree ? "Gratis" : `${formatCurrency(discountedPrice)}`}
             </span>
             {originalPrice > 0 && (isFree || originalPrice !== discountedPrice) && (
