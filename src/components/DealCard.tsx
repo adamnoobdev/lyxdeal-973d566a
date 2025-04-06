@@ -1,4 +1,3 @@
-
 import { memo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -6,6 +5,7 @@ import { DealImage } from "./deal/DealImage";
 import { RegularDealContent } from "./deal/RegularDealContent";
 import { CategoryBadge } from "./CategoryBadge";
 import { Rating } from "./ui/rating";
+import { Star } from "lucide-react";
 
 interface DealCardProps {
   id: number;
@@ -78,13 +78,11 @@ const DealCardComponent = ({
             />
             <div className="px-1.5 sm:px-3 mt-1.5 flex items-center justify-between">
               <CategoryBadge category={category} />
-              {salon_rating && (
-                <Rating 
-                  value={salon_rating} 
-                  size="sm" 
-                  maxStars={1} 
-                  showValue={true} 
-                />
+              {salon_rating !== undefined && salon_rating > 0 && (
+                <div className="flex items-center gap-1 text-xs">
+                  <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                  <span>{salon_rating.toFixed(1)}</span>
+                </div>
               )}
             </div>
           </div>

@@ -63,7 +63,8 @@ const ProductDetails = () => {
     } : null,
     booking_url: deal.booking_url,
     category: deal.category,
-    requires_discount_code: deal.requires_discount_code
+    requires_discount_code: deal.requires_discount_code,
+    salon_rating: deal.salon?.rating // Explicit passa betyget så det syns på relaterade erbjudanden
   };
 
   return (
@@ -149,6 +150,8 @@ const ProductDetails = () => {
             <ProductRelatedDeals 
               currentDealId={dealData.id} 
               category={dealData.category} 
+              city={dealData.city}
+              salonRating={dealData.salon_rating}
             />
           </div>
         </div>

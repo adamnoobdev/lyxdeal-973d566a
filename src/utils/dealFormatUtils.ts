@@ -12,7 +12,7 @@ import { FormattedDealData, RawDealData } from "./deal/types";
  */
 export const formatDealData = (
   rawDeal: RawDealData, 
-  salonData: { id: number | null; name: string; address: string | null; phone: string | null; } | null
+  salonData: { id: number | null; name: string; address: string | null; phone: string | null; rating?: number | null; } | null
 ): FormattedDealData => {
   console.log("[formatDealData] Börjar formatera erbjudandedata", { 
     dealId: rawDeal.id,
@@ -41,7 +41,8 @@ export const formatDealData = (
     id: rawDeal.salon_id,
     name: fallbackSalonName,
     address: rawDeal.city ?? null,
-    phone: null
+    phone: null,
+    rating: null
   };
   
   // Ytterligare säkerhetskontroll för tomma namn
@@ -67,7 +68,8 @@ export const formatDealData = (
     isFree,
     salon: effectiveSalonData,
     booking_url: rawDeal.booking_url || null,
-    requires_discount_code: rawDeal.requires_discount_code !== false
+    requires_discount_code: rawDeal.requires_discount_code !== false,
+    salon_rating: effectiveSalonData.rating || null
   };
   
   console.log("[formatDealData] Slutgiltigt formaterat erbjudande:", {
@@ -75,6 +77,7 @@ export const formatDealData = (
     title: formattedDeal.title,
     city: formattedDeal.city,
     salon: formattedDeal.salon,
+    salon_rating: formattedDeal.salon_rating,
     requiresDiscountCode: formattedDeal.requires_discount_code
   });
   
