@@ -14,14 +14,29 @@ const FeaturedDealsComponent = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('deals')
-        .select('*')
+        .select(`
+          *,
+          salons (
+            rating,
+            name
+          )
+        `)
         .eq('featured', true)
         .eq('is_active', true) // Endast aktiva erbjudanden
         .order('created_at', { ascending: false })
         .limit(8); // Begränsa antal för bättre prestanda
 
       if (error) throw error;
-      return data as Deal[];
+      
+      // Transformera data för att lägga till salon_rating
+      const processedData = data.map(deal => {
+        return {
+          ...deal,
+          salon_rating: deal.salons?.rating || null
+        };
+      });
+      
+      return processedData as Deal[];
     },
     staleTime: 5 * 60 * 1000, // Cache data för 5 minuter
   });

@@ -15,7 +15,8 @@ export const useDeals = (category?: string, city?: string) => {
           .select(`
             *,
             salons (
-              rating
+              rating,
+              name
             )
           `)
           .eq("is_active", true) // Endast aktiva erbjudanden

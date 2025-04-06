@@ -18,7 +18,8 @@ export function FeaturedDeals() {
           .select(`
             *,
             salons (
-              rating
+              rating,
+              name
             )
           `)
           .eq('featured', true)

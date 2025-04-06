@@ -18,7 +18,8 @@ export interface Deal {
   salon_id?: number;
   status: 'pending' | 'approved' | 'rejected';
   salons?: {
-    name: string;
+    name?: string;
+    rating?: number | null;
   };
   is_free: boolean;
   is_active: boolean;

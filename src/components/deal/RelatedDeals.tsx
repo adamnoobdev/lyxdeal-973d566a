@@ -24,7 +24,8 @@ const RelatedDealsComponent = ({ currentDealId, category, city, salonRating }: R
         .select(`
           *,
           salons (
-            rating
+            rating,
+            name
           )
         `)
         .eq('category', category)
@@ -38,7 +39,8 @@ const RelatedDealsComponent = ({ currentDealId, category, city, salonRating }: R
         .select(`
           *,
           salons (
-            rating
+            rating,
+            name
           )
         `)
         .neq('category', category)
