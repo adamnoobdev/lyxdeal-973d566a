@@ -16,20 +16,24 @@ export const useSalonsList = () => {
   const [ratingSalon, setRatingSalon] = useState<Salon | null>(null);
   const [isRating, setIsRating] = useState(false);
   const isMountedRef = useRef(true);
+  const actionInProgressRef = useRef(false);
   
   const { salons, isLoading, error, handleDelete, handleUpdate, handleCreate, fetchSalons } = useSalonsAdmin();
 
   // Ensure component is mounted
   useEffect(() => {
     isMountedRef.current = true;
+    console.log("[useSalonsList] Hook initialized");
+    
     return () => { 
+      console.log("[useSalonsList] Hook cleanup");
       isMountedRef.current = false; 
     };
   }, []);
 
   // Fetch salons when component mounts
   useEffect(() => {
-    console.log("SalonsList mounting, fetching salons data...");
+    console.log("[useSalonsList] Fetching salons data...");
     fetchSalons();
   }, [fetchSalons]);
 
@@ -41,48 +45,96 @@ export const useSalonsList = () => {
   }, []);
 
   /**
-   * Handle salon deletion
+   * Handle salon deletion with action tracking
    */
   const onDelete = async () => {
-    if (deletingSalon) {
-      const success = await handleDelete(deletingSalon.id);
-      if (success) {
-        safeSetState(setDeletingSalon, null);
-        if (selectedSalon?.id === deletingSalon.id) {
-          safeSetState(setSelectedSalon, null);
+    if (deletingSalon && !actionInProgressRef.current) {
+      try {
+        actionInProgressRef.current = true;
+        console.log("[useSalonsList] Deleting salon:", deletingSalon.name);
+        
+        const success = await handleDelete(deletingSalon.id);
+        
+        if (success) {
+          safeSetState(setDeletingSalon, null);
+          
+          if (selectedSalon?.id === deletingSalon.id) {
+            safeSetState(setSelectedSalon, null);
+          }
+          
+          toast.success(`Salongen "${deletingSalon.name}" har tagits bort`);
         }
+      } catch (error) {
+        console.error("[useSalonsList] Error deleting salon:", error);
+        toast.error("Ett fel uppstod vid borttagning av salongen");
+      } finally {
+        actionInProgressRef.current = false;
       }
     }
   };
 
   /**
-   * Handle salon update
+   * Handle salon update with action tracking
    */
   const onUpdate = async (values: any) => {
-    if (editingSalon) {
-      console.log("Updating salon with values:", values);
-      const success = await handleUpdate(values, editingSalon.id);
-      if (success && isMountedRef.current) {
-        safeSetState(setEditingSalon, null);
+    if (editingSalon && !actionInProgressRef.current) {
+      try {
+        actionInProgressRef.current = true;
+        console.log("[useSalonsList] Updating salon:", editingSalon.name, "with values:", values);
+        
+        const success = await handleUpdate(values, editingSalon.id);
+        
+        if (success && isMountedRef.current) {
+          safeSetState(setEditingSalon, null);
+          
+          // Update selected salon if it's the one being edited
+          if (selectedSalon?.id === editingSalon.id) {
+            // Find updated salon in the list
+            await fetchSalons();
+          }
+        }
+      } catch (error) {
+        console.error("[useSalonsList] Error updating salon:", error);
+      } finally {
+        actionInProgressRef.current = false;
       }
     }
   };
 
   /**
-   * Handle salon creation
+   * Handle salon creation with action tracking
    */
   const onCreate = async (values: any) => {
-    const response = await handleCreate(values);
-    return response;
+    if (!actionInProgressRef.current) {
+      try {
+        actionInProgressRef.current = true;
+        console.log("[useSalonsList] Creating new salon with values:", values);
+        
+        const response = await handleCreate(values);
+        return response;
+      } catch (error) {
+        console.error("[useSalonsList] Error creating salon:", error);
+        return false;
+      } finally {
+        actionInProgressRef.current = false;
+      }
+    }
+    return false;
   };
 
   /**
-   * Handle salon rating
+   * Handle salon rating with action tracking
    */
   const onRate = async (salonId: number, rating: number, comment: string) => {
     try {
+      if (actionInProgressRef.current) {
+        console.log("[useSalonsList] Rating operation already in progress");
+        return false;
+      }
+      
+      actionInProgressRef.current = true;
       safeSetState(setIsRating, true);
-      console.log("Betygsätter salong:", salonId, "betyg:", rating, "kommentar:", comment);
+      console.log("[useSalonsList] Rating salon:", salonId, "rating:", rating, "comment:", comment);
       
       // Update the salon's rating
       const { error: updateError } = await supabase
@@ -94,7 +146,7 @@ export const useSalonsList = () => {
         .eq('id', salonId);
       
       if (updateError) {
-        console.error("Error updating salon rating:", updateError);
+        console.error("[useSalonsList] Error updating salon rating:", updateError);
         toast.error("Kunde inte spara betyg");
         return false;
       }
@@ -111,14 +163,14 @@ export const useSalonsList = () => {
           });
           
         if (ratingError) {
-          console.warn("Could not save rating history:", ratingError);
+          console.warn("[useSalonsList] Could not save rating history:", ratingError);
         }
       } catch (historyError) {
-        console.warn("Couldn't save rating history:", historyError);
+        console.warn("[useSalonsList] Couldn't save rating history:", historyError);
       }
       
       // Update local salon data
-      console.log("Rating saved, fetching updated salon data...");
+      console.log("[useSalonsList] Rating saved, fetching updated salon data...");
       await fetchSalons();
       
       if (isMountedRef.current) {
@@ -126,10 +178,11 @@ export const useSalonsList = () => {
       }
       return true;
     } catch (error) {
-      console.error("Error in rating salon:", error);
+      console.error("[useSalonsList] Error in rating salon:", error);
       toast.error("Ett fel uppstod när betyget skulle sparas");
       return false;
     } finally {
+      actionInProgressRef.current = false;
       if (isMountedRef.current) {
         safeSetState(setIsRating, false);
       }
@@ -149,7 +202,7 @@ export const useSalonsList = () => {
       privacyAccepted: salon.privacy_accepted !== false,
     };
 
-    console.log("Preparing initial values for salon:", salon.name, "address:", salon.address);
+    console.log("[useSalonsList] Preparing initial values for salon:", salon.name, "address:", salon.address);
     
     return initialValues;
   };

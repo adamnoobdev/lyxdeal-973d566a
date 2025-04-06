@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -28,11 +28,22 @@ export const SalonRatingDialog = ({
   const [localSubmitting, setLocalSubmitting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Track component mount state
   useEffect(() => {
     setIsMounted(true);
-    return () => setIsMounted(false);
+    console.log("[SalonRatingDialog] Component mounted");
+    
+    return () => {
+      console.log("[SalonRatingDialog] Component unmounting");
+      setIsMounted(false);
+      
+      // Clear any pending timeouts on unmount
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
   }, []);
   
   // Använd antingen extern eller lokal isSubmitting status
@@ -41,6 +52,7 @@ export const SalonRatingDialog = ({
   // Reset values when dialog opens with new salon and ensure component is mounted
   useEffect(() => {
     if (salon && isOpen && isMounted) {
+      console.log("[SalonRatingDialog] Dialog opening with salon:", salon.name);
       setRating(salon.rating || 0);
       setComment(salon.rating_comment || "");
       setIsClosing(false);
@@ -57,7 +69,7 @@ export const SalonRatingDialog = ({
     
     try {
       setLocalSubmitting(true);
-      console.log("Saving rating for salon:", salon.id, "rating:", rating, "comment:", comment);
+      console.log("[SalonRatingDialog] Saving rating for salon:", salon.id, "rating:", rating, "comment:", comment);
       const success = await onSave(salon.id, rating, comment);
       
       if (success && isMounted) {
@@ -65,7 +77,7 @@ export const SalonRatingDialog = ({
         handleClose();
       }
     } catch (error) {
-      console.error("Error saving rating:", error);
+      console.error("[SalonRatingDialog] Error saving rating:", error);
       if (isMounted) {
         toast.error("Ett fel uppstod vid betygsättning");
       }
@@ -78,16 +90,29 @@ export const SalonRatingDialog = ({
 
   // Improved controlled dialog closing with better state management
   const handleClose = () => {
-    if (submitting) return;
+    if (submitting) {
+      console.log("[SalonRatingDialog] Cannot close during submission");
+      return;
+    }
     
+    console.log("[SalonRatingDialog] Starting controlled close sequence");
     setIsClosing(true);
-    // Use timeout to allow animations to complete before state changes
-    setTimeout(() => {
+    
+    // Clear any existing timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    
+    // Set new timeout
+    closeTimeoutRef.current = setTimeout(() => {
       if (isMounted) {
+        console.log("[SalonRatingDialog] Executing close callback");
         onClose();
-        // Only reset after dialog is fully closed to prevent UI flicker
-        setTimeout(() => {
+        
+        // Reset closing state after a brief delay
+        closeTimeoutRef.current = setTimeout(() => {
           if (isMounted) {
+            console.log("[SalonRatingDialog] Resetting closing state");
             setIsClosing(false);
           }
         }, 100);
@@ -96,12 +121,16 @@ export const SalonRatingDialog = ({
   };
 
   // Don't render if component is not mounted or if there's no salon
-  if (!isMounted || !salon) return null;
+  if (!isMounted || !salon) {
+    console.log("[SalonRatingDialog] Not rendering: isMounted=", isMounted, "salon=", !!salon);
+    return null;
+  }
 
   return (
     <Dialog 
       open={isOpen && !isClosing}
       onOpenChange={(open) => {
+        console.log("[SalonRatingDialog] Dialog open state changed to:", open, "submitting:", submitting);
         if (!open && !submitting) handleClose();
       }}
     >
@@ -113,7 +142,7 @@ export const SalonRatingDialog = ({
         <div className="py-4 space-y-6">
           <div className="space-y-2">
             <Label htmlFor="rating" className="font-medium">Betyg</Label>
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center gap-2 xs:gap-4 sm:gap-6">
               {[1, 2, 3, 4, 5].map((value) => (
                 <Button
                   key={value}
@@ -148,11 +177,11 @@ export const SalonRatingDialog = ({
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={submitting}>
+        <DialogFooter className="flex flex-col xs:flex-row gap-2">
+          <Button variant="outline" onClick={handleClose} disabled={submitting} className="w-full xs:w-auto">
             Avbryt
           </Button>
-          <Button onClick={handleSave} disabled={rating === 0 || submitting}>
+          <Button onClick={handleSave} disabled={rating === 0 || submitting} className="w-full xs:w-auto">
             {submitting ? "Sparar..." : "Spara betyg"}
           </Button>
         </DialogFooter>

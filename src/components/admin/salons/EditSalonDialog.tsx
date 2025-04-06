@@ -27,11 +27,22 @@ export const EditSalonDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const initialRenderRef = useRef(true);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Ensure component is mounted
   useEffect(() => {
     setIsMounted(true);
-    return () => setIsMounted(false);
+    console.log("[EditSalonDialog] Component mounted");
+    
+    return () => {
+      console.log("[EditSalonDialog] Component unmounting");
+      setIsMounted(false);
+      
+      // Clear any pending timeouts on unmount
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
   }, []);
   
   // Reset state when dialog opens with improved handling
@@ -43,6 +54,7 @@ export const EditSalonDialog = ({
     }
 
     if (isOpen && isMounted) {
+      console.log("[EditSalonDialog] Dialog opening, resetting state");
       setIsClosing(false);
       setIsSubmitting(false);
     }
@@ -50,14 +62,29 @@ export const EditSalonDialog = ({
 
   // Handle controlled closing with timeout to allow animations
   const handleClose = () => {
-    if (isSubmitting || !isMounted) return;
+    if (isSubmitting || !isMounted) {
+      console.log("[EditSalonDialog] Cannot close: isSubmitting=", isSubmitting, "isMounted=", isMounted);
+      return;
+    }
     
+    console.log("[EditSalonDialog] Starting controlled close sequence");
     setIsClosing(true);
-    setTimeout(() => {
+    
+    // Clear any existing timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    
+    // Set new timeout
+    closeTimeoutRef.current = setTimeout(() => {
       if (isMounted) {
+        console.log("[EditSalonDialog] Executing close callback");
         onClose();
-        setTimeout(() => {
+        
+        // Reset closing state after a brief delay
+        closeTimeoutRef.current = setTimeout(() => {
           if (isMounted) {
+            console.log("[EditSalonDialog] Resetting closing state");
             setIsClosing(false);
           }
         }, 100);
@@ -71,7 +98,7 @@ export const EditSalonDialog = ({
     
     try {
       setIsSubmitting(true);
-      console.log("Submitting form with values:", values);
+      console.log("[EditSalonDialog] Submitting form with values:", values);
       
       // Make sure fullAddress is used if a full raw address was entered
       if (values.fullAddress && !values.address) {
@@ -85,7 +112,7 @@ export const EditSalonDialog = ({
         handleClose();
       }
     } catch (error) {
-      console.error("Error in form submission:", error);
+      console.error("[EditSalonDialog] Error in form submission:", error);
       if (isMounted) {
         toast.error("Ett fel uppstod när salongen skulle uppdateras");
       }
@@ -96,13 +123,19 @@ export const EditSalonDialog = ({
     }
   };
 
-  // Don't render anything if not mounted
-  if (!isMounted) return null;
+  // Don't render anything if not mounted to prevent state issues
+  if (!isMounted) {
+    console.log("[EditSalonDialog] Not rendering because component is not mounted");
+    return null;
+  }
 
   return (
     <Dialog 
       open={isOpen && !isClosing} 
-      onOpenChange={(open) => !open && !isSubmitting && handleClose()}
+      onOpenChange={(open) => {
+        console.log("[EditSalonDialog] Dialog open state changed to:", open, "submitting:", isSubmitting);
+        if (!open && !isSubmitting) handleClose();
+      }}
     >
       <DialogContent className="max-w-2xl">
         <DialogHeader>

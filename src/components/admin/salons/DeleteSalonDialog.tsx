@@ -16,10 +16,10 @@ import { toast } from "sonner";
 interface DeleteSalonDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
   salonName?: string;
   salonId?: number;
-  userId?: string;
+  userId?: string | null;
 }
 
 export const DeleteSalonDialog = ({
@@ -33,31 +33,58 @@ export const DeleteSalonDialog = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const isMountedRef = useRef(true);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Track mount status
   useEffect(() => {
     isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
+    console.log("[DeleteSalonDialog] Component mounted");
+    
+    return () => {
+      console.log("[DeleteSalonDialog] Component unmounting");
+      isMountedRef.current = false;
+      
+      // Clear any pending timeouts on unmount
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
   }, []);
   
   // Reset state when the dialog opens with mount check
   useEffect(() => {
     if (isOpen && isMountedRef.current) {
+      console.log("[DeleteSalonDialog] Dialog opening for salon:", salonName);
       setIsDeleting(false);
       setIsClosing(false);
     }
-  }, [isOpen]);
+  }, [isOpen, salonName]);
 
   // Controlled close function to prevent UI freeze
   const handleClose = () => {
-    if (isDeleting) return;
+    if (isDeleting) {
+      console.log("[DeleteSalonDialog] Cannot close during deletion process");
+      return;
+    }
     
+    console.log("[DeleteSalonDialog] Starting controlled close sequence");
     setIsClosing(true);
-    setTimeout(() => {
+    
+    // Clear any existing timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    
+    // Set new timeout
+    closeTimeoutRef.current = setTimeout(() => {
       if (isMountedRef.current) {
+        console.log("[DeleteSalonDialog] Executing close callback");
         onClose();
-        setTimeout(() => {
+        
+        // Reset closing state after a brief delay
+        closeTimeoutRef.current = setTimeout(() => {
           if (isMountedRef.current) {
+            console.log("[DeleteSalonDialog] Resetting closing state");
             setIsClosing(false);
           }
         }, 100);
@@ -69,32 +96,34 @@ export const DeleteSalonDialog = ({
     if (!salonId || isDeleting) return;
 
     setIsDeleting(true);
+    console.log("[DeleteSalonDialog] Starting delete process for salon:", salonId);
     
     try {
       // Om det finns ett userId, försök ta bort relaterade poster i salon_user_status först
       if (userId) {
-        console.log(`Attempting to delete salon_user_status for user: ${userId}`);
+        console.log(`[DeleteSalonDialog] Attempting to delete salon_user_status for user: ${userId}`);
         const { error: statusError } = await supabase
           .from('salon_user_status')
           .delete()
           .eq('user_id', userId);
           
         if (statusError) {
-          console.error("Error deleting salon_user_status:", statusError);
+          console.error("[DeleteSalonDialog] Error deleting salon_user_status:", statusError);
           toast.error(`Kunde inte ta bort användarstatus: ${statusError.message}`);
         } else {
-          console.log(`Successfully removed salon_user_status for user: ${userId}`);
+          console.log(`[DeleteSalonDialog] Successfully removed salon_user_status for user: ${userId}`);
         }
       }
       
       // Call the onConfirm callback that handles deletion of salon data
       await onConfirm();
+      console.log("[DeleteSalonDialog] Deletion successful, closing dialog");
       
       if (isMountedRef.current) {
         handleClose();
       }
     } catch (error) {
-      console.error("Error in delete process:", error);
+      console.error("[DeleteSalonDialog] Error in delete process:", error);
       toast.error("Ett fel uppstod vid borttagning");
       
       if (isMountedRef.current) {
@@ -104,7 +133,13 @@ export const DeleteSalonDialog = ({
   };
 
   return (
-    <AlertDialog open={isOpen && !isClosing} onOpenChange={(open) => !open && handleClose()}>
+    <AlertDialog 
+      open={isOpen && !isClosing} 
+      onOpenChange={(open) => {
+        console.log("[DeleteSalonDialog] Dialog open state changed to:", open, "deleting:", isDeleting);
+        if (!open && !isDeleting) handleClose();
+      }}
+    >
       <AlertDialogContent className="max-w-md mx-auto">
         <AlertDialogHeader>
           <AlertDialogTitle>Är du säker?</AlertDialogTitle>

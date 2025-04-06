@@ -33,16 +33,28 @@ export const CreateSalonDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const isMountedRef = useRef(true);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Track mount status
   useEffect(() => {
     isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
+    console.log("[CreateSalonDialog] Component mounted");
+    
+    return () => {
+      console.log("[CreateSalonDialog] Component unmounting");
+      isMountedRef.current = false;
+      
+      // Clear any pending timeouts on unmount
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
   }, []);
 
   // Reset state when dialog opens with mount check
   useEffect(() => {
     if (isOpen && isMountedRef.current) {
+      console.log("[CreateSalonDialog] Dialog opening");
       setIsClosing(false);
       setIsSubmitting(false);
     }
@@ -60,26 +72,25 @@ export const CreateSalonDialog = ({
     
     try {
       safeSetState(setIsSubmitting, true);
-      console.log("Submitting salon creation values:", values);
+      console.log("[CreateSalonDialog] Submitting salon creation values:", values);
       const response = await onSubmit(values);
-      console.log("Response from salon creation:", response);
+      console.log("[CreateSalonDialog] Response from salon creation:", response);
       
       if (response && response.temporaryPassword) {
         safeSetState(setPassword, response.temporaryPassword);
       } else if (response === false) {
         // Error was already handled in onSubmit
+        safeSetState(setIsSubmitting, false);
         return;
       } else {
-        console.warn("No temporary password received from server");
+        console.warn("[CreateSalonDialog] No temporary password received from server");
         toast.error("Ett fel uppstod vid skapande av lösenord");
-      }
-    } catch (error) {
-      console.error("Error creating salon:", error);
-      toast.error("Ett fel uppstod vid skapande av salong");
-    } finally {
-      if (isMountedRef.current) {
         safeSetState(setIsSubmitting, false);
       }
+    } catch (error) {
+      console.error("[CreateSalonDialog] Error creating salon:", error);
+      toast.error("Ett fel uppstod vid skapande av salong");
+      safeSetState(setIsSubmitting, false);
     }
   };
 
@@ -92,15 +103,28 @@ export const CreateSalonDialog = ({
 
   // Controlled close function to prevent UI freeze
   const handleClose = () => {
-    if (isSubmitting) return;
+    if (isSubmitting) {
+      console.log("[CreateSalonDialog] Cannot close during submission");
+      return;
+    }
     
+    console.log("[CreateSalonDialog] Starting controlled close sequence");
     safeSetState(setIsClosing, true);
-    setTimeout(() => {
+    
+    // Clear any existing timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    
+    // Set new timeout
+    closeTimeoutRef.current = setTimeout(() => {
+      console.log("[CreateSalonDialog] Executing close callback");
       onClose();
       safeSetState(setPassword, null);
       
       setTimeout(() => {
         if (isMountedRef.current) {
+          console.log("[CreateSalonDialog] Resetting closing state");
           safeSetState(setIsClosing, false);
         }
       }, 100);
@@ -108,7 +132,13 @@ export const CreateSalonDialog = ({
   };
 
   return (
-    <Dialog open={isOpen && !isClosing} onOpenChange={(open) => !open && handleClose()}>
+    <Dialog 
+      open={isOpen && !isClosing} 
+      onOpenChange={(open) => {
+        console.log("[CreateSalonDialog] Dialog open state changed to:", open, "submitting:", isSubmitting);
+        if (!open && !isSubmitting) handleClose();
+      }}
+    >
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Skapa ny salong</DialogTitle>
@@ -124,12 +154,12 @@ export const CreateSalonDialog = ({
               <AlertDescription className="space-y-4">
                 <p>Salongen har skapats! Här är det temporära lösenordet:</p>
                 <div className="flex items-center gap-2 bg-secondary p-2 rounded">
-                  <code className="text-lg font-mono">{password}</code>
+                  <code className="text-lg font-mono break-all">{password}</code>
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={copyPassword}
-                    className="h-8 w-8"
+                    className="h-8 w-8 flex-shrink-0"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
