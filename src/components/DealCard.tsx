@@ -66,6 +66,10 @@ const DealCardComponent = ({
 
   const daysRemaining = calculateDaysRemaining();
 
+  // Format the salon rating properly - if it's stored as an integer (47), convert it to a decimal (4.7)
+  const formattedRating = salon_rating !== undefined ? 
+    (salon_rating > 10 ? salon_rating / 10 : salon_rating) : 0;
+
   return (
     <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] bg-white/95 border-muted-200 hover:border-primary/20">
       <Link to={`/deal/${id}`} className="block h-full flex flex-col touch-manipulation">
@@ -81,10 +85,10 @@ const DealCardComponent = ({
               <div className="flex-shrink-0 mr-1">
                 <CategoryBadge category={category} />
               </div>
-              {salon_rating !== undefined && salon_rating > 0 && (
+              {formattedRating > 0 && (
                 <div className="flex items-center gap-1 text-xs shrink-0">
                   <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                  <span>{salon_rating.toFixed(1)}</span>
+                  <span>{formattedRating.toFixed(1)}</span>
                 </div>
               )}
             </div>
