@@ -9,7 +9,7 @@ import { ContactFields } from "./form/ContactFields";
 import { PasswordField } from "./form/PasswordField";
 import { SubscriptionField } from "./form/SubscriptionField";
 import { TermsFields } from "./form/TermsFields";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Namn krävs" }),
@@ -30,10 +30,14 @@ interface SalonFormProps {
   onSubmit: (values: any) => Promise<void>;
   initialValues?: any;
   isEditing?: boolean;
+  isSubmitting?: boolean; // Add this prop to fix the type error
 }
 
-export const SalonForm = ({ onSubmit, initialValues, isEditing }: SalonFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: externalIsSubmitting }: SalonFormProps) => {
+  const [internalIsSubmitting, setInternalIsSubmitting] = useState(false);
+  
+  // Use external isSubmitting state if provided, otherwise use internal state
+  const isSubmitting = externalIsSubmitting !== undefined ? externalIsSubmitting : internalIsSubmitting;
 
   // Kombinera initialValues med standardvärden
   const defaultValues = {
@@ -58,13 +62,15 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing }: SalonFormProps
   });
 
   const handleSubmit = async (values: any) => {
-    setIsSubmitting(true);
+    if (isSubmitting) return;
+    
+    setInternalIsSubmitting(true);
     try {
       await onSubmit(values);
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {
-      setIsSubmitting(false);
+      setInternalIsSubmitting(false);
     }
   };
 

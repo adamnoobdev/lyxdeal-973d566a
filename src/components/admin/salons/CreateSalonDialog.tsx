@@ -138,7 +138,7 @@ export const CreateSalonDialog = ({
             </div>
           </div>
         ) : (
-          <SalonForm onSubmit={handleSubmit} />
+          <SalonForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
         )}
       </DialogContent>
     </Dialog>
