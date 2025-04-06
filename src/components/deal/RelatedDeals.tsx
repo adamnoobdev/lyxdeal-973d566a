@@ -82,12 +82,12 @@ const RelatedDealsComponent = ({ currentDealId, category, city, salonRating, com
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-primary" />
         <h2 className="text-xl font-bold">Fler erbjudanden</h2>
       </div>
-      <ResponsiveGrid>
+      <ResponsiveGrid columns="grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6" gap="gap-2">
         {relatedDeals.map((deal) => (
           <DealCard key={deal.id} {...deal} compact={compact} />
         ))}
