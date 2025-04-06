@@ -33,7 +33,7 @@ export const MapErrorState = ({
   
   return (
     <div className="border rounded-md p-4 bg-gray-50">
-      <ErrorAlert message={errorMessage} />
+      <ErrorAlert errorMessage={errorMessage} />
       
       <div className="mt-4 space-y-4">
         <SalonAddressInfo 
