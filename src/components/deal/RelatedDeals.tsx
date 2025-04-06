@@ -10,9 +10,11 @@ import { memo } from "react";
 interface RelatedDealsProps {
   currentDealId: number;
   category: string;
+  city: string;
+  salonRating?: number | null;
 }
 
-const RelatedDealsComponent = ({ currentDealId, category }: RelatedDealsProps) => {
+const RelatedDealsComponent = ({ currentDealId, category, city, salonRating }: RelatedDealsProps) => {
   const { data: relatedDeals, isLoading } = useQuery({
     queryKey: ['relatedDeals', currentDealId, category],
     queryFn: async () => {

@@ -5,9 +5,11 @@ import { RelatedDeals } from "./RelatedDeals";
 interface ProductRelatedDealsProps {
   currentDealId: number;
   category: string;
+  city: string;
+  salonRating?: number | null;
 }
 
-export const ProductRelatedDeals = ({ currentDealId, category }: ProductRelatedDealsProps) => {
+export const ProductRelatedDeals = ({ currentDealId, category, city, salonRating }: ProductRelatedDealsProps) => {
   return (
     <div className="mt-12">
       <h2 className="text-2xl font-semibold mb-6">Andra som såg på denna deal tittade även på</h2>
@@ -15,6 +17,8 @@ export const ProductRelatedDeals = ({ currentDealId, category }: ProductRelatedD
         <RelatedDeals
           currentDealId={currentDealId}
           category={category}
+          city={city}
+          salonRating={salonRating}
         />
       </div>
     </div>
