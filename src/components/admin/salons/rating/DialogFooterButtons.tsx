@@ -17,7 +17,7 @@ export const DialogFooterButtons = ({
   ratingValue
 }: DialogFooterButtonsProps) => {
   return (
-    <div className="flex flex-col xs:flex-row gap-2">
+    <div className="flex flex-col xs:flex-row gap-2 w-full sm:justify-end">
       <Button 
         variant="outline" 
         onClick={onClose} 

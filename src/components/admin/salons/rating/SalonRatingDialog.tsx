@@ -2,7 +2,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Salon } from "@/components/admin/types";
 import { RatingSlider } from "./RatingSlider";
-import { CommentField } from "./CommentField";
 import { DialogFooterButtons } from "./DialogFooterButtons";
 import { useRatingDialog } from "./useRatingDialog";
 
@@ -23,9 +22,7 @@ export const SalonRatingDialog = ({
 }: SalonRatingDialogProps) => {
   const {
     rating,
-    comment,
     setRating,
-    setComment,
     submitting,
     isClosing,
     isMounted,
@@ -53,21 +50,15 @@ export const SalonRatingDialog = ({
         if (!open && !submitting) handleClose();
       }}
     >
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
           <DialogTitle>Betygsätt salong: {salon.name}</DialogTitle>
         </DialogHeader>
 
-        <div className="py-4 space-y-6">
+        <div className="py-6">
           <RatingSlider 
             rating={rating} 
             onRatingChange={setRating} 
-            disabled={submitting}
-          />
-
-          <CommentField 
-            comment={comment} 
-            onCommentChange={setComment} 
             disabled={submitting}
           />
         </div>

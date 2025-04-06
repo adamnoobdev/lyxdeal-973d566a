@@ -19,7 +19,6 @@ export const useRatingDialog = ({
   isSubmitting = false
 }: UseRatingDialogProps) => {
   const [rating, setRating] = useState<number>(0);
-  const [comment, setComment] = useState<string>("");
   const [localSubmitting, setLocalSubmitting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -48,7 +47,6 @@ export const useRatingDialog = ({
       console.log("[useRatingDialog] Salon rating from database (already converted to decimal):", salon.rating);
       // Set initial rating (it's already in decimal format from useSalonsAdmin)
       setRating(salon.rating || 0);
-      setComment(salon.rating_comment || "");
       setIsClosing(false);
     }
   }, [salon, isOpen, isMounted]);
@@ -61,8 +59,9 @@ export const useRatingDialog = ({
     
     try {
       setLocalSubmitting(true);
-      console.log("[useRatingDialog] Saving rating for salon:", salon.id, "rating:", rating, "comment:", comment);
-      const success = await onSave(salon.id, rating, comment);
+      console.log("[useRatingDialog] Saving rating for salon:", salon.id, "rating:", rating);
+      // Pass an empty string for the comment as it's no longer needed
+      const success = await onSave(salon.id, rating, "");
       
       if (success && isMounted) {
         handleClose();
@@ -113,9 +112,7 @@ export const useRatingDialog = ({
 
   return {
     rating,
-    comment,
     setRating,
-    setComment,
     submitting,
     isClosing,
     isMounted,

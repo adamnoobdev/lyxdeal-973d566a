@@ -23,8 +23,10 @@ export const RatingSlider = ({
   };
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor="rating" className="font-medium">Betyg: {rating.toFixed(1)}</Label>
+    <div className="space-y-4">
+      <div className="text-center">
+        <Label htmlFor="rating" className="text-lg font-medium">Betyg: {rating.toFixed(1)}</Label>
+      </div>
       
       <div className="py-6 px-2">
         <Slider
@@ -46,7 +48,7 @@ export const RatingSlider = ({
         </div>
       </div>
       
-      <div className="mt-2">
+      <div className="mt-4 flex justify-center">
         <Rating value={rating} size="lg" showValue={true} />
       </div>
     </div>

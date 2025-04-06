@@ -18,7 +18,7 @@ export const useSalonRating = (
   /**
    * Handle salon rating with action tracking
    */
-  const onRate = useCallback(async (salonId: number, rating: number, comment: string) => {
+  const onRate = useCallback(async (salonId: number, rating: number, comment: string = "") => {
     try {
       if (actionInProgressRef.current) {
         console.log("[useSalonRating] Rating operation already in progress");
@@ -31,7 +31,7 @@ export const useSalonRating = (
       // Ensure rating is properly formatted (up to 1 decimal place)
       const formattedRating = Math.round(rating * 10) / 10;
       
-      console.log("[useSalonRating] Rating salon:", salonId, "rating:", formattedRating, "comment:", comment);
+      console.log("[useSalonRating] Rating salon:", salonId, "rating:", formattedRating);
       
       // Convert to integer in database by multiplying by 10 (store 4.7 as 47)
       const dbRating = Math.round(formattedRating * 10);
@@ -43,7 +43,7 @@ export const useSalonRating = (
         .from('salons')
         .update({ 
           rating: dbRating,
-          rating_comment: comment
+          rating_comment: null // Set comment to null as it's no longer used
         })
         .eq('id', salonId);
       
@@ -59,7 +59,7 @@ export const useSalonRating = (
         .insert({
           salon_id: salonId,
           rating: dbRating,
-          comment: comment,
+          comment: null, // Set comment to null as it's no longer used
           created_by: 'admin'
         });
           
