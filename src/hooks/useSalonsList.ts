@@ -134,13 +134,17 @@ export const useSalonsList = () => {
       
       actionInProgressRef.current = true;
       safeSetState(setIsRating, true);
-      console.log("[useSalonsList] Rating salon:", salonId, "rating:", rating, "comment:", comment);
+      
+      // Ensure rating is properly formatted (up to 1 decimal place)
+      const formattedRating = Math.round(rating * 10) / 10;
+      
+      console.log("[useSalonsList] Rating salon:", salonId, "rating:", formattedRating, "comment:", comment);
       
       // Update the salon's rating
       const { error: updateError } = await supabase
         .from('salons')
         .update({ 
-          rating: rating,
+          rating: formattedRating,
           rating_comment: comment
         })
         .eq('id', salonId);
@@ -157,7 +161,7 @@ export const useSalonsList = () => {
           .from('salon_ratings')
           .insert({
             salon_id: salonId,
-            rating: rating,
+            rating: formattedRating,
             comment: comment,
             created_by: 'admin'
           });

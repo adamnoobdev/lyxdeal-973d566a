@@ -24,16 +24,50 @@ export const Rating = ({
     lg: "h-5 w-5"
   }[size];
   
+  // Function to render stars with decimal precision
+  const renderStars = () => {
+    return Array.from({ length: maxStars }, (_, i) => {
+      const starPosition = i + 1;
+      const difference = value - i;
+      
+      // Full star
+      if (difference >= 1) {
+        return (
+          <Star
+            key={starPosition}
+            className={`${starSize} text-yellow-500 fill-yellow-500`}
+          />
+        );
+      } 
+      // Partial star (using CSS for partial fill)
+      else if (difference > 0 && difference < 1) {
+        return (
+          <div key={starPosition} className="relative">
+            {/* Background star (empty) */}
+            <Star className={`${starSize} text-gray-300`} />
+            {/* Foreground star (filled) with width based on fill percentage */}
+            <div 
+              className="absolute top-0 left-0 overflow-hidden" 
+              style={{ width: `${difference * 100}%` }}
+            >
+              <Star className={`${starSize} text-yellow-500 fill-yellow-500`} />
+            </div>
+          </div>
+        );
+      }
+      // Empty star
+      return (
+        <Star
+          key={starPosition}
+          className={`${starSize} text-gray-300`}
+        />
+      );
+    });
+  };
+  
   return (
     <div className={`flex items-center gap-1 ${className}`}>
-      {Array.from({ length: maxStars }, (_, i) => i + 1).map((star) => (
-        <Star
-          key={star}
-          className={`${starSize} ${
-            star <= value ? "text-yellow-500 fill-yellow-500" : "text-gray-300"
-          }`}
-        />
-      ))}
+      {renderStars()}
       {showValue && (
         <span className="text-sm font-medium ml-1">{value.toFixed(1)}</span>
       )}

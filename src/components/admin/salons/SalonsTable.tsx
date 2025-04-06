@@ -76,7 +76,10 @@ export const SalonsTable = ({
                 </TableCell>
                 <TableCell onClick={() => handleRowClick(salon)}>
                   {salon.rating ? (
-                    <Rating value={salon.rating} size="md" />
+                    <div className="flex items-center gap-2">
+                      <Rating value={salon.rating} size="md" />
+                      <span className="text-sm font-medium">{salon.rating.toFixed(1)}</span>
+                    </div>
                   ) : (
                     <span className="text-muted-foreground text-sm">Ej betygsatt</span>
                   )}

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Rating } from "@/components/ui/rating";
 import { Salon } from "@/components/admin/types";
+import { Slider } from "@/components/ui/slider";
 
 interface SalonRatingDialogProps {
   salon: Salon | null;
@@ -59,9 +60,11 @@ export const SalonRatingDialog = ({
     }
   }, [salon, isOpen, isMounted]);
 
-  const handleStarClick = (value: number) => {
+  const handleSliderChange = (value: number[]) => {
     if (submitting) return;
-    setRating(value);
+    // Round to 1 decimal place for display
+    const newRating = Math.round(value[0] * 10) / 10;
+    setRating(newRating);
   };
 
   const handleSave = async () => {
@@ -141,23 +144,30 @@ export const SalonRatingDialog = ({
 
         <div className="py-4 space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="rating" className="font-medium">Betyg</Label>
-            <div className="flex flex-wrap items-center gap-2 xs:gap-4 sm:gap-6">
-              {[1, 2, 3, 4, 5].map((value) => (
-                <Button
-                  key={value}
-                  type="button"
-                  variant={rating === value ? "default" : "outline"}
-                  onClick={() => handleStarClick(value)}
-                  className="w-10 h-10 p-0"
-                  disabled={submitting}
-                >
-                  {value}
-                </Button>
-              ))}
+            <Label htmlFor="rating" className="font-medium">Betyg: {rating.toFixed(1)}</Label>
+            
+            <div className="py-6 px-2">
+              <Slider
+                defaultValue={[rating]}
+                max={5}
+                min={0}
+                step={0.1}
+                value={[rating]}
+                onValueChange={handleSliderChange}
+                disabled={submitting}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                <span>0.0</span>
+                <span>1.0</span>
+                <span>2.0</span>
+                <span>3.0</span>
+                <span>4.0</span>
+                <span>5.0</span>
+              </div>
             </div>
+            
             <div className="mt-2">
-              <Rating value={rating} size="lg" />
+              <Rating value={rating} size="lg" showValue={true} />
             </div>
           </div>
 
