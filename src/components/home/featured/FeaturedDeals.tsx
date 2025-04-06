@@ -43,9 +43,9 @@ const FeaturedDealsComponent = () => {
 
   if (isLoading) {
     return (
-      <ResponsiveGrid>
+      <ResponsiveGrid columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" gap="gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-64 bg-accent/50 rounded-xl animate-pulse" />
+          <div key={i} className="h-64 sm:h-72 bg-accent/50 rounded-xl animate-pulse" />
         ))}
       </ResponsiveGrid>
     );
@@ -67,11 +67,12 @@ const FeaturedDealsComponent = () => {
   }
 
   return (
-    <ResponsiveGrid>
+    <ResponsiveGrid columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" gap="gap-4">
       {deals.map((deal) => (
         <DealCard
           key={deal.id}
           {...deal}
+          className="h-full"
         />
       ))}
     </ResponsiveGrid>

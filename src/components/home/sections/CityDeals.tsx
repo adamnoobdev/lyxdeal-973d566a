@@ -49,9 +49,9 @@ const CityDealsComponent = ({
 };
 
 export const CityDealsLoadingSkeleton = () => (
-  <div className="grid grid-cols-2 gap-3">
+  <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
     {[...Array(4)].map((_, i) => (
-      <div key={i} className="h-48 bg-accent/5 rounded-lg animate-pulse" />
+      <div key={i} className="h-64 sm:h-72 bg-accent/5 rounded-lg animate-pulse" />
     ))}
   </div>
 );

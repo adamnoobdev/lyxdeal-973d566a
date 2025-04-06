@@ -1,3 +1,4 @@
+
 import { memo, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -22,6 +23,7 @@ interface DealCardProps {
   is_free?: boolean;
   requires_discount_code?: boolean;
   salon_rating?: number;
+  className?: string;
 }
 
 const DealCardComponent = ({
@@ -39,6 +41,7 @@ const DealCardComponent = ({
   is_free = false,
   requires_discount_code = true,
   salon_rating,
+  className = "",
 }: DealCardProps) => {
   const isNew = useCallback(() => {
     const createdDate = new Date(created_at);
@@ -70,7 +73,7 @@ const DealCardComponent = ({
     (salon_rating > 10 ? salon_rating / 10 : salon_rating) : 0;
 
   return (
-    <Card className="group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] bg-white/95 border-muted-200 hover:border-primary/20">
+    <Card className={`group h-full flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] bg-white/95 border-muted-200 hover:border-primary/20 ${className}`}>
       <Link to={`/deal/${id}`} className="block h-full flex flex-col touch-manipulation">
         <div className="flex flex-col h-full">
           <div className="w-full">
