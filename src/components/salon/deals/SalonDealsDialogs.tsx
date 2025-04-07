@@ -37,7 +37,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
         isOpen={isDialogOpen}
         onClose={onCloseDealDialog}
         onSubmit={editingDeal ? onUpdateDeal : onCreateDeal}
-        deal={editingDeal}
+        initialValues={editingDeal || {}}
       />
       
       <DiscountCodesDialog 

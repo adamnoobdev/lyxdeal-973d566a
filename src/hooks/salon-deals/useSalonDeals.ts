@@ -10,7 +10,7 @@ import { UseSalonDealsResult } from "./types";
 export const useSalonDeals = (
   salonId: number | undefined
 ): UseSalonDealsResult => {
-  const { data: deals = [], refetch, isLoading, error } = useQuery({
+  const { data: deals = [], refetch: queryRefetch, isLoading, error } = useQuery({
     queryKey: ['salon-deals', salonId],
     queryFn: async () => {
       if (!salonId) throw new Error("No salon ID available");
@@ -22,7 +22,7 @@ export const useSalonDeals = (
   const handleCreateDeal = async (values: FormValues): Promise<boolean> => {
     const success = await createDeal(values, salonId);
     if (success) {
-      refetch();
+      await refetch();
     }
     return success;
   };
@@ -30,7 +30,7 @@ export const useSalonDeals = (
   const handleUpdateDeal = async (values: FormValues, dealId: number): Promise<boolean> => {
     const success = await updateDeal(values, dealId);
     if (success) {
-      refetch();
+      await refetch();
     }
     return success;
   };
@@ -38,9 +38,14 @@ export const useSalonDeals = (
   const handleDeleteDeal = async (dealId: number): Promise<boolean> => {
     const success = await deleteDeal(dealId);
     if (success) {
-      refetch();
+      await refetch();
     }
     return success;
+  };
+
+  // Wrapper function to convert the refetch function to return Promise<void>
+  const refetch = async (): Promise<void> => {
+    await queryRefetch();
   };
 
   const pendingDeals = deals.filter(deal => deal.status === 'pending');
