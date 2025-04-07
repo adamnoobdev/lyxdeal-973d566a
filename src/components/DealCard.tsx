@@ -6,7 +6,6 @@ import { DealImage } from "./deal/DealImage";
 import { RegularDealContent } from "./deal/RegularDealContent";
 import { CategoryBadge } from "./CategoryBadge";
 import { Rating } from "./ui/rating";
-import { Star } from "lucide-react";
 
 interface DealCardProps {
   id: number;

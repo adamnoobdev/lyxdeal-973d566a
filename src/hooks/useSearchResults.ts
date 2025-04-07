@@ -19,7 +19,13 @@ export const useSearchResults = (searchParams: URLSearchParams) => {
 
       let supabaseQuery = supabase
         .from("deals")
-        .select("*")
+        .select(`
+          *,
+          salons (
+            rating,
+            name
+          )
+        `)
         .eq("is_active", true) // Endast aktiva erbjudanden
         .eq("status", "approved") // Endast godkända erbjudanden
         .order("created_at", { ascending: false });
@@ -43,7 +49,13 @@ export const useSearchResults = (searchParams: URLSearchParams) => {
         return;
       }
 
-      setDeals(data as Deal[]);
+      // Transform data to include salon rating directly on the deal
+      const transformedDeals = data?.map(deal => ({
+        ...deal,
+        salon_rating: deal.salons?.rating || null
+      })) || [];
+
+      setDeals(transformedDeals as Deal[]);
       setIsLoading(false);
     };
 

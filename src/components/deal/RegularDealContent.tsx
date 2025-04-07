@@ -2,6 +2,7 @@
 import { MapPin, Star } from "lucide-react";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { formatPrice } from "@/utils/deal/dealPriceUtils";
+import { Rating } from "@/components/ui/rating";
 
 interface RegularDealContentProps {
   title: string;
