@@ -80,12 +80,10 @@ export const SalonDeals: React.FC = () => {
         return;
       }
       
-      const success = await handleCreate(values);
-      if (success) {
-        toast.success("Erbjudandet har skapats!");
-        setIsDialogOpen(false);
-        await refetch();
-      }
+      await handleCreate(values);
+      toast.success("Erbjudandet har skapats!");
+      setIsDialogOpen(false);
+      await refetch();
     } catch (error) {
       console.error("[SalonDeals] Error creating deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle skapas");
