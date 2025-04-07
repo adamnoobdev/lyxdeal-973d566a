@@ -4,6 +4,7 @@ import { Deal } from "@/components/admin/types";
 import { UseSalonDealsReturn } from "./types";
 import { deleteDeal, updateDeal, toggleActive } from "./dealOperations";
 import { loadSalonDeals } from "./loadDeals";
+import { FormValues } from "@/components/deal-form/schema";
 
 export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDealsReturn => {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -52,16 +53,22 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     );
   }, [deletingDeal]);
 
-  // Handler for updating a deal
-  const handleUpdate = useCallback(async (values: any) => {
-    await updateDeal(
-      editingDeal,
-      values,
-      setDeals,
-      setEditingDeal,
-      isUpdatingDeal,
-      isMountedRef
-    );
+  // Handler for updating a deal - update return type to Promise<boolean>
+  const handleUpdate = useCallback(async (values: FormValues): Promise<boolean> => {
+    try {
+      const success = await updateDeal(
+        editingDeal,
+        values,
+        setDeals,
+        setEditingDeal,
+        isUpdatingDeal,
+        isMountedRef
+      );
+      return success || false;
+    } catch (error) {
+      console.error("[useSalonDealsManagement] Error updating deal:", error);
+      return false;
+    }
   }, [editingDeal]);
 
   // Handler for toggling deal active status
@@ -104,5 +111,6 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     handleUpdate,
     handleToggleActive,
     refetch,
+    handleCreate: undefined, // This property is expected according to the error
   };
 };

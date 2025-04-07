@@ -75,6 +75,11 @@ export const SalonDeals: React.FC = () => {
       setIsProcessingAction(true);
       console.log("[SalonDeals] Submitting new deal creation");
       
+      if (!createDealFn) {
+        toast.error("Kunde inte skapa erbjudandet: Funktionen är inte tillgänglig");
+        return false;
+      }
+      
       const success = await createDealFn(values);
       if (success) {
         toast.success("Erbjudandet har skapats!");
