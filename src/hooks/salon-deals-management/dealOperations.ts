@@ -1,173 +1,254 @@
 
-import { Deal } from "@/components/admin/types";
 import { supabase } from "@/integrations/supabase/client";
+import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";
 import { FormValues } from "@/components/deal-form/schema";
-import { RefObject } from "react";
+import { createStripeProductForDeal } from "@/utils/stripeUtils";
 
-// Delete a deal
+// Handle deleting a deal
 export const deleteDeal = async (
   deletingDeal: Deal | null,
   setDeals: (deals: Deal[]) => void,
   setDeletingDeal: (deal: Deal | null) => void,
-  isDeletingDeal: RefObject<boolean>,
-  isMountedRef: RefObject<boolean>
-): Promise<boolean> => {
-  if (!deletingDeal || isDeletingDeal.current) return false;
+  isDeletingDeal: { current: boolean },
+  isMountedRef: { current: boolean }
+): Promise<void> => {
+  if (!deletingDeal || isDeletingDeal.current) {
+    console.log("[dealOperations] No deal to delete or already deleting");
+    return;
+  }
 
+  isDeletingDeal.current = true;
+  
   try {
-    isDeletingDeal.current = true;
-    console.log("[dealOperations] Deleting deal: ", deletingDeal.id);
-
-    // Call the API to delete the deal
+    console.log(`[dealOperations] Deleting deal: ${deletingDeal.id}`);
+    
+    // First delete any associated discount codes
+    const { error: discountCodesError } = await supabase
+      .from('discount_codes')
+      .delete()
+      .eq('deal_id', deletingDeal.id);
+      
+    if (discountCodesError) {
+      console.error('[dealOperations] Error deleting discount codes:', discountCodesError);
+      // Continue with deal deletion even if code deletion fails
+    }
+    
+    // Now delete the deal itself
     const { error } = await supabase
       .from('deals')
       .delete()
       .eq('id', deletingDeal.id);
 
-    if (error) {
-      console.error("[dealOperations] Error deleting deal:", error);
-      toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
-      return false;
-    }
-
-    console.log("[dealOperations] Deal deleted successfully");
-    toast.success("Erbjudandet har tagits bort");
-
-    // Update local state if component still mounted
+    if (error) throw error;
+    
     if (isMountedRef.current) {
-      setDeals(prevDeals => prevDeals.filter(deal => deal.id !== deletingDeal.id));
+      setDeals((prevDeals: Deal[]) => 
+        prevDeals.filter(deal => deal.id !== deletingDeal.id)
+      );
       setDeletingDeal(null);
+      toast.success("Erbjudande borttaget");
     }
-    return true;
   } catch (error) {
     console.error("[dealOperations] Error in delete operation:", error);
-    toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
-    return false;
+    toast.error("Kunde inte ta bort erbjudandet");
   } finally {
-    if (isMountedRef.current) {
-      isDeletingDeal.current = false;
-    }
+    isDeletingDeal.current = false;
   }
 };
 
-// Update a deal
+// Handle updating a deal
 export const updateDeal = async (
   editingDeal: Deal | null,
   values: FormValues,
   setDeals: (deals: Deal[]) => void,
   setEditingDeal: (deal: Deal | null) => void,
-  isUpdatingDeal: RefObject<boolean>,
-  isMountedRef: RefObject<boolean>
+  isUpdatingDeal: { current: boolean },
+  isMountedRef: { current: boolean }
 ): Promise<boolean> => {
-  if (!editingDeal || isUpdatingDeal.current) return false;
+  if (!editingDeal || isUpdatingDeal.current) {
+    console.log("[dealOperations] No deal to update or already updating");
+    return false;
+  }
 
+  isUpdatingDeal.current = true;
+  
   try {
-    isUpdatingDeal.current = true;
-    console.log("[dealOperations] Updating deal: ", editingDeal.id, values);
-
-    // Prepare the data for update
-    const originalPrice = parseInt(values.originalPrice) || 0;
-    const discountedPrice = parseInt(values.discountedPrice) || 0;
-    const isFree = discountedPrice === 0;
-
-    // Call the API to update the deal
-    const { error } = await supabase
+    console.log(`[dealOperations] Updating deal: ${editingDeal.id}`);
+    
+    // Derive is_free field from discountedPrice
+    const discountedPrice = parseFloat(values.discountedPrice);
+    const is_free = discountedPrice === 0;
+    
+    // Prepare data for updating
+    const updatedData = {
+      title: values.title,
+      description: values.description,
+      original_price: parseFloat(values.originalPrice),
+      discounted_price: discountedPrice,
+      category: values.category,
+      city: values.city,
+      image_url: values.imageUrl,
+      featured: values.featured,
+      is_free: is_free,
+      is_active: values.is_active,
+      expiration_date: values.expirationDate,
+      requires_discount_code: values.requires_discount_code,
+      booking_url: values.booking_url || null,
+      updated_at: new Date().toISOString()
+    };
+    
+    // Update the deal in the database
+    const { data, error } = await supabase
       .from('deals')
-      .update({
-        title: values.title,
-        description: values.description,
-        image_url: values.imageUrl,
-        original_price: originalPrice,
-        discounted_price: isFree ? 1 : discountedPrice, // Set to 1 for free deals to avoid DB constraints
-        category: values.category,
-        city: values.city,
-        expiration_date: values.expirationDate.toISOString(),
-        featured: values.featured,
-        is_free: isFree,
-        is_active: values.is_active !== undefined ? values.is_active : true,
-      })
-      .eq('id', editingDeal.id);
-
-    if (error) {
-      console.error("[dealOperations] Error updating deal:", error);
-      toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
-      return false;
+      .update(updatedData)
+      .eq('id', editingDeal.id)
+      .select();
+      
+    if (error) throw error;
+    
+    // Try to update Stripe product if required, but don't fail if it doesn't work
+    try {
+      await createStripeProductForDeal(values);
+    } catch (stripeError) {
+      console.error("[dealOperations] Error updating Stripe product:", stripeError);
+      // Continue despite Stripe error
     }
-
-    console.log("[dealOperations] Deal updated successfully");
-    toast.success("Erbjudandet har uppdaterats");
-
-    // Update local state if component still mounted
-    if (isMountedRef.current) {
-      setDeals(prevDeals => prevDeals.map(deal => 
-        deal.id === editingDeal.id 
-          ? { 
-              ...deal, 
-              title: values.title,
-              description: values.description,
-              image_url: values.imageUrl,
-              original_price: originalPrice,
-              discounted_price: isFree ? 1 : discountedPrice,
-              category: values.category,
-              city: values.city,
-              expiration_date: values.expirationDate.toISOString(),
-              featured: values.featured,
-              is_free: isFree,
-              is_active: values.is_active !== undefined ? values.is_active : true,
-            }
-          : deal
-      ));
+    
+    if (isMountedRef.current && data) {
+      // Update the local state
+      setDeals((prevDeals: Deal[]) => 
+        prevDeals.map(deal => 
+          deal.id === editingDeal.id ? { ...deal, ...updatedData } as Deal : deal
+        )
+      );
       setEditingDeal(null);
+      toast.success("Erbjudandet har uppdaterats");
     }
+    
     return true;
   } catch (error) {
     console.error("[dealOperations] Error in update operation:", error);
-    toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
+    toast.error("Kunde inte uppdatera erbjudandet");
     return false;
   } finally {
-    if (isMountedRef.current) {
-      isUpdatingDeal.current = false;
-    }
+    isUpdatingDeal.current = false;
   }
 };
 
-// Toggle deal active state
+// Handle toggling deal active status
 export const toggleActive = async (
   deal: Deal,
   setDeals: (deals: Deal[]) => void,
-  isMountedRef: RefObject<boolean>
-): Promise<boolean> => {
+  isMountedRef: { current: boolean }
+): Promise<void> => {
   try {
-    console.log(`[dealOperations] Toggling deal active state: ${deal.id} to ${!deal.is_active}`);
+    console.log(`[dealOperations] Toggling deal active status: ${deal.id}`);
     
-    // Call the API to toggle the active state
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('deals')
       .update({ is_active: !deal.is_active })
-      .eq('id', deal.id);
-
-    if (error) {
-      console.error("[dealOperations] Error toggling deal active state:", error);
-      toast.error(`Kunde inte ${deal.is_active ? 'inaktivera' : 'aktivera'} erbjudandet`);
-      return false;
-    }
-
-    // Success message
-    toast.success(deal.is_active ? 
-      "Erbjudandet har inaktiverats" : 
-      "Erbjudandet har aktiverats");
-
-    // Update local state if component still mounted
+      .eq('id', deal.id)
+      .select();
+      
+    if (error) throw error;
+    
     if (isMountedRef.current) {
-      setDeals(prevDeals => prevDeals.map(d => 
-        d.id === deal.id ? { ...d, is_active: !d.is_active } : d
-      ));
+      // Update the local state
+      setDeals((prevDeals: Deal[]) => 
+        prevDeals.map(d => 
+          d.id === deal.id ? { ...d, is_active: !d.is_active } as Deal : d
+        )
+      );
+      
+      toast.success(
+        deal.is_active 
+          ? "Erbjudandet har inaktiverats"
+          : "Erbjudandet har aktiverats"
+      );
     }
+  } catch (error) {
+    console.error("[dealOperations] Error toggling deal active state:", error);
+    toast.error("Kunde inte ändra erbjudandets status");
+  }
+};
+
+// Create deal function
+export const createDeal = async (
+  values: FormValues,
+  salonId: string | undefined,
+  setDeals: (deals: Deal[]) => void,
+  isCreatingDeal: { current: boolean },
+  isMountedRef: { current: boolean }
+): Promise<boolean> => {
+  if (!salonId || isCreatingDeal.current) {
+    console.log("[dealOperations] No salon ID or already creating deal");
+    return false;
+  }
+
+  isCreatingDeal.current = true;
+  
+  try {
+    console.log(`[dealOperations] Creating new deal for salon: ${salonId}`);
+    
+    // Convert salon_id from string to number
+    const salon_id = parseInt(salonId, 10);
+    
+    // Derive is_free field from discountedPrice
+    const discountedPrice = parseFloat(values.discountedPrice);
+    const is_free = discountedPrice === 0;
+    
+    // Prepare data for creating
+    const dealData = {
+      title: values.title,
+      description: values.description,
+      original_price: parseFloat(values.originalPrice),
+      discounted_price: discountedPrice,
+      category: values.category,
+      city: values.city,
+      image_url: values.imageUrl,
+      featured: values.featured,
+      is_free: is_free,
+      is_active: values.is_active || true,
+      expiration_date: values.expirationDate,
+      requires_discount_code: values.requires_discount_code,
+      booking_url: values.booking_url || null,
+      salon_id: salon_id,
+      status: "approved",
+      quantity_left: parseInt(values.quantity || "10", 10)
+    };
+    
+    // Create the deal in the database
+    const { data, error } = await supabase
+      .from('deals')
+      .insert(dealData)
+      .select();
+      
+    if (error) throw error;
+    
+    // Try to create Stripe product if required, but don't fail if it doesn't work
+    try {
+      await createStripeProductForDeal({
+        ...values,
+        salon_id: salon_id
+      });
+    } catch (stripeError) {
+      console.error("[dealOperations] Error creating Stripe product:", stripeError);
+      // Continue despite Stripe error
+    }
+    
+    if (isMountedRef.current && data) {
+      // Update the local state
+      setDeals((prevDeals: Deal[]) => [data[0] as Deal, ...prevDeals]);
+      toast.success("Nytt erbjudande har skapats");
+    }
+    
     return true;
   } catch (error) {
-    console.error("[dealOperations] Error in toggle active operation:", error);
-    toast.error(`Kunde inte ${deal.is_active ? 'inaktivera' : 'aktivera'} erbjudandet`);
+    console.error("[dealOperations] Error in create operation:", error);
+    toast.error("Kunde inte skapa erbjudandet");
     return false;
+  } finally {
+    isCreatingDeal.current = false;
   }
 };

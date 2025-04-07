@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Deal } from "@/components/admin/types";
 import { UseSalonDealsReturn } from "./types";
-import { deleteDeal, updateDeal, toggleActive } from "./dealOperations";
+import { deleteDeal, updateDeal, toggleActive, createDeal } from "./dealOperations";
 import { loadSalonDeals } from "./loadDeals";
 import { FormValues } from "@/components/deal-form/schema";
 
@@ -14,12 +14,13 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
   
   // Refs for tracking async operations and component lifecycle
-  const isLoadingDeals = useRef(false);
-  const isUpdatingDeal = useRef(false);
-  const isDeletingDeal = useRef(false);
-  const isMountedRef = useRef(true);
+  const isLoadingDeals = useRef<boolean>(false);
+  const isUpdatingDeal = useRef<boolean>(false);
+  const isDeletingDeal = useRef<boolean>(false);
+  const isCreatingDeal = useRef<boolean>(false);
+  const isMountedRef = useRef<boolean>(true);
   const previousSalonId = useRef<string | undefined>(undefined);
-  const loadAttempts = useRef(0);
+  const loadAttempts = useRef<number>(0);
 
   // Wrapper function to load salon deals
   const fetchSalonDeals = useCallback(async () => {
@@ -53,7 +54,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     );
   }, [deletingDeal]);
 
-  // Handler for updating a deal - update return type to Promise<boolean>
+  // Handler for updating a deal - return type is Promise<boolean>
   const handleUpdate = useCallback(async (values: FormValues): Promise<boolean> => {
     try {
       const success = await updateDeal(
@@ -70,6 +71,23 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
       return false;
     }
   }, [editingDeal]);
+
+  // Handler for creating a new deal - return type is Promise<boolean>
+  const handleCreate = useCallback(async (values: FormValues): Promise<boolean> => {
+    try {
+      const success = await createDeal(
+        values,
+        salonId,
+        setDeals,
+        isCreatingDeal,
+        isMountedRef
+      );
+      return success || false;
+    } catch (error) {
+      console.error("[useSalonDealsManagement] Error creating deal:", error);
+      return false;
+    }
+  }, [salonId]);
 
   // Handler for toggling deal active status
   const handleToggleActive = useCallback(async (deal: Deal) => {
@@ -109,8 +127,8 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     setDeletingDeal,
     handleDelete: handleDeleteDeal,
     handleUpdate,
+    handleCreate,
     handleToggleActive,
     refetch,
-    handleCreate: undefined, // This property is expected according to the error
   };
 };

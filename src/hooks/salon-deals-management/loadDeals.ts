@@ -9,9 +9,9 @@ export const loadSalonDeals = async (
   setDeals: (deals: Deal[]) => void,
   setError: (error: string | null) => void,
   setIsLoading: (isLoading: boolean) => void,
-  isLoadingDeals: RefObject<boolean>,
-  isMountedRef: RefObject<boolean>,
-  loadAttempts: RefObject<number>
+  isLoadingDeals: { current: boolean },
+  isMountedRef: { current: boolean },
+  loadAttempts: { current: number }
 ): Promise<boolean> => {
   if (!salonId) {
     setError("Salong-ID saknas");
@@ -25,7 +25,7 @@ export const loadSalonDeals = async (
   }
 
   // Increment attempt counter
-  loadAttempts.current++;
+  loadAttempts.current = loadAttempts.current + 1;
   
   try {
     isLoadingDeals.current = true;
@@ -40,7 +40,7 @@ export const loadSalonDeals = async (
     const { data, error } = await supabase
       .from('deals')
       .select('*')
-      .eq('salon_id', salonId)
+      .eq('salon_id', parseInt(salonId, 10))
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -61,7 +61,13 @@ export const loadSalonDeals = async (
     console.log(`[loadSalonDeals] Successfully loaded ${data?.length || 0} deals`);
     
     if (isMountedRef.current) {
-      setDeals(data || []);
+      // Ensure data conforms to Deal type before setting
+      const dealsWithStatus = (data || []).map(deal => ({
+        ...deal,
+        status: deal.status || "approved" // Default to approved if no status
+      } as Deal));
+      
+      setDeals(dealsWithStatus);
       setIsLoading(false);
       loadAttempts.current = 0; // Reset counter on success
     }
