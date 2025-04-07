@@ -28,8 +28,8 @@ export const Dashboard = () => {
         {[1, 2, 3].map((i) => (
           <Card key={i} className="animate-pulse">
             <CardHeader className="space-y-2">
-              <div className="h-4 w-1/3 bg-gray-200 rounded" />
-              <div className="h-8 w-1/2 bg-gray-200 rounded" />
+              <div className="h-3 w-1/3 bg-gray-200 rounded" />
+              <div className="h-6 w-1/2 bg-gray-200 rounded" />
             </CardHeader>
           </Card>
         ))}
@@ -59,28 +59,28 @@ export const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 px-1 xs:px-2 sm:px-3 md:px-4">
+    <div className="space-y-4 px-1 xs:px-2 sm:px-3">
       <div>
-        <h1 className="text-2xl xs:text-3xl font-bold tracking-tight text-primary">Översikt</h1>
-        <p className="text-muted-foreground text-sm xs:text-base">
+        <h1 className="text-xl xs:text-2xl font-bold tracking-tight text-primary">Översikt</h1>
+        <p className="text-muted-foreground text-sm">
           Välkommen till adminpanelen. Här ser du en översikt över systemet.
         </p>
       </div>
 
-      <div className="w-full grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+      <div className="w-full grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
         {statCards.map((stat, index) => (
           <Card key={index} className="overflow-hidden border border-secondary/20 shadow-sm hover:shadow transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-white">
-              <CardTitle className="text-base xs:text-lg font-medium text-primary">
+              <CardTitle className="text-sm xs:text-base font-medium text-primary">
                 {stat.title}
               </CardTitle>
-              <div className="bg-primary p-2.5">
-                <stat.icon className="h-4 w-4 text-white" />
+              <div className="bg-primary p-2">
+                <stat.icon className="h-3.5 w-3.5 text-white" />
               </div>
             </CardHeader>
-            <CardContent className="pt-4">
-              <div className="text-3xl xs:text-4xl font-bold text-primary">{stat.value}</div>
-              <p className="text-xs xs:text-sm text-muted-foreground mt-1">
+            <CardContent className="pt-3">
+              <div className="text-2xl xs:text-3xl font-bold text-primary">{stat.value}</div>
+              <p className="text-xs text-muted-foreground mt-1">
                 {stat.description}
               </p>
             </CardContent>

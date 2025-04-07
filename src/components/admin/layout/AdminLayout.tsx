@@ -27,9 +27,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         {/* Mobile navigation - only visible on mobile */}
         <AdminMobileNav />
         
-        <div className="flex-1 overflow-hidden pt-12 sm:pt-16">
-          <ScrollArea className="h-[calc(100vh-3rem)] sm:h-[calc(100vh-4rem)]">
-            <div className="container mx-auto py-3 sm:py-6 px-3 sm:px-4 md:px-6 max-w-6xl">
+        <div className="flex-1 overflow-hidden pt-12 sm:pt-14">
+          <ScrollArea className="h-[calc(100vh-3rem)] sm:h-[calc(100vh-3.5rem)]">
+            <div className="container mx-auto py-2 sm:py-4 px-3 sm:px-4 md:px-5 max-w-5xl">
               {children}
             </div>
           </ScrollArea>

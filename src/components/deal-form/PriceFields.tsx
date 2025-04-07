@@ -12,7 +12,7 @@ interface PriceFieldsProps {
 export const PriceFields = ({ form }: PriceFieldsProps) => {
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="originalPrice"
@@ -24,6 +24,7 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
                   type="number" 
                   placeholder="1000" 
                   {...field} 
+                  className="h-9"
                 />
               </FormControl>
               <FormMessage />
@@ -41,7 +42,8 @@ export const PriceFields = ({ form }: PriceFieldsProps) => {
                 <Input 
                   type="number" 
                   placeholder="500" 
-                  {...field} 
+                  {...field}
+                  className="h-9" 
                 />
               </FormControl>
               <FormMessage />

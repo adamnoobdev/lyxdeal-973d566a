@@ -31,7 +31,7 @@ export const FormFields = ({
           <FormItem>
             <FormLabel>Titel</FormLabel>
             <FormControl>
-              <Input placeholder="Ange titel..." {...field} />
+              <Input placeholder="Ange titel..." {...field} className="h-9" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -45,7 +45,7 @@ export const FormFields = ({
           <FormItem>
             <FormLabel>Beskrivning</FormLabel>
             <FormControl>
-              <Textarea placeholder="Ange beskrivning..." {...field} />
+              <Textarea placeholder="Ange beskrivning..." {...field} className="min-h-[5rem]" />
             </FormControl>
             <FormMessage />
           </FormItem>

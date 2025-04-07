@@ -29,9 +29,9 @@ export const SalonDealsContent: React.FC<SalonDealsContentProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="space-y-4 sm:space-y-5">
-        <Skeleton className="h-28 sm:h-36 w-full" />
-        <Skeleton className="h-28 sm:h-36 w-full" />
+      <div className="space-y-3 sm:space-y-4">
+        <Skeleton className="h-24 sm:h-28 w-full" />
+        <Skeleton className="h-24 sm:h-28 w-full" />
       </div>
     );
   }
@@ -41,11 +41,11 @@ export const SalonDealsContent: React.FC<SalonDealsContentProps> = ({
   }
 
   return (
-    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm mb-6">
-      <CardHeader className="px-4 pt-4 pb-2 sm:px-6 sm:pt-5 sm:pb-3">
-        <CardTitle className="text-base sm:text-lg md:text-xl font-semibold">Dina erbjudanden</CardTitle>
+    <Card className="border border-secondary/20 rounded-lg overflow-hidden shadow-sm mb-4 sm:mb-5">
+      <CardHeader className="px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-2">
+        <CardTitle className="text-base md:text-lg font-semibold">Dina erbjudanden</CardTitle>
       </CardHeader>
-      <CardContent className="px-2 xs:px-4 sm:px-6 py-3 sm:py-4">
+      <CardContent className="px-2 xs:px-3 sm:px-4 py-2 sm:py-3">
         <DealsTable
           deals={deals}
           onEdit={onEdit}

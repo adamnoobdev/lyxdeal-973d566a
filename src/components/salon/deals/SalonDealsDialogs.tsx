@@ -46,6 +46,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
         onClose={onCloseCodesDialog}
         deal={viewingCodesFor}
         onGenerateDiscountCodes={onGenerateDiscountCodes}
+        isGeneratingCodes={isGeneratingCodes}
       />
     </>
   );

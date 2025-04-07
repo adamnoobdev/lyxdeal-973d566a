@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -58,19 +59,19 @@
   }
 
   h1 {
-    @apply text-3xl font-bold tracking-tight lg:text-4xl;
+    @apply text-2xl font-bold tracking-tight lg:text-3xl;
   }
 
   h2 {
-    @apply text-2xl font-semibold tracking-tight;
-  }
-
-  h3 {
     @apply text-xl font-semibold tracking-tight;
   }
 
+  h3 {
+    @apply text-lg font-semibold tracking-tight;
+  }
+
   p {
-    @apply leading-7;
+    @apply leading-6;
   }
 
   small {
@@ -107,7 +108,7 @@
   }
   
   .admin-container {
-    @apply p-4 md:p-6 lg:p-8;
+    @apply p-3 md:p-4 lg:p-5;
   }
 
   .touch-manipulation {
@@ -115,11 +116,11 @@
   }
   
   .mobile-nav-item {
-    @apply flex items-center px-3 py-2 text-sm transition-colors;
+    @apply flex items-center px-2.5 py-1.5 text-sm transition-colors;
   }
   
   .mobile-button {
-    @apply min-h-[44px] min-w-[44px];
+    @apply min-h-[40px] min-w-[40px];
   }
   
   /* Ta bort Mapbox-logotypen och attributionskontroll från kartan */
@@ -130,9 +131,9 @@
   
   /* Anpassa navigationsknapparna för kartan till Lyxdeal-temat */
   .mapboxgl-ctrl-group {
-    border-radius: 4px !important;
-    box-shadow: 0 1px 3px rgba(155, 135, 245, 0.2) !important;
-    border: 1px solid rgba(155, 135, 245, 0.2) !important;
+    border-radius: 3px !important;
+    box-shadow: 0 1px 3px rgba(155, 135, 245, 0.15) !important;
+    border: 1px solid rgba(155, 135, 245, 0.15) !important;
   }
   
   .mapboxgl-ctrl-group button {
@@ -146,10 +147,10 @@
   /* Anpassa kartnålens popup stil */
   .mapboxgl-popup-content {
     background-color: white !important;
-    border: 1px solid rgba(155, 135, 245, 0.2) !important;
-    box-shadow: 0 2px 6px rgba(155, 135, 245, 0.15) !important;
-    padding: 10px 15px !important;
-    border-radius: 6px !important;
+    border: 1px solid rgba(155, 135, 245, 0.15) !important;
+    box-shadow: 0 2px 4px rgba(155, 135, 245, 0.1) !important;
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
   }
   
   .mapboxgl-popup-tip {
@@ -190,7 +191,7 @@
   }
   
   .touch-target {
-    @apply p-2 md:p-1;
+    @apply p-1.5 md:p-1;
   }
 
   /* Ta bort Mapbox-logotypen från kartan */
