@@ -36,7 +36,7 @@ export const useSecureDealSubmit = ({
       return;
     }
 
-    // If this is a direct booking deal, redirect to the booking URL
+    // Om detta är ett direktbokningserbjudande, dirigera om till boknings-URL
     if (!requiresDiscountCode && bookingUrl) {
       window.open(bookingUrl, '_blank');
       return;
@@ -47,7 +47,7 @@ export const useSecureDealSubmit = ({
     try {
       console.log(`[SecureDealContainer] Securing deal ${dealId} for ${values.email}`);
       
-      // 1. Validate input data
+      // 1. Validera indata
       const validation = await validateDealInput(dealId, values.email, values.phone);
       
       if (!validation.isValid) {
@@ -58,7 +58,7 @@ export const useSecureDealSubmit = ({
       
       const formattedPhone = validation.formattedPhone as string;
       
-      // 2. Secure discount code
+      // 2. Säkra rabattkod
       const codeResult = await secureDiscountCode(dealId, {
         name: values.name,
         email: values.email,
@@ -73,15 +73,15 @@ export const useSecureDealSubmit = ({
       
       const code = codeResult.code as string;
       
-      // 3. If user wants newsletter subscription
+      // 3. Om användaren vill prenumerera på nyhetsbrev
       if (values.subscribeToNewsletter) {
         await addToNewsletter(values.email, values.name);
       }
       
-      // 4. Create purchase record (we continue even if this fails)
+      // 4. Skapa köpregister (fortsätter även om detta misslyckas)
       await createPurchaseRecord(values.email, dealId, code);
       
-      // 5. Send email with the code
+      // 5. Skicka e-post med koden
       const emailResult = await sendDiscountCodeEmail(
         values.email,
         values.name,
@@ -91,9 +91,9 @@ export const useSecureDealSubmit = ({
         values.subscribeToNewsletter
       );
       
-      // 6. Show confirmation and handle success
+      // 6. Visa bekräftelse och hantera framgång
       if (emailResult.success) {
-        // Check if we're in testing mode and emails are being redirected
+        // Kontrollera om vi är i testläge och e-postarna dirigeras om
         if (emailResult.data && emailResult.data.productionMode === false) {
           toast.success("Rabattkoden har genererats, men vi är i testläge så e-post skickades till en testadress.");
         } else {
@@ -110,15 +110,15 @@ export const useSecureDealSubmit = ({
         toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Kontakta kundtjänst om du inte får din kod.");
       }
       
-      // Save deal-ID in localStorage to prevent duplicates
+      // Spara deal-ID i localStorage för att förhindra dubbletter
       saveClaimedDeal(dealId);
       
-      // Store email for confirmation message
+      // Lagra e-post för bekräftelsemeddelande
       setEmailSent(values.email);
       setDiscountCode(code);
       setIsSuccess(true);
       
-      // Call success callback if provided
+      // Anropa framgångsåterkallning om det tillhandahålls
       if (onSuccess) {
         onSuccess();
       }

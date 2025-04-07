@@ -1,8 +1,8 @@
 
 import { useCallback } from 'react';
-import { Deal } from '@/components/admin/types';
+import { Deal } from "@/components/admin/types";
 import { FormValues } from '@/components/deal-form/schema';
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { generateDiscountCodes } from '@/utils/discount-codes';
 
 export const useDealHandlers = (
@@ -17,12 +17,34 @@ export const useDealHandlers = (
   setIsGeneratingCodes: (isGenerating: boolean) => void,
   setIsClosingCodesDialog: (isClosing: boolean) => void
 ) => {
+  // Handle viewing discount codes for a deal
+  const handleViewDiscountCodes = useCallback((deal: Deal) => {
+    if (!deal.requires_discount_code) {
+      toast.info("Detta erbjudande använder inte rabattkoder");
+      return;
+    }
+    
+    setViewingCodesForDeal(deal);
+  }, [setViewingCodesForDeal]);
+
+  // Handle closing the discount codes dialog
+  const handleCloseDiscountCodesDialog = useCallback(() => {
+    setIsClosingCodesDialog(true);
+    
+    setTimeout(() => {
+      setViewingCodesForDeal(null);
+      setIsClosingCodesDialog(false);
+    }, 300);
+  }, [setViewingCodesForDeal, setIsClosingCodesDialog]);
+
+  // Handle editing a deal
   const handleEditDeal = useCallback((deal: Deal) => {
     setEditingDeal(deal);
     setIsDialogOpen(true);
     console.log("[useDealHandlers] Editing deal:", deal.id);
   }, [setEditingDeal, setIsDialogOpen]);
 
+  // Handle closing the deal dialog
   const handleCloseDealDialog = useCallback(() => {
     if (isProcessingAction) return;
     
@@ -32,6 +54,7 @@ export const useDealHandlers = (
     }, 200);
   }, [setIsDialogOpen, setEditingDeal, isProcessingAction]);
 
+  // Handle updating a deal
   const handleUpdateDeal = useCallback(async (values: FormValues): Promise<void> => {
     if (isProcessingAction) return;
     
@@ -52,24 +75,7 @@ export const useDealHandlers = (
     }
   }, [handleUpdate, refetch, setIsDialogOpen, isProcessingAction, setIsProcessingAction]);
 
-  const handleViewDiscountCodes = useCallback((deal: Deal) => {
-    if (!deal.requires_discount_code) {
-      toast.info("Detta erbjudande använder inte rabattkoder");
-      return;
-    }
-    
-    setViewingCodesForDeal(deal);
-  }, [setViewingCodesForDeal]);
-
-  const handleCloseDiscountCodesDialog = useCallback(() => {
-    setIsClosingCodesDialog(true);
-    
-    setTimeout(() => {
-      setViewingCodesForDeal(null);
-      setIsClosingCodesDialog(false);
-    }, 300);
-  }, [setViewingCodesForDeal, setIsClosingCodesDialog]);
-
+  // Handle generating discount codes
   const handleGenerateDiscountCodes = useCallback(async (deal: Deal, quantity: number = 10) => {
     if (isGeneratingCodes || !deal.requires_discount_code) return;
     
