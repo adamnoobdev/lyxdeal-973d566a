@@ -8,7 +8,7 @@ import { createStripeProductForDeal } from "@/utils/stripeUtils";
 // Handle deleting a deal
 export const deleteDeal = async (
   deletingDeal: Deal | null,
-  setDeals: (deals: Deal[]) => void,
+  setDeals: (deals: Deal[] | ((prevDeals: Deal[]) => Deal[])) => void,
   setDeletingDeal: (deal: Deal | null) => void,
   isDeletingDeal: { current: boolean },
   isMountedRef: { current: boolean }
@@ -61,7 +61,7 @@ export const deleteDeal = async (
 export const updateDeal = async (
   editingDeal: Deal | null,
   values: FormValues,
-  setDeals: (deals: Deal[]) => void,
+  setDeals: (deals: Deal[] | ((prevDeals: Deal[]) => Deal[])) => void,
   setEditingDeal: (deal: Deal | null) => void,
   isUpdatingDeal: { current: boolean },
   isMountedRef: { current: boolean }
@@ -92,7 +92,7 @@ export const updateDeal = async (
       featured: values.featured,
       is_free: is_free,
       is_active: values.is_active,
-      expiration_date: values.expirationDate,
+      expiration_date: values.expirationDate.toISOString(), // Convert Date to ISO string
       requires_discount_code: values.requires_discount_code,
       booking_url: values.booking_url || null,
       updated_at: new Date().toISOString()
@@ -119,7 +119,7 @@ export const updateDeal = async (
       // Update the local state
       setDeals((prevDeals: Deal[]) => 
         prevDeals.map(deal => 
-          deal.id === editingDeal.id ? { ...deal, ...updatedData } as Deal : deal
+          deal.id === editingDeal.id ? { ...deal, ...updatedData, expiration_date: updatedData.expiration_date } as Deal : deal
         )
       );
       setEditingDeal(null);
@@ -139,7 +139,7 @@ export const updateDeal = async (
 // Handle toggling deal active status
 export const toggleActive = async (
   deal: Deal,
-  setDeals: (deals: Deal[]) => void,
+  setDeals: (deals: Deal[] | ((prevDeals: Deal[]) => Deal[])) => void,
   isMountedRef: { current: boolean }
 ): Promise<void> => {
   try {
@@ -177,7 +177,7 @@ export const toggleActive = async (
 export const createDeal = async (
   values: FormValues,
   salonId: string | undefined,
-  setDeals: (deals: Deal[]) => void,
+  setDeals: (deals: Deal[] | ((prevDeals: Deal[]) => Deal[])) => void,
   isCreatingDeal: { current: boolean },
   isMountedRef: { current: boolean }
 ): Promise<boolean> => {
@@ -210,12 +210,13 @@ export const createDeal = async (
       featured: values.featured,
       is_free: is_free,
       is_active: values.is_active || true,
-      expiration_date: values.expirationDate,
+      expiration_date: values.expirationDate.toISOString(), // Convert Date to ISO string
       requires_discount_code: values.requires_discount_code,
       booking_url: values.booking_url || null,
       salon_id: salon_id,
       status: "approved",
-      quantity_left: parseInt(values.quantity || "10", 10)
+      quantity_left: parseInt(values.quantity || "10", 10),
+      time_remaining: "72 timmar" // Add required field
     };
     
     // Create the deal in the database

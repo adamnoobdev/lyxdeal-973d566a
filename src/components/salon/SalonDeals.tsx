@@ -66,9 +66,9 @@ export const SalonDeals: React.FC = () => {
   }, [setEditingDeal, setIsDialogOpen]);
 
   // Handle form submission for a new deal
-  const handleCreateSubmit = useCallback(async (values: FormValues): Promise<boolean> => {
+  const handleCreateSubmit = useCallback(async (values: FormValues): Promise<void> => {
     if (isProcessingAction) {
-      return false;
+      return;
     }
     
     try {
@@ -77,7 +77,7 @@ export const SalonDeals: React.FC = () => {
       
       if (!handleCreate) {
         toast.error("Kunde inte skapa erbjudandet: Funktionen är inte tillgänglig");
-        return false;
+        return;
       }
       
       const success = await handleCreate(values);
@@ -86,11 +86,9 @@ export const SalonDeals: React.FC = () => {
         setIsDialogOpen(false);
         await refetch();
       }
-      return success;
     } catch (error) {
       console.error("[SalonDeals] Error creating deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle skapas");
-      return false;
     } finally {
       setIsProcessingAction(false);
     }
@@ -128,7 +126,7 @@ export const SalonDeals: React.FC = () => {
           editingDeal={editingDeal}
           isDialogOpen={isDialogOpen}
           onCloseDealDialog={handleCloseDealDialog}
-          onUpdateDeal={editingDeal ? handleUpdateDeal : handleCreateSubmit}
+          onUpdateDeal={handleUpdateDeal}
           viewingCodesForDeal={viewingCodesForDeal}
           isClosingCodesDialog={isClosingCodesDialog}
           onCloseDiscountCodesDialog={handleCloseDiscountCodesDialog}

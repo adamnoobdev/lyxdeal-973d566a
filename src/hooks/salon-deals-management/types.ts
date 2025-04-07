@@ -14,7 +14,7 @@ export interface UseSalonDealsReturn {
   setDeletingDeal: (deal: Deal | null) => void;
   handleDelete: () => Promise<void>;
   handleUpdate: (values: FormValues) => Promise<boolean>;
-  handleCreate: (values: FormValues) => Promise<boolean>; // Make this non-optional
+  handleCreate: (values: FormValues) => Promise<boolean>;
   handleToggleActive: (deal: Deal) => Promise<void>;
   refetch: () => Promise<void>;
 }

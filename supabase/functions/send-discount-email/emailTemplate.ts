@@ -1,5 +1,12 @@
 
-import { sections } from "./emailTemplates/sections.ts";
+import { 
+  createHeaderSection,
+  createGreetingSection,
+  createDiscountCodeSection,
+  createInstructionsSection,
+  createSignatureSection,
+  createFooterSection
+} from "./emailTemplates/sections.ts";
 import { styles } from "./emailTemplates/styles.ts";
 import { template } from "./emailTemplates/template.ts";
 
@@ -42,6 +49,6 @@ export function generateEmailHtml({ name, code, dealTitle, subscribedToNewslette
   return template({
     preheader: `Din rabattkod för "${dealTitle}" är: ${code}`,
     content: dealCodeSection + newsletterSection,
-    footer: sections.footer,
+    footer: createFooterSection(new Date().getFullYear()),
   });
 }
