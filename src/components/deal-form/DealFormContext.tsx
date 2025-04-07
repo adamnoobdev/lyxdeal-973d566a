@@ -1,13 +1,11 @@
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { FormValues } from './schema';
 
 interface DealFormContextType {
   isSubmitting: boolean;
-  setIsSubmitting: (isSubmitting: boolean) => void;
-  isGeneratingCodes: boolean;
-  setIsGeneratingCodes: (isGeneratingCodes: boolean) => void;
   initialValues?: FormValues;
+  setIsSubmitting: (isSubmitting: boolean) => void;
 }
 
 const DealFormContext = createContext<DealFormContextType | undefined>(undefined);
@@ -18,38 +16,35 @@ interface DealFormProviderProps {
   externalIsSubmitting?: boolean;
 }
 
-export const DealFormProvider = ({ 
-  children, 
+export const DealFormProvider: React.FC<DealFormProviderProps> = ({
+  children,
   initialValues,
-  externalIsSubmitting = false
-}: DealFormProviderProps) => {
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(externalIsSubmitting);
-  const [isGeneratingCodes, setIsGeneratingCodes] = useState<boolean>(false);
+  externalIsSubmitting = false,
+}) => {
+  const [isSubmitting, setIsSubmitting] = useState(externalIsSubmitting);
   
-  // Log the current provider state
-  console.log("[DealFormProvider] Rendering with state:", { 
-    isSubmitting, 
-    externalIsSubmitting, 
-    hasInitialValues: !!initialValues 
-  });
+  // Update internal state when external state changes
+  React.useEffect(() => {
+    setIsSubmitting(externalIsSubmitting);
+  }, [externalIsSubmitting]);
+
+  const value = {
+    isSubmitting,
+    initialValues,
+    setIsSubmitting,
+  };
 
   return (
-    <DealFormContext.Provider value={{
-      isSubmitting,
-      setIsSubmitting,
-      isGeneratingCodes,
-      setIsGeneratingCodes,
-      initialValues
-    }}>
+    <DealFormContext.Provider value={value}>
       {children}
     </DealFormContext.Provider>
   );
 };
 
-export const useDealFormContext = (): DealFormContextType => {
+export const useDealForm = (): DealFormContextType => {
   const context = useContext(DealFormContext);
   if (context === undefined) {
-    throw new Error('useDealFormContext must be used within a DealFormProvider');
+    throw new Error('useDealForm must be used within a DealFormProvider');
   }
   return context;
 };

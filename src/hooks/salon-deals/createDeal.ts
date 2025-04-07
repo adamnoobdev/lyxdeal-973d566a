@@ -13,11 +13,17 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
     }
 
     // Kontrollera salongens prenumerationsplan
-    const { data: salonData } = await supabase
+    const { data: salonData, error: salonError } = await supabase
       .from('salons')
       .select('subscription_plan, status')
       .eq('id', salonId)
       .single();
+    
+    if (salonError) {
+      console.error("Error fetching salon data:", salonError);
+      toast.error("Kunde inte hämta salonginformation.");
+      return false;
+    }
     
     // First check if subscription is active
     if (salonData?.status !== 'active') {
@@ -100,13 +106,15 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       status: 'pending',
       is_free: isFree, // Set is_free flag for free deals
       quantity_left: quantity,
-      booking_url: values.booking_url,
-      requires_discount_code: requiresDiscountCode
+      booking_url: values.booking_url || null,
+      requires_discount_code: requiresDiscountCode,
+      is_active: values.is_active !== undefined ? values.is_active : true,
     }).select();
 
     if (error) {
       console.error('Database error details:', error);
-      throw error;
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas: " + error.message);
+      return false;
     }
     
     // Om erbjudandet skapades och kräver rabattkoder, generera rabattkoder automatiskt

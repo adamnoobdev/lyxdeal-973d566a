@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { SalonLayout } from './layout/SalonLayout';
 import { useSalonDealsState } from './deals/useSalonDealsState';
 import { useDealHandlers } from './deals/useDealHandlers';
@@ -7,6 +7,8 @@ import { SalonDealsContent } from './deals/SalonDealsContent';
 import { SalonDealsDialogs } from './deals/SalonDealsDialogs';
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Helmet } from "react-helmet";
+import { toast } from "sonner";
 
 export const SalonDeals: React.FC = () => {
   const {
@@ -31,6 +33,7 @@ export const SalonDeals: React.FC = () => {
     setEditingDeal, 
     setDeletingDeal,
     handleUpdate,
+    createDeal,
     refetch
   } = dealManagement;
 
@@ -54,18 +57,42 @@ export const SalonDeals: React.FC = () => {
     setIsClosingCodesDialog
   );
 
-  // Funktion för att öppna dialogrutan för att skapa ett nytt erbjudande
-  const handleCreateDeal = () => {
-    // Säkerställ att vi inte redigerar ett befintligt erbjudande
+  // Handle creating a new deal
+  const handleCreateDeal = useCallback(() => {
     setEditingDeal(null); 
-    // Öppna dialogrutan explicit
     setIsDialogOpen(true);
-    
     console.log("[SalonDeals] Creating new deal, dialog opened");
-  };
+  }, [setEditingDeal, setIsDialogOpen]);
+
+  // Handle form submission for a new deal
+  const handleCreateSubmit = useCallback(async (values: any) => {
+    if (isProcessingAction) {
+      return;
+    }
+    
+    try {
+      setIsProcessingAction(true);
+      console.log("[SalonDeals] Submitting new deal creation");
+      
+      const success = await createDeal(values);
+      if (success) {
+        toast.success("Erbjudandet har skapats!");
+        setIsDialogOpen(false);
+        await refetch();
+      }
+    } catch (error) {
+      console.error("[SalonDeals] Error creating deal:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+    } finally {
+      setIsProcessingAction(false);
+    }
+  }, [isProcessingAction, setIsProcessingAction, createDeal, setIsDialogOpen, refetch]);
 
   return (
     <SalonLayout>
+      <Helmet>
+        <title>Erbjudanden | Min Salong</title>
+      </Helmet>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-primary">Hantera Erbjudanden</h1>
@@ -93,7 +120,7 @@ export const SalonDeals: React.FC = () => {
           editingDeal={editingDeal}
           isDialogOpen={isDialogOpen}
           onCloseDealDialog={handleCloseDealDialog}
-          onUpdateDeal={handleUpdateDeal}
+          onUpdateDeal={editingDeal ? handleUpdateDeal : handleCreateSubmit}
           viewingCodesForDeal={viewingCodesForDeal}
           isClosingCodesDialog={isClosingCodesDialog}
           onCloseDiscountCodesDialog={handleCloseDiscountCodesDialog}

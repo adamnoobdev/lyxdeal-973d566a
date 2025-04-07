@@ -9,13 +9,14 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
     // Hämta befintligt erbjudande för att kontrollera krav på rabattkoder
     const { data: existingDeal, error: fetchError } = await supabase
       .from('deals')
-      .select('requires_discount_code, salon_id')
+      .select('requires_discount_code, salon_id, status')
       .eq('id', dealId)
       .single();
     
     if (fetchError) {
       console.error('Error fetching existing deal:', fetchError);
-      throw fetchError;
+      toast.error("Kunde inte hitta erbjudandet.");
+      return false;
     }
     
     if (!existingDeal) {
@@ -24,11 +25,17 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
     }
     
     // Kontrollera salongens prenumerationsplan
-    const { data: salonData } = await supabase
+    const { data: salonData, error: salonError } = await supabase
       .from('salons')
       .select('subscription_plan')
       .eq('id', existingDeal.salon_id)
       .single();
+    
+    if (salonError) {
+      console.error('Error fetching salon data:', salonError);
+      toast.error("Kunde inte hämta salonginformation.");
+      return false;
+    }
     
     const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
     
@@ -74,6 +81,9 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
       requires_discount_code: requiresDiscountCode
     });
     
+    // Always set status to pending for review after updates
+    const newStatus = existingDeal.status === 'rejected' ? 'pending' : existingDeal.status;
+    
     const { error } = await supabase
       .from('deals')
       .update({
@@ -87,20 +97,26 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
         time_remaining: timeRemaining,
         expiration_date: expirationDate.toISOString(),
         featured: values.featured,
-        status: 'pending',
+        status: newStatus,
         is_free: isFree, // Set is_free flag for free deals
         quantity_left: parseInt(values.quantity) || 10,
-        booking_url: values.booking_url,
-        requires_discount_code: requiresDiscountCode
+        booking_url: values.booking_url || null,
+        requires_discount_code: requiresDiscountCode,
+        is_active: values.is_active !== undefined ? values.is_active : true,
       })
       .eq('id', dealId);
 
     if (error) {
       console.error('Database error details:', error);
-      throw error;
+      toast.error("Ett fel uppstod när erbjudandet skulle uppdateras: " + error.message);
+      return false;
     }
     
-    toast.success("Erbjudande uppdaterat! Det kommer att granskas igen av en administratör.");
+    const statusMessage = newStatus === 'pending' ? 
+      "Erbjudande uppdaterat! Det kommer att granskas igen av en administratör." :
+      "Erbjudande uppdaterat!";
+    
+    toast.success(statusMessage);
     return true;
   } catch (error) {
     console.error("Error updating deal:", error);

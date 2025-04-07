@@ -1,6 +1,7 @@
 
 import { useCallback } from 'react';
 import { Deal } from '@/components/admin/types';
+import { FormValues } from '@/components/deal-form/schema';
 import { toast } from 'sonner';
 import { generateDiscountCodes } from '@/utils/discount-codes';
 
@@ -8,97 +9,94 @@ export const useDealHandlers = (
   setViewingCodesForDeal: (deal: Deal | null) => void,
   setEditingDeal: (deal: Deal | null) => void,
   setIsDialogOpen: (isOpen: boolean) => void,
-  handleUpdate: (values: any) => Promise<void>,
-  refetch: () => Promise<unknown>,
+  handleUpdate: (values: FormValues) => Promise<boolean>,
+  refetch: () => Promise<any>,
   isProcessingAction: boolean,
   setIsProcessingAction: (isProcessing: boolean) => void,
   isGeneratingCodes: boolean,
   setIsGeneratingCodes: (isGenerating: boolean) => void,
   setIsClosingCodesDialog: (isClosing: boolean) => void
 ) => {
-  const handleViewDiscountCodes = useCallback((deal: Deal) => {
+  const handleEditDeal = useCallback((deal: Deal) => {
+    setEditingDeal(deal);
+    setIsDialogOpen(true);
+    console.log("[useDealHandlers] Editing deal:", deal.id);
+  }, [setEditingDeal, setIsDialogOpen]);
+
+  const handleCloseDealDialog = useCallback(() => {
     if (isProcessingAction) return;
-    console.log("[SalonDeals] Opening discount codes dialog for deal:", deal.id);
+    
+    setIsDialogOpen(false);
+    setTimeout(() => {
+      setEditingDeal(null);
+    }, 200);
+  }, [setIsDialogOpen, setEditingDeal, isProcessingAction]);
+
+  const handleUpdateDeal = useCallback(async (values: FormValues) => {
+    if (isProcessingAction) return;
+    
+    try {
+      setIsProcessingAction(true);
+      console.log("[useDealHandlers] Updating deal");
+      
+      const success = await handleUpdate(values);
+      if (success) {
+        await refetch();
+        setIsDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("[useDealHandlers] Error updating deal:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
+    } finally {
+      setIsProcessingAction(false);
+    }
+  }, [handleUpdate, refetch, setIsDialogOpen, isProcessingAction, setIsProcessingAction]);
+
+  const handleViewDiscountCodes = useCallback((deal: Deal) => {
+    if (!deal.requires_discount_code) {
+      toast.info("Detta erbjudande använder inte rabattkoder");
+      return;
+    }
+    
     setViewingCodesForDeal(deal);
-  }, [isProcessingAction, setViewingCodesForDeal]);
+  }, [setViewingCodesForDeal]);
 
   const handleCloseDiscountCodesDialog = useCallback(() => {
-    if (isProcessingAction) return;
-    console.log("[SalonDeals] Closing discount codes dialog");
-    
-    // Set closing state to prevent UI freeze
     setIsClosingCodesDialog(true);
     
-    // Use setTimeout to delay state updates
     setTimeout(() => {
       setViewingCodesForDeal(null);
       setIsClosingCodesDialog(false);
     }, 300);
-  }, [isProcessingAction, setViewingCodesForDeal, setIsClosingCodesDialog]);
-  
-  const handleEditDeal = useCallback((deal: Deal) => {
-    if (isProcessingAction) return;
-    console.log("[SalonDeals] Opening edit deal dialog for deal:", deal.id);
-    setEditingDeal(deal);
-    setIsDialogOpen(true);
-  }, [setEditingDeal, isProcessingAction, setIsDialogOpen]);
-  
-  const handleCloseDealDialog = useCallback(() => {
-    if (isProcessingAction) return;
-    console.log("[SalonDeals] Closing deal dialog");
-    setIsDialogOpen(false);
-    
-    // Fördröj återställning av editingDeal för att förhindra UI-flimmer
-    setTimeout(() => {
-      setEditingDeal(null);
-    }, 300);
-  }, [setEditingDeal, isProcessingAction, setIsDialogOpen]);
-  
-  const handleUpdateDeal = useCallback(async (values: any) => {
-    if (isProcessingAction) return;
-    
-    try {
-      console.log("[SalonDeals] Starting deal update or creation");
-      setIsProcessingAction(true);
-      await handleUpdate(values);
-      await refetch();
-    } catch (error) {
-      console.error("[SalonDeals] Error updating/creating deal:", error);
-    } finally {
-      setIsProcessingAction(false);
-      console.log("[SalonDeals] Finished deal update/creation, closing dialog");
-      handleCloseDealDialog();
-    }
-  }, [handleUpdate, handleCloseDealDialog, isProcessingAction, refetch, setIsProcessingAction]);
+  }, [setViewingCodesForDeal, setIsClosingCodesDialog]);
 
-  const handleGenerateDiscountCodes = useCallback(async (deal: Deal, quantity: number) => {
-    if (isGeneratingCodes) return Promise.reject(new Error("Redan genererar koder"));
+  const handleGenerateDiscountCodes = useCallback(async (deal: Deal, quantity: number = 10) => {
+    if (isGeneratingCodes || !deal.requires_discount_code) return;
     
     try {
       setIsGeneratingCodes(true);
-      await toast.promise(
-        generateDiscountCodes(deal.id, quantity),
-        {
-          loading: `Genererar ${quantity} rabattkoder...`,
-          success: `${quantity} rabattkoder genererades för "${deal.title}"`,
-          error: 'Kunde inte generera rabattkoder'
-        }
-      );
-      return Promise.resolve();
+      toast.loading("Genererar rabattkoder...");
+      
+      await generateDiscountCodes(deal.id, quantity);
+      
+      toast.dismiss();
+      toast.success(`${quantity} rabattkoder har genererats`);
+      
+      await refetch();
     } catch (error) {
-      console.error("[SalonDeals] Error generating discount codes:", error);
-      return Promise.reject(error);
+      console.error("[useDealHandlers] Error generating discount codes:", error);
+      toast.error("Ett fel uppstod när rabattkoder skulle genereras");
     } finally {
       setIsGeneratingCodes(false);
     }
-  }, [isGeneratingCodes, setIsGeneratingCodes]);
+  }, [refetch, isGeneratingCodes, setIsGeneratingCodes]);
 
   return {
-    handleViewDiscountCodes,
-    handleCloseDiscountCodesDialog,
     handleEditDeal,
     handleCloseDealDialog,
     handleUpdateDeal,
+    handleViewDiscountCodes,
+    handleCloseDiscountCodesDialog,
     handleGenerateDiscountCodes
   };
 };
