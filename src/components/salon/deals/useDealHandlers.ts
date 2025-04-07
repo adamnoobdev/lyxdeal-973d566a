@@ -76,7 +76,7 @@ export const useDealHandlers = (
   }, [handleUpdate, refetch, setIsDialogOpen, isProcessingAction, setIsProcessingAction]);
 
   // Handle generating discount codes
-  const handleGenerateDiscountCodes = useCallback(async (deal: Deal, quantity: number = 10) => {
+  const handleGenerateDiscountCodes = useCallback(async (deal: Deal, quantity: number = 10): Promise<void> => {
     if (isGeneratingCodes || !deal.requires_discount_code) return;
     
     try {
