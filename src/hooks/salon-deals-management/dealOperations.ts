@@ -2,13 +2,13 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";
-import { FormValues } from "@/components/deal-form/schema";
+import { FormValues } from '@/components/deal-form/schema';
 import { createStripeProductForDeal } from "@/utils/stripeUtils";
 
 // Handle deleting a deal
 export const deleteDeal = async (
   deletingDeal: Deal | null,
-  setDeals: (deals: Deal[] | ((prevDeals: Deal[]) => Deal[])) => void,
+  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
   setDeletingDeal: (deal: Deal | null) => void,
   isDeletingDeal: { current: boolean },
   isMountedRef: { current: boolean }
@@ -61,7 +61,7 @@ export const deleteDeal = async (
 export const updateDeal = async (
   editingDeal: Deal | null,
   values: FormValues,
-  setDeals: (deals: Deal[] | ((prevDeals: Deal[]) => Deal[])) => void,
+  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
   setEditingDeal: (deal: Deal | null) => void,
   isUpdatingDeal: { current: boolean },
   isMountedRef: { current: boolean }
@@ -119,7 +119,7 @@ export const updateDeal = async (
       // Update the local state
       setDeals((prevDeals: Deal[]) => 
         prevDeals.map(deal => 
-          deal.id === editingDeal.id ? { ...deal, ...updatedData, expiration_date: updatedData.expiration_date } as Deal : deal
+          deal.id === editingDeal.id ? { ...deal, ...updatedData } as Deal : deal
         )
       );
       setEditingDeal(null);
@@ -139,7 +139,7 @@ export const updateDeal = async (
 // Handle toggling deal active status
 export const toggleActive = async (
   deal: Deal,
-  setDeals: (deals: Deal[] | ((prevDeals: Deal[]) => Deal[])) => void,
+  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
   isMountedRef: { current: boolean }
 ): Promise<void> => {
   try {
@@ -177,7 +177,7 @@ export const toggleActive = async (
 export const createDeal = async (
   values: FormValues,
   salonId: string | undefined,
-  setDeals: (deals: Deal[] | ((prevDeals: Deal[]) => Deal[])) => void,
+  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
   isCreatingDeal: { current: boolean },
   isMountedRef: { current: boolean }
 ): Promise<boolean> => {

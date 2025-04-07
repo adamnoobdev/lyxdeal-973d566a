@@ -65,7 +65,7 @@ export const SalonDeals: React.FC = () => {
     console.log("[SalonDeals] Creating new deal, dialog opened");
   }, [setEditingDeal, setIsDialogOpen]);
 
-  // Handle form submission for a new deal - Modified to return void instead of boolean
+  // Handle form submission for a new deal - Changed to have void return type
   const handleCreateSubmit = useCallback(async (values: FormValues): Promise<void> => {
     if (isProcessingAction) {
       return;
