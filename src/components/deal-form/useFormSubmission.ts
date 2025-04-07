@@ -2,7 +2,7 @@
 import { useState, useCallback } from "react";
 import { FormValues } from "./schema";
 import { toast } from "sonner";
-import { useDealFormContext } from "./DealFormContext";
+import { useDealForm } from "./DealFormContext";
 
 interface UseFormSubmissionReturnType {
   handleSubmit: (values: FormValues) => Promise<void>;
@@ -21,7 +21,7 @@ export const useFormSubmission = (
   let isContextAvailable = true;
   
   try {
-    contextValues = useDealFormContext();
+    contextValues = useDealForm();
   } catch (error) {
     isContextAvailable = false;
     contextValues = {

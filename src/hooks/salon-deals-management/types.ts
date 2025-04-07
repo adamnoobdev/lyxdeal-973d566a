@@ -1,5 +1,6 @@
 
 import { Deal } from "@/components/admin/types";
+import { FormValues } from "@/components/deal-form/schema";
 
 export interface UseSalonDealsReturn {
   deals: Deal[];
@@ -12,7 +13,8 @@ export interface UseSalonDealsReturn {
   setEditingDeal: (deal: Deal | null) => void;
   setDeletingDeal: (deal: Deal | null) => void;
   handleDelete: () => Promise<void>;
-  handleUpdate: (values: any) => Promise<void>;
+  handleUpdate: (values: FormValues) => Promise<boolean>;
+  handleCreate?: (values: FormValues) => Promise<boolean>; // Add this field
   handleToggleActive: (deal: Deal) => Promise<void>;
-  refetch: () => Promise<unknown>;
+  refetch: () => Promise<void>;
 }

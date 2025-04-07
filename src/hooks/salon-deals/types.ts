@@ -10,4 +10,5 @@ export interface UseSalonDealsResult {
   createDeal: (values: FormValues) => Promise<boolean>;
   updateDeal: (values: FormValues, dealId: number) => Promise<boolean>;
   deleteDeal: (dealId: number) => Promise<boolean>;
+  refetch?: () => Promise<void>;
 }

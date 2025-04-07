@@ -1,13 +1,13 @@
 
 import { Button } from "@/components/ui/button";
-import { useDealFormContext } from "./DealFormContext";
+import { useDealForm } from "./DealFormContext";
 import { useState } from "react";
 
 export const DealFormSubmitButton = () => {
   // Use a try-catch to handle case where context is not available
   let contextValues;
   try {
-    contextValues = useDealFormContext();
+    contextValues = useDealForm();
   } catch (error) {
     // Use fallback state
     console.warn("[DealFormSubmitButton] DealFormContext not available, using fallback values");

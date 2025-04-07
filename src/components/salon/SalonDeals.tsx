@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { toast } from "sonner";
+import { FormValues } from '@/components/deal-form/schema';
 
 export const SalonDeals: React.FC = () => {
   const {
@@ -33,7 +34,7 @@ export const SalonDeals: React.FC = () => {
     setEditingDeal, 
     setDeletingDeal,
     handleUpdate,
-    createDeal,
+    handleCreate: createDealFn, // Rename to avoid confusion with our handleCreateDeal function
     refetch
   } = dealManagement;
 
@@ -64,29 +65,31 @@ export const SalonDeals: React.FC = () => {
     console.log("[SalonDeals] Creating new deal, dialog opened");
   }, [setEditingDeal, setIsDialogOpen]);
 
-  // Handle form submission for a new deal
-  const handleCreateSubmit = useCallback(async (values: any) => {
+  // Handle form submission for a new deal - returns a boolean for success/failure
+  const handleCreateSubmit = useCallback(async (values: FormValues): Promise<boolean> => {
     if (isProcessingAction) {
-      return;
+      return false;
     }
     
     try {
       setIsProcessingAction(true);
       console.log("[SalonDeals] Submitting new deal creation");
       
-      const success = await createDeal(values);
+      const success = await createDealFn(values);
       if (success) {
         toast.success("Erbjudandet har skapats!");
         setIsDialogOpen(false);
         await refetch();
       }
+      return success;
     } catch (error) {
       console.error("[SalonDeals] Error creating deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+      return false;
     } finally {
       setIsProcessingAction(false);
     }
-  }, [isProcessingAction, setIsProcessingAction, createDeal, setIsDialogOpen, refetch]);
+  }, [isProcessingAction, setIsProcessingAction, createDealFn, setIsDialogOpen, refetch]);
 
   return (
     <SalonLayout>
