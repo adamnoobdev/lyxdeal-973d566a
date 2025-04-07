@@ -1,77 +1,74 @@
 
-import React, { useState } from 'react';
-import { PlusCircle } from 'lucide-react';
-import { Deal } from '@/types/deal';
-import { Button } from '@/components/ui/button';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus } from "lucide-react";
+import { Deal } from "@/components/admin/types";
+import { DiscountCodesGenerationDialog } from "@/components/discount-codes/DiscountCodesGenerationDialog";
 
 interface DiscountCodesGeneratorProps {
   deal: Deal | null;
   onGenerateDiscountCodes?: (deal: Deal, quantity: number) => Promise<void>;
+  isGeneratingCodes?: boolean;
 }
 
-export const DiscountCodesGenerator = ({ 
-  deal, 
-  onGenerateDiscountCodes 
+export const DiscountCodesGenerator = ({
+  deal,
+  onGenerateDiscountCodes,
+  isGeneratingCodes = false
 }: DiscountCodesGeneratorProps) => {
-  const [quantity, setQuantity] = useState<string>("10");
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const handleGenerateDiscountCodes = async () => {
-    if (!deal || !onGenerateDiscountCodes || isGenerating) return;
-    
-    try {
-      setIsGenerating(true);
-      await onGenerateDiscountCodes(deal, parseInt(quantity));
-    } catch (error) {
-      console.error("Error generating discount codes:", error);
-    } finally {
-      setIsGenerating(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  if (!deal || !onGenerateDiscountCodes) return null;
+  
+  const handleOpenDialog = () => {
+    setIsDialogOpen(true);
+  };
+  
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
+  
+  const handleGenerate = (quantity: number) => {
+    if (deal) {
+      onGenerateDiscountCodes(deal, quantity);
     }
   };
 
   return (
-    <div className="flex flex-col space-y-4">
-      <h3 className="text-sm font-medium">Generera fler rabattkoder</h3>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
-        <div className="sm:col-span-2">
-          <Label htmlFor="quantity">Antal koder</Label>
-          <Select 
-            value={quantity} 
-            onValueChange={setQuantity}
-          >
-            <SelectTrigger id="quantity">
-              <SelectValue placeholder="Välj antal" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="5">5 koder</SelectItem>
-              <SelectItem value="10">10 koder</SelectItem>
-              <SelectItem value="20">20 koder</SelectItem>
-              <SelectItem value="50">50 koder</SelectItem>
-              <SelectItem value="100">100 koder</SelectItem>
-            </SelectContent>
-          </Select>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-medium text-sm">Generera nya rabattkoder</h3>
+          <p className="text-sm text-muted-foreground">
+            Skapa fler rabattkoder för detta erbjudande
+          </p>
         </div>
         
-        <div className="sm:col-span-2">
-          <Button 
-            onClick={handleGenerateDiscountCodes}
-            disabled={isGenerating}
-            className="w-full"
-          >
-            <PlusCircle className={`h-4 w-4 mr-2 ${isGenerating ? "animate-spin" : ""}`} />
-            Generera rabattkoder
-          </Button>
-        </div>
+        <Button 
+          onClick={handleOpenDialog}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1.5"
+          disabled={isGeneratingCodes}
+        >
+          {isGeneratingCodes ? (
+            <span>Genererar...</span>
+          ) : (
+            <>
+              <Plus className="h-4 w-4" />
+              <span>Generera koder</span>
+            </>
+          )}
+        </Button>
       </div>
+      
+      <DiscountCodesGenerationDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        onGenerate={handleGenerate}
+        dealTitle={deal.title}
+      />
     </div>
   );
 };
