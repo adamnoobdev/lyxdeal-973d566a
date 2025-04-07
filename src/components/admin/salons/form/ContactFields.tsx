@@ -11,6 +11,12 @@ interface ContactFieldsProps {
 }
 
 export const ContactFields = ({ form, includeSubscriptionFields = false }: ContactFieldsProps) => {
+  // Kontrollera om skipSubscription är markerad
+  const skipSubscription = form.watch("skipSubscription");
+  
+  // Visa prenumerationsfält om includeSubscriptionFields är true ELLER om skipSubscription är markerad
+  const showSubscriptionFields = includeSubscriptionFields || skipSubscription;
+
   return (
     <>
       <FormField
@@ -71,7 +77,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
         />
       </div>
 
-      {includeSubscriptionFields && (
+      {showSubscriptionFields && (
         <>
           <FormField
             control={form.control}

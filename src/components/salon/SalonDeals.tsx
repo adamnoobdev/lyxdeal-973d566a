@@ -1,138 +1,156 @@
 
-import React, { useState, useCallback } from 'react';
-import { SalonLayout } from './layout/SalonLayout';
-import { useSalonDealsState } from './deals/useSalonDealsState';
-import { useDealHandlers } from './deals/useDealHandlers';
-import { SalonDealsContent } from './deals/SalonDealsContent';
-import { SalonDealsDialogs } from './deals/SalonDealsDialogs';
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { Helmet } from "react-helmet";
-import { toast } from "sonner";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
+import { DealsSection } from '@/components/salon/DealsSection';
+import { SalonDealsDialogs } from '@/components/salon/deals/SalonDealsDialogs';
+import { useSalonDeals } from '@/hooks/salon-deals';
 import { FormValues } from '@/components/deal-form/schema';
+import { Deal } from '@/components/admin/types';
+import { Skeleton } from '@/components/ui/skeleton';
+import { SalonDealsContent } from '@/components/salon/deals/SalonDealsContent';
+import { useSalonDealsState } from '@/components/salon/deals/useSalonDealsState';
+import { useDealHandlers } from '@/components/salon/deals/useDealHandlers';
 
-export const SalonDeals: React.FC = () => {
+export const SalonDeals = () => {
   const {
-    dealManagement,
-    viewingCodesForDeal,
-    setViewingCodesForDeal,
-    isProcessingAction,
-    setIsProcessingAction,
-    isGeneratingCodes,
-    setIsGeneratingCodes,
+    deals = [],
+    activeDeals = [],
+    inactiveDeals = [],
+    isLoading,
+    error,
+    refetch
+  } = useSalonDeals();
+  
+  const {
+    editingDeal,
+    setEditingDeal,
     isDialogOpen,
-    setIsDialogOpen,
-    isClosingCodesDialog,
-    setIsClosingCodesDialog
+    setIsDialogOpen
   } = useSalonDealsState();
   
-  const { 
-    deals, 
-    isLoading, 
-    error, 
-    editingDeal, 
-    setEditingDeal, 
-    setDeletingDeal,
-    handleUpdate,
-    handleCreate,
-    refetch
-  } = dealManagement;
-
   const {
-    handleViewDiscountCodes,
-    handleCloseDiscountCodesDialog,
-    handleEditDeal,
-    handleCloseDealDialog,
+    handleCreateSubmit,
     handleUpdateDeal,
-    handleGenerateDiscountCodes
-  } = useDealHandlers(
-    setViewingCodesForDeal,
-    setEditingDeal,
-    setIsDialogOpen,
-    handleUpdate,
-    refetch,
-    isProcessingAction,
-    setIsProcessingAction,
-    isGeneratingCodes,
-    setIsGeneratingCodes,
-    setIsClosingCodesDialog
-  );
+    handleDeleteDeal,
+    handleViewDiscountCodes,
+    handleGenerateDiscountCodes,
+    isGeneratingCodes
+  } = useDealHandlers(refetch);
 
-  // Handle creating a new deal
-  const handleCreateDeal = useCallback(() => {
-    setEditingDeal(null); 
+  const [viewingCodesFor, setViewingCodesFor] = useState<Deal | null>(null);
+  const [isCodesDialogOpen, setIsCodesDialogOpen] = useState(false);
+
+  const openNewDealDialog = () => {
+    setEditingDeal(null);
     setIsDialogOpen(true);
-    console.log("[SalonDeals] Creating new deal, dialog opened");
-  }, [setEditingDeal, setIsDialogOpen]);
+  };
 
-  // Handle form submission for a new deal with void return type
-  const handleCreateSubmit = useCallback(async (values: FormValues): Promise<void> => {
-    if (isProcessingAction) {
-      return;
-    }
-    
-    try {
-      setIsProcessingAction(true);
-      console.log("[SalonDeals] Submitting new deal creation");
-      
-      if (!handleCreate) {
-        toast.error("Kunde inte skapa erbjudandet: Funktionen är inte tillgänglig");
-        return;
-      }
-      
-      // Call handleCreate but don't use the boolean result
-      await handleCreate(values);
-      toast.success("Erbjudandet har skapats!");
-      setIsDialogOpen(false);
-      await refetch();
-    } catch (error) {
-      console.error("[SalonDeals] Error creating deal:", error);
-      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
-    } finally {
-      setIsProcessingAction(false);
-    }
-  }, [isProcessingAction, setIsProcessingAction, handleCreate, setIsDialogOpen, refetch]);
+  const closeDealDialog = () => {
+    setIsDialogOpen(false);
+    setEditingDeal(null);
+  };
+
+  const openCodesDialog = (deal: Deal) => {
+    setViewingCodesFor(deal);
+    setIsCodesDialogOpen(true);
+  };
+
+  const closeCodesDialog = () => {
+    setViewingCodesFor(null);
+    setIsCodesDialogOpen(false);
+  };
+
+  const onEdit = (deal: Deal) => {
+    setEditingDeal(deal);
+    setIsDialogOpen(true);
+  };
+
+  const onDelete = async (deal: Deal) => {
+    await handleDeleteDeal(deal);
+  };
+
+  const onViewDiscountCodes = async (deal: Deal) => {
+    openCodesDialog(deal);
+    await handleViewDiscountCodes(deal);
+  };
+
+  const onGenerateDiscountCodes = async (deal: Deal, quantity: number) => {
+    await handleGenerateDiscountCodes(deal, quantity);
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-10 w-36" />
+        </div>
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
 
   return (
-    <SalonLayout>
-      <Helmet>
-        <title>Erbjudanden | Min Salong</title>
-      </Helmet>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">Hantera Erbjudanden</h1>
-          <Button 
-            onClick={handleCreateDeal} 
-            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Skapa erbjudande
-          </Button>
-        </div>
-        
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Dina erbjudanden</h1>
+        <Button 
+          onClick={openNewDealDialog}
+          className="text-xs sm:text-sm flex gap-1.5"
+          size="sm"
+        >
+          <PlusCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span>Nytt erbjudande</span>
+        </Button>
+      </div>
+
+      {error ? (
+        <Card className="border-destructive bg-destructive/5">
+          <CardContent className="pt-6">
+            <p className="text-destructive">{error}</p>
+          </CardContent>
+        </Card>
+      ) : deals.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6 flex flex-col items-center justify-center py-12">
+            <p className="text-muted-foreground mb-4">Du har inte skapat några erbjudanden än</p>
+            <Button onClick={openNewDealDialog} className="flex items-center gap-2">
+              <PlusCircle className="h-5 w-5" /> 
+              Skapa ditt första erbjudande
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
         <SalonDealsContent
           deals={deals}
           isLoading={isLoading}
-          error={error}
-          onEdit={handleEditDeal}
-          onDelete={setDeletingDeal}
-          onViewDiscountCodes={handleViewDiscountCodes}
-          onGenerateDiscountCodes={handleGenerateDiscountCodes}
+          error={error ? String(error) : null}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onViewDiscountCodes={onViewDiscountCodes}
+          onGenerateDiscountCodes={onGenerateDiscountCodes}
           isGeneratingCodes={isGeneratingCodes}
         />
+      )}
 
-        <SalonDealsDialogs
-          editingDeal={editingDeal}
-          isDialogOpen={isDialogOpen}
-          onCloseDealDialog={handleCloseDealDialog}
-          onUpdateDeal={handleUpdateDeal}
-          viewingCodesForDeal={viewingCodesForDeal}
-          isClosingCodesDialog={isClosingCodesDialog}
-          onCloseDiscountCodesDialog={handleCloseDiscountCodesDialog}
-          onGenerateDiscountCodes={handleGenerateDiscountCodes}
-          onCreateDeal={handleCreateSubmit}
-        />
-      </div>
-    </SalonLayout>
+      <SalonDealsDialogs
+        editingDeal={editingDeal}
+        isDialogOpen={isDialogOpen}
+        onCloseDealDialog={closeDealDialog}
+        onUpdateDeal={handleUpdateDeal}
+        isCodesDialogOpen={isCodesDialogOpen}
+        viewingCodesFor={viewingCodesFor}
+        onCloseCodesDialog={closeCodesDialog}
+        onCreateDeal={handleCreateSubmit}
+        onGenerateDiscountCodes={onGenerateDiscountCodes}
+        isGeneratingCodes={isGeneratingCodes}
+      />
+    </div>
   );
 };

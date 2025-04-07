@@ -30,7 +30,7 @@ interface SalonFormProps {
   onSubmit: (values: any) => Promise<void>;
   initialValues?: any;
   isEditing?: boolean;
-  isSubmitting?: boolean; // Add this prop to fix the type error
+  isSubmitting?: boolean;
 }
 
 export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: externalIsSubmitting }: SalonFormProps) => {
@@ -83,7 +83,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
         <BasicInfoFields form={form} />
         <ContactFields 
           form={form} 
-          includeSubscriptionFields={!isEditing && !skipSubscription} 
+          includeSubscriptionFields={!isEditing}
         />
         
         {isEditing && <TermsFields form={form} />}
