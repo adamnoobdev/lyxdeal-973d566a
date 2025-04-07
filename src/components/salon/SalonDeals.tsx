@@ -65,7 +65,7 @@ export const SalonDeals: React.FC = () => {
     console.log("[SalonDeals] Creating new deal, dialog opened");
   }, [setEditingDeal, setIsDialogOpen]);
 
-  // Handle form submission for a new deal - Changed to have void return type
+  // Handle form submission for a new deal with void return type
   const handleCreateSubmit = useCallback(async (values: FormValues): Promise<void> => {
     if (isProcessingAction) {
       return;
@@ -80,6 +80,7 @@ export const SalonDeals: React.FC = () => {
         return;
       }
       
+      // Call handleCreate but don't use the boolean result
       await handleCreate(values);
       toast.success("Erbjudandet har skapats!");
       setIsDialogOpen(false);

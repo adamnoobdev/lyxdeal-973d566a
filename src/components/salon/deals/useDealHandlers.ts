@@ -32,8 +32,8 @@ export const useDealHandlers = (
     }, 200);
   }, [setIsDialogOpen, setEditingDeal, isProcessingAction]);
 
-  const handleUpdateDeal = useCallback(async (values: FormValues): Promise<boolean> => {
-    if (isProcessingAction) return false;
+  const handleUpdateDeal = useCallback(async (values: FormValues): Promise<void> => {
+    if (isProcessingAction) return;
     
     try {
       setIsProcessingAction(true);
@@ -43,13 +43,10 @@ export const useDealHandlers = (
       if (success) {
         await refetch();
         setIsDialogOpen(false);
-        return true;
       }
-      return false;
     } catch (error) {
       console.error("[useDealHandlers] Error updating deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
-      return false;
     } finally {
       setIsProcessingAction(false);
     }
