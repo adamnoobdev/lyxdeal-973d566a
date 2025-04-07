@@ -10,7 +10,7 @@ import { UseSalonDealsResult } from "./types";
 export const useSalonDeals = (
   salonId: number | undefined
 ): UseSalonDealsResult => {
-  const { data: deals = [], refetch } = useQuery({
+  const { data: deals = [], refetch, isLoading, error } = useQuery({
     queryKey: ['salon-deals', salonId],
     queryFn: async () => {
       if (!salonId) throw new Error("No salon ID available");
@@ -46,14 +46,21 @@ export const useSalonDeals = (
   const pendingDeals = deals.filter(deal => deal.status === 'pending');
   const approvedDeals = deals.filter(deal => deal.status === 'approved');
   const rejectedDeals = deals.filter(deal => deal.status === 'rejected');
+  const activeDeals = deals.filter(deal => deal.is_active);
+  const inactiveDeals = deals.filter(deal => !deal.is_active);
 
   return {
     deals,
     pendingDeals,
     approvedDeals,
     rejectedDeals,
+    activeDeals,
+    inactiveDeals,
+    isLoading,
+    error: error ? String(error) : null,
     createDeal: handleCreateDeal,
     updateDeal: handleUpdateDeal,
     deleteDeal: handleDeleteDeal,
+    refetch,
   };
 };

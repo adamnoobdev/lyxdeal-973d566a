@@ -21,13 +21,19 @@ export const SalonDeals = () => {
     isLoading,
     error,
     refetch
-  } = useSalonDeals();
+  } = useSalonDeals(0); // Pass default salon ID or get from context
   
   const {
     editingDeal,
     setEditingDeal,
     isDialogOpen,
-    setIsDialogOpen
+    setIsDialogOpen,
+    viewingCodesForDeal,
+    setViewingCodesForDeal,
+    isClosingCodesDialog,
+    setIsClosingCodesDialog,
+    isGeneratingCodes,
+    setIsGeneratingCodes
   } = useSalonDealsState();
   
   const {
@@ -35,12 +41,8 @@ export const SalonDeals = () => {
     handleUpdateDeal,
     handleDeleteDeal,
     handleViewDiscountCodes,
-    handleGenerateDiscountCodes,
-    isGeneratingCodes
+    handleGenerateDiscountCodes
   } = useDealHandlers(refetch);
-
-  const [viewingCodesFor, setViewingCodesFor] = useState<Deal | null>(null);
-  const [isCodesDialogOpen, setIsCodesDialogOpen] = useState(false);
 
   const openNewDealDialog = () => {
     setEditingDeal(null);
@@ -53,13 +55,12 @@ export const SalonDeals = () => {
   };
 
   const openCodesDialog = (deal: Deal) => {
-    setViewingCodesFor(deal);
-    setIsCodesDialogOpen(true);
+    setViewingCodesForDeal(deal);
   };
 
   const closeCodesDialog = () => {
-    setViewingCodesFor(null);
-    setIsCodesDialogOpen(false);
+    setViewingCodesForDeal(null);
+    setIsClosingCodesDialog(false);
   };
 
   const onEdit = (deal: Deal) => {
@@ -81,7 +82,7 @@ export const SalonDeals = () => {
   };
 
   useEffect(() => {
-    refetch();
+    refetch?.();
   }, [refetch]);
 
   if (isLoading) {
@@ -144,10 +145,10 @@ export const SalonDeals = () => {
         isDialogOpen={isDialogOpen}
         onCloseDealDialog={closeDealDialog}
         onUpdateDeal={handleUpdateDeal}
-        isCodesDialogOpen={isCodesDialogOpen}
-        viewingCodesFor={viewingCodesFor}
-        onCloseCodesDialog={closeCodesDialog}
         onCreateDeal={handleCreateSubmit}
+        isCodesDialogOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
+        viewingCodesFor={viewingCodesForDeal}
+        onCloseCodesDialog={closeCodesDialog}
         onGenerateDiscountCodes={onGenerateDiscountCodes}
         isGeneratingCodes={isGeneratingCodes}
       />

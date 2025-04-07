@@ -36,8 +36,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
         key={`deal-dialog-${editingDeal?.id || 'new'}`}
         isOpen={isDialogOpen}
         onClose={onCloseDealDialog}
-        onUpdate={onUpdateDeal}
-        onCreate={onCreateDeal}
+        onSubmit={editingDeal ? onUpdateDeal : onCreateDeal}
         deal={editingDeal}
       />
       
@@ -47,7 +46,6 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
         onClose={onCloseCodesDialog}
         deal={viewingCodesFor}
         onGenerateDiscountCodes={onGenerateDiscountCodes}
-        isGeneratingCodes={isGeneratingCodes}
       />
     </>
   );

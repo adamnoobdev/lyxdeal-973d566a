@@ -13,6 +13,7 @@ export const useSalonDealsState = () => {
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
+  const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   
   // Fetch salon ID for current user
   useEffect(() => {
@@ -61,6 +62,8 @@ export const useSalonDealsState = () => {
     isDialogOpen,
     setIsDialogOpen,
     isClosingCodesDialog,
-    setIsClosingCodesDialog
+    setIsClosingCodesDialog,
+    editingDeal,
+    setEditingDeal
   };
 };

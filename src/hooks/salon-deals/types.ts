@@ -7,6 +7,10 @@ export interface UseSalonDealsResult {
   pendingDeals: Deal[];
   approvedDeals: Deal[];
   rejectedDeals: Deal[];
+  activeDeals: Deal[];  // Added property
+  inactiveDeals: Deal[]; // Added property
+  isLoading: boolean;   // Added property
+  error: string | null; // Added property
   createDeal: (values: FormValues) => Promise<boolean>;
   updateDeal: (values: FormValues, dealId: number) => Promise<boolean>;
   deleteDeal: (dealId: number) => Promise<boolean>;
