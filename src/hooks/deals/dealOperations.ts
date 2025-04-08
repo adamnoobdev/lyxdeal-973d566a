@@ -1,7 +1,7 @@
 
 import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";
-import { DealUpdateValues } from "./dealTypes";
+import { FormValues } from "@/components/deal-form/schema";
 import { 
   deleteSalonDeal, 
   updateSalonDeal, 
@@ -65,12 +65,12 @@ export const deleteDeal = async (
 
 export const updateDeal = async (
   editingDeal: Deal | null,
-  values: any,
+  values: FormValues,
   setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
   setEditingDeal: (deal: Deal | null) => void,
   isUpdatingDeal: React.MutableRefObject<boolean>,
   isMountedRef: React.MutableRefObject<boolean>
-): Promise<void> => {
+): Promise<boolean | void> => {
   if (!editingDeal || !isMountedRef.current || isUpdatingDeal.current) {
     console.log("Skipping update: no deal, unmounted, or already updating");
     return;
@@ -84,7 +84,7 @@ export const updateDeal = async (
     const discountedPrice = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPrice === 0;
     
-    const updateValues: DealUpdateValues = {
+    const updateValues = {
       title: values.title,
       description: values.description,
       imageUrl: values.imageUrl,
@@ -128,11 +128,13 @@ export const updateDeal = async (
       ));
       setEditingDeal(null);
     }
+    return true;
   } catch (err: any) {
     console.error("Error updating deal:", err);
     if (isMountedRef.current) {
       toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
     }
+    return false;
   } finally {
     isUpdatingDeal.current = false;
   }

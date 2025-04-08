@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";
+import { FormValues } from "@/components/deal-form/schema";
 
 export interface DealUpdateValues {
   title: string;
