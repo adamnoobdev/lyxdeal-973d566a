@@ -97,7 +97,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
         onUpdate={async (values) => {
           try {
             const success = await dealManagement.handleUpdate(values);
-            if (!success) {
+            if (success === false) { // Check explicitly against false
               toast.error("Det gick inte att uppdatera erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
             }
           } catch (error) {
@@ -113,13 +113,18 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
             });
             
             // Ensure salon_id is included in the values
-            const success = await dealManagement.handleCreate({
-              ...values,
-              salon_id: parseInt(salonId || "0", 10)
-            });
-            
-            if (!success) {
-              toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+            if (dealManagement.handleCreate) {
+              const success = await dealManagement.handleCreate({
+                ...values,
+                salon_id: parseInt(salonId || "0", 10)
+              });
+              
+              if (success === false) { // Check explicitly against false
+                toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+              }
+            } else {
+              console.error("handleCreate function not available in dealManagement");
+              toast.error("Ett systemfel uppstod. Kontakta support.");
             }
           } catch (error) {
             console.error("Error creating deal:", error);
