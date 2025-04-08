@@ -2,7 +2,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";
-import { RefObject } from "react";
 
 export const loadSalonDeals = async (
   salonId: string | undefined,
