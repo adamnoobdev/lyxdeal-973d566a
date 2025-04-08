@@ -30,11 +30,17 @@ const DealsGridComponent = ({ deals, className = "", scrollable = false, compact
     );
   }
 
+  // Use different column layouts for search-results-grid
+  const isSearchGrid = className?.includes('search-results-grid');
+  const gridColumns = isSearchGrid 
+    ? "grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" 
+    : "grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6";
+
   return (
     <ResponsiveGrid 
       className={className} 
       gap="gap-3 sm:gap-4" 
-      columns="grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6"
+      columns={gridColumns}
     >
       {deals.map((deal) => (
         <DealCard
