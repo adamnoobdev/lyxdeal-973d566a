@@ -7,6 +7,7 @@ import { DealSheetContent } from "./dialogs/DealSheetContent";
 import { FormValues } from "@/components/deal-form/schema";
 import { supabase } from "@/integrations/supabase/client";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { toast } from "sonner";
 
 interface DealDialogProps {
   isOpen: boolean;
@@ -71,8 +72,13 @@ export const DealDialog: React.FC<DealDialogProps> = ({
   }, [isOpen, initialValues]);
   
   const handleSubmit = async (values: FormValues) => {
+    if (isSubmitting) {
+      console.log("[DealDialog] Submission already in progress, ignoring");
+      return;
+    }
+    
     try {
-      console.log("DealDialog - Starting form submission");
+      console.log("[DealDialog] Starting form submission");
       setIsSubmitting(true);
       
       // Kontrollera att vi inte har missat att sätta salon_id
@@ -88,30 +94,42 @@ export const DealDialog: React.FC<DealDialogProps> = ({
               
             if (salonData?.id) {
               values.salon_id = salonData.id;
-              console.log("DealDialog - Found and set salon_id:", salonData.id);
+              console.log("[DealDialog] Found and set salon_id:", salonData.id);
             }
           }
         } catch (error) {
-          console.error("DealDialog - Error fetching salon ID:", error);
+          console.error("[DealDialog] Error fetching salon ID:", error);
+          toast.error("Kunde inte hitta salong-ID. Vänligen försök igen senare.");
+          setIsSubmitting(false);
+          return;
         }
       }
       
-      console.log("DealDialog - Submitting with values:", values);
+      if (!values.salon_id) {
+        console.error("[DealDialog] No salon ID available");
+        toast.error("Kunde inte hitta salong-ID. Försök logga ut och in igen.");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      console.log("[DealDialog] Submitting with values:", values);
       
       // Call the parent onSubmit and wait for result
       const result = await onSubmit(values);
       
-      console.log("DealDialog - Submission result:", result);
+      console.log("[DealDialog] Submission result:", result);
       
       // Only close dialog if submission was successful (result is not explicitly false)
       if (result !== false) {
-        console.log("DealDialog - Submission successful, closing dialog");
+        console.log("[DealDialog] Submission successful, closing dialog");
         onClose();
       } else {
-        console.log("DealDialog - Submission failed, keeping dialog open");
+        console.log("[DealDialog] Submission failed, keeping dialog open");
+        toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
       }
     } catch (error) {
-      console.error("DealDialog - Error during submission:", error);
+      console.error("[DealDialog] Error during submission:", error);
+      toast.error("Ett fel uppstod. Vänligen försök igen senare.");
     } finally {
       setIsSubmitting(false);
     }
@@ -121,7 +139,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
   if (isMobile) {
     return (
       <Sheet open={isOpen} onOpenChange={(open) => {
-        if (!open) onClose();
+        if (!open && !isSubmitting) onClose();
       }}>
         <SheetContent side="bottom" className="h-[90%] sm:max-w-md rounded-t-xl">
           <DealSheetContent
@@ -139,7 +157,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) onClose();
+      if (!open && !isSubmitting) onClose();
     }}>
       <DialogContent className="sm:max-w-md">
         <DealDialogContent

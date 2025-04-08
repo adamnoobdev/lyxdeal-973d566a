@@ -5,6 +5,7 @@ import { UseSalonDealsReturn } from "./types";
 import { deleteDeal, updateDeal, toggleActive, createDeal } from "./dealOperations";
 import { loadSalonDeals } from "./loadDeals";
 import { FormValues } from "@/components/deal-form/schema";
+import { toast } from "sonner";
 
 export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDealsReturn => {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -22,29 +23,49 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
   const previousSalonId = useRef<string | undefined>(undefined);
   const loadAttempts = useRef<number>(0);
 
+  // For debugging
+  useEffect(() => {
+    console.log("[useSalonDealsManagement] Initialized with salonId:", salonId);
+  }, [salonId]);
+
   // Wrapper function to load salon deals
   const fetchSalonDeals = useCallback(async () => {
-    await loadSalonDeals(
-      salonId,
-      setDeals,
-      setError,
-      setIsLoading,
-      isLoadingDeals,
-      isMountedRef,
-      loadAttempts
-    );
+    if (!salonId) {
+      console.log("[useSalonDealsManagement] No salon ID provided, skipping fetch");
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      console.log("[useSalonDealsManagement] Fetching deals for salon ID:", salonId);
+      await loadSalonDeals(
+        salonId,
+        setDeals,
+        setError,
+        setIsLoading,
+        isLoadingDeals,
+        isMountedRef,
+        loadAttempts
+      );
+    } catch (error) {
+      console.error("[useSalonDealsManagement] Error in fetchSalonDeals:", error);
+      if (isMountedRef.current) {
+        setError("Ett fel uppstod när erbjudanden skulle hämtas.");
+        setIsLoading(false);
+      }
+    }
   }, [salonId]);
 
   // Explicit refetch function to expose to consumers
   const refetch = useCallback(async () => {
-    console.log("[useSalonDealsManagement] Refetching deals");
+    console.log("[useSalonDealsManagement] Refetching deals for salon ID:", salonId);
     // Reset attempt counter to ensure we can refetch even after previous failures
     loadAttempts.current = 0;
     await fetchSalonDeals();
-  }, [fetchSalonDeals]);
+  }, [fetchSalonDeals, salonId]);
 
   // Handler for deleting a deal
-  const handleDeleteDeal = useCallback(async () => {
+  const handleDelete = useCallback(async () => {
     await deleteDeal(
       deletingDeal,
       setDeals,
@@ -77,37 +98,24 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
       console.log("[useSalonDealsManagement] Creating deal with salonId:", salonId);
       console.log("[useSalonDealsManagement] Form values:", values);
       
-      if (!salonId) {
+      if (!salonId && !values.salon_id) {
         console.error("[useSalonDealsManagement] No salon ID provided");
+        toast.error("Kunde inte identifiera salongen.");
         return false;
       }
       
-      // Ensure salon_id is set in values
-      const formValues = {
-        ...values,
-        salon_id: values.salon_id || parseInt(salonId, 10)
-      };
-      
-      console.log("[useSalonDealsManagement] Adjusted form values:", formValues);
-      
-      const success = await createDeal(
-        formValues,
+      return await createDeal(
+        values,
         salonId,
         setDeals,
         isCreatingDeal,
         isMountedRef
       );
-      
-      if (success) {
-        await refetch();
-      }
-      
-      return success;
     } catch (error) {
       console.error("[useSalonDealsManagement] Error creating deal:", error);
       return false;
     }
-  }, [salonId, refetch]);
+  }, [salonId]);
 
   // Handler for toggling deal active status
   const handleToggleActive = useCallback(async (deal: Deal) => {
@@ -119,15 +127,15 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     isMountedRef.current = true;
     console.log("[useSalonDealsManagement] Mounting with salon ID:", salonId);
     
-    // Only load deals if salonId has changed
+    // Load deals when component mounts or salonId changes
     if (salonId && previousSalonId.current !== salonId) {
-      console.log(`SalonId changed from ${previousSalonId.current} to ${salonId}, reloading deals`);
+      console.log(`[useSalonDealsManagement] SalonId changed from ${previousSalonId.current} to ${salonId}, reloading deals`);
       previousSalonId.current = salonId;
       fetchSalonDeals();
     }
     
     return () => {
-      console.log("useSalonDealsManagement unmounting");
+      console.log("[useSalonDealsManagement] Unmounting");
       isMountedRef.current = false;
     };
   }, [salonId, fetchSalonDeals]);
@@ -146,7 +154,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     deletingDeal,
     setEditingDeal,
     setDeletingDeal,
-    handleDelete: handleDeleteDeal,
+    handleDelete,
     handleUpdate,
     handleCreate,
     handleToggleActive,

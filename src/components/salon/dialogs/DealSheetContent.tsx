@@ -13,7 +13,8 @@ import { AdditionalFields } from '@/components/deal-form/AdditionalFields';
 import { useDealDialogForm } from './useDealDialogForm';
 import { FormValues } from '@/components/deal-form/schema';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { LoadingButton } from '@/components/ui/loading-button';
 
 interface DealSheetContentProps {
   isEditing: boolean;
@@ -66,6 +67,7 @@ export const DealSheetContent: React.FC<DealSheetContentProps> = ({
               
             if (salonData?.id) {
               data.salon_id = salonData.id;
+              console.log("Retrieved salon_id:", salonData.id);
             }
           }
         } catch (error) {
@@ -73,9 +75,10 @@ export const DealSheetContent: React.FC<DealSheetContentProps> = ({
         }
       }
       
+      console.log("Submitting form data from sheet:", data);
       await onSubmit(data);
     } catch (error) {
-      console.error("Error submitting deal:", error);
+      console.error("Error submitting deal from sheet:", error);
     }
   };
 
@@ -135,14 +138,14 @@ export const DealSheetContent: React.FC<DealSheetContentProps> = ({
               >
                 Avbryt
               </Button>
-              <Button 
+              <LoadingButton 
                 type="submit" 
-                disabled={isSubmitting}
+                loading={isSubmitting}
                 onClick={methods.handleSubmit(handleSubmit)}
                 className="w-full sm:w-auto mb-2 sm:mb-0"
               >
-                {isSubmitting ? "Sparar..." : (isEditing ? "Uppdatera" : "Skapa")}
-              </Button>
+                {isEditing ? "Uppdatera" : "Skapa"}
+              </LoadingButton>
             </div>
           </form>
         </FormProvider>

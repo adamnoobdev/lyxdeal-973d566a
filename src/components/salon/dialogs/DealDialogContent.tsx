@@ -12,7 +12,7 @@ import { QuantityField } from '@/components/deal-form/QuantityField';
 import { AdditionalFields } from '@/components/deal-form/AdditionalFields';
 import { useDealDialogForm } from './useDealDialogForm';
 import { FormValues } from '@/components/deal-form/schema';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface DealDialogContentProps {
@@ -73,6 +73,7 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
         }
       }
       
+      console.log("Submitting form data:", data);
       await onSubmit(data);
     } catch (error) {
       console.error("Error submitting deal:", error);
@@ -143,7 +144,14 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
           onClick={methods.handleSubmit(handleSubmit)}
           className="ml-2"
         >
-          {isSubmitting ? "Sparar..." : (isEditing ? "Uppdatera" : "Skapa")}
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {isEditing ? "Uppdaterar..." : "Skapar..."}
+            </>
+          ) : (
+            isEditing ? "Uppdatera" : "Skapa"
+          )}
         </Button>
       </DialogFooter>
     </>

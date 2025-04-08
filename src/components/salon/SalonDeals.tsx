@@ -29,10 +29,13 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
     salonId
   } = useSalonDealsState();
 
+  const [lastError, setLastError] = useState<string | null>(null);
+
   // Logga salonId för att felsöka problem
   useEffect(() => {
     console.log("SalonDeals component - Current salon ID:", salonId);
-  }, [salonId]);
+    console.log("SalonDeals component - handleCreate available:", !!dealManagement.handleCreate);
+  }, [salonId, dealManagement.handleCreate]);
 
   // Synchronize dialog state with external control
   useEffect(() => {
@@ -44,6 +47,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
   // When dialog closes, notify parent component
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
+    setEditingDeal(null);
     if (onCloseCreateDialog) {
       onCloseCreateDialog();
     }
@@ -100,13 +104,18 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
             const success = await dealManagement.handleUpdate(values);
             // Check specifically if success is false (not just any falsy value)
             if (success === false) {
-              toast.error("Det gick inte att uppdatera erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+              const errorMsg = "Det gick inte att uppdatera erbjudandet. Kontrollera att alla fält är korrekt ifyllda.";
+              toast.error(errorMsg);
+              setLastError(errorMsg);
               return false;
             }
+            setLastError(null);
             return success;
           } catch (error) {
             console.error("Error updating deal:", error);
-            toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
+            const errorMsg = "Ett fel uppstod när erbjudandet skulle uppdateras";
+            toast.error(errorMsg);
+            setLastError(errorMsg);
             return false;
           }
         }}
@@ -115,36 +124,45 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
             console.log("Attempting to create new deal with salonId:", salonId);
             
             if (!dealManagement.handleCreate) {
-              console.error("handleCreate function not available in dealManagement");
+              const errorMsg = "handleCreate function not available in dealManagement";
+              console.error(errorMsg);
               toast.error("Ett systemfel uppstod. Kontakta support.");
+              setLastError(errorMsg);
               return false;
             }
             
-            if (!salonId) {
-              console.error("No salon ID available");
+            if (!salonId && !values.salon_id) {
+              const errorMsg = "No salon ID available";
+              console.error(errorMsg);
               toast.error("Kunde inte identifiera salongen.");
+              setLastError(errorMsg);
               return false;
             }
             
             // Ensure salon_id is included in the values
             const formValues = {
               ...values,
-              salon_id: parseInt(salonId, 10)
+              salon_id: values.salon_id || parseInt(salonId!, 10)
             };
             
             console.log("Calling handleCreate with values:", formValues);
             const success = await dealManagement.handleCreate(formValues);
             
             if (success === false) {
-              console.error("Failed to create deal");
+              const errorMsg = "Failed to create deal";
+              console.error(errorMsg);
               toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+              setLastError(errorMsg);
               return false;
             }
             
+            setLastError(null);
             return success;
           } catch (error) {
             console.error("Error creating deal:", error);
-            toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+            const errorMsg = "Ett fel uppstod när erbjudandet skulle skapas";
+            toast.error(errorMsg);
+            setLastError(errorMsg);
             return false;
           }
         }}
