@@ -56,8 +56,7 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
 
         console.log("User has valid salon permissions");
         
-        // Create a new salon_user_status row if needed, but don't automatically
-        // set showPasswordDialog here
+        // Create a new salon_user_status row if needed
         const { data: statusData, error: statusError } = await supabase
           .from("salon_user_status")
           .select("first_login")
@@ -94,9 +93,6 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
     if (!isFirstLoginLoading && isFirstLogin === true) {
       console.log('Setting showPasswordDialog to true based on isFirstLogin:', isFirstLogin);
       setShowPasswordDialog(true);
-    } else if (!isFirstLoginLoading && isFirstLogin === false) {
-      console.log('Setting showPasswordDialog to false based on isFirstLogin:', isFirstLogin);
-      setShowPasswordDialog(false);
     }
   }, [isFirstLogin, isFirstLoginLoading]);
 

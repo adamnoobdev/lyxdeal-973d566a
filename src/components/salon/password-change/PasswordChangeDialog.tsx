@@ -72,18 +72,6 @@ export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: 
     }
   };
 
-  // Hantera stängning av dialogen
-  const handleDialogClose = (open: boolean) => {
-    if (!open) {
-      // Om det är första inloggning och lösenordet inte har uppdaterats, förhindra stängning
-      if (isFirstLogin && !passwordUpdated) {
-        return;
-      }
-      // Annars tillåt stängning och återställ state
-      onClose();
-    }
-  };
-
   // Hantera explicit klick på stäng-knappen i framgångsvyn
   const handleSuccessClose = () => {
     onClose();
@@ -92,7 +80,17 @@ export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: 
   return (
     <Dialog 
       open={isOpen} 
-      onOpenChange={handleDialogClose}
+      onOpenChange={(open) => {
+        // Om dialogen försöker stängas
+        if (!open) {
+          // Om det är första inloggning och lösenordet inte har uppdaterats, förhindra stängning
+          if (isFirstLogin && !passwordUpdated) {
+            return;
+          }
+          // Annars tillåt stängning
+          onClose();
+        }
+      }}
     >
       <DialogContent 
         className="sm:max-w-md" 
