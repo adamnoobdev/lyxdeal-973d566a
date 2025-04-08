@@ -193,3 +193,110 @@ export const toggleActive = async (
     toast.error("Ett fel uppstod när erbjudandets status skulle ändras");
   }
 };
+
+/**
+ * Creates a new deal
+ */
+export const createDeal = async (
+  values: FormValues,
+  salonId: string,
+  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
+  isCreatingDeal: React.MutableRefObject<boolean>,
+  isMountedRef: React.MutableRefObject<boolean>
+): Promise<boolean> => {
+  if (isCreatingDeal.current || !isMountedRef.current) {
+    console.error("[dealOperations] Already creating a deal or component unmounted");
+    return false;
+  }
+
+  isCreatingDeal.current = true;
+
+  try {
+    console.log(`[dealOperations] Creating new deal for salon ID: ${salonId}`);
+    
+    // Parse salon ID to integer
+    const salonIdInt = parseInt(salonId, 10);
+    if (isNaN(salonIdInt)) {
+      console.error(`[dealOperations] Invalid salon ID: ${salonId}`);
+      toast.error("Ogiltig salong-ID");
+      return false;
+    }
+    
+    // Check if the salon has a basic subscription plan
+    const { data: salonData, error: salonError } = await supabase
+      .from('salons')
+      .select('subscription_plan')
+      .eq('id', salonIdInt)
+      .single();
+    
+    if (salonError) {
+      console.error("[dealOperations] Error fetching salon information:", salonError);
+      toast.error("Kunde inte hämta salongsinformation");
+      return false;
+    }
+    
+    const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
+    
+    // If basic plan, ensure discount codes are not required
+    let requiresDiscountCode = values.requires_discount_code;
+    if (isBasicPlan) {
+      requiresDiscountCode = false;
+    }
+    
+    // Determine if deal is free and handle pricing accordingly
+    const originalPrice = parseInt(values.originalPrice) || 0;
+    const discountedPriceVal = parseInt(values.discountedPrice) || 0;
+    const isFree = values.is_free || discountedPriceVal === 0;
+    
+    // For free deals, set discounted_price to 1 to avoid database constraint
+    const discountedPrice = isFree ? 1 : discountedPriceVal;
+    
+    const newDeal = {
+      salon_id: salonIdInt,
+      title: values.title,
+      description: values.description,
+      image_url: values.imageUrl,
+      original_price: originalPrice,
+      discounted_price: discountedPrice,
+      category: values.category,
+      city: values.city,
+      featured: values.featured,
+      is_free: isFree,
+      quantity_left: parseInt(values.quantity) || 10,
+      booking_url: requiresDiscountCode ? null : values.booking_url,
+      requires_discount_code: requiresDiscountCode,
+      is_active: values.is_active !== undefined ? values.is_active : true,
+      expiration_date: values.expirationDate.toISOString(),
+      status: 'approved' // Default status
+    };
+    
+    // Insert the new deal into the database
+    const { data, error } = await supabase
+      .from('deals')
+      .insert(newDeal)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("[dealOperations] Database error creating deal:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+      return false;
+    }
+
+    // Update local state if component is mounted
+    if (isMountedRef.current && data) {
+      setDeals(prevDeals => [data, ...prevDeals]);
+      toast.success("Erbjudandet har skapats");
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("[dealOperations] Error creating deal:", error);
+    toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+    return false;
+  } finally {
+    if (isMountedRef.current) {
+      isCreatingDeal.current = false;
+    }
+  }
+};
