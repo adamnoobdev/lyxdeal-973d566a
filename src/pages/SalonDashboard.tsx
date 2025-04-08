@@ -51,8 +51,9 @@ export default function SalonDashboard() {
   } = useSalonDeals(salonData?.id);
 
   useEffect(() => {
-    // Show password dialog if it's first login and not loading
-    if (!checkingFirstLogin && isFirstLogin) {
+    // Om det är första inloggningen och vi är inte längre i laddningstillstånd
+    if (!checkingFirstLogin && isFirstLogin === true) {
+      console.log("Första inloggningen detekterad, visar lösenordsdialogruta");
       setShowPasswordDialog(true);
     }
   }, [isFirstLogin, checkingFirstLogin]);
@@ -66,6 +67,13 @@ export default function SalonDashboard() {
     if (editingDeal) {
       await updateDeal(values, editingDeal.id);
       setEditingDeal(null);
+    }
+  };
+
+  const handleDeleteConfirm = async (deal: Deal): Promise<void> => {
+    if (deal) {
+      await deleteDeal(deal.id);
+      setDeletingDeal(null);
     }
   };
 
@@ -94,9 +102,10 @@ export default function SalonDashboard() {
     navigate(`/salon/deal/${deal.id}`);
   };
 
-  // Never close password dialog if it's first login
   const handleClosePasswordDialog = () => {
-    if (!isFirstLogin) {
+    // Om det inte är första inloggningen, eller om lösenordet har uppdaterats, tillåt stängning
+    console.log("Försöker stänga lösenordsdialogrutan, isFirstLogin:", isFirstLogin);
+    if (isFirstLogin !== true) {
       setShowPasswordDialog(false);
     }
   };
@@ -132,6 +141,9 @@ export default function SalonDashboard() {
           viewingCodesForDeal={viewingCodesForDeal}
           isClosingCodesDialog={isClosingCodesDialog}
           onCloseCodesDialog={handleCloseDiscountCodesDialog}
+          deletingDeal={deletingDeal}
+          onDeleteConfirm={handleDeleteConfirm}
+          onCloseDeleteDialog={() => setDeletingDeal(null)}
           isFirstLogin={isFirstLogin === true}
         />
       </div>

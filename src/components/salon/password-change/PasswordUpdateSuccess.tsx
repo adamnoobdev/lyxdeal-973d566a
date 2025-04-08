@@ -23,8 +23,8 @@ export const PasswordUpdateSuccess: React.FC<PasswordUpdateSuccessProps> = ({
           </p>
         </div>
       </div>
-      <div className="flex justify-end">
-        <Button onClick={onClose}>Stäng</Button>
+      <div className="flex justify-center">
+        <Button onClick={onClose} className="px-8">Stäng</Button>
       </div>
     </div>
   );

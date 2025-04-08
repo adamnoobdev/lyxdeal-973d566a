@@ -57,15 +57,9 @@ export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: 
 
       toast.success("Lösenordet har uppdaterats framgångsrikt!");
       setPasswordUpdated(true);
-      
-      // Om det inte är första inloggningen så stäng direkt
-      if (!isFirstLogin) {
-        onClose();
-      }
     } catch (error: any) {
       console.error("Fel vid uppdatering av lösenord:", error);
       toast.error(error.message || "Ett fel uppstod vid uppdatering av lösenordet.");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -77,9 +71,22 @@ export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: 
       if (isFirstLogin && !passwordUpdated) {
         return;
       }
-      // Annars tillåt stängning
+      // Annars tillåt stängning och återställ state
       onClose();
+      // Återställ passwordUpdated state efter en kort fördröjning så att animationer hinner köras
+      setTimeout(() => {
+        setPasswordUpdated(false);
+      }, 300);
     }
+  };
+
+  // Hantera explicit klick på stäng-knappen i framgångsvyn
+  const handleSuccessClose = () => {
+    onClose();
+    // Återställ passwordUpdated state efter en kort fördröjning
+    setTimeout(() => {
+      setPasswordUpdated(false);
+    }, 300);
   };
 
   return (
@@ -100,13 +107,13 @@ export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: 
           <DialogDescription>
             {isFirstLogin 
               ? "Eftersom det här är din första inloggning måste du uppdatera ditt temporära lösenord till ett nytt lösenord som du själv väljer. För säkerhets skull måste lösenordet uppfylla vissa krav."
-              : "Eftersom det här är din första inloggning behöver du uppdatera ditt temporära lösenord till ett nytt lösenord som du själv väljer. För säkerhets skull måste lösenordet uppfylla vissa krav."
+              : "Uppdatera ditt lösenord till ett nytt lösenord som du själv väljer. För säkerhets skull måste lösenordet uppfylla vissa krav."
             }
           </DialogDescription>
         </DialogHeader>
 
-        {passwordUpdated && isFirstLogin ? (
-          <PasswordUpdateSuccess onClose={onClose} />
+        {passwordUpdated ? (
+          <PasswordUpdateSuccess onClose={handleSuccessClose} />
         ) : (
           <PasswordChangeForm 
             onSubmit={handleSubmit} 

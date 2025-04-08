@@ -1,23 +1,26 @@
-import React from "react";
-import { Deal } from "@/components/admin/types";
-import { DealDialog } from "@/components/salon/DealDialog";
-import { PasswordChangeDialog } from "@/components/salon/password-change/PasswordChangeDialog";
-import { DiscountCodesDialog } from "@/components/admin/deals/DiscountCodesDialog";
-import { FormValues } from "@/components/deal-form/schema";
-import { endOfMonth } from "date-fns";
 
-interface DialogsProps {
+import { Deal } from "@/types/deal";
+import { DealDialog } from "../dialogs/DealDialogContent";
+import { PasswordChangeDialog } from "../password-change/PasswordChangeDialog";
+import { DiscountCodesDialog } from "@/components/admin/deals/DiscountCodesDialog";
+import { DeleteDealDialog } from "@/components/admin/deals/DeleteDealDialog";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+
+interface DashboardDialogsProps {
   isCreateDialogOpen: boolean;
   onCloseCreateDialog: () => void;
-  onCreate: (values: FormValues) => Promise<void>;
+  onCreate: (values: any) => Promise<void>;
   editingDeal: Deal | null;
   onCloseEditDialog: () => void;
-  onUpdate: (values: FormValues) => Promise<void>;
+  onUpdate: (values: any) => Promise<void>;
   showPasswordDialog: boolean;
   onClosePasswordDialog: () => void;
   viewingCodesForDeal: Deal | null;
   isClosingCodesDialog: boolean;
   onCloseCodesDialog: () => void;
+  deletingDeal?: Deal | null;
+  onDeleteConfirm?: (deal: Deal) => Promise<void>;
+  onCloseDeleteDialog?: () => void;
   isFirstLogin?: boolean;
 }
 
@@ -33,53 +36,68 @@ export const DashboardDialogs = ({
   viewingCodesForDeal,
   isClosingCodesDialog,
   onCloseCodesDialog,
-  isFirstLogin = false
-}: DialogsProps) => {
+  deletingDeal,
+  onDeleteConfirm,
+  onCloseDeleteDialog,
+  isFirstLogin = false,
+}: DashboardDialogsProps) => {
   return (
     <>
-      {/* Dialog för att skapa erbjudande */}
-      <DealDialog
-        isOpen={isCreateDialogOpen}
-        onClose={onCloseCreateDialog}
-        onSubmit={onCreate}
-      />
+      {/* Skapa nytt deal */}
+      {isCreateDialogOpen && (
+        <DealDialog
+          isOpen={isCreateDialogOpen}
+          onClose={onCloseCreateDialog}
+          onSubmit={onCreate}
+          title="Skapa nytt erbjudande"
+          submitLabel="Skapa erbjudande"
+        />
+      )}
 
-      {/* Dialog för att redigera erbjudande */}
-      <DealDialog
-        isOpen={!!editingDeal}
-        onClose={onCloseEditDialog}
-        onSubmit={onUpdate}
-        initialValues={editingDeal ? {
-          title: editingDeal.title,
-          description: editingDeal.description,
-          imageUrl: editingDeal.image_url,
-          originalPrice: editingDeal.original_price.toString(),
-          discountedPrice: editingDeal.discounted_price.toString(),
-          category: editingDeal.category,
-          city: editingDeal.city,
-          featured: editingDeal.featured,
-          salon_id: editingDeal.salon_id,
-          is_free: editingDeal.is_free,
-          quantity: editingDeal.quantity_left?.toString() || "10",
-          booking_url: editingDeal.booking_url || "",
-          requires_discount_code: editingDeal.requires_discount_code !== false,
-          expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
-        } : undefined}
-      />
+      {/* Redigera deal */}
+      {editingDeal && (
+        <DealDialog
+          isOpen={!!editingDeal}
+          onClose={onCloseEditDialog}
+          onSubmit={onUpdate}
+          initialValues={editingDeal}
+          title="Redigera erbjudande"
+          submitLabel="Spara ändringar"
+        />
+      )}
 
-      {/* Dialog för lösenordsbyte */}
-      <PasswordChangeDialog
-        isOpen={showPasswordDialog}
+      {/* Byta lösenord dialog */}
+      <PasswordChangeDialog 
+        isOpen={showPasswordDialog} 
         onClose={onClosePasswordDialog}
         isFirstLogin={isFirstLogin}
       />
 
-      {/* Dialog för rabattkoder */}
-      <DiscountCodesDialog
-        isOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
-        onClose={onCloseCodesDialog}
-        deal={viewingCodesForDeal}
-      />
+      {/* Visa rabattkoder */}
+      {viewingCodesForDeal && (
+        <Sheet 
+          open={!!viewingCodesForDeal && !isClosingCodesDialog} 
+          onOpenChange={(open) => !open && onCloseCodesDialog()}
+        >
+          <SheetContent className="sm:max-w-lg">
+            <DiscountCodesDialog 
+              dealId={viewingCodesForDeal.id} 
+              dealName={viewingCodesForDeal.title}
+              onClose={onCloseCodesDialog}
+            />
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {/* Radera deal */}
+      {deletingDeal && onDeleteConfirm && onCloseDeleteDialog && (
+        <DeleteDealDialog
+          isOpen={!!deletingDeal}
+          onClose={onCloseDeleteDialog}
+          onConfirm={() => onDeleteConfirm(deletingDeal)}
+          dealTitle={deletingDeal.title}
+        />
+      )}
     </>
   );
 };
