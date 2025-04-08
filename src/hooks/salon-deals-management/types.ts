@@ -10,8 +10,8 @@ export interface UseSalonDealsReturn {
   error: string | null;
   editingDeal: Deal | null;
   deletingDeal: Deal | null;
-  setEditingDeal: (deal: Deal | null) => void;
-  setDeletingDeal: (deal: Deal | null) => void;
+  setEditingDeal: React.Dispatch<React.SetStateAction<Deal | null>>;
+  setDeletingDeal: React.Dispatch<React.SetStateAction<Deal | null>>;
   handleDelete: () => Promise<void>;
   handleUpdate: (values: FormValues) => Promise<boolean | void>;
   handleCreate: (values: FormValues) => Promise<boolean | void>;

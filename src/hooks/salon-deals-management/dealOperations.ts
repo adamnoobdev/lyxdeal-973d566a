@@ -212,7 +212,7 @@ export const createDeal = async (
   isCreatingDeal.current = true;
 
   try {
-    console.log(`[dealOperations] Creating new deal for salon ID: ${salonId}`);
+    console.log(`[dealOperations] Creating new deal for salon ID: ${salonId} with values:`, values);
     
     // Parse salon ID to integer
     const salonIdInt = parseInt(salonId, 10);
@@ -225,7 +225,7 @@ export const createDeal = async (
     // Check if the salon has a basic subscription plan
     const { data: salonData, error: salonError } = await supabase
       .from('salons')
-      .select('subscription_plan')
+      .select('subscription_plan, status')
       .eq('id', salonIdInt)
       .single();
     
@@ -235,11 +235,44 @@ export const createDeal = async (
       return false;
     }
     
+    // First check if subscription is active
+    if (salonData?.status !== 'active') {
+      console.error("[dealOperations] Salon subscription is not active:", salonData?.status);
+      toast.error("Din prenumeration är inte aktiv. Vänligen aktivera din prenumeration för att skapa erbjudanden.");
+      return false;
+    }
+    
     const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
+    console.log("[dealOperations] Salon plan:", salonData?.subscription_plan, "isBasicPlan:", isBasicPlan);
+    
+    // Check number of active deals for this salon
+    const { data: activeDeals, error: countError } = await supabase
+      .from('deals')
+      .select('id', { count: 'exact' })
+      .eq('salon_id', salonIdInt)
+      .eq('is_active', true)
+      .not('status', 'eq', 'rejected');
+    
+    if (countError) {
+      console.error('[dealOperations] Error counting active deals:', countError);
+      toast.error("Kunde inte kontrollera antal aktiva erbjudanden");
+      return false;
+    }
+    
+    const activeDealsCount = activeDeals?.length || 0;
+    const maxDealsAllowed = isBasicPlan ? 1 : 3;
+    
+    console.log("[dealOperations] Active deals count:", activeDealsCount, "Max allowed:", maxDealsAllowed);
+    
+    if (activeDealsCount >= maxDealsAllowed) {
+      toast.error(`Du har redan nått maxgränsen på ${maxDealsAllowed} aktiva erbjudanden för din prenumerationsnivå.`);
+      return false;
+    }
     
     // If basic plan, ensure discount codes are not required
     let requiresDiscountCode = values.requires_discount_code;
     if (isBasicPlan) {
+      console.log("[dealOperations] Basic plan detected, forcing direct booking");
       requiresDiscountCode = false;
     }
     
@@ -257,6 +290,13 @@ export const createDeal = async (
     const daysRemaining = Math.ceil((expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     const timeRemaining = `${daysRemaining} dagar`;
     
+    // Validation for direct booking URL
+    if (!requiresDiscountCode && !values.booking_url) {
+      console.error("[dealOperations] Missing booking URL for direct booking");
+      toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
+      return false;
+    }
+    
     const newDeal = {
       salon_id: salonIdInt,
       title: values.title,
@@ -266,6 +306,7 @@ export const createDeal = async (
       discounted_price: discountedPrice,
       category: values.category,
       city: values.city,
+      time_remaining: timeRemaining,
       featured: values.featured,
       is_free: isFree,
       quantity_left: parseInt(values.quantity) || 10,
@@ -273,9 +314,10 @@ export const createDeal = async (
       requires_discount_code: requiresDiscountCode,
       is_active: values.is_active !== undefined ? values.is_active : true,
       expiration_date: values.expirationDate.toISOString(),
-      time_remaining: timeRemaining, // Add the missing time_remaining field
-      status: 'approved' as const // Explicitly type status as a literal type
+      status: 'pending' as const // Start with pending status for approval flow
     };
+    
+    console.log("[dealOperations] Inserting new deal with data:", newDeal);
     
     // Insert the new deal into the database
     const { data, error } = await supabase
@@ -286,7 +328,7 @@ export const createDeal = async (
 
     if (error) {
       console.error("[dealOperations] Database error creating deal:", error);
-      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas: " + error.message);
       return false;
     }
 
@@ -294,8 +336,9 @@ export const createDeal = async (
     if (isMountedRef.current && data) {
       // Cast the returned data as Deal to ensure type compatibility
       const newDealWithCorrectType = data as unknown as Deal;
+      console.log("[dealOperations] Deal created successfully:", newDealWithCorrectType);
       setDeals(prevDeals => [newDealWithCorrectType, ...prevDeals]);
-      toast.success("Erbjudandet har skapats");
+      toast.success("Erbjudandet har skapats och väntar på granskning");
     }
     
     return true;
