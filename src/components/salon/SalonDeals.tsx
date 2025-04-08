@@ -97,7 +97,8 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
         onUpdate={async (values) => {
           try {
             const success = await dealManagement.handleUpdate(values);
-            if (success === false) { // Check explicitly against false
+            // Check specifically if success is false (not just any falsy value)
+            if (success === false) {
               toast.error("Det gick inte att uppdatera erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
             }
           } catch (error) {
@@ -119,7 +120,8 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
                 salon_id: parseInt(salonId || "0", 10)
               });
               
-              if (success === false) { // Check explicitly against false
+              // Check specifically if success is false (not just any falsy value)
+              if (success === false) {
                 toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
               }
             } else {

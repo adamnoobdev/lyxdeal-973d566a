@@ -13,8 +13,8 @@ export interface UseSalonDealsReturn {
   setEditingDeal: (deal: Deal | null) => void;
   setDeletingDeal: (deal: Deal | null) => void;
   handleDelete: () => Promise<void>;
-  handleUpdate: (values: FormValues) => Promise<boolean>;
-  handleCreate: (values: FormValues) => Promise<boolean>;
+  handleUpdate: (values: FormValues) => Promise<boolean | void>;
+  handleCreate: (values: FormValues) => Promise<boolean | void>;
   handleToggleActive: (deal: Deal) => Promise<void>;
   refetch: () => Promise<void>;
 }

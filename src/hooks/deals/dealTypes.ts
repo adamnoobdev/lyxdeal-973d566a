@@ -1,21 +1,6 @@
 
 import { Deal } from "@/components/admin/types";
-
-export interface DealUpdateValues {
-  title: string;
-  description: string;
-  imageUrl: string;
-  originalPrice: number;
-  discountedPrice: number;
-  category: string;
-  city: string;
-  featured: boolean;
-  is_free: boolean;
-  quantity: number;
-  expirationDate: Date;
-  salon_id?: number;
-  is_active?: boolean;
-}
+import { FormValues } from "@/components/deal-form/schema";
 
 export interface UseSalonDealsReturn {
   deals: Deal[];
@@ -28,7 +13,8 @@ export interface UseSalonDealsReturn {
   setEditingDeal: (deal: Deal | null) => void;
   setDeletingDeal: (deal: Deal | null) => void;
   handleDelete: () => Promise<void>;
-  handleUpdate: (values: any) => Promise<void>;
+  handleUpdate: (values: FormValues) => Promise<boolean | void>;
+  handleCreate: (values: FormValues) => Promise<boolean | void>;
   handleToggleActive: (deal: Deal) => Promise<void>;
-  refetch: () => Promise<void>; // Added the missing refetch function
+  refetch: () => Promise<void>;
 }

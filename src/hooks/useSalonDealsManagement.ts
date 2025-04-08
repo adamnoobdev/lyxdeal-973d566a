@@ -4,6 +4,7 @@ import { Deal } from "@/components/admin/types";
 import { UseSalonDealsReturn } from "./deals/dealTypes";
 import { deleteDeal, updateDeal, toggleActive } from "./deals/dealOperations";
 import { loadSalonDeals } from "./deals/loadSalonDeals";
+import { FormValues } from "@/components/deal-form/schema";
 
 export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDealsReturn => {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -52,17 +53,38 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     );
   }, [deletingDeal]);
 
-  // Handler for updating a deal
-  const handleUpdate = useCallback(async (values: any) => {
-    await updateDeal(
-      editingDeal,
-      values,
-      setDeals,
-      setEditingDeal,
-      isUpdatingDeal,
-      isMountedRef
-    );
+  // Handler for updating a deal - now returns Promise<boolean | void>
+  const handleUpdate = useCallback(async (values: FormValues): Promise<boolean | void> => {
+    try {
+      return await updateDeal(
+        editingDeal,
+        values,
+        setDeals,
+        setEditingDeal,
+        isUpdatingDeal,
+        isMountedRef
+      );
+    } catch (error) {
+      console.error("[useSalonDealsManagement] Error updating deal:", error);
+      return false;
+    }
   }, [editingDeal]);
+
+  // Handler for creating a new deal - returns Promise<boolean | void>
+  const handleCreate = useCallback(async (values: FormValues): Promise<boolean | void> => {
+    try {
+      // Implementation of deal creation logic would be here
+      console.log("[useSalonDealsManagement] Creating new deal with values:", values);
+      // This would typically call an API function or Supabase method
+      
+      // Then refetch deals
+      await refetch();
+      return true;
+    } catch (error) {
+      console.error("[useSalonDealsManagement] Error creating deal:", error);
+      return false;
+    }
+  }, [refetch]);
 
   // Handler for toggling deal active status
   const handleToggleActive = useCallback(async (deal: Deal) => {
@@ -102,7 +124,8 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     setDeletingDeal,
     handleDelete: handleDeleteDeal,
     handleUpdate,
+    handleCreate,
     handleToggleActive,
-    refetch, // Add the refetch function to the return object
+    refetch,
   };
 };
