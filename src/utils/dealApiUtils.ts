@@ -18,6 +18,8 @@ export interface DealUpdateValues {
   expirationDate: Date;
   salon_id?: number;
   is_active?: boolean;
+  booking_url?: string | null;
+  requires_discount_code?: boolean;
 }
 
 /**
@@ -91,6 +93,20 @@ export const deleteSalonDeal = async (dealId: number): Promise<boolean> => {
  * Updates a deal with new values
  */
 export const updateSalonDeal = async (dealId: number, values: DealUpdateValues): Promise<void> => {
+  // First check for basic plan when trying to enable discount codes
+  if (values.requires_discount_code && values.salon_id) {
+    const { data: salonData } = await supabase
+      .from('salons')
+      .select('subscription_plan')
+      .eq('id', values.salon_id)
+      .single();
+    
+    if (salonData?.subscription_plan === 'Baspaket') {
+      toast.error("Baspaketet stödjer inte rabattkoder. Uppgradera till premium för denna funktion.");
+      values.requires_discount_code = false;
+    }
+  }
+
   const originalPrice = values.originalPrice || 0;
   const discountedPrice = values.discountedPrice || 0;
   
@@ -106,8 +122,14 @@ export const updateSalonDeal = async (dealId: number, values: DealUpdateValues):
     is_free: values.is_free || false,
     quantity_left: values.quantity || 10,
     status: 'pending',
-    expiration_date: values.expirationDate.toISOString()
+    expiration_date: values.expirationDate.toISOString(),
+    booking_url: values.booking_url || null,
   };
+
+  // Only add requires_discount_code field if explicitly provided
+  if (values.requires_discount_code !== undefined) {
+    updateData.requires_discount_code = values.requires_discount_code;
+  }
 
   // Only add is_active field if it's explicitly provided
   if (values.is_active !== undefined) {

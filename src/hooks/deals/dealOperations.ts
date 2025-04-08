@@ -84,6 +84,21 @@ export const updateDeal = async (
     const discountedPrice = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPrice === 0;
     
+    // Kontrollera att vi inte försöker aktivera rabattkoder för basic-paket
+    if (values.requires_discount_code) {
+      const { data: salonData } = await supabase
+        .from('salons')
+        .select('subscription_plan')
+        .eq('id', editingDeal.salon_id)
+        .single();
+      
+      if (salonData?.subscription_plan === 'Baspaket') {
+        toast.error("Baspaketet stödjer inte rabattkoder. Uppgradera till premium för denna funktion.");
+        values.requires_discount_code = false;
+        return false;
+      }
+    }
+    
     const updateValues = {
       title: values.title,
       description: values.description,
@@ -97,6 +112,8 @@ export const updateDeal = async (
       is_active: values.is_active !== undefined ? values.is_active : editingDeal.is_active,
       quantity: parseInt(values.quantity) || 10,
       expirationDate: values.expirationDate,
+      booking_url: values.booking_url || null,
+      requires_discount_code: values.requires_discount_code,
       salon_id: editingDeal.salon_id
     };
     
@@ -120,7 +137,9 @@ export const updateDeal = async (
         is_free: isFree,
         is_active: values.is_active !== undefined ? values.is_active : editingDeal.is_active,
         quantity_left: parseInt(values.quantity) || 10,
-        expiration_date: values.expirationDate.toISOString()
+        expiration_date: values.expirationDate.toISOString(),
+        booking_url: values.booking_url || null,
+        requires_discount_code: values.requires_discount_code
       };
       
       setDeals(prevDeals => prevDeals.map(deal => 
