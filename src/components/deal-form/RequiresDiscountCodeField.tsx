@@ -12,7 +12,7 @@ import { UseFormReturn, useWatch } from "react-hook-form";
 import { FormValues } from "./schema";
 import { useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info, AlertTriangle, LockIcon } from "lucide-react";
+import { Info, LockIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
@@ -130,6 +130,8 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
               onCheckedChange={field.onChange}
               className={hasBasicPackage ? "opacity-50 pointer-events-none" : ""}
               aria-readonly={hasBasicPackage}
+              aria-disabled={hasBasicPackage}
+              tabIndex={hasBasicPackage ? -1 : 0}
             />
           </FormControl>
         </FormItem>

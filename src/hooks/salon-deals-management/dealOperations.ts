@@ -181,7 +181,8 @@ export const createDeal = async (
   isMountedRef: { current: boolean }
 ): Promise<boolean> => {
   if (!salonId || isCreatingDeal.current) {
-    console.log("[dealOperations] No salon ID or already creating deal");
+    console.error("[dealOperations] No salon ID or already creating deal", { salonId });
+    toast.error("Kunde inte identifiera salongen. Försök igen.");
     return false;
   }
 
@@ -211,6 +212,8 @@ export const createDeal = async (
       toast.error("Kunde inte hämta salonginformation");
       return false;
     }
+    
+    console.log("[dealOperations] Salon data:", salonData);
     
     // Verify that subscription is active
     if (salonData?.status !== 'active') {
@@ -271,16 +274,7 @@ export const createDeal = async (
       throw error;
     }
     
-    // Generate discount codes if needed
-    if (data && data[0] && requiresDiscountCode && quantity > 0) {
-      try {
-        console.log(`[dealOperations] Generating ${quantity} discount codes for new deal ID: ${data[0].id}`);
-        // This would be implemented separately in a utility function
-      } catch (codeError) {
-        console.error("[dealOperations] Error generating discount codes:", codeError);
-        // Non-blocking error, deal was created successfully
-      }
-    }
+    // Generate discount codes if needed (handled separately via existing functionality)
     
     // Try to create Stripe product if required
     try {
@@ -296,7 +290,7 @@ export const createDeal = async (
     if (isMountedRef.current && data) {
       // Update the local state
       setDeals((prevDeals: Deal[]) => [data[0] as Deal, ...prevDeals]);
-      toast.success("Nytt erbjudande har skapats");
+      toast.success("Nytt erbjudande har skapats och skickats för godkännande");
     }
     
     return true;

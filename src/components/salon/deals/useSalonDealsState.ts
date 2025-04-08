@@ -1,79 +1,65 @@
-import { useState, useCallback, useEffect } from 'react';
-import { Deal } from '@/components/admin/types';
-import { useSalonDealsManagement } from '@/hooks/salon-deals-management';
-import { supabase } from '@/integrations/supabase/client';
-import { useSession } from '@/hooks/useSession';
+
+import { useState, useEffect } from 'react';
+import { useParams } from "react-router-dom";
+import { useSalonDealsManagement } from "@/hooks/useSalonDealsManagement";
+import { Deal } from "@/components/admin/types";
+import { useSalon } from "@/hooks/useSalon";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useSalonDealsState = () => {
-  const { session } = useSession();
-  const [salonId, setSalonId] = useState<string | undefined>(undefined);
-  const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
-  const [isProcessingAction, setIsProcessingAction] = useState(false);
-  const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
+  const { salonId: urlSalonId } = useParams<{ salonId?: string }>();
+  const [salonId, setSalonId] = useState<string | undefined>(urlSalonId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
-  
-  // Fetch salon ID for current user
+  const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
+  const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
+  const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
+
+  // Fetch the salon ID for the currently logged in user if not provided in URL
   useEffect(() => {
-    const fetchSalonId = async () => {
-      if (!session?.user?.id) return;
-      
+    const fetchUserSalonId = async () => {
       try {
-        console.log("Fetching salon ID for user:", session.user.id);
-        const { data, error } = await supabase
-          .from('salons')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (error) {
-          console.error("Error fetching salon ID:", error);
-          throw error;
+        if (!urlSalonId) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user?.id) {
+            const { data: salonData, error } = await supabase
+              .from('salons')
+              .select('id')
+              .eq('user_id', session.user.id)
+              .single();
+
+            if (error) {
+              console.error("Error fetching salon ID:", error);
+            } else if (salonData) {
+              console.log("Setting salon ID from user session:", salonData.id);
+              setSalonId(salonData.id.toString());
+            }
+          }
         }
-        
-        if (data) {
-          // Convert the numeric salon ID to string to match the expected state type
-          const id = data.id.toString();
-          console.log("Found salon ID:", id);
-          setSalonId(id);
-        } else {
-          console.error("No salon found for user");
-        }
-      } catch (err) {
-        console.error("Error in fetchSalonId:", err);
+      } catch (error) {
+        console.error("Error in fetchUserSalonId:", error);
       }
     };
-    
-    fetchSalonId();
-  }, [session?.user?.id]);
-  
-  // Get deal management functionality
-  const dealManagement = useSalonDealsManagement(salonId);
-  
-  // Keep isDialogOpen synchronized with editingDeal in one direction
-  // If editingDeal exists, open the dialog
-  // If editingDeal becomes null, don't automatically close the dialog
-  useEffect(() => {
-    if (dealManagement.editingDeal && !isDialogOpen) {
-      setIsDialogOpen(true);
+
+    if (!salonId) {
+      fetchUserSalonId();
     }
-  }, [dealManagement.editingDeal, isDialogOpen]);
+  }, [urlSalonId, salonId]);
+
+  const dealManagement = useSalonDealsManagement(salonId);
 
   return {
-    salonId,
     dealManagement,
-    viewingCodesForDeal,
-    setViewingCodesForDeal,
-    isProcessingAction,
-    setIsProcessingAction,
-    isGeneratingCodes,
-    setIsGeneratingCodes,
     isDialogOpen,
     setIsDialogOpen,
+    editingDeal,
+    setEditingDeal,
+    viewingCodesForDeal,
+    setViewingCodesForDeal,
     isClosingCodesDialog,
     setIsClosingCodesDialog,
-    editingDeal,
-    setEditingDeal
+    isGeneratingCodes,
+    setIsGeneratingCodes,
+    salonId
   };
 };

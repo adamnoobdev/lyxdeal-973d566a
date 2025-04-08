@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { SalonDealsContent } from '@/components/salon/deals/SalonDealsContent';
 import { SalonDealsDialogs } from '@/components/salon/deals/SalonDealsDialogs';
 import { useSalonDealsState } from '@/components/salon/deals/useSalonDealsState';
+import { toast } from 'sonner';
 
 interface SalonDealsProps {
   initialCreateDialogOpen?: boolean;
@@ -28,7 +29,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
     salonId
   } = useSalonDealsState();
 
-  // Log the salonId to debug issues
+  // Logga salonId för att felsöka problem
   useEffect(() => {
     console.log("SalonDeals component - Current salon ID:", salonId);
   }, [salonId]);
@@ -94,20 +95,36 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
           setIsClosingCodesDialog
         }}
         onUpdate={async (values) => {
-          const success = await dealManagement.handleUpdate(values);
-          return;
+          try {
+            const success = await dealManagement.handleUpdate(values);
+            if (!success) {
+              toast.error("Det gick inte att uppdatera erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+            }
+          } catch (error) {
+            console.error("Error updating deal:", error);
+            toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
+          }
         }}
         onCreate={async (values) => {
-          console.log("Attempting to create new deal with values:", {
-            ...values,
-            salon_id: salonId
-          });
-          // Ensure salon_id is included in the values
-          const success = await dealManagement.handleCreate({
-            ...values,
-            salon_id: parseInt(salonId || "0", 10)
-          });
-          return;
+          try {
+            console.log("Attempting to create new deal with values:", {
+              ...values,
+              salon_id: salonId
+            });
+            
+            // Ensure salon_id is included in the values
+            const success = await dealManagement.handleCreate({
+              ...values,
+              salon_id: parseInt(salonId || "0", 10)
+            });
+            
+            if (!success) {
+              toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+            }
+          } catch (error) {
+            console.error("Error creating deal:", error);
+            toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+          }
         }}
       />
     </>

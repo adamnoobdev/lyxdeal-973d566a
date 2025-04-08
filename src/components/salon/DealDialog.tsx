@@ -32,21 +32,38 @@ export const DealDialog: React.FC<DealDialogProps> = ({
     const fetchSalonData = async () => {
       try {
         const { supabase } = await import('@/integrations/supabase/client');
-        const { data } = await supabase
-          .from('salons')
-          .select('subscription_plan')
-          .eq('id', initialValues?.salon_id || -1)
-          .single();
-          
-        setIsBasicPlan(data?.subscription_plan === 'Baspaket');
+        // Om vi redigerar, kontrollera prenumerationsplanen för salongen
+        if (initialValues?.salon_id) {
+          const { data } = await supabase
+            .from('salons')
+            .select('subscription_plan')
+            .eq('id', initialValues.salon_id)
+            .single();
+            
+          setIsBasicPlan(data?.subscription_plan === 'Baspaket');
+        } else {
+          // Om vi skapar nytt erbjudande, kontrollera den inloggade användarens salong
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData?.session?.user?.id) {
+            const { data: salonData } = await supabase
+              .from('salons')
+              .select('subscription_plan')
+              .eq('user_id', sessionData.session.user.id)
+              .single();
+              
+            setIsBasicPlan(salonData?.subscription_plan === 'Baspaket');
+          }
+        }
       } catch (error) {
         console.error("Error fetching salon data:", error);
         setIsBasicPlan(false);
       }
     };
     
-    fetchSalonData();
-  }, [initialValues?.salon_id]);
+    if (isOpen) {
+      fetchSalonData();
+    }
+  }, [initialValues?.salon_id, isOpen]);
 
   // Handle form submission
   const handleSubmit = async (values: FormValues) => {

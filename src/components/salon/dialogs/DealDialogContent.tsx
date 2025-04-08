@@ -52,6 +52,27 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
         return;
       }
       
+      // Ensure salon_id is included
+      if (!data.salon_id) {
+        try {
+          const { supabase } = await import('@/integrations/supabase/client');
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData?.session?.user?.id) {
+            const { data: salonData } = await supabase
+              .from('salons')
+              .select('id')
+              .eq('user_id', sessionData.session.user.id)
+              .single();
+              
+            if (salonData?.id) {
+              data.salon_id = salonData.id;
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching salon ID:", error);
+        }
+      }
+      
       await onSubmit(data);
     } catch (error) {
       console.error("Error submitting deal:", error);
