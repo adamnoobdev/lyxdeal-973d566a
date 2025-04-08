@@ -5,7 +5,7 @@ import { useSession } from "@/hooks/useSession";
 import { useState, useEffect } from "react";
 import { Deal } from "@/types/deal";
 import { useNavigate } from "react-router-dom";
-import { useSalonDeals } from "@/hooks/salon-deals";
+import { useSalonDeals } from "@/hooks/useSalonDeals";
 import { useFirstLogin } from "@/hooks/useFirstLogin";
 import { DealStatistics } from "@/components/salon/DealStatistics";
 import { DashboardHeader } from "@/components/salon/dashboard/Header";
@@ -51,7 +51,7 @@ export default function SalonDashboard() {
   } = useSalonDeals(salonData?.id);
 
   useEffect(() => {
-    // Visa lösenordsdialog om det är första inloggningen och inte laddar
+    // Show password dialog if it's first login and not loading
     if (!checkingFirstLogin && isFirstLogin) {
       setShowPasswordDialog(true);
     }
@@ -94,6 +94,13 @@ export default function SalonDashboard() {
     navigate(`/salon/deal/${deal.id}`);
   };
 
+  // Never close password dialog if it's first login
+  const handleClosePasswordDialog = () => {
+    if (!isFirstLogin) {
+      setShowPasswordDialog(false);
+    }
+  };
+
   return (
     <SalonLayout>
       <Helmet>
@@ -121,12 +128,13 @@ export default function SalonDashboard() {
           onCloseEditDialog={() => setEditingDeal(null)}
           onUpdate={handleUpdate}
           showPasswordDialog={showPasswordDialog}
-          onClosePasswordDialog={() => setShowPasswordDialog(false)}
+          onClosePasswordDialog={handleClosePasswordDialog}
           viewingCodesForDeal={viewingCodesForDeal}
           isClosingCodesDialog={isClosingCodesDialog}
           onCloseCodesDialog={handleCloseDiscountCodesDialog}
+          isFirstLogin={isFirstLogin === true}
         />
       </div>
     </SalonLayout>
   );
-}
+};

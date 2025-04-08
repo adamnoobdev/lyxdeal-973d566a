@@ -24,7 +24,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Check, X } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Enhanced password validation
 const passwordSchema = z.object({
@@ -44,9 +43,10 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 interface PasswordChangeDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  isFirstLogin?: boolean;
 }
 
-export const PasswordChangeDialog = ({ isOpen, onClose }: PasswordChangeDialogProps) => {
+export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: PasswordChangeDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [password, setPassword] = useState("");
   
@@ -107,13 +107,18 @@ export const PasswordChangeDialog = ({ isOpen, onClose }: PasswordChangeDialogPr
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={isFirstLogin ? undefined : onClose} // Prevent closing if it's first login
+    >
+      <DialogContent className="sm:max-w-md" onInteractOutside={isFirstLogin ? (e) => e.preventDefault() : undefined}>
         <DialogHeader>
           <DialogTitle>Uppdatera ditt lösenord</DialogTitle>
           <DialogDescription>
-            Eftersom det här är din första inloggning behöver du uppdatera ditt temporära lösenord
-            till ett nytt lösenord som du själv väljer. För säkerhets skull måste lösenordet uppfylla vissa krav.
+            {isFirstLogin 
+              ? "Eftersom det här är din första inloggning måste du uppdatera ditt temporära lösenord till ett nytt lösenord som du själv väljer. För säkerhets skull måste lösenordet uppfylla vissa krav."
+              : "Eftersom det här är din första inloggning behöver du uppdatera ditt temporära lösenord till ett nytt lösenord som du själv väljer. För säkerhets skull måste lösenordet uppfylla vissa krav."
+            }
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

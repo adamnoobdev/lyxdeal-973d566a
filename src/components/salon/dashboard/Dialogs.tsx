@@ -19,6 +19,7 @@ interface DialogsProps {
   viewingCodesForDeal: Deal | null;
   isClosingCodesDialog: boolean;
   onCloseCodesDialog: () => void;
+  isFirstLogin?: boolean;
 }
 
 export const DashboardDialogs = ({
@@ -32,7 +33,8 @@ export const DashboardDialogs = ({
   onClosePasswordDialog,
   viewingCodesForDeal,
   isClosingCodesDialog,
-  onCloseCodesDialog
+  onCloseCodesDialog,
+  isFirstLogin = false
 }: DialogsProps) => {
   return (
     <>
@@ -70,6 +72,7 @@ export const DashboardDialogs = ({
       <PasswordChangeDialog
         isOpen={showPasswordDialog}
         onClose={onClosePasswordDialog}
+        isFirstLogin={isFirstLogin}
       />
 
       {/* Dialog för rabattkoder */}
