@@ -1,52 +1,95 @@
 
 import React from 'react';
 import { DealDialog } from '@/components/salon/DealDialog';
+import { DeleteDealDialog } from '@/components/admin/deals/DeleteDealDialog';
 import { DiscountCodesDialog } from '@/components/admin/deals/DiscountCodesDialog';
 import { Deal } from '@/components/admin/types';
 import { FormValues } from '@/components/deal-form/schema';
+import { endOfMonth } from 'date-fns';
 
-export interface SalonDealsDialogsProps {
-  editingDeal: Deal | null;
+interface SalonDealsDialogsProps {
   isDialogOpen: boolean;
-  onCloseDealDialog: () => void;
-  onUpdateDeal: (values: FormValues) => Promise<void>;
-  onCreateDeal: (values: FormValues) => Promise<void>;
-  isCodesDialogOpen: boolean;
-  viewingCodesFor: Deal | null;
-  onCloseCodesDialog: () => void;
-  onGenerateDiscountCodes: (deal: Deal, quantity: number) => Promise<void>;
-  isGeneratingCodes: boolean;
+  setIsDialogOpen: (open: boolean) => void;
+  editingDeal: Deal | null;
+  setEditingDeal: (deal: Deal | null) => void;
+  deleteData: {
+    deletingDeal: Deal | null;
+    setDeletingDeal: (deal: Deal | null) => void;
+    handleDelete: () => Promise<void>;
+  };
+  codeData: {
+    viewingCodesForDeal: Deal | null;
+    setViewingCodesForDeal: (deal: Deal | null) => void;
+    isClosingCodesDialog: boolean;
+    setIsClosingCodesDialog: (isClosing: boolean) => void;
+  };
+  onUpdate: (values: FormValues) => Promise<boolean>;
+  onCreate: (values: FormValues) => Promise<boolean>;
 }
 
 export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
-  editingDeal,
   isDialogOpen,
-  onCloseDealDialog,
-  onUpdateDeal,
-  onCreateDeal,
-  isCodesDialogOpen,
-  viewingCodesFor,
-  onCloseCodesDialog,
-  onGenerateDiscountCodes,
-  isGeneratingCodes
+  setIsDialogOpen,
+  editingDeal,
+  setEditingDeal,
+  deleteData,
+  codeData,
+  onUpdate,
+  onCreate
 }) => {
+  // Format initial values for the form
+  const initialValues = editingDeal ? {
+    title: editingDeal.title,
+    description: editingDeal.description,
+    imageUrl: editingDeal.image_url,
+    originalPrice: editingDeal.original_price.toString(),
+    discountedPrice: editingDeal.is_free ? "0" : editingDeal.discounted_price.toString(),
+    category: editingDeal.category,
+    city: editingDeal.city,
+    featured: editingDeal.featured,
+    salon_id: editingDeal.salon_id,
+    is_free: editingDeal.is_free || false,
+    quantity: editingDeal.quantity_left?.toString() || "10",
+    booking_url: editingDeal.booking_url || "",
+    requires_discount_code: editingDeal.requires_discount_code !== false,
+    expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
+  } : undefined;
+
+  // Handler for closing code dialog
+  const handleCloseCodeDialog = () => {
+    codeData.setIsClosingCodesDialog(true);
+    setTimeout(() => {
+      codeData.setViewingCodesForDeal(null);
+      codeData.setIsClosingCodesDialog(false);
+    }, 300);
+  };
+
   return (
     <>
-      <DealDialog 
-        key={`deal-dialog-${editingDeal?.id || 'new'}`}
+      {/* Create/Edit Deal Dialog */}
+      <DealDialog
         isOpen={isDialogOpen}
-        onClose={onCloseDealDialog}
-        onSubmit={editingDeal ? onUpdateDeal : onCreateDeal}
-        initialValues={editingDeal || {}}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setEditingDeal(null);
+        }}
+        onSubmit={editingDeal ? onUpdate : onCreate}
+        initialValues={initialValues}
       />
-      
-      <DiscountCodesDialog 
-        key={`codes-dialog-${viewingCodesFor?.id || 'none'}`}
-        isOpen={isCodesDialogOpen} 
-        onClose={onCloseCodesDialog}
-        deal={viewingCodesFor}
-        onGenerateDiscountCodes={onGenerateDiscountCodes}
-        isGeneratingCodes={isGeneratingCodes}
+
+      {/* Delete Deal Dialog */}
+      <DeleteDealDialog
+        isOpen={!!deleteData.deletingDeal}
+        onClose={() => deleteData.setDeletingDeal(null)}
+        onConfirm={deleteData.handleDelete}
+        dealTitle={deleteData.deletingDeal?.title || ''}
+      />
+
+      {/* Discount Codes Dialog */}
+      <DiscountCodesDialog
+        isOpen={!!codeData.viewingCodesForDeal && !codeData.isClosingCodesDialog}
+        onClose={handleCloseCodeDialog}
+        deal={codeData.viewingCodesForDeal}
       />
     </>
   );

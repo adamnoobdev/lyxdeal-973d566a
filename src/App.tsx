@@ -10,6 +10,7 @@ import SalonDashboard from './pages/SalonDashboard';
 import SalonLogin from './pages/SalonLogin';
 import UpdatePassword from './pages/UpdatePassword';
 import SalonDetails from './pages/SalonDetails';
+import SalonDealPage from './pages/SalonDealPage';
 import PartnerPage from './pages/PartnerPage';
 import PartnerSignup from './pages/PartnerSignup';
 import FAQ from './pages/FAQ';
@@ -19,7 +20,6 @@ import SecureDeal from './pages/SecureDeal';
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import CreateAdmin from './pages/CreateAdmin';
 import { CustomersTable } from './components/salon/CustomersTable';
-import { SalonDeals } from './components/salon/SalonDeals';
 import { SalonSettings } from './components/salon/SalonSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { CookieConsent } from './components/cookie/CookieConsent';
@@ -84,8 +84,8 @@ function App() {
             <Route path="/salon/login" element={<SalonLogin />} />
             <Route path="/salon/update-password" element={<UpdatePassword />} />
             <Route path="/salon/dashboard" element={<SalonDashboard />} />
-            <Route path="/salon/deal" element={<SalonDeals />} />
-            <Route path="/salon/deals" element={<SalonDeals />} />
+            <Route path="/salon/deal" element={<SalonDealPage />} />
+            <Route path="/salon/deals" element={<SalonDealPage />} />
             <Route path="/salon/customers" element={<CustomersTable />} />
             <Route path="/salon/settings" element={<SalonSettings />} />
           </Route>
