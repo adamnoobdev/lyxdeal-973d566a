@@ -54,10 +54,10 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     );
   }, [deletingDeal]);
 
-  // Handler for updating a deal - return type is Promise<boolean>
-  const handleUpdate = useCallback(async (values: FormValues): Promise<boolean> => {
+  // Handler for updating a deal - return type is Promise<boolean | void>
+  const handleUpdate = useCallback(async (values: FormValues): Promise<boolean | void> => {
     try {
-      const success = await updateDeal(
+      return await updateDeal(
         editingDeal,
         values,
         setDeals,
@@ -65,26 +65,33 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
         isUpdatingDeal,
         isMountedRef
       );
-      return success || false;
     } catch (error) {
       console.error("[useSalonDealsManagement] Error updating deal:", error);
       return false;
     }
   }, [editingDeal]);
 
-  // Handler for creating a new deal - return type is Promise<boolean>
-  const handleCreate = useCallback(async (values: FormValues): Promise<boolean> => {
+  // Handler for creating a new deal - return type is Promise<boolean | void>
+  const handleCreate = useCallback(async (values: FormValues): Promise<boolean | void> => {
     try {
       console.log("[useSalonDealsManagement] Creating deal with salonId:", salonId);
       console.log("[useSalonDealsManagement] Form values:", values);
       
-      if (!values.salon_id && salonId) {
-        // Ensure salon_id is set in values if not provided
-        values.salon_id = parseInt(salonId, 10);
+      if (!salonId) {
+        console.error("[useSalonDealsManagement] No salon ID provided");
+        return false;
       }
       
+      // Ensure salon_id is set in values
+      const formValues = {
+        ...values,
+        salon_id: values.salon_id || parseInt(salonId, 10)
+      };
+      
+      console.log("[useSalonDealsManagement] Adjusted form values:", formValues);
+      
       const success = await createDeal(
-        values,
+        formValues,
         salonId,
         setDeals,
         isCreatingDeal,
@@ -95,7 +102,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
         await refetch();
       }
       
-      return success || false;
+      return success;
     } catch (error) {
       console.error("[useSalonDealsManagement] Error creating deal:", error);
       return false;
@@ -110,6 +117,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
   // Effect for component lifecycle and data loading
   useEffect(() => {
     isMountedRef.current = true;
+    console.log("[useSalonDealsManagement] Mounting with salon ID:", salonId);
     
     // Only load deals if salonId has changed
     if (salonId && previousSalonId.current !== salonId) {

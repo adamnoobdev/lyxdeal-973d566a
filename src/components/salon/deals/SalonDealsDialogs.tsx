@@ -24,8 +24,8 @@ interface SalonDealsDialogsProps {
     isClosingCodesDialog: boolean;
     setIsClosingCodesDialog: (isClosing: boolean) => void;
   };
-  onUpdate: (values: FormValues) => Promise<void>;
-  onCreate: (values: FormValues) => Promise<void>;
+  onUpdate: (values: FormValues) => Promise<boolean | void>;
+  onCreate: (values: FormValues) => Promise<boolean | void>;
 }
 
 export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
@@ -54,6 +54,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     booking_url: editingDeal.booking_url || "",
     requires_discount_code: editingDeal.requires_discount_code !== false,
     expirationDate: editingDeal.expiration_date ? new Date(editingDeal.expiration_date) : endOfMonth(new Date()),
+    is_active: editingDeal.is_active
   } : undefined;
 
   // Handler for closing code dialog
@@ -65,17 +66,22 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     }, 300);
   };
 
+  // Handler for dialog close with cleanup
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+    setEditingDeal(null);
+    console.log("Dialog closed, editingDeal set to null");
+  };
+
   return (
     <>
       {/* Create/Edit Deal Dialog */}
       <DealDialog
         isOpen={isDialogOpen}
-        onClose={() => {
-          setIsDialogOpen(false);
-          setEditingDeal(null);
-        }}
+        onClose={handleDialogClose}
         onSubmit={editingDeal ? onUpdate : onCreate}
         initialValues={initialValues}
+        isEditing={!!editingDeal}
       />
 
       {/* Delete Deal Dialog */}
