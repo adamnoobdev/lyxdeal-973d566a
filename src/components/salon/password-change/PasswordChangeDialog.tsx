@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { PasswordChangeForm, PasswordFormValues } from "./PasswordChangeForm";
 import { PasswordUpdateSuccess } from "./PasswordUpdateSuccess";
+import { useSession } from "@/hooks/useSession";
 
 interface PasswordChangeDialogProps {
   isOpen: boolean;
@@ -21,8 +22,14 @@ interface PasswordChangeDialogProps {
 export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: PasswordChangeDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordUpdated, setPasswordUpdated] = useState(false);
+  const { session } = useSession();
   
   const handleSubmit = async (values: PasswordFormValues) => {
+    if (!session) {
+      toast.error("Du måste vara inloggad för att uppdatera lösenord");
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       const { error } = await supabase.auth.updateUser({
@@ -31,7 +38,7 @@ export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: 
 
       if (error) throw error;
 
-      const userId = (await supabase.auth.getUser()).data.user?.id;
+      const userId = session.user.id;
       
       if (!userId) {
         throw new Error("Kunde inte hitta användar-ID");
