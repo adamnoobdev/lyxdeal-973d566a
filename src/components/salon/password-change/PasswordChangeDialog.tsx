@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -24,6 +24,13 @@ export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: 
   const [passwordUpdated, setPasswordUpdated] = useState(false);
   const { session } = useSession();
   
+  useEffect(() => {
+    // Reset state when dialog opens/closes
+    if (!isOpen) {
+      setPasswordUpdated(false);
+    }
+  }, [isOpen]);
+
   const handleSubmit = async (values: PasswordFormValues) => {
     if (!session) {
       toast.error("Du måste vara inloggad för att uppdatera lösenord");
@@ -60,6 +67,7 @@ export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: 
     } catch (error: any) {
       console.error("Fel vid uppdatering av lösenord:", error);
       toast.error(error.message || "Ett fel uppstod vid uppdatering av lösenordet.");
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -73,20 +81,12 @@ export const PasswordChangeDialog = ({ isOpen, onClose, isFirstLogin = false }: 
       }
       // Annars tillåt stängning och återställ state
       onClose();
-      // Återställ passwordUpdated state efter en kort fördröjning så att animationer hinner köras
-      setTimeout(() => {
-        setPasswordUpdated(false);
-      }, 300);
     }
   };
 
   // Hantera explicit klick på stäng-knappen i framgångsvyn
   const handleSuccessClose = () => {
     onClose();
-    // Återställ passwordUpdated state efter en kort fördröjning
-    setTimeout(() => {
-      setPasswordUpdated(false);
-    }, 300);
   };
 
   return (

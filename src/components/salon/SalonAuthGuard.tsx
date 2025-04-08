@@ -56,7 +56,8 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
 
         console.log("User has valid salon permissions");
         
-        // Check if it's the first login
+        // Create a new salon_user_status row if needed, but don't automatically
+        // set showPasswordDialog here
         const { data: statusData, error: statusError } = await supabase
           .from("salon_user_status")
           .select("first_login")
@@ -73,12 +74,6 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
           await supabase
             .from("salon_user_status")
             .insert([{ user_id: session.user.id, first_login: true }]);
-            
-          // Visa lösenordsdialogrutan efter att statusen har skapats
-          setShowPasswordDialog(true);
-        } else if (statusData.first_login) {
-          console.log("First login detected, showing password change dialog");
-          setShowPasswordDialog(true);
         }
         
         setIsAuthorized(true);
@@ -97,13 +92,22 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
   // Uppdatera visning av dialogrutan baserat på isFirstLogin
   useEffect(() => {
     if (!isFirstLoginLoading && isFirstLogin === true) {
+      console.log('Setting showPasswordDialog to true based on isFirstLogin:', isFirstLogin);
       setShowPasswordDialog(true);
+    } else if (!isFirstLoginLoading && isFirstLogin === false) {
+      console.log('Setting showPasswordDialog to false based on isFirstLogin:', isFirstLogin);
+      setShowPasswordDialog(false);
     }
   }, [isFirstLogin, isFirstLoginLoading]);
 
   // Hantera stängning av lösenordsdialogrutan
   const handleClosePasswordDialog = () => {
-    setShowPasswordDialog(false);
+    // Om det finns en localStorage-inställning som anger att det inte är första inloggningen längre
+    const localStatus = localStorage.getItem(`salon_first_login_${session?.user?.id}`);
+    if (localStatus === 'false' || isFirstLogin === false) {
+      console.log('Closing password dialog, first login completed');
+      setShowPasswordDialog(false);
+    }
   };
 
   if (isLoading || isCheckingAuth) {
@@ -127,7 +131,7 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
       <PasswordChangeDialog 
         isOpen={showPasswordDialog} 
         onClose={handleClosePasswordDialog}
-        isFirstLogin={isFirstLogin || false} 
+        isFirstLogin={isFirstLogin === true} 
       />
     </>
   );

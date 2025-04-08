@@ -21,6 +21,7 @@ export const useFirstLogin = () => {
       const localStatus = localStorage.getItem(localStatusKey);
       
       if (localStatus === 'false') {
+        console.log('First login already handled according to localStorage');
         setIsFirstLogin(false);
         setIsLoading(false);
         return;
@@ -37,6 +38,7 @@ export const useFirstLogin = () => {
         
         // If no row found or first_login is true, consider it first login
         const isFirst = !data || data.first_login === true;
+        console.log('First login status from database:', isFirst);
         setIsFirstLogin(isFirst);
         
         // Store the result in localStorage to avoid checking again in this session

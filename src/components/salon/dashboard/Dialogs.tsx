@@ -41,6 +41,8 @@ export const DashboardDialogs = ({
   onCloseDeleteDialog,
   isFirstLogin = false,
 }: DashboardDialogsProps) => {
+  // Vi tar bort PasswordChangeDialog härifrån eftersom den hanteras av SalonAuthGuard
+  // för att undvika dubbletter och inkonsekvent hantering
   return (
     <>
       {/* Skapa nytt deal */}
@@ -61,13 +63,6 @@ export const DashboardDialogs = ({
           initialValues={editingDeal}
         />
       )}
-
-      {/* Byta lösenord dialog */}
-      <PasswordChangeDialog 
-        isOpen={showPasswordDialog} 
-        onClose={onClosePasswordDialog}
-        isFirstLogin={isFirstLogin}
-      />
 
       {/* Visa rabattkoder */}
       {viewingCodesForDeal && (

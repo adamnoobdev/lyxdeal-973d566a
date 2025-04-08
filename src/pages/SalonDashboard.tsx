@@ -50,13 +50,13 @@ export default function SalonDashboard() {
     deleteDeal,
   } = useSalonDeals(salonData?.id);
 
+  // Låt SalonAuthGuard hantera första inloggning och lösenordsdialog
+  // istället för att visa den här också
   useEffect(() => {
-    // Om det är första inloggningen och vi är inte längre i laddningstillstånd
-    if (!checkingFirstLogin && isFirstLogin === true) {
-      console.log("Första inloggningen detekterad, visar lösenordsdialogruta");
-      setShowPasswordDialog(true);
+    if (!checkingFirstLogin && isFirstLogin === false && showPasswordDialog) {
+      setShowPasswordDialog(false);
     }
-  }, [isFirstLogin, checkingFirstLogin]);
+  }, [isFirstLogin, checkingFirstLogin, showPasswordDialog]);
 
   const handleCreate = async (values: any): Promise<void> => {
     await createDeal(values);
@@ -103,9 +103,9 @@ export default function SalonDashboard() {
   };
 
   const handleClosePasswordDialog = () => {
-    // Om det inte är första inloggningen, eller om lösenordet har uppdaterats, tillåt stängning
-    console.log("Försöker stänga lösenordsdialogrutan, isFirstLogin:", isFirstLogin);
-    if (isFirstLogin !== true) {
+    // Check if it's not first login anymore before allowing to close
+    const localStatus = localStorage.getItem(`salon_first_login_${session?.user?.id}`);
+    if (localStatus === 'false' || isFirstLogin === false) {
       setShowPasswordDialog(false);
     }
   };
