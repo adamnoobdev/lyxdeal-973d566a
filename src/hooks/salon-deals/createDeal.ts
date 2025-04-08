@@ -115,7 +115,7 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       expiration_date: expirationDate.toISOString(),
       featured: values.featured,
       salon_id: finalSalonId,
-      status: 'pending',
+      status: 'approved', // Auto-approve salon created deals
       is_free: isFree, // Set is_free flag for free deals
       quantity_left: quantity,
       booking_url: values.booking_url || null,
@@ -157,7 +157,7 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       }
     }
     
-    toast.success("Erbjudande skapat! Det kommer att granskas av en administratör innan det publiceras.");
+    toast.success("Erbjudande skapat! Det kommer att visas på sidan efter granskning.");
     return true;
   } catch (error) {
     console.error("[createDeal] Error creating deal:", error);

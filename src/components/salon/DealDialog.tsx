@@ -37,10 +37,13 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         // Try to get salon_id from initialValues or from authenticated user
         if (initialValues?.salon_id) {
           salonId = initialValues.salon_id;
+          console.log("[DealDialog] Using salon_id from initialValues:", salonId);
         } else {
           const { data: { session } } = await supabase.auth.getSession();
+          console.log("[DealDialog] Current session user:", session?.user?.id);
+          
           if (session?.user?.id) {
-            const { data: salonData } = await supabase
+            const { data: salonData, error } = await supabase
               .from('salons')
               .select('id')
               .eq('user_id', session.user.id)
@@ -48,6 +51,9 @@ export const DealDialog: React.FC<DealDialogProps> = ({
               
             if (salonData?.id) {
               salonId = salonData.id;
+              console.log("[DealDialog] Found salon_id from user:", salonId);
+            } else if (error) {
+              console.error("[DealDialog] Error fetching salon data:", error);
             }
           }
         }
@@ -97,7 +103,17 @@ export const DealDialog: React.FC<DealDialogProps> = ({
             if (salonData?.id) {
               values.salon_id = salonData.id;
               console.log("[DealDialog] Found and set salon_id:", salonData.id);
+            } else {
+              console.error("[DealDialog] No salon found for user:", session.user.id);
+              toast.error("Kunde inte hitta din salong. Kontakta support.");
+              setIsSubmitting(false);
+              return;
             }
+          } else {
+            console.error("[DealDialog] User not logged in");
+            toast.error("Du måste vara inloggad för att skapa erbjudanden");
+            setIsSubmitting(false);
+            return;
           }
         } catch (error) {
           console.error("[DealDialog] Error fetching salon ID:", error);
@@ -120,6 +136,14 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         values.requires_discount_code = false;
       }
       
+      // Validate that booking_url is provided for direct booking
+      if (!values.requires_discount_code && !values.booking_url) {
+        console.error("[DealDialog] Missing booking URL for direct booking");
+        toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
+        setIsSubmitting(false);
+        return;
+      }
+      
       console.log("[DealDialog] Submitting with values:", values);
       
       // Call the parent onSubmit and wait for result
@@ -134,11 +158,11 @@ export const DealDialog: React.FC<DealDialogProps> = ({
       } else {
         console.log("[DealDialog] Submission failed, keeping dialog open");
         toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error("[DealDialog] Error during submission:", error);
       toast.error("Ett fel uppstod. Vänligen försök igen senare.");
-    } finally {
       setIsSubmitting(false);
     }
   };

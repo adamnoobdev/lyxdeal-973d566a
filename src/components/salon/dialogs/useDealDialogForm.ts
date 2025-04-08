@@ -14,28 +14,34 @@ export const useDealDialogForm = (
   console.log("useDealDialogForm initialized with isBasicPlan:", isBasicPlan);
   console.log("defaultRequiresDiscountCode set to:", defaultRequiresDiscountCode);
   
-  const defaultValues: Partial<FormValues> = {
-    title: '',
-    description: '',
-    originalPrice: '0',
-    discountedPrice: '0',
-    category: '',
-    city: '',
-    featured: false,
-    imageUrl: '',
-    booking_url: '',
-    requires_discount_code: defaultRequiresDiscountCode,
-    quantity: '10',
-    expirationDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-    is_active: true,
-    ...initialValues
+  // Set initial requires_discount_code based on subscription plan
+  const formValues = {
+    ...initialValues, 
+    requires_discount_code: initialValues.requires_discount_code !== undefined 
+      ? initialValues.requires_discount_code 
+      : defaultRequiresDiscountCode
   };
   
-  console.log("Form default values:", defaultValues);
+  console.log("Form default values:", formValues);
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues
+    defaultValues: {
+      title: '',
+      description: '',
+      originalPrice: '0',
+      discountedPrice: '0',
+      category: '',
+      city: '',
+      featured: false,
+      imageUrl: '',
+      booking_url: '',
+      requires_discount_code: defaultRequiresDiscountCode,
+      quantity: '10',
+      expirationDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+      is_active: true,
+      ...formValues
+    }
   });
 
   // Update the form when initial values change
@@ -52,13 +58,12 @@ export const useDealDialogForm = (
   
   // Update requires_discount_code based on subscription
   useEffect(() => {
-    // Only update if not explicitly set in initialValues
-    if (initialValues?.requires_discount_code === undefined) {
-      const newValue = !isBasicPlan;
-      console.log(`Setting requires_discount_code to ${newValue} based on subscription`);
-      methods.setValue('requires_discount_code', newValue);
-    } else {
-      console.log(`Keeping requires_discount_code as ${initialValues.requires_discount_code} from initialValues`);
+    if (isBasicPlan) {
+      console.log(`Setting requires_discount_code to false for basic plan`);
+      methods.setValue('requires_discount_code', false);
+    } else if (initialValues?.requires_discount_code === undefined) {
+      console.log(`Setting requires_discount_code to true for premium plan`);
+      methods.setValue('requires_discount_code', true);
     }
   }, [isBasicPlan, methods, initialValues]);
 
