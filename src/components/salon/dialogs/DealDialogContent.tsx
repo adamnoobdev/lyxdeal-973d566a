@@ -60,68 +60,71 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
 
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className="mb-4">
         <DialogTitle>
           {isEditing ? "Redigera erbjudande" : "Skapa erbjudande"}
         </DialogTitle>
       </DialogHeader>
       
-      <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-4">
-          {isBasicPlan && (
-            <Alert variant="warning" className="bg-amber-50 border-amber-200">
-              <AlertCircle className="h-4 w-4 text-amber-500" />
-              <AlertTitle className="text-amber-800">Baspaket</AlertTitle>
-              <AlertDescription className="text-amber-700">
-                Med Baspaket kan du endast använda direkt bokning, inte rabattkoder.
-                Uppgradera till ett premium-paket för att få tillgång till rabattkoder.
-              </AlertDescription>
-            </Alert>
-          )}
-          
-          <FormFields 
-            form={methods}
-            handleImageSelected={(imageUrl) => methods.setValue('imageUrl', imageUrl)}
-            initialImageUrl={initialValues?.imageUrl}
-          />
-          
-          <PriceFields form={methods} />
-          
-          <LocationFields form={methods} />
-          
-          <RequiresDiscountCodeField 
-            form={methods} 
-            readOnly={discountCodeFieldReadOnly}
-          />
-          
-          <BookingUrlField form={methods} />
-          
-          <QuantityField 
-            form={methods} 
-            readOnly={isEditing && initialValues?.requires_discount_code === true}
-          />
-          
-          <AdditionalFields form={methods} />
-          
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              Avbryt
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="ml-2"
-            >
-              {isSubmitting ? "Sparar..." : (isEditing ? "Uppdatera" : "Skapa")}
-            </Button>
-          </DialogFooter>
-        </form>
-      </FormProvider>
+      <div className="max-h-[calc(80vh-10rem)] overflow-y-auto pr-2 -mr-2">
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-4">
+            {isBasicPlan && (
+              <Alert variant="warning" className="bg-amber-50 border-amber-200">
+                <AlertCircle className="h-4 w-4 text-amber-500" />
+                <AlertTitle className="text-amber-800">Baspaket</AlertTitle>
+                <AlertDescription className="text-amber-700">
+                  Med Baspaket kan du endast använda direkt bokning, inte rabattkoder.
+                  Uppgradera till ett premium-paket för att få tillgång till rabattkoder.
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            <FormFields 
+              form={methods}
+              handleImageSelected={(imageUrl) => methods.setValue('imageUrl', imageUrl)}
+              initialImageUrl={initialValues?.imageUrl}
+            />
+            
+            <PriceFields form={methods} />
+            
+            <LocationFields form={methods} />
+            
+            <RequiresDiscountCodeField 
+              form={methods} 
+              readOnly={discountCodeFieldReadOnly}
+            />
+            
+            <BookingUrlField form={methods} />
+            
+            <QuantityField 
+              form={methods} 
+              readOnly={isEditing && initialValues?.requires_discount_code === true}
+            />
+            
+            <AdditionalFields form={methods} />
+          </form>
+        </FormProvider>
+      </div>
+      
+      <DialogFooter className="mt-6 pt-4 border-t">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          disabled={isSubmitting}
+        >
+          Avbryt
+        </Button>
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          onClick={methods.handleSubmit(handleSubmit)}
+          className="ml-2"
+        >
+          {isSubmitting ? "Sparar..." : (isEditing ? "Uppdatera" : "Skapa")}
+        </Button>
+      </DialogFooter>
     </>
   );
 };

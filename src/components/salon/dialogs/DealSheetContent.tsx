@@ -66,63 +66,66 @@ export const DealSheetContent: React.FC<DealSheetContentProps> = ({
         </SheetTitle>
       </SheetHeader>
       
-      <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-4">
-          {isBasicPlan && (
-            <Alert variant="warning" className="bg-amber-50 border-amber-200">
-              <AlertCircle className="h-4 w-4 text-amber-500" />
-              <AlertTitle className="text-amber-800">Baspaket</AlertTitle>
-              <AlertDescription className="text-amber-700">
-                Med Baspaket kan du endast använda direkt bokning, inte rabattkoder.
-                Uppgradera till ett premium-paket för att få tillgång till rabattkoder.
-              </AlertDescription>
-            </Alert>
-          )}
-          
-          <FormFields 
-            form={methods}
-            handleImageSelected={(imageUrl) => methods.setValue('imageUrl', imageUrl)}
-            initialImageUrl={initialValues?.imageUrl}
-          />
-          
-          <PriceFields form={methods} />
-          
-          <LocationFields form={methods} />
-          
-          <RequiresDiscountCodeField 
-            form={methods} 
-            readOnly={discountCodeFieldReadOnly}
-          />
-          
-          <BookingUrlField form={methods} />
-          
-          <QuantityField 
-            form={methods} 
-            readOnly={isEditing && initialValues?.requires_discount_code === true}
-          />
-          
-          <AdditionalFields form={methods} />
-          
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-6 pt-4 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="w-full sm:w-auto"
-            >
-              Avbryt
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="w-full sm:w-auto"
-            >
-              {isSubmitting ? "Sparar..." : (isEditing ? "Uppdatera" : "Skapa")}
-            </Button>
-          </div>
-        </form>
-      </FormProvider>
+      <div className="flex-1 overflow-y-auto pb-20">
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-4">
+            {isBasicPlan && (
+              <Alert variant="warning" className="bg-amber-50 border-amber-200">
+                <AlertCircle className="h-4 w-4 text-amber-500" />
+                <AlertTitle className="text-amber-800">Baspaket</AlertTitle>
+                <AlertDescription className="text-amber-700">
+                  Med Baspaket kan du endast använda direkt bokning, inte rabattkoder.
+                  Uppgradera till ett premium-paket för att få tillgång till rabattkoder.
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            <FormFields 
+              form={methods}
+              handleImageSelected={(imageUrl) => methods.setValue('imageUrl', imageUrl)}
+              initialImageUrl={initialValues?.imageUrl}
+            />
+            
+            <PriceFields form={methods} />
+            
+            <LocationFields form={methods} />
+            
+            <RequiresDiscountCodeField 
+              form={methods} 
+              readOnly={discountCodeFieldReadOnly}
+            />
+            
+            <BookingUrlField form={methods} />
+            
+            <QuantityField 
+              form={methods} 
+              readOnly={isEditing && initialValues?.requires_discount_code === true}
+            />
+            
+            <AdditionalFields form={methods} />
+            
+            <div className="fixed bottom-0 left-0 right-0 flex flex-col-reverse sm:flex-row justify-end gap-2 p-4 bg-background border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isSubmitting}
+                className="w-full sm:w-auto"
+              >
+                Avbryt
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                onClick={methods.handleSubmit(handleSubmit)}
+                className="w-full sm:w-auto mb-2 sm:mb-0"
+              >
+                {isSubmitting ? "Sparar..." : (isEditing ? "Uppdatera" : "Skapa")}
+              </Button>
+            </div>
+          </form>
+        </FormProvider>
+      </div>
     </>
   );
 };

@@ -117,7 +117,8 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
               </FormMessage>
             )}
             {hasBasicPackage && (
-              <p className="mt-2 text-xs text-amber-600">
+              <p className="mt-2 text-xs text-amber-600 flex items-center">
+                <LockIcon className="h-3 w-3 mr-1 inline" />
                 Premiumfunktion låst. Uppgradera för att låsa upp rabattkoder.
               </p>
             )}
@@ -127,7 +128,8 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
               checked={field.value}
               disabled={isDisabled}
               onCheckedChange={field.onChange}
-              className={hasBasicPackage ? "opacity-50" : ""}
+              className={hasBasicPackage ? "opacity-50 pointer-events-none" : ""}
+              aria-readonly={hasBasicPackage}
             />
           </FormControl>
         </FormItem>

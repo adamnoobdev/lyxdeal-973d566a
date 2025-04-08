@@ -2,57 +2,31 @@
 import { useState, useEffect } from 'react';
 
 /**
- * A hook that returns whether the current viewport matches the given media query
- * 
- * @param query The media query to match against (e.g., "(max-width: 640px)")
- * @returns A boolean indicating whether the media query matches
+ * Hook to detect if the window matches a media query
+ * @param query The media query to match
+ * @returns Boolean indicating if the query matches
  */
-export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState<boolean>(() => {
-    // Initialize with the current match state if in browser environment
-    if (typeof window !== 'undefined') {
-      return window.matchMedia(query).matches;
-    }
-    // Default to false in SSR/non-browser environments
-    return false;
-  });
-
+export const useMediaQuery = (query: string): boolean => {
+  const [matches, setMatches] = useState(false);
+  
   useEffect(() => {
-    // Skip in non-browser environments
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia(query);
+    // Create a MediaQueryList object
+    const media = window.matchMedia(query);
     
-    // Update the state when the media query changes
-    const updateMatches = () => {
-      setMatches(mediaQuery.matches);
+    // Set initial value
+    setMatches(media.matches);
+    
+    // Define callback function to handle changes
+    const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
+    
+    // Add event listener for changes to the query match
+    media.addEventListener('change', listener);
+    
+    // Clean up function to remove listener when component unmounts
+    return () => {
+      media.removeEventListener('change', listener);
     };
-
-    // Set the initial value
-    updateMatches();
-
-    // Modern browsers
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', updateMatches);
-      return () => {
-        mediaQuery.removeEventListener('change', updateMatches);
-      };
-    } 
-    // Fallback for older browsers
-    else if (mediaQuery.addListener) {
-      // @ts-ignore - For older browsers that don't have addEventListener
-      mediaQuery.addListener(updateMatches);
-      return () => {
-        // @ts-ignore - For older browsers that don't have removeEventListener
-        mediaQuery.removeListener(updateMatches);
-      };
-    }
-
-    // No cleanup needed if neither method is available
-    return undefined;
-  }, [query]);
-
+  }, [query]); // Only re-run if the query changes
+  
   return matches;
-}
+};
