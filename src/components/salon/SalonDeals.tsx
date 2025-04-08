@@ -1,10 +1,18 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SalonDealsContent } from '@/components/salon/deals/SalonDealsContent';
 import { SalonDealsDialogs } from '@/components/salon/deals/SalonDealsDialogs';
 import { useSalonDealsState } from '@/components/salon/deals/useSalonDealsState';
 
-export const SalonDeals: React.FC = () => {
+interface SalonDealsProps {
+  initialCreateDialogOpen?: boolean;
+  onCloseCreateDialog?: () => void;
+}
+
+export const SalonDeals: React.FC<SalonDealsProps> = ({ 
+  initialCreateDialogOpen = false,
+  onCloseCreateDialog
+}) => {
   const {
     dealManagement,
     viewingCodesForDeal,
@@ -18,6 +26,21 @@ export const SalonDeals: React.FC = () => {
     editingDeal,
     setEditingDeal
   } = useSalonDealsState();
+
+  // Synkronisera extern kontroll av dialogen
+  useEffect(() => {
+    if (initialCreateDialogOpen) {
+      setIsDialogOpen(true);
+    }
+  }, [initialCreateDialogOpen, setIsDialogOpen]);
+
+  // När dialogen stängs, meddela föräldrakomponenten
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    if (onCloseCreateDialog) {
+      onCloseCreateDialog();
+    }
+  };
 
   const handleGenerateDiscountCodes = async (deal: any, quantity: number): Promise<void> => {
     try {
@@ -51,7 +74,7 @@ export const SalonDeals: React.FC = () => {
       
       <SalonDealsDialogs
         isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
+        setIsDialogOpen={handleCloseDialog}
         editingDeal={editingDeal}
         setEditingDeal={setEditingDeal}
         deleteData={{
