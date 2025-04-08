@@ -69,9 +69,9 @@ const RelatedDealsComponent = ({ currentDealId, category, city, salonRating, com
 
   if (isLoading) {
     return (
-      <div className="grid gap-4">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-48 bg-accent/10 rounded-xl" />
+      <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="h-44 bg-accent/10 rounded-lg" />
         ))}
       </div>
     );
@@ -82,14 +82,14 @@ const RelatedDealsComponent = ({ currentDealId, category, city, salonRating, com
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-primary" />
-        <h2 className="text-xl font-bold">Fler erbjudanden</h2>
+        <Sparkles className="h-4 w-4 text-primary" />
+        <h2 className="text-lg font-bold">Fler erbjudanden</h2>
       </div>
       <ResponsiveGrid>
         {relatedDeals.map((deal) => (
-          <DealCard key={deal.id} {...deal} compact={compact} />
+          <DealCard key={deal.id} {...deal} compact={true} />
         ))}
       </ResponsiveGrid>
     </div>

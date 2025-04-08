@@ -37,7 +37,7 @@ const CityDealsComponent = ({
   
   if (!deals || deals.length === 0) {
     return (
-      <div className="text-center py-4">
+      <div className="text-center py-3">
         <p className="text-muted-foreground">
           Inga erbjudanden hittades i {city}.
         </p>
@@ -49,9 +49,9 @@ const CityDealsComponent = ({
 };
 
 export const CityDealsLoadingSkeleton = () => (
-  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    {[...Array(4)].map((_, i) => (
-      <div key={i} className="h-56 md:h-64 lg:h-72 bg-accent/5 rounded-lg animate-pulse" />
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+    {[...Array(6)].map((_, i) => (
+      <div key={i} className="h-44 sm:h-48 bg-accent/5 rounded-lg animate-pulse" />
     ))}
   </div>
 );
