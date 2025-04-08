@@ -53,11 +53,8 @@ export const useDealDialogForm = (
       console.log(`Setting requires_discount_code to false for basic plan`);
       methods.setValue('requires_discount_code', false);
       
-      // Ensure booking URL field is marked as required for basic plan
-      if (!methods.getValues('booking_url')) {
-        console.log("Basic plan requires booking URL - marking field");
-        methods.trigger('booking_url');
-      }
+      // Trigger validation
+      methods.trigger();
     }
   }, [isBasicPlan, methods]);
 

@@ -39,9 +39,11 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
     if (isSubmitting) return;
     
     try {
+      console.log("[DealDialogContent] Form submitted with data:", data);
+      
       // Apply subscription-based restrictions - force direct booking for basic plan
       if (isBasicPlan) {
-        console.log("Setting requires_discount_code to false for basic plan");
+        console.log("[DealDialogContent] Setting requires_discount_code to false for basic plan");
         data.requires_discount_code = false;
       }
       
@@ -67,18 +69,18 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
               
             if (salonData?.id) {
               data.salon_id = salonData.id;
-              console.log("Set salon_id to:", salonData.id);
+              console.log("[DealDialogContent] Set salon_id to:", salonData.id);
             }
           }
         } catch (error) {
-          console.error("Error fetching salon ID:", error);
+          console.error("[DealDialogContent] Error fetching salon ID:", error);
         }
       }
       
-      console.log("Submitting form data:", data);
+      console.log("[DealDialogContent] Submitting form data:", data);
       await onSubmit(data);
     } catch (error) {
-      console.error("Error submitting deal:", error);
+      console.error("[DealDialogContent] Error submitting deal:", error);
     }
   };
 
@@ -92,7 +94,7 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
       
       <div className="max-h-[calc(80vh-10rem)] overflow-y-auto pr-2 -mr-2">
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-4">
+          <form id="deal-form" onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-4">
             {isBasicPlan && (
               <Alert variant="warning" className="bg-amber-50 border-amber-200">
                 <AlertCircle className="h-4 w-4 text-amber-500" />
@@ -142,6 +144,7 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
         </Button>
         <Button 
           type="submit" 
+          form="deal-form"
           disabled={isSubmitting}
           onClick={methods.handleSubmit(handleSubmit)}
           className="ml-2"

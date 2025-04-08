@@ -1,9 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SalonDealsContent } from '@/components/salon/deals/SalonDealsContent';
 import { SalonDealsDialogs } from '@/components/salon/deals/SalonDealsDialogs';
 import { useSalonDealsState } from '@/components/salon/deals/useSalonDealsState';
 import { toast } from 'sonner';
+import { createDeal } from '@/utils/deal/queries/createDeal';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SalonDealsProps {
   initialCreateDialogOpen?: boolean;
@@ -30,12 +32,39 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
   } = useSalonDealsState();
 
   const [lastError, setLastError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Logga salonId för att felsöka problem
+  // Fetch salon ID if not already available
+  const [currentSalonId, setCurrentSalonId] = useState<number | null>(null);
+  
   useEffect(() => {
-    console.log("SalonDeals component - Current salon ID:", salonId);
-    console.log("SalonDeals component - handleCreate available:", !!dealManagement.handleCreate);
-  }, [salonId, dealManagement.handleCreate]);
+    const fetchSalonId = async () => {
+      if (salonId) {
+        setCurrentSalonId(parseInt(salonId, 10));
+        return;
+      }
+      
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user?.id) return;
+        
+        const { data: salonData } = await supabase
+          .from('salons')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+          
+        if (salonData?.id) {
+          console.log("[SalonDeals] Fetched salon ID:", salonData.id);
+          setCurrentSalonId(salonData.id);
+        }
+      } catch (error) {
+        console.error("[SalonDeals] Error fetching salon ID:", error);
+      }
+    };
+    
+    fetchSalonId();
+  }, [salonId]);
 
   // Synchronize dialog state with external control
   useEffect(() => {
@@ -45,13 +74,15 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
   }, [initialCreateDialogOpen, isDialogOpen, setIsDialogOpen]);
 
   // When dialog closes, notify parent component
-  const handleCloseDialog = () => {
+  const handleCloseDialog = useCallback(() => {
+    if (isSubmitting) return;
+    
     setIsDialogOpen(false);
     setEditingDeal(null);
     if (onCloseCreateDialog) {
       onCloseCreateDialog();
     }
-  };
+  }, [isSubmitting, setIsDialogOpen, setEditingDeal, onCloseCreateDialog]);
 
   const handleGenerateDiscountCodes = async (deal: any, quantity: number): Promise<void> => {
     try {
@@ -63,6 +94,46 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       console.error("Error generating discount codes:", error);
     } finally {
       setIsGeneratingCodes(false);
+    }
+  };
+
+  // Manually handle form submission for create deals
+  const handleCreateDeal = async (values: any) => {
+    console.log("[SalonDeals] Create deal called with values:", values);
+    setIsSubmitting(true);
+    
+    try {
+      // Ensure salon_id is set
+      const finalSalonId = values.salon_id || currentSalonId;
+      if (!finalSalonId) {
+        console.error("[SalonDeals] No salon ID available");
+        toast.error("Kunde inte identifiera salongen. Vänligen försök igen.");
+        setIsSubmitting(false);
+        return false;
+      }
+      
+      values.salon_id = finalSalonId;
+      console.log("[SalonDeals] Creating deal with salon ID:", finalSalonId);
+      
+      const success = await createDeal(values, finalSalonId);
+      
+      if (success) {
+        console.log("[SalonDeals] Deal created successfully");
+        toast.success("Erbjudandet har skapats!");
+        await dealManagement.refetch();
+        setIsSubmitting(false);
+        return true;
+      } else {
+        console.error("[SalonDeals] Failed to create deal");
+        toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+        setIsSubmitting(false);
+        return false;
+      }
+    } catch (error) {
+      console.error("[SalonDeals] Error creating deal:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+      setIsSubmitting(false);
+      return false;
     }
   };
 
@@ -101,7 +172,10 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
         onUpdate={async (values) => {
           try {
             console.log("Attempting to update deal with values:", values);
+            setIsSubmitting(true);
             const success = await dealManagement.handleUpdate(values);
+            setIsSubmitting(false);
+            
             // Check specifically if success is false (not just any falsy value)
             if (success === false) {
               const errorMsg = "Det gick inte att uppdatera erbjudandet. Kontrollera att alla fält är korrekt ifyllda.";
@@ -109,6 +183,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
               setLastError(errorMsg);
               return false;
             }
+            
             setLastError(null);
             return success;
           } catch (error) {
@@ -116,56 +191,11 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
             const errorMsg = "Ett fel uppstod när erbjudandet skulle uppdateras";
             toast.error(errorMsg);
             setLastError(errorMsg);
+            setIsSubmitting(false);
             return false;
           }
         }}
-        onCreate={async (values) => {
-          try {
-            console.log("Attempting to create new deal with salonId:", salonId);
-            
-            if (!dealManagement.handleCreate) {
-              const errorMsg = "handleCreate function not available in dealManagement";
-              console.error(errorMsg);
-              toast.error("Ett systemfel uppstod. Kontakta support.");
-              setLastError(errorMsg);
-              return false;
-            }
-            
-            if (!salonId && !values.salon_id) {
-              const errorMsg = "No salon ID available";
-              console.error(errorMsg);
-              toast.error("Kunde inte identifiera salongen.");
-              setLastError(errorMsg);
-              return false;
-            }
-            
-            // Ensure salon_id is included in the values
-            const formValues = {
-              ...values,
-              salon_id: values.salon_id || parseInt(salonId!, 10)
-            };
-            
-            console.log("Calling handleCreate with values:", formValues);
-            const success = await dealManagement.handleCreate(formValues);
-            
-            if (success === false) {
-              const errorMsg = "Failed to create deal";
-              console.error(errorMsg);
-              toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
-              setLastError(errorMsg);
-              return false;
-            }
-            
-            setLastError(null);
-            return success;
-          } catch (error) {
-            console.error("Error creating deal:", error);
-            const errorMsg = "Ett fel uppstod när erbjudandet skulle skapas";
-            toast.error(errorMsg);
-            setLastError(errorMsg);
-            return false;
-          }
-        }}
+        onCreate={handleCreateDeal}
       />
     </>
   );

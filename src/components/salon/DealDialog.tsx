@@ -89,17 +89,15 @@ export const DealDialog: React.FC<DealDialogProps> = ({
     
     if (isOpen) {
       fetchSalonInfo();
+    } else {
+      // Reset state when dialog closes
+      setIsSubmitting(false);
     }
   }, [isOpen, onClose]);
   
   const handleSubmit = async (values: FormValues) => {
-    if (isSubmitting) {
-      console.log("[DealDialog] Submission already in progress, ignoring");
-      return;
-    }
-    
     try {
-      console.log("[DealDialog] Starting form submission");
+      console.log("[DealDialog] Starting form submission with values:", values);
       setIsSubmitting(true);
       
       // Set salon ID from state
@@ -126,8 +124,6 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         setIsSubmitting(false);
         return;
       }
-      
-      console.log("[DealDialog] Submitting with values:", values);
       
       // Call the parent onSubmit and wait for result
       const result = await onSubmit(values);
@@ -163,7 +159,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
             isSubmitting={isSubmitting}
             isBasicPlan={isBasicPlan}
             onSubmit={handleSubmit}
-            onClose={onClose}
+            onClose={() => !isSubmitting && onClose()}
           />
         </SheetContent>
       </Sheet>
@@ -181,7 +177,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
           isSubmitting={isSubmitting}
           isBasicPlan={isBasicPlan}
           onSubmit={handleSubmit}
-          onClose={onClose}
+          onClose={() => !isSubmitting && onClose()}
         />
       </DialogContent>
     </Dialog>

@@ -61,6 +61,8 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
     const activeDealsCount = activeDeals?.length || 0;
     const maxDealsAllowed = isBasicPlan ? 1 : 3;
     
+    console.log('[createDeal] Active deals count:', activeDealsCount, 'Max allowed:', maxDealsAllowed);
+    
     if (activeDealsCount >= maxDealsAllowed) {
       console.error('[createDeal] Deal limit reached:', activeDealsCount, 'of', maxDealsAllowed);
       toast.error(`Du har redan nått maxgränsen på ${maxDealsAllowed} aktiva erbjudanden för din prenumerationsnivå.`);

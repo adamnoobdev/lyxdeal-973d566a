@@ -26,14 +26,27 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
     defaultValue: false
   });
   
-  // Get isBasicPlan from the parent component via form context or props if available
-  // In this case, we're using a combination of the form's disabled state and readOnly prop
-  const isBasicPlan = readOnly || form.getValues('requires_discount_code') === false;
-  
   useEffect(() => {
-    // If this is a disabled field (due to basic plan), make sure booking_url is triggered for validation
+    // When the field changes value, trigger validation on related fields
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'requires_discount_code') {
+        console.log("RequiresDiscountCodeField - requires_discount_code changed to:", value.requires_discount_code);
+        
+        // If switching to direct booking, validate booking_url
+        if (value.requires_discount_code === false) {
+          console.log("RequiresDiscountCodeField - triggering booking_url validation");
+          form.trigger('booking_url');
+        }
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form]);
+  
+  // If this is a disabled field (due to basic plan), make sure booking_url is triggered for validation
+  useEffect(() => {
     if (readOnly && !requiresDiscountCode) {
-      console.log("RequiresDiscountCodeField - triggering booking_url validation");
+      console.log("RequiresDiscountCodeField - triggering booking_url validation (readOnly mode)");
       form.trigger('booking_url');
     }
   }, [readOnly, requiresDiscountCode, form]);
@@ -99,11 +112,13 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
               checked={field.value}
               disabled={readOnly}
               onCheckedChange={(checked) => {
+                console.log("Switch toggled to:", checked);
                 field.onChange(checked);
-                // If switching to direct booking, trigger booking_url validation
+                
+                // If switching to direct booking, trigger booking_url validation immediately
                 if (!checked) {
                   console.log("Switched to direct booking - triggering booking_url validation");
-                  form.trigger('booking_url');
+                  setTimeout(() => form.trigger('booking_url'), 0);
                 }
               }}
               className={readOnly && !field.value ? "opacity-50 cursor-not-allowed" : ""}
