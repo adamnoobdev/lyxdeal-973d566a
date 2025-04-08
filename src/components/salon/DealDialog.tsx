@@ -26,58 +26,71 @@ export const DealDialog: React.FC<DealDialogProps> = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBasicPlan, setIsBasicPlan] = useState(false);
+  const [salonId, setSalonId] = useState<number | null>(null);
   const isMobile = useMediaQuery("(max-width: 640px)");
   
-  // Fetch salon subscription plan
+  // Fetch salon info and subscription plan
   useEffect(() => {
-    const checkSubscriptionPlan = async () => {
+    const fetchSalonInfo = async () => {
       try {
-        let salonId: number | undefined;
+        const { data: { session } } = await supabase.auth.getSession();
         
-        // Try to get salon_id from initialValues or from authenticated user
-        if (initialValues?.salon_id) {
-          salonId = initialValues.salon_id;
-          console.log("[DealDialog] Using salon_id from initialValues:", salonId);
-        } else {
-          const { data: { session } } = await supabase.auth.getSession();
-          console.log("[DealDialog] Current session user:", session?.user?.id);
-          
-          if (session?.user?.id) {
-            const { data: salonData, error } = await supabase
-              .from('salons')
-              .select('id')
-              .eq('user_id', session.user.id)
-              .single();
-              
-            if (salonData?.id) {
-              salonId = salonData.id;
-              console.log("[DealDialog] Found salon_id from user:", salonId);
-            } else if (error) {
-              console.error("[DealDialog] Error fetching salon data:", error);
-            }
-          }
+        if (!session?.user?.id) {
+          console.error("[DealDialog] No active user session");
+          toast.error("Du måste vara inloggad för att skapa erbjudanden");
+          onClose();
+          return;
         }
         
-        if (salonId) {
-          const { data } = await supabase
-            .from('salons')
-            .select('subscription_plan')
-            .eq('id', salonId)
-            .single();
+        console.log("[DealDialog] User ID:", session.user.id);
+        
+        // Get salon information
+        const { data: salonData, error: salonError } = await supabase
+          .from('salons')
+          .select('id, name, subscription_plan, status')
+          .eq('user_id', session.user.id)
+          .single();
           
-          const isPlanBasic = data?.subscription_plan === 'Baspaket';
-          console.log("[DealDialog] Subscription plan:", data?.subscription_plan, "isBasicPlan:", isPlanBasic);
-          setIsBasicPlan(isPlanBasic);
+        if (salonError) {
+          console.error("[DealDialog] Error fetching salon:", salonError);
+          toast.error("Kunde inte hämta salonginformation");
+          onClose();
+          return;
         }
+        
+        if (!salonData) {
+          console.error("[DealDialog] No salon found for user");
+          toast.error("Ingen salong hittades för denna användare");
+          onClose();
+          return;
+        }
+        
+        console.log("[DealDialog] Salon data:", salonData);
+        setSalonId(salonData.id);
+        
+        // Check if subscription is active
+        if (salonData.status !== 'active') {
+          console.error("[DealDialog] Salon subscription not active");
+          toast.error("Din prenumeration är inte aktiv. Vänligen aktivera din prenumeration för att skapa erbjudanden.");
+          onClose();
+          return;
+        }
+        
+        // Set plan type
+        const isPlanBasic = salonData.subscription_plan === 'Baspaket';
+        setIsBasicPlan(isPlanBasic);
+        console.log("[DealDialog] Is basic plan:", isPlanBasic);
       } catch (error) {
-        console.error("[DealDialog] Error checking subscription plan:", error);
+        console.error("[DealDialog] Error:", error);
+        toast.error("Ett fel uppstod. Vänligen försök igen senare.");
+        onClose();
       }
     };
     
     if (isOpen) {
-      checkSubscriptionPlan();
+      fetchSalonInfo();
     }
-  }, [isOpen, initialValues]);
+  }, [isOpen, onClose]);
   
   const handleSubmit = async (values: FormValues) => {
     if (isSubmitting) {
@@ -89,43 +102,13 @@ export const DealDialog: React.FC<DealDialogProps> = ({
       console.log("[DealDialog] Starting form submission");
       setIsSubmitting(true);
       
-      // Ensure salon_id is set
-      if (!values.salon_id) {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user?.id) {
-            const { data: salonData } = await supabase
-              .from('salons')
-              .select('id')
-              .eq('user_id', session.user.id)
-              .single();
-              
-            if (salonData?.id) {
-              values.salon_id = salonData.id;
-              console.log("[DealDialog] Found and set salon_id:", salonData.id);
-            } else {
-              console.error("[DealDialog] No salon found for user:", session.user.id);
-              toast.error("Kunde inte hitta din salong. Kontakta support.");
-              setIsSubmitting(false);
-              return;
-            }
-          } else {
-            console.error("[DealDialog] User not logged in");
-            toast.error("Du måste vara inloggad för att skapa erbjudanden");
-            setIsSubmitting(false);
-            return;
-          }
-        } catch (error) {
-          console.error("[DealDialog] Error fetching salon ID:", error);
-          toast.error("Kunde inte hitta salong-ID. Vänligen försök igen senare.");
-          setIsSubmitting(false);
-          return;
-        }
-      }
-      
-      if (!values.salon_id) {
+      // Set salon ID from state
+      if (salonId) {
+        values.salon_id = salonId;
+        console.log("[DealDialog] Setting salon_id from state:", salonId);
+      } else {
         console.error("[DealDialog] No salon ID available");
-        toast.error("Kunde inte hitta salong-ID. Försök logga ut och in igen.");
+        toast.error("Kunde inte identifiera salongen");
         setIsSubmitting(false);
         return;
       }
@@ -151,13 +134,13 @@ export const DealDialog: React.FC<DealDialogProps> = ({
       
       console.log("[DealDialog] Submission result:", result);
       
-      // Only close dialog if submission was successful (result is not explicitly false)
+      // Only close dialog if submission was successful
       if (result !== false) {
         console.log("[DealDialog] Submission successful, closing dialog");
         onClose();
       } else {
         console.log("[DealDialog] Submission failed, keeping dialog open");
-        toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+        toast.error("Det gick inte att skapa erbjudandet. Försök igen senare.");
         setIsSubmitting(false);
       }
     } catch (error) {

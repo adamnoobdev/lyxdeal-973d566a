@@ -13,9 +13,6 @@ import { FormValues } from "./schema";
 import { useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Info, LockIcon } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/hooks/useSession";
 
 interface RequiresDiscountCodeFieldProps {
   form: UseFormReturn<FormValues>;
@@ -23,52 +20,23 @@ interface RequiresDiscountCodeFieldProps {
 }
 
 export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDiscountCodeFieldProps) => {
-  const { session } = useSession();
   const requiresDiscountCode = useWatch({
     control: form.control,
     name: "requires_discount_code",
     defaultValue: false
   });
   
-  // Log current value for debugging
-  console.log("RequiresDiscountCodeField - current value:", requiresDiscountCode);
+  // Get isBasicPlan from the parent component via form context or props if available
+  // In this case, we're using a combination of the form's disabled state and readOnly prop
+  const isBasicPlan = readOnly || form.getValues('requires_discount_code') === false;
   
-  // Fetch the salon subscription plan
-  const { data: salonData } = useQuery({
-    queryKey: ['salon-subscription', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return null;
-      
-      const { data, error } = await supabase
-        .from('salons')
-        .select('subscription_plan')
-        .eq('user_id', session.user.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching salon subscription:', error);
-        return null;
-      }
-      
-      console.log("Fetched salon subscription data:", data);
-      return data;
-    },
-    enabled: !!session?.user?.id,
-  });
-  
-  // Determine if the salon has the basic package (no discount codes allowed)
-  const hasBasicPackage = salonData?.subscription_plan === 'Baspaket';
-  console.log("RequiresDiscountCodeField - hasBasicPackage:", hasBasicPackage, "subscription:", salonData?.subscription_plan);
-  
-  // Force discount code setting based on subscription plan
   useEffect(() => {
-    if (hasBasicPackage) {
-      console.log("Basic plan detected - setting requires_discount_code to false");
-      form.setValue("requires_discount_code", false);
+    // If this is a disabled field (due to basic plan), make sure booking_url is triggered for validation
+    if (readOnly && !requiresDiscountCode) {
+      console.log("RequiresDiscountCodeField - triggering booking_url validation");
+      form.trigger('booking_url');
     }
-  }, [hasBasicPackage, form]);
-  
-  const isDisabled = readOnly || hasBasicPackage;
+  }, [readOnly, requiresDiscountCode, form]);
   
   return (
     <FormField
@@ -79,7 +47,7 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
               <FormLabel className="text-base">Kräver rabattkod</FormLabel>
-              {hasBasicPackage && (
+              {readOnly && !field.value && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -110,34 +78,35 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
               )}
             </div>
             <FormDescription>
-              {hasBasicPackage 
+              {readOnly && !field.value 
                 ? "Baspaketet inkluderar endast direkt bokning utan rabattkoder."
                 : field.value 
                   ? "Erbjudandet kommer att generera rabattkoder för dina kunder." 
                   : "Erbjudandet kommer inte att använda rabattkoder. Kunder länkas direkt till din bokningssida."
               }
             </FormDescription>
-            {readOnly && field.value && (
+            {readOnly && (
               <FormMessage className="mt-2">
-                Det går inte att ändra detta val efter att erbjudandet skapats.
+                {field.value 
+                  ? "Det går inte att ändra detta val efter att erbjudandet skapats."
+                  : "Uppgradera till Premiumpaket för att få tillgång till rabattkoder."
+                }
               </FormMessage>
-            )}
-            {hasBasicPackage && (
-              <p className="mt-2 text-xs text-amber-600 flex items-center">
-                <LockIcon className="h-3 w-3 mr-1 inline" />
-                Premiumfunktion låst. Uppgradera för att låsa upp rabattkoder.
-              </p>
             )}
           </div>
           <FormControl>
             <Switch
               checked={field.value}
-              disabled={isDisabled}
-              onCheckedChange={field.onChange}
-              className={hasBasicPackage ? "opacity-50 pointer-events-none" : ""}
-              aria-readonly={hasBasicPackage}
-              aria-disabled={hasBasicPackage}
-              tabIndex={hasBasicPackage ? -1 : 0}
+              disabled={readOnly}
+              onCheckedChange={(checked) => {
+                field.onChange(checked);
+                // If switching to direct booking, trigger booking_url validation
+                if (!checked) {
+                  console.log("Switched to direct booking - triggering booking_url validation");
+                  form.trigger('booking_url');
+                }
+              }}
+              className={readOnly && !field.value ? "opacity-50 cursor-not-allowed" : ""}
             />
           </FormControl>
         </FormItem>

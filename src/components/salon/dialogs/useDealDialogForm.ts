@@ -8,22 +8,13 @@ export const useDealDialogForm = (
   initialValues: Partial<FormValues> = {},
   isBasicPlan: boolean
 ) => {
-  // For Basic plan, always default to direct booking (no discount code)
+  // Basic plan always uses direct booking (no discount codes)
   const defaultRequiresDiscountCode = !isBasicPlan;
   
   console.log("useDealDialogForm initialized with isBasicPlan:", isBasicPlan);
   console.log("defaultRequiresDiscountCode set to:", defaultRequiresDiscountCode);
   
-  // Set initial requires_discount_code based on subscription plan
-  const formValues = {
-    ...initialValues, 
-    requires_discount_code: initialValues.requires_discount_code !== undefined 
-      ? initialValues.requires_discount_code 
-      : defaultRequiresDiscountCode
-  };
-  
-  console.log("Form default values:", formValues);
-
+  // Create form methods with proper defaults based on subscription plan
   const methods = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,7 +31,7 @@ export const useDealDialogForm = (
       quantity: '10',
       expirationDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
       is_active: true,
-      ...formValues
+      ...initialValues
     }
   });
 
@@ -56,16 +47,19 @@ export const useDealDialogForm = (
     }
   }, [initialValues, methods]);
   
-  // Update requires_discount_code based on subscription
+  // Force direct booking for basic plan
   useEffect(() => {
     if (isBasicPlan) {
       console.log(`Setting requires_discount_code to false for basic plan`);
       methods.setValue('requires_discount_code', false);
-    } else if (initialValues?.requires_discount_code === undefined) {
-      console.log(`Setting requires_discount_code to true for premium plan`);
-      methods.setValue('requires_discount_code', true);
+      
+      // Ensure booking URL field is marked as required for basic plan
+      if (!methods.getValues('booking_url')) {
+        console.log("Basic plan requires booking URL - marking field");
+        methods.trigger('booking_url');
+      }
     }
-  }, [isBasicPlan, methods, initialValues]);
+  }, [isBasicPlan, methods]);
 
   return methods;
 };
