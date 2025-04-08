@@ -15,7 +15,7 @@ import {
 
 export function CookieSettings() {
   const [open, setOpen] = useState(false);
-  const { acceptCookies, rejectCookies } = useCookieConsent();
+  const { acceptCookies, rejectCookies, resetCookieConsent } = useCookieConsent();
   
   const handleAccept = () => {
     acceptCookies();
@@ -24,6 +24,11 @@ export function CookieSettings() {
 
   const handleReject = () => {
     rejectCookies();
+    setOpen(false);
+  };
+
+  const handleReset = () => {
+    resetCookieConsent();
     setOpen(false);
   };
 
@@ -76,9 +81,14 @@ export function CookieSettings() {
           </div>
         </div>
 
-        <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-between sm:space-x-2">
-          <Button variant="outline" onClick={handleReject}>Avböj alla</Button>
-          <Button onClick={handleAccept}>Acceptera alla</Button>
+        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2 space-y-2 sm:space-y-0">
+          <Button variant="outline" size="sm" onClick={handleReset} className="sm:order-1">
+            Återställ val
+          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 sm:order-2">
+            <Button variant="outline" onClick={handleReject}>Avböj alla</Button>
+            <Button onClick={handleAccept}>Acceptera alla</Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -7,6 +7,7 @@ export function useCookieConsent() {
   const [consentStatus, setConsentStatus] = useState<CookieConsentStatus>('pending');
 
   useEffect(() => {
+    // Check for existing consent in localStorage
     const storedConsent = localStorage.getItem('cookie-consent');
     if (storedConsent === 'accepted') {
       setConsentStatus('accepted');
