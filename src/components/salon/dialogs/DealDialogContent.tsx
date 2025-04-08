@@ -12,6 +12,8 @@ import { QuantityField } from '@/components/deal-form/QuantityField';
 import { AdditionalFields } from '@/components/deal-form/AdditionalFields';
 import { useDealDialogForm } from './useDealDialogForm';
 import { FormValues } from '@/components/deal-form/schema';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface DealDialogContentProps {
   isEditing: boolean;
@@ -37,7 +39,7 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
     if (isSubmitting) return;
     
     try {
-      // Apply subscription-based restrictions
+      // Apply subscription-based restrictions - force direct booking for basic plan
       if (isBasicPlan) {
         data.requires_discount_code = false;
       }
@@ -67,18 +69,20 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-4">
           {isBasicPlan && (
-            <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
-              <p className="text-sm text-blue-700">
-                <strong>OBS:</strong> Med Baspaket kan du endast använda direkt bokning, inte rabattkoder.
-              </p>
-            </div>
+            <Alert variant="warning" className="bg-amber-50 border-amber-200">
+              <AlertCircle className="h-4 w-4 text-amber-500" />
+              <AlertTitle className="text-amber-800">Baspaket</AlertTitle>
+              <AlertDescription className="text-amber-700">
+                Med Baspaket kan du endast använda direkt bokning, inte rabattkoder.
+                Uppgradera till ett premium-paket för att få tillgång till rabattkoder.
+              </AlertDescription>
+            </Alert>
           )}
           
           <FormFields 
             form={methods}
             handleImageSelected={(imageUrl) => methods.setValue('imageUrl', imageUrl)}
             initialImageUrl={initialValues?.imageUrl}
-            forceDirectBooking={isBasicPlan}
           />
           
           <PriceFields form={methods} />

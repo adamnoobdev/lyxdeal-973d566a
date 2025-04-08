@@ -38,12 +38,14 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
     }
     
     const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
+    console.log("Salon subscription plan:", salonData?.subscription_plan, "isBasicPlan:", isBasicPlan);
     
     // Hantera rabattkoder baserat på plan och befintligt värde
     let requiresDiscountCode = values.requires_discount_code ?? false;
     
     // Om basic-paketet, tvinga direkt bokning
     if (isBasicPlan) {
+      console.log("Basic plan detected. Forcing direct booking.");
       requiresDiscountCode = false;
     }
     
@@ -78,7 +80,8 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
       discountedPrice,
       is_free: isFree,
       expirationDate: expirationDate,
-      requires_discount_code: requiresDiscountCode
+      requires_discount_code: requiresDiscountCode,
+      salonPlan: salonData?.subscription_plan
     });
     
     // Always set status to pending for review after updates

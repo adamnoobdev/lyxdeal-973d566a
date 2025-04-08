@@ -32,6 +32,7 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
     }
     
     const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
+    console.log("Salon subscription plan:", salonData?.subscription_plan, "isBasicPlan:", isBasicPlan);
     
     // Kontrollera antal aktiva erbjudanden för denna salong
     const { data: activeDeals, error: countError } = await supabase
@@ -58,6 +59,7 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
     // Tvinga direkt bokning för basic-paketet
     let requiresDiscountCode = values.requires_discount_code ?? false;
     if (isBasicPlan) {
+      console.log("Basic plan detected. Forcing direct booking.");
       requiresDiscountCode = false;
     }
 
@@ -88,7 +90,8 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       is_free: isFree,
       expirationDate: expirationDate,
       quantity,
-      requiresDiscountCode
+      requiresDiscountCode,
+      salonPlan: salonData?.subscription_plan
     });
     
     const { data: newDeal, error } = await supabase.from('deals').insert({

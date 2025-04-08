@@ -12,7 +12,7 @@ import { UseFormReturn, useWatch } from "react-hook-form";
 import { FormValues } from "./schema";
 import { useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info, AlertTriangle } from "lucide-react";
+import { Info, AlertTriangle, LockIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
@@ -77,7 +77,7 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <AlertTriangle className="h-4 w-4 text-amber-500" />
+                      <LockIcon className="h-4 w-4 text-amber-500" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs text-sm">
@@ -116,12 +116,18 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
                 Det går inte att ändra detta val efter att erbjudandet skapats.
               </FormMessage>
             )}
+            {hasBasicPackage && (
+              <p className="mt-2 text-xs text-amber-600">
+                Premiumfunktion låst. Uppgradera för att låsa upp rabattkoder.
+              </p>
+            )}
           </div>
           <FormControl>
             <Switch
               checked={field.value}
               disabled={isDisabled}
               onCheckedChange={field.onChange}
+              className={hasBasicPackage ? "opacity-50" : ""}
             />
           </FormControl>
         </FormItem>
