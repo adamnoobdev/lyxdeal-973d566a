@@ -15,7 +15,7 @@ const getErrorMessage = (error: AuthError) => {
       case 'Email not confirmed':
         return "Vänligen bekräfta din e-postadress först";
       default:
-        return "Ett fel uppstod vid inloggning";
+        return `Ett fel uppstod vid inloggning: ${error.message}`;
     }
   }
   return "Ett oväntat fel inträffade";
@@ -40,6 +40,7 @@ export const useLoginForm = () => {
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [securityMessage, setSecurityMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Show CAPTCHA after second attempt
   useEffect(() => {
@@ -51,9 +52,20 @@ export const useLoginForm = () => {
   // Check if user is already logged in, and redirect if needed
   useEffect(() => {
     const checkExistingSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        handleRedirectAfterLogin(data.session.user.id);
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Session check error:', error);
+          return;
+        }
+        
+        if (data.session) {
+          console.log('User already has active session, redirecting...');
+          handleRedirectAfterLogin(data.session.user.id);
+        }
+      } catch (err) {
+        console.error('Error checking session:', err);
       }
     };
     
@@ -62,6 +74,7 @@ export const useLoginForm = () => {
 
   const handleRedirectAfterLogin = async (userId: string) => {
     try {
+      console.log('Fetching salon data for user:', userId);
       const { data: salonData, error: salonError } = await supabase
         .from('salons')
         .select('role')
@@ -69,15 +82,18 @@ export const useLoginForm = () => {
         .maybeSingle();
 
       if (salonError) {
+        console.error('Kunde inte hämta salongsdata:', salonError);
         toast.error('Kunde inte hämta salongsdata');
         return;
       }
 
       if (!salonData) {
+        console.error('Ingen salongsdata hittades för denna användare');
         toast.error('Ingen salongsdata hittades för denna användare');
         return;
       }
 
+      console.log('Salon role found:', salonData.role);
       if (salonData.role === 'admin') {
         navigate("/admin");
       } else {
@@ -90,6 +106,7 @@ export const useLoginForm = () => {
   };
 
   const handleVerificationSuccess = (token: string) => {
+    console.log('CAPTCHA verification succeeded');
     setCaptchaToken(token);
     setSecurityMessage("Verifiering lyckades. Du kan nu logga in.");
   };
@@ -119,8 +136,10 @@ export const useLoginForm = () => {
     }
 
     setLoading(true);
+    setSecurityMessage(null);
 
     try {
+      console.log('Attempting login for:', email);
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -128,6 +147,7 @@ export const useLoginForm = () => {
 
       if (signInError) {
         setLoginAttempts(prev => prev + 1);
+        console.error('Login failed:', signInError.message);
         toast.error(getErrorMessage(signInError));
         setLoading(false);
         return;
@@ -135,18 +155,21 @@ export const useLoginForm = () => {
 
       if (!authData.user) {
         setLoginAttempts(prev => prev + 1);
+        console.error('No user returned from authentication');
         toast.error("Ingen användare hittades");
         setLoading(false);
         return;
       }
 
       // Reset login attempts on success
+      toast.success('Inloggning lyckades!');
+      console.log('Login successful, user ID:', authData.user.id);
       setLoginAttempts(0);
       setCaptchaToken(null);
       handleRedirectAfterLogin(authData.user.id);
       
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Unexpected login error:', error);
       setLoginAttempts(prev => prev + 1);
       toast.error("Ett oväntat fel inträffade vid inloggning");
       setLoading(false);

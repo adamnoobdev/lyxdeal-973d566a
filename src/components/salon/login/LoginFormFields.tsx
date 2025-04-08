@@ -8,8 +8,8 @@ import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { SecurityMessage } from "./SecurityMessage";
 import { MAX_LOGIN_ATTEMPTS } from "@/hooks/salon/useLoginForm";
 
-// HCaptcha site key - replace with your actual hCaptcha site key in production
-const CAPTCHA_SITE_KEY = "10000000-ffff-ffff-ffff-000000000001";
+// HCaptcha site key
+const CAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001";
 
 interface LoginFormFieldsProps {
   email: string;
@@ -40,6 +40,19 @@ export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
   handleSubmit,
   onForgotPassword
 }) => {
+  const captchaRef = React.useRef<HCaptcha>(null);
+  
+  // Reset captcha whenever showCaptcha changes
+  React.useEffect(() => {
+    if (showCaptcha && captchaRef.current) {
+      try {
+        captchaRef.current.resetCaptcha();
+      } catch (error) {
+        console.error('Fel vid återställning av captcha:', error);
+      }
+    }
+  }, [showCaptcha]);
+
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-2">
@@ -84,8 +97,18 @@ export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
       {showCaptcha && (
         <div className="py-3">
           <HCaptcha
+            ref={captchaRef}
             sitekey={CAPTCHA_SITE_KEY}
             onVerify={handleVerificationSuccess}
+            onExpire={() => {
+              console.log('Captcha har löpt ut, återställer...');
+              if (captchaRef.current) {
+                captchaRef.current.resetCaptcha();
+              }
+            }}
+            onError={(err) => {
+              console.error('Captcha fel:', err);
+            }}
           />
         </div>
       )}
@@ -98,7 +121,7 @@ export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
       <Button
         type="submit"
         className="w-full"
-        disabled={loading || (loginAttempts >= MAX_LOGIN_ATTEMPTS)}
+        disabled={loading || (loginAttempts >= MAX_LOGIN_ATTEMPTS && !captchaToken)}
       >
         {loading ? (
           <>

@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordChangeDialog } from "./password-change/PasswordChangeDialog";
+import { useFirstLogin } from "@/hooks/useFirstLogin";
+import { toast } from "sonner";
 
 interface SalonAuthGuardProps {
   children: React.ReactNode;
@@ -13,17 +16,21 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const { isFirstLogin, isLoading: isFirstLoginLoading } = useFirstLogin();
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
 
   useEffect(() => {
     const checkSalonPermission = async () => {
       if (isLoading) return;
       
       if (!session?.user) {
+        console.log("No authenticated session found, redirecting to login");
         navigate("/salon/login");
         return;
       }
 
       try {
+        console.log("Checking salon permissions for user:", session.user.id);
         // Check if user is linked to a salon
         const { data, error } = await supabase
           .from("salons")
@@ -33,6 +40,7 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
 
         if (error || !data) {
           console.error("No salon data found:", error);
+          toast.error("Din användare är inte kopplad till någon salong");
           await supabase.auth.signOut();
           navigate("/salon/login");
           return;
@@ -40,11 +48,14 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
 
         if (data.role !== "salon_owner" && data.role !== "admin") {
           console.error("User doesn't have permission:", data.role);
+          toast.error("Du har inte behörighet för denna sida");
           await supabase.auth.signOut();
           navigate("/salon/login");
           return;
         }
 
+        console.log("User has valid salon permissions");
+        
         // Check if it's the first login
         const { data: statusData, error: statusError } = await supabase
           .from("salon_user_status")
@@ -58,14 +69,22 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
 
         // If no status row exists for the user, create one with first_login=true
         if (!statusData) {
+          console.log("Creating new salon_user_status row for user");
           await supabase
             .from("salon_user_status")
             .insert([{ user_id: session.user.id, first_login: true }]);
+            
+          // Visa lösenordsdialogrutan efter att statusen har skapats
+          setShowPasswordDialog(true);
+        } else if (statusData.first_login) {
+          console.log("First login detected, showing password change dialog");
+          setShowPasswordDialog(true);
         }
         
         setIsAuthorized(true);
       } catch (error) {
         console.error("Error checking salon permissions:", error);
+        toast.error("Ett fel uppstod vid kontroll av behörighet");
         navigate("/salon/login");
       } finally {
         setIsCheckingAuth(false);
@@ -75,10 +94,25 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
     checkSalonPermission();
   }, [session, isLoading, navigate]);
 
+  // Uppdatera visning av dialogrutan baserat på isFirstLogin
+  useEffect(() => {
+    if (!isFirstLoginLoading && isFirstLogin === true) {
+      setShowPasswordDialog(true);
+    }
+  }, [isFirstLogin, isFirstLoginLoading]);
+
+  // Hantera stängning av lösenordsdialogrutan
+  const handleClosePasswordDialog = () => {
+    setShowPasswordDialog(false);
+  };
+
   if (isLoading || isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Verifierar behörighet...</p>
+        </div>
       </div>
     );
   }
@@ -87,5 +121,14 @@ export const SalonAuthGuard = ({ children }: SalonAuthGuardProps) => {
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <PasswordChangeDialog 
+        isOpen={showPasswordDialog} 
+        onClose={handleClosePasswordDialog}
+        isFirstLogin={isFirstLogin || false} 
+      />
+    </>
+  );
 };
