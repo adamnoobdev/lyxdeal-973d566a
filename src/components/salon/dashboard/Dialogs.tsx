@@ -1,6 +1,6 @@
 
 import { Deal } from "@/types/deal";
-import { DealDialog } from "../DealDialog"; // Update import path to correct component
+import { DealDialog } from "../DealDialog"; // Correct import path
 import { PasswordChangeDialog } from "../password-change/PasswordChangeDialog";
 import { DiscountCodesDialog } from "@/components/admin/deals/DiscountCodesDialog";
 import { DeleteDealDialog } from "@/components/admin/deals/DeleteDealDialog";
@@ -49,8 +49,6 @@ export const DashboardDialogs = ({
           isOpen={isCreateDialogOpen}
           onClose={onCloseCreateDialog}
           onSubmit={onCreate}
-          title="Skapa nytt erbjudande"
-          submitLabel="Skapa erbjudande"
         />
       )}
 
@@ -61,8 +59,6 @@ export const DashboardDialogs = ({
           onClose={onCloseEditDialog}
           onSubmit={onUpdate}
           initialValues={editingDeal}
-          title="Redigera erbjudande"
-          submitLabel="Spara ändringar"
         />
       )}
 
@@ -81,7 +77,7 @@ export const DashboardDialogs = ({
         >
           <SheetContent className="sm:max-w-lg">
             <DiscountCodesDialog 
-              deal={viewingCodesForDeal} // Fix: Pass the entire deal object instead of just ID and name
+              deal={viewingCodesForDeal} 
               onClose={onCloseCodesDialog}
               isOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
             />
