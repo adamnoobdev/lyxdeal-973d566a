@@ -30,11 +30,14 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
     defaultValue: false
   });
   
+  // Log current value for debugging
+  console.log("RequiresDiscountCodeField - current value:", requiresDiscountCode);
+  
   // Fetch the salon subscription plan
   const { data: salonData } = useQuery({
-    queryKey: ['salon-subscription', session?.user.id],
+    queryKey: ['salon-subscription', session?.user?.id],
     queryFn: async () => {
-      if (!session?.user.id) return null;
+      if (!session?.user?.id) return null;
       
       const { data, error } = await supabase
         .from('salons')
@@ -47,13 +50,15 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
         return null;
       }
       
+      console.log("Fetched salon subscription data:", data);
       return data;
     },
-    enabled: !!session?.user.id,
+    enabled: !!session?.user?.id,
   });
   
   // Determine if the salon has the basic package (no discount codes allowed)
   const hasBasicPackage = salonData?.subscription_plan === 'Baspaket';
+  console.log("RequiresDiscountCodeField - hasBasicPackage:", hasBasicPackage, "subscription:", salonData?.subscription_plan);
   
   // Force discount code setting based on subscription plan
   useEffect(() => {
@@ -126,7 +131,7 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
           </div>
           <FormControl>
             <Switch
-              checked={hasBasicPackage ? false : field.value}
+              checked={field.value}
               disabled={isDisabled}
               onCheckedChange={field.onChange}
               className={hasBasicPackage ? "opacity-50 pointer-events-none" : ""}

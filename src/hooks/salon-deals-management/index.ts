@@ -2,10 +2,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Deal } from "@/components/admin/types";
 import { UseSalonDealsReturn } from "./types";
-import { deleteDeal, updateDeal, toggleActive, createDeal } from "./dealOperations";
+import { deleteDeal, updateDeal, toggleActive } from "./dealOperations";
 import { loadSalonDeals } from "./loadDeals";
 import { FormValues } from "@/components/deal-form/schema";
 import { toast } from "sonner";
+import { createDeal as createDealApi } from "../salon-deals/createDeal";
 
 export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDealsReturn => {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -94,6 +95,11 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
 
   // Handler for creating a new deal - return type is Promise<boolean | void>
   const handleCreate = useCallback(async (values: FormValues): Promise<boolean | void> => {
+    if (isCreatingDeal.current) {
+      console.log("[useSalonDealsManagement] Creation already in progress, skipping");
+      return false;
+    }
+    
     try {
       console.log("[useSalonDealsManagement] Creating deal with salonId:", salonId);
       console.log("[useSalonDealsManagement] Form values:", values);
@@ -104,18 +110,27 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
         return false;
       }
       
-      return await createDeal(
-        values,
-        salonId,
-        setDeals,
-        isCreatingDeal,
-        isMountedRef
-      );
+      isCreatingDeal.current = true;
+      
+      // Convert salonId from string to number if needed
+      const numericSalonId = salonId ? parseInt(salonId, 10) : undefined;
+      
+      // Call the createDeal API function
+      const success = await createDealApi(values, numericSalonId);
+      
+      if (success && isMountedRef.current) {
+        console.log("[useSalonDealsManagement] Deal created successfully, refreshing deals");
+        await refetch();
+      }
+      
+      return success;
     } catch (error) {
       console.error("[useSalonDealsManagement] Error creating deal:", error);
       return false;
+    } finally {
+      isCreatingDeal.current = false;
     }
-  }, [salonId]);
+  }, [salonId, refetch]);
 
   // Handler for toggling deal active status
   const handleToggleActive = useCallback(async (deal: Deal) => {

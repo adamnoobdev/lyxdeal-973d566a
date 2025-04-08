@@ -7,20 +7,28 @@ import { generateDiscountCodes } from "@/utils/discount-codes";
 
 export const createDeal = async (values: FormValues, salonId: number | undefined): Promise<boolean> => {
   try {
-    if (!salonId) {
+    console.log("[createDeal] Starting deal creation with values:", values);
+    console.log("[createDeal] Provided salon ID:", salonId);
+    
+    if (!salonId && !values.salon_id) {
+      console.error("[createDeal] No salon ID available");
       toast.error("Kunde inte identifiera salongen.");
       return false;
     }
+    
+    // Use either provided salon ID or the one from values
+    const finalSalonId = salonId || values.salon_id;
+    console.log("[createDeal] Using salon ID:", finalSalonId);
 
-    // Kontrollera salongens prenumerationsplan
+    // Check salon subscription plan
     const { data: salonData, error: salonError } = await supabase
       .from('salons')
       .select('subscription_plan, status')
-      .eq('id', salonId)
+      .eq('id', finalSalonId)
       .single();
     
     if (salonError) {
-      console.error("Error fetching salon data:", salonError);
+      console.error("[createDeal] Error fetching salon data:", salonError);
       toast.error("Kunde inte hämta salonginformation.");
       return false;
     }
@@ -32,18 +40,18 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
     }
     
     const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
-    console.log("Salon subscription plan:", salonData?.subscription_plan, "isBasicPlan:", isBasicPlan);
+    console.log("[createDeal] Salon subscription plan:", salonData?.subscription_plan, "isBasicPlan:", isBasicPlan);
     
-    // Kontrollera antal aktiva erbjudanden för denna salong
+    // Check number of active deals for this salon
     const { data: activeDeals, error: countError } = await supabase
       .from('deals')
       .select('id', { count: 'exact' })
-      .eq('salon_id', salonId)
+      .eq('salon_id', finalSalonId)
       .eq('is_active', true)
       .not('status', 'eq', 'rejected');
     
     if (countError) {
-      console.error('Error counting active deals:', countError);
+      console.error('[createDeal] Error counting active deals:', countError);
       toast.error("Kunde inte kontrollera antal aktiva erbjudanden.");
       return false;
     }
@@ -56,10 +64,10 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       return false;
     }
     
-    // Tvinga direkt bokning för basic-paketet
+    // Force direct booking for basic plan
     let requiresDiscountCode = values.requires_discount_code ?? false;
     if (isBasicPlan) {
-      console.log("Basic plan detected. Forcing direct booking.");
+      console.log("[createDeal] Basic plan detected. Forcing direct booking.");
       requiresDiscountCode = false;
     }
 
@@ -71,8 +79,9 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
     // For free deals, set discounted_price to 1 to avoid database constraint
     const discountedPrice = isFree ? 1 : discountedPriceVal;
     
-    // Kontrollera att bokningslänk finns för direkt bokning
+    // Check that booking URL is provided for direct booking
     if (!requiresDiscountCode && !values.booking_url) {
+      console.error("[createDeal] Missing booking URL for direct booking");
       toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
       return false;
     }
@@ -83,7 +92,7 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
     const daysRemaining = differenceInDays(expirationDate, today);
     const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
     
-    console.log('Creating salon deal with values:', {
+    console.log('[createDeal] Creating salon deal with values:', {
       ...values,
       originalPrice,
       discountedPrice,
@@ -94,7 +103,7 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       salonPlan: salonData?.subscription_plan
     });
     
-    const { data: newDeal, error } = await supabase.from('deals').insert({
+    const dealData = {
       title: values.title,
       description: values.description,
       image_url: values.imageUrl,
@@ -105,46 +114,53 @@ export const createDeal = async (values: FormValues, salonId: number | undefined
       time_remaining: timeRemaining,
       expiration_date: expirationDate.toISOString(),
       featured: values.featured,
-      salon_id: salonId,
+      salon_id: finalSalonId,
       status: 'pending',
       is_free: isFree, // Set is_free flag for free deals
       quantity_left: quantity,
       booking_url: values.booking_url || null,
       requires_discount_code: requiresDiscountCode,
       is_active: values.is_active !== undefined ? values.is_active : true,
-    }).select();
+    };
+    
+    console.log('[createDeal] Final deal data structure:', dealData);
+    
+    const { data: newDeal, error } = await supabase
+      .from('deals')
+      .insert([dealData])
+      .select();
 
     if (error) {
-      console.error('Database error details:', error);
+      console.error('[createDeal] Database error details:', error);
       toast.error("Ett fel uppstod när erbjudandet skulle skapas: " + error.message);
       return false;
     }
     
-    // Om erbjudandet skapades och kräver rabattkoder, generera rabattkoder automatiskt
+    // If the offer was created and requires discount codes, generate discount codes automatically
     if (newDeal && newDeal.length > 0 && requiresDiscountCode) {
       const dealId = newDeal[0].id;
-      console.log(`Automatically generating ${quantity} discount codes for new salon deal ID: ${dealId}`);
+      console.log(`[createDeal] Automatically generating ${quantity} discount codes for new salon deal ID: ${dealId}`);
       
       try {
-        // Generera rabattkoder i bakgrunden
+        // Generate discount codes in the background
         setTimeout(async () => {
           try {
             await generateDiscountCodes(dealId, quantity);
-            console.log(`Successfully generated ${quantity} discount codes for salon deal ID: ${dealId}`);
+            console.log(`[createDeal] Successfully generated ${quantity} discount codes for salon deal ID: ${dealId}`);
           } catch (genError) {
-            console.error(`Error generating discount codes for salon deal ID: ${dealId}:`, genError);
+            console.error(`[createDeal] Error generating discount codes for salon deal ID: ${dealId}:`, genError);
           }
         }, 500);
       } catch (genError) {
-        console.error('Error starting discount code generation:', genError);
-        // Fortsätt utan att blockera eftersom erbjudandet skapades korrekt
+        console.error('[createDeal] Error starting discount code generation:', genError);
+        // Continue without blocking since the offer was successfully created
       }
     }
     
     toast.success("Erbjudande skapat! Det kommer att granskas av en administratör innan det publiceras.");
     return true;
   } catch (error) {
-    console.error("Error creating deal:", error);
+    console.error("[createDeal] Error creating deal:", error);
     toast.error("Ett fel uppstod när erbjudandet skulle skapas.");
     return false;
   }

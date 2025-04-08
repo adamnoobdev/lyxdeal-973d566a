@@ -28,13 +28,13 @@ export const DealDialog: React.FC<DealDialogProps> = ({
   const [isBasicPlan, setIsBasicPlan] = useState(false);
   const isMobile = useMediaQuery("(max-width: 640px)");
   
-  // Hämta salongs prenumerationsplan
+  // Fetch salon subscription plan
   useEffect(() => {
     const checkSubscriptionPlan = async () => {
       try {
         let salonId: number | undefined;
         
-        // Försök hämta salon_id från initialValues eller från autentiserad användare
+        // Try to get salon_id from initialValues or from authenticated user
         if (initialValues?.salon_id) {
           salonId = initialValues.salon_id;
         } else {
@@ -59,10 +59,12 @@ export const DealDialog: React.FC<DealDialogProps> = ({
             .eq('id', salonId)
             .single();
           
-          setIsBasicPlan(data?.subscription_plan === 'Baspaket');
+          const isPlanBasic = data?.subscription_plan === 'Baspaket';
+          console.log("[DealDialog] Subscription plan:", data?.subscription_plan, "isBasicPlan:", isPlanBasic);
+          setIsBasicPlan(isPlanBasic);
         }
       } catch (error) {
-        console.error("Error checking subscription plan:", error);
+        console.error("[DealDialog] Error checking subscription plan:", error);
       }
     };
     
@@ -81,7 +83,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
       console.log("[DealDialog] Starting form submission");
       setIsSubmitting(true);
       
-      // Kontrollera att vi inte har missat att sätta salon_id
+      // Ensure salon_id is set
       if (!values.salon_id) {
         try {
           const { data: { session } } = await supabase.auth.getSession();
@@ -112,6 +114,12 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         return;
       }
       
+      // Apply subscription-based restrictions
+      if (isBasicPlan) {
+        console.log("[DealDialog] Basic plan detected, forcing requires_discount_code=false");
+        values.requires_discount_code = false;
+      }
+      
       console.log("[DealDialog] Submitting with values:", values);
       
       // Call the parent onSubmit and wait for result
@@ -135,7 +143,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
     }
   };
 
-  // Använd Sheet för mobil och Dialog för desktop
+  // Use Sheet for mobile and Dialog for desktop
   if (isMobile) {
     return (
       <Sheet open={isOpen} onOpenChange={(open) => {

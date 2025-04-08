@@ -8,6 +8,7 @@ export const useDealDialogForm = (
   initialValues: Partial<FormValues> = {},
   isBasicPlan: boolean
 ) => {
+  // For Basic plan, always default to direct booking (no discount code)
   const defaultRequiresDiscountCode = !isBasicPlan;
   
   console.log("useDealDialogForm initialized with isBasicPlan:", isBasicPlan);
@@ -23,7 +24,7 @@ export const useDealDialogForm = (
     featured: false,
     imageUrl: '',
     booking_url: '',
-    requires_discount_code: defaultRequiresDiscountCode, // Default based on plan
+    requires_discount_code: defaultRequiresDiscountCode,
     quantity: '10',
     expirationDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
     is_active: true,
