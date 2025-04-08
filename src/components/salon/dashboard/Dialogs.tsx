@@ -1,8 +1,7 @@
-
-import { useState } from "react";
-import { Deal } from "@/types/deal";
+import React from "react";
+import { Deal } from "@/components/admin/types";
 import { DealDialog } from "@/components/salon/DealDialog";
-import { PasswordChangeDialog } from "@/components/salon/PasswordChangeDialog";
+import { PasswordChangeDialog } from "@/components/salon/password-change/PasswordChangeDialog";
 import { DiscountCodesDialog } from "@/components/admin/deals/DiscountCodesDialog";
 import { FormValues } from "@/components/deal-form/schema";
 import { endOfMonth } from "date-fns";
