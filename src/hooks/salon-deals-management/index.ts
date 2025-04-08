@@ -113,10 +113,12 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
       isCreatingDeal.current = true;
       
       // Convert salonId from string to number if needed
-      const numericSalonId = salonId ? parseInt(salonId, 10) : undefined;
+      if (salonId && !values.salon_id) {
+        values.salon_id = parseInt(salonId, 10);
+      }
       
-      // Call the createDeal API function
-      const success = await createDealApi(values, numericSalonId);
+      // Call the createDeal API function with only the values parameter
+      const success = await createDealApi(values);
       
       if (success && isMountedRef.current) {
         console.log("[useSalonDealsManagement] Deal created successfully, refreshing deals");

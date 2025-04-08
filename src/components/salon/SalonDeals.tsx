@@ -115,8 +115,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       values.salon_id = finalSalonId;
       console.log("[SalonDeals] Creating deal with salon ID:", finalSalonId);
       
-      // FIX: Here's where the error is - we're passing two arguments to createDeal
-      // The function likely expects only values, not a separate salonId
+      // Fixed: We now pass only the values to createDeal, not a separate salonId
       const success = await createDeal(values);
       
       if (success) {
@@ -202,4 +201,3 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
     </>
   );
 };
-

@@ -20,7 +20,9 @@ export const useSalonDeals = (
   });
 
   const handleCreateDeal = async (values: FormValues): Promise<boolean> => {
-    const success = await createDeal(values, salonId);
+    // Set salon_id in the values object before creating deal
+    const updatedValues = { ...values, salon_id: salonId };
+    const success = await createDeal(updatedValues);
     if (success) {
       await refetch();
     }

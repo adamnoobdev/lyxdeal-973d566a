@@ -53,7 +53,9 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       image_url: values.imageUrl,
       is_active: true,
       quantity_left: parseInt(values.quantity || '10', 10),
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      // Add time_remaining field as it's required by the database schema
+      time_remaining: ''
     };
     
     // Insert deal
