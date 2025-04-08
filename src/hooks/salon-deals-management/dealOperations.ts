@@ -251,6 +251,12 @@ export const createDeal = async (
     // For free deals, set discounted_price to 1 to avoid database constraint
     const discountedPrice = isFree ? 1 : discountedPriceVal;
     
+    // Calculate days until expiration for time_remaining
+    const now = new Date();
+    const expirationDate = new Date(values.expirationDate);
+    const daysRemaining = Math.ceil((expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const timeRemaining = `${daysRemaining} dagar`;
+    
     const newDeal = {
       salon_id: salonIdInt,
       title: values.title,
@@ -267,7 +273,8 @@ export const createDeal = async (
       requires_discount_code: requiresDiscountCode,
       is_active: values.is_active !== undefined ? values.is_active : true,
       expiration_date: values.expirationDate.toISOString(),
-      status: 'approved' // Default status
+      time_remaining: timeRemaining, // Add the missing time_remaining field
+      status: 'approved' as const // Explicitly type status as a literal type
     };
     
     // Insert the new deal into the database
@@ -285,7 +292,9 @@ export const createDeal = async (
 
     // Update local state if component is mounted
     if (isMountedRef.current && data) {
-      setDeals(prevDeals => [data, ...prevDeals]);
+      // Cast the returned data as Deal to ensure type compatibility
+      const newDealWithCorrectType = data as unknown as Deal;
+      setDeals(prevDeals => [newDealWithCorrectType, ...prevDeals]);
       toast.success("Erbjudandet har skapats");
     }
     
