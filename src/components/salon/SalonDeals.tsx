@@ -19,17 +19,15 @@ export const SalonDeals: React.FC = () => {
     setEditingDeal
   } = useSalonDealsState();
 
-  const handleGenerateDiscountCodes = async (deal: any, quantity: number) => {
+  const handleGenerateDiscountCodes = async (deal: any, quantity: number): Promise<void> => {
     try {
       setIsGeneratingCodes(true);
       // We've removed Stripe integration but kept the function for API compatibility
       console.log(`Generating ${quantity} discount codes for deal ${deal.id}`);
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
       await dealManagement.refetch(); // Refresh data
-      return true;
     } catch (error) {
       console.error("Error generating discount codes:", error);
-      return false;
     } finally {
       setIsGeneratingCodes(false);
     }
@@ -67,8 +65,14 @@ export const SalonDeals: React.FC = () => {
           isClosingCodesDialog,
           setIsClosingCodesDialog
         }}
-        onUpdate={dealManagement.handleUpdate}
-        onCreate={dealManagement.handleCreate}
+        onUpdate={async (values) => {
+          const success = await dealManagement.handleUpdate(values);
+          return;
+        }}
+        onCreate={async (values) => {
+          const success = await dealManagement.handleCreate(values);
+          return;
+        }}
       />
     </>
   );

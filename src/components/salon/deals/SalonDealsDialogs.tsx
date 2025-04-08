@@ -23,8 +23,8 @@ interface SalonDealsDialogsProps {
     isClosingCodesDialog: boolean;
     setIsClosingCodesDialog: (isClosing: boolean) => void;
   };
-  onUpdate: (values: FormValues) => Promise<boolean>;
-  onCreate: (values: FormValues) => Promise<boolean>;
+  onUpdate: (values: FormValues) => Promise<void>;
+  onCreate: (values: FormValues) => Promise<void>;
 }
 
 export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
