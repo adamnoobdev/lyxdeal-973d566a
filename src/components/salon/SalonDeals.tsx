@@ -24,17 +24,23 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
     isClosingCodesDialog,
     setIsClosingCodesDialog,
     editingDeal,
-    setEditingDeal
+    setEditingDeal,
+    salonId
   } = useSalonDealsState();
 
-  // Synkronisera extern kontroll av dialogen
+  // Log the salonId to debug issues
   useEffect(() => {
-    if (initialCreateDialogOpen) {
+    console.log("SalonDeals component - Current salon ID:", salonId);
+  }, [salonId]);
+
+  // Synchronize dialog state with external control
+  useEffect(() => {
+    if (initialCreateDialogOpen && !isDialogOpen) {
       setIsDialogOpen(true);
     }
-  }, [initialCreateDialogOpen, setIsDialogOpen]);
+  }, [initialCreateDialogOpen, isDialogOpen, setIsDialogOpen]);
 
-  // När dialogen stängs, meddela föräldrakomponenten
+  // When dialog closes, notify parent component
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     if (onCloseCreateDialog) {
@@ -45,7 +51,6 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
   const handleGenerateDiscountCodes = async (deal: any, quantity: number): Promise<void> => {
     try {
       setIsGeneratingCodes(true);
-      // We've removed Stripe integration but kept the function for API compatibility
       console.log(`Generating ${quantity} discount codes for deal ${deal.id}`);
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
       await dealManagement.refetch(); // Refresh data
@@ -93,7 +98,15 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
           return;
         }}
         onCreate={async (values) => {
-          const success = await dealManagement.handleCreate(values);
+          console.log("Attempting to create new deal with values:", {
+            ...values,
+            salon_id: salonId
+          });
+          // Ensure salon_id is included in the values
+          const success = await dealManagement.handleCreate({
+            ...values,
+            salon_id: parseInt(salonId || "0", 10)
+          });
           return;
         }}
       />

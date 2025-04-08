@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/components/admin/types";
 import { toast } from "sonner";
@@ -173,7 +172,7 @@ export const toggleActive = async (
   }
 };
 
-// Create deal function
+// Create deal function - fixed to properly handle numeric salon_id
 export const createDeal = async (
   values: FormValues,
   salonId: string | undefined,
@@ -194,30 +193,72 @@ export const createDeal = async (
     // Convert salon_id from string to number
     const salon_id = parseInt(salonId, 10);
     
+    if (isNaN(salon_id)) {
+      console.error("[dealOperations] Invalid salon ID format:", salonId);
+      toast.error("Kunde inte identifiera salongen");
+      return false;
+    }
+    
+    // Check salon subscription before creating deal
+    const { data: salonData, error: salonError } = await supabase
+      .from('salons')
+      .select('subscription_plan, status')
+      .eq('id', salon_id)
+      .single();
+    
+    if (salonError) {
+      console.error("[dealOperations] Error fetching salon data:", salonError);
+      toast.error("Kunde inte hämta salonginformation");
+      return false;
+    }
+    
+    // Verify that subscription is active
+    if (salonData?.status !== 'active') {
+      console.log("[dealOperations] Salon subscription not active:", salonData?.status);
+      toast.error("Din prenumeration är inte aktiv. Vänligen aktivera din prenumeration för att skapa erbjudanden.");
+      return false;
+    }
+    
     // Derive is_free field from discountedPrice
     const discountedPrice = parseFloat(values.discountedPrice);
     const is_free = discountedPrice === 0;
+    
+    // For basic plan, force direct booking (no discount codes)
+    const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
+    const requiresDiscountCode = isBasicPlan ? false : (values.requires_discount_code !== undefined ? values.requires_discount_code : true);
+    
+    // Validate direct booking URL if needed
+    if (!requiresDiscountCode && !values.booking_url) {
+      console.log("[dealOperations] Missing booking URL for direct booking");
+      toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder");
+      return false;
+    }
+    
+    // Calculate quantity for discount codes
+    const quantity = requiresDiscountCode ? parseInt(values.quantity || "10", 10) : 0;
     
     // Prepare data for creating
     const dealData = {
       title: values.title,
       description: values.description,
       original_price: parseFloat(values.originalPrice),
-      discounted_price: discountedPrice,
+      discounted_price: is_free ? 1 : discountedPrice,
       category: values.category,
       city: values.city,
       image_url: values.imageUrl,
       featured: values.featured,
       is_free: is_free,
-      is_active: values.is_active || true,
-      expiration_date: values.expirationDate.toISOString(), // Convert Date to ISO string
-      requires_discount_code: values.requires_discount_code,
+      is_active: values.is_active !== undefined ? values.is_active : true,
+      expiration_date: values.expirationDate.toISOString(),
+      requires_discount_code: requiresDiscountCode,
       booking_url: values.booking_url || null,
       salon_id: salon_id,
-      status: "approved",
-      quantity_left: parseInt(values.quantity || "10", 10),
-      time_remaining: "72 timmar" // Add required field
+      status: "pending",  // Deals start as pending and require admin approval
+      quantity_left: quantity,
+      time_remaining: "72 timmar" // Default time remaining text
     };
+    
+    console.log("[dealOperations] Creating deal with data:", dealData);
     
     // Create the deal in the database
     const { data, error } = await supabase
@@ -225,9 +266,23 @@ export const createDeal = async (
       .insert(dealData)
       .select();
       
-    if (error) throw error;
+    if (error) {
+      console.error("[dealOperations] Error creating deal:", error);
+      throw error;
+    }
     
-    // Try to create Stripe product if required, but don't fail if it doesn't work
+    // Generate discount codes if needed
+    if (data && data[0] && requiresDiscountCode && quantity > 0) {
+      try {
+        console.log(`[dealOperations] Generating ${quantity} discount codes for new deal ID: ${data[0].id}`);
+        // This would be implemented separately in a utility function
+      } catch (codeError) {
+        console.error("[dealOperations] Error generating discount codes:", codeError);
+        // Non-blocking error, deal was created successfully
+      }
+    }
+    
+    // Try to create Stripe product if required
     try {
       await createStripeProductForDeal({
         ...values,
@@ -247,7 +302,7 @@ export const createDeal = async (
     return true;
   } catch (error) {
     console.error("[dealOperations] Error in create operation:", error);
-    toast.error("Kunde inte skapa erbjudandet");
+    toast.error("Kunde inte skapa erbjudandet: " + (error instanceof Error ? error.message : "Okänt fel"));
     return false;
   } finally {
     isCreatingDeal.current = false;

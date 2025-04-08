@@ -75,6 +75,14 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
   // Handler for creating a new deal - return type is Promise<boolean>
   const handleCreate = useCallback(async (values: FormValues): Promise<boolean> => {
     try {
+      console.log("[useSalonDealsManagement] Creating deal with salonId:", salonId);
+      console.log("[useSalonDealsManagement] Form values:", values);
+      
+      if (!values.salon_id && salonId) {
+        // Ensure salon_id is set in values if not provided
+        values.salon_id = parseInt(salonId, 10);
+      }
+      
       const success = await createDeal(
         values,
         salonId,
@@ -82,12 +90,17 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
         isCreatingDeal,
         isMountedRef
       );
+      
+      if (success) {
+        await refetch();
+      }
+      
       return success || false;
     } catch (error) {
       console.error("[useSalonDealsManagement] Error creating deal:", error);
       return false;
     }
-  }, [salonId]);
+  }, [salonId, refetch]);
 
   // Handler for toggling deal active status
   const handleToggleActive = useCallback(async (deal: Deal) => {

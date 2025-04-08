@@ -6,6 +6,7 @@ import { DiscountCodesDialog } from '@/components/admin/deals/DiscountCodesDialo
 import { Deal } from '@/components/admin/types';
 import { FormValues } from '@/components/deal-form/schema';
 import { endOfMonth } from 'date-fns';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 
 interface SalonDealsDialogsProps {
   isDialogOpen: boolean;

@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { Deal } from '@/components/admin/types';
 import { useSalonDealsManagement } from '@/hooks/salon-deals-management';
@@ -21,17 +20,28 @@ export const useSalonDealsState = () => {
       if (!session?.user?.id) return;
       
       try {
+        console.log("Fetching salon ID for user:", session.user.id);
         const { data, error } = await supabase
           .from('salons')
           .select('id')
           .eq('user_id', session.user.id)
           .single();
         
-        if (error) throw error;
-        // Convert the numeric salon ID to string to match the expected state type
-        setSalonId(data.id.toString());
+        if (error) {
+          console.error("Error fetching salon ID:", error);
+          throw error;
+        }
+        
+        if (data) {
+          // Convert the numeric salon ID to string to match the expected state type
+          const id = data.id.toString();
+          console.log("Found salon ID:", id);
+          setSalonId(id);
+        } else {
+          console.error("No salon found for user");
+        }
       } catch (err) {
-        console.error("Error fetching salon ID:", err);
+        console.error("Error in fetchSalonId:", err);
       }
     };
     
@@ -41,9 +51,9 @@ export const useSalonDealsState = () => {
   // Get deal management functionality
   const dealManagement = useSalonDealsManagement(salonId);
   
-  // Håll isDialogOpen synkroniserad med editingDeal, men bara i ena riktningen
-  // Om editingDeal finns, öppna dialogrutan
-  // Om editingDeal blir null, stäng INTE dialogrutan automatiskt (detta tillåter att skapa nya erbjudanden)
+  // Keep isDialogOpen synchronized with editingDeal in one direction
+  // If editingDeal exists, open the dialog
+  // If editingDeal becomes null, don't automatically close the dialog
   useEffect(() => {
     if (dealManagement.editingDeal && !isDialogOpen) {
       setIsDialogOpen(true);
