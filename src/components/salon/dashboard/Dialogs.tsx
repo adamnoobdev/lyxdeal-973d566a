@@ -1,6 +1,6 @@
 
 import { Deal } from "@/types/deal";
-import { DealDialog } from "../dialogs/DealDialogContent";
+import { DealDialog } from "../DealDialog"; // Update import path to correct component
 import { PasswordChangeDialog } from "../password-change/PasswordChangeDialog";
 import { DiscountCodesDialog } from "@/components/admin/deals/DiscountCodesDialog";
 import { DeleteDealDialog } from "@/components/admin/deals/DeleteDealDialog";
@@ -81,9 +81,9 @@ export const DashboardDialogs = ({
         >
           <SheetContent className="sm:max-w-lg">
             <DiscountCodesDialog 
-              dealId={viewingCodesForDeal.id} 
-              dealName={viewingCodesForDeal.title}
+              deal={viewingCodesForDeal} // Fix: Pass the entire deal object instead of just ID and name
               onClose={onCloseCodesDialog}
+              isOpen={!!viewingCodesForDeal && !isClosingCodesDialog}
             />
           </SheetContent>
         </Sheet>
