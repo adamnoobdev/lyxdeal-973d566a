@@ -3,12 +3,16 @@ import { useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema, FormValues } from '@/components/deal-form/schema';
-import { endOfMonth } from 'date-fns';
 
 export const useDealDialogForm = (
   initialValues: Partial<FormValues> = {},
   isBasicPlan: boolean
 ) => {
+  const defaultRequiresDiscountCode = !isBasicPlan;
+  
+  console.log("useDealDialogForm initialized with isBasicPlan:", isBasicPlan);
+  console.log("defaultRequiresDiscountCode set to:", defaultRequiresDiscountCode);
+  
   const defaultValues: Partial<FormValues> = {
     title: '',
     description: '',
@@ -19,12 +23,14 @@ export const useDealDialogForm = (
     featured: false,
     imageUrl: '',
     booking_url: '',
-    requires_discount_code: !isBasicPlan, // Default based on plan
+    requires_discount_code: defaultRequiresDiscountCode, // Default based on plan
     quantity: '10',
     expirationDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
     is_active: true,
     ...initialValues
   };
+  
+  console.log("Form default values:", defaultValues);
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -37,6 +43,7 @@ export const useDealDialogForm = (
       Object.entries(initialValues).forEach(([key, value]) => {
         if (value !== undefined) {
           methods.setValue(key as keyof FormValues, value as any);
+          console.log(`Setting initialValue for ${key}:`, value);
         }
       });
     }
@@ -44,8 +51,13 @@ export const useDealDialogForm = (
   
   // Update requires_discount_code based on subscription
   useEffect(() => {
+    // Only update if not explicitly set in initialValues
     if (initialValues?.requires_discount_code === undefined) {
-      methods.setValue('requires_discount_code', !isBasicPlan);
+      const newValue = !isBasicPlan;
+      console.log(`Setting requires_discount_code to ${newValue} based on subscription`);
+      methods.setValue('requires_discount_code', newValue);
+    } else {
+      console.log(`Keeping requires_discount_code as ${initialValues.requires_discount_code} from initialValues`);
     }
   }, [isBasicPlan, methods, initialValues]);
 

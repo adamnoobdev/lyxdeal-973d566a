@@ -41,6 +41,7 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
     try {
       // Apply subscription-based restrictions - force direct booking for basic plan
       if (isBasicPlan) {
+        console.log("Setting requires_discount_code to false for basic plan");
         data.requires_discount_code = false;
       }
       
@@ -66,6 +67,7 @@ export const DealDialogContent: React.FC<DealDialogContentProps> = ({
               
             if (salonData?.id) {
               data.salon_id = salonData.id;
+              console.log("Set salon_id to:", salonData.id);
             }
           }
         } catch (error) {

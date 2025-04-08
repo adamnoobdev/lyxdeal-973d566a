@@ -281,7 +281,7 @@ export const createDeal = async (
     // Create a new deal
     const { data: newDealData, error } = await supabase
       .from('deals')
-      .insert([{
+      .insert({
         title: values.title,
         description: values.description,
         image_url: values.imageUrl,
@@ -293,13 +293,13 @@ export const createDeal = async (
         expiration_date: expirationDate.toISOString(),
         featured: values.featured ?? false,
         salon_id: salonId,
-        status: 'approved', // Direktgodkänd
+        status: 'approved' as "pending" | "approved" | "rejected", // Direktgodkänd
         is_free: isFree, // Set is_free based on original discounted price
         is_active: values.is_active !== undefined ? values.is_active : true,
         quantity_left: quantity,
         booking_url: values.booking_url || null, // Lägg till bokningslänk
         requires_discount_code: requiresDiscountCode,
-      }])
+      })
       .select();
 
     if (error) {

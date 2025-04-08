@@ -57,10 +57,11 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
   
   // Force discount code setting based on subscription plan
   useEffect(() => {
-    if (hasBasicPackage && requiresDiscountCode) {
+    if (hasBasicPackage) {
+      console.log("Basic plan detected - setting requires_discount_code to false");
       form.setValue("requires_discount_code", false);
     }
-  }, [hasBasicPackage, requiresDiscountCode, form]);
+  }, [hasBasicPackage, form]);
   
   const isDisabled = readOnly || hasBasicPackage;
   
@@ -125,7 +126,7 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
           </div>
           <FormControl>
             <Switch
-              checked={field.value}
+              checked={hasBasicPackage ? false : field.value}
               disabled={isDisabled}
               onCheckedChange={field.onChange}
               className={hasBasicPackage ? "opacity-50 pointer-events-none" : ""}
