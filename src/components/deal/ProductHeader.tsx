@@ -14,7 +14,7 @@ export const ProductHeader = ({ category, city }: ProductHeaderProps) => {
       <CategoryBadge 
         category={category} 
       />
-      <Badge variant="outline" className="flex items-center gap-1 text-xs rounded-none pl-2 pr-3 py-0.5">
+      <Badge variant="outline" className="flex items-center gap-1 text-xs rounded-none pl-1.5 pr-2.5 py-0.5">
         <MapPin className="h-3 w-3" />
         {city}
       </Badge>

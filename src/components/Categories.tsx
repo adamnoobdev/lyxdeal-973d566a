@@ -1,4 +1,3 @@
-
 import { memo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CATEGORIES } from "@/constants/app-constants";
@@ -57,13 +56,13 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
     <div className={`relative mb-6 ${isSearchPage ? 'mx-0' : '-mx-4 md:mx-0'}`}>
       {isSearchPage ? (
         // For search page: show all categories without ScrollArea
-        <div className="flex flex-wrap gap-2 px-4 pb-4 justify-center">
+        <div className="flex flex-wrap gap-1.5 px-4 pb-4 justify-center">
           {CATEGORIES.map((category) => (
             <button
               key={category}
               onClick={() => handleCategoryClick(category)}
               className={cn(
-                "flex items-center gap-1 px-2 py-0.5 text-xs font-medium",
+                "flex items-center gap-1 px-1.5 py-0.5 text-xs font-medium",
                 "shadow-sm hover:shadow-md active:scale-95",
                 selectedCategory === category 
                   ? "bg-primary text-white border-transparent"
@@ -77,13 +76,13 @@ const CategoriesComponent = ({ selectedCategory, onSelectCategory }: CategoriesP
         </div>
       ) : (
         // For other pages: keep using the ScrollArea
-        <div className="flex w-full gap-2 px-4 pb-4 justify-start md:justify-center overflow-x-auto">
+        <div className="flex w-full gap-1.5 px-4 pb-4 justify-start md:justify-center overflow-x-auto">
           {CATEGORIES.map((category) => (
             <button
               key={category}
               onClick={() => handleCategoryClick(category)}
               className={cn(
-                "flex items-center gap-1 px-2 py-0.5 text-xs font-medium",
+                "flex items-center gap-1 px-1.5 py-0.5 text-xs font-medium",
                 "shadow-sm hover:shadow-md active:scale-95",
                 selectedCategory === category 
                   ? "bg-primary text-white border-transparent"

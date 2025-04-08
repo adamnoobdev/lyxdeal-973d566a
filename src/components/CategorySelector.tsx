@@ -84,7 +84,7 @@ export const CategorySelector = ({
           <DropdownMenuItem
             key={category}
             onClick={() => handleCategorySelect(category)}
-            className="flex items-center gap-3 py-2 px-3 cursor-pointer rounded-md"
+            className="flex items-center gap-2 py-1.5 px-2 cursor-pointer rounded-md"
           >
             <span className="text-sm">{getCategoryEmoji(category)}</span>
             <span className="font-medium">{category}</span>

@@ -38,7 +38,7 @@ export function HeroSection() {
             </p>
           </div>
           
-          <div className="flex flex-wrap justify-center gap-2 mx-auto max-w-3xl">
+          <div className="flex flex-wrap justify-center gap-1.5 mx-auto max-w-3xl">
             {displayCategories.map((category) => (
               <CategoryBadge 
                 key={category}
