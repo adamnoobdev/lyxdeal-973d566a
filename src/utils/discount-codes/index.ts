@@ -4,8 +4,22 @@ import { generateRandomCode } from "@/utils/discount-code-utils";
 import { normalizeId } from "./types";
 import { toast } from "sonner";
 
-// Re-export functions from other files in this directory
-export * from './debug';
+// Import specific functions from debug.ts to avoid name conflicts
+import { 
+  listAllDiscountCodes,
+  testDiscountCodeGeneration,
+  countDiscountCodes
+} from './debug';
+
+// Re-export functions from debug.ts with explicit imports
+export { 
+  listAllDiscountCodes,
+  testDiscountCodeGeneration,
+  countDiscountCodes
+};
+
+// Export from removeAllCodes.ts - we don't export removeAllDiscountCodes from here
+// to avoid the conflict with the same-named function in debug.ts
 export * from './removeAllCodes';
 
 /**

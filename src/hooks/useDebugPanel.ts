@@ -2,10 +2,11 @@
 import { useState } from "react";
 import { 
   listAllDiscountCodes, 
-  removeAllDiscountCodes, 
   countDiscountCodes,
   generateDiscountCodes
 } from "@/utils/discount-codes";
+// Import removeAllDiscountCodes directly from its source file
+import { removeAllDiscountCodes } from "@/utils/discount-codes/removeAllCodes";
 import { toast } from "sonner";
 import { normalizeId } from "@/utils/discount-codes/types";
 
