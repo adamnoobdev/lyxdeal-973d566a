@@ -34,6 +34,36 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
+    // Basic plan cannot use discount codes
+    if (values.requires_discount_code === true) {
+      console.log("[createDeal hook] Checking subscription plan for discount code usage");
+      
+      // Check salon's subscription plan
+      const { data: salonData, error: salonError } = await supabase
+        .from('salons')
+        .select('subscription_plan')
+        .eq('id', values.salon_id)
+        .single();
+        
+      if (salonError) {
+        console.error("[createDeal hook] Error fetching salon:", salonError);
+        return false;
+      }
+      
+      if (salonData.subscription_plan === 'Baspaket') {
+        console.error("[createDeal hook] Basic plan trying to use discount codes");
+        toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+        return false;
+      }
+    }
+    
+    // Validate booking URL for direct booking
+    if (!values.requires_discount_code && !values.booking_url) {
+      console.error("[createDeal hook] Missing booking URL for direct booking");
+      toast.error("När du inte använder rabattkoder måste du ange en bokningslänk för direkt bokning.");
+      return false;
+    }
+    
     // Prepare data for insertion - VIKTIGT: Säkerställ att namnen matchar databasens kolumnnamn
     const { expirationDate, ...rest } = values;
     
@@ -72,13 +102,16 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       
     if (error) {
       console.error("[createDeal hook] Insert error:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas: " + error.message);
       return false;
     }
     
     console.log("[createDeal hook] Deal created successfully with id:", data?.id);
+    toast.success("Erbjudandet har skapats!");
     return true;
   } catch (error) {
     console.error("[createDeal hook] Unexpected error:", error);
+    toast.error("Ett fel uppstod när erbjudandet skulle skapas");
     return false;
   }
 };

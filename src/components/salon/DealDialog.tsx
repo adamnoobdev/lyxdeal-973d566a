@@ -149,6 +149,11 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         values.salon_id = salonId;
       }
       
+      // Om det är ett baspaket, se till att requires_discount_code alltid är false
+      if (isBasicPlan) {
+        values.requires_discount_code = false;
+      }
+      
       console.log("[DealDialog] Submitting form with values:", values);
       const result = await onSubmit(values);
       

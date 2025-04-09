@@ -10,7 +10,7 @@ export const useDealDialogForm = (
 ) => {
   // Basic plan always uses direct booking (no discount codes)
   // För basic plan måste vi sätta defaultRequiresDiscountCode till false
-  const defaultRequiresDiscountCode = isBasicPlan ? false : !isBasicPlan;
+  const defaultRequiresDiscountCode = false; // Alltid false som standard
   
   console.log("useDealDialogForm initialized with isBasicPlan:", isBasicPlan);
   console.log("defaultRequiresDiscountCode set to:", defaultRequiresDiscountCode);
