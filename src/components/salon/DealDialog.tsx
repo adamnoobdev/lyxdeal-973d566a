@@ -5,7 +5,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { DealDialogContent } from "./dialogs/DealDialogContent";
 import { DealSheetContent } from "./dialogs/DealSheetContent";
 import { FormValues } from "@/components/deal-form/schema";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { toast } from "sonner";
 

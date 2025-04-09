@@ -52,6 +52,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
         
       if (salonError) {
         console.error("[createDeal] Error fetching salon:", salonError);
+        toast.error("Kunde inte hämta information om din prenumerationsplan");
         return false;
       }
       

@@ -101,13 +101,14 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
               disabled={readOnly}
               onCheckedChange={(checked) => {
                 console.log("Switch toggled to:", checked);
-                field.onChange(checked);
                 
                 // Om det är ett baspaket, ändra inte värdet
                 if (readOnly && !field.value) {
                   console.log("Switch är låst för baspaket, ignorerar ändring");
                   return;
                 }
+                
+                field.onChange(checked);
                 
                 // If switching to direct booking, trigger booking_url validation immediately
                 if (!checked) {
