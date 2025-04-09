@@ -29,6 +29,11 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
+    if (!values.title) {
+      console.error("[createDeal hook] Missing title");
+      return false;
+    }
+    
     // Prepare data for insertion
     const { expirationDate, ...rest } = values;
     
@@ -49,7 +54,8 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       // Ensure these fields are explicitly set and not optional
       category: values.category,
       city: values.city,
-      description: values.description
+      description: values.description,
+      title: values.title
     };
     
     // Insert deal

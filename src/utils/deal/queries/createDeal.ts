@@ -32,6 +32,12 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
+    if (!values.title) {
+      console.error("[createDeal] Missing title");
+      toast.error("Titel är obligatoriskt");
+      return false;
+    }
+    
     // Basic plan cannot use discount codes
     if (values.requires_discount_code === true) {
       console.log("[createDeal] Checking subscription plan for discount code usage");
@@ -82,7 +88,8 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       // Ensure these fields are explicitly set and not optional
       category: values.category,
       city: values.city,
-      description: values.description
+      description: values.description,
+      title: values.title
     };
     
     // Insert deal
