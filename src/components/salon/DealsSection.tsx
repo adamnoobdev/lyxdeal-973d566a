@@ -55,8 +55,7 @@ export const DealsSection = ({
       <DealsTable 
         deals={deals} 
         onEdit={onEdit} 
-        onDelete={onDelete} 
-        onToggleActive={undefined}
+        onDelete={onDelete}
         onPreview={onViewDetails}
         onViewDiscountCodes={onViewDiscountCodes}
         isSalonView={title === "Aktiva erbjudanden" && !!onViewDiscountCodes}

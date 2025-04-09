@@ -12,6 +12,8 @@ interface DealsListProps {
   isGeneratingCodes?: boolean;
   ActionComponent?: React.ComponentType<any>;
   actionProps?: Record<string, any>;
+  onPreview?: (deal: Deal) => void;
+  isSalonView?: boolean;
   renderActions?: (deal: Deal) => {
     onPreview?: () => void;
     onEdit?: () => void;
@@ -30,7 +32,9 @@ export const DealsList: React.FC<DealsListProps> = ({
   isGeneratingCodes,
   ActionComponent,
   actionProps = {},
-  renderActions
+  renderActions,
+  onPreview,
+  isSalonView
 }) => {
   return (
     <DealsTable 
@@ -42,6 +46,8 @@ export const DealsList: React.FC<DealsListProps> = ({
       onGenerateDiscountCodes={onGenerateDiscountCodes}
       isGeneratingCodes={isGeneratingCodes}
       renderActions={renderActions}
+      onPreview={onPreview}
+      isSalonView={isSalonView}
     />
   );
 };

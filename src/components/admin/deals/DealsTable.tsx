@@ -1,5 +1,7 @@
+
 import {
-  CaretSort,
+  ChevronDown,
+  ChevronUp,
   CircleDollarSign,
   Copy,
   Edit,
@@ -37,6 +39,8 @@ interface DealsTableProps {
   onViewDiscountCodes?: (deal: Deal) => void;
   onGenerateDiscountCodes?: (deal: Deal, quantity?: number) => Promise<void>;
   isGeneratingCodes?: boolean;
+  onPreview?: (deal: Deal) => void;
+  isSalonView?: boolean;
   renderActions?: (deal: Deal) => {
     onPreview?: () => void;
     onEdit?: () => void;
@@ -53,7 +57,9 @@ export const DealsTable: React.FC<DealsTableProps> = ({
   onViewDiscountCodes,
   onGenerateDiscountCodes,
   isGeneratingCodes,
-  renderActions
+  renderActions,
+  onPreview,
+  isSalonView
 }) => {
   const [sortBy, setSortBy] = useState<keyof Deal | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -95,7 +101,9 @@ export const DealsTable: React.FC<DealsTableProps> = ({
             <Button variant="ghost" onClick={() => handleSort("title")}>
               Title
               {sortBy === "title" && (
-                <CaretSort direction={sortOrder} className="ml-2 h-4 w-4" />
+                <span className="ml-2 h-4 w-4">
+                  {sortOrder === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </span>
               )}
             </Button>
           </TableHead>
@@ -103,7 +111,9 @@ export const DealsTable: React.FC<DealsTableProps> = ({
             <Button variant="ghost" onClick={() => handleSort("category")}>
               Kategori
               {sortBy === "category" && (
-                <CaretSort direction={sortOrder} className="ml-2 h-4 w-4" />
+                <span className="ml-2 h-4 w-4">
+                  {sortOrder === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </span>
               )}
             </Button>
           </TableHead>
@@ -111,7 +121,9 @@ export const DealsTable: React.FC<DealsTableProps> = ({
             <Button variant="ghost" onClick={() => handleSort("city")}>
               Stad
               {sortBy === "city" && (
-                <CaretSort direction={sortOrder} className="ml-2 h-4 w-4" />
+                <span className="ml-2 h-4 w-4">
+                  {sortOrder === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </span>
               )}
             </Button>
           </TableHead>
@@ -135,12 +147,13 @@ export const DealsTable: React.FC<DealsTableProps> = ({
                 onDelete={onDelete ? () => onDelete(deal) : undefined}
                 onToggleActive={onToggleActive ? () => onToggleActive(deal) : undefined}
                 isActive={deal.is_active}
-                onPreview={renderActions?.(deal)?.onPreview}
+                onPreview={onPreview ? () => onPreview(deal) : renderActions?.(deal)?.onPreview}
                 onApprove={renderActions?.(deal)?.onApprove}
                 onReject={renderActions?.(deal)?.onReject}
                 onViewDiscountCodes={onViewDiscountCodes ? () => onViewDiscountCodes(deal) : undefined}
                 onGenerateDiscountCodes={onGenerateDiscountCodes ? () => onGenerateDiscountCodes(deal) : undefined}
                 isGeneratingCodes={isGeneratingCodes}
+                showViewCodesForSalon={isSalonView}
               />
             </TableCell>
           </TableRow>
