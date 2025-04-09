@@ -25,32 +25,34 @@ export const DeleteDealDialog = ({
   dealTitle,
 }: DeleteDealDialogProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [isDialogClosing, setIsDialogClosing] = useState(false);
   
-  // Ensure component is mounted before any operations
+  // Reset states when dialog opens
   useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
-  
-  // Reset isDeleting state when dialog opens
-  useEffect(() => {
-    if (isOpen && isMounted) {
+    if (isOpen) {
       setIsDeleting(false);
+      setIsDialogClosing(false);
     }
-  }, [isOpen, isMounted]);
+  }, [isOpen]);
   
-  // Safe close function that prevents UI freezing
+  // Safe close function with state management to prevent UI freezing
   const handleClose = () => {
-    if (isDeleting) return;
+    if (isDeleting || isDialogClosing) return;
     
-    // Call onClose directly first to allow parent components to update their state
-    onClose();
+    setIsDialogClosing(true);
+    // Small delay to allow state to update before calling onClose
+    setTimeout(() => {
+      onClose();
+      // Reset state after closing
+      setTimeout(() => {
+        setIsDialogClosing(false);
+      }, 50);
+    }, 10);
   };
   
   // Controlled delete with state tracking
   const handleDelete = async () => {
-    if (isDeleting || !isMounted) return;
+    if (isDeleting || isDialogClosing) return;
     
     try {
       setIsDeleting(true);
@@ -58,24 +60,20 @@ export const DeleteDealDialog = ({
       handleClose();
     } catch (error) {
       console.error("Error during delete:", error);
-      if (isMounted) {
-        setIsDeleting(false);
-      }
+      setIsDeleting(false);
     }
   };
-
-  if (!isMounted) return null;
 
   return (
     <AlertDialog 
       open={isOpen} 
       onOpenChange={(open) => {
-        if (!open && !isDeleting) {
+        if (!open && !isDeleting && !isDialogClosing) {
           handleClose();
         }
       }}
     >
-      <AlertDialogContent>
+      <AlertDialogContent className="sm:max-w-[425px]">
         <AlertDialogHeader>
           <AlertDialogTitle>Är du säker?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -88,9 +86,9 @@ export const DeleteDealDialog = ({
           <AlertDialogCancel 
             onClick={(e) => {
               e.preventDefault();
-              if (!isDeleting) handleClose();
+              if (!isDeleting && !isDialogClosing) handleClose();
             }} 
-            disabled={isDeleting}
+            disabled={isDeleting || isDialogClosing}
           >
             Avbryt
           </AlertDialogCancel>
@@ -99,7 +97,8 @@ export const DeleteDealDialog = ({
               e.preventDefault();
               handleDelete();
             }}
-            disabled={isDeleting}
+            disabled={isDeleting || isDialogClosing}
+            className="bg-destructive hover:bg-destructive/90"
           >
             {isDeleting ? "Tar bort..." : "Ta bort"}
           </AlertDialogAction>

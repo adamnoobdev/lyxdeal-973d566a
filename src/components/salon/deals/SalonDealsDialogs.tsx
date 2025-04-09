@@ -37,10 +37,9 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
   onUpdate,
   onCreate
 }) => {
-  // Use refs to track state and avoid race conditions
-  const isDialogClosingRef = useRef(false);
-  const isDeleteClosingRef = useRef(false);
-  const isCodesClosingRef = useRef(false);
+  // Use separate closing state flags to prevent UI freezing
+  const [isMainDialogClosing, setIsMainDialogClosing] = React.useState(false);
+  const [isDeleteDialogClosing, setIsDeleteDialogClosing] = React.useState(false);
   
   // Format initial values for the form
   const initialValues = editingDeal ? {
@@ -61,56 +60,62 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     is_active: editingDeal.is_active
   } : undefined;
 
-  // Safe closing function for main dialog
+  // Safe closing function for main dialog with state management
   const handleDialogClose = () => {
-    if (isDialogClosingRef.current) return;
+    if (isMainDialogClosing) return;
     
-    // Call state updaters directly to avoid UI freeze
-    setIsDialogOpen(false);
+    setIsMainDialogClosing(true);
     
-    // Use a small delay before resetting edit state
-    isDialogClosingRef.current = true;
+    // Use setTimeout to safely update state
     setTimeout(() => {
-      setEditingDeal(null);
-      isDialogClosingRef.current = false;
-    }, 50);
+      setIsDialogOpen(false);
+      
+      // Use a small delay before resetting edit state
+      setTimeout(() => {
+        setEditingDeal(null);
+        setIsMainDialogClosing(false);
+      }, 50);
+    }, 10);
   };
 
-  // Safe closing function for delete dialog
+  // Safe closing function for delete dialog with state management
   const handleCloseDeleteDialog = () => {
-    if (isDeleteClosingRef.current) return;
+    if (isDeleteDialogClosing) return;
     
-    // Call state updater directly
-    deleteData.setDeletingDeal(null);
+    setIsDeleteDialogClosing(true);
     
-    // Mark as closing with a ref to avoid multiple clicks
-    isDeleteClosingRef.current = true;
+    // Use setTimeout to safely update state
     setTimeout(() => {
-      isDeleteClosingRef.current = false;
-    }, 50);
+      deleteData.setDeletingDeal(null);
+      
+      setTimeout(() => {
+        setIsDeleteDialogClosing(false);
+      }, 50);
+    }, 10);
   };
 
   // Safe closing function for codes dialog
   const handleCloseCodeDialog = () => {
-    if (isCodesClosingRef.current) return;
+    if (codeData.isClosingCodesDialog) return;
     
-    // Call state updaters in sequence with minimal delay
-    codeData.setViewingCodesForDeal(null);
+    // Update closing state first to prevent multiple close attempts
     codeData.setIsClosingCodesDialog(true);
     
-    // Mark as closing with a ref to avoid multiple clicks
-    isCodesClosingRef.current = true;
+    // Use setTimeout to safely update state
     setTimeout(() => {
-      codeData.setIsClosingCodesDialog(false);
-      isCodesClosingRef.current = false;
-    }, 100);
+      codeData.setViewingCodesForDeal(null);
+      
+      setTimeout(() => {
+        codeData.setIsClosingCodesDialog(false);
+      }, 50);
+    }, 10);
   };
 
   return (
     <>
       {/* Create/Edit Deal Dialog */}
       <DealDialog
-        isOpen={isDialogOpen}
+        isOpen={isDialogOpen && !isMainDialogClosing}
         onClose={handleDialogClose}
         onSubmit={editingDeal ? onUpdate : onCreate}
         initialValues={initialValues}
@@ -119,7 +124,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
 
       {/* Delete Deal Dialog */}
       <DeleteDealDialog
-        isOpen={!!deleteData.deletingDeal}
+        isOpen={!!deleteData.deletingDeal && !isDeleteDialogClosing}
         onClose={handleCloseDeleteDialog}
         onConfirm={deleteData.handleDelete}
         dealTitle={deleteData.deletingDeal?.title || ''}
