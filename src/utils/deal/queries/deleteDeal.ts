@@ -25,7 +25,7 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
       return false;
     }
     
-    // Get the current user's salon ID
+    // Get the current user's session
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session?.user?.id) {
@@ -34,23 +34,23 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
       return false;
     }
     
-    // Check if the user is an admin or the salon owner (for admins we don't need to verify ownership)
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', session.user.id)
+    // Get the current user's salon info to check their role
+    const { data: salonData, error: salonError } = await supabase
+      .from('salons')
+      .select('id, role')
+      .eq('user_id', session.user.id)
       .single();
     
-    const isAdmin = userData?.role === 'admin';
+    if (salonError) {
+      console.error("[deleteDeal] Error fetching salon data:", salonError);
+      toast.error("Kunde inte verifiera dina behörigheter");
+      return false;
+    }
+    
+    const isAdmin = salonData?.role === 'admin';
     
     if (!isAdmin) {
       // If not admin, verify the user is the salon owner
-      const { data: salonData } = await supabase
-        .from('salons')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .single();
-      
       if (!salonData || salonData.id !== dealData.salon_id) {
         console.error("[deleteDeal] User is not the salon owner");
         toast.error("Du har inte behörighet att ta bort detta erbjudande");
@@ -72,6 +72,7 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
     }
     
     console.log("[deleteDeal] Deal deleted successfully");
+    toast.success("Erbjudandet har tagits bort");
     return true;
   } catch (error) {
     console.error("[deleteDeal] Unexpected error:", error);
