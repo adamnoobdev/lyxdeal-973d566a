@@ -65,9 +65,9 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         
         // Get salon information
         const { data: salonData, error: salonError } = await supabase
-          .from('salons')
-          .select('id, name, subscription_plan, status')
-          .eq('user_id', session.user.id)
+          .from("salons")
+          .select("id, name, subscription_plan, status")
+          .eq("user_id", session.user.id)
           .single();
           
         if (salonError) {
@@ -99,7 +99,8 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         
         // IMPORTANT: Check subscription plan regardless of how the salon was created
         // This handles admins creating basic plan salons as well as salons from payment flow
-        const isPlanBasic = salonData.subscription_plan === 'Baspaket';
+        // Treat null/undefined subscription_plan as 'Baspaket'
+        const isPlanBasic = !salonData.subscription_plan || salonData.subscription_plan === 'Baspaket';
         if (isMounted) {
           setIsBasicPlan(isPlanBasic);
           console.log("[DealDialog] Is basic plan:", isPlanBasic);

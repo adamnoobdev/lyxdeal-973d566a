@@ -131,17 +131,24 @@ serve(async (req) => {
       role: "salon_owner",
     };
     
+    // UPDATED: Make sure subscription_plan is ALWAYS set, even with skipSubscription
+    // This ensures that Basic plan salons are properly identified regardless of creation method
+    const finalSubscriptionPlan = subscriptionPlan || "Baspaket";
+    
     // If we're skipping subscription or adding a specific subscription plan directly
     if (skipSubscription) {
       // For skipped subscriptions, set as active with a far future end date
+      // but CRUCIALLY, still maintain the subscription_plan field
       Object.assign(salonData, {
         status: "active", 
+        subscription_plan: finalSubscriptionPlan, // ALWAYS set this
+        subscription_type: subscriptionType || "monthly",
         current_period_end: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000), // 10 years in the future
       });
     } else if (subscriptionPlan) {
       // For direct subscription assignment, set the subscription details
       Object.assign(salonData, {
-        subscription_plan: subscriptionPlan,
+        subscription_plan: finalSubscriptionPlan,
         subscription_type: subscriptionType || "monthly",
         status: "active",
         current_period_end: new Date(Date.now() + (subscriptionType === "yearly" ? 365 : 30) * 24 * 60 * 60 * 1000),

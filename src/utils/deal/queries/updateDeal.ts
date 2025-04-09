@@ -43,8 +43,9 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       return false;
     }
     
-    // IMPORTANT: Explicit check if this is a basic plan - CRITICALLY IMPORTANT for admin-created salons
-    const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
+    // IMPORTANT: Treat null/undefined subscription_plan as Baspaket
+    // This is critically important for admin-created salons that might not have the field set
+    const isBasicPlan = !salonData?.subscription_plan || salonData?.subscription_plan === 'Baspaket';
     console.log('[updateDeal] Salon plan:', salonData?.subscription_plan, 'isBasicPlan:', isBasicPlan);
     
     // CRITICAL: For basic plan, FORCE requires_discount_code to false
@@ -99,7 +100,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       expirationDate: expirationDate,
       booking_url: values.booking_url,
       requires_discount_code: requiresDiscountCode,
-      isBasicPlan // Log this for debugging
+      isBasicPlan: isBasicPlan // Log this for debugging
     });
     
     // Final safety check before DB update

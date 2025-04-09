@@ -31,12 +31,15 @@ export const createSalonData = async (values: any) => {
       console.log("Built address from parts:", valuesToSend.address);
     }
     
-    // Add subscription plan and type if they exist
-    if (values.subscriptionPlan && !values.skipSubscription) {
-      valuesToSend.subscriptionPlan = values.subscriptionPlan;
-      valuesToSend.subscriptionType = values.subscriptionType || "monthly";
-      console.log("Using subscription plan:", valuesToSend.subscriptionPlan, "type:", valuesToSend.subscriptionType);
+    // CRITICAL: Always set subscription plan, even if skipSubscription is true
+    // This ensures that basic plan restrictions are properly enforced later
+    if (!valuesToSend.subscriptionPlan) {
+      valuesToSend.subscriptionPlan = "Baspaket"; // Default to basic plan
+      console.log("Setting default subscription plan to Baspaket");
     }
+    
+    valuesToSend.subscriptionType = values.subscriptionType || "monthly";
+    console.log("Using subscription plan:", valuesToSend.subscriptionPlan, "type:", valuesToSend.subscriptionType);
     
     // Clean up fields we don't want to send to the edge function
     const { street, postalCode, city, fullAddress, ...cleanValues } = valuesToSend;

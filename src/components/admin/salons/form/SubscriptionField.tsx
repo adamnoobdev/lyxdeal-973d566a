@@ -12,12 +12,17 @@ interface SubscriptionFieldProps {
 export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
   // Watch skipSubscription to react to changes
   const skipSubscription = form.watch("skipSubscription");
+  const subscriptionPlan = form.watch("subscriptionPlan");
   
-  // När skipSubscription-fältet ändras, säkerställ att vi inte förlorar prenumerationsvalet
+  // Ensure that when skipSubscription is toggled, we still maintain a valid subscription plan
   useEffect(() => {
-    // Vi behöver inte göra något här, eftersom vi behåller prenumerationsvalen synliga
-    // oavsett om skipSubscription är markerad eller inte
-  }, [skipSubscription]);
+    // If no subscription plan is set, default to Baspaket
+    // This is critical for admin-created salons to have proper plan restrictions
+    if (!subscriptionPlan) {
+      console.log("Setting default subscription plan to Baspaket");
+      form.setValue("subscriptionPlan", "Baspaket");
+    }
+  }, [skipSubscription, subscriptionPlan, form]);
 
   return (
     <div className="space-y-6">
@@ -47,6 +52,8 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
         <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm">
           <p className="text-amber-800">
             Salongen kommer att aktiveras <strong>utan betalningskrav</strong> men med vald prenumerationsplan nedan.
+            <br />
+            <strong>OBS:</strong> Välj prenumerationsplan noggrant eftersom det avgör vilka funktioner salongen får tillgång till.
           </p>
         </div>
       )}

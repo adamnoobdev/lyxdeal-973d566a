@@ -35,7 +35,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
     }
     
     // CRITICAL: Check salon's subscription plan regardless of how it was created
-    console.log("[createDeal hook] Checking subscription plan for discount code usage");
+    console.log("[createDeal hook] Checking subscription plan for subscription plan & discount code usage");
     
     // Check salon's subscription plan
     const { data: salonData, error: salonError } = await supabase
@@ -49,9 +49,11 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
-    // IMPORTANT: Enforce basic plan restrictions regardless of UI state
+    console.log("[createDeal hook] Salon subscription plan:", salonData?.subscription_plan);
+    
+    // IMPORTANT: Enforce basic plan restrictions regardless of UI state or creation method
     // This is critical for admin-created salons or salons created via payment solution
-    const isBasicPlan = salonData.subscription_plan === 'Baspaket'; 
+    const isBasicPlan = !salonData.subscription_plan || salonData.subscription_plan === 'Baspaket'; 
     if (isBasicPlan) {
       // Force requires_discount_code to false for basic plan
       values.requires_discount_code = false;

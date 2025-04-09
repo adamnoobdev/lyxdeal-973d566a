@@ -38,7 +38,9 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
       return false;
     }
     
-    const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
+    // IMPORTANT: consider null/undefined subscription_plan as Baspaket
+    // This handles edge cases for admin-created salons or database inconsistencies
+    const isBasicPlan = !salonData?.subscription_plan || salonData?.subscription_plan === 'Baspaket';
     console.log("Salon subscription plan:", salonData?.subscription_plan, "isBasicPlan:", isBasicPlan);
     
     // Hantera rabattkoder baserat på plan och befintligt värde
