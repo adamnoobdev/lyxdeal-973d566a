@@ -123,35 +123,30 @@ export const DealDialog: React.FC<DealDialogProps> = ({
   
   // Improved controlled closing function to prevent UI freezing
   const handleClose = () => {
-    if (isSubmitting || isClosing) {
-      console.log("[DealDialog] Cannot close - operation in progress");
+    if (isSubmitting) {
+      console.log("[DealDialog] Cannot close during submission");
       return;
     }
 
     console.log("[DealDialog] Starting controlled close sequence");
-    setIsClosing(true);
     
-    // Clear any existing timers
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-    }
+    // Call onClose directly first to allow parent components to update their state
+    onClose();
     
-    // Use a more robust approach to closing
-    closeTimeoutRef.current = setTimeout(() => {
-      if (!mountedRef.current) return;
-      
-      // Actually close the dialog
-      console.log("[DealDialog] Executing onClose callback");
-      onClose();
-      
-      // Reset closing state after dialog is fully closed
-      closeTimeoutRef.current = setTimeout(() => {
-        if (mountedRef.current) {
-          setIsClosing(false);
-          console.log("[DealDialog] Reset closing state");
-        }
-      }, 300);
-    }, 100);
+    // Then set our internal closing state with a slight delay
+    setTimeout(() => {
+      if (mountedRef.current) {
+        setIsClosing(true);
+        
+        // Reset closing state after dialog is fully closed
+        setTimeout(() => {
+          if (mountedRef.current) {
+            setIsClosing(false);
+            console.log("[DealDialog] Reset closing state");
+          }
+        }, 300);
+      }
+    }, 10);
   };
   
   // Handle form submission with improved checks
@@ -191,7 +186,6 @@ export const DealDialog: React.FC<DealDialogProps> = ({
       
       // Only close dialog on successful submission
       if (result !== false) {
-        // Use the improved closing sequence
         handleClose();
       } else {
         setIsSubmitting(false);
@@ -230,7 +224,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
 
   return (
     <Dialog 
-      open={isOpen && !isClosing}
+      open={isOpen}
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}

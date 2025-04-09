@@ -42,19 +42,24 @@ export const DeleteDealDialog = ({
     }
   }, [isOpen, isMounted]);
   
-  // Controlled close function to prevent UI freeze
+  // Förbättrad stängningsfunktion för att förhindra UI-frysning
   const handleClose = () => {
     if (isDeleting) return;
     
-    setIsClosing(true);
+    // Anropa först onClose direkt för att tillåta föräldrakomponenter att uppdatera sin state
+    onClose();
+    
+    // Sätt vår interna stängningsstate med en liten fördröjning
     setTimeout(() => {
-      onClose();
-      setTimeout(() => {
-        if (isMounted) {
-          setIsClosing(false);
-        }
-      }, 100);
-    }, 200);
+      if (isMounted) {
+        setIsClosing(true);
+        setTimeout(() => {
+          if (isMounted) {
+            setIsClosing(false);
+          }
+        }, 200);
+      }
+    }, 10);
   };
   
   // Controlled delete with state tracking
@@ -77,7 +82,7 @@ export const DeleteDealDialog = ({
 
   return (
     <AlertDialog 
-      open={isOpen && !isClosing} 
+      open={isOpen} 
       onOpenChange={(open) => {
         if (!open && !isDeleting) {
           handleClose();

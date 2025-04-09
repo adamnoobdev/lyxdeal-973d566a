@@ -5,6 +5,7 @@ import { SalonDealsDialogs } from '@/components/salon/deals/SalonDealsDialogs';
 import { useSalonDealsState } from '@/components/salon/deals/useSalonDealsState';
 import { toast } from 'sonner';
 import { createDeal } from '@/utils/deal/queries/createDeal';
+import { deleteDeal } from '@/utils/deal/queries/deleteDeal';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SalonDealsProps {
@@ -33,6 +34,8 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
 
   const [lastError, setLastError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingDeal, setDeletingDeal] = useState<any>(null);
 
   // Fetch salon ID if not already available
   const [currentSalonId, setCurrentSalonId] = useState<number | null>(null);
@@ -83,6 +86,31 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       onCloseCreateDialog();
     }
   }, [isSubmitting, setIsDialogOpen, setEditingDeal, onCloseCreateDialog]);
+
+  // Implementerad funktion för att ta bort erbjudanden
+  const handleDeleteDeal = async () => {
+    if (!deletingDeal || isDeleting) return;
+    
+    try {
+      setIsDeleting(true);
+      console.log("[SalonDeals] Deleting deal:", deletingDeal.id);
+      
+      const success = await deleteDeal(deletingDeal.id);
+      
+      if (success) {
+        toast.success(`Erbjudandet "${deletingDeal.title}" har tagits bort`);
+        await dealManagement.refetch();
+      } else {
+        toast.error("Det gick inte att ta bort erbjudandet.");
+      }
+    } catch (error) {
+      console.error("[SalonDeals] Error deleting deal:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle tas bort.");
+    } finally {
+      setIsDeleting(false);
+      setDeletingDeal(null);
+    }
+  };
 
   const handleGenerateDiscountCodes = async (deal: any, quantity: number): Promise<void> => {
     try {
@@ -148,7 +176,9 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
           setEditingDeal(deal);
           setIsDialogOpen(true);
         }}
-        onDelete={dealManagement.setDeletingDeal}
+        onDelete={deal => {
+          setDeletingDeal(deal);
+        }}
         onViewDiscountCodes={setViewingCodesForDeal}
         onGenerateDiscountCodes={handleGenerateDiscountCodes}
         isGeneratingCodes={isGeneratingCodes}
@@ -160,9 +190,9 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
         editingDeal={editingDeal}
         setEditingDeal={setEditingDeal}
         deleteData={{
-          deletingDeal: dealManagement.deletingDeal,
-          setDeletingDeal: dealManagement.setDeletingDeal,
-          handleDelete: dealManagement.handleDelete
+          deletingDeal,
+          setDeletingDeal,
+          handleDelete: handleDeleteDeal
         }}
         codeData={{
           viewingCodesForDeal,

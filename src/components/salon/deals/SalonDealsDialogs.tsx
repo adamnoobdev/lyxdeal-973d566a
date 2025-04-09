@@ -70,35 +70,38 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     is_active: editingDeal.is_active
   } : undefined;
 
-  // Handler for closing code dialog - förbättrad för att undvika frysning
+  // Förbättrad stängningsfunktion för koddialoger
   const handleCloseCodeDialog = () => {
-    if (isClosingRef.current) return;
+    // Anropa direkt för att uppdatera föräldrastate
+    codeData.setViewingCodesForDeal(null);
     
-    isClosingRef.current = true;
-    codeData.setIsClosingCodesDialog(true);
-    
-    timeoutRef.current = setTimeout(() => {
-      codeData.setViewingCodesForDeal(null);
-      codeData.setIsClosingCodesDialog(false);
-      isClosingRef.current = false;
-    }, 300);
+    // Använd setTimeout för att fördröja visuell stängning
+    setTimeout(() => {
+      if (isClosingRef.current) return;
+      isClosingRef.current = true;
+      codeData.setIsClosingCodesDialog(true);
+      
+      timeoutRef.current = setTimeout(() => {
+        codeData.setIsClosingCodesDialog(false);
+        isClosingRef.current = false;
+      }, 200);
+    }, 10);
   };
 
-  // Handler for dialog close with cleanup - förbättrad för att undvika frysning
+  // Förbättrad stängningsfunktion för huvuddialoger
   const handleDialogClose = () => {
-    if (isClosingRef.current) return;
-    
-    isClosingRef.current = true;
-    console.log("Initiating dialog close sequence");
-    
+    // Anropa direkt för att uppdatera föräldrastate
     setIsDialogOpen(false);
     
-    // Fördröj återställning av editingDeal för att undvika frysning
-    timeoutRef.current = setTimeout(() => {
+    // Använd setTimeout för att fördröja återställning av editingDeal
+    setTimeout(() => {
+      if (isClosingRef.current) return;
+      isClosingRef.current = true;
+      
       console.log("Cleaning up dialog state");
       setEditingDeal(null);
       isClosingRef.current = false;
-    }, 300);
+    }, 50);
   };
 
   return (

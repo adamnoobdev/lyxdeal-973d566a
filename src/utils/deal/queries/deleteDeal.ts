@@ -1,41 +1,80 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-/**
- * Tar bort ett erbjudande från databasen
- */
-export const deleteDeal = async (id: number): Promise<boolean> => {
+export const deleteDeal = async (dealId: number): Promise<boolean> => {
   try {
-    // Först tar vi bort alla rabattkoder kopplade till erbjudandet
-    console.log(`Removing discount codes for deal ID: ${id}`);
-    const { error: discountCodesError } = await supabase
-      .from('discount_codes')
-      .delete()
-      .eq('deal_id', id);
-      
-    if (discountCodesError) {
-      console.error('Error deleting discount codes:', discountCodesError);
-      // Continue with deal deletion even if code deletion fails
-    } else {
-      console.log(`Successfully removed discount codes for deal ID: ${id}`);
-    }
-
-    // Sedan tar vi bort själva erbjudandet
-    const { error } = await supabase
-      .from('deals')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      console.error('Error deleting deal:', error);
-      throw error;
+    console.log("[deleteDeal] Called with dealId:", dealId);
+    
+    if (!dealId) {
+      console.error("[deleteDeal] Missing deal ID");
+      toast.error("Kunde inte identifiera erbjudandet");
+      return false;
     }
     
-    toast.success("Erbjudandet har tagits bort");
+    // Verify the deal exists first
+    const { data: dealData, error: checkError } = await supabase
+      .from('deals')
+      .select('id, title, salon_id')
+      .eq('id', dealId)
+      .single();
+    
+    if (checkError || !dealData) {
+      console.error("[deleteDeal] Error checking deal:", checkError);
+      toast.error("Kunde inte hitta erbjudandet");
+      return false;
+    }
+    
+    // Get the current user's salon ID
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session?.user?.id) {
+      console.error("[deleteDeal] No active user session");
+      toast.error("Du måste vara inloggad för att ta bort erbjudanden");
+      return false;
+    }
+    
+    // Check if the user is an admin or the salon owner (for admins we don't need to verify ownership)
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+    
+    const isAdmin = userData?.role === 'admin';
+    
+    if (!isAdmin) {
+      // If not admin, verify the user is the salon owner
+      const { data: salonData } = await supabase
+        .from('salons')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+      
+      if (!salonData || salonData.id !== dealData.salon_id) {
+        console.error("[deleteDeal] User is not the salon owner");
+        toast.error("Du har inte behörighet att ta bort detta erbjudande");
+        return false;
+      }
+    }
+    
+    // Delete the deal
+    console.log("[deleteDeal] Deleting deal:", dealId);
+    const { error: deleteError } = await supabase
+      .from('deals')
+      .delete()
+      .eq('id', dealId);
+    
+    if (deleteError) {
+      console.error("[deleteDeal] Delete error:", deleteError);
+      toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
+      return false;
+    }
+    
+    console.log("[deleteDeal] Deal deleted successfully");
     return true;
   } catch (error) {
-    console.error('Error deleting deal:', error);
+    console.error("[deleteDeal] Unexpected error:", error);
     toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
     return false;
   }
