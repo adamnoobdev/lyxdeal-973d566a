@@ -78,8 +78,12 @@ export const useDealDialogForm = (
         shouldDirty: false 
       });
       
-      // Disable the field to prevent UI interactions
-      methods.control.disable('requires_discount_code', { keepDefaultValue: false });
+      // Instead of using nonexistent disable method, we'll register the field with a custom onChange 
+      // that prevents changes to the value for basic plan users
+      const currentField = methods.getValues('requires_discount_code');
+      if (currentField !== false) {
+        methods.setValue('requires_discount_code', false);
+      }
       
       // Trigger validation with timeout för att undvika UI-frysning
       setTimeout(() => methods.trigger(), 100);

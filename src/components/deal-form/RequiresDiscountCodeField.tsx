@@ -55,13 +55,8 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
       console.log("ReadOnly mode detected (isBasicPlan or locked editing) - ensuring requires_discount_code is false");
       form.setValue('requires_discount_code', false, { shouldValidate: true });
       
-      // Force disable the field to prevent any manipulation
-      try {
-        form.control.disable('requires_discount_code');
-      } catch (e) {
-        // Some versions of react-hook-form might not support this directly
-        console.log("Could not disable field directly, using UI restrictions instead");
-      }
+      // Instead of using nonexistent disable method, we'll just rely on the disabled prop in the UI
+      // and prevent changes in the onCheckedChange handler
     }
   }, [readOnly, requiresDiscountCode, form]);
   
