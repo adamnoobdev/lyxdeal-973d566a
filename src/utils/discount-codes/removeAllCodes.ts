@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeId } from "./types";
 
 /**
  * Tar bort alla rabattkoder från databasen
@@ -16,7 +17,9 @@ export const removeAllDiscountCodes = async (dealId?: string | number): Promise<
     let query = supabase.from('discount_codes').delete();
     
     if (dealId) {
-      query = query.eq('deal_id', dealId);
+      // Convert the dealId to a number if it's a string
+      const numericDealId = normalizeId(dealId);
+      query = query.eq('deal_id', numericDealId);
     } else {
       query = query.neq('id', 0); // Ta bort alla rader (ett villkor som är sant för alla rader)
     }
