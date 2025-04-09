@@ -37,6 +37,7 @@ export const DealActions = ({
         onPreview={onPreview}
         onApprove={onApprove}
         onReject={onReject}
+        onDelete={onDelete}
       />
     );
   }
@@ -48,6 +49,7 @@ export const DealActions = ({
         onEdit={onEdit}
         onPreview={onPreview}
         onViewDiscountCodes={onViewDiscountCodes}
+        onDelete={onDelete}
       />
     );
   }

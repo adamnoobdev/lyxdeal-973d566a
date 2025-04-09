@@ -57,9 +57,9 @@ export const useDealsAdmin = () => {
     return success;
   }, [refetch]);
 
-  // Filtrera erbjudanden efter aktiva/inaktiva
-  const activeDeals = deals.filter(deal => deal.is_active);
-  const inactiveDeals = deals.filter(deal => !deal.is_active);
+  // Filtrera erbjudanden efter aktiva/inaktiva (och endast approved för att visa)
+  const activeDeals = deals.filter(deal => deal.is_active && deal.status !== 'pending');
+  const inactiveDeals = deals.filter(deal => !deal.is_active && deal.status !== 'pending');
 
   return {
     deals,

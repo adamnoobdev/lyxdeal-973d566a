@@ -1,5 +1,5 @@
 
-import { Check, Edit, Eye, X } from "lucide-react";
+import { Check, Edit, Eye, Trash2, X } from "lucide-react";
 import { ApprovalActionProps } from "./types";
 import { ActionButton } from "./ActionButton";
 import { useState } from "react";
@@ -9,6 +9,7 @@ export const ApprovalActions = ({
   onPreview, 
   onApprove, 
   onReject,
+  onDelete
 }: ApprovalActionProps) => {
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
@@ -69,6 +70,16 @@ export const ApprovalActions = ({
       >
         <X className="h-4 w-4" />
       </ActionButton>
+      
+      {onDelete && (
+        <ActionButton
+          onClick={onDelete}
+          className="h-8 w-8 text-red-600 hover:bg-red-50"
+          title="Ta bort erbjudande"
+        >
+          <Trash2 className="h-4 w-4" />
+        </ActionButton>
+      )}
     </div>
   );
 };

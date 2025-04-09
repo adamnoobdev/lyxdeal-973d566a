@@ -1,51 +1,56 @@
 
-import { Download, Edit, Eye, Plus, Tag } from "lucide-react";
-import { DiscountCodeActionProps } from "./types";
+import { Edit, Eye, Tag, Trash2 } from "lucide-react";
 import { ActionButton } from "./ActionButton";
+import { BaseActionProps } from "./types";
 
-export const SalonViewActions = ({ 
-  onEdit, 
-  onPreview, 
+interface SalonViewActionProps extends BaseActionProps {
+  onViewDiscountCodes?: () => void;
+  onDelete?: () => void;
+}
+
+export const SalonViewActions = ({
+  onEdit,
+  onPreview,
   onViewDiscountCodes,
-  onGenerateDiscountCodes,
-  isGeneratingCodes
-}: DiscountCodeActionProps) => {
+  onDelete
+}: SalonViewActionProps) => {
   return (
-    <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-      <ActionButton
-        onClick={onPreview}
-        title="Förhandsgranska erbjudande"
-        className="h-8 w-8"
-      >
-        <Eye className="h-4 w-4" />
-      </ActionButton>
-
-      <ActionButton
-        onClick={onEdit}
-        title="Redigera erbjudande"
-        className="h-8 w-8"
-      >
-        <Edit className="h-4 w-4" />
-      </ActionButton>
-
-      <ActionButton
-        onClick={onViewDiscountCodes}
-        title="Visa rabattkoder"
-        className="h-8 w-8"
-        loading={isGeneratingCodes}
-      >
-        <Tag className="h-4 w-4" />
-      </ActionButton>
-
-      {onGenerateDiscountCodes && (
+    <div className="flex items-center gap-1">
+      {onPreview && (
         <ActionButton
-          onClick={onGenerateDiscountCodes}
-          title="Generera nya rabattkoder"
-          className="h-8 w-8"
-          loading={isGeneratingCodes}
-          variant="secondary"
+          onClick={onPreview}
+          title="Förhandsgranska erbjudande"
         >
-          <Plus className="h-4 w-4" />
+          <Eye className="h-4 w-4" />
+        </ActionButton>
+      )}
+      
+      {onEdit && (
+        <ActionButton
+          onClick={onEdit}
+          title="Redigera erbjudande"
+        >
+          <Edit className="h-4 w-4" />
+        </ActionButton>
+      )}
+      
+      {onViewDiscountCodes && (
+        <ActionButton
+          onClick={onViewDiscountCodes}
+          title="Visa rabattkoder"
+          className="h-8 w-8 text-teal-600 hover:bg-teal-50"
+        >
+          <Tag className="h-4 w-4" />
+        </ActionButton>
+      )}
+
+      {onDelete && (
+        <ActionButton
+          onClick={onDelete}
+          title="Ta bort erbjudande"
+          className="h-8 w-8 text-red-600 hover:bg-red-50"
+        >
+          <Trash2 className="h-4 w-4" />
         </ActionButton>
       )}
     </div>

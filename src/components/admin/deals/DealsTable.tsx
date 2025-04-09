@@ -92,6 +92,9 @@ export const DealsTable: React.FC<DealsTableProps> = ({
     return 0;
   });
 
+  // Show the status column based on deal status values
+  const showStatusColumn = deals.some(deal => deal.status === 'pending' || deal.status === 'rejected');
+
   return (
     <Table>
       <TableCaption>Alla erbjudanden</TableCaption>
@@ -129,6 +132,9 @@ export const DealsTable: React.FC<DealsTableProps> = ({
           </TableHead>
           <TableHead className="text-right">Pris</TableHead>
           <TableHead className="text-center">Status</TableHead>
+          {showStatusColumn && (
+            <TableHead className="text-center">Godkännande</TableHead>
+          )}
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -140,6 +146,20 @@ export const DealsTable: React.FC<DealsTableProps> = ({
             <TableCell>{deal.city}</TableCell>
             <TableCell className="text-right">{deal.discounted_price} kr</TableCell>
             <TableCell className="text-center">{deal.is_active ? "Aktiv" : "Inaktiv"}</TableCell>
+            {showStatusColumn && (
+              <TableCell className="text-center">
+                <span className={cn(
+                  "px-2 py-1 rounded text-xs font-medium",
+                  deal.status === 'pending' ? "bg-amber-100 text-amber-800" :
+                  deal.status === 'approved' ? "bg-green-100 text-green-800" :
+                  deal.status === 'rejected' ? "bg-red-100 text-red-800" : ""
+                )}>
+                  {deal.status === 'pending' ? 'Väntande' : 
+                   deal.status === 'approved' ? 'Godkänd' : 
+                   deal.status === 'rejected' ? 'Nekad' : ''}
+                </span>
+              </TableCell>
+            )}
             {/* Actions cell */}
             <TableCell className="text-right w-32 sm:w-48 pr-3 whitespace-nowrap">
               <DealActions

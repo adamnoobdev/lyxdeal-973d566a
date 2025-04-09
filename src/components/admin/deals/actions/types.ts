@@ -15,6 +15,7 @@ export interface ToggleActiveActionProps extends BaseActionProps {
 export interface ApprovalActionProps extends BaseActionProps {
   onApprove?: () => Promise<void>;
   onReject?: () => Promise<void>;
+  onDelete?: () => void;
   isApproving?: boolean;
   isRejecting?: boolean;
 }

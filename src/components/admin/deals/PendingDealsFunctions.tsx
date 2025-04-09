@@ -11,9 +11,14 @@ export const usePendingDealsFunctions = (refetch: () => Promise<unknown>) => {
     await runExclusiveOperation(async () => {
       try {
         console.log(`Changing deal status for ID ${dealId} to ${newStatus}`);
+        
+        // Update the deal status and set active based on approval
         const { error } = await supabase
           .from('deals')
-          .update({ status: newStatus, is_active: newStatus === 'approved' })
+          .update({ 
+            status: newStatus,
+            is_active: newStatus === 'approved' // Set active if approved
+          })
           .eq('id', dealId);
 
         if (error) throw error;
