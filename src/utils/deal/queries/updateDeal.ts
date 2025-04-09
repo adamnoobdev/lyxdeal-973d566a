@@ -9,6 +9,8 @@ import { toast } from "sonner";
  */
 export const updateDeal = async (values: FormValues, id: number): Promise<boolean> => {
   try {
+    console.log("[updateDeal] Starting update for deal ID:", id);
+    
     // Hämtar befintligt erbjudande för att kontrollera requires_discount_code
     const { data: existingDeal, error: fetchError } = await supabase
       .from('deals')
@@ -17,39 +19,55 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       .single();
       
     if (fetchError) {
-      console.error('Database error fetching existing deal:', fetchError);
+      console.error('[updateDeal] Database error fetching existing deal:', fetchError);
       throw fetchError;
     }
     
     if (!existingDeal) {
-      console.error('Deal not found');
+      console.error('[updateDeal] Deal not found');
       throw new Error('Deal not found');
     }
     
-    // Kontrollera salongens prenumerationsplan om de försöker aktivera rabattkoder
-    if (values.requires_discount_code && !existingDeal.requires_discount_code && existingDeal.salon_id) {
-      const { data: salonData } = await supabase
-        .from('salons')
-        .select('subscription_plan')
-        .eq('id', existingDeal.salon_id)
-        .single();
-      
-      // Om basic-paketet, förhindra aktivering av rabattkoder
-      if (salonData?.subscription_plan === 'Baspaket') {
-        toast.warning("Baspaketet stödjer inte rabattkoder. Uppgradera till Premiumpaket för att få tillgång till rabattkoder.");
-        values.requires_discount_code = false;
-      }
+    // Fetch salon details to get subscription plan
+    console.log("[updateDeal] Checking salon plan for ID:", existingDeal.salon_id);
+    const { data: salonData, error: salonError } = await supabase
+      .from('salons')
+      .select('subscription_plan')
+      .eq('id', existingDeal.salon_id)
+      .single();
+    
+    if (salonError) {
+      console.error('[updateDeal] Error fetching salon details:', salonError);
+      toast.error("Kunde inte verifiera prenumerationsplan");
+      return false;
     }
     
-    // Om befintligt erbjudande har requires_discount_code=true, se till att vi inte ändrar det till false
-    let requiresDiscountCode = values.requires_discount_code ?? true;
+    // Check if this is a basic plan - CRITICALLY IMPORTANT for admin-created salons
+    const isBasicPlan = salonData.subscription_plan === 'Baspaket';
+    
+    // For basic plan, force requires_discount_code to false
+    if (isBasicPlan) {
+      console.log('[updateDeal] Basic plan detected, forcing discount code to false');
+      values.requires_discount_code = false;
+    }
+    
+    // If basic plan is trying to use discount codes despite our restrictions, block the update
+    if (isBasicPlan && values.requires_discount_code === true) {
+      console.error('[updateDeal] Basic plan attempting to use discount codes');
+      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+      return false;
+    }
+    
+    // If existing deal has requires_discount_code=true, see till att vi inte ändrar det till false
+    let requiresDiscountCode = values.requires_discount_code;
     
     if (existingDeal.requires_discount_code === true && !requiresDiscountCode) {
-      console.warn('Attempt to change requires_discount_code from true to false prevented');
+      console.warn('[updateDeal] Attempt to change requires_discount_code from true to false prevented');
       toast.warning("Ett erbjudande som använder rabattkoder kan inte ändras till att inte använda dem.");
       requiresDiscountCode = true;
     }
     
+    // Parse price values
     const originalPrice = parseInt(values.originalPrice) || 0;
     let discountedPrice = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPrice === 0;
@@ -72,7 +90,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
     const daysRemaining = differenceInDays(expirationDate, today);
     const timeRemaining = `${daysRemaining} ${daysRemaining === 1 ? 'dag' : 'dagar'} kvar`;
     
-    console.log('Updating deal with values:', {
+    console.log('[updateDeal] Updating deal with values:', {
       ...values,
       originalPrice,
       discountedPrice,
@@ -106,14 +124,14 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       .eq('id', id);
 
     if (error) {
-      console.error('Database error during update:', error);
+      console.error('[updateDeal] Database error during update:', error);
       throw error;
     }
     
     toast.success("Erbjudandet har uppdaterats");
     return true;
   } catch (error) {
-    console.error('Error updating deal:', error);
+    console.error('[updateDeal] Error updating deal:', error);
     toast.error("Ett fel uppstod när erbjudandet skulle uppdateras");
     return false;
   }

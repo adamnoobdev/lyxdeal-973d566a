@@ -34,27 +34,33 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
-    // Basic plan cannot use discount codes
-    if (values.requires_discount_code === true) {
-      console.log("[createDeal hook] Checking subscription plan for discount code usage");
+    // Check salon's subscription plan regardless of how it was created
+    console.log("[createDeal hook] Checking subscription plan for discount code usage");
+    
+    // Check salon's subscription plan
+    const { data: salonData, error: salonError } = await supabase
+      .from('salons')
+      .select('subscription_plan')
+      .eq('id', values.salon_id)
+      .single();
       
-      // Check salon's subscription plan
-      const { data: salonData, error: salonError } = await supabase
-        .from('salons')
-        .select('subscription_plan')
-        .eq('id', values.salon_id)
-        .single();
-        
-      if (salonError) {
-        console.error("[createDeal hook] Error fetching salon:", salonError);
-        return false;
-      }
-      
-      if (salonData.subscription_plan === 'Baspaket') {
-        console.error("[createDeal hook] Basic plan trying to use discount codes");
-        toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
-        return false;
-      }
+    if (salonError) {
+      console.error("[createDeal hook] Error fetching salon:", salonError);
+      return false;
+    }
+    
+    // Enforce basic plan restrictions regardless of UI state
+    if (salonData.subscription_plan === 'Baspaket') {
+      // Force requires_discount_code to false for basic plan
+      values.requires_discount_code = false;
+      console.log("[createDeal hook] Basic plan detected, forcing discount code to false");
+    }
+    
+    // Double-check after any potential changes to the values
+    if (values.requires_discount_code === true && salonData.subscription_plan === 'Baspaket') {
+      console.error("[createDeal hook] Basic plan trying to use discount codes");
+      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+      return false;
     }
     
     // Validate booking URL for direct booking

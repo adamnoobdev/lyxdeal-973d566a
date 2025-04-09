@@ -56,6 +56,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
     }
     
     // If basic plan, force requires_discount_code to false
+    // This is critical to handle cases where the salon was created by an admin
     const isBasicPlan = salonData.subscription_plan === 'Baspaket';
     if (isBasicPlan) {
       console.log("[createDeal] Basic plan detected, forcing discount code to false");

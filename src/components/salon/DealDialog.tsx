@@ -97,7 +97,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
           return;
         }
         
-        // Set plan type - check for null or explicitly Baspaket
+        // Check subscription plan regardless of how the salon was created
         const isPlanBasic = salonData.subscription_plan === 'Baspaket';
         if (isMounted) {
           setIsBasicPlan(isPlanBasic);
@@ -134,19 +134,21 @@ export const DealDialog: React.FC<DealDialogProps> = ({
       clearTimeout(closeTimeoutRef.current);
     }
     
-    // First destroy internal state
+    // Use a more robust approach to closing
     closeTimeoutRef.current = setTimeout(() => {
       if (!mountedRef.current) return;
       
       // Actually close the dialog
+      console.log("[DealDialog] Executing onClose callback");
       onClose();
       
       // Reset closing state after dialog is fully closed
       closeTimeoutRef.current = setTimeout(() => {
         if (mountedRef.current) {
           setIsClosing(false);
+          console.log("[DealDialog] Reset closing state");
         }
-      }, 200);
+      }, 300);
     }, 100);
   };
   

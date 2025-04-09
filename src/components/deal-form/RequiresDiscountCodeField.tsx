@@ -51,19 +51,17 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
     }
     
     // For basic plan users, always ensure the value is set to false
-    if (readOnly && !requiresDiscountCode) {
+    if (readOnly) {
+      console.log("ReadOnly mode detected (isBasicPlan or locked editing) - ensuring requires_discount_code is false");
       form.setValue('requires_discount_code', false, { shouldValidate: true });
-    }
-  }, [readOnly, requiresDiscountCode, form]);
-  
-  // For basic plan users, ALWAYS force requiresDiscountCode to be false
-  useEffect(() => {
-    if (readOnly && requiresDiscountCode) {
-      console.log("Forcing requires_discount_code to false for basic plan");
-      // Use setTimeout to avoid React render cycle conflicts
-      setTimeout(() => {
-        form.setValue('requires_discount_code', false, { shouldValidate: true });
-      }, 0);
+      
+      // Force disable the field to prevent any manipulation
+      try {
+        form.control.disable('requires_discount_code');
+      } catch (e) {
+        // Some versions of react-hook-form might not support this directly
+        console.log("Could not disable field directly, using UI restrictions instead");
+      }
     }
   }, [readOnly, requiresDiscountCode, form]);
   
@@ -120,7 +118,9 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
                 
                 // För basic plan, blockera alla försök att ändra till true
                 if (readOnly) {
-                  console.log("Switch är låst för baspaket, ignorerar ändring");
+                  console.log("Switch är låst, ignorerar ändring");
+                  // Force it back to false if someone tries to manipulate it
+                  setTimeout(() => form.setValue('requires_discount_code', false), 0);
                   return;
                 }
                 

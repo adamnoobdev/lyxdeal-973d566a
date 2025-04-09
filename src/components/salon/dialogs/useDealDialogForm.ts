@@ -69,7 +69,7 @@ export const useDealDialogForm = (
     };
   }, [initialValues, methods, isBasicPlan]);
   
-  // Force direct booking for basic plan
+  // Force direct booking for basic plan - this must always run regardless of how the salon was created
   useEffect(() => {
     if (isBasicPlan) {
       console.log(`Setting requires_discount_code to false for basic plan`);
@@ -77,6 +77,9 @@ export const useDealDialogForm = (
         shouldValidate: false,
         shouldDirty: false 
       });
+      
+      // Disable the field to prevent UI interactions
+      methods.control.disable('requires_discount_code', { keepDefaultValue: false });
       
       // Trigger validation with timeout för att undvika UI-frysning
       setTimeout(() => methods.trigger(), 100);
