@@ -34,7 +34,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
-    // Check salon's subscription plan regardless of how it was created
+    // CRITICAL: Check salon's subscription plan regardless of how it was created
     console.log("[createDeal hook] Checking subscription plan for discount code usage");
     
     // Check salon's subscription plan
@@ -49,15 +49,17 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
-    // Enforce basic plan restrictions regardless of UI state
-    if (salonData.subscription_plan === 'Baspaket') {
+    // IMPORTANT: Enforce basic plan restrictions regardless of UI state
+    // This is critical for admin-created salons or salons created via payment solution
+    const isBasicPlan = salonData.subscription_plan === 'Baspaket'; 
+    if (isBasicPlan) {
       // Force requires_discount_code to false for basic plan
       values.requires_discount_code = false;
       console.log("[createDeal hook] Basic plan detected, forcing discount code to false");
     }
     
     // Double-check after any potential changes to the values
-    if (values.requires_discount_code === true && salonData.subscription_plan === 'Baspaket') {
+    if (values.requires_discount_code === true && isBasicPlan) {
       console.error("[createDeal hook] Basic plan trying to use discount codes");
       toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
       return false;
@@ -97,6 +99,13 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       // Add time_remaining field as it's required by the database schema
       time_remaining: '',
     };
+    
+    // Final safety check before DB insert
+    if (isBasicPlan && dealData.requires_discount_code === true) {
+      console.error("[createDeal hook] CRITICAL ERROR: Basic plan attempting to create deal with discount codes");
+      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+      return false;
+    }
     
     // Insert deal
     console.log("[createDeal hook] Inserting deal:", dealData);

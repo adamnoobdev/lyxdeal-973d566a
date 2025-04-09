@@ -97,7 +97,8 @@ export const DealDialog: React.FC<DealDialogProps> = ({
           return;
         }
         
-        // Check subscription plan regardless of how the salon was created
+        // IMPORTANT: Check subscription plan regardless of how the salon was created
+        // This handles admins creating basic plan salons as well as salons from payment flow
         const isPlanBasic = salonData.subscription_plan === 'Baspaket';
         if (isMounted) {
           setIsBasicPlan(isPlanBasic);
@@ -179,7 +180,12 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         return;
       }
       
-      console.log("[DealDialog] Submitting form with values:", values);
+      console.log("[DealDialog] Submitting form with values:", {
+        ...values,
+        isBasicPlan,
+        planForcing: isBasicPlan ? "Direct booking enforced" : "No changes"
+      });
+      
       const result = await onSubmit(values);
       
       // Only close dialog on successful submission

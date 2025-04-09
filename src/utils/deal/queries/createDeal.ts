@@ -39,7 +39,8 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
-    // Check subscription plan regardless of how the salon was created
+    // CRITICAL: Check subscription plan regardless of how the salon was created
+    // This must run before any deal creation logic to stop basic plans from using discount codes
     console.log("[createDeal] Checking subscription plan");
     
     const { data: salonData, error: salonError } = await supabase
@@ -54,7 +55,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
-    // If basic plan, force requires_discount_code to false
+    // IMPORTANT: Explicit check - if basic plan, FORCE requires_discount_code to false
     // This is critical to handle cases where the salon was created by an admin
     const isBasicPlan = salonData.subscription_plan === 'Baspaket';
     if (isBasicPlan) {
@@ -103,6 +104,13 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       // Add time_remaining field as it's required by the database schema
       time_remaining: '',
     };
+    
+    // Final safety check before DB insert
+    if (isBasicPlan && dealData.requires_discount_code === true) {
+      console.error("[createDeal] CRITICAL ERROR: Basic plan attempting to create deal with discount codes");
+      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+      return false;
+    }
     
     // Insert deal
     console.log("[createDeal] Inserting deal:", dealData);

@@ -28,7 +28,8 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       throw new Error('Deal not found');
     }
     
-    // Fetch salon details to get subscription plan
+    // CRITICAL: Fetch salon details to get subscription plan
+    // This must happen regardless of how the salon was created
     console.log("[updateDeal] Checking salon plan for ID:", existingDeal.salon_id);
     const { data: salonData, error: salonError } = await supabase
       .from('salons')
@@ -42,20 +43,14 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       return false;
     }
     
-    // Check if this is a basic plan - CRITICALLY IMPORTANT for admin-created salons
-    const isBasicPlan = salonData.subscription_plan === 'Baspaket';
+    // IMPORTANT: Explicit check if this is a basic plan - CRITICALLY IMPORTANT for admin-created salons
+    const isBasicPlan = salonData?.subscription_plan === 'Baspaket';
+    console.log('[updateDeal] Salon plan:', salonData?.subscription_plan, 'isBasicPlan:', isBasicPlan);
     
-    // For basic plan, force requires_discount_code to false
+    // CRITICAL: For basic plan, FORCE requires_discount_code to false
     if (isBasicPlan) {
       console.log('[updateDeal] Basic plan detected, forcing discount code to false');
       values.requires_discount_code = false;
-    }
-    
-    // If basic plan is trying to use discount codes despite our restrictions, block the update
-    if (isBasicPlan && values.requires_discount_code === true) {
-      console.error('[updateDeal] Basic plan attempting to use discount codes');
-      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
-      return false;
     }
     
     // If existing deal has requires_discount_code=true, se till att vi inte ändrar det till false
@@ -103,8 +98,16 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       discountedPrice,
       expirationDate: expirationDate,
       booking_url: values.booking_url,
-      requires_discount_code: requiresDiscountCode
+      requires_discount_code: requiresDiscountCode,
+      isBasicPlan // Log this for debugging
     });
+    
+    // Final safety check before DB update
+    if (isBasicPlan && requiresDiscountCode === true) {
+      console.error('[updateDeal] CRITICAL ERROR: Basic plan attempting to use discount codes in final check');
+      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+      return false;
+    }
     
     // Update the deal with all information
     const { error } = await supabase

@@ -24,7 +24,8 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
       return false;
     }
     
-    // Kontrollera salongens prenumerationsplan
+    // CRITICAL: Kontrollera salongens prenumerationsplan
+    // Detta måste göras oavsett hur salongen skapades (av admin eller via betalning)
     const { data: salonData, error: salonError } = await supabase
       .from('salons')
       .select('subscription_plan')
@@ -43,7 +44,8 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
     // Hantera rabattkoder baserat på plan och befintligt värde
     let requiresDiscountCode = values.requires_discount_code ?? false;
     
-    // Om basic-paketet, tvinga direkt bokning
+    // CRITICAL: Om basic-paketet, tvinga direkt bokning (ingen rabattkod)
+    // Detta är viktigt för admin-skapade salonger eller salonger via betalning
     if (isBasicPlan) {
       console.log("Basic plan detected. Forcing direct booking.");
       requiresDiscountCode = false;
@@ -87,8 +89,16 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
       is_free: isFree,
       expirationDate: expirationDate,
       requires_discount_code: requiresDiscountCode,
-      salonPlan: salonData?.subscription_plan
+      salonPlan: salonData?.subscription_plan,
+      isBasicPlan
     });
+    
+    // Final safety check before DB update
+    if (isBasicPlan && requiresDiscountCode === true) {
+      console.error('CRITICAL ERROR: Basic plan attempting to use discount codes in final check');
+      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+      return false;
+    }
     
     // Always set status to pending for review after updates
     const newStatus = existingDeal.status === 'rejected' ? 'pending' : existingDeal.status;
