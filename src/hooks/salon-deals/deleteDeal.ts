@@ -16,12 +16,18 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
       // Continue with deal deletion even if code deletion fails
     }
     
+    // Ta bort erbjudandet efter en kort fördröjning för att undvika race conditions
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     const { error } = await supabase
       .from('deals')
       .delete()
       .eq('id', dealId);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error deleting deal:", error);
+      throw error;
+    }
     
     toast.success("Erbjudande borttaget!");
     return true;

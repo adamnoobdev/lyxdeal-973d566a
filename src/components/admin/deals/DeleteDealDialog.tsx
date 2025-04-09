@@ -27,75 +27,61 @@ export const DeleteDealDialog = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDialogClosing, setIsDialogClosing] = useState(false);
   const isMountedRef = useRef(true);
-  const timeoutsRef = useRef<number[]>([]);
+  const deleteActionTriggeredRef = useRef(false);
   
-  // Track mount status to avoid state updates after unmount
+  // Reset refs and state when component mounts/unmounts
   useEffect(() => {
     isMountedRef.current = true;
     
     return () => {
       isMountedRef.current = false;
-      // Clear all timeouts on unmount
-      timeoutsRef.current.forEach(timeout => window.clearTimeout(timeout));
     };
   }, []);
   
   // Reset states when dialog opens
   useEffect(() => {
-    if (isOpen && isMountedRef.current) {
+    if (isOpen) {
       setIsDeleting(false);
       setIsDialogClosing(false);
+      deleteActionTriggeredRef.current = false;
     }
   }, [isOpen]);
-  
-  // Safe timeout function
-  const safeTimeout = (fn: () => void, delay: number) => {
-    const id = window.setTimeout(() => {
-      if (isMountedRef.current) {
-        fn();
-      }
-    }, delay);
-    timeoutsRef.current.push(id);
-    return id;
-  };
   
   // Safe close function with state management
   const handleClose = () => {
     if (isDeleting || isDialogClosing) {
-      console.log("[DeleteDealDialog] Already processing, skipping close request");
       return;
     }
     
-    console.log("[DeleteDealDialog] Starting controlled close sequence");
     setIsDialogClosing(true);
     
-    safeTimeout(() => {
-      console.log("[DeleteDealDialog] Executing onClose callback");
-      onClose();
-      
-      safeTimeout(() => {
-        if (isMountedRef.current) {
-          console.log("[DeleteDealDialog] Resetting dialog closing state");
-          setIsDialogClosing(false);
-        }
-      }, 300);
+    // Slight delay to allow animation
+    setTimeout(() => {
+      if (isMountedRef.current) {
+        onClose();
+        
+        // Reset dialog state after close is complete
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            setIsDialogClosing(false);
+          }
+        }, 300);
+      }
     }, 50);
   };
   
   // Handle delete with state tracking
   const handleDelete = async () => {
-    if (isDeleting || isDialogClosing) {
-      console.log("[DeleteDealDialog] Already processing, skipping delete request");
+    if (isDeleting || isDialogClosing || deleteActionTriggeredRef.current) {
       return;
     }
     
     try {
-      console.log("[DeleteDealDialog] Starting deletion process");
+      deleteActionTriggeredRef.current = true;
       setIsDeleting(true);
       
       await onConfirm();
       
-      console.log("[DeleteDealDialog] Deletion completed, closing dialog");
       if (isMountedRef.current) {
         handleClose();
       }
@@ -103,6 +89,7 @@ export const DeleteDealDialog = ({
       console.error("[DeleteDealDialog] Error during delete:", error);
       if (isMountedRef.current) {
         setIsDeleting(false);
+        deleteActionTriggeredRef.current = false;
       }
     }
   };
@@ -111,7 +98,6 @@ export const DeleteDealDialog = ({
     <AlertDialog 
       open={isOpen && !isDialogClosing} 
       onOpenChange={(open) => {
-        console.log("[DeleteDealDialog] Dialog state changed to:", open);
         if (!open && !isDeleting && !isDialogClosing) {
           handleClose();
         }

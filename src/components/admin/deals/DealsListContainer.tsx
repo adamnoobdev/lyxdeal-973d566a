@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
 import { useDealsDialogs } from "@/hooks/useDealsDialogs";
@@ -72,7 +71,17 @@ export const DealsListContainer = () => {
     }
   }, [justCreatedDeal, isCreating, editingDeal, deletingDeal]);
 
-  const handleDeleteSubmit = () => onDelete(deletingDeal);
+  const handleDeleteSubmit = async () => {
+    // Only trigger delete when there's a deal to delete
+    if (deletingDeal) {
+      console.log("[DealsListContainer] Triggering delete for deal:", deletingDeal.id);
+      await onDelete(deletingDeal);
+      // Close dialog handled in DeleteDealDialog component
+    } else {
+      console.log("[DealsListContainer] No deal to delete");
+    }
+  };
+  
   const handleUpdateSubmit = (values) => onUpdate(values, editingDeal);
   const handleCreateSubmit = (values) => onCreate(values, setDealCreationState);
 

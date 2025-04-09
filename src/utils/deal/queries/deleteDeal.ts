@@ -11,18 +11,18 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
   console.log("[deleteDeal] Called with dealId:", dealId);
   
   try {
-    // Delete any associated discount codes first
-    await supabase
+    // First delete any associated discount codes
+    const { error: codesError } = await supabase
       .from('discount_codes')
       .delete()
-      .eq('deal_id', dealId)
-      .then(({ error }) => {
-        if (error) {
-          console.error("[deleteDeal] Error deleting discount codes:", error);
-        } else {
-          console.log("[deleteDeal] Successfully deleted associated discount codes");
-        }
-      });
+      .eq('deal_id', dealId);
+    
+    if (codesError) {
+      console.error("[deleteDeal] Error deleting discount codes:", codesError);
+      // Continue with deal deletion even if code deletion fails
+    } else {
+      console.log("[deleteDeal] Successfully deleted associated discount codes");
+    }
     
     // Delete the deal
     console.log("[deleteDeal] Deleting deal:", dealId);

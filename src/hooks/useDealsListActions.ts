@@ -1,13 +1,11 @@
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { FormValues } from "@/components/deal-form/schema";
 import { Deal } from "@/components/admin/types";
 import { useOperationExclusion } from "@/hooks/useOperationExclusion";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { generateDiscountCodes } from "@/utils/discount-codes";
 import { createDeal, updateDeal, deleteDeal } from "@/utils/deal/queries";
-import { useState } from "react";
 
 /**
  * Hook containing action handlers for the deals list
@@ -21,7 +19,10 @@ export const useDealsListActions = (
   const [isGeneratingCodes, setIsGeneratingCodes] = useState(false);
 
   const onDelete = useCallback(async (deletingDeal: Deal | null): Promise<void> => {
-    if (!deletingDeal || isDeletingDealRef.current) return;
+    if (!deletingDeal || isDeletingDealRef.current) {
+      console.log("[DealsListActions] Delete aborted: No deal selected or deletion in progress");
+      return;
+    }
 
     try {
       isDeletingDealRef.current = true;
@@ -31,14 +32,20 @@ export const useDealsListActions = (
       
       if (success) {
         console.log("[DealsListActions] Deal deletion successful");
-        await refetch();
+        // Wait a brief moment before refetching to allow state updates
+        setTimeout(async () => {
+          await refetch();
+        }, 300);
       } else {
         console.error("[DealsListActions] Deal deletion failed");
       }
     } catch (error) {
       console.error("[DealsListActions] Error in deal deletion flow:", error);
     } finally {
-      isDeletingDealRef.current = false;
+      // Small timeout to ensure UI updates complete before resetting deletion state
+      setTimeout(() => {
+        isDeletingDealRef.current = false;
+      }, 300);
     }
   }, [refetch]);
 
