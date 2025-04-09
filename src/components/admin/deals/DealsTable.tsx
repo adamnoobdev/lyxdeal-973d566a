@@ -1,3 +1,4 @@
+
 import {
   ChevronDown,
   ChevronUp,
@@ -16,6 +17,7 @@ import { Deal } from "@/types/deal";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { DealActions } from "./DealActions";
+import { BookingTypeIndicator } from "./BookingTypeIndicator";
 
 interface DealsTableProps {
   deals: Deal[];
@@ -114,6 +116,7 @@ export const DealsTable: React.FC<DealsTableProps> = ({
             </Button>
           </TableHead>
           <TableHead className="text-right">Pris</TableHead>
+          <TableHead className="text-center">Bokningstyp</TableHead>
           <TableHead className="text-center">Status</TableHead>
           {showStatusColumn && (
             <TableHead className="text-center">Godkännande</TableHead>
@@ -128,6 +131,9 @@ export const DealsTable: React.FC<DealsTableProps> = ({
             <TableCell>{deal.category}</TableCell>
             <TableCell>{deal.city}</TableCell>
             <TableCell className="text-right">{deal.discounted_price} kr</TableCell>
+            <TableCell className="text-center">
+              <BookingTypeIndicator deal={deal} />
+            </TableCell>
             <TableCell className="text-center">{deal.is_active ? "Aktiv" : "Inaktiv"}</TableCell>
             {showStatusColumn && (
               <TableCell className="text-center">
