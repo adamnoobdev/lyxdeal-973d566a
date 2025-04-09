@@ -9,7 +9,6 @@ export const useDealDialogForm = (
   isBasicPlan: boolean
 ) => {
   // Basic plan always uses direct booking (no discount codes)
-  // För basic plan måste vi sätta defaultRequiresDiscountCode till false
   const defaultRequiresDiscountCode = false; // Alltid false som standard
   
   console.log("useDealDialogForm initialized with isBasicPlan:", isBasicPlan);
@@ -43,11 +42,20 @@ export const useDealDialogForm = (
       if (initialValues && Object.keys(initialValues).length > 0) {
         Object.entries(initialValues).forEach(([key, value]) => {
           if (value !== undefined) {
-            methods.setValue(key as keyof FormValues, value as any, { 
-              shouldValidate: false, // Undvik omedelbar validering för att förhindra frysning
-              shouldDirty: false 
-            });
-            console.log(`Setting initialValue for ${key}:`, value);
+            // Don't allow requires_discount_code=true for basic plans regardless of initialValues
+            if (key === 'requires_discount_code' && isBasicPlan) {
+              methods.setValue(key as keyof FormValues, false, { 
+                shouldValidate: false,
+                shouldDirty: false 
+              });
+              console.log(`Overriding ${key} to false for basic plan`);
+            } else {
+              methods.setValue(key as keyof FormValues, value as any, { 
+                shouldValidate: false,
+                shouldDirty: false 
+              });
+              console.log(`Setting initialValue for ${key}:`, value);
+            }
           }
         });
         
@@ -59,7 +67,7 @@ export const useDealDialogForm = (
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [initialValues, methods]);
+  }, [initialValues, methods, isBasicPlan]);
   
   // Force direct booking for basic plan
   useEffect(() => {

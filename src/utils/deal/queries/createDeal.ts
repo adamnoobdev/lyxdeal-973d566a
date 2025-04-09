@@ -39,28 +39,34 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
-    // Basic plan cannot use discount codes
-    if (values.requires_discount_code === true) {
-      console.log("[createDeal] Checking subscription plan for discount code usage");
+    // Check subscription plan regardless of requires_discount_code value
+    // This ensures we validate even if the frontend didn't prevent selection
+    console.log("[createDeal] Checking subscription plan");
+    
+    const { data: salonData, error: salonError } = await supabase
+      .from('salons')
+      .select('subscription_plan')
+      .eq('id', values.salon_id)
+      .single();
       
-      // Check salon's subscription plan
-      const { data: salonData, error: salonError } = await supabase
-        .from('salons')
-        .select('subscription_plan')
-        .eq('id', values.salon_id)
-        .single();
-        
-      if (salonError) {
-        console.error("[createDeal] Error fetching salon:", salonError);
-        toast.error("Kunde inte hämta information om din prenumerationsplan");
-        return false;
-      }
-      
-      if (salonData.subscription_plan === 'Baspaket') {
-        console.error("[createDeal] Basic plan trying to use discount codes");
-        toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
-        return false;
-      }
+    if (salonError) {
+      console.error("[createDeal] Error fetching salon:", salonError);
+      toast.error("Kunde inte hämta information om din prenumerationsplan");
+      return false;
+    }
+    
+    // If basic plan, force requires_discount_code to false
+    const isBasicPlan = salonData.subscription_plan === 'Baspaket';
+    if (isBasicPlan) {
+      console.log("[createDeal] Basic plan detected, forcing discount code to false");
+      values.requires_discount_code = false;
+    }
+    
+    // Now check if they're still trying to use discount codes with basic plan
+    if (values.requires_discount_code === true && isBasicPlan) {
+      console.error("[createDeal] Basic plan trying to use discount codes");
+      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+      return false;
     }
     
     // Validate booking URL for direct booking

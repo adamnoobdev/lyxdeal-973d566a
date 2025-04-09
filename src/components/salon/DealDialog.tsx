@@ -32,7 +32,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
   const mountedRef = useRef(true);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Cleanup timers vid unmount
+  // Cleanup timers when unmounting
   useEffect(() => {
     mountedRef.current = true;
     
@@ -46,8 +46,12 @@ export const DealDialog: React.FC<DealDialogProps> = ({
   
   // Fetch salon info and subscription plan
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchSalonInfo = async () => {
       try {
+        if (!isMounted) return;
+        
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session?.user?.id) {
@@ -80,6 +84,8 @@ export const DealDialog: React.FC<DealDialogProps> = ({
           return;
         }
         
+        if (!isMounted) return;
+        
         console.log("[DealDialog] Salon data:", salonData);
         setSalonId(salonData.id);
         
@@ -91,10 +97,12 @@ export const DealDialog: React.FC<DealDialogProps> = ({
           return;
         }
         
-        // Set plan type
+        // Set plan type - check for null or explicitly Baspaket
         const isPlanBasic = salonData.subscription_plan === 'Baspaket';
-        setIsBasicPlan(isPlanBasic);
-        console.log("[DealDialog] Is basic plan:", isPlanBasic);
+        if (isMounted) {
+          setIsBasicPlan(isPlanBasic);
+          console.log("[DealDialog] Is basic plan:", isPlanBasic);
+        }
       } catch (error) {
         console.error("[DealDialog] Error fetching salon info:", error);
         toast.error("Ett fel uppstod vid hämtning av salonginformation");
@@ -105,9 +113,13 @@ export const DealDialog: React.FC<DealDialogProps> = ({
     if (isOpen) {
       fetchSalonInfo();
     }
+    
+    return () => {
+      isMounted = false;
+    };
   }, [isOpen]);
   
-  // Kontrollerad stängningsfunktion för att undvika UI-frysning
+  // Improved controlled closing function to prevent UI freezing
   const handleClose = () => {
     if (isSubmitting || isClosing) {
       console.log("[DealDialog] Cannot close - operation in progress");
@@ -117,39 +129,40 @@ export const DealDialog: React.FC<DealDialogProps> = ({
     console.log("[DealDialog] Starting controlled close sequence");
     setIsClosing(true);
     
-    // Rensa befintliga timers
+    // Clear any existing timers
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
     }
     
-    // Stäng dialogrutan först
+    // First destroy internal state
     closeTimeoutRef.current = setTimeout(() => {
-      if (mountedRef.current) {
-        onClose();
-        
-        // Återställ closing state efter en kort fördröjning
-        closeTimeoutRef.current = setTimeout(() => {
-          if (mountedRef.current) {
-            setIsClosing(false);
-          }
-        }, 100);
-      }
-    }, 50);
+      if (!mountedRef.current) return;
+      
+      // Actually close the dialog
+      onClose();
+      
+      // Reset closing state after dialog is fully closed
+      closeTimeoutRef.current = setTimeout(() => {
+        if (mountedRef.current) {
+          setIsClosing(false);
+        }
+      }, 200);
+    }, 100);
   };
   
-  // Hantera formulärinskickning
+  // Handle form submission with improved checks
   const handleFormSubmit = async (values: FormValues) => {
     if (isSubmitting || isClosing) return;
     
     try {
       setIsSubmitting(true);
       
-      // Lägga till salon_id om det saknas
+      // Add salon_id if missing
       if (salonId && !values.salon_id) {
         values.salon_id = salonId;
       }
       
-      // Om det är ett baspaket, se till att requires_discount_code alltid är false
+      // Force direct booking for basic plan
       if (isBasicPlan) {
         values.requires_discount_code = false;
       }
@@ -157,21 +170,23 @@ export const DealDialog: React.FC<DealDialogProps> = ({
       console.log("[DealDialog] Submitting form with values:", values);
       const result = await onSubmit(values);
       
+      // Only close dialog on successful submission
       if (result !== false) {
-        // Endast stäng dialog vid lyckad inskickning
+        // Use the improved closing sequence
         handleClose();
+      } else {
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error("[DealDialog] Error submitting form:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle sparas");
-    } finally {
       if (mountedRef.current) {
         setIsSubmitting(false);
       }
     }
   };
 
-  // Rendera mobil eller desktop version
+  // Render mobile or desktop version
   if (isMobile) {
     return (
       <Sheet 

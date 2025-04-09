@@ -49,6 +49,22 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
       console.log("RequiresDiscountCodeField - triggering booking_url validation (readOnly mode)");
       form.trigger('booking_url');
     }
+    
+    // For basic plan users, always ensure the value is set to false
+    if (readOnly && !requiresDiscountCode) {
+      form.setValue('requires_discount_code', false, { shouldValidate: true });
+    }
+  }, [readOnly, requiresDiscountCode, form]);
+  
+  // For basic plan users, ALWAYS force requiresDiscountCode to be false
+  useEffect(() => {
+    if (readOnly && requiresDiscountCode) {
+      console.log("Forcing requires_discount_code to false for basic plan");
+      // Use setTimeout to avoid React render cycle conflicts
+      setTimeout(() => {
+        form.setValue('requires_discount_code', false, { shouldValidate: true });
+      }, 0);
+    }
   }, [readOnly, requiresDiscountCode, form]);
   
   return (
@@ -102,12 +118,13 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
               onCheckedChange={(checked) => {
                 console.log("Switch toggled to:", checked);
                 
-                // Om det är ett baspaket, ändra inte värdet
-                if (readOnly && !field.value) {
+                // För basic plan, blockera alla försök att ändra till true
+                if (readOnly) {
                   console.log("Switch är låst för baspaket, ignorerar ändring");
                   return;
                 }
                 
+                // Endast tillåt ändring för premium-användare
                 field.onChange(checked);
                 
                 // If switching to direct booking, trigger booking_url validation immediately
