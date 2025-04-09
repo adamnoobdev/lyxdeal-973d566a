@@ -5,14 +5,23 @@ import { supabase } from "@/integrations/supabase/client";
  * Tar bort alla rabattkoder från databasen
  * Används främst för debugging och testning
  */
-export const removeAllDiscountCodes = async (): Promise<boolean> => {
-  console.log('[removeAllDiscountCodes] Removing all discount codes');
+export const removeAllDiscountCodes = async (dealId?: string | number): Promise<boolean> => {
+  if (dealId) {
+    console.log(`[removeAllDiscountCodes] Removing all discount codes for deal ${dealId}`);
+  } else {
+    console.log('[removeAllDiscountCodes] Removing all discount codes');
+  }
   
   try {
-    const { error } = await supabase
-      .from('discount_codes')
-      .delete()
-      .neq('id', 0); // Ta bort alla rader (ett villkor som är sant för alla rader)
+    let query = supabase.from('discount_codes').delete();
+    
+    if (dealId) {
+      query = query.eq('deal_id', dealId);
+    } else {
+      query = query.neq('id', 0); // Ta bort alla rader (ett villkor som är sant för alla rader)
+    }
+    
+    const { error } = await query;
     
     if (error) {
       console.error('[removeAllDiscountCodes] Error removing discount codes:', error);
