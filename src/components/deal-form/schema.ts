@@ -27,23 +27,17 @@ export const formSchema = z.object({
   is_free: z.boolean().default(false).optional(),
   is_active: z.boolean().default(true).optional(),
   quantity: z.string().optional(),
-  booking_url: z.string().optional().superRefine((val, ctx) => {
-    // BookingUrl är obligatoriskt när requires_discount_code är false
-    // Vi använder ctx.path för att hitta parent objektet
-    const parent = ctx.parent;
-    const requiresDiscountCode = parent && !parent.requires_discount_code;
-    
-    if (requiresDiscountCode && (!val || val.trim() === "")) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Bokningslänk är obligatoriskt när du inte använder rabattkoder"
-      });
-      return false;
-    }
-    
-    return true;
-  }),
+  booking_url: z.string().optional(),
   requires_discount_code: z.boolean().default(false).optional(),
+}).refine((data) => {
+  // BookingUrl är obligatoriskt när requires_discount_code är false
+  if (!data.requires_discount_code && (!data.booking_url || data.booking_url.trim() === "")) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Bokningslänk är obligatoriskt när du inte använder rabattkoder",
+  path: ["booking_url"] // Specify which field this error is attached to
 });
 
 // Exportera typen som genereras från schemat
