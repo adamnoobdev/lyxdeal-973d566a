@@ -3,27 +3,26 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const deleteDeal = async (dealId: number): Promise<boolean> => {
+  if (!dealId) {
+    console.error("[deleteDeal] Missing deal ID");
+    return false;
+  }
+  
+  console.log("[deleteDeal] Called with dealId:", dealId);
+  
   try {
-    console.log("[deleteDeal] Called with dealId:", dealId);
-    
-    if (!dealId) {
-      console.error("[deleteDeal] Missing deal ID");
-      toast.error("Kunde inte identifiera erbjudandet");
-      return false;
-    }
-    
     // Delete any associated discount codes first
-    const { error: codesError } = await supabase
+    await supabase
       .from('discount_codes')
       .delete()
-      .eq('deal_id', dealId);
-    
-    if (codesError) {
-      console.error("[deleteDeal] Error deleting associated discount codes:", codesError);
-      // Continue with deal deletion even if code deletion fails
-    } else {
-      console.log("[deleteDeal] Successfully deleted associated discount codes");
-    }
+      .eq('deal_id', dealId)
+      .then(({ error }) => {
+        if (error) {
+          console.error("[deleteDeal] Error deleting discount codes:", error);
+        } else {
+          console.log("[deleteDeal] Successfully deleted associated discount codes");
+        }
+      });
     
     // Delete the deal
     console.log("[deleteDeal] Deleting deal:", dealId);

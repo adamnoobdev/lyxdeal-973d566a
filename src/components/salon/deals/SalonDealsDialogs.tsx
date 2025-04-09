@@ -36,16 +36,19 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
   onUpdate,
   onCreate
 }) => {
-  // Use separate closing state flags to prevent UI freezing
+  // Use refs to track component lifecycle and dialog states
+  const isMountedRef = useRef(true);
+  const timeoutsRef = useRef<number[]>([]);
+  
+  // Track dialog state
   const [isMainDialogClosing, setIsMainDialogClosing] = React.useState(false);
   const [isDeleteDialogClosing, setIsDeleteDialogClosing] = React.useState(false);
   
-  // Track component mount status
-  const isMountedRef = useRef(true);
-  const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  
-  // Track dialog states for debugging
+  // Track component mount status and clean up timeouts
   useEffect(() => {
+    isMountedRef.current = true;
+    
+    // Log dialog states for debugging
     console.log("[SalonDealsDialogs] Rendering with states:", {
       editDialogOpen: isDialogOpen,
       deleteDialogOpen: !!deleteData.deletingDeal,
@@ -55,12 +58,10 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
       codesClosing: codeData.isClosingCodesDialog
     });
     
-    // Set mounted state ref
-    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
-      // Clear all pending timeouts on unmount
-      timeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+      // Clear all timeouts on unmount
+      timeoutsRef.current.forEach(timeout => window.clearTimeout(timeout));
       timeoutsRef.current = [];
     };
   }, [
@@ -74,16 +75,16 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
   
   // Helper to safely set timeout
   const safeTimeout = (callback: () => void, delay: number) => {
-    const timeout = setTimeout(() => {
+    const id = window.setTimeout(() => {
       if (isMountedRef.current) {
         callback();
       }
     }, delay);
-    timeoutsRef.current.push(timeout);
-    return timeout;
+    timeoutsRef.current.push(id);
+    return id;
   };
   
-  // Safe closing function for main dialog with state management
+  // Safe closing function for main dialog
   const handleDialogClose = () => {
     if (isMainDialogClosing) {
       console.log("[SalonDealsDialogs] Main dialog already closing, skipping");
@@ -93,19 +94,19 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     console.log("[SalonDealsDialogs] Closing main dialog");
     setIsMainDialogClosing(true);
     
-    // Use setTimeout to safely update state
     safeTimeout(() => {
       setIsDialogOpen(false);
       
-      // Use a small delay before resetting edit state
       safeTimeout(() => {
-        setEditingDeal(null);
-        setIsMainDialogClosing(false);
+        if (isMountedRef.current) {
+          setEditingDeal(null);
+          setIsMainDialogClosing(false);
+        }
       }, 300);
-    }, 100);
+    }, 50);
   };
 
-  // Safe closing function for delete dialog with state management
+  // Safe closing function for delete dialog
   const handleCloseDeleteDialog = () => {
     if (isDeleteDialogClosing) {
       console.log("[SalonDealsDialogs] Delete dialog already closing, skipping");
@@ -115,14 +116,15 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     console.log("[SalonDealsDialogs] Closing delete dialog");
     setIsDeleteDialogClosing(true);
     
-    // Use setTimeout to safely update state
     safeTimeout(() => {
       deleteData.setDeletingDeal(null);
       
       safeTimeout(() => {
-        setIsDeleteDialogClosing(false);
+        if (isMountedRef.current) {
+          setIsDeleteDialogClosing(false);
+        }
       }, 300);
-    }, 100);
+    }, 50);
   };
 
   // Safe closing function for codes dialog
@@ -133,17 +135,17 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     }
     
     console.log("[SalonDealsDialogs] Closing codes dialog");
-    // Update closing state first to prevent multiple close attempts
     codeData.setIsClosingCodesDialog(true);
     
-    // Use setTimeout to safely update state
     safeTimeout(() => {
       codeData.setViewingCodesForDeal(null);
       
       safeTimeout(() => {
-        codeData.setIsClosingCodesDialog(false);
+        if (isMountedRef.current) {
+          codeData.setIsClosingCodesDialog(false);
+        }
       }, 300);
-    }, 100);
+    }, 50);
   };
 
   // Add unique keys to all dialog components to ensure clean unmounting
@@ -151,7 +153,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     <>
       {/* Create/Edit Deal Dialog */}
       <DealDialog
-        key={`edit-deal-${editingDeal?.id || 'new'}-${isDialogOpen}`}
+        key={`edit-deal-${editingDeal?.id || 'new'}-${isDialogOpen}-${Date.now()}`}
         isOpen={isDialogOpen && !isMainDialogClosing}
         onClose={handleDialogClose}
         onSubmit={editingDeal ? onUpdate : onCreate}
@@ -178,7 +180,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
 
       {/* Delete Deal Dialog */}
       <DeleteDealDialog
-        key={`delete-deal-${deleteData.deletingDeal?.id || 'none'}-${!!deleteData.deletingDeal}-${isDeleteDialogClosing}`}
+        key={`delete-deal-${deleteData.deletingDeal?.id || 'none'}-${!!deleteData.deletingDeal}-${Date.now()}`}
         isOpen={!!deleteData.deletingDeal && !isDeleteDialogClosing}
         onClose={handleCloseDeleteDialog}
         onConfirm={deleteData.handleDelete}
@@ -187,7 +189,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
 
       {/* Discount Codes Dialog */}
       <DiscountCodesDialog
-        key={`codes-${codeData.viewingCodesForDeal?.id || 'none'}-${!!codeData.viewingCodesForDeal}-${codeData.isClosingCodesDialog}`}
+        key={`codes-${codeData.viewingCodesForDeal?.id || 'none'}-${!!codeData.viewingCodesForDeal}-${Date.now()}`}
         isOpen={!!codeData.viewingCodesForDeal && !codeData.isClosingCodesDialog}
         onClose={handleCloseCodeDialog}
         deal={codeData.viewingCodesForDeal}
