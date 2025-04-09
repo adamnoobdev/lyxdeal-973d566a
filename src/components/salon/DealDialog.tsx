@@ -171,6 +171,14 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         values.requires_discount_code = false;
       }
       
+      // Check if basic plan is trying to use discount codes (should never happen but just in case)
+      if (isBasicPlan && values.requires_discount_code === true) {
+        console.error("[DealDialog] Attempted to submit basic plan with discount codes enabled");
+        toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för tillgång.");
+        setIsSubmitting(false);
+        return;
+      }
+      
       console.log("[DealDialog] Submitting form with values:", values);
       const result = await onSubmit(values);
       

@@ -60,9 +60,6 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
     if (readOnly) {
       console.log("ReadOnly mode detected (isBasicPlan or locked editing) - ensuring requires_discount_code is false");
       form.setValue('requires_discount_code', false, { shouldValidate: true });
-      
-      // Instead of using nonexistent disable method, we'll just rely on the disabled prop in the UI
-      // and prevent changes in the onCheckedChange handler
     }
   }, [readOnly, requiresDiscountCode, form]);
   

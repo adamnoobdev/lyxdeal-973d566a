@@ -58,13 +58,20 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       return false;
     }
     
-    // If existing deal has requires_discount_code=true, see till att vi inte ändrar det till false
+    // If existing deal has requires_discount_code=true, se till att vi inte ändrar det till false
     let requiresDiscountCode = values.requires_discount_code;
     
     if (existingDeal.requires_discount_code === true && !requiresDiscountCode) {
       console.warn('[updateDeal] Attempt to change requires_discount_code from true to false prevented');
       toast.warning("Ett erbjudande som använder rabattkoder kan inte ändras till att inte använda dem.");
       requiresDiscountCode = true;
+    }
+    
+    // Double-check after applying rules to make sure basic plan users can't use discount codes
+    if (isBasicPlan && requiresDiscountCode === true) {
+      console.error('[updateDeal] Basic plan attempting to use discount codes after verification');
+      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+      return false;
     }
     
     // Parse price values

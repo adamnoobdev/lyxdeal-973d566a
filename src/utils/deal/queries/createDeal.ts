@@ -39,8 +39,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
-    // Check subscription plan regardless of requires_discount_code value
-    // This ensures we validate even if the frontend didn't prevent selection
+    // Check subscription plan regardless of how the salon was created
     console.log("[createDeal] Checking subscription plan");
     
     const { data: salonData, error: salonError } = await supabase
