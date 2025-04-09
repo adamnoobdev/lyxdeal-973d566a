@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { DealDialogContent } from "./dialogs/DealDialogContent";
@@ -27,7 +27,22 @@ export const DealDialog: React.FC<DealDialogProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBasicPlan, setIsBasicPlan] = useState(false);
   const [salonId, setSalonId] = useState<number | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
   const isMobile = useMediaQuery("(max-width: 640px)");
+  const mountedRef = useRef(true);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timers vid unmount
+  useEffect(() => {
+    mountedRef.current = true;
+    
+    return () => {
+      mountedRef.current = false;
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
   
   // Fetch salon info and subscription plan
   useEffect(() => {
@@ -38,7 +53,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         if (!session?.user?.id) {
           console.error("[DealDialog] No active user session");
           toast.error("Du måste vara inloggad för att skapa erbjudanden");
-          onClose();
+          handleClose();
           return;
         }
         
@@ -54,14 +69,14 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         if (salonError) {
           console.error("[DealDialog] Error fetching salon:", salonError);
           toast.error("Kunde inte hämta salonginformation");
-          onClose();
+          handleClose();
           return;
         }
         
         if (!salonData) {
           console.error("[DealDialog] No salon found for user");
           toast.error("Ingen salong hittades för denna användare");
-          onClose();
+          handleClose();
           return;
         }
         
@@ -72,7 +87,7 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         if (salonData.status !== 'active') {
           console.error("[DealDialog] Salon subscription not active");
           toast.error("Din prenumeration är inte aktiv. Vänligen aktivera din prenumeration för att skapa erbjudanden.");
-          onClose();
+          handleClose();
           return;
         }
         
@@ -81,114 +96,93 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         setIsBasicPlan(isPlanBasic);
         console.log("[DealDialog] Is basic plan:", isPlanBasic);
       } catch (error) {
-        console.error("[DealDialog] Error:", error);
-        toast.error("Ett fel uppstod. Vänligen försök igen senare.");
-        onClose();
+        console.error("[DealDialog] Error fetching salon info:", error);
+        toast.error("Ett fel uppstod vid hämtning av salonginformation");
+        handleClose();
       }
     };
     
     if (isOpen) {
       fetchSalonInfo();
-    } else {
-      // Reset state when dialog closes
-      setIsSubmitting(false);
     }
-  }, [isOpen, onClose]);
+  }, [isOpen]);
   
-  const handleSubmit = async (values: FormValues) => {
+  // Kontrollerad stängningsfunktion för att undvika UI-frysning
+  const handleClose = () => {
+    if (isSubmitting || isClosing) {
+      console.log("[DealDialog] Cannot close - operation in progress");
+      return;
+    }
+
+    console.log("[DealDialog] Starting controlled close sequence");
+    setIsClosing(true);
+    
+    // Rensa befintliga timers
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    
+    // Stäng dialogrutan först
+    closeTimeoutRef.current = setTimeout(() => {
+      if (mountedRef.current) {
+        onClose();
+        
+        // Återställ closing state efter en kort fördröjning
+        closeTimeoutRef.current = setTimeout(() => {
+          if (mountedRef.current) {
+            setIsClosing(false);
+          }
+        }, 100);
+      }
+    }, 50);
+  };
+  
+  // Hantera formulärinskickning
+  const handleFormSubmit = async (values: FormValues) => {
+    if (isSubmitting || isClosing) return;
+    
     try {
-      console.log("[DealDialog] Starting form submission with values:", values);
       setIsSubmitting(true);
       
-      // Set salon ID from state
-      if (salonId) {
+      // Lägga till salon_id om det saknas
+      if (salonId && !values.salon_id) {
         values.salon_id = salonId;
-        console.log("[DealDialog] Setting salon_id from state:", salonId);
-      } else {
-        console.error("[DealDialog] No salon ID available");
-        toast.error("Kunde inte identifiera salongen");
-        setIsSubmitting(false);
-        return;
       }
       
-      // Apply subscription-based restrictions
-      if (isBasicPlan) {
-        console.log("[DealDialog] Basic plan detected, forcing requires_discount_code=false");
-        values.requires_discount_code = false;
-      }
-      
-      // Validate that booking_url is provided for direct booking
-      if (!values.requires_discount_code && !values.booking_url) {
-        console.error("[DealDialog] Missing booking URL for direct booking");
-        toast.error("En bokningslänk är obligatorisk när erbjudandet inte använder rabattkoder.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Explicitly check required fields before submission
-      if (!values.title) {
-        console.error("[DealDialog] Missing title");
-        toast.error("Titel är obligatoriskt");
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (!values.description) {
-        console.error("[DealDialog] Missing description");
-        toast.error("Beskrivning är obligatoriskt");
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (!values.category) {
-        console.error("[DealDialog] Missing category");
-        toast.error("Kategori är obligatoriskt");
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (!values.city) {
-        console.error("[DealDialog] Missing city");
-        toast.error("Stad är obligatoriskt");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Call the parent onSubmit and wait for result
+      console.log("[DealDialog] Submitting form with values:", values);
       const result = await onSubmit(values);
       
-      console.log("[DealDialog] Submission result:", result);
-      
-      // Only close dialog if submission was successful
       if (result !== false) {
-        console.log("[DealDialog] Submission successful, closing dialog");
-        onClose();
-      } else {
-        console.log("[DealDialog] Submission failed, keeping dialog open");
-        toast.error("Det gick inte att skapa erbjudandet. Försök igen senare.");
-        setIsSubmitting(false);
+        // Endast stäng dialog vid lyckad inskickning
+        handleClose();
       }
     } catch (error) {
-      console.error("[DealDialog] Error during submission:", error);
-      toast.error("Ett fel uppstod. Vänligen försök igen senare.");
-      setIsSubmitting(false);
+      console.error("[DealDialog] Error submitting form:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle sparas");
+    } finally {
+      if (mountedRef.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 
-  // Use Sheet for mobile and Dialog for desktop
+  // Rendera mobil eller desktop version
   if (isMobile) {
     return (
-      <Sheet open={isOpen} onOpenChange={(open) => {
-        if (!open && !isSubmitting) onClose();
-      }}>
-        <SheetContent side="bottom" className="h-[90%] sm:max-w-md rounded-t-xl">
+      <Sheet 
+        open={isOpen && !isClosing}
+        onOpenChange={(open) => {
+          if (!open) handleClose();
+        }}
+      >
+        <SheetContent side="bottom" className="h-[90vh] p-4 overflow-auto flex flex-col bg-background">
           <DealSheetContent
             isEditing={isEditing}
             initialValues={initialValues}
             isSubmitting={isSubmitting}
             isBasicPlan={isBasicPlan}
-            onSubmit={handleSubmit}
-            onClose={() => !isSubmitting && onClose()}
+            onSubmit={handleFormSubmit}
+            onClose={handleClose}
           />
         </SheetContent>
       </Sheet>
@@ -196,17 +190,20 @@ export const DealDialog: React.FC<DealDialogProps> = ({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open && !isSubmitting) onClose();
-    }}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog 
+      open={isOpen && !isClosing}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
+      <DialogContent className="w-[95vw] max-w-2xl h-[90vh] p-4 md:p-6 overflow-hidden flex flex-col bg-background">
         <DealDialogContent
           isEditing={isEditing}
           initialValues={initialValues}
           isSubmitting={isSubmitting}
           isBasicPlan={isBasicPlan}
-          onSubmit={handleSubmit}
-          onClose={() => !isSubmitting && onClose()}
+          onSubmit={handleFormSubmit}
+          onClose={handleClose}
         />
       </DialogContent>
     </Dialog>

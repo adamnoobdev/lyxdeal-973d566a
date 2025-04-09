@@ -36,26 +36,42 @@ export const useDealDialogForm = (
     }
   });
 
-  // Update the form when initial values change
+  // Update the form when initial values change - med förbättrad hantering för att undvika problem
   useEffect(() => {
-    if (initialValues && Object.keys(initialValues).length > 0) {
-      Object.entries(initialValues).forEach(([key, value]) => {
-        if (value !== undefined) {
-          methods.setValue(key as keyof FormValues, value as any);
-          console.log(`Setting initialValue for ${key}:`, value);
-        }
-      });
-    }
+    // Timeout för att säkerställa att denna uppdatering sker efter att komponenten är helt monterad
+    const timeoutId = setTimeout(() => {
+      if (initialValues && Object.keys(initialValues).length > 0) {
+        Object.entries(initialValues).forEach(([key, value]) => {
+          if (value !== undefined) {
+            methods.setValue(key as keyof FormValues, value as any, { 
+              shouldValidate: false, // Undvik omedelbar validering för att förhindra frysning
+              shouldDirty: false 
+            });
+            console.log(`Setting initialValue for ${key}:`, value);
+          }
+        });
+        
+        // Trigga validering efter att alla värden är satta, med timeout för att undvika UI-frysning
+        setTimeout(() => methods.trigger(), 100);
+      }
+    }, 0);
+    
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [initialValues, methods]);
   
   // Force direct booking for basic plan
   useEffect(() => {
     if (isBasicPlan) {
       console.log(`Setting requires_discount_code to false for basic plan`);
-      methods.setValue('requires_discount_code', false);
+      methods.setValue('requires_discount_code', false, { 
+        shouldValidate: false,
+        shouldDirty: false 
+      });
       
-      // Trigger validation
-      methods.trigger();
+      // Trigger validation with timeout för att undvika UI-frysning
+      setTimeout(() => methods.trigger(), 100);
     }
   }, [isBasicPlan, methods]);
 

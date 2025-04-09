@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { DealDialog } from '@/components/salon/DealDialog';
 import { DeleteDealDialog } from '@/components/admin/deals/DeleteDealDialog';
 import { DiscountCodesDialog } from '@/components/admin/deals/DiscountCodesDialog';
@@ -38,6 +38,19 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
   onUpdate,
   onCreate
 }) => {
+  // Använd refs för att undvika problem med samtidiga operationer
+  const isClosingRef = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timers vid unmount för att undvika memory leaks
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+  
   // Format initial values for the form
   const initialValues = editingDeal ? {
     title: editingDeal.title,
@@ -57,20 +70,35 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     is_active: editingDeal.is_active
   } : undefined;
 
-  // Handler for closing code dialog
+  // Handler for closing code dialog - förbättrad för att undvika frysning
   const handleCloseCodeDialog = () => {
+    if (isClosingRef.current) return;
+    
+    isClosingRef.current = true;
     codeData.setIsClosingCodesDialog(true);
-    setTimeout(() => {
+    
+    timeoutRef.current = setTimeout(() => {
       codeData.setViewingCodesForDeal(null);
       codeData.setIsClosingCodesDialog(false);
+      isClosingRef.current = false;
     }, 300);
   };
 
-  // Handler for dialog close with cleanup
+  // Handler for dialog close with cleanup - förbättrad för att undvika frysning
   const handleDialogClose = () => {
+    if (isClosingRef.current) return;
+    
+    isClosingRef.current = true;
+    console.log("Initiating dialog close sequence");
+    
     setIsDialogOpen(false);
-    setEditingDeal(null);
-    console.log("Dialog closed, editingDeal set to null");
+    
+    // Fördröj återställning av editingDeal för att undvika frysning
+    timeoutRef.current = setTimeout(() => {
+      console.log("Cleaning up dialog state");
+      setEditingDeal(null);
+      isClosingRef.current = false;
+    }, 300);
   };
 
   return (
