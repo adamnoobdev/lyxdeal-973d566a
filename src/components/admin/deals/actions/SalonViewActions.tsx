@@ -43,7 +43,7 @@ export const SalonViewActions = ({
         {onViewDiscountCodes && (
           <DropdownMenuItem 
             onClick={onViewDiscountCodes} 
-            className="text-sm text-teal-600 font-medium hover:bg-teal-50"
+            className="text-sm text-primary font-medium hover:bg-primary-50"
           >
             Visa rabattkoder
           </DropdownMenuItem>
@@ -52,7 +52,7 @@ export const SalonViewActions = ({
         {onDelete && (
           <DropdownMenuItem 
             onClick={onDelete} 
-            className="text-sm text-red-600 font-medium hover:bg-red-50"
+            className="text-sm text-destructive font-medium hover:bg-destructive-50"
           >
             Ta bort
           </DropdownMenuItem>

@@ -72,7 +72,7 @@ export const ApprovalActions = ({
           <DropdownMenuItem 
             onClick={handleApprove} 
             disabled={isApproving} 
-            className="text-sm text-green-600 font-medium hover:bg-green-50"
+            className="text-sm text-success-500 font-medium hover:bg-success-50"
           >
             {isApproving ? "Godkänner..." : "Godkänn"}
           </DropdownMenuItem>
@@ -82,7 +82,7 @@ export const ApprovalActions = ({
           <DropdownMenuItem 
             onClick={handleReject} 
             disabled={isRejecting} 
-            className="text-sm text-red-600 font-medium hover:bg-red-50"
+            className="text-sm text-destructive font-medium hover:bg-destructive-50"
           >
             {isRejecting ? "Nekar..." : "Neka"}
           </DropdownMenuItem>
@@ -91,7 +91,7 @@ export const ApprovalActions = ({
         {onDelete && (
           <DropdownMenuItem 
             onClick={onDelete}
-            className="text-sm text-red-600 font-medium hover:bg-red-50"
+            className="text-sm text-destructive font-medium hover:bg-destructive-50"
           >
             Ta bort
           </DropdownMenuItem>

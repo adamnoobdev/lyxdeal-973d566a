@@ -75,7 +75,7 @@ export const DropdownActions = ({
         {onDelete && (
           <DropdownMenuItem 
             onClick={onDelete} 
-            className="text-sm text-red-600 font-medium hover:bg-red-50"
+            className="text-sm text-destructive font-medium hover:bg-destructive-50"
           >
             Ta bort
           </DropdownMenuItem>
@@ -86,8 +86,8 @@ export const DropdownActions = ({
             onClick={handleToggleActive} 
             disabled={isTogglingActive} 
             className={isActive ? 
-              "text-sm text-red-600 font-medium hover:bg-red-50" : 
-              "text-sm text-green-600 font-medium hover:bg-green-50"
+              "text-sm text-destructive font-medium hover:bg-destructive-50" : 
+              "text-sm text-success-500 font-medium hover:bg-success-50"
             }
           >
             {isActive ? "Inaktivera" : "Aktivera"}
@@ -99,7 +99,7 @@ export const DropdownActions = ({
         {onViewDiscountCodes && (
           <DropdownMenuItem 
             onClick={onViewDiscountCodes}
-            className="text-sm text-teal-600 font-medium hover:bg-teal-50"
+            className="text-sm text-primary font-medium hover:bg-primary-50"
           >
             Visa rabattkoder
           </DropdownMenuItem>
