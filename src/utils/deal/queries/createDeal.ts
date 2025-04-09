@@ -69,28 +69,32 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
-    // Prepare data for insertion
+    // Prepare data for insertion - VIKTIGT: Säkerställ att namnen matchar databasens kolumnnamn
     const { expirationDate, ...rest } = values;
     
     // Convert Date to ISO string for database
     const expirationDateString = expirationDate ? expirationDate.toISOString() : null;
     
+    // Skapa korrekt mappat data för databasen (camelCase till snake_case)
     const dealData = {
-      ...rest,
-      expiration_date: expirationDateString,
+      title: values.title,
+      description: values.description,
+      salon_id: values.salon_id,
+      category: values.category,
+      city: values.city,
       original_price: parseFloat(values.originalPrice),
       discounted_price: parseFloat(values.discountedPrice),
       image_url: values.imageUrl,
-      is_active: true,
+      booking_url: values.booking_url || '',
+      requires_discount_code: values.requires_discount_code,
+      is_active: values.is_active ?? true,
+      is_free: values.is_free ?? false,
+      featured: values.featured ?? false,
+      expiration_date: expirationDateString,
       quantity_left: parseInt(values.quantity || '10', 10),
       created_at: new Date().toISOString(),
       // Add time_remaining field as it's required by the database schema
       time_remaining: '',
-      // Ensure these fields are explicitly set and not optional
-      category: values.category,
-      city: values.city,
-      description: values.description,
-      title: values.title
     };
     
     // Insert deal
