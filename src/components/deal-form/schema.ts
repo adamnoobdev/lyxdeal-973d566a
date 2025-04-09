@@ -27,23 +27,22 @@ export const formSchema = z.object({
   is_free: z.boolean().default(false).optional(),
   is_active: z.boolean().default(true).optional(),
   quantity: z.string().optional(),
-  booking_url: z.string().optional().refine(
-    (val, ctx) => {
-      // BookingUrl är obligatoriskt när requires_discount_code är false
-      const requiresDiscountCode = ctx.path.includes(".booking_url") && 
-                                  ctx.parent && 
-                                  !ctx.parent.requires_discount_code;
-      
-      if (requiresDiscountCode && (!val || val.trim() === "")) {
-        return false;
-      }
-      
-      return true;
-    },
-    {
-      message: "Bokningslänk är obligatoriskt när du inte använder rabattkoder"
+  booking_url: z.string().optional().superRefine((val, ctx) => {
+    // BookingUrl är obligatoriskt när requires_discount_code är false
+    // Vi använder ctx.path för att hitta parent objektet
+    const parent = ctx.parent;
+    const requiresDiscountCode = parent && !parent.requires_discount_code;
+    
+    if (requiresDiscountCode && (!val || val.trim() === "")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Bokningslänk är obligatoriskt när du inte använder rabattkoder"
+      });
+      return false;
     }
-  ),
+    
+    return true;
+  }),
   requires_discount_code: z.boolean().default(false).optional(),
 });
 
