@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useDealsAdmin } from "@/hooks/useDealsAdmin";
 import { useDealsDialogs } from "@/hooks/useDealsDialogs";
@@ -57,7 +56,6 @@ export const DealsListContainer = () => {
 
   const { handleStatusChange } = usePendingDealsFunctions(refetch);
 
-  // Set up discount codes dialog manager
   const {
     discountCodesDialog,
     handleViewDiscountCodes
@@ -67,14 +65,12 @@ export const DealsListContainer = () => {
     resetJustCreatedDeal: resetDealCreationState
   });
 
-  // Effect to show discount codes for newly created deals
   useEffect(() => {
     if (justCreatedDeal && !isCreating && !editingDeal && !deletingDeal) {
       console.log("[DealsListContainer] New deal created, displaying discount codes dialog");
     }
   }, [justCreatedDeal, isCreating, editingDeal, deletingDeal]);
 
-  // Wrapper functions that connect to the action hooks
   const handleDeleteSubmit = () => onDelete(deletingDeal);
   const handleUpdateSubmit = (values) => onUpdate(values, editingDeal);
   const handleCreateSubmit = (values) => onCreate(values, setDealCreationState);

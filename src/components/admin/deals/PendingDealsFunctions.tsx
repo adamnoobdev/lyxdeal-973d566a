@@ -1,6 +1,6 @@
 
 import { useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
 import { useOperationExclusion } from "@/hooks/useOperationExclusion";
 
@@ -13,7 +13,7 @@ export const usePendingDealsFunctions = (refetch: () => Promise<unknown>) => {
         console.log(`Changing deal status for ID ${dealId} to ${newStatus}`);
         const { error } = await supabase
           .from('deals')
-          .update({ status: newStatus })
+          .update({ status: newStatus, is_active: newStatus === 'approved' })
           .eq('id', dealId);
 
         if (error) throw error;

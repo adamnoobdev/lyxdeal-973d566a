@@ -1,7 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DealsList } from "./DealsList";
-import { ApprovalActions } from "./actions/ApprovalActions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Deal } from "@/types/deal";
 
@@ -39,8 +38,12 @@ export const PendingDealsSection: React.FC<PendingDealsSectionProps> = ({
             onDelete={setDeletingDeal}
             onToggleActive={handleToggleActive}
             onViewDiscountCodes={onViewDiscountCodes}
-            ActionComponent={ApprovalActions}
-            actionProps={{ onStatusChange: handleStatusChange }}
+            renderActions={(deal) => ({
+              onPreview: () => window.open(`/deals/${deal.id}`, '_blank'),
+              onEdit: () => setEditingDeal(deal),
+              onApprove: () => handleStatusChange(deal.id, 'approved'),
+              onReject: () => handleStatusChange(deal.id, 'rejected'),
+            })}
           />
         ) : (
           <div className="text-center py-6 text-muted-foreground">

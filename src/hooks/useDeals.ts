@@ -9,7 +9,7 @@ export const useDeals = (category?: string, city?: string) => {
     queryKey: ["deals", category, city],
     queryFn: async () => {
       try {
-        // Skapa basqueryn - hämta endast aktiva erbjudanden som standard
+        // Skapa basqueryn - hämta endast aktiva och godkända erbjudanden
         let query = supabase
           .from("deals")
           .select(`
@@ -50,7 +50,7 @@ export const useDeals = (category?: string, city?: string) => {
           };
         });
 
-        console.log(`Hämtade ${processedData.length} aktiva erbjudanden för ${city || 'alla städer'} och ${category || 'alla kategorier'}`);
+        console.log(`Hämtade ${processedData.length} aktiva och godkända erbjudanden för ${city || 'alla städer'} och ${category || 'alla kategorier'}`);
         return processedData as Deal[];
       } catch (error) {
         console.error("Unexpected error in useDeals:", error);
