@@ -24,13 +24,15 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
     queryFn: async ({ queryKey }) => {
       try {
         // Extract dealId from queryKey
-        const [_, dealId] = queryKey;
-        if (!dealId) {
+        const [_, dealIdFromKey] = queryKey;
+        if (!dealIdFromKey) {
           console.log("[useDiscountCodes] No dealId provided");
           return [];
         }
         
-        const results = await searchDiscountCodesWithMultipleMethods(dealId);
+        // Ensure dealId is treated as string or number, not unknown
+        const typedDealId = dealIdFromKey as string | number;
+        const results = await searchDiscountCodesWithMultipleMethods(typedDealId);
         return results as DiscountCode[];
       } catch (error) {
         console.error("[useDiscountCodes] Error in query function:", error);

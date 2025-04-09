@@ -4,6 +4,10 @@ import { generateRandomCode } from "@/utils/discount-code-utils";
 import { normalizeId } from "./types";
 import { toast } from "sonner";
 
+// Re-export functions from other files in this directory
+export * from './debug';
+export * from './removeAllCodes';
+
 /**
  * Generate a batch of discount codes for a deal
  */

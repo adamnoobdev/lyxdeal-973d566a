@@ -36,10 +36,9 @@ export async function inspectDiscountCodes(dealId: string | number) {
     
     // Look for codes that match our deal ID
     const matchingCodes = allCodes.filter(code => {
-      // Try different comparison methods
+      // Try different comparison methods - ensure proper type comparisons with String conversion
       return (
         code.deal_id === numericDealId ||
-        code.deal_id === String(numericDealId) ||
         String(code.deal_id) === String(numericDealId)
       );
     });
