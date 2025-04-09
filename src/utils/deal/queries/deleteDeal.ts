@@ -33,29 +33,42 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
       toast.error("Du måste vara inloggad för att ta bort erbjudanden");
       return false;
     }
-    
+
     // Get the current user's salon info to check their role
     const { data: salonData, error: salonError } = await supabase
       .from('salons')
       .select('id, role')
       .eq('user_id', session.user.id)
-      .single();
+      .maybeSingle(); // Use maybeSingle instead of single to avoid errors
     
-    if (salonError) {
-      console.error("[deleteDeal] Error fetching salon data:", salonError);
-      toast.error("Kunde inte verifiera dina behörigheter");
-      return false;
-    }
-    
+    // Admin check - always allow admins to delete deals
     const isAdmin = salonData?.role === 'admin';
     
+    // If not an admin, check if the user owns the salon that owns the deal
     if (!isAdmin) {
-      // If not admin, verify the user is the salon owner
+      // If salon data fetch failed or the salon ID doesn't match the deal's salon ID
+      if (salonError) {
+        console.error("[deleteDeal] Error fetching salon data:", salonError);
+        toast.error("Kunde inte verifiera dina behörigheter");
+        return false;
+      }
+      
       if (!salonData || salonData.id !== dealData.salon_id) {
         console.error("[deleteDeal] User is not the salon owner");
         toast.error("Du har inte behörighet att ta bort detta erbjudande");
         return false;
       }
+    }
+    
+    // Delete any associated discount codes first
+    const { error: codesError } = await supabase
+      .from('discount_codes')
+      .delete()
+      .eq('deal_id', dealId);
+    
+    if (codesError) {
+      console.error("[deleteDeal] Error deleting associated discount codes:", codesError);
+      // Continue with deal deletion even if code deletion fails
     }
     
     // Delete the deal

@@ -6,7 +6,6 @@ import { DiscountCodesDialog } from '@/components/admin/deals/DiscountCodesDialo
 import { Deal } from '@/components/admin/types';
 import { FormValues } from '@/components/deal-form/schema';
 import { endOfMonth } from 'date-fns';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
 
 interface SalonDealsDialogsProps {
   isDialogOpen: boolean;
@@ -38,18 +37,10 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
   onUpdate,
   onCreate
 }) => {
-  // Använd refs för att undvika problem med samtidiga operationer
-  const isClosingRef = useRef(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Cleanup timers vid unmount för att undvika memory leaks
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+  // Use refs to track state and avoid race conditions
+  const isDialogClosingRef = useRef(false);
+  const isDeleteClosingRef = useRef(false);
+  const isCodesClosingRef = useRef(false);
   
   // Format initial values for the form
   const initialValues = editingDeal ? {
@@ -70,38 +61,49 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
     is_active: editingDeal.is_active
   } : undefined;
 
-  // Förbättrad stängningsfunktion för koddialoger
-  const handleCloseCodeDialog = () => {
-    // Anropa direkt för att uppdatera föräldrastate
-    codeData.setViewingCodesForDeal(null);
-    
-    // Använd setTimeout för att fördröja visuell stängning
-    setTimeout(() => {
-      if (isClosingRef.current) return;
-      isClosingRef.current = true;
-      codeData.setIsClosingCodesDialog(true);
-      
-      timeoutRef.current = setTimeout(() => {
-        codeData.setIsClosingCodesDialog(false);
-        isClosingRef.current = false;
-      }, 200);
-    }, 10);
-  };
-
-  // Förbättrad stängningsfunktion för huvuddialoger
+  // Safe closing function for main dialog
   const handleDialogClose = () => {
-    // Anropa direkt för att uppdatera föräldrastate
+    if (isDialogClosingRef.current) return;
+    
+    // Call state updaters directly to avoid UI freeze
     setIsDialogOpen(false);
     
-    // Använd setTimeout för att fördröja återställning av editingDeal
+    // Use a small delay before resetting edit state
+    isDialogClosingRef.current = true;
     setTimeout(() => {
-      if (isClosingRef.current) return;
-      isClosingRef.current = true;
-      
-      console.log("Cleaning up dialog state");
       setEditingDeal(null);
-      isClosingRef.current = false;
+      isDialogClosingRef.current = false;
     }, 50);
+  };
+
+  // Safe closing function for delete dialog
+  const handleCloseDeleteDialog = () => {
+    if (isDeleteClosingRef.current) return;
+    
+    // Call state updater directly
+    deleteData.setDeletingDeal(null);
+    
+    // Mark as closing with a ref to avoid multiple clicks
+    isDeleteClosingRef.current = true;
+    setTimeout(() => {
+      isDeleteClosingRef.current = false;
+    }, 50);
+  };
+
+  // Safe closing function for codes dialog
+  const handleCloseCodeDialog = () => {
+    if (isCodesClosingRef.current) return;
+    
+    // Call state updaters in sequence with minimal delay
+    codeData.setViewingCodesForDeal(null);
+    codeData.setIsClosingCodesDialog(true);
+    
+    // Mark as closing with a ref to avoid multiple clicks
+    isCodesClosingRef.current = true;
+    setTimeout(() => {
+      codeData.setIsClosingCodesDialog(false);
+      isCodesClosingRef.current = false;
+    }, 100);
   };
 
   return (
@@ -118,7 +120,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
       {/* Delete Deal Dialog */}
       <DeleteDealDialog
         isOpen={!!deleteData.deletingDeal}
-        onClose={() => deleteData.setDeletingDeal(null)}
+        onClose={handleCloseDeleteDialog}
         onConfirm={deleteData.handleDelete}
         dealTitle={deleteData.deletingDeal?.title || ''}
       />

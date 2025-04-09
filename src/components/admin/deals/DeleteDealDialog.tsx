@@ -26,45 +26,31 @@ export const DeleteDealDialog = ({
 }: DeleteDealDialogProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
   
-  // Säkerställ att komponenten är monterad innan den visas
+  // Ensure component is mounted before any operations
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
   
-  // Reset state when dialog opens
+  // Reset isDeleting state when dialog opens
   useEffect(() => {
     if (isOpen && isMounted) {
       setIsDeleting(false);
-      setIsClosing(false);
     }
   }, [isOpen, isMounted]);
   
-  // Förbättrad stängningsfunktion för att förhindra UI-frysning
+  // Safe close function that prevents UI freezing
   const handleClose = () => {
     if (isDeleting) return;
     
-    // Anropa först onClose direkt för att tillåta föräldrakomponenter att uppdatera sin state
+    // Call onClose directly first to allow parent components to update their state
     onClose();
-    
-    // Sätt vår interna stängningsstate med en liten fördröjning
-    setTimeout(() => {
-      if (isMounted) {
-        setIsClosing(true);
-        setTimeout(() => {
-          if (isMounted) {
-            setIsClosing(false);
-          }
-        }, 200);
-      }
-    }, 10);
   };
   
   // Controlled delete with state tracking
   const handleDelete = async () => {
-    if (isDeleting) return;
+    if (isDeleting || !isMounted) return;
     
     try {
       setIsDeleting(true);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { SalonDealsContent } from '@/components/salon/deals/SalonDealsContent';
 import { SalonDealsDialogs } from '@/components/salon/deals/SalonDealsDialogs';
@@ -37,7 +36,6 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [deletingDeal, setDeletingDeal] = useState<any>(null);
 
-  // Fetch salon ID if not already available
   const [currentSalonId, setCurrentSalonId] = useState<number | null>(null);
   
   useEffect(() => {
@@ -69,14 +67,12 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
     fetchSalonId();
   }, [salonId]);
 
-  // Synchronize dialog state with external control
   useEffect(() => {
     if (initialCreateDialogOpen && !isDialogOpen) {
       setIsDialogOpen(true);
     }
   }, [initialCreateDialogOpen, isDialogOpen, setIsDialogOpen]);
 
-  // When dialog closes, notify parent component
   const handleCloseDialog = useCallback(() => {
     if (isSubmitting) return;
     
@@ -87,7 +83,6 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
     }
   }, [isSubmitting, setIsDialogOpen, setEditingDeal, onCloseCreateDialog]);
 
-  // Implementerad funktion för att ta bort erbjudanden
   const handleDeleteDeal = async () => {
     if (!deletingDeal || isDeleting) return;
     
@@ -98,10 +93,8 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       const success = await deleteDeal(deletingDeal.id);
       
       if (success) {
-        toast.success(`Erbjudandet "${deletingDeal.title}" har tagits bort`);
+        console.log("[SalonDeals] Deal deleted successfully");
         await dealManagement.refetch();
-      } else {
-        toast.error("Det gick inte att ta bort erbjudandet.");
       }
     } catch (error) {
       console.error("[SalonDeals] Error deleting deal:", error);
@@ -125,13 +118,11 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
     }
   };
 
-  // Manually handle form submission for create deals
   const handleCreateDeal = async (values: any) => {
     console.log("[SalonDeals] Create deal called with values:", values);
     setIsSubmitting(true);
     
     try {
-      // Ensure salon_id is set
       const finalSalonId = values.salon_id || currentSalonId;
       if (!finalSalonId) {
         console.error("[SalonDeals] No salon ID available");
@@ -143,7 +134,6 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       values.salon_id = finalSalonId;
       console.log("[SalonDeals] Creating deal with salon ID:", finalSalonId);
       
-      // Fixed: We now pass only the values to createDeal, not a separate salonId
       const success = await createDeal(values);
       
       if (success) {
@@ -207,7 +197,6 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
             const success = await dealManagement.handleUpdate(values);
             setIsSubmitting(false);
             
-            // Check specifically if success is false (not just any falsy value)
             if (success === false) {
               const errorMsg = "Det gick inte att uppdatera erbjudandet. Kontrollera att alla fält är korrekt ifyllda.";
               toast.error(errorMsg);
