@@ -124,6 +124,35 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         setIsSubmitting(false);
         return;
       }
+
+      // Explicitly check required fields before submission
+      if (!values.title) {
+        console.error("[DealDialog] Missing title");
+        toast.error("Titel är obligatoriskt");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!values.description) {
+        console.error("[DealDialog] Missing description");
+        toast.error("Beskrivning är obligatoriskt");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!values.category) {
+        console.error("[DealDialog] Missing category");
+        toast.error("Kategori är obligatoriskt");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!values.city) {
+        console.error("[DealDialog] Missing city");
+        toast.error("Stad är obligatoriskt");
+        setIsSubmitting(false);
+        return;
+      }
       
       // Call the parent onSubmit and wait for result
       const result = await onSubmit(values);

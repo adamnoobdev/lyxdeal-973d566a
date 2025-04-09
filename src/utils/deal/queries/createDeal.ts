@@ -10,6 +10,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
     // Validate required fields
     if (!values.salon_id) {
       console.error("[createDeal] Missing salon_id");
+      toast.error("Kunde inte identifiera salongen");
       return false;
     }
     
@@ -102,13 +103,16 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       
     if (error) {
       console.error("[createDeal] Insert error:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle skapas: " + error.message);
       return false;
     }
     
     console.log("[createDeal] Deal created successfully with id:", data?.id);
+    toast.success("Erbjudandet har skapats!");
     return true;
   } catch (error) {
     console.error("[createDeal] Unexpected error:", error);
+    toast.error("Ett fel uppstod när erbjudandet skulle skapas");
     return false;
   }
 };

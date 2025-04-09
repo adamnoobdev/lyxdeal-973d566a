@@ -1,53 +1,51 @@
 
-import * as z from "zod";
+import { z } from "zod";
 
 export const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Titeln måste vara minst 2 tecken.",
+  title: z.string().min(1, {
+    message: "Titel är obligatoriskt",
   }),
-  description: z.string().min(10, {
-    message: "Beskrivningen måste vara minst 10 tecken.",
+  description: z.string().min(1, {
+    message: "Beskrivning är obligatoriskt",
   }),
-  imageUrl: z.string().min(1, {
-    message: "En bild måste laddas upp.",
+  imageUrl: z.string().optional(),
+  originalPrice: z.string().min(1, {
+    message: "Ordinarie pris är obligatoriskt",
   }),
-  originalPrice: z.string().refine((val) => {
-    // Allow 0 for free deals, but ensure it's convertible to a number
-    return !isNaN(Number(val)) && Number(val) >= 0;
-  }, {
-    message: "Vänligen ange ett giltigt pris.",
-  }),
-  discountedPrice: z.string().refine((val) => {
-    // Allow 0 for free deals, but ensure it's convertible to a number
-    return !isNaN(Number(val)) && Number(val) >= 0;
-  }, {
-    message: "Vänligen ange ett giltigt rabatterat pris.",
+  discountedPrice: z.string().min(1, {
+    message: "Rabatterat pris är obligatoriskt",
   }),
   category: z.string().min(1, {
-    message: "Vänligen välj en kategori.",
+    message: "Kategori är obligatoriskt",
   }),
   city: z.string().min(1, {
-    message: "Vänligen ange en stad.",
+    message: "Stad är obligatoriskt",
   }),
-  expirationDate: z.date({
-    required_error: "Vänligen välj ett slutdatum.",
-  }),
-  featured: z.boolean().default(false),
-  salon_id: z.number({
-    required_error: "Vänligen välj en salong",
-    invalid_type_error: "Vänligen välj en salong",
-  }),
-  quantity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-    message: "Vänligen ange hur många rabattkoder som ska genereras för detta erbjudande.",
-  }),
-  is_free: z.boolean().default(false),
-  is_active: z.boolean().default(true),
-  booking_url: z.string().url({
-    message: "Vänligen ange en giltig URL som börjar med http:// eller https://",
-  }).min(1, {
-    message: "En bokningslänk måste anges."
-  }),
-  requires_discount_code: z.boolean().default(false),
+  expirationDate: z.date().optional(),
+  featured: z.boolean().default(false).optional(),
+  salon_id: z.number().optional(),
+  is_free: z.boolean().default(false).optional(),
+  is_active: z.boolean().default(true).optional(),
+  quantity: z.string().optional(),
+  booking_url: z.string().optional().refine(
+    (val, ctx) => {
+      // BookingUrl är obligatoriskt när requires_discount_code är false
+      const requiresDiscountCode = ctx.path.includes(".booking_url") && 
+                                  ctx.parent && 
+                                  !ctx.parent.requires_discount_code;
+      
+      if (requiresDiscountCode && (!val || val.trim() === "")) {
+        return false;
+      }
+      
+      return true;
+    },
+    {
+      message: "Bokningslänk är obligatoriskt när du inte använder rabattkoder"
+    }
+  ),
+  requires_discount_code: z.boolean().default(false).optional(),
 });
 
+// Exportera typen som genereras från schemat
 export type FormValues = z.infer<typeof formSchema>;

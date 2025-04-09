@@ -60,7 +60,7 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
               <FormLabel className="text-base">Kräver rabattkod</FormLabel>
-              {readOnly && !field.value && (
+              {readOnly && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -68,22 +68,10 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs text-sm">
-                        Baspaketet inkluderar inte rabattkoder. Uppgradera till Premiumpaket för att få tillgång till rabattkoder.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-              {readOnly && field.value && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs text-sm">
-                        Det går inte att ändra ett erbjudande från att använda rabattkoder till att inte använda dem.
-                        Detta för att undvika problem med redan genererade koder.
+                        {!field.value 
+                          ? "Baspaketet inkluderar inte rabattkoder. Uppgradera till Premiumpaket för att få tillgång till rabattkoder."
+                          : "Det går inte att ändra ett erbjudande från att använda rabattkoder till att inte använda dem."
+                        }
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -115,13 +103,19 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
                 console.log("Switch toggled to:", checked);
                 field.onChange(checked);
                 
+                // Om det är ett baspaket, ändra inte värdet
+                if (readOnly && !field.value) {
+                  console.log("Switch är låst för baspaket, ignorerar ändring");
+                  return;
+                }
+                
                 // If switching to direct booking, trigger booking_url validation immediately
                 if (!checked) {
                   console.log("Switched to direct booking - triggering booking_url validation");
                   setTimeout(() => form.trigger('booking_url'), 0);
                 }
               }}
-              className={readOnly && !field.value ? "opacity-50 cursor-not-allowed" : ""}
+              className={readOnly ? "opacity-50 cursor-not-allowed" : ""}
             />
           </FormControl>
         </FormItem>
