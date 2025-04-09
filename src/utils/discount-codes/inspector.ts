@@ -1,75 +1,82 @@
 
-// This file contains utility functions for inspecting discount codes in the database
 import { supabase } from "@/integrations/supabase/client";
-import { logIdInfo, logSearchAttempt } from "./types";
-import { stringSearch } from "./search/stringSearch";
-import { multiSearch } from "./search/multiSearch";
-import { numericSearch } from "./search/numericSearch";
-import { directSearch } from "./search/directSearch";
-import { formatCodesResponse, formatErrorResponse } from "./responseFormatters";
+import { normalizeId } from "./types";
 
 /**
- * Normalizes a deal ID to ensure consistent handling of IDs that might be
- * stored in different formats across the database.
+ * Perform a thorough inspection of discount codes in the database
+ * This is used to diagnose issues when normal queries fail
  */
-export function normalizeId(dealId: number | string): number {
-  if (typeof dealId === 'string') {
-    return parseInt(dealId, 10);
-  }
-  return dealId;
-}
-
-/**
- * Main function to inspect discount codes for a deal in the database.
- * This is useful for debugging when codes aren't showing up in the UI.
- */
-export async function inspectDiscountCodes(dealId: number | string) {
+export async function inspectDiscountCodes(dealId: string | number) {
   try {
-    console.log(`[inspectDiscountCodes] Inspecting discount codes for deal ${dealId}`);
-    logIdInfo("inspectDiscountCodes initial", dealId);
-
-    // First attempt: direct search with the id as-is
-    const directResult = await directSearch(dealId);
-    if (directResult.success && directResult.codes.length > 0) {
-      return formatCodesResponse(directResult.codes, "Direct search found codes.");
+    console.log(`[inspectDiscountCodes] Starting inspection for deal ID: ${dealId} (${typeof dealId})`);
+    const numericDealId = normalizeId(dealId);
+    
+    // Get all codes from the database (limited to 100 for performance)
+    const { data: allCodes, error: allCodesError } = await supabase
+      .from("discount_codes")
+      .select("*")
+      .limit(100);
+      
+    if (allCodesError) {
+      console.error("[inspectDiscountCodes] Error fetching all codes:", allCodesError);
+      return {
+        success: false,
+        message: "Ett fel uppstod vid hämtning av rabattkoder från databasen",
+        error: allCodesError
+      };
     }
-
-    // Second attempt: numeric search (convert to number)
-    const normalizedId = normalizeId(dealId);
-    logIdInfo("inspectDiscountCodes normalized", normalizedId);
-    const numericResult = await numericSearch(normalizedId);
-    if (numericResult.success && numericResult.codes.length > 0) {
-      return formatCodesResponse(numericResult.codes, "Numeric search found codes.");
+    
+    if (!allCodes || allCodes.length === 0) {
+      return {
+        success: false,
+        message: "Inga rabattkoder hittades i databasen",
+        codesCount: 0
+      };
     }
-
-    // Third attempt: string search (convert to string)
-    const stringResult = await stringSearch(normalizedId.toString());
-    if (stringResult.success && stringResult.codes.length > 0) {
-      // Detected string ID storage
-      return formatCodesResponse(
-        stringResult.codes, 
-        "String search found codes. The deal_id is stored as a string in the database.",
-        "string"
+    
+    // Look for codes that match our deal ID
+    const matchingCodes = allCodes.filter(code => {
+      // Try different comparison methods
+      return (
+        code.deal_id === numericDealId ||
+        code.deal_id === String(numericDealId) ||
+        String(code.deal_id) === String(numericDealId)
       );
+    });
+    
+    // Get sample codes for debugging
+    const sampleCodes = matchingCodes.slice(0, 3);
+    
+    // Determine the type of deal_id stored in the database
+    let codeType = null;
+    if (matchingCodes.length > 0) {
+      codeType = typeof matchingCodes[0].deal_id;
     }
-
-    // Final attempt: multi-search (try different variations)
-    const multiResult = await multiSearch(dealId);
-    if (multiResult.success && multiResult.codes.length > 0) {
-      return formatCodesResponse(
-        multiResult.codes, 
-        `Multi-search found codes with type ${multiResult.foundType}.`,
-        multiResult.foundType
-      );
-    }
-
-    // No codes found after all attempts
-    console.log(`[inspectDiscountCodes] No codes found for deal ${dealId} after all search attempts`);
-    return formatErrorResponse("No discount codes found for this deal after trying multiple search methods.");
+    
+    // Check for type mismatch
+    const typeMismatch = typeof dealId !== codeType && matchingCodes.length > 0;
+    
+    // Get all unique deal_ids in the database for diagnostics
+    const uniqueDealIds = [...new Set(allCodes.map(code => code.deal_id))];
+    
+    return {
+      success: true,
+      codesCount: matchingCodes.length,
+      totalCodesInDb: allCodes.length,
+      sampleCodes: sampleCodes,
+      codeType: codeType,
+      typeMismatch: typeMismatch,
+      message: matchingCodes.length > 0 
+        ? `Hittade ${matchingCodes.length} rabattkoder för erbjudandet i databasen` 
+        : "Inga matchande rabattkoder hittades för detta erbjudande",
+      uniqueDealIds: uniqueDealIds.slice(0, 10)
+    };
   } catch (error) {
-    console.error(`[inspectDiscountCodes] Error inspecting codes for deal ${dealId}:`, error);
-    return formatErrorResponse(
-      `Error inspecting discount codes: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
+    console.error("[inspectDiscountCodes] Error inspecting codes:", error);
+    return {
+      success: false,
+      message: "Ett fel uppstod vid inspektion av rabattkoder",
+      error
+    };
   }
 }

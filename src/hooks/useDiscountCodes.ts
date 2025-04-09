@@ -19,11 +19,19 @@ export const useDiscountCodes = (dealId: number | string | undefined) => {
     error,
     refetch,
     isFetching
-  } = useQuery({
+  } = useQuery<DiscountCode[]>({
     queryKey: queryKey,
-    queryFn: async () => {
+    queryFn: async ({ queryKey }) => {
       try {
-        return await searchDiscountCodesWithMultipleMethods(dealId);
+        // Extract dealId from queryKey
+        const [_, dealId] = queryKey;
+        if (!dealId) {
+          console.log("[useDiscountCodes] No dealId provided");
+          return [];
+        }
+        
+        const results = await searchDiscountCodesWithMultipleMethods(dealId);
+        return results as DiscountCode[];
       } catch (error) {
         console.error("[useDiscountCodes] Error in query function:", error);
         throw error;

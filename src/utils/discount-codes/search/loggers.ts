@@ -1,31 +1,24 @@
 
-import { normalizeId } from "../types";
-
 /**
- * Loggar detaljerad information om försök att hitta rabattkoder
+ * Log search results in a consistent format
  */
-export function logSearchAttempt(
-  methodName: string, 
-  originalId: string | number, 
-  numericId: number, 
-  stringId: string
-): void {
-  console.log(`[${methodName}] Original ID: ${originalId} (${typeof originalId})`);
-  console.log(`[${methodName}] Normalized numeric ID: ${numericId} (${typeof numericId})`);
-  console.log(`[${methodName}] String ID: ${stringId} (${typeof stringId})`);
-}
-
-/**
- * Loggar resultat av en databassökning
- */
-export function logSearchResults(
-  methodName: string,
-  dealId: string | number,
-  results: any[] | null
-): void {
-  if (results && results.length > 0) {
-    console.log(`[${methodName}] Found ${results.length} codes for deal ID ${dealId}`);
-  } else {
-    console.log(`[${methodName}] No codes found for deal ID ${dealId}`);
+export function logSearchResults(methodName: string, dealId: any, results: any[] | null) {
+  if (!results || results.length === 0) {
+    console.log(`[${methodName}] No matching codes found for ID: ${dealId}`);
+    return;
+  }
+  
+  console.log(`[${methodName}] Found ${results.length} codes for ID: ${dealId}`);
+  
+  // Log a sample of the first code for debugging
+  if (results.length > 0) {
+    const sample = results[0];
+    console.log(`[${methodName}] Sample code:`, {
+      id: sample.id,
+      code: sample.code,
+      deal_id: sample.deal_id,
+      deal_id_type: typeof sample.deal_id,
+      is_used: sample.is_used
+    });
   }
 }

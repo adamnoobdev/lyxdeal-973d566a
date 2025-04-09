@@ -1,47 +1,52 @@
 
-// CustomerInfo interface for consistent customer data handling
 export interface CustomerInfo {
-  name: string | null;
-  email: string | null;
-  phone: string | null;
+  name: string;
+  email: string;
+  phone: string;
 }
 
 /**
- * Normalize deal ID to ensure consistent comparison
- * Can handle string or number input and return a number
+ * Log search attempts for debugging
  */
-export function normalizeId(id: string | number): number {
-  if (typeof id === 'string') {
-    const parsed = parseInt(id, 10);
-    if (isNaN(parsed)) {
-      console.warn(`[normalizeId] Could not parse ID: ${id}, defaulting to 0`);
-      return 0;
-    }
-    return parsed;
-  }
-  return id;
-}
-
-/**
- * Compare two IDs (string or number) for equality
- */
-export function compareIds(id1: string | number | undefined, id2: string | number | undefined): boolean {
-  if (id1 === undefined || id2 === undefined) return false;
+export function logSearchAttempt(method: string, dealId: any, verbose = false) {
+  console.log(`[${method}] Searching for codes with dealId: ${dealId} (${typeof dealId})`);
   
-  // Convert both to strings for comparison to handle different types
-  return String(id1) === String(id2);
+  if (verbose) {
+    console.log(`[${method}] dealId stringified: "${String(dealId)}"`);
+    console.log(`[${method}] dealId as number: ${Number(dealId)}`);
+  }
 }
 
 /**
- * Log information about an ID for debugging
+ * Log ID info in a consistent format
  */
-export function logIdInfo(context: string, id: string | number): void {
+export function logIdInfo(context: string, id: any) {
+  if (id === undefined || id === null) {
+    console.log(`[${context}] ID is undefined or null`);
+    return;
+  }
+  
   console.log(`[${context}] ID: ${id}, Type: ${typeof id}`);
 }
 
 /**
- * Log search attempt information for debugging
+ * Normalize ID to numeric format for database queries
  */
-export function logSearchAttempt(method: string, id: string | number, result: boolean): void {
-  console.log(`[Search] Method: ${method}, ID: ${id}, Success: ${result}`);
+export function normalizeId(id: string | number | undefined): number {
+  if (id === undefined || id === null) {
+    console.error("Attempting to normalize undefined/null ID");
+    return 0;
+  }
+  
+  if (typeof id === 'number') {
+    return id;
+  }
+  
+  const parsed = Number(id);
+  if (isNaN(parsed)) {
+    console.error(`Invalid ID format: "${id}" cannot be converted to number`);
+    return 0;
+  }
+  
+  return parsed;
 }
