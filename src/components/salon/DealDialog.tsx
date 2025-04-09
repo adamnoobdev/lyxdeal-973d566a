@@ -164,8 +164,10 @@ export const DealDialog: React.FC<DealDialogProps> = ({
         values.salon_id = salonId;
       }
       
-      // Force direct booking for basic plan
+      // CRITICAL: Force direct booking for basic plan salons
+      // This must happen here as the final check before submission
       if (isBasicPlan) {
+        console.log("[DealDialog] Enforcing direct booking for basic plan");
         values.requires_discount_code = false;
       }
       

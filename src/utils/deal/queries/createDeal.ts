@@ -63,7 +63,7 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       values.requires_discount_code = false;
     }
     
-    // Now check if they're still trying to use discount codes with basic plan
+    // Double check after enforcing the plan restriction
     if (values.requires_discount_code === true && isBasicPlan) {
       console.error("[createDeal] Basic plan trying to use discount codes");
       toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");

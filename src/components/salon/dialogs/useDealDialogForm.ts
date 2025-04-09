@@ -78,15 +78,20 @@ export const useDealDialogForm = (
         shouldDirty: false 
       });
       
-      // Instead of using nonexistent disable method, we'll register the field with a custom onChange 
-      // that prevents changes to the value for basic plan users
-      const currentField = methods.getValues('requires_discount_code');
-      if (currentField !== false) {
-        methods.setValue('requires_discount_code', false);
-      }
+      // Add a watcher to prevent any changes to requires_discount_code for basic plan users
+      const subscription = methods.watch((values, { name }) => {
+        if (name === 'requires_discount_code' && values.requires_discount_code === true) {
+          console.log('Preventing requires_discount_code change to true for basic plan');
+          methods.setValue('requires_discount_code', false, {
+            shouldValidate: false
+          });
+        }
+      });
       
       // Trigger validation with timeout för att undvika UI-frysning
       setTimeout(() => methods.trigger(), 100);
+      
+      return () => subscription.unsubscribe();
     }
   }, [isBasicPlan, methods]);
 

@@ -54,6 +54,12 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
       toast.warning("Ett erbjudande som använder rabattkoder kan inte ändras till att inte använda dem.");
       requiresDiscountCode = true;
     }
+    
+    // Double-check after applying rules to make sure basic plan users can't use discount codes
+    if (isBasicPlan && requiresDiscountCode === true) {
+      toast.error("Med Baspaket kan du inte använda rabattkoder. Uppgradera till Premium för att få tillgång till rabattkoder.");
+      return false;
+    }
 
     const originalPrice = parseInt(values.originalPrice) || 0;
     const discountedPriceVal = parseInt(values.discountedPrice) || 0;

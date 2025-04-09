@@ -37,11 +37,17 @@ export const RequiresDiscountCodeField = ({ form, readOnly = false }: RequiresDi
           console.log("RequiresDiscountCodeField - triggering booking_url validation");
           form.trigger('booking_url');
         }
+        
+        // If readOnly mode (basic plan) is active, force the value back to false
+        if (readOnly && value.requires_discount_code === true) {
+          console.log("RequiresDiscountCodeField - forcing false for readOnly mode");
+          setTimeout(() => form.setValue('requires_discount_code', false), 0);
+        }
       }
     });
     
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [form, readOnly]);
   
   // If this is a disabled field (due to basic plan), make sure booking_url is triggered for validation
   useEffect(() => {
