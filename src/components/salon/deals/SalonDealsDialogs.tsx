@@ -41,6 +41,34 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
   const [isMainDialogClosing, setIsMainDialogClosing] = React.useState(false);
   const [isDeleteDialogClosing, setIsDeleteDialogClosing] = React.useState(false);
   
+  // Track component mount status
+  const isMountedRef = useRef(true);
+  
+  // Track dialog states for debugging
+  useEffect(() => {
+    console.log("[SalonDealsDialogs] Rendering with states:", {
+      editDialogOpen: isDialogOpen,
+      deleteDialogOpen: !!deleteData.deletingDeal,
+      codesDialogOpen: !!codeData.viewingCodesForDeal,
+      mainClosing: isMainDialogClosing,
+      deleteClosing: isDeleteDialogClosing,
+      codesClosing: codeData.isClosingCodesDialog
+    });
+    
+    // Set mounted state ref
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [
+    isDialogOpen, 
+    deleteData.deletingDeal, 
+    codeData.viewingCodesForDeal, 
+    isMainDialogClosing,
+    isDeleteDialogClosing,
+    codeData.isClosingCodesDialog
+  ]);
+  
   // Format initial values for the form
   const initialValues = editingDeal ? {
     title: editingDeal.title,
@@ -62,59 +90,84 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
 
   // Safe closing function for main dialog with state management
   const handleDialogClose = () => {
-    if (isMainDialogClosing) return;
+    if (isMainDialogClosing) {
+      console.log("[SalonDealsDialogs] Main dialog already closing, skipping");
+      return;
+    }
     
+    console.log("[SalonDealsDialogs] Closing main dialog");
     setIsMainDialogClosing(true);
     
     // Use setTimeout to safely update state
     setTimeout(() => {
-      setIsDialogOpen(false);
-      
-      // Use a small delay before resetting edit state
-      setTimeout(() => {
-        setEditingDeal(null);
-        setIsMainDialogClosing(false);
-      }, 50);
-    }, 10);
+      if (isMountedRef.current) {
+        setIsDialogOpen(false);
+        
+        // Use a small delay before resetting edit state
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            setEditingDeal(null);
+            setIsMainDialogClosing(false);
+          }
+        }, 300);
+      }
+    }, 100);
   };
 
   // Safe closing function for delete dialog with state management
   const handleCloseDeleteDialog = () => {
-    if (isDeleteDialogClosing) return;
+    if (isDeleteDialogClosing) {
+      console.log("[SalonDealsDialogs] Delete dialog already closing, skipping");
+      return;
+    }
     
+    console.log("[SalonDealsDialogs] Closing delete dialog");
     setIsDeleteDialogClosing(true);
     
     // Use setTimeout to safely update state
     setTimeout(() => {
-      deleteData.setDeletingDeal(null);
-      
-      setTimeout(() => {
-        setIsDeleteDialogClosing(false);
-      }, 50);
-    }, 10);
+      if (isMountedRef.current) {
+        deleteData.setDeletingDeal(null);
+        
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            setIsDeleteDialogClosing(false);
+          }
+        }, 300);
+      }
+    }, 100);
   };
 
   // Safe closing function for codes dialog
   const handleCloseCodeDialog = () => {
-    if (codeData.isClosingCodesDialog) return;
+    if (codeData.isClosingCodesDialog) {
+      console.log("[SalonDealsDialogs] Codes dialog already closing, skipping");
+      return;
+    }
     
+    console.log("[SalonDealsDialogs] Closing codes dialog");
     // Update closing state first to prevent multiple close attempts
     codeData.setIsClosingCodesDialog(true);
     
     // Use setTimeout to safely update state
     setTimeout(() => {
-      codeData.setViewingCodesForDeal(null);
-      
-      setTimeout(() => {
-        codeData.setIsClosingCodesDialog(false);
-      }, 50);
-    }, 10);
+      if (isMountedRef.current) {
+        codeData.setViewingCodesForDeal(null);
+        
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            codeData.setIsClosingCodesDialog(false);
+          }
+        }, 300);
+      }
+    }, 100);
   };
 
   return (
     <>
       {/* Create/Edit Deal Dialog */}
       <DealDialog
+        key={`edit-deal-${editingDeal?.id || 'new'}-${isDialogOpen}`}
         isOpen={isDialogOpen && !isMainDialogClosing}
         onClose={handleDialogClose}
         onSubmit={editingDeal ? onUpdate : onCreate}
@@ -124,6 +177,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
 
       {/* Delete Deal Dialog */}
       <DeleteDealDialog
+        key={`delete-deal-${deleteData.deletingDeal?.id || 'none'}-${!!deleteData.deletingDeal}`}
         isOpen={!!deleteData.deletingDeal && !isDeleteDialogClosing}
         onClose={handleCloseDeleteDialog}
         onConfirm={deleteData.handleDelete}
@@ -132,6 +186,7 @@ export const SalonDealsDialogs: React.FC<SalonDealsDialogsProps> = ({
 
       {/* Discount Codes Dialog */}
       <DiscountCodesDialog
+        key={`codes-${codeData.viewingCodesForDeal?.id || 'none'}-${!!codeData.viewingCodesForDeal}`}
         isOpen={!!codeData.viewingCodesForDeal && !codeData.isClosingCodesDialog}
         onClose={handleCloseCodeDialog}
         deal={codeData.viewingCodesForDeal}

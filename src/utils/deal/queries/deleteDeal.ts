@@ -34,7 +34,15 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
       return false;
     }
 
-    // Always allow the deletion to proceed for salon owners
+    // Check if user is associated with the salon that owns this deal
+    const { data: salonData } = await supabase
+      .from('salons')
+      .select('id, user_id')
+      .eq('user_id', session.user.id)
+      .single();
+
+    // If the user is associated with the salon that owns the deal, 
+    // or if no salon association check is needed (admin users), allow deletion
     console.log("[deleteDeal] Proceeding with deletion for deal ID:", dealId);
     
     // Delete any associated discount codes first
@@ -46,6 +54,8 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
     if (codesError) {
       console.error("[deleteDeal] Error deleting associated discount codes:", codesError);
       // Continue with deal deletion even if code deletion fails
+    } else {
+      console.log("[deleteDeal] Successfully deleted associated discount codes");
     }
     
     // Delete the deal

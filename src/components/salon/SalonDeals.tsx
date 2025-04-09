@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { SalonDealsContent } from '@/components/salon/deals/SalonDealsContent';
 import { SalonDealsDialogs } from '@/components/salon/deals/SalonDealsDialogs';
@@ -38,6 +39,13 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
 
   const [currentSalonId, setCurrentSalonId] = useState<number | null>(null);
   
+  // Debugging state
+  const [operationLog, setOperationLog] = useState<string[]>([]);
+  const addLog = (message: string) => {
+    console.log(`[SalonDeals] ${message}`);
+    setOperationLog(prev => [...prev, `${new Date().toISOString()} - ${message}`]);
+  };
+  
   useEffect(() => {
     const fetchSalonId = async () => {
       if (salonId) {
@@ -56,7 +64,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
           .single();
           
         if (salonData?.id) {
-          console.log("[SalonDeals] Fetched salon ID:", salonData.id);
+          addLog(`Fetched salon ID: ${salonData.id}`);
           setCurrentSalonId(salonData.id);
         }
       } catch (error) {
@@ -74,41 +82,58 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
   }, [initialCreateDialogOpen, isDialogOpen, setIsDialogOpen]);
 
   const handleCloseDialog = useCallback(() => {
-    if (isSubmitting) return;
-    
-    setIsDialogOpen(false);
-    setEditingDeal(null);
-    if (onCloseCreateDialog) {
-      onCloseCreateDialog();
+    if (isSubmitting) {
+      addLog("Dialog close requested but submission in progress, ignoring");
+      return;
     }
+    
+    addLog("Closing main dialog");
+    setIsDialogOpen(false);
+    
+    // Add delay before resetting editingDeal
+    setTimeout(() => {
+      setEditingDeal(null);
+      if (onCloseCreateDialog) {
+        onCloseCreateDialog();
+      }
+    }, 300);
   }, [isSubmitting, setIsDialogOpen, setEditingDeal, onCloseCreateDialog]);
 
   const handleDeleteDeal = async () => {
-    if (!deletingDeal || isDeleting) return;
+    if (!deletingDeal || isDeleting) {
+      addLog("Delete requested but no deal selected or delete in progress");
+      return;
+    }
     
     try {
       setIsDeleting(true);
-      console.log("[SalonDeals] Deleting deal:", deletingDeal.id);
+      addLog(`Deleting deal: ${deletingDeal.id}`);
       
+      // Using the utils/deal/queries/deleteDeal function instead of hooks/salon-deals/deleteDeal
       const success = await deleteDeal(deletingDeal.id);
       
       if (success) {
-        console.log("[SalonDeals] Deal deleted successfully");
+        addLog("Deal deleted successfully");
         await dealManagement.refetch();
+      } else {
+        addLog("Delete operation returned false");
       }
     } catch (error) {
       console.error("[SalonDeals] Error deleting deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle tas bort.");
     } finally {
-      setIsDeleting(false);
-      setDeletingDeal(null);
+      // Add delay before clearing state
+      setTimeout(() => {
+        setIsDeleting(false);
+        setDeletingDeal(null);
+      }, 300);
     }
   };
 
   const handleGenerateDiscountCodes = async (deal: any, quantity: number): Promise<void> => {
     try {
       setIsGeneratingCodes(true);
-      console.log(`Generating ${quantity} discount codes for deal ${deal.id}`);
+      addLog(`Generating ${quantity} discount codes for deal ${deal.id}`);
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
       await dealManagement.refetch(); // Refresh data
     } catch (error) {
@@ -119,7 +144,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
   };
 
   const handleCreateDeal = async (values: any) => {
-    console.log("[SalonDeals] Create deal called with values:", values);
+    addLog("Create deal called with values");
     setIsSubmitting(true);
     
     try {
@@ -132,15 +157,19 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       }
       
       values.salon_id = finalSalonId;
-      console.log("[SalonDeals] Creating deal with salon ID:", finalSalonId);
+      addLog(`Creating deal with salon ID: ${finalSalonId}`);
       
       const success = await createDeal(values);
       
       if (success) {
-        console.log("[SalonDeals] Deal created successfully");
+        addLog("Deal created successfully");
         toast.success("Erbjudandet har skapats!");
         await dealManagement.refetch();
-        setIsSubmitting(false);
+        
+        // Add delay before changing state
+        setTimeout(() => {
+          setIsSubmitting(false);
+        }, 300);
         return true;
       } else {
         console.error("[SalonDeals] Failed to create deal");
@@ -163,13 +192,18 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
         isLoading={dealManagement.isLoading}
         error={dealManagement.error}
         onEdit={deal => {
+          addLog(`Edit requested for deal: ${deal.id}`);
           setEditingDeal(deal);
           setIsDialogOpen(true);
         }}
         onDelete={deal => {
+          addLog(`Delete requested for deal: ${deal.id}`);
           setDeletingDeal(deal);
         }}
-        onViewDiscountCodes={setViewingCodesForDeal}
+        onViewDiscountCodes={deal => {
+          addLog(`View codes requested for deal: ${deal.id}`);
+          setViewingCodesForDeal(deal)
+        }}
         onGenerateDiscountCodes={handleGenerateDiscountCodes}
         isGeneratingCodes={isGeneratingCodes}
       />
@@ -192,10 +226,14 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
         }}
         onUpdate={async (values) => {
           try {
-            console.log("Attempting to update deal with values:", values);
+            addLog("Update deal requested");
             setIsSubmitting(true);
             const success = await dealManagement.handleUpdate(values);
-            setIsSubmitting(false);
+            
+            // Add delay before changing state
+            setTimeout(() => {
+              setIsSubmitting(false);
+            }, 300);
             
             if (success === false) {
               const errorMsg = "Det gick inte att uppdatera erbjudandet. Kontrollera att alla fält är korrekt ifyllda.";

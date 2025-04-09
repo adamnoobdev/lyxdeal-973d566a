@@ -37,37 +37,51 @@ export const DeleteDealDialog = ({
   
   // Safe close function with state management to prevent UI freezing
   const handleClose = () => {
-    if (isDeleting || isDialogClosing) return;
+    if (isDeleting || isDialogClosing) {
+      console.log("[DeleteDealDialog] Already closing or deleting, skipping close request");
+      return;
+    }
     
+    console.log("[DeleteDealDialog] Starting controlled close sequence");
     setIsDialogClosing(true);
+    
     // Small delay to allow state to update before calling onClose
     setTimeout(() => {
+      console.log("[DeleteDealDialog] Executing onClose callback");
       onClose();
-      // Reset state after closing
+      
+      // Reset state after closing with a slight delay
       setTimeout(() => {
+        console.log("[DeleteDealDialog] Resetting dialog closing state");
         setIsDialogClosing(false);
-      }, 50);
-    }, 10);
+      }, 300);
+    }, 100);
   };
   
   // Controlled delete with state tracking
   const handleDelete = async () => {
-    if (isDeleting || isDialogClosing) return;
+    if (isDeleting || isDialogClosing) {
+      console.log("[DeleteDealDialog] Already deleting or closing, skipping delete request");
+      return;
+    }
     
     try {
+      console.log("[DeleteDealDialog] Starting deletion process");
       setIsDeleting(true);
       await onConfirm();
+      console.log("[DeleteDealDialog] Deletion completed, closing dialog");
       handleClose();
     } catch (error) {
-      console.error("Error during delete:", error);
+      console.error("[DeleteDealDialog] Error during delete:", error);
       setIsDeleting(false);
     }
   };
 
   return (
     <AlertDialog 
-      open={isOpen} 
+      open={isOpen && !isDialogClosing} 
       onOpenChange={(open) => {
+        console.log("[DeleteDealDialog] Dialog state changed to:", open);
         if (!open && !isDeleting && !isDialogClosing) {
           handleClose();
         }
