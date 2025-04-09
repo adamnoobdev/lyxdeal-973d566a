@@ -13,6 +13,17 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       return false;
     }
     
+    // Ensure required fields are present
+    if (!values.category) {
+      console.error("[createDeal hook] Missing category");
+      return false;
+    }
+    
+    if (!values.city) {
+      console.error("[createDeal hook] Missing city");
+      return false;
+    }
+    
     // Prepare data for insertion
     const { expirationDate, ...rest } = values;
     const dealData = {
@@ -25,7 +36,10 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
       quantity_left: parseInt(values.quantity || '10', 10),
       created_at: new Date().toISOString(),
       // Add time_remaining field as it's required by the database schema
-      time_remaining: ''
+      time_remaining: '',
+      // Ensure these fields are explicitly set and not optional
+      category: values.category,
+      city: values.city
     };
     
     // Insert deal

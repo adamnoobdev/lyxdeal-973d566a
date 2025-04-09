@@ -112,9 +112,24 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
       
       isCreatingDeal.current = true;
       
-      // Convert salonId from string to number if needed
+      // Set salon_id if needed
       if (salonId && !values.salon_id) {
         values.salon_id = parseInt(salonId, 10);
+      }
+      
+      // Ensure required fields are set
+      if (!values.category) {
+        console.error("[useSalonDealsManagement] Missing category");
+        toast.error("Kategori är obligatoriskt");
+        isCreatingDeal.current = false;
+        return false;
+      }
+      
+      if (!values.city) {
+        console.error("[useSalonDealsManagement] Missing city");
+        toast.error("Stad är obligatoriskt");
+        isCreatingDeal.current = false;
+        return false;
       }
       
       // Call the createDeal API function with only the values parameter

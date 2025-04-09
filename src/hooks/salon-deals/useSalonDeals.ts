@@ -21,7 +21,16 @@ export const useSalonDeals = (
 
   const handleCreateDeal = async (values: FormValues): Promise<boolean> => {
     // Set salon_id in the values object before creating deal
-    const updatedValues = { ...values, salon_id: salonId };
+    if (!salonId && !values.salon_id) {
+      console.error("[useSalonDeals] No salon ID available");
+      return false;
+    }
+    
+    const updatedValues = { 
+      ...values, 
+      salon_id: values.salon_id || salonId 
+    };
+    
     const success = await createDeal(updatedValues);
     if (success) {
       await refetch();
