@@ -31,9 +31,13 @@ export const createDeal = async (values: FormValues): Promise<boolean> => {
     
     // Prepare data for insertion
     const { expirationDate, ...rest } = values;
+    
+    // Convert Date to ISO string for database
+    const expirationDateString = expirationDate ? expirationDate.toISOString() : null;
+    
     const dealData = {
       ...rest,
-      expiration_date: expirationDate,
+      expiration_date: expirationDateString,
       original_price: parseFloat(values.originalPrice),
       discounted_price: parseFloat(values.discountedPrice),
       image_url: values.imageUrl,
