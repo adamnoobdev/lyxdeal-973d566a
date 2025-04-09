@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SalonDealsContent } from '@/components/salon/deals/SalonDealsContent';
 import { SalonDealsDialogs } from '@/components/salon/deals/SalonDealsDialogs';
 import { useSalonDealsState } from '@/components/salon/deals/useSalonDealsState';
@@ -36,15 +35,39 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deletingDeal, setDeletingDeal] = useState<any>(null);
-
   const [currentSalonId, setCurrentSalonId] = useState<number | null>(null);
   
-  // Debugging state
-  const [operationLog, setOperationLog] = useState<string[]>([]);
-  const addLog = (message: string) => {
-    console.log(`[SalonDeals] ${message}`);
-    setOperationLog(prev => [...prev, `${new Date().toISOString()} - ${message}`]);
+  const isMountedRef = useRef(true);
+  const deleteInProgressRef = useRef(false);
+  const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  
+  const safeTimeout = (callback: () => void, delay: number) => {
+    const timeout = setTimeout(() => {
+      if (isMountedRef.current) {
+        callback();
+      }
+    }, delay);
+    timeoutsRef.current.push(timeout);
+    return timeout;
   };
+  
+  const [operationLog, setOperationLog] = useState<string[]>([]);
+  const addLog = useCallback((message: string) => {
+    console.log(`[SalonDeals] ${message}`);
+    if (isMountedRef.current) {
+      setOperationLog(prev => [...prev, `${new Date().toISOString()} - ${message}`]);
+    }
+  }, []);
+  
+  useEffect(() => {
+    isMountedRef.current = true;
+    
+    return () => {
+      isMountedRef.current = false;
+      timeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+      timeoutsRef.current = [];
+    };
+  }, []);
   
   useEffect(() => {
     const fetchSalonId = async () => {
@@ -73,7 +96,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
     };
     
     fetchSalonId();
-  }, [salonId]);
+  }, [salonId, addLog]);
 
   useEffect(() => {
     if (initialCreateDialogOpen && !isDialogOpen) {
@@ -90,26 +113,26 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
     addLog("Closing main dialog");
     setIsDialogOpen(false);
     
-    // Add delay before resetting editingDeal
-    setTimeout(() => {
+    safeTimeout(() => {
       setEditingDeal(null);
       if (onCloseCreateDialog) {
         onCloseCreateDialog();
       }
     }, 300);
-  }, [isSubmitting, setIsDialogOpen, setEditingDeal, onCloseCreateDialog]);
+  }, [isSubmitting, setIsDialogOpen, setEditingDeal, onCloseCreateDialog, addLog]);
 
-  const handleDeleteDeal = async () => {
-    if (!deletingDeal || isDeleting) {
-      addLog("Delete requested but no deal selected or delete in progress");
+  const handleDeleteDeal = useCallback(async () => {
+    if (!deletingDeal || isDeleting || deleteInProgressRef.current) {
+      addLog("Delete requested but no deal selected or delete already in progress");
       return;
     }
     
     try {
       setIsDeleting(true);
+      deleteInProgressRef.current = true;
+      
       addLog(`Deleting deal: ${deletingDeal.id}`);
       
-      // Using the utils/deal/queries/deleteDeal function instead of hooks/salon-deals/deleteDeal
       const success = await deleteDeal(deletingDeal.id);
       
       if (success) {
@@ -122,13 +145,15 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       console.error("[SalonDeals] Error deleting deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle tas bort.");
     } finally {
-      // Add delay before clearing state
-      setTimeout(() => {
-        setIsDeleting(false);
-        setDeletingDeal(null);
+      safeTimeout(() => {
+        if (isMountedRef.current) {
+          setIsDeleting(false);
+          setDeletingDeal(null);
+          deleteInProgressRef.current = false;
+        }
       }, 300);
     }
-  };
+  }, [deletingDeal, isDeleting, dealManagement, addLog]);
 
   const handleGenerateDiscountCodes = async (deal: any, quantity: number): Promise<void> => {
     try {
@@ -166,8 +191,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
         toast.success("Erbjudandet har skapats!");
         await dealManagement.refetch();
         
-        // Add delay before changing state
-        setTimeout(() => {
+        safeTimeout(() => {
           setIsSubmitting(false);
         }, 300);
         return true;
@@ -230,9 +254,10 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
             setIsSubmitting(true);
             const success = await dealManagement.handleUpdate(values);
             
-            // Add delay before changing state
-            setTimeout(() => {
-              setIsSubmitting(false);
+            safeTimeout(() => {
+              if (isMountedRef.current) {
+                setIsSubmitting(false);
+              }
             }, 300);
             
             if (success === false) {
@@ -249,7 +274,13 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
             const errorMsg = "Ett fel uppstod när erbjudandet skulle uppdateras";
             toast.error(errorMsg);
             setLastError(errorMsg);
-            setIsSubmitting(false);
+            
+            safeTimeout(() => {
+              if (isMountedRef.current) {
+                setIsSubmitting(false);
+              }
+            }, 100);
+            
             return false;
           }
         }}
