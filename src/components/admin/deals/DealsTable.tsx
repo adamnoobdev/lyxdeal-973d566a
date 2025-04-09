@@ -1,22 +1,8 @@
-
 import {
   ChevronDown,
   ChevronUp,
-  CircleDollarSign,
-  Copy,
-  Edit,
-  Eye,
-  MoreHorizontal,
-  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -66,10 +52,8 @@ export const DealsTable: React.FC<DealsTableProps> = ({
 
   const handleSort = (column: keyof Deal) => {
     if (sortBy === column) {
-      // Toggle sort order if the same column is clicked again
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      // Set the new column and default sort order to ascending
       setSortBy(column);
       setSortOrder("asc");
     }
@@ -92,7 +76,6 @@ export const DealsTable: React.FC<DealsTableProps> = ({
     return 0;
   });
 
-  // Show the status column based on deal status values
   const showStatusColumn = deals.some(deal => deal.status === 'pending' || deal.status === 'rejected');
 
   return (
@@ -160,8 +143,7 @@ export const DealsTable: React.FC<DealsTableProps> = ({
                 </span>
               </TableCell>
             )}
-            {/* Actions cell */}
-            <TableCell className="text-right w-32 sm:w-48 pr-3 whitespace-nowrap">
+            <TableCell className="text-right w-32 sm:w-48 pr-3">
               <DealActions
                 onEdit={onEdit ? () => onEdit(deal) : undefined}
                 onDelete={onDelete ? () => onDelete(deal) : undefined}

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, Edit, Eye, MoreHorizontal, Plus, Tag, Trash, X } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { BaseActionProps, DiscountCodeActionProps, ToggleActiveActionProps } from "./types";
 
 type DropdownActionsProps = BaseActionProps & ToggleActiveActionProps & DiscountCodeActionProps & {
@@ -50,56 +50,57 @@ export const DropdownActions = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Öppna meny</span>
-          <MoreHorizontal className="h-4 w-4" />
+        <Button 
+          variant="outline" 
+          className="bg-white border-gray-300 hover:bg-gray-50 focus:ring-primary text-sm"
+        >
+          Åtgärder <ChevronDown className="ml-1 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[160px]">
-        <DropdownMenuLabel>Åtgärder</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="bg-white shadow-md border-gray-200 min-w-[180px] z-[9999]">
+        <DropdownMenuLabel className="font-medium text-gray-700">Alternativ</DropdownMenuLabel>
         
         {onPreview && (
-          <DropdownMenuItem onClick={onPreview}>
-            <Eye className="mr-2 h-4 w-4" />
+          <DropdownMenuItem onClick={onPreview} className="text-sm hover:bg-gray-100">
             Förhandsgranska
           </DropdownMenuItem>
         )}
         
         {onEdit && (
-          <DropdownMenuItem onClick={onEdit}>
-            <Edit className="mr-2 h-4 w-4" />
+          <DropdownMenuItem onClick={onEdit} className="text-sm hover:bg-gray-100">
             Redigera
           </DropdownMenuItem>
         )}
         
         {onDelete && (
-          <DropdownMenuItem onClick={onDelete} className="text-red-600">
-            <Trash className="mr-2 h-4 w-4" />
+          <DropdownMenuItem 
+            onClick={onDelete} 
+            className="text-sm text-red-600 font-medium hover:bg-red-50"
+          >
             Ta bort
           </DropdownMenuItem>
         )}
         
         {onToggleActive && (
-          <DropdownMenuItem onClick={handleToggleActive} disabled={isTogglingActive}>
-            {isActive ? (
-              <>
-                <X className="mr-2 h-4 w-4" />
-                Inaktivera
-              </>
-            ) : (
-              <>
-                <Check className="mr-2 h-4 w-4" />
-                Aktivera
-              </>
-            )}
+          <DropdownMenuItem 
+            onClick={handleToggleActive} 
+            disabled={isTogglingActive} 
+            className={isActive ? 
+              "text-sm text-red-600 font-medium hover:bg-red-50" : 
+              "text-sm text-green-600 font-medium hover:bg-green-50"
+            }
+          >
+            {isActive ? "Inaktivera" : "Aktivera"}
           </DropdownMenuItem>
         )}
 
         {(onViewDiscountCodes || onGenerateDiscountCodes) && <DropdownMenuSeparator />}
         
         {onViewDiscountCodes && (
-          <DropdownMenuItem onClick={onViewDiscountCodes}>
-            <Tag className="mr-2 h-4 w-4" />
+          <DropdownMenuItem 
+            onClick={onViewDiscountCodes}
+            className="text-sm text-teal-600 font-medium hover:bg-teal-50"
+          >
             Visa rabattkoder
           </DropdownMenuItem>
         )}
@@ -108,9 +109,9 @@ export const DropdownActions = ({
           <DropdownMenuItem 
             onClick={handleGenerateDiscountCodes}
             disabled={isGeneratingCodes}
+            className="text-sm text-primary font-medium hover:bg-primary-50"
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Generera nya koder
+            {isGeneratingCodes ? "Genererar..." : "Generera nya koder"}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

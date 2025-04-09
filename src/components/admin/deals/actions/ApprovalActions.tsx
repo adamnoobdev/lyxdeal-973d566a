@@ -1,8 +1,15 @@
 
-import { Check, Edit, Eye, Trash2, X } from "lucide-react";
-import { ApprovalActionProps } from "./types";
-import { ActionButton } from "./ActionButton";
 import { useState } from "react";
+import { ApprovalActionProps } from "./types";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 export const ApprovalActions = ({ 
   onEdit, 
@@ -37,49 +44,59 @@ export const ApprovalActions = ({
   };
 
   return (
-    <div className="flex items-center gap-1">
-      <ActionButton
-        onClick={onPreview}
-        title="Förhandsgranska erbjudande"
-      >
-        <Eye className="h-4 w-4" />
-      </ActionButton>
-
-      <ActionButton
-        onClick={onEdit}
-        title="Redigera erbjudande"
-      >
-        <Edit className="h-4 w-4" />
-      </ActionButton>
-
-      <ActionButton
-        variant="default"
-        onClick={handleApprove}
-        loading={isApproving}
-        className="h-8 w-8 bg-green-600 hover:bg-green-700"
-        title="Godkänn erbjudande"
-      >
-        <Check className="h-4 w-4" />
-      </ActionButton>
-
-      <ActionButton
-        onClick={handleReject}
-        loading={isRejecting}
-        className="h-8 w-8 text-red-500 hover:bg-red-50 hover:text-red-600 border-red-200"
-        title="Neka erbjudande"
-      >
-        <X className="h-4 w-4" />
-      </ActionButton>
-      
-      {onDelete && (
-        <ActionButton
-          onClick={onDelete}
-          className="h-8 w-8 text-red-600 hover:bg-red-50"
-          title="Ta bort erbjudande"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="outline" 
+          className="bg-white border-gray-300 hover:bg-gray-50 focus:ring-primary text-sm"
         >
-          <Trash2 className="h-4 w-4" />
-        </ActionButton>
-      )}
-    </div>
+          Åtgärder <ChevronDown className="ml-1 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="bg-white shadow-md border-gray-200 min-w-[180px] z-[9999]">
+        <DropdownMenuLabel className="font-medium text-gray-700">Alternativ</DropdownMenuLabel>
+        
+        {onPreview && (
+          <DropdownMenuItem onClick={onPreview} className="text-sm hover:bg-gray-100">
+            Förhandsgranska
+          </DropdownMenuItem>
+        )}
+
+        {onEdit && (
+          <DropdownMenuItem onClick={onEdit} className="text-sm hover:bg-gray-100">
+            Redigera
+          </DropdownMenuItem>
+        )}
+
+        {onApprove && (
+          <DropdownMenuItem 
+            onClick={handleApprove} 
+            disabled={isApproving} 
+            className="text-sm text-green-600 font-medium hover:bg-green-50"
+          >
+            {isApproving ? "Godkänner..." : "Godkänn"}
+          </DropdownMenuItem>
+        )}
+
+        {onReject && (
+          <DropdownMenuItem 
+            onClick={handleReject} 
+            disabled={isRejecting} 
+            className="text-sm text-red-600 font-medium hover:bg-red-50"
+          >
+            {isRejecting ? "Nekar..." : "Neka"}
+          </DropdownMenuItem>
+        )}
+        
+        {onDelete && (
+          <DropdownMenuItem 
+            onClick={onDelete}
+            className="text-sm text-red-600 font-medium hover:bg-red-50"
+          >
+            Ta bort
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
