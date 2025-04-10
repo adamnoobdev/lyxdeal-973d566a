@@ -32,20 +32,23 @@ export const useDealsListActions = (
       
       if (success) {
         console.log("[DealsListActions] Deal deletion successful");
-        // Wait a brief moment before refetching to allow state updates
+        // Wait a longer moment before refetching to ensure server state has updated
         setTimeout(async () => {
-          await refetch();
-        }, 300);
+          if (refetch) {
+            await refetch();
+          }
+          // Reset deletion state after refetch completes
+          setTimeout(() => {
+            isDeletingDealRef.current = false;
+          }, 300);
+        }, 500);
       } else {
         console.error("[DealsListActions] Deal deletion failed");
+        isDeletingDealRef.current = false;
       }
     } catch (error) {
       console.error("[DealsListActions] Error in deal deletion flow:", error);
-    } finally {
-      // Small timeout to ensure UI updates complete before resetting deletion state
-      setTimeout(() => {
-        isDeletingDealRef.current = false;
-      }, 300);
+      isDeletingDealRef.current = false;
     }
   }, [refetch]);
 

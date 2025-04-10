@@ -17,7 +17,7 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
     }
     
     // Ta bort erbjudandet efter en kort fördröjning för att undvika race conditions
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 300));
     
     const { error } = await supabase
       .from('deals')

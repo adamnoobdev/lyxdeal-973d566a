@@ -82,9 +82,13 @@ export const DeleteDealDialog = ({
       
       await onConfirm();
       
-      if (isMountedRef.current) {
-        handleClose();
-      }
+      // Förhindra ytterligare interaktioner genom att sätta en kort timeout
+      // innan dialogrutan stängs för att förhindra frysning
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          handleClose();
+        }
+      }, 300);
     } catch (error) {
       console.error("[DeleteDealDialog] Error during delete:", error);
       if (isMountedRef.current) {

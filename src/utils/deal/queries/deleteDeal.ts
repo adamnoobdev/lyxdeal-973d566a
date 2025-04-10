@@ -24,6 +24,9 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
       console.log("[deleteDeal] Successfully deleted associated discount codes");
     }
     
+    // Add a small delay to ensure the discount code deletion completes fully
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     // Delete the deal
     console.log("[deleteDeal] Deleting deal:", dealId);
     const { error: deleteError } = await supabase

@@ -33,17 +33,6 @@ export const removeAllDiscountCodes = async (dealId?: string | number): Promise<
     
     console.log('[removeAllDiscountCodes] Successfully removed all discount codes');
     
-    // Verifiera att alla koder verkligen togs bort
-    const { data, error: verifyError } = await supabase
-      .from('discount_codes')
-      .select('count', { count: 'exact', head: true });
-      
-    if (verifyError) {
-      console.error('[removeAllDiscountCodes] Error verifying removal:', verifyError);
-    } else {
-      console.log('[removeAllDiscountCodes] Verification complete, remaining codes:', data);
-    }
-    
     return true;
   } catch (error) {
     console.error('[removeAllDiscountCodes] Exception removing discount codes:', error);
