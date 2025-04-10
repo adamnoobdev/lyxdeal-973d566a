@@ -56,12 +56,16 @@ export const updateSalonData = async (values: any, id: number) => {
     
     // CRITICAL: Always include subscription fields in the update
     // The subscription_plan and subscription_type must always be included
-    updateValues.subscription_plan = values.subscriptionPlan;
-    updateValues.subscription_type = values.subscriptionType;
+    console.log("Setting subscription values in updateValues:", {
+      plan: values.subscriptionPlan,
+      type: values.subscriptionType,
+      skipSubscription: values.skipSubscription
+    });
     
-    console.log("Subscription plan to update:", values.subscriptionPlan);
-    console.log("Subscription type to update:", values.subscriptionType);
-    console.log("Final update values:", JSON.stringify(updateValues, null, 2));
+    updateValues.subscription_plan = values.subscriptionPlan || "Baspaket";
+    updateValues.subscription_type = values.subscriptionType || "monthly";
+    
+    console.log("Final update values to send to database:", JSON.stringify(updateValues, null, 2));
 
     // If a new password is provided, update it via auth admin API
     if (values.password) {

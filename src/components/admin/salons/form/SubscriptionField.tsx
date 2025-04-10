@@ -25,12 +25,12 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
     // This is critical for admin-created salons to have proper plan restrictions
     if (!subscriptionPlan) {
       console.log("SubscriptionField: Setting default subscription plan to Baspaket");
-      form.setValue("subscriptionPlan", "Baspaket", { shouldValidate: true });
+      form.setValue("subscriptionPlan", "Baspaket", { shouldValidate: true, shouldDirty: true });
     }
     
     if (!subscriptionType) {
       console.log("SubscriptionField: Setting default subscription type to monthly");
-      form.setValue("subscriptionType", "monthly", { shouldValidate: true });
+      form.setValue("subscriptionType", "monthly", { shouldValidate: true, shouldDirty: true });
     }
     
     // Additional debugging to track values
@@ -54,6 +54,9 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
                 onCheckedChange={(checked) => {
                   console.log("Skip subscription checkbox changed to:", checked);
                   field.onChange(checked);
+                  
+                  // När vi aktiverar/inaktiverar skipSubscription, se till att formuläret markeras som ändrat
+                  form.setValue("skipSubscription", !!checked, { shouldDirty: true });
                 }}
               />
             </FormControl>
@@ -89,6 +92,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
               onValueChange={(value) => {
                 console.log("Subscription plan selected:", value);
                 field.onChange(value);
+                // Markera explicit som ändrat för att säkerställa att det sparas
                 form.setValue("subscriptionPlan", value, { shouldValidate: true, shouldDirty: true });
               }} 
               value={field.value || "Baspaket"}
@@ -126,6 +130,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
                 onValueChange={(value) => {
                   console.log("Subscription type selected:", value);
                   field.onChange(value);
+                  // Markera explicit som ändrat för att säkerställa att det sparas
                   form.setValue("subscriptionType", value, { shouldValidate: true, shouldDirty: true });
                 }} 
                 value={field.value || "monthly"}

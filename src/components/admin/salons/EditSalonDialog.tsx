@@ -11,7 +11,6 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { SubscriptionUpdateButton } from "./subscription/SubscriptionUpdateButton";
-import { useForm } from "react-hook-form";
 
 interface EditSalonDialogProps {
   isOpen: boolean;
@@ -111,6 +110,7 @@ export const EditSalonDialog = ({
         values.address = values.fullAddress;
       }
       
+      // Kontrollera och säkerställ prenumerationsplanen
       if (!values.subscriptionPlan) {
         console.log("[EditSalonDialog] WARNING: Missing subscriptionPlan, using default");
         values.subscriptionPlan = "Baspaket";
@@ -123,7 +123,8 @@ export const EditSalonDialog = ({
       
       console.log("[EditSalonDialog] Final subscription values:", {
         plan: values.subscriptionPlan,
-        type: values.subscriptionType
+        type: values.subscriptionType,
+        skipSubscription: values.skipSubscription || false
       });
       
       await onSubmit(values);
@@ -213,12 +214,12 @@ export const EditSalonDialog = ({
               }, null, 2)}
             </pre>
             
-            {initialValues.id && initialValues.subscriptionPlan && initialValues.subscriptionType && (
+            {initialValues.id && (
               <div className="mt-3">
                 <SubscriptionUpdateButton 
                   salonId={initialValues.id} 
-                  currentPlan={initialValues.subscriptionPlan}
-                  currentType={initialValues.subscriptionType}
+                  currentPlan={initialValues.subscriptionPlan || "Baspaket"}
+                  currentType={initialValues.subscriptionType || "monthly"}
                   onSuccess={handleSubscriptionUpdated}
                 />
                 <p className="text-xs mt-2 text-gray-500">
