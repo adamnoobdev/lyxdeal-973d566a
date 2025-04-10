@@ -54,6 +54,17 @@ export const updateSalonData = async (values: any, id: number) => {
       updateValues.privacy_accepted = values.privacyAccepted;
     }
     
+    // Add subscription plan fields if provided (crucial for admin-created salons)
+    if (values.subscriptionPlan) {
+      updateValues.subscription_plan = values.subscriptionPlan;
+      console.log("Updating subscription plan to:", values.subscriptionPlan);
+    }
+    
+    if (values.subscriptionType) {
+      updateValues.subscription_type = values.subscriptionType;
+      console.log("Updating subscription type to:", values.subscriptionType);
+    }
+    
     console.log("Updating salon with processed values:", updateValues);
 
     // If a new password is provided, update it via auth admin API
