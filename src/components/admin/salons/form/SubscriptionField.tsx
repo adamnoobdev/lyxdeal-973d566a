@@ -13,16 +13,22 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
   // Watch skipSubscription to react to changes
   const skipSubscription = form.watch("skipSubscription");
   const subscriptionPlan = form.watch("subscriptionPlan");
+  const subscriptionType = form.watch("subscriptionType");
   
   // Ensure that when skipSubscription is toggled, we still maintain a valid subscription plan
   useEffect(() => {
-    // If no subscription plan is set, default to Baspaket
+    // Always ensure valid subscription values regardless of skipSubscription
     // This is critical for admin-created salons to have proper plan restrictions
     if (!subscriptionPlan) {
       console.log("Setting default subscription plan to Baspaket");
-      form.setValue("subscriptionPlan", "Baspaket");
+      form.setValue("subscriptionPlan", "Baspaket", { shouldValidate: true });
     }
-  }, [skipSubscription, subscriptionPlan, form]);
+    
+    if (!subscriptionType) {
+      console.log("Setting default subscription type to monthly");
+      form.setValue("subscriptionType", "monthly", { shouldValidate: true });
+    }
+  }, [skipSubscription, subscriptionPlan, subscriptionType, form]);
 
   return (
     <div className="space-y-6">

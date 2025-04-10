@@ -18,16 +18,8 @@ export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
   
   console.log("Preparing salon for edit:", salon);
   
-  // CRITICAL FIX: Always provide subscription fields with proper defaults
-  // This ensures subscription data is always included regardless of how the salon was created
-  const subscriptionPlan = salon.subscription_plan || "Baspaket";
-  const subscriptionType = salon.subscription_type || "monthly";
-  
-  console.log("Using subscription values:", { 
-    subscriptionPlan, 
-    subscriptionType 
-  });
-  
+  // Always use these default values if the salon doesn't have subscription data
+  // This handles edge cases where salons were created with skipSubscription=true
   return {
     name: salon.name || "",
     email: salon.email || "",
@@ -35,7 +27,7 @@ export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
     address: salon.address || "",
     termsAccepted: salon.terms_accepted ?? true,
     privacyAccepted: salon.privacy_accepted ?? true,
-    subscriptionPlan: subscriptionPlan,
-    subscriptionType: subscriptionType,
+    subscriptionPlan: salon.subscription_plan || "Baspaket",
+    subscriptionType: salon.subscription_type || "monthly",
   };
 };

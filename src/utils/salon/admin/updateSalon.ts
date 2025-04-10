@@ -54,17 +54,13 @@ export const updateSalonData = async (values: any, id: number) => {
       updateValues.privacy_accepted = values.privacyAccepted;
     }
     
-    // CRITICAL FIX: Always process subscription fields when provided
-    // regardless of how the salon was created (with skipSubscription or not)
-    if (values.subscriptionPlan) {
-      updateValues.subscription_plan = values.subscriptionPlan;
-      console.log("Updating subscription plan to:", values.subscriptionPlan);
-    }
+    // CRITICAL FIX: Always include subscription fields in the update
+    // No conditions should prevent these from being updated
+    updateValues.subscription_plan = values.subscriptionPlan || "Baspaket";
+    updateValues.subscription_type = values.subscriptionType || "monthly";
     
-    if (values.subscriptionType) {
-      updateValues.subscription_type = values.subscriptionType;
-      console.log("Updating subscription type to:", values.subscriptionType);
-    }
+    console.log("Updating subscription plan to:", updateValues.subscription_plan);
+    console.log("Updating subscription type to:", updateValues.subscription_type);
     
     console.log("Updating salon with processed values:", updateValues);
 

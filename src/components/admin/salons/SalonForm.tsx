@@ -21,8 +21,9 @@ const formSchema = z.object({
   address: z.string().optional(),
   password: z.string().optional(),
   skipSubscription: z.boolean().optional().default(false),
-  subscriptionPlan: z.string(),
-  subscriptionType: z.string(),
+  // Always require subscription fields
+  subscriptionPlan: z.string().min(1, { message: "Prenumerationsplan krävs" }),
+  subscriptionType: z.string().min(1, { message: "Betalningsintervall krävs" }),
   termsAccepted: z.boolean().optional().default(true),
   privacyAccepted: z.boolean().optional().default(true),
 });
@@ -75,7 +76,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
     
     setInternalIsSubmitting(true);
     try {
-      // Make sure subscription fields are always included in the submitted values
+      // Always ensure subscription data is included, no conditionals
       const submissionValues = {
         ...values,
         subscriptionPlan: values.subscriptionPlan || "Baspaket",

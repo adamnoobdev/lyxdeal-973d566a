@@ -29,6 +29,13 @@ export const EditSalonDialog = ({
   const initialRenderRef = useRef(true);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Log initial values when they change
+  useEffect(() => {
+    if (initialValues) {
+      console.log("EditSalonDialog received initialValues:", initialValues);
+    }
+  }, [initialValues]);
+
   // Ensure component is mounted
   useEffect(() => {
     setIsMounted(true);
@@ -93,7 +100,7 @@ export const EditSalonDialog = ({
     }, 200);
   };
 
-  // Handle form submission with improved state management
+  // Handle form submission with improved state management and subscription field handling
   const handleSubmit = async (values: any) => {
     if (isSubmitting || !isMounted) return;
     
@@ -106,7 +113,16 @@ export const EditSalonDialog = ({
         values.address = values.fullAddress;
       }
       
-      await onSubmit(values);
+      // Always ensure subscription fields are included, no conditionals
+      const submissionValues = {
+        ...values,
+        subscriptionPlan: values.subscriptionPlan || "Baspaket",
+        subscriptionType: values.subscriptionType || "monthly",
+      };
+      
+      console.log("[EditSalonDialog] Submitting with final values:", submissionValues);
+      
+      await onSubmit(submissionValues);
       
       if (isMounted) {
         toast.success("Salonginformationen har uppdaterats");

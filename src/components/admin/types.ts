@@ -1,4 +1,3 @@
-
 // Befintliga importeringar behålls
 import { Deal } from "@/types/deal";
 
@@ -21,7 +20,7 @@ export interface Salon {
   subscription_type?: string;
 }
 
-// Update SalonFormValues interface to include subscription fields
+// Update SalonFormValues interface to include required subscription fields
 export interface SalonFormValues {
   name: string;
   email?: string;
@@ -29,11 +28,10 @@ export interface SalonFormValues {
   address?: string;
   termsAccepted?: boolean;
   privacyAccepted?: boolean;
-  subscriptionPlan: string;
-  subscriptionType: string;
+  subscriptionPlan: string;  // Always required
+  subscriptionType: string;  // Always required
 }
 
-// Resten av filen behålls som den är
 export interface CategorizedDeals {
   all: Deal[];
   active: Deal[];

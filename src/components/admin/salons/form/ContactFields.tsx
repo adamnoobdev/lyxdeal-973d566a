@@ -12,7 +12,7 @@ interface ContactFieldsProps {
   includeSubscriptionFields?: boolean;
 }
 
-export const ContactFields = ({ form, includeSubscriptionFields = false }: ContactFieldsProps) => {
+export const ContactFields = ({ form }: ContactFieldsProps) => {
   // Handle address change from Mapbox component
   const handleAddressChange = (value: string, parts?: AddressParts) => {
     form.setValue("address", value, { shouldValidate: true });
@@ -24,6 +24,13 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
       form.setValue("city", parts.city || "", { shouldValidate: false });
     }
   };
+
+  // Force watch subscription fields to make sure they're included in the form submission
+  const subscriptionPlan = form.watch("subscriptionPlan") || "Baspaket";
+  const subscriptionType = form.watch("subscriptionType") || "monthly";
+  
+  // Log current values when component updates
+  console.log("Current subscription values:", { subscriptionPlan, subscriptionType });
 
   return (
     <div className="space-y-4">
@@ -62,7 +69,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
         )}
       />
 
-      {/* Always show subscription fields in admin edit form */}
+      {/* Always show subscription fields in edit form */}
       <div className="space-y-4">
         <FormField
           control={form.control}
@@ -73,6 +80,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
               <Select 
                 onValueChange={field.onChange} 
                 value={field.value || "Baspaket"}
+                defaultValue="Baspaket"
               >
                 <FormControl>
                   <SelectTrigger className="w-full">
@@ -101,6 +109,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
               <Select 
                 onValueChange={field.onChange} 
                 value={field.value || "monthly"}
+                defaultValue="monthly"
               >
                 <FormControl>
                   <SelectTrigger className="w-full">
