@@ -28,3 +28,6 @@ pop3_port = 54327
 [functions]
 [functions.stripe-subscription-webhook]
 verify_jwt = false
+
+[functions.send-discount-email]
+verify_jwt = false

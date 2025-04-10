@@ -32,6 +32,16 @@ export const sendDiscountCodeEmail = async (
       console.error("[sendDiscountCodeEmail] Empty discount code provided");
       return { success: false, error: "Empty discount code" };
     }
+
+    // Lägg till detaljerad loggning av invokationen
+    console.log(`[sendDiscountCodeEmail] Calling edge function with parameters:`, {
+      email: email.substring(0, 3) + '***', // Dölj fullständig e-post i loggen
+      name,
+      phoneLength: phone?.length || 0,
+      codeLength: code?.length || 0,
+      dealTitle,
+      hasBookingUrl: !!bookingUrl
+    });
     
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
       body: {

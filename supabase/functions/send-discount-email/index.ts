@@ -7,6 +7,15 @@ serve(async (req) => {
   // Förbättrad loggning för felsökning
   console.log(`Mottog ${req.method} förfrågan till send-discount-email funktionen`);
   
+  // Hantera CORS preflight-förfrågningar
+  if (req.method === "OPTIONS") {
+    console.log("Svarar på CORS preflight-förfrågan");
+    return new Response(null, {
+      headers: corsHeaders,
+      status: 204, // Använd 204 No Content för OPTIONS-svar
+    });
+  }
+
   try {
     const headers = Object.fromEntries(req.headers.entries());
     const logHeaders = { ...headers };
@@ -86,20 +95,18 @@ serve(async (req) => {
   } catch (e) {
     console.error("Could not log headers:", e);
   }
-  
-  // Hantera CORS preflight-förfrågningar
-  if (req.method === "OPTIONS") {
-    console.log("Svarar på CORS preflight-förfrågan");
-    return new Response(null, {
-      headers: corsHeaders,
-    });
-  }
 
   try {
     // Bearbeta förfrågan och skicka mejlet
     console.log("Bearbetar mejlförfrågan");
     const response = await requestHandler(req);
     console.log(`Förfrågan bearbetad, status: ${response.status}`);
+    
+    // Lägg till CORS headers till svaret
+    const responseHeaders = new Headers(response.headers);
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      responseHeaders.set(key, value);
+    });
     
     // Logga svaret för debugging
     try {
@@ -110,7 +117,12 @@ serve(async (req) => {
       console.warn("Could not log response body:", e.message);
     }
     
-    return response;
+    // Returnera svaret med CORS headers
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: responseHeaders,
+    });
   } catch (error) {
     console.error("Fel i send-discount-email funktionen:", error);
     console.error("Stack trace:", error.stack);
