@@ -12,9 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useEffect } from "react";
 import { LoadingButton } from "@/components/ui/loading-button";
 
 // Validera svenskt mobilnummer (börjar med 07)
@@ -50,16 +48,7 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
     mode: "onBlur", // Validera vid blur för bättre användarupplevelse
   });
 
-  // Hjälpfunktion för att debugga formuläret
-  useEffect(() => {
-    const subscription = form.watch(() => {
-      console.log("Form values changed:", form.getValues());
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
-
   const handleSubmit = async (values: SecureFormValues) => {
-    console.log("Form submitted with values:", values);
     try {
       await onSubmit(values);
     } catch (error) {

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Hook for checking if a user has already claimed a deal
+ * Hook för att kontrollera om en användare redan har säkrat ett erbjudande
  */
 export const useClaimCheck = (dealId: number) => {
   const [hasAlreadyClaimed, setHasAlreadyClaimed] = useState(false);
@@ -13,7 +13,8 @@ export const useClaimCheck = (dealId: number) => {
     const checkIfAlreadyClaimed = async () => {
       try {
         setIsCheckingClaim(true);
-        // Kolla om det finns tidigare anspråk baserat på IP/browser fingerprint
+        
+        // Kontrollera lokalt sparade anspråk först (snabbare)
         const storedClaims = localStorage.getItem('claimed_deals') || '[]';
         const claimedDeals = JSON.parse(storedClaims);
         
@@ -23,7 +24,7 @@ export const useClaimCheck = (dealId: number) => {
           return;
         }
 
-        // Kolla även i databasen efter tidigare anspråk
+        // Om inget lokalt anspråk, kolla databasen
         const { data: existingClaims, error } = await supabase
           .from("discount_codes")
           .select("id")
@@ -33,12 +34,8 @@ export const useClaimCheck = (dealId: number) => {
 
         if (error) {
           console.error("Error checking existing claims:", error);
-          setIsCheckingClaim(false);
-          return;
-        }
-
-        // Om användaren tidigare har använt en rabattkod för detta erbjudande
-        if (existingClaims && existingClaims.length > 0) {
+        } else if (existingClaims && existingClaims.length > 0) {
+          // Endast kontrollera tidigare IP om vi hittade användningskoder
           const claimedIPAddress = localStorage.getItem('claimed_from_ip') || '';
           const { data: ipMatch } = await supabase.functions.invoke("check-previous-claims", {
             body: { 

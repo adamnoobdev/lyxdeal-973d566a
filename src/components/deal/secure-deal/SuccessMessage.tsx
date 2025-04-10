@@ -95,4 +95,3 @@ export const SuccessMessage = ({ email, code, onReset, emailError }: SuccessMess
     </div>
   );
 };
-

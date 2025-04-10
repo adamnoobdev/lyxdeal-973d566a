@@ -21,13 +21,7 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   requiresDiscountCode = true,
   bookingUrl
 }) => {
-  console.log(`[SecureDealForm] Initialized with dealId=${dealId}, requiresDiscountCode=${requiresDiscountCode}, bookingUrl=${bookingUrl}`);
-  
   const { hasAlreadyClaimed, isCheckingClaim } = useClaimCheck(dealId);
-  
-  useEffect(() => {
-    console.log(`[SecureDealForm] hasAlreadyClaimed=${hasAlreadyClaimed}, isCheckingClaim=${isCheckingClaim}`);
-  }, [hasAlreadyClaimed, isCheckingClaim]);
   
   const {
     isSubmitting,
@@ -49,12 +43,6 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   const handleGoBack = () => {
     window.history.back();
   };
-
-  useEffect(() => {
-    if (isSuccess && emailSent) {
-      console.log(`[SecureDealForm] Success state: emailSent=${emailSent}, emailError=${emailError}`);
-    }
-  }, [isSuccess, emailSent, emailError]);
 
   if (isCheckingClaim) {
     return (
@@ -80,7 +68,6 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   }
 
   if (hasAlreadyClaimed) {
-    console.log(`[SecureDealForm] User has already claimed this deal, showing message`);
     return <AlreadyClaimedMessage onGoBack={handleGoBack} />;
   }
 
@@ -90,4 +77,3 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
     </div>
   );
 };
-

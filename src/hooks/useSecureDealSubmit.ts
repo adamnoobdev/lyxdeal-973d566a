@@ -31,8 +31,6 @@ export const useSecureDealSubmit = ({
   const [emailError, setEmailError] = useState<string | null>(null);
 
   const handleSubmit = async (values: SecureFormValues) => {
-    console.log(`[useSecureDealSubmit] Submit initierad med värden:`, values);
-    
     if (hasAlreadyClaimed) {
       toast.error("Du har redan säkrat detta erbjudande.");
       return;
@@ -48,26 +46,20 @@ export const useSecureDealSubmit = ({
     setEmailError(null);
     
     try {
-      console.log(`[useSecureDealSubmit] Säkrar erbjudande ${dealId} för ${values.email}`);
-      
       // 1. Validera telefonnummerformatet
       const phoneRegex = /^07[0-9]{8}$/;
       if (!phoneRegex.test(values.phone)) {
-        console.error(`[useSecureDealSubmit] Telefonvalidering misslyckades: ${values.phone}`);
         toast.error("Vänligen ange ett giltigt svenskt mobilnummer (07XXXXXXXX)");
         setIsSubmitting(false);
         return;
       }
       
       // 2. Säkra rabattkod
-      console.log(`[useSecureDealSubmit] Försöker säkra rabattkod...`);
       const codeResult = await secureDiscountCode(dealId, {
         name: values.name,
         email: values.email,
         phone: values.phone
       });
-      
-      console.log(`[useSecureDealSubmit] Resultat av kodsäkring:`, codeResult);
       
       if (!codeResult.success) {
         toast.error(codeResult.message || "Kunde inte säkra rabattkod");
@@ -76,18 +68,14 @@ export const useSecureDealSubmit = ({
       }
       
       const code = codeResult.code as string;
-      console.log(`[useSecureDealSubmit] Rabattkod säkrad: ${code}`);
       
       // 3. Om användaren vill prenumerera på nyhetsbrev
       if (values.subscribeToNewsletter) {
-        console.log(`[useSecureDealSubmit] Lägger till användaren i nyhetsbrev...`);
         await addToNewsletter(values.email, values.name);
       }
       
-      // 4. Skapa köpregister (fortsätter även om detta misslyckas)
-      console.log(`[useSecureDealSubmit] Skapar köpregister...`);
-      const purchaseResult = await createPurchaseRecord(values.email, dealId, code);
-      console.log(`[useSecureDealSubmit] Köpregister skapat:`, purchaseResult);
+      // 4. Skapa köpregister
+      await createPurchaseRecord(values.email, dealId, code);
       
       // Spara deal-ID i localStorage för att förhindra dubbletter
       saveClaimedDeal(dealId);
@@ -97,9 +85,6 @@ export const useSecureDealSubmit = ({
       setDiscountCode(code);
       
       // 5. Skicka e-post med koden
-      console.log(`[useSecureDealSubmit] Skickar e-post med kod...`);
-      
-      // Create a properly structured request body with all required fields
       try {
         const emailResult = await sendDiscountCodeEmail(
           values.email.trim().toLowerCase(),
@@ -110,8 +95,6 @@ export const useSecureDealSubmit = ({
           values.subscribeToNewsletter,
           bookingUrl || undefined
         );
-        
-        console.log(`[useSecureDealSubmit] Resultat av e-postskickning:`, emailResult);
         
         if (emailResult.success) {
           // Kontrollera om vi är i testläge och e-postar dirigeras om
@@ -131,13 +114,11 @@ export const useSecureDealSubmit = ({
           }
         } else {
           setEmailError("E-postskickning misslyckades: " + (emailResult.error || "Okänt fel"));
-          console.error("[useSecureDealSubmit] E-postskickning misslyckades:", emailResult.error);
           toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Du kan kopiera koden nedan.", {
             duration: 6000
           });
         }
       } catch (emailError) {
-        console.error("[useSecureDealSubmit] Fel vid e-postskickning:", emailError);
         setEmailError("E-postskickning misslyckades: " + (emailError instanceof Error ? emailError.message : "Okänt fel"));
         toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Du kan kopiera koden nedan.", {
           duration: 6000
@@ -152,10 +133,7 @@ export const useSecureDealSubmit = ({
         onSuccess();
       }
       
-      console.log(`[useSecureDealSubmit] Process slutfördes framgångsrikt med kod: ${code}`);
-      
     } catch (error) {
-      console.error("[useSecureDealSubmit] Fel vid säkrandet av erbjudande:", error);
       toast.error("Något gick fel. Vänligen försök igen senare.");
     } finally {
       setIsSubmitting(false);
@@ -179,4 +157,3 @@ export const useSecureDealSubmit = ({
     handleReset
   };
 };
-
