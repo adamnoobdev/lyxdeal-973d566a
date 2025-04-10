@@ -1,15 +1,19 @@
 
 import { corsHeaders } from "./corsConfig.ts";
-import { emailSender } from "./emailSender.ts";
-import { generateEmailHtml } from "./emailTemplate.ts";
+import { sendDiscountEmail } from "./emailSender.ts";
+import { createEmailContent } from "./emailTemplates/template.ts";
 
 export async function requestHandler(req: Request) {
   try {
     // Parse the JSON body
-    const { email, name, code, dealTitle, phone, subscribedToNewsletter } = await req.json();
+    const requestBody = await req.json();
+    console.log("Received request body:", JSON.stringify(requestBody));
+    
+    const { email, name, code, dealTitle, phone, subscribedToNewsletter, bookingUrl } = requestBody;
 
     // Validate required fields
     if (!email || !code || !dealTitle) {
+      console.error("Missing required fields:", { email, code, dealTitle });
       return new Response(
         JSON.stringify({
           error: "Missing required fields: email, code, and dealTitle are required",
@@ -21,40 +25,18 @@ export async function requestHandler(req: Request) {
       );
     }
 
-    const testMode = Deno.env.get("ENVIRONMENT") !== "production";
-    const recipientEmail = testMode ? "test@example.com" : email;
+    console.log(`Processing email request for ${email}, deal "${dealTitle}", code: ${code}`);
     
-    // Generate HTML content for the email
-    const htmlContent = generateEmailHtml({
-      name: name || "Kund",
+    // Use the sendDiscountEmail function which handles the actual email sending
+    return await sendDiscountEmail({
+      email,
+      name: name || "Kund", // Default if name is not provided
+      phone: phone || "",
       code,
       dealTitle,
-      subscribedToNewsletter,
+      bookingUrl
     });
-
-    // Send the email
-    const emailResponse = await emailSender({
-      to: recipientEmail,
-      subject: `Din rabattkod för: ${dealTitle}`,
-      html: htmlContent,
-      from: "Lyxdeal <info@lyxdeal.se>",
-      reply_to: "info@lyxdeal.se"
-    });
-
-    // Return the response
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Email sent successfully",
-        emailId: emailResponse.id,
-        productionMode: !testMode,
-        redirectedTo: testMode ? recipientEmail : null,
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
-    );
+    
   } catch (error) {
     console.error("Error processing request:", error);
 

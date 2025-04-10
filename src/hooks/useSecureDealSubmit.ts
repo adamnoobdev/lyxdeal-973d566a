@@ -48,8 +48,7 @@ export const useSecureDealSubmit = ({
     try {
       console.log(`[useSecureDealSubmit] Securing deal ${dealId} for ${values.email}`);
       
-      // 1. Validera indata - lita på att React Hook Form redan har validerat telefonnummerformatet
-      // men utför andra valideringar relaterade till affärslogiken
+      // 1. Validera telefonnummerformatet
       const phoneRegex = /^07[0-9]{8}$/;
       if (!phoneRegex.test(values.phone)) {
         console.error(`[useSecureDealSubmit] Phone validation failed: ${values.phone}`);
@@ -117,7 +116,8 @@ export const useSecureDealSubmit = ({
           }
         }
       } else {
-        toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Kontakta kundtjänst om du inte får din kod.");
+        console.error("[useSecureDealSubmit] Email sending failed:", emailResult.error);
+        toast.warning(`Din rabattkod har reserverats men kunde inte skickas via e-post: ${emailResult.error || "Okänt fel"}. Kontakta kundtjänst om du inte får din kod.`);
       }
       
       // Spara deal-ID i localStorage för att förhindra dubbletter

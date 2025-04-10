@@ -1,3 +1,4 @@
+
 // We replace Resend-npm-package with a simple fetch-implementation
 import { createEmailContent } from "./emailTemplates/template.ts";
 import { RequestPayload } from "./types.ts";
@@ -19,7 +20,7 @@ export async function sendDiscountEmail(payload: RequestPayload) {
     );
   }
 
-  // Skapa e-postinnehållet med vår rena HTML-funktion
+  // Create the email content using our template function
   const emailContent = createEmailContent(name, code, dealTitle, bookingUrl);
   
   console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
@@ -28,17 +29,15 @@ export async function sendDiscountEmail(payload: RequestPayload) {
   }
   
   try {
-    // Set production mode to true by default
-    // Only override with environment variable if explicitly set to false
-    const productionMode = Deno.env.get("PRODUCTION_MODE") !== "false";
+    // Set production mode based on environment variable
+    const productionMode = Deno.env.get("ENVIRONMENT") === "production";
     
     // In production mode, use the actual recipient's email
     // In non-production mode, redirect to the verified email
-    const verifiedEmail = Deno.env.get("VERIFIED_EMAIL") || "adam@larlid.com";
+    const verifiedEmail = Deno.env.get("VERIFIED_EMAIL") || "test@example.com";
     const recipient = productionMode ? email : verifiedEmail;
     
     const emailConfig = {
-      // In production, use the verified domain. In testing, use Resend's default
       from: productionMode 
         ? "Lyxdeal <info@lyxdeal.se>" 
         : "Lyxdeal <onboarding@resend.dev>",
@@ -73,9 +72,13 @@ export async function sendDiscountEmail(payload: RequestPayload) {
     console.log(`Resend API Response (${response.status}):`, responseText);
     
     // Parse the response back to JSON
-    const responseData = response.status === 200 || response.status === 201 
-      ? JSON.parse(responseText) 
-      : { error: responseText };
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+    } catch (e) {
+      console.error("Failed to parse response as JSON:", responseText);
+      responseData = { error: "Invalid JSON response", raw: responseText };
+    }
 
     if (!response.ok) {
       console.error("Resend API Error:", responseData);

@@ -11,8 +11,10 @@ export const sendDiscountCodeEmail = async (
   code: string,
   dealTitle: string,
   subscribedToNewsletter: boolean
-): Promise<{ success: boolean; data?: any }> => {
+): Promise<{ success: boolean; data?: any; error?: string }> => {
   try {
+    console.log(`[sendDiscountCodeEmail] Sending email to ${email} with code ${code} for deal "${dealTitle}"`);
+    
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
       body: {
         email,
@@ -25,14 +27,27 @@ export const sendDiscountCodeEmail = async (
     });
     
     if (error) {
-      console.error("Error sending email:", error);
-      return { success: false };
+      console.error("[sendDiscountCodeEmail] Error invoking edge function:", error);
+      return { success: false, error: error.message || "Failed to invoke email service" };
     }
     
-    console.log("Email sent successfully:", data);
+    console.log("[sendDiscountCodeEmail] Edge function response:", data);
+    
+    if (!data || data.error) {
+      console.error("[sendDiscountCodeEmail] Error returned from edge function:", data?.error);
+      return { 
+        success: false, 
+        error: data?.error || "Unknown error from email service",
+        data 
+      };
+    }
+    
     return { success: true, data };
   } catch (error) {
-    console.error("Exception sending email:", error);
-    return { success: false };
+    console.error("[sendDiscountCodeEmail] Exception sending email:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Unknown exception in email sending" 
+    };
   }
 };
