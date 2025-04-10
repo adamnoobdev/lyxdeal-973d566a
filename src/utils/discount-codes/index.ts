@@ -99,6 +99,8 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
  */
 export const getAvailableDiscountCode = async (dealId: number): Promise<string | null> => {
   try {
+    console.log(`[getAvailableDiscountCode] Looking for code for deal ID: ${dealId}`);
+    
     const { data: codes, error } = await supabase
       .from("discount_codes")
       .select("code")
@@ -107,18 +109,19 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
       .limit(1);
       
     if (error) {
-      console.error("Error fetching available discount code:", error);
+      console.error("[getAvailableDiscountCode] Error fetching available discount code:", error);
       return null;
     }
     
     if (!codes || codes.length === 0) {
-      console.log("No available discount codes found for deal:", dealId);
+      console.log("[getAvailableDiscountCode] No available discount codes found for deal:", dealId);
       return null;
     }
     
+    console.log(`[getAvailableDiscountCode] Found code: ${codes[0].code}`);
     return codes[0].code;
   } catch (error) {
-    console.error("Exception fetching available discount code:", error);
+    console.error("[getAvailableDiscountCode] Exception fetching available discount code:", error);
     return null;
   }
 };
@@ -131,6 +134,8 @@ export const markDiscountCodeAsUsed = async (
   customerData: { name: string; email: string; phone: string }
 ): Promise<boolean> => {
   try {
+    console.log(`[markDiscountCodeAsUsed] Marking code ${code} as used for ${customerData.email}`);
+    
     const { error } = await supabase
       .from("discount_codes")
       .update({ 
@@ -143,13 +148,14 @@ export const markDiscountCodeAsUsed = async (
       .eq("code", code);
       
     if (error) {
-      console.error("Error marking discount code as used:", error);
+      console.error("[markDiscountCodeAsUsed] Error marking discount code as used:", error);
       return false;
     }
     
+    console.log(`[markDiscountCodeAsUsed] Successfully marked code ${code} as used`);
     return true;
   } catch (error) {
-    console.error("Exception marking discount code as used:", error);
+    console.error("[markDiscountCodeAsUsed] Exception marking discount code as used:", error);
     return false;
   }
 };

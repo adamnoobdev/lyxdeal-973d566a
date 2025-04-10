@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SecureForm } from './secure-deal/SecureForm';
 import { useSecureDealSubmit } from '@/hooks/useSecureDealSubmit';
 import { useClaimCheck } from '@/hooks/useClaimCheck';
@@ -25,6 +25,10 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   
   const { hasAlreadyClaimed, isCheckingClaim } = useClaimCheck(dealId);
   
+  useEffect(() => {
+    console.log(`[SecureDealForm] hasAlreadyClaimed=${hasAlreadyClaimed}, isCheckingClaim=${isCheckingClaim}`);
+  }, [hasAlreadyClaimed, isCheckingClaim]);
+  
   const {
     isSubmitting,
     isSuccess,
@@ -45,6 +49,10 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
     window.history.back();
   };
 
+  useEffect(() => {
+    console.log(`[SecureDealForm] State updated: isSubmitting=${isSubmitting}, isSuccess=${isSuccess}, emailSent=${emailSent}, discountCode=${discountCode}`);
+  }, [isSubmitting, isSuccess, emailSent, discountCode]);
+
   if (isCheckingClaim) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -58,6 +66,7 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   }
 
   if (isSuccess && emailSent) {
+    console.log(`[SecureDealForm] Showing success message with email=${emailSent} and code=${discountCode}`);
     return (
       <SuccessMessage 
         email={emailSent} 
@@ -68,6 +77,7 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   }
 
   if (hasAlreadyClaimed) {
+    console.log(`[SecureDealForm] User has already claimed this deal, showing message`);
     return <AlreadyClaimedMessage onGoBack={handleGoBack} />;
   }
 

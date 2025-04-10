@@ -14,6 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useEffect } from "react";
+import { LoadingButton } from "@/components/ui/loading-button";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Vänligen ange ditt namn" }),
@@ -40,9 +42,26 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
     },
   });
 
+  // Hjälpfunktion för att debugga formuläret
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      console.log("Form values changed:", form.getValues());
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  const handleSubmit = async (values: SecureFormValues) => {
+    console.log("Form submitted with values:", values);
+    try {
+      await onSubmit(values);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
           Säkra detta erbjudande
         </h2>
@@ -121,20 +140,13 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
           )}
         />
         
-        <Button 
+        <LoadingButton 
           type="submit" 
-          className="w-full bg-primary hover:bg-primary/90" 
-          disabled={isSubmitting}
+          className="w-full" 
+          loading={isSubmitting}
         >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Skickar...
-            </>
-          ) : (
-            'Säkra erbjudande'
-          )}
-        </Button>
+          Säkra erbjudande
+        </LoadingButton>
         
         <p className="text-xs text-gray-500 text-center">
           Genom att klicka på "Säkra erbjudande" godkänner du våra 

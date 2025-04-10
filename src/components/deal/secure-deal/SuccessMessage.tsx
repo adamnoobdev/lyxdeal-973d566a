@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Copy } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 interface SuccessMessageProps {
@@ -13,8 +13,15 @@ interface SuccessMessageProps {
 export const SuccessMessage = ({ email, code, onReset }: SuccessMessageProps) => {
   const [isCopied, setIsCopied] = useState(false);
   
+  useEffect(() => {
+    console.log(`[SuccessMessage] Rendering with email=${email}, code=${code}`);
+  }, [email, code]);
+  
   const copyToClipboard = () => {
-    if (!code) return;
+    if (!code) {
+      toast.error("Ingen rabattkod tillgänglig att kopiera.");
+      return;
+    }
     
     navigator.clipboard.writeText(code)
       .then(() => {
@@ -46,7 +53,7 @@ export const SuccessMessage = ({ email, code, onReset }: SuccessMessageProps) =>
         )}
       </div>
       
-      {code && (
+      {code ? (
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
           <p className="text-sm text-gray-600 mb-2">Din rabattkod:</p>
           <div className="flex items-center justify-center gap-2">
@@ -64,6 +71,12 @@ export const SuccessMessage = ({ email, code, onReset }: SuccessMessageProps) =>
           </div>
           <p className="mt-3 text-sm text-gray-500">
             Spara den här koden! Du behöver visa den när du besöker salongen.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-600">
+            Din rabattkod har skickats till din e-post. Kontrollera din inkorg.
           </p>
         </div>
       )}
