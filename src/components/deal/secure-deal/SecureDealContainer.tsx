@@ -24,6 +24,7 @@ export const SecureDealContainer = ({
     isSubmitting,
     isSuccess,
     emailSent,
+    discountCode,
     handleSubmit,
     handleReset
   } = useSecureDealSubmit({
@@ -53,7 +54,11 @@ export const SecureDealContainer = ({
       {hasAlreadyClaimed ? (
         <AlreadyClaimedMessage onGoBack={handleGoBack} />
       ) : isSuccess ? (
-        <SuccessMessage onReset={handleReset} email={emailSent} />
+        <SuccessMessage 
+          onReset={handleReset} 
+          email={emailSent || ''} 
+          code={discountCode}
+        />
       ) : (
         <SecureForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       )}
