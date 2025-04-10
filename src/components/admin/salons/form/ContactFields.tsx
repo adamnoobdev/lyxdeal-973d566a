@@ -26,7 +26,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
     // Om vi får tillbaka adressdelar, spara dem i formuläret
     if (parts) {
       form.setValue("street", parts.street || "", { shouldValidate: false });
-      form.setValue("postalCode", parts.postcode || "", { shouldValidate: false });
+      form.setValue("postalCode", parts.postalCode || "", { shouldValidate: false });
       form.setValue("city", parts.city || "", { shouldValidate: false });
     }
   };
