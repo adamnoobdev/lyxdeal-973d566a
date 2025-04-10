@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+
+import React, { useEffect, useRef, useState } from 'react';
 import { Salon, SalonFormValues } from "../types";
 import { EditSalonDialog } from "./EditSalonDialog";
 import { DeleteSalonDialog } from "./DeleteSalonDialog";
@@ -19,7 +20,7 @@ interface SalonsDialogsProps {
   onDelete: () => Promise<void>;
   onCreate: (values: any) => Promise<any>;
   onRate: (salonId: number, rating: number, comment: string) => Promise<boolean>;
-  getInitialValuesForEdit: (salon: Salon) => SalonFormValues;
+  getInitialValuesForEdit: (salon: Salon) => Promise<SalonFormValues>;
 }
 
 export const SalonsDialogs: React.FC<SalonsDialogsProps> = ({
@@ -39,6 +40,34 @@ export const SalonsDialogs: React.FC<SalonsDialogsProps> = ({
   getInitialValuesForEdit
 }) => {
   const isMountedRef = useRef(true);
+  const [initialValues, setInitialValues] = useState<SalonFormValues | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  // Load initial values when editingSalon changes
+  useEffect(() => {
+    const loadInitialValues = async () => {
+      if (!editingSalon) {
+        setInitialValues(null);
+        return;
+      }
+      
+      try {
+        setIsLoading(true);
+        const values = await getInitialValuesForEdit(editingSalon);
+        if (isMountedRef.current) {
+          setInitialValues(values);
+        }
+      } catch (error) {
+        console.error("Failed to load salon data for edit:", error);
+      } finally {
+        if (isMountedRef.current) {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    loadInitialValues();
+  }, [editingSalon, getInitialValuesForEdit]);
   
   useEffect(() => {
     isMountedRef.current = true;
@@ -89,7 +118,8 @@ export const SalonsDialogs: React.FC<SalonsDialogsProps> = ({
         isOpen={!!editingSalon}
         onClose={onEditClose}
         onSubmit={safeHandleUpdate}
-        initialValues={editingSalon ? getInitialValuesForEdit(editingSalon) : undefined}
+        initialValues={initialValues}
+        isLoading={isLoading}
       />
 
       <DeleteSalonDialog

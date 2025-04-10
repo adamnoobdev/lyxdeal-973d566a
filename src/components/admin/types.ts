@@ -1,3 +1,4 @@
+
 // Befintliga importeringar behålls
 import { Deal } from "@/types/deal";
 
@@ -32,7 +33,7 @@ export interface SalonFormValues {
   privacyAccepted: boolean;
   subscriptionPlan: string;
   subscriptionType: string;
-  skipSubscription?: boolean; // Add skipSubscription field
+  skipSubscription: boolean; // Make skipSubscription required
 }
 
 export interface CategorizedDeals {

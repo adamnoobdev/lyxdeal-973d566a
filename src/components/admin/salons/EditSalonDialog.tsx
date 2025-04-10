@@ -6,12 +6,14 @@ import {
 import { useState, useEffect } from "react";
 import { useEditSalonDialog } from "./hooks/useEditSalonDialog";
 import { EditSalonDialogContent } from "./dialog/EditSalonDialogContent";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface EditSalonDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (values: any) => Promise<void>;
   initialValues?: any;
+  isLoading?: boolean;
 }
 
 export const EditSalonDialog = ({
@@ -19,6 +21,7 @@ export const EditSalonDialog = ({
   onClose,
   onSubmit,
   initialValues,
+  isLoading = false
 }: EditSalonDialogProps) => {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -59,15 +62,28 @@ export const EditSalonDialog = ({
       }}
     >
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
-        <EditSalonDialogContent
-          initialValues={initialValues}
-          isSubmitting={isSubmitting}
-          formRef={formRef}
-          debugView={debugView}
-          setDebugView={setDebugView}
-          onSubscriptionUpdated={handleSubscriptionUpdated}
-          onSubmit={handleSubmit}
-        />
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+            <div className="space-y-2 pt-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </div>
+        ) : (
+          <EditSalonDialogContent
+            initialValues={initialValues}
+            isSubmitting={isSubmitting}
+            formRef={formRef}
+            debugView={debugView}
+            setDebugView={setDebugView}
+            onSubscriptionUpdated={handleSubscriptionUpdated}
+            onSubmit={handleSubmit}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
