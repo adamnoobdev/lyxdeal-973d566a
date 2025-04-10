@@ -56,86 +56,88 @@ export const sendDiscountCodeEmail = async (
       return { success: false, error: "Failed to generate request body" };
     }
     
-    // Try a different approach to ensure the body is sent correctly
-    // Using fetch directly instead of supabase.functions.invoke
-    try {
-      console.log("[sendDiscountCodeEmail] Attempting direct fetch call to edge function");
-      
-      const projectRef = "gmqeqhlhqhyrjquzhuzg"; // Your Supabase project reference
-      const functionUrl = `https://${projectRef}.supabase.co/functions/v1/send-discount-email`;
-      
-      const { data: session } = await supabase.auth.getSession();
-      const authHeader = session?.session?.access_token 
-        ? { Authorization: `Bearer ${session.session.access_token}` } 
-        : {};
-      
-      console.log("[sendDiscountCodeEmail] Making direct fetch call with auth:", 
-                 session?.session?.access_token ? "Token present" : "No token");
-      
-      const response = await fetch(functionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authHeader,
-        },
-        body: stringifiedBody
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[sendDiscountCodeEmail] Fetch error: ${response.status} ${response.statusText}`, errorText);
-        return { 
-          success: false, 
-          error: `API error: ${response.status} ${response.statusText}`,
-          data: { errorText }
-        };
+    // Using supabase.functions.invoke as the primary method
+    console.log("[sendDiscountCodeEmail] Invoking edge function with Supabase SDK");
+
+    const { data, error } = await supabase.functions.invoke("send-discount-email", {
+      body: stringifiedBody,
+      headers: {
+        "Content-Type": "application/json"
       }
+    });
+    
+    if (error) {
+      console.error("[sendDiscountCodeEmail] Error invoking edge function:", error);
+      console.error("[sendDiscountCodeEmail] Error details:", JSON.stringify(error));
       
-      const data = await response.json();
-      console.log("[sendDiscountCodeEmail] Direct fetch response:", data);
+      // Try a different approach using fetch as fallback
+      console.log("[sendDiscountCodeEmail] Falling back to direct fetch method");
       
-      return { success: true, data };
-    } catch (fetchError) {
-      console.error("[sendDiscountCodeEmail] Error with direct fetch approach:", fetchError);
-      
-      // Fall back to supabase.functions.invoke as a second attempt
-      console.log("[sendDiscountCodeEmail] Falling back to supabase.functions.invoke");
-      
-      const { data, error } = await supabase.functions.invoke("send-discount-email", {
-        body: stringifiedBody,
-        headers: {
-          "Content-Type": "application/json"
+      try {
+        const projectRef = "gmqeqhlhqhyrjquzhuzg"; // Your Supabase project reference
+        const functionUrl = `https://${projectRef}.supabase.co/functions/v1/send-discount-email`;
+        
+        const { data: session } = await supabase.auth.getSession();
+        const authHeader = session?.session?.access_token 
+          ? { Authorization: `Bearer ${session.session.access_token}` } 
+          : {};
+        
+        console.log("[sendDiscountCodeEmail] Making direct fetch call");
+        
+        const response = await fetch(functionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeader,
+          },
+          body: stringifiedBody
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`[sendDiscountCodeEmail] Fetch error: ${response.status} ${response.statusText}`, errorText);
+          return { 
+            success: false, 
+            error: `API error: ${response.status} ${response.statusText}`,
+            data: { errorText }
+          };
         }
-      });
-      
-      if (error) {
-        console.error("[sendDiscountCodeEmail] Error invoking edge function:", error);
-        console.error("[sendDiscountCodeEmail] Error details:", JSON.stringify(error));
-        return { success: false, error: error.message || "Failed to invoke email service" };
-      }
-      
-      console.log("[sendDiscountCodeEmail] Edge function response:", data);
-      
-      if (!data) {
-        console.error("[sendDiscountCodeEmail] Empty response from edge function");
+        
+        const fetchData = await response.json();
+        console.log("[sendDiscountCodeEmail] Direct fetch response:", fetchData);
+        
+        return { success: true, data: fetchData };
+      } catch (fetchError) {
+        console.error("[sendDiscountCodeEmail] Error with fetch fallback:", fetchError);
         return { 
           success: false, 
-          error: "Empty response from email service",
-          data: null
+          error: `Failed to send email: ${error.message || "Unknown error"}` 
         };
       }
-      
-      if (data.error) {
-        console.error("[sendDiscountCodeEmail] Error returned from edge function:", data.error);
-        return { 
-          success: false, 
-          error: data.error || "Unknown error from email service",
-          data 
-        };
-      }
-      
-      return { success: true, data };
     }
+    
+    console.log("[sendDiscountCodeEmail] Edge function response:", data);
+    
+    if (!data) {
+      console.error("[sendDiscountCodeEmail] Empty response from edge function");
+      return { 
+        success: false, 
+        error: "Empty response from email service",
+        data: null
+      };
+    }
+    
+    if (data.error) {
+      console.error("[sendDiscountCodeEmail] Error returned from edge function:", data.error);
+      return { 
+        success: false, 
+        error: data.error || "Unknown error from email service",
+        data 
+      };
+    }
+    
+    return { success: true, data };
+    
   } catch (error) {
     console.error("[sendDiscountCodeEmail] Exception sending email:", error);
     console.error("[sendDiscountCodeEmail] Full error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));

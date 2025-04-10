@@ -107,14 +107,26 @@ export async function sendEmail(data: EmailRequest) {
         }
       });
 
-      if (!result || !result.id) {
-        console.error("Empty or invalid response from Resend:", result);
-        throw new Error("Invalid response from Resend API");
+      console.log("Raw Resend API response:", JSON.stringify(result));
+      
+      // Fix: Properly check the response structure
+      // The response could be { data: { id: "some-id" }, error: null }
+      // or it could have an error property
+      if (result && result.error) {
+        console.error("Resend API error object:", result.error);
+        throw new Error(result.error.message || "Unknown error from Resend API");
       }
       
-      console.log("Email sent successfully, Resend message ID:", result.id);
+      // Check if we have a data object with an ID
+      if (result && result.data && result.data.id) {
+        console.log("Email sent successfully, Resend message ID:", result.data.id);
+        return { id: result.data.id, productionMode };
+      }
       
-      return { id: result.id, productionMode };
+      // If we don't have an error and don't have a valid data.id, log and throw
+      console.error("Unexpected response format from Resend:", result);
+      throw new Error("Received invalid response format from Resend API");
+      
     } catch (sendError: any) {
       console.error("Resend API error:", sendError);
       console.error("Error name:", sendError.name);

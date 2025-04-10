@@ -48,11 +48,22 @@ export async function sendEmail(
     
     console.log("Email response from Resend:", emailResponse);
     
+    // Fix: Properly check the response structure for this version of Resend
     if (emailResponse.error) {
       console.error("Resend API error:", emailResponse.error);
       return { 
         success: false, 
         error: `Email service error: ${emailResponse.error}`,
+        raw: emailResponse
+      };
+    }
+    
+    // Ensure we have a valid ID in the response
+    if (!emailResponse.id) {
+      console.error("Resend API returned no error but also no ID:", emailResponse);
+      return {
+        success: false,
+        error: "Invalid response from Resend API: Missing ID",
         raw: emailResponse
       };
     }
