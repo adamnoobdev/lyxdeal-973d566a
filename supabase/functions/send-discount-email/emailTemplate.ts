@@ -23,8 +23,8 @@ export function generateEmailTemplate(data: EmailRequest) {
     <div style="${styles.content}">
       <h2 style="${styles.heading}">Hej ${name}!</h2>
       ${isDirectBooking 
-        ? `<p style="${styles.paragraph}">Tack för att du bokar genom Beauty Deals. Här är din bokningsbekräftelse för <strong>${dealTitle}</strong>.</p>`
-        : `<p style="${styles.paragraph}">Tack för att du använder Beauty Deals. Din rabattkod för <strong>${dealTitle}</strong> är:</p>
+        ? `<p style="${styles.paragraph}">Tack för att du bokar genom Lyxdeal. Här är din bokningsbekräftelse för <strong>${dealTitle}</strong>.</p>`
+        : `<p style="${styles.paragraph}">Tack för att du använder Lyxdeal. Din rabattkod för <strong>${dealTitle}</strong> är:</p>
           ${getCodeSection(code, styles)}`
       }
       
@@ -44,9 +44,9 @@ export function generateEmailTemplate(data: EmailRequest) {
       
       <div style="${styles.divider}"></div>
       
-      <p style="${styles.paragraph}">Om du har några frågor, kontakta oss på <a href="mailto:info@beautydeals.se" style="${styles.link}">info@beautydeals.se</a>.</p>
+      <p style="${styles.paragraph}">Om du har några frågor, kontakta oss på <a href="mailto:info@lyxdeal.se" style="${styles.link}">info@lyxdeal.se</a>.</p>
       
-      <p style="${styles.paragraphBold}">Vänliga hälsningar,<br>Beauty Deals-teamet</p>
+      <p style="${styles.paragraphBold}">Vänliga hälsningar,<br>Lyxdeal-teamet</p>
     </div>
   `;
 

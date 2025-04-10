@@ -61,7 +61,7 @@ export function createFooterSection(currentYear: number) {
 export function getHeaderSection(styles: Record<string, string>) {
   return `
     <div style="${styles.logoContainer}">
-      <img src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/Lyxdeal-logo.svg" alt="Beauty Deals" style="${styles.logoImage}" />
+      <img src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/Lyxdeal-logo.svg" alt="Lyxdeal" style="${styles.logoImage}" />
     </div>
   `;
 }
@@ -70,7 +70,7 @@ export function getFooterSection(styles: Record<string, string>) {
   const currentYear = new Date().getFullYear();
   return `
     <div style="${styles.footer}">
-      <p style="margin: 5px 0;">© ${currentYear} Beauty Deals. Alla rättigheter förbehållna.</p>
+      <p style="margin: 5px 0;">© ${currentYear} Lyxdeal. Alla rättigheter förbehållna.</p>
       <p style="margin: 5px 0;">Det här är ett automatiskt meddelande, svara inte på detta mail.</p>
     </div>
   `;

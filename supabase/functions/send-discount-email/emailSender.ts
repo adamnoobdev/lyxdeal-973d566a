@@ -85,7 +85,7 @@ export async function sendEmail(data: EmailRequest) {
       console.log("Calling Resend API...");
       
       const result = await resend.emails.send({
-        from: "Beauty Deals <noreply@beautydeals.se>",
+        from: "Lyxdeal <noreply@lyxdeal.se>",
         to: [toEmail],
         subject: subject,
         html: html,
