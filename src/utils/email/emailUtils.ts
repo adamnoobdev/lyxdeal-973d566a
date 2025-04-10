@@ -38,41 +38,18 @@ export const sendDiscountCodeEmail = async (
       email: email.trim().toLowerCase(),
       name: name.trim(),
       phone: phone?.trim() || "",
-      code: code.trim().toUpperCase(), // Ensure code is standardized
+      code: code.trim().toUpperCase(),
       dealTitle: dealTitle.trim(),
       subscribedToNewsletter: !!subscribedToNewsletter,
       bookingUrl: bookingUrl?.trim() || null
     };
 
-    // Validate that the request body is not empty
-    if (!Object.keys(requestBody).length) {
-      console.error("[sendDiscountCodeEmail] Request body is empty");
-      return { success: false, error: "Empty request body" };
-    }
-
-    // Add detailed logging of request body for debugging
-    console.log(`[sendDiscountCodeEmail] Preparing to call edge function with data:`, {
-      email: email.substring(0, 3) + '***', // Mask full email in logs
-      name: name,
-      phoneLength: phone?.length || 0,
-      codeLength: code?.length || 0,
-      dealTitlePreview: dealTitle.substring(0, 20) + (dealTitle.length > 20 ? '...' : ''),
-      hasBookingUrl: !!bookingUrl,
-      requestBodyJSON: JSON.stringify(requestBody)
-    });
-    
-    // Extra validation to ensure body is not empty after stringifying
-    const stringifiedBody = JSON.stringify(requestBody);
-    if (!stringifiedBody || stringifiedBody === '{}' || stringifiedBody === '""') {
-      console.error("[sendDiscountCodeEmail] Stringified body is empty or invalid");
-      return { success: false, error: "Failed to create valid request body" };
-    }
-    
-    console.log(`[sendDiscountCodeEmail] Final request body length: ${stringifiedBody.length}`);
+    // Log the request body for debugging
+    console.log(`[sendDiscountCodeEmail] Sending request with body:`, JSON.stringify(requestBody));
     
     // Call the edge function with explicit Content-Type and properly structured body
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
-      body: stringifiedBody, // Using validated stringified body
+      body: JSON.stringify(requestBody),
       headers: {
         "Content-Type": "application/json"
       }

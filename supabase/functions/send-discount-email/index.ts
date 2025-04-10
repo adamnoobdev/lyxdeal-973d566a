@@ -26,16 +26,31 @@ serve(async (req) => {
       
       console.log(`Request details: method=${req.method}, content-type=${contentType}, content-length=${contentLength}, origin=${origin}`);
       
-      // Validate content length early
+      // Check if content-length exists and is greater than zero
       if (contentLength === '0' || contentLength === 'unknown' || parseInt(contentLength || '0') <= 2) {
         console.error("Request has empty or invalid content-length:", contentLength);
-        return new Response(
-          JSON.stringify({ 
-            error: "Request body cannot be empty or too small", 
-            contentLength 
-          }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-        );
+        
+        // Let's try to verify the body directly
+        try {
+          const clonedReq = req.clone();
+          const bodyText = await clonedReq.text();
+          console.log(`Actual request body length: ${bodyText.length}, Content: "${bodyText.substring(0, 50)}${bodyText.length > 50 ? '...' : ''}"`);
+          
+          if (!bodyText || bodyText.trim().length === 0) {
+            return new Response(
+              JSON.stringify({ 
+                error: "Empty request body received",
+                message: "The client sent an empty request body. Make sure the request includes valid JSON data."
+              }),
+              { 
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+                status: 400 
+              }
+            );
+          }
+        } catch (e) {
+          console.error("Error checking body directly:", e.message);
+        }
       }
     } catch (e) {
       console.log("Error logging request details:", e.message);
@@ -76,9 +91,8 @@ serve(async (req) => {
       console.log(`Request body preview: ${bodyText.substring(0, 100)}${bodyText.length > 100 ? '...' : ''}`);
       
       // Validate JSON
-      let parsedBody;
       try {
-        parsedBody = JSON.parse(bodyText);
+        const parsedBody = JSON.parse(bodyText);
         if (!parsedBody || (typeof parsedBody === 'object' && Object.keys(parsedBody).length === 0)) {
           console.error("Empty JSON object received");
           return new Response(
