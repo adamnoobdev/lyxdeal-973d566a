@@ -17,7 +17,7 @@ export const sendDiscountCodeEmail = async (
     console.log(`[sendDiscountCodeEmail] Sending email to ${email} with code ${code} for deal "${dealTitle}"`);
     console.log(`[sendDiscountCodeEmail] Additional parameters: subscribedToNewsletter=${subscribedToNewsletter}, bookingUrl=${bookingUrl || 'none'}`);
     
-    // Lägg till extra validering här för att säkerställa att alla parametrar är korrekt formaterade
+    // Enhanced validation to ensure all parameters are correctly formatted
     if (!email || !email.includes('@')) {
       console.error("[sendDiscountCodeEmail] Invalid email format:", email);
       return { success: false, error: "Invalid email format" };
@@ -33,9 +33,9 @@ export const sendDiscountCodeEmail = async (
       return { success: false, error: "Empty discount code" };
     }
 
-    // Lägg till detaljerad loggning av invokationen
+    // Add detailed logging of function invocation
     console.log(`[sendDiscountCodeEmail] Calling edge function with parameters:`, {
-      email: email.substring(0, 3) + '***', // Dölj fullständig e-post i loggen
+      email: email.substring(0, 3) + '***', // Mask full email in logs
       name,
       phoneLength: phone?.length || 0,
       codeLength: code?.length || 0,

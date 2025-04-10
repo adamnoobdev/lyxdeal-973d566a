@@ -3,7 +3,7 @@ import { Resend } from "npm:resend@2.0.0";
 import { generateEmailTemplate } from "./emailTemplate.ts";
 import type { EmailRequest } from "./types.ts";
 
-// Initiera Resend-klienten med API-nyckel
+// Initialize Resend client with API key
 let resend: Resend;
 
 try {
@@ -19,10 +19,10 @@ try {
 
 export async function sendEmail(data: EmailRequest) {
   try {
-    // Säkerställ att alla texter är trimmade och korrekt formaterade
+    // Ensure all text fields are trimmed and properly formatted
     const email = data.email.trim().toLowerCase();
     const name = data.name.trim();
-    const code = data.code ? data.code.trim().toUpperCase() : ""; // Hantera fall där kod kan vara undefined
+    const code = data.code ? data.code.trim().toUpperCase() : ""; // Handle cases where code might be undefined
     const dealTitle = data.dealTitle.trim();
     const phone = data.phone ? data.phone.trim() : "";
     const bookingUrl = data.bookingUrl || null;
@@ -30,7 +30,7 @@ export async function sendEmail(data: EmailRequest) {
     console.log(`Preparing to send email to ${email} with discount code ${code}`);
     console.log(`Deal title: "${dealTitle}", booking URL: ${bookingUrl || 'none'}`);
 
-    // Validera obligatoriska fält
+    // Validate required fields
     if (!email || !name || (!code && code !== "DIRECT_BOOKING") || !dealTitle) {
       const missingFields = [];
       if (!email) missingFields.push("email");
@@ -41,7 +41,7 @@ export async function sendEmail(data: EmailRequest) {
       throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
     }
 
-    // 1. Generera e-postinnehåll
+    // 1. Generate email content
     const { html, subject } = generateEmailTemplate({ 
       ...data, 
       email, 
@@ -52,10 +52,10 @@ export async function sendEmail(data: EmailRequest) {
       bookingUrl
     });
 
-    // 2. Konfigurera produktionsläge
+    // 2. Configure production mode
     const isProduction = Deno.env.get("ENVIRONMENT") !== "development";
     
-    // För testmiljö, dirigera om e-post till testadress
+    // For test environment, redirect emails to test address
     let toEmail = email;
     let productionMode = true;
     
@@ -65,19 +65,19 @@ export async function sendEmail(data: EmailRequest) {
       productionMode = false;
     }
 
-    // 3. Skicka e-post
+    // 3. Send email
     if (!resend) {
       throw new Error("Resend client is not initialized - API key may be missing");
     }
     
-    // Loggning före e-postutskick
+    // Logging before email dispatch
     console.log(`Sending email to: ${toEmail} (original recipient: ${email})`);
     console.log(`Subject: ${subject}`);
     console.log(`Production mode: ${productionMode}`);
     console.log(`Has booking URL: ${bookingUrl ? "Yes" : "No"}`);
     console.log(`Email length: ${html.length} characters`);
     
-    // Skicka e-post med Resend
+    // Send email with Resend
     try {
       const result = await resend.emails.send({
         from: "Beauty Deals <noreply@beautydeals.se>",

@@ -4,15 +4,15 @@ import { corsHeaders } from "./corsConfig.ts";
 import { requestHandler } from "./requestHandler.ts";
 
 serve(async (req) => {
-  // Förbättrad loggning för felsökning
-  console.log(`Mottog ${req.method} förfrågan till send-discount-email funktionen`);
+  // Enhanced logging for debugging
+  console.log(`Received ${req.method} request to send-discount-email function`);
   
-  // Hantera CORS preflight-förfrågningar
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    console.log("Svarar på CORS preflight-förfrågan");
+    console.log("Responding to CORS preflight request");
     return new Response(null, {
       headers: corsHeaders,
-      status: 204, // Använd 204 No Content för OPTIONS-svar
+      status: 204, // Use 204 No Content for OPTIONS responses
     });
   }
 
@@ -20,19 +20,19 @@ serve(async (req) => {
     const headers = Object.fromEntries(req.headers.entries());
     const logHeaders = { ...headers };
     
-    // Dölj eventuella känsliga headers i loggar
+    // Mask sensitive headers in logs
     if (logHeaders.authorization) {
       logHeaders.authorization = "***REDACTED***";
     }
     console.log("Headers:", logHeaders);
     
-    // Logga URL-information för bättre debugging
+    // Log URL information for better debugging
     console.log("Request URL:", req.url);
     
-    // Validera och logga förfrågansinformation
+    // Validate and log request information
     if (req.method === "POST" && req.headers.get("content-type")?.includes("application/json")) {
       try {
-        // Klona förfrågan för att inte påverka den ursprungliga
+        // Clone request to avoid affecting the original
         const reqClone = req.clone();
         let body = null;
         
@@ -49,13 +49,13 @@ serve(async (req) => {
           );
         }
         
-        // Logga säkrare version av body utan känslig information
+        // Log safer version of body without sensitive information
         const safeBody = { ...body };
         if (safeBody.email) safeBody.email = safeBody.email.substring(0, 3) + "***";
         if (safeBody.phone) safeBody.phone = "***";
         console.log("Request body (sanitized):", safeBody);
         
-        // Validera obligatoriska fält
+        // Validate required fields
         if (!body.email || !body.name || (!body.code && body.code !== "DIRECT_BOOKING") || !body.dealTitle) {
           const missingFields = [];
           if (!body.email) missingFields.push("email");
@@ -66,7 +66,7 @@ serve(async (req) => {
           return new Response(
             JSON.stringify({ 
               error: `Missing required fields: ${missingFields.join(', ')}`,
-              errorDetails: "Alla obligatoriska fält måste anges",
+              errorDetails: "All required fields must be provided",
               missingFields
             }),
             {
@@ -79,7 +79,7 @@ serve(async (req) => {
         console.warn("Could not log request body:", e.message);
       }
     } else if (req.method !== "OPTIONS") {
-      // Om det inte är en OPTIONS eller POST med JSON, returnera ett fel
+      // If not OPTIONS or POST with JSON, return an error
       return new Response(
         JSON.stringify({ 
           error: "Method not allowed or incorrect content type",
@@ -97,18 +97,18 @@ serve(async (req) => {
   }
 
   try {
-    // Bearbeta förfrågan och skicka mejlet
-    console.log("Bearbetar mejlförfrågan");
+    // Process the request and send the email
+    console.log("Processing email request");
     const response = await requestHandler(req);
-    console.log(`Förfrågan bearbetad, status: ${response.status}`);
+    console.log(`Request processed, status: ${response.status}`);
     
-    // Lägg till CORS headers till svaret
+    // Add CORS headers to the response
     const responseHeaders = new Headers(response.headers);
     Object.entries(corsHeaders).forEach(([key, value]) => {
       responseHeaders.set(key, value);
     });
     
-    // Logga svaret för debugging
+    // Log response for debugging
     try {
       const responseClone = response.clone();
       const responseBody = await responseClone.text();
@@ -117,20 +117,20 @@ serve(async (req) => {
       console.warn("Could not log response body:", e.message);
     }
     
-    // Returnera svaret med CORS headers
+    // Return the response with CORS headers
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error("Fel i send-discount-email funktionen:", error);
+    console.error("Error in send-discount-email function:", error);
     console.error("Stack trace:", error.stack);
     
-    // Skapa ett mer detaljerat felmeddelande
+    // Create a more detailed error message
     const errorResponse = {
-      error: error instanceof Error ? error.message : "Ett okänt fel inträffade",
-      stack: error instanceof Error ? error.stack : "Ingen stack trace tillgänglig",
+      error: error instanceof Error ? error.message : "An unknown error occurred",
+      stack: error instanceof Error ? error.stack : "No stack trace available",
       timestamp: new Date().toISOString(),
       details: error instanceof Error ? { 
         name: error.name,

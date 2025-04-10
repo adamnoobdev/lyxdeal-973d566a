@@ -5,7 +5,7 @@ import { EmailRequest } from "./types.ts";
 
 export async function requestHandler(req: Request): Promise<Response> {
   try {
-    // 1. Validera förfrågan
+    // 1. Validate request
     if (req.method !== "POST") {
       return new Response(
         JSON.stringify({ error: "Only POST requests are supported" }),
@@ -13,7 +13,7 @@ export async function requestHandler(req: Request): Promise<Response> {
       );
     }
 
-    // 2. Hantera JSON body
+    // 2. Handle JSON body
     let requestData: EmailRequest;
     try {
       requestData = await req.json();
@@ -25,15 +25,15 @@ export async function requestHandler(req: Request): Promise<Response> {
       );
     }
 
-    // 3. Validera nödvändiga fält
+    // 3. Validate required fields
     const { email, name, code, dealTitle } = requestData;
     const phone = requestData.phone || "";
     
-    // Mer utförlig loggning av inkommande data
-    console.log("Inkommande e-postförfrågan:", {
+    // More detailed logging of incoming data
+    console.log("Incoming email request:", {
       email, 
       name,
-      phone: phone ? phone.substring(0, 2) + "***" : undefined, // Dölj del av telefonnumret i loggar
+      phone: phone ? phone.substring(0, 2) + "***" : undefined, // Mask part of phone number in logs
       code,
       dealTitle: dealTitle?.substring(0, 20) + (dealTitle?.length > 20 ? "..." : ""),
       hasBookingUrl: !!requestData.bookingUrl,
@@ -54,7 +54,7 @@ export async function requestHandler(req: Request): Promise<Response> {
       );
     }
 
-    // 4. Skicka e-post
+    // 4. Send email
     try {
       const emailResult = await sendEmail(requestData);
       return new Response(
@@ -68,7 +68,7 @@ export async function requestHandler(req: Request): Promise<Response> {
     } catch (error) {
       console.error("Error sending email:", error);
       
-      // 5. Returnera ett mer detaljerat felmeddelande
+      // 5. Return more detailed error message
       let statusCode = 500;
       let errorDetail = "Unknown error";
       
