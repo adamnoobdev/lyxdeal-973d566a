@@ -29,6 +29,26 @@ serve(async (req) => {
     }
     console.log("Headers:", headersMap);
     
+    // Check content type
+    const contentType = req.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error("Invalid content type:", contentType);
+      return new Response(
+        JSON.stringify({ error: "Content-Type must be application/json" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 415 }
+      );
+    }
+    
+    // Check content length
+    const contentLength = req.headers.get('content-length');
+    if (contentLength === '0') {
+      console.error("Empty request body (content-length: 0)");
+      return new Response(
+        JSON.stringify({ error: "Request body cannot be empty" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+    
     try {
       // Process the request and send the email
       console.log("Processing email request");

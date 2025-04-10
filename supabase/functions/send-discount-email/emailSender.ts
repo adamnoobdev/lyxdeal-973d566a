@@ -31,15 +31,21 @@ export async function sendEmail(data: EmailRequest) {
     console.log(`Preparing to send email to ${email} with discount code ${code}`);
     console.log(`Deal title: "${dealTitle}", booking URL: ${bookingUrl || 'none'}`);
 
-    // Validate required fields
-    if (!email || !name || (!code && code !== "DIRECT_BOOKING") || !dealTitle) {
-      const missingFields = [];
-      if (!email) missingFields.push("email");
-      if (!name) missingFields.push("name");
-      if (!code && code !== "DIRECT_BOOKING") missingFields.push("code");
-      if (!dealTitle) missingFields.push("dealTitle");
-      
-      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+    // Deep validation of required fields
+    if (!email || !email.includes('@')) {
+      throw new Error(`Invalid email format: ${email}`);
+    }
+    
+    if (!name) {
+      throw new Error("Name is required");
+    }
+    
+    if (!code) {
+      throw new Error("Discount code is required");
+    }
+    
+    if (!dealTitle) {
+      throw new Error("Deal title is required");
     }
 
     // 1. Generate email content

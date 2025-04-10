@@ -21,19 +21,28 @@ export async function requestHandler(req: Request): Promise<Response> {
       rawBody = await req.text();
       console.log("Raw request body:", rawBody);
       
+      // Enhanced error handling for empty body
+      if (!rawBody || rawBody.trim() === '') {
+        console.error("Empty request body received");
+        return new Response(
+          JSON.stringify({ error: "Empty request body received" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+        );
+      }
+      
       try {
         requestData = JSON.parse(rawBody);
       } catch (parseError) {
         console.error("JSON parse error:", parseError);
         return new Response(
-          JSON.stringify({ error: "Invalid JSON body", details: parseError.message }),
+          JSON.stringify({ error: "Invalid JSON body", details: parseError.message, rawBody }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
         );
       }
     } catch (error) {
-      console.error("Error parsing request body:", error);
+      console.error("Error processing request body:", error);
       return new Response(
-        JSON.stringify({ error: "Invalid request body" }),
+        JSON.stringify({ error: "Invalid request body", rawErrorMessage: error.message }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
@@ -62,7 +71,11 @@ export async function requestHandler(req: Request): Promise<Response> {
       
       console.error("Missing required fields:", missingFields.join(", "));
       return new Response(
-        JSON.stringify({ error: `Missing required fields: ${missingFields.join(", ")}` }),
+        JSON.stringify({ 
+          error: `Missing required fields: ${missingFields.join(", ")}`,
+          receivedFields: Object.keys(requestData || {}),
+          receivedData: requestData
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }

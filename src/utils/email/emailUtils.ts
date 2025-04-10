@@ -33,6 +33,17 @@ export const sendDiscountCodeEmail = async (
       return { success: false, error: "Empty discount code" };
     }
 
+    // Create a properly structured request body
+    const requestBody = {
+      email: email.trim().toLowerCase(),
+      name: name.trim(),
+      phone: phone?.trim() || "",
+      code: code.trim(),
+      dealTitle: dealTitle.trim(),
+      subscribedToNewsletter: !!subscribedToNewsletter,
+      bookingUrl: bookingUrl?.trim() || null
+    };
+
     // Add detailed logging of function invocation
     console.log(`[sendDiscountCodeEmail] Calling edge function with parameters:`, {
       email: email.substring(0, 3) + '***', // Mask full email in logs
@@ -40,20 +51,13 @@ export const sendDiscountCodeEmail = async (
       phoneLength: phone?.length || 0,
       codeLength: code?.length || 0,
       dealTitle,
-      hasBookingUrl: !!bookingUrl
+      hasBookingUrl: !!bookingUrl,
+      requestBody: JSON.stringify(requestBody)
     });
     
-    // Ensure we're explicitly including API key to bypass JWT issues
+    // Call the edge function with explicit content type and properly structured body
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
-      body: {
-        email,
-        name,
-        phone,
-        code,
-        dealTitle,
-        subscribedToNewsletter,
-        bookingUrl: bookingUrl || null // Ensure null if undefined
-      },
+      body: requestBody,
       headers: {
         "Content-Type": "application/json"
       }
