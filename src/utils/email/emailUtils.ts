@@ -43,6 +43,7 @@ export const sendDiscountCodeEmail = async (
       hasBookingUrl: !!bookingUrl
     });
     
+    // Ensure we're explicitly including API key to bypass JWT issues
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
       body: {
         email,
@@ -53,10 +54,14 @@ export const sendDiscountCodeEmail = async (
         subscribedToNewsletter,
         bookingUrl: bookingUrl || null // Ensure null if undefined
       },
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
     
     if (error) {
       console.error("[sendDiscountCodeEmail] Error invoking edge function:", error);
+      console.error("Error details:", JSON.stringify(error));
       return { success: false, error: error.message || "Failed to invoke email service" };
     }
     
@@ -83,6 +88,7 @@ export const sendDiscountCodeEmail = async (
     return { success: true, data };
   } catch (error) {
     console.error("[sendDiscountCodeEmail] Exception sending email:", error);
+    console.error("Full error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Unknown exception in email sending" 

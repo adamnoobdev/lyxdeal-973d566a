@@ -1,16 +1,17 @@
 
 import { Resend } from "npm:resend@2.0.0";
-import { generateEmailTemplate } from "./emailTemplate.ts";
 import type { EmailRequest } from "./types.ts";
+import { generateEmailTemplate } from "./emailTemplate.ts";
 
 // Initialize Resend client with API key
-let resend: Resend;
+let resend: Resend | null = null;
 
 try {
   const apiKey = Deno.env.get("RESEND_API_KEY");
   if (!apiKey) {
     console.error("RESEND_API_KEY is not set");
   } else {
+    console.log(`Initializing Resend with API key starting with: ${apiKey.substring(0, 3)}...`);
     resend = new Resend(apiKey);
   }
 } catch (error) {
@@ -22,7 +23,7 @@ export async function sendEmail(data: EmailRequest) {
     // Ensure all text fields are trimmed and properly formatted
     const email = data.email.trim().toLowerCase();
     const name = data.name.trim();
-    const code = data.code ? data.code.trim().toUpperCase() : ""; // Handle cases where code might be undefined
+    const code = data.code ? data.code.trim().toUpperCase() : ""; 
     const dealTitle = data.dealTitle.trim();
     const phone = data.phone ? data.phone.trim() : "";
     const bookingUrl = data.bookingUrl || null;
@@ -52,6 +53,9 @@ export async function sendEmail(data: EmailRequest) {
       bookingUrl
     });
 
+    console.log(`Email content generated with length: ${html.length} characters`);
+    console.log(`Email subject: "${subject}"`);
+
     // 2. Configure production mode
     const isProduction = Deno.env.get("ENVIRONMENT") !== "development";
     
@@ -75,29 +79,42 @@ export async function sendEmail(data: EmailRequest) {
     console.log(`Subject: ${subject}`);
     console.log(`Production mode: ${productionMode}`);
     console.log(`Has booking URL: ${bookingUrl ? "Yes" : "No"}`);
-    console.log(`Email length: ${html.length} characters`);
     
     // Send email with Resend
     try {
+      console.log("Calling Resend API...");
+      
       const result = await resend.emails.send({
         from: "Beauty Deals <noreply@beautydeals.se>",
         to: [toEmail],
         subject: subject,
         html: html,
+        headers: {
+          "X-Entity-Ref-ID": `discount-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`
+        }
       });
 
-      console.log("Email sent successfully:", result.id);
+      if (!result || !result.id) {
+        console.error("Empty or invalid response from Resend:", result);
+        throw new Error("Invalid response from Resend API");
+      }
+      
+      console.log("Email sent successfully, Resend message ID:", result.id);
       
       return { id: result.id, productionMode };
-    } catch (sendError) {
+    } catch (sendError: any) {
       console.error("Resend API error:", sendError);
-      if (sendError instanceof Error) {
-        console.error("Error message:", sendError.message);
-        console.error("Error stack:", sendError.stack);
+      console.error("Error name:", sendError.name);
+      console.error("Error message:", sendError.message);
+      
+      if (sendError.response) {
+        console.error("API response status:", sendError.response.status);
+        console.error("API response data:", sendError.response.data);
       }
+      
       throw sendError;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in sendEmail function:", error);
     if (error instanceof Error) {
       console.error("Error message:", error.message);
