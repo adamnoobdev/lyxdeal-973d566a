@@ -6,33 +6,34 @@ import { corsHeaders } from "./corsConfig.ts";
 export async function sendDiscountEmail(payload: RequestPayload) {
   const { email, name, code, dealTitle, bookingUrl, subscribedToNewsletter } = payload;
   
-  // Kontrollera om RESEND_API_KEY är konfigurerad
-  const apiKey = Deno.env.get("RESEND_API_KEY");
-  if (!apiKey) {
-    console.error("RESEND_API_KEY är inte konfigurerad");
-    return new Response(
-      JSON.stringify({ error: "RESEND_API_KEY är inte konfigurerad" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
-    );
-  }
-
-  // Skapa mejlinnehållet med vår mallfunktion
-  const emailContent = generateEmailHtml({
-    name, 
-    code, 
-    dealTitle,
-    subscribedToNewsletter
-  });
-  
-  console.log(`Skickar rabattkodsmejl till ${email} för erbjudande "${dealTitle}"`);
-  if (bookingUrl) {
-    console.log(`Inkluderar boknings-URL: ${bookingUrl}`);
-  }
-  
   try {
+    // Kontrollera om RESEND_API_KEY är konfigurerad
+    const apiKey = Deno.env.get("RESEND_API_KEY");
+    if (!apiKey) {
+      console.error("RESEND_API_KEY är inte konfigurerad");
+      return new Response(
+        JSON.stringify({ error: "RESEND_API_KEY är inte konfigurerad" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Skapa mejlinnehållet med vår mallfunktion
+    const emailContent = generateEmailHtml({
+      name, 
+      code, 
+      dealTitle,
+      bookingUrl,
+      subscribedToNewsletter
+    });
+    
+    console.log(`Skickar rabattkodsmejl till ${email} för erbjudande "${dealTitle}"`);
+    if (bookingUrl) {
+      console.log(`Inkluderar boknings-URL: ${bookingUrl}`);
+    }
+    
     // Ställ in produktionsläge baserat på miljövariabel
     const productionMode = Deno.env.get("ENVIRONMENT") === "production";
     
@@ -87,7 +88,14 @@ export async function sendDiscountEmail(payload: RequestPayload) {
     if (!response.ok) {
       console.error("Resend API-fel:", responseData);
       return new Response(
-        JSON.stringify({ error: "Kunde inte skicka e-post", details: responseData }),
+        JSON.stringify({ 
+          error: "Kunde inte skicka e-post", 
+          details: responseData,
+          apiConfig: {
+            ...emailConfig,
+            html: "[Innehåll utelämnat]"
+          }
+        }),
         {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },

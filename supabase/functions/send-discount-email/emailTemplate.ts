@@ -14,41 +14,62 @@ interface EmailTemplateProps {
   name: string;
   code: string;
   dealTitle: string;
+  bookingUrl?: string;
   subscribedToNewsletter?: boolean;
 }
 
-export function generateEmailHtml({ name, code, dealTitle, subscribedToNewsletter }: EmailTemplateProps): string {
+export function generateEmailHtml({ 
+  name, 
+  code, 
+  dealTitle, 
+  bookingUrl, 
+  subscribedToNewsletter 
+}: EmailTemplateProps): string {
+  // Hämta stilarna
+  const styles = getEmailStyles();
+  
   // HTML-innehåll för rabattkodsinformationen
   const dealCodeSection = `
     <tr>
-      <td style="${getEmailStyles().contentCell}">
-        <h2 style="${getEmailStyles().heading}">Din rabattkod är klar!</h2>
-        <p style="${getEmailStyles().paragraph}">Hej ${name},</p>
-        <p style="${getEmailStyles().paragraph}">Tack för att du säkrade erbjudandet "${dealTitle}".</p>
-        <p style="${getEmailStyles().paragraphBold}">Här är din rabattkod:</p>
-        <div style="${getEmailStyles().codeContainer}">
-          <p style="${getEmailStyles().code}">${code}</p>
+      <td style="${styles.contentCell}">
+        <h2 style="${styles.heading}">Din rabattkod är klar!</h2>
+        <p style="${styles.paragraph}">Hej ${name},</p>
+        <p style="${styles.paragraph}">Tack för att du säkrade erbjudandet "${dealTitle}".</p>
+        <p style="${styles.paragraphBold}">Här är din rabattkod:</p>
+        <div style="${styles.codeContainer}">
+          <p style="${styles.code}">${code}</p>
         </div>
-        <p style="${getEmailStyles().paragraph}">Visa denna kod i salongen för att lösa in ditt erbjudande.</p>
-        <p style="${getEmailStyles().paragraph}">Observera att koden är giltig i 72 timmar från nu.</p>
+        <p style="${styles.paragraph}">Visa denna kod i salongen för att lösa in ditt erbjudande.</p>
+        <p style="${styles.paragraph}">Observera att koden är giltig i 72 timmar från nu.</p>
       </td>
     </tr>
   `;
 
+  // Bokningssektion om boknings-URL tillhandahålls
+  const bookingSection = bookingUrl ? `
+    <tr>
+      <td style="${styles.contentCell}">
+        <h3 style="${styles.subheading}">Boka din tid</h3>
+        <p style="${styles.paragraph}">Du kan också boka din tid direkt hos salongen genom att klicka på länken nedan:</p>
+        <a href="${bookingUrl}" style="${styles.button}" target="_blank">Boka tid nu</a>
+      </td>
+    </tr>
+  ` : '';
+
   // Villkorlig sektion för nyhetsbrevsprenumeration
   const newsletterSection = subscribedToNewsletter ? `
     <tr>
-      <td style="${getEmailStyles().contentCell}">
-        <h3 style="${getEmailStyles().subheading}">Välkommen till vårt nyhetsbrev!</h3>
-        <p style="${getEmailStyles().paragraph}">Du har valt att prenumerera på vårt nyhetsbrev. Vi kommer att skicka dig exklusiva erbjudanden och nyheter om skönhetsbehandlingar.</p>
-        <p style="${getEmailStyles().paragraph}">Du kan när som helst avsluta din prenumeration genom att klicka på avprenumerationslänken i våra nyhetsbrev.</p>
+      <td style="${styles.contentCell}">
+        <h3 style="${styles.subheading}">Välkommen till vårt nyhetsbrev!</h3>
+        <p style="${styles.paragraph}">Du har valt att prenumerera på vårt nyhetsbrev. Vi kommer att skicka dig exklusiva erbjudanden och nyheter om skönhetsbehandlingar.</p>
+        <p style="${styles.paragraph}">Du kan när som helst avsluta din prenumeration genom att klicka på avprenumerationslänken i våra nyhetsbrev.</p>
       </td>
     </tr>
   ` : '';
 
   return template({
     preheader: `Din rabattkod för "${dealTitle}" är: ${code}`,
-    content: dealCodeSection + newsletterSection,
+    content: dealCodeSection + bookingSection + newsletterSection,
     footer: createFooterSection(new Date().getFullYear()),
   });
 }

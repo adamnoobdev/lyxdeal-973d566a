@@ -17,6 +17,22 @@ export const sendDiscountCodeEmail = async (
     console.log(`[sendDiscountCodeEmail] Sending email to ${email} with code ${code} for deal "${dealTitle}"`);
     console.log(`[sendDiscountCodeEmail] Additional parameters: subscribedToNewsletter=${subscribedToNewsletter}, bookingUrl=${bookingUrl || 'none'}`);
     
+    // Lägg till extra validering här för att säkerställa att alla parametrar är korrekt formaterade
+    if (!email || !email.includes('@')) {
+      console.error("[sendDiscountCodeEmail] Invalid email format:", email);
+      return { success: false, error: "Invalid email format" };
+    }
+    
+    if (!name || name.trim().length === 0) {
+      console.warn("[sendDiscountCodeEmail] Empty name provided, using 'Kund' as default");
+      name = "Kund";
+    }
+    
+    if (!code || code.trim().length === 0) {
+      console.error("[sendDiscountCodeEmail] Empty discount code provided");
+      return { success: false, error: "Empty discount code" };
+    }
+    
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
       body: {
         email,
@@ -25,7 +41,7 @@ export const sendDiscountCodeEmail = async (
         code,
         dealTitle,
         subscribedToNewsletter,
-        bookingUrl
+        bookingUrl: bookingUrl || null // Ensure null if undefined
       },
     });
     
@@ -36,11 +52,20 @@ export const sendDiscountCodeEmail = async (
     
     console.log("[sendDiscountCodeEmail] Edge function response:", data);
     
-    if (!data || data.error) {
-      console.error("[sendDiscountCodeEmail] Error returned from edge function:", data?.error);
+    if (!data) {
+      console.error("[sendDiscountCodeEmail] Empty response from edge function");
       return { 
         success: false, 
-        error: data?.error || "Unknown error from email service",
+        error: "Empty response from email service",
+        data: null
+      };
+    }
+    
+    if (data.error) {
+      console.error("[sendDiscountCodeEmail] Error returned from edge function:", data.error);
+      return { 
+        success: false, 
+        error: data.error || "Unknown error from email service",
         data 
       };
     }

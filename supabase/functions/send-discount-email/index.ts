@@ -6,7 +6,19 @@ import { requestHandler } from "./requestHandler.ts";
 serve(async (req) => {
   // Förbättrad loggning för felsökning
   console.log(`Mottog ${req.method} förfrågan till send-discount-email funktionen`);
-  console.log("Headers:", Object.fromEntries(req.headers.entries()));
+  
+  try {
+    const headers = Object.fromEntries(req.headers.entries());
+    const logHeaders = { ...headers };
+    
+    // Dölj eventuella känsliga headers i loggar
+    if (logHeaders.authorization) {
+      logHeaders.authorization = "***REDACTED***";
+    }
+    console.log("Headers:", logHeaders);
+  } catch (e) {
+    console.error("Kunde inte logga headers:", e);
+  }
   
   // Hantera CORS preflight-förfrågningar
   if (req.method === "OPTIONS") {
@@ -28,7 +40,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : "Ett okänt fel inträffade",
-        stack: error.stack,
+        stack: error instanceof Error ? error.stack : "Ingen stack trace tillgänglig",
         timestamp: new Date().toISOString()
       }),
       {

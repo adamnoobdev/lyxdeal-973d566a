@@ -32,10 +32,15 @@ export async function requestHandler(req: Request) {
 
     // Validera obligatoriska fält
     if (!email || !code || !dealTitle) {
-      console.error("Saknar obligatoriska fält:", { email, code, dealTitle });
+      const missingFields = [];
+      if (!email) missingFields.push('email');
+      if (!code) missingFields.push('code');
+      if (!dealTitle) missingFields.push('dealTitle');
+      
+      console.error(`Saknar obligatoriska fält: ${missingFields.join(', ')}`);
       return new Response(
         JSON.stringify({
-          error: "Saknar obligatoriska fält: email, code och dealTitle krävs",
+          error: `Saknar obligatoriska fält: ${missingFields.join(', ')}`,
           receivedData: { email, code, dealTitle },
         }),
         {
@@ -46,6 +51,9 @@ export async function requestHandler(req: Request) {
     }
 
     console.log(`Bearbetar mejlförfrågan för ${email}, erbjudande "${dealTitle}", kod: ${code}`);
+    if (bookingUrl) {
+      console.log(`Med boknings-URL: ${bookingUrl}`);
+    }
     
     // Använd sendDiscountEmail-funktionen som hanterar det faktiska mejlskickandet
     return await sendDiscountEmail({

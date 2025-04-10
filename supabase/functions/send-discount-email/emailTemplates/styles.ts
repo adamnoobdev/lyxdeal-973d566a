@@ -30,3 +30,6 @@ export function getEmailStyles() {
     logoImage: "max-width: 150px; height: auto;"
   };
 }
+
+// Exportera styles för bakåtkompatibilitet
+export const styles = getEmailStyles();
