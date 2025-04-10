@@ -102,6 +102,9 @@ export type Database = {
           purchase_id: number | null
           updated_at: string | null
           used_at: string | null
+          used_by_email: string | null
+          used_by_name: string | null
+          used_by_phone: string | null
         }
         Insert: {
           code: string
@@ -115,6 +118,9 @@ export type Database = {
           purchase_id?: number | null
           updated_at?: string | null
           used_at?: string | null
+          used_by_email?: string | null
+          used_by_name?: string | null
+          used_by_phone?: string | null
         }
         Update: {
           code?: string
@@ -128,6 +134,9 @@ export type Database = {
           purchase_id?: number | null
           updated_at?: string | null
           used_at?: string | null
+          used_by_email?: string | null
+          used_by_name?: string | null
+          used_by_phone?: string | null
         }
         Relationships: [
           {

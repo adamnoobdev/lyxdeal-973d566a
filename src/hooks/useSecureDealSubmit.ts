@@ -3,7 +3,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { saveClaimedDeal } from "@/utils/discount-code-utils";
 import { SecureFormValues } from "@/components/deal/secure-deal/SecureForm";
-import { validateDealInput } from "@/utils/deals/dealValidation";
 import { secureDiscountCode, createPurchaseRecord } from "@/utils/discount-codes/codeSecuring";
 import { sendDiscountCodeEmail } from "@/utils/email/emailUtils";
 import { addToNewsletter } from "@/utils/newsletter/newsletterUtils";
@@ -139,7 +138,6 @@ export const useSecureDealSubmit = ({
     } catch (error) {
       console.error("[useSecureDealSubmit] Error securing deal:", error);
       toast.error("Något gick fel. Vänligen försök igen senare.");
-    } finally {
       setIsSubmitting(false);
     }
   };

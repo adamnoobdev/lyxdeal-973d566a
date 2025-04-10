@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { generateRandomCode } from "@/utils/discount-code-utils";
 import { normalizeId } from "./types";
@@ -191,6 +190,29 @@ export const markDiscountCodeAsUsed = async (
   try {
     console.log(`[markDiscountCodeAsUsed] Marking code ${code} as used for ${customerData.email}`);
     
+    // Check if the code exists first
+    const { data: existingCode, error: checkError } = await supabase
+      .from("discount_codes")
+      .select("code, is_used")
+      .eq("code", code)
+      .maybeSingle();
+    
+    if (checkError) {
+      console.error("[markDiscountCodeAsUsed] Error checking discount code:", checkError);
+      return false;
+    }
+    
+    if (!existingCode) {
+      console.error("[markDiscountCodeAsUsed] Code not found:", code);
+      return false;
+    }
+    
+    if (existingCode.is_used) {
+      console.error("[markDiscountCodeAsUsed] Code already used:", code);
+      return false;
+    }
+    
+    // Mark the code as used
     const { error } = await supabase
       .from("discount_codes")
       .update({ 
