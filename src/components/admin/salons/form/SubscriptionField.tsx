@@ -148,7 +148,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
       )}
 
       {skipSubscription && (
-        <Alert variant="info" className="bg-blue-50 border-blue-200">
+        <Alert variant="default" className="bg-blue-50 border-blue-200">
           <AlertCircle className="h-4 w-4 text-blue-500" />
           <AlertDescription className="text-blue-700">
             För administrativt skapade salonger är betalningsintervall inte relevant, 
