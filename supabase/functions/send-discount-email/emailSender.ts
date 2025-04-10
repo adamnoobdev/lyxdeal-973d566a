@@ -1,5 +1,5 @@
 
-// We replace Resend-npm-package with a simple fetch-implementation
+// Vi ersätter Resend-npm-paketet med en enkel fetch-implementation
 import { createEmailContent } from "./emailTemplates/template.ts";
 import { RequestPayload } from "./types.ts";
 import { corsHeaders } from "./corsConfig.ts";
@@ -7,12 +7,12 @@ import { corsHeaders } from "./corsConfig.ts";
 export async function sendDiscountEmail(payload: RequestPayload) {
   const { email, name, code, dealTitle, bookingUrl } = payload;
   
-  // Check if RESEND_API_KEY is configured
+  // Kontrollera om RESEND_API_KEY är konfigurerad
   const apiKey = Deno.env.get("RESEND_API_KEY");
   if (!apiKey) {
-    console.error("RESEND_API_KEY is not configured");
+    console.error("RESEND_API_KEY är inte konfigurerad");
     return new Response(
-      JSON.stringify({ error: "RESEND_API_KEY is not configured" }),
+      JSON.stringify({ error: "RESEND_API_KEY är inte konfigurerad" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -20,20 +20,20 @@ export async function sendDiscountEmail(payload: RequestPayload) {
     );
   }
 
-  // Create the email content using our template function
+  // Skapa mejlinnehållet med vår mallfunktion
   const emailContent = createEmailContent(name, code, dealTitle, bookingUrl);
   
-  console.log(`Sending discount email to ${email} for deal "${dealTitle}"`);
+  console.log(`Skickar rabattkodsmejl till ${email} för erbjudande "${dealTitle}"`);
   if (bookingUrl) {
-    console.log(`Including booking URL: ${bookingUrl}`);
+    console.log(`Inkluderar boknings-URL: ${bookingUrl}`);
   }
   
   try {
-    // Set production mode based on environment variable
+    // Ställ in produktionsläge baserat på miljövariabel
     const productionMode = Deno.env.get("ENVIRONMENT") === "production";
     
-    // In production mode, use the actual recipient's email
-    // In non-production mode, redirect to the verified email
+    // I produktionsläge, använd den faktiska mottagarens e-post
+    // I icke-produktionsläge, omdirigera till den verifierade e-posten
     const verifiedEmail = Deno.env.get("VERIFIED_EMAIL") || "test@example.com";
     const recipient = productionMode ? email : verifiedEmail;
     
@@ -47,16 +47,16 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       reply_to: "support@lyxdeal.se"
     };
     
-    // Log if we're redirecting emails in non-production mode
+    // Logga om vi omdirigerar e-post i icke-produktionsläge
     if (!productionMode && email !== verifiedEmail) {
-      console.log(`TESTING MODE: Redirecting email from ${email} to verified email ${verifiedEmail}`);
+      console.log(`TESTLÄGE: Omdirigerar e-post från ${email} till verifierad e-post ${verifiedEmail}`);
     }
 
-    // Detailed logging before API call
-    console.log("Sending email with config:", JSON.stringify({
+    // Detaljerad loggning före API-anrop
+    console.log("Skickar e-post med konfiguration:", JSON.stringify({
       ...emailConfig,
-      html: "[HTML content omitted for brevity]"
-    }));
+      html: "[HTML-innehåll utelämnat för korthet]"
+    }, null, 2));
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -67,23 +67,23 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       body: JSON.stringify(emailConfig)
     });
 
-    // Log the full response for debugging
+    // Logga hela svaret för felsökning
     const responseText = await response.text();
-    console.log(`Resend API Response (${response.status}):`, responseText);
+    console.log(`Resend API-svar (${response.status}):`, responseText);
     
-    // Parse the response back to JSON
+    // Parsa tillbaka svaret till JSON
     let responseData;
     try {
       responseData = JSON.parse(responseText);
     } catch (e) {
-      console.error("Failed to parse response as JSON:", responseText);
-      responseData = { error: "Invalid JSON response", raw: responseText };
+      console.error("Kunde inte parsa svar som JSON:", responseText);
+      responseData = { error: "Ogiltigt JSON-svar", raw: responseText };
     }
 
     if (!response.ok) {
-      console.error("Resend API Error:", responseData);
+      console.error("Resend API-fel:", responseData);
       return new Response(
-        JSON.stringify({ error: "Failed to send email", details: responseData }),
+        JSON.stringify({ error: "Kunde inte skicka e-post", details: responseData }),
         {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -91,13 +91,13 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       );
     }
 
-    // Add information in response about where the email was sent
+    // Lägg till information i svaret om vart e-posten skickades
     let message = `Rabattkod skickad till ${email}`;
     if (!productionMode && email !== verifiedEmail) {
       message = `TESTLÄGE: Rabattkod som skulle skickats till ${email} skickades istället till ${verifiedEmail}`;
     }
 
-    console.log(`Successfully sent email`, responseData);
+    console.log(`Mejlet skickades framgångsrikt`, responseData);
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -112,11 +112,12 @@ export async function sendDiscountEmail(payload: RequestPayload) {
       }
     );
   } catch (err) {
-    console.error("Error sending email:", err);
+    console.error("Fel vid skickande av e-post:", err);
     return new Response(
       JSON.stringify({ 
-        error: "Exception when sending email", 
-        details: err instanceof Error ? err.message : String(err) 
+        error: "Undantag vid skickande av e-post", 
+        details: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined
       }),
       {
         status: 500,

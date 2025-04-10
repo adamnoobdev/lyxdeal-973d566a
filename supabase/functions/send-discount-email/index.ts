@@ -4,28 +4,32 @@ import { corsHeaders } from "./corsConfig.ts";
 import { requestHandler } from "./requestHandler.ts";
 
 serve(async (req) => {
-  // Log the incoming request for debugging
-  console.log(`Received ${req.method} request to send-discount-email function`);
+  // Förbättrad loggning för felsökning
+  console.log(`Mottog ${req.method} förfrågan till send-discount-email funktionen`);
+  console.log("Headers:", Object.fromEntries(req.headers.entries()));
   
-  // Handle CORS preflight requests
+  // Hantera CORS preflight-förfrågningar
   if (req.method === "OPTIONS") {
-    console.log("Responding to CORS preflight request");
+    console.log("Svarar på CORS preflight-förfrågan");
     return new Response(null, {
       headers: corsHeaders,
     });
   }
 
   try {
-    // Process the request and send the email
-    console.log("Processing email request");
+    // Bearbeta förfrågan och skicka mejlet
+    console.log("Bearbetar mejlförfrågan");
     const response = await requestHandler(req);
-    console.log(`Request processed, status: ${response.status}`);
+    console.log(`Förfrågan bearbetad, status: ${response.status}`);
     return response;
   } catch (error) {
-    console.error("Error in send-discount-email function:", error);
+    console.error("Fel i send-discount-email funktionen:", error);
+    console.error("Stack trace:", error.stack);
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : "An unknown error occurred",
+        error: error instanceof Error ? error.message : "Ett okänt fel inträffade",
+        stack: error.stack,
+        timestamp: new Date().toISOString()
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
