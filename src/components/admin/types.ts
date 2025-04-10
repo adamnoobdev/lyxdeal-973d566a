@@ -1,4 +1,3 @@
-
 // Befintliga importeringar behålls
 import { Deal } from "@/types/deal";
 

@@ -148,19 +148,20 @@ export const updateSalonData = async (values: any, id: number) => {
         console.warn("Could not verify update result:", verifyError);
       } else if (verifyData) {
         console.log("Verification of salon after update:", verifyData);
-        if (verifyData.subscription_plan !== values.subscriptionPlan) {
+        // Safe property access with optional chaining
+        if (verifyData?.subscription_plan !== values.subscriptionPlan) {
           console.error("MISMATCH: Subscription plan was not updated correctly!");
-          console.error(`Expected: ${values.subscriptionPlan}, Actual: ${verifyData.subscription_plan}`);
+          console.error(`Expected: ${values.subscriptionPlan}, Actual: ${verifyData?.subscription_plan}`);
         } else {
-          console.log("Subscription plan verified correctly:", verifyData.subscription_plan);
+          console.log("Subscription plan verified correctly:", verifyData?.subscription_plan);
         }
         
         // Verify skip_subscription was saved correctly if it exists
-        if (verifyData.skip_subscription !== undefined) {
-          console.log("Skip subscription value in database:", verifyData.skip_subscription);
-          if (values.skipSubscription !== undefined && verifyData.skip_subscription !== values.skipSubscription) {
+        if (verifyData?.skip_subscription !== undefined) {
+          console.log("Skip subscription value in database:", verifyData?.skip_subscription);
+          if (values.skipSubscription !== undefined && verifyData?.skip_subscription !== values.skipSubscription) {
             console.error("MISMATCH: skip_subscription was not updated correctly!");
-            console.error(`Expected: ${values.skipSubscription}, Actual: ${verifyData.skip_subscription}`);
+            console.error(`Expected: ${values.skipSubscription}, Actual: ${verifyData?.skip_subscription}`);
           }
         } else {
           console.warn("skip_subscription column might not exist in the database");

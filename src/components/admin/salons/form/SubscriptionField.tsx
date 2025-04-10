@@ -22,7 +22,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
   
   // Ensure that when skipSubscription is toggled, we still maintain valid subscription values
   useEffect(() => {
-    // Första gången laddar vi bara värdena
+    // First time, just load the values
     if (initialLoad) {
       setInitialLoad(false);
       return;
@@ -61,16 +61,13 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
                 onCheckedChange={(checked) => {
                   console.log("Skip subscription checkbox changed to:", checked);
                   
-                  // När vi aktiverar/inaktiverar skipSubscription, se till att formuläret markeras som ändrat
+                  // Use form's setValue method with shouldDirty option to mark the form as changed
                   form.setValue("skipSubscription", !!checked, { shouldDirty: true });
                   
-                  // Mark fields as dirty using the proper method
+                  // Also mark these fields as dirty to ensure they get submitted
                   const formState = form.getValues();
-                  form.setValue("skipSubscription", !!checked, { shouldDirty: true });
                   form.setValue("subscriptionPlan", formState.subscriptionPlan || "Baspaket", { shouldDirty: true });
                   form.setValue("subscriptionType", formState.subscriptionType || "monthly", { shouldDirty: true });
-                  
-                  console.log("Form field state after click:", form.formState.dirtyFields);
                 }}
               />
             </FormControl>

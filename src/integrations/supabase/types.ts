@@ -383,6 +383,7 @@ export type Database = {
           rating: number | null
           rating_comment: string | null
           role: string
+          skip_subscription: boolean | null
           status: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -405,6 +406,7 @@ export type Database = {
           rating?: number | null
           rating_comment?: string | null
           role?: string
+          skip_subscription?: boolean | null
           status?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -427,6 +429,7 @@ export type Database = {
           rating?: number | null
           rating_comment?: string | null
           role?: string
+          skip_subscription?: boolean | null
           status?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null

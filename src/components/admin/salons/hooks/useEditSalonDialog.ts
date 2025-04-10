@@ -1,7 +1,6 @@
-
 import { useState, useEffect, useRef, MutableRefObject } from "react";
 import { toast } from "sonner";
-import { Salon } from "@/components/admin/types";
+import { Salon, SalonFormValues } from "@/components/admin/types";
 
 export interface UseEditSalonDialogProps {
   isOpen: boolean;
@@ -25,10 +24,8 @@ export const useEditSalonDialog = ({
   const initialRenderRef = useRef(true);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Create a form instance for direct manipulation
   const formRef = useRef<any>(null);
   
-  // Use the provided ref or create our own
   const isMountedRef = externalMountedRef || useRef(true);
 
   useEffect(() => {
@@ -107,7 +104,6 @@ export const useEditSalonDialog = ({
         values.address = values.fullAddress;
       }
       
-      // Kontrollera och säkerställ prenumerationsplanen
       if (!values.subscriptionPlan) {
         console.log("[useEditSalonDialog] WARNING: Missing subscriptionPlan, using default");
         values.subscriptionPlan = "Baspaket";
@@ -118,7 +114,6 @@ export const useEditSalonDialog = ({
         values.subscriptionType = "monthly";
       }
       
-      // Se till att skipSubscription alltid finns med
       if (values.skipSubscription === undefined) {
         values.skipSubscription = !!initialValues?.skipSubscription;
       }
@@ -164,7 +159,6 @@ export const useEditSalonDialog = ({
       if (data && formRef.current) {
         console.log("Updated subscription data from direct API:", data);
         
-        // Access the SalonForm's internal form through the ref
         if (formRef.current.setValue) {
           formRef.current.setValue("subscriptionPlan", data.subscription_plan || "Baspaket", { 
             shouldValidate: true,
@@ -176,7 +170,6 @@ export const useEditSalonDialog = ({
             shouldDirty: true
           });
           
-          // Uppdatera även skipSubscription om det finns i databasen
           if (data.skip_subscription !== undefined) {
             formRef.current.setValue("skipSubscription", !!data.skip_subscription, {
               shouldValidate: true,
