@@ -51,8 +51,10 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   };
 
   useEffect(() => {
-    console.log(`[SecureDealForm] State updated: isSubmitting=${isSubmitting}, isSuccess=${isSuccess}, emailSent=${emailSent}, discountCode=${discountCode}, emailError=${emailError}`);
-  }, [isSubmitting, isSuccess, emailSent, discountCode, emailError]);
+    if (isSuccess && emailSent) {
+      console.log(`[SecureDealForm] Success state: emailSent=${emailSent}, emailError=${emailError}`);
+    }
+  }, [isSuccess, emailSent, emailError]);
 
   if (isCheckingClaim) {
     return (
@@ -67,7 +69,6 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   }
 
   if (isSuccess && emailSent) {
-    console.log(`[SecureDealForm] Showing success message with email=${emailSent} and code=${discountCode}`);
     return (
       <SuccessMessage 
         email={emailSent} 
@@ -89,3 +90,4 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
     </div>
   );
 };
+

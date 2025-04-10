@@ -116,7 +116,7 @@ export const useSecureDealSubmit = ({
         if (emailResult.success) {
           // Kontrollera om vi är i testläge och e-postar dirigeras om
           if (emailResult.data && emailResult.data.productionMode === false) {
-            toast.success("Rabattkoden har genererats, men vi är i testläge så e-post skickades till en testadress.", {
+            toast.success("Rabattkoden har skickats till din e-post. (Test-läge)", {
               duration: 5000
             });
           } else {
@@ -179,3 +179,4 @@ export const useSecureDealSubmit = ({
     handleReset
   };
 };
+

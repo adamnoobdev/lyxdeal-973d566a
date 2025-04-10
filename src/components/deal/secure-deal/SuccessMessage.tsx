@@ -37,10 +37,7 @@ export const SuccessMessage = ({ email, code, onReset, emailError }: SuccessMess
       
       <h2 className="text-2xl font-semibold mb-2">Grattis!</h2>
       <p className="text-gray-600 mb-4">
-        {emailError 
-          ? "Vi har säkrat din rabattkod" 
-          : `Vi har skickat din rabattkod till ${email}`
-        }
+        Vi har skickat din rabattkod till {email}
       </p>
       
       {emailError && (
@@ -52,7 +49,8 @@ export const SuccessMessage = ({ email, code, onReset, emailError }: SuccessMess
         </Alert>
       )}
       
-      {code && (
+      {/* Visa bara koden om e-post skickning misslyckades */}
+      {code && emailError && (
         <div className="mb-6">
           <p className="text-gray-600 mb-2">Din rabattkod:</p>
           <div className="flex items-center justify-center gap-2">
@@ -74,10 +72,7 @@ export const SuccessMessage = ({ email, code, onReset, emailError }: SuccessMess
             </Button>
           </div>
           <p className="mt-2 text-sm text-gray-500">
-            {emailError 
-              ? "Spara eller kopiera denna kod eftersom e-postskickningen misslyckades"
-              : "Spara eller kopiera denna kod om du inte får mejlet direkt"
-            }
+            Spara eller kopiera denna kod eftersom e-postskickningen misslyckades
           </p>
         </div>
       )}
@@ -100,3 +95,4 @@ export const SuccessMessage = ({ email, code, onReset, emailError }: SuccessMess
     </div>
   );
 };
+
