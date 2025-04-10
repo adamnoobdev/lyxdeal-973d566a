@@ -20,27 +20,40 @@ export async function requestHandler(req: Request): Promise<Response> {
     try {
       rawBody = await req.text();
       console.log("Raw request body length:", rawBody?.length || 0);
-      console.log("Raw request body preview:", rawBody?.substring(0, 100));
       
       // Enhanced error handling for empty body
       if (!rawBody || rawBody.trim() === '') {
-        console.error("Empty request body received");
+        console.error("Empty request body received in requestHandler");
         return new Response(
-          JSON.stringify({ error: "Empty request body received" }),
+          JSON.stringify({ 
+            error: "Empty request body received", 
+            message: "The function received an empty body. Check that the request is properly formatted."
+          }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
         );
       }
       
+      console.log("Raw request body preview:", rawBody.substring(0, 100) + (rawBody.length > 100 ? '...' : ''));
+      
       try {
         requestData = JSON.parse(rawBody);
         console.log("Successfully parsed JSON body");
+        
+        // Check if the parsed object is empty
+        if (!requestData || (typeof requestData === 'object' && Object.keys(requestData).length === 0)) {
+          console.error("Empty JSON object received after parsing");
+          return new Response(
+            JSON.stringify({ error: "Empty JSON object in request body" }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+          );
+        }
       } catch (parseError) {
-        console.error("JSON parse error:", parseError);
+        console.error("JSON parse error:", parseError.message);
         return new Response(
           JSON.stringify({ 
-            error: "Invalid JSON body", 
+            error: "Invalid JSON format", 
             details: parseError.message, 
-            receivedBody: rawBody.substring(0, 100) + (rawBody.length > 100 ? '...' : '') 
+            receivedBody: rawBody.substring(0, 200) + (rawBody.length > 200 ? '...' : '') 
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
         );

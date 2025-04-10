@@ -25,6 +25,18 @@ serve(async (req) => {
       const origin = req.headers.get('origin') || 'unknown';
       
       console.log(`Request details: method=${req.method}, content-type=${contentType}, content-length=${contentLength}, origin=${origin}`);
+      
+      // Validate content length early
+      if (contentLength === '0' || contentLength === 'unknown' || parseInt(contentLength || '0') <= 2) {
+        console.error("Request has empty or invalid content-length:", contentLength);
+        return new Response(
+          JSON.stringify({ 
+            error: "Request body cannot be empty or too small", 
+            contentLength 
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+        );
+      }
     } catch (e) {
       console.log("Error logging request details:", e.message);
     }
@@ -48,19 +60,33 @@ serve(async (req) => {
       const clonedReq = req.clone();
       bodyText = await clonedReq.text();
       console.log(`Request body length: ${bodyText.length} characters`);
-      console.log(`Request body preview: ${bodyText.substring(0, 100)}${bodyText.length > 100 ? '...' : ''}`);
       
-      if (!bodyText || bodyText.trim() === '') {
+      if (!bodyText || bodyText.trim().length === 0) {
         console.error("Empty request body detected");
         return new Response(
-          JSON.stringify({ error: "Request body cannot be empty" }),
+          JSON.stringify({ 
+            error: "Request body cannot be empty",
+            message: "The request body is empty but content-length header might be set. Check that the body is properly sent."
+          }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
         );
       }
       
+      // Log first part of body for debugging (without sensitive info)
+      console.log(`Request body preview: ${bodyText.substring(0, 100)}${bodyText.length > 100 ? '...' : ''}`);
+      
       // Validate JSON
+      let parsedBody;
       try {
-        JSON.parse(bodyText);
+        parsedBody = JSON.parse(bodyText);
+        if (!parsedBody || (typeof parsedBody === 'object' && Object.keys(parsedBody).length === 0)) {
+          console.error("Empty JSON object received");
+          return new Response(
+            JSON.stringify({ error: "Empty JSON object received" }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+          );
+        }
+        console.log("Successfully parsed JSON body with keys:", Object.keys(parsedBody).join(", "));
       } catch (parseError) {
         console.error("Invalid JSON format:", parseError.message);
         return new Response(

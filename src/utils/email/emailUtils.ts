@@ -44,6 +44,12 @@ export const sendDiscountCodeEmail = async (
       bookingUrl: bookingUrl?.trim() || null
     };
 
+    // Validate that the request body is not empty
+    if (!Object.keys(requestBody).length) {
+      console.error("[sendDiscountCodeEmail] Request body is empty");
+      return { success: false, error: "Empty request body" };
+    }
+
     // Add detailed logging of request body for debugging
     console.log(`[sendDiscountCodeEmail] Preparing to call edge function with data:`, {
       email: email.substring(0, 3) + '***', // Mask full email in logs
@@ -55,9 +61,18 @@ export const sendDiscountCodeEmail = async (
       requestBodyJSON: JSON.stringify(requestBody)
     });
     
+    // Extra validation to ensure body is not empty after stringifying
+    const stringifiedBody = JSON.stringify(requestBody);
+    if (!stringifiedBody || stringifiedBody === '{}' || stringifiedBody === '""') {
+      console.error("[sendDiscountCodeEmail] Stringified body is empty or invalid");
+      return { success: false, error: "Failed to create valid request body" };
+    }
+    
+    console.log(`[sendDiscountCodeEmail] Final request body length: ${stringifiedBody.length}`);
+    
     // Call the edge function with explicit Content-Type and properly structured body
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
-      body: JSON.stringify(requestBody), // Ensure we stringify the body explicitly
+      body: stringifiedBody, // Using validated stringified body
       headers: {
         "Content-Type": "application/json"
       }
