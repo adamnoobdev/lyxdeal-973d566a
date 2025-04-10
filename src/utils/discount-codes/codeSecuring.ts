@@ -61,24 +61,60 @@ export const secureDiscountCode = async (
     // 1. Try to fetch an available discount code
     let code = await getAvailableDiscountCode(dealId);
     
-    // 2. If no code is available, generate a new one
+    // 2. If no code is available, generate a new one with retry logic
     if (!code) {
       console.log("[secureDiscountCode] No discount code available, generating a new one");
-      const newCode = generateRandomCode();
-      const codeCreated = await createNewDiscountCode(dealId, newCode);
       
-      if (!codeCreated) {
-        console.error("[secureDiscountCode] Failed to create new discount code");
+      // Försök upp till 3 gånger att skapa en ny kod
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const newCode = generateRandomCode();
+        console.log(`[secureDiscountCode] Attempt ${attempt}: Generating code ${newCode}`);
+        
+        const codeCreated = await createNewDiscountCode(dealId, newCode);
+        
+        if (codeCreated) {
+          code = newCode;
+          console.log(`[secureDiscountCode] Successfully created new code: ${code}`);
+          break;
+        } else {
+          console.warn(`[secureDiscountCode] Failed to create code on attempt ${attempt}`);
+        }
+      }
+      
+      if (!code) {
+        console.error("[secureDiscountCode] Failed to create new discount code after multiple attempts");
         return { 
           success: false, 
-          message: "Ett fel uppstod när en ny rabattkod skulle skapas." 
+          message: "Ett fel uppstod när en ny rabattkod skulle skapas. Vänligen försök igen." 
+        };
+      }
+    } else {
+      console.log(`[secureDiscountCode] Found available code: ${code}`);
+    }
+    
+    // Verifiera att koden verkligen finns i databasen innan vi fortsätter
+    const { data: verifyCode, error: verifyError } = await supabase
+      .from("discount_codes")
+      .select("code")
+      .eq("code", code)
+      .maybeSingle();
+      
+    if (verifyError || !verifyCode) {
+      console.error(`[secureDiscountCode] Failed to verify code ${code} in database:`, verifyError);
+      
+      // Försök skapa en ny kod som en nödlösning
+      const fallbackCode = generateRandomCode();
+      const fallbackCreated = await createNewDiscountCode(dealId, fallbackCode);
+      
+      if (!fallbackCreated) {
+        return { 
+          success: false, 
+          message: "Ett tekniskt fel uppstod. Vänligen försök igen senare."
         };
       }
       
-      code = newCode;
-      console.log(`[secureDiscountCode] New code generated: ${code}`);
-    } else {
-      console.log(`[secureDiscountCode] Found available code: ${code}`);
+      code = fallbackCode;
+      console.log(`[secureDiscountCode] Created fallback code ${code} after verification failed`);
     }
     
     // 3. Mark the code as used and associate with customer
@@ -120,6 +156,38 @@ export const createPurchaseRecord = async (
 ): Promise<boolean> => {
   try {
     console.log(`[createPurchaseRecord] Creating record for ${email}, deal ${dealId}, code ${code}`);
+    
+    if (code === 'DIRECT_BOOKING') {
+      // För direktbokning skapar vi ett annat slags inköpspost
+      console.log(`[createPurchaseRecord] Creating direct booking purchase record`);
+      const { error: directBookingError } = await supabase
+        .from("purchases")
+        .insert({
+          customer_email: email,
+          deal_id: Number(dealId),
+          discount_code: 'DIRECT_BOOKING',
+          status: 'direct_booking'
+        });
+        
+      if (directBookingError) {
+        console.error("Error creating direct booking purchase record:", directBookingError);
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // Kontrollera först att rabattkoden finns och är markerad som använd
+    const { data: codeData, error: codeError } = await supabase
+      .from("discount_codes")
+      .select("is_used")
+      .eq("code", code)
+      .maybeSingle();
+      
+    if (codeError || !codeData) {
+      console.error("Error verifying discount code for purchase record:", codeError);
+      return false;
+    }
     
     const { error: purchaseError } = await supabase
       .from("purchases")

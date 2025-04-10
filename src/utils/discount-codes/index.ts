@@ -24,7 +24,10 @@ export * from './removeAllCodes';
 /**
  * Generate a batch of discount codes for a deal
  */
-export const generateDiscountCodes = async (dealId: number | string, quantity: number = 10): Promise<boolean> => {
+export const generateDiscountCodes = async (
+  dealId: number | string, 
+  quantity: number = 10
+): Promise<boolean> => {
   try {
     // Normalize the deal ID to ensure we always store it as a number in the database
     const numericDealId = normalizeId(dealId);
@@ -190,10 +193,15 @@ export const markDiscountCodeAsUsed = async (
   try {
     console.log(`[markDiscountCodeAsUsed] Marking code ${code} as used for ${customerData.email}`);
     
-    // Check if the code exists first
+    if (!code || code === 'DIRECT_BOOKING') {
+      console.log('[markDiscountCodeAsUsed] Direct booking flow, no code to mark as used');
+      return true; // Direkt bokning kräver ingen rabattkod att markera
+    }
+    
+    // Check if the code exists first with improved logging
     const { data: existingCode, error: checkError } = await supabase
       .from("discount_codes")
-      .select("code, is_used")
+      .select("code, is_used, deal_id")
       .eq("code", code)
       .maybeSingle();
     
@@ -204,6 +212,18 @@ export const markDiscountCodeAsUsed = async (
     
     if (!existingCode) {
       console.error("[markDiscountCodeAsUsed] Code not found:", code);
+      
+      // För att debugga problem, kontrollera om koden finns med annan skiftlägeskänslighet
+      const { data: similarCodes } = await supabase
+        .from("discount_codes")
+        .select("code")
+        .ilike("code", `%${code}%`)
+        .limit(5);
+        
+      if (similarCodes && similarCodes.length > 0) {
+        console.log("[markDiscountCodeAsUsed] Similar codes found:", similarCodes.map(c => c.code));
+      }
+      
       return false;
     }
     
