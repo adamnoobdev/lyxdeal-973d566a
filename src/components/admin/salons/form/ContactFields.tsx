@@ -6,10 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
 import { MapboxAddressInput } from "@/components/common/MapboxAddressInput";
 import type { AddressParts } from "@/components/common/MapboxAddressInput";
+import { useEffect } from "react";
 
 interface ContactFieldsProps {
   form: UseFormReturn<any>;
-  includeSubscriptionFields?: boolean;
 }
 
 export const ContactFields = ({ form }: ContactFieldsProps) => {
@@ -26,11 +26,29 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
   };
 
   // Force watch subscription fields to make sure they're included in the form submission
-  const subscriptionPlan = form.watch("subscriptionPlan") || "Baspaket";
-  const subscriptionType = form.watch("subscriptionType") || "monthly";
+  const subscriptionPlan = form.watch("subscriptionPlan");
+  const subscriptionType = form.watch("subscriptionType");
   
-  // Log current values when component updates
-  console.log("Current subscription values:", { subscriptionPlan, subscriptionType });
+  // Ensure we always have valid subscription values
+  useEffect(() => {
+    if (!subscriptionPlan) {
+      console.log("ContactFields: Setting default subscriptionPlan to Baspaket");
+      form.setValue("subscriptionPlan", "Baspaket", { shouldValidate: true });
+    }
+    
+    if (!subscriptionType) {
+      console.log("ContactFields: Setting default subscriptionType to monthly");
+      form.setValue("subscriptionType", "monthly", { shouldValidate: true });
+    }
+  }, [subscriptionPlan, subscriptionType, form]);
+  
+  // Log current values on component render
+  useEffect(() => {
+    console.log("ContactFields rendering with subscription values:", {
+      plan: subscriptionPlan || "Not set - will default to Baspaket",
+      type: subscriptionType || "Not set - will default to monthly"
+    });
+  }, [subscriptionPlan, subscriptionType]);
 
   return (
     <div className="space-y-4">
@@ -69,7 +87,7 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
         )}
       />
 
-      {/* Always show subscription fields in edit form */}
+      {/* Always show subscription fields */}
       <div className="space-y-4">
         <FormField
           control={form.control}
@@ -78,7 +96,10 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
             <FormItem>
               <FormLabel className="text-sm font-medium">Prenumerationsplan</FormLabel>
               <Select 
-                onValueChange={field.onChange} 
+                onValueChange={(value) => {
+                  console.log("Subscription plan selected:", value);
+                  field.onChange(value);
+                }} 
                 value={field.value || "Baspaket"}
                 defaultValue="Baspaket"
               >
@@ -107,7 +128,10 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
             <FormItem>
               <FormLabel className="text-sm font-medium">Betalningsintervall</FormLabel>
               <Select 
-                onValueChange={field.onChange} 
+                onValueChange={(value) => {
+                  console.log("Subscription type selected:", value);
+                  field.onChange(value);
+                }} 
                 value={field.value || "monthly"}
                 defaultValue="monthly"
               >

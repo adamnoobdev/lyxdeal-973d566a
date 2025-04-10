@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const updateSalonData = async (values: any, id: number) => {
   try {
     // Log original values
-    console.log("Updating salon with original values:", values);
+    console.log("Updating salon with original values:", JSON.stringify(values, null, 2));
     
     // Create a clean object for updates
     const updateValues: Record<string, any> = {
@@ -54,15 +54,14 @@ export const updateSalonData = async (values: any, id: number) => {
       updateValues.privacy_accepted = values.privacyAccepted;
     }
     
-    // CRITICAL FIX: Always include subscription fields in the update
-    // No conditions should prevent these from being updated
-    updateValues.subscription_plan = values.subscriptionPlan || "Baspaket";
-    updateValues.subscription_type = values.subscriptionType || "monthly";
+    // CRITICAL: Always include subscription fields in the update
+    // The subscription_plan and subscription_type must always be included
+    updateValues.subscription_plan = values.subscriptionPlan;
+    updateValues.subscription_type = values.subscriptionType;
     
-    console.log("Updating subscription plan to:", updateValues.subscription_plan);
-    console.log("Updating subscription type to:", updateValues.subscription_type);
-    
-    console.log("Updating salon with processed values:", updateValues);
+    console.log("Subscription plan to update:", values.subscriptionPlan);
+    console.log("Subscription type to update:", values.subscriptionType);
+    console.log("Final update values:", JSON.stringify(updateValues, null, 2));
 
     // If a new password is provided, update it via auth admin API
     if (values.password) {
@@ -91,9 +90,12 @@ export const updateSalonData = async (values: any, id: number) => {
       .eq("id", id)
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase error updating salon:", error);
+      throw error;
+    }
     
-    console.log("Salon updated successfully:", data);
+    console.log("Salon updated successfully, response:", data);
     return data;
   } catch (error) {
     console.error("Error updating salon:", error);

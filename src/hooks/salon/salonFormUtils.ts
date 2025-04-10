@@ -17,9 +17,20 @@ export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
   };
   
   console.log("Preparing salon for edit:", salon);
+  console.log("Source subscription data:", {
+    plan: salon.subscription_plan || "Not set in DB (will default to Baspaket)",
+    type: salon.subscription_type || "Not set in DB (will default to monthly)"
+  });
+  
+  const subscriptionPlan = salon.subscription_plan || "Baspaket";
+  const subscriptionType = salon.subscription_type || "monthly";
+  
+  console.log("Final subscription values to use in form:", {
+    plan: subscriptionPlan,
+    type: subscriptionType
+  });
   
   // Always use these default values if the salon doesn't have subscription data
-  // This handles edge cases where salons were created with skipSubscription=true
   return {
     name: salon.name || "",
     email: salon.email || "",
@@ -27,7 +38,7 @@ export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
     address: salon.address || "",
     termsAccepted: salon.terms_accepted ?? true,
     privacyAccepted: salon.privacy_accepted ?? true,
-    subscriptionPlan: salon.subscription_plan || "Baspaket",
-    subscriptionType: salon.subscription_type || "monthly",
+    subscriptionPlan,
+    subscriptionType,
   };
 };

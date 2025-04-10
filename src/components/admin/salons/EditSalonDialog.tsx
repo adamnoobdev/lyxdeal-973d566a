@@ -33,6 +33,9 @@ export const EditSalonDialog = ({
   useEffect(() => {
     if (initialValues) {
       console.log("EditSalonDialog received initialValues:", initialValues);
+      // Log subscription data specifically to debug
+      console.log("Subscription plan from initialValues:", initialValues.subscriptionPlan);
+      console.log("Subscription type from initialValues:", initialValues.subscriptionType);
     }
   }, [initialValues]);
 
@@ -113,16 +116,23 @@ export const EditSalonDialog = ({
         values.address = values.fullAddress;
       }
       
-      // Always ensure subscription fields are included, no conditionals
-      const submissionValues = {
-        ...values,
-        subscriptionPlan: values.subscriptionPlan || "Baspaket",
-        subscriptionType: values.subscriptionType || "monthly",
-      };
+      // Ensure subscription fields are always included with explicit logging
+      if (!values.subscriptionPlan) {
+        console.log("[EditSalonDialog] WARNING: Missing subscriptionPlan, using default");
+        values.subscriptionPlan = "Baspaket";
+      }
       
-      console.log("[EditSalonDialog] Submitting with final values:", submissionValues);
+      if (!values.subscriptionType) {
+        console.log("[EditSalonDialog] WARNING: Missing subscriptionType, using default");
+        values.subscriptionType = "monthly";
+      }
       
-      await onSubmit(submissionValues);
+      console.log("[EditSalonDialog] Final subscription values:", {
+        plan: values.subscriptionPlan,
+        type: values.subscriptionType
+      });
+      
+      await onSubmit(values);
       
       if (isMounted) {
         toast.success("Salonginformationen har uppdaterats");

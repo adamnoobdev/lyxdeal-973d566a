@@ -66,10 +66,12 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
 
   // Debug to see values in the form
   useEffect(() => {
-    if (isEditing) {
-      console.log("Form initialized with values:", form.getValues());
-    }
-  }, [form, isEditing]);
+    console.log("SalonForm initialized with values:", form.getValues());
+    console.log("Subscription values:", {
+      plan: form.getValues("subscriptionPlan"),
+      type: form.getValues("subscriptionType")
+    });
+  }, [form]);
 
   const handleSubmit = async (values: any) => {
     if (isSubmitting) return;
@@ -77,15 +79,24 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
     setInternalIsSubmitting(true);
     try {
       // Always ensure subscription data is included, no conditionals
-      const submissionValues = {
-        ...values,
-        subscriptionPlan: values.subscriptionPlan || "Baspaket",
-        subscriptionType: values.subscriptionType || "monthly",
-      };
+      if (!values.subscriptionPlan) {
+        console.log("SalonForm submit: Missing subscriptionPlan, setting default");
+        values.subscriptionPlan = "Baspaket";
+      }
+      
+      if (!values.subscriptionType) {
+        console.log("SalonForm submit: Missing subscriptionType, setting default");
+        values.subscriptionType = "monthly";
+      }
       
       // Debug to see values submitted to backend
-      console.log("Form submitting with values:", submissionValues);
-      await onSubmit(submissionValues);
+      console.log("SalonForm submitting with values:", values);
+      console.log("Final subscription values in submission:", {
+        plan: values.subscriptionPlan,
+        type: values.subscriptionType
+      });
+      
+      await onSubmit(values);
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {
