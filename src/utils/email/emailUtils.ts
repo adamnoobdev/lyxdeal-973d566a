@@ -33,29 +33,29 @@ export const sendDiscountCodeEmail = async (
       return { success: false, error: "Empty discount code" };
     }
 
-    // Create a properly structured request body
+    // Create a properly structured request body matching the edge function's expected structure
     const requestBody = {
       email: email.trim().toLowerCase(),
       name: name.trim(),
       phone: phone?.trim() || "",
-      code: code.trim(),
+      code: code.trim().toUpperCase(), // Ensure code is standardized
       dealTitle: dealTitle.trim(),
       subscribedToNewsletter: !!subscribedToNewsletter,
       bookingUrl: bookingUrl?.trim() || null
     };
 
-    // Add detailed logging of function invocation
-    console.log(`[sendDiscountCodeEmail] Calling edge function with parameters:`, {
+    // Add detailed logging of request body for debugging
+    console.log(`[sendDiscountCodeEmail] Preparing to call edge function with data:`, {
       email: email.substring(0, 3) + '***', // Mask full email in logs
-      name,
+      name: name,
       phoneLength: phone?.length || 0,
       codeLength: code?.length || 0,
-      dealTitle,
+      dealTitlePreview: dealTitle.substring(0, 20) + (dealTitle.length > 20 ? '...' : ''),
       hasBookingUrl: !!bookingUrl,
-      requestBody: JSON.stringify(requestBody)
+      requestBodyJSON: JSON.stringify(requestBody)
     });
     
-    // Call the edge function with explicit content type and properly structured body
+    // Call the edge function with explicit Content-Type and properly structured body
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
       body: requestBody,
       headers: {
@@ -65,7 +65,7 @@ export const sendDiscountCodeEmail = async (
     
     if (error) {
       console.error("[sendDiscountCodeEmail] Error invoking edge function:", error);
-      console.error("Error details:", JSON.stringify(error));
+      console.error("[sendDiscountCodeEmail] Error details:", JSON.stringify(error));
       return { success: false, error: error.message || "Failed to invoke email service" };
     }
     
@@ -92,7 +92,7 @@ export const sendDiscountCodeEmail = async (
     return { success: true, data };
   } catch (error) {
     console.error("[sendDiscountCodeEmail] Exception sending email:", error);
-    console.error("Full error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    console.error("[sendDiscountCodeEmail] Full error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Unknown exception in email sending" 

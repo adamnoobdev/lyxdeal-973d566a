@@ -18,35 +18,53 @@ serve(async (req) => {
       });
     }
     
-    // Log headers (with sensitive info masked)
-    const headersMap: Record<string, string> = {};
-    for (const [key, value] of req.headers.entries()) {
-      if (key.toLowerCase() === "authorization") {
-        headersMap[key] = value.substring(0, 10) + "...";
-      } else {
-        headersMap[key] = value;
-      }
+    // Log request details without sensitive info
+    try {
+      const contentType = req.headers.get('content-type') || 'none';
+      const contentLength = req.headers.get('content-length') || 'unknown';
+      const origin = req.headers.get('origin') || 'unknown';
+      
+      console.log(`Request details: method=${req.method}, content-type=${contentType}, content-length=${contentLength}, origin=${origin}`);
+    } catch (e) {
+      console.log("Error logging request details:", e.message);
     }
-    console.log("Headers:", headersMap);
     
     // Check content type
     const contentType = req.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       console.error("Invalid content type:", contentType);
       return new Response(
-        JSON.stringify({ error: "Content-Type must be application/json" }),
+        JSON.stringify({ 
+          error: "Content-Type must be application/json",
+          receivedContentType: contentType || "none" 
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 415 }
       );
     }
     
     // Check content length
     const contentLength = req.headers.get('content-length');
-    if (contentLength === '0') {
-      console.error("Empty request body (content-length: 0)");
+    if (!contentLength || contentLength === '0') {
+      console.error("Empty or missing content-length header:", contentLength);
       return new Response(
         JSON.stringify({ error: "Request body cannot be empty" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
+    }
+    
+    // Extra check for body
+    const clonedReq = req.clone();
+    try {
+      const bodyText = await clonedReq.text();
+      if (!bodyText || bodyText.trim() === '') {
+        console.error("Empty request body despite content-length header");
+        return new Response(
+          JSON.stringify({ error: "Request body is empty despite Content-Length header" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+        );
+      }
+    } catch (e) {
+      console.error("Error pre-checking body:", e);
     }
     
     try {
@@ -70,7 +88,7 @@ serve(async (req) => {
           responseBody = JSON.parse(responseText);
           console.log("Response body:", responseBody);
         } catch (e) {
-          console.log("Response (not JSON):", responseText.substring(0, 200));
+          console.log("Response (not JSON):", responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''));
         }
       } catch (e) {
         console.warn("Could not log response body:", e.message);

@@ -19,7 +19,8 @@ export async function requestHandler(req: Request): Promise<Response> {
     
     try {
       rawBody = await req.text();
-      console.log("Raw request body:", rawBody);
+      console.log("Raw request body length:", rawBody?.length || 0);
+      console.log("Raw request body preview:", rawBody?.substring(0, 100));
       
       // Enhanced error handling for empty body
       if (!rawBody || rawBody.trim() === '') {
@@ -32,10 +33,15 @@ export async function requestHandler(req: Request): Promise<Response> {
       
       try {
         requestData = JSON.parse(rawBody);
+        console.log("Successfully parsed JSON body");
       } catch (parseError) {
         console.error("JSON parse error:", parseError);
         return new Response(
-          JSON.stringify({ error: "Invalid JSON body", details: parseError.message, rawBody }),
+          JSON.stringify({ 
+            error: "Invalid JSON body", 
+            details: parseError.message, 
+            receivedBody: rawBody.substring(0, 100) + (rawBody.length > 100 ? '...' : '') 
+          }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
         );
       }
@@ -47,17 +53,25 @@ export async function requestHandler(req: Request): Promise<Response> {
       );
     }
 
-    // 3. Validate required fields
+    // 3. Validate required fields with detailed logging
+    console.log("Checking required fields in the request data");
+    console.log("Fields received:", Object.keys(requestData || {}).join(", "));
+    
     const { email, name, code, dealTitle } = requestData;
-    const phone = requestData.phone || "";
+    console.log("Critical fields check:", {
+      hasEmail: !!email,
+      hasName: !!name,
+      hasCode: !!code,
+      hasDealTitle: !!dealTitle
+    });
     
     // More detailed logging of incoming data
     console.log("Incoming email request:", {
-      email, 
+      email: email ? `${email.substring(0, 3)}***` : undefined,
       name,
-      phone: phone ? phone.substring(0, 2) + "***" : undefined, // Mask part of phone number in logs
-      code,
-      dealTitle: dealTitle?.substring(0, 20) + (dealTitle?.length > 20 ? "..." : ""),
+      hasPhone: !!requestData.phone,
+      codeLength: code?.length,
+      dealTitleLength: dealTitle?.length,
       hasBookingUrl: !!requestData.bookingUrl,
       subscribedToNewsletter: !!requestData.subscribedToNewsletter
     });
@@ -74,7 +88,12 @@ export async function requestHandler(req: Request): Promise<Response> {
         JSON.stringify({ 
           error: `Missing required fields: ${missingFields.join(", ")}`,
           receivedFields: Object.keys(requestData || {}),
-          receivedData: requestData
+          receivedData: {
+            email: email ? `${email.substring(0, 3)}***` : undefined,
+            name: name || undefined,
+            code: code ? `${code.substring(0, 2)}***` : undefined,
+            dealTitle: dealTitle ? `${dealTitle.substring(0, 20)}${dealTitle?.length > 20 ? '...' : ''}` : undefined
+          }
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
@@ -82,7 +101,7 @@ export async function requestHandler(req: Request): Promise<Response> {
 
     // 4. Send email
     try {
-      console.log("Sending email with code:", code);
+      console.log("All validations passed, sending email with code:", code);
       const emailResult = await sendEmail(requestData);
       
       console.log("Email sent result:", emailResult);
@@ -98,7 +117,11 @@ export async function requestHandler(req: Request): Promise<Response> {
     } catch (error) {
       console.error("Error sending email:", error);
       console.error("Error type:", typeof error);
-      console.error("Error properties:", Object.keys(error));
+      
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      }
       
       if (error.response) {
         console.error("API response status:", error.response.status);

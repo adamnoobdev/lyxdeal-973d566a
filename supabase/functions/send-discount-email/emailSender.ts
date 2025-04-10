@@ -20,24 +20,31 @@ try {
 
 export async function sendEmail(data: EmailRequest) {
   try {
+    // Validera och formatera indata
+    if (!data || typeof data !== 'object') {
+      throw new Error(`Invalid request data: ${JSON.stringify(data)}`);
+    }
+
     // Ensure all text fields are trimmed and properly formatted
-    const email = data.email.trim().toLowerCase();
-    const name = data.name.trim();
-    const code = data.code ? data.code.trim().toUpperCase() : ""; 
-    const dealTitle = data.dealTitle.trim();
-    const phone = data.phone ? data.phone.trim() : "";
+    const email = data.email?.trim().toLowerCase();
+    const name = data.name?.trim() || "Kund";
+    const code = data.code?.trim().toUpperCase() || "";
+    const dealTitle = data.dealTitle?.trim() || "";
+    const phone = data.phone?.trim() || "";
     const bookingUrl = data.bookingUrl || null;
     
     console.log(`Preparing to send email to ${email} with discount code ${code}`);
     console.log(`Deal title: "${dealTitle}", booking URL: ${bookingUrl || 'none'}`);
+    console.log("Input validation check:", { 
+      hasEmail: !!email, 
+      hasName: !!name, 
+      hasCode: !!code, 
+      hasDealTitle: !!dealTitle
+    });
 
     // Deep validation of required fields
     if (!email || !email.includes('@')) {
       throw new Error(`Invalid email format: ${email}`);
-    }
-    
-    if (!name) {
-      throw new Error("Name is required");
     }
     
     if (!code) {
