@@ -57,7 +57,7 @@ export const sendDiscountCodeEmail = async (
     
     // Call the edge function with explicit Content-Type and properly structured body
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
-      body: requestBody,
+      body: JSON.stringify(requestBody), // Ensure we stringify the body explicitly
       headers: {
         "Content-Type": "application/json"
       }
