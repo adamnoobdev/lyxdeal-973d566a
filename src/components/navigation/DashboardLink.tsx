@@ -1,14 +1,11 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-
 interface DashboardLinkProps {
   hasDashboard: boolean;
   dashboardPath: string;
   userRole?: string | null;
   className?: string;
 }
-
 const DashboardLink: React.FC<DashboardLinkProps> = ({
   hasDashboard,
   dashboardPath,
@@ -16,15 +13,6 @@ const DashboardLink: React.FC<DashboardLinkProps> = ({
   className = ''
 }) => {
   if (!hasDashboard) return null;
-
-  return (
-    <Link 
-      to={dashboardPath} 
-      className={`text-sm font-medium transition-colors hover:text-primary ${className}`}
-    >
-      {userRole === 'admin' ? 'Admin Panel' : 'Min Salong'}
-    </Link>
-  );
+  return;
 };
-
 export default DashboardLink;
