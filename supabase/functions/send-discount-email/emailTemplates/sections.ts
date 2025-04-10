@@ -56,3 +56,38 @@ export function createFooterSection(currentYear: number) {
     </div>
   `;
 }
+
+// Add the missing functions that are imported in emailTemplate.ts
+export function getHeaderSection(styles: Record<string, string>) {
+  return `
+    <div style="${styles.logoContainer}">
+      <img src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/Lyxdeal-logo.svg" alt="Beauty Deals" style="${styles.logoImage}" />
+    </div>
+  `;
+}
+
+export function getFooterSection(styles: Record<string, string>) {
+  const currentYear = new Date().getFullYear();
+  return `
+    <div style="${styles.footer}">
+      <p style="margin: 5px 0;">© ${currentYear} Beauty Deals. Alla rättigheter förbehållna.</p>
+      <p style="margin: 5px 0;">Det här är ett automatiskt meddelande, svara inte på detta mail.</p>
+    </div>
+  `;
+}
+
+export function getCodeSection(code: string, styles: Record<string, string>) {
+  return `
+    <div style="${styles.codeContainer}">
+      <p style="${styles.code}">${code}</p>
+    </div>
+  `;
+}
+
+export function getBookingSection(bookingUrl: string, styles: Record<string, string>) {
+  return `
+    <div style="text-align: center; margin: 20px 0;">
+      <a href="${bookingUrl}" target="_blank" style="${styles.button}">Boka nu</a>
+    </div>
+  `;
+}
