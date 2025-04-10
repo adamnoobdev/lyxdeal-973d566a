@@ -47,6 +47,8 @@ export async function requestHandler(req: Request): Promise<Response> {
             { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
           );
         }
+        
+        console.log("Parsed request data:", JSON.stringify(requestData, null, 2));
       } catch (parseError) {
         console.error("JSON parse error:", parseError.message);
         return new Response(
@@ -78,17 +80,6 @@ export async function requestHandler(req: Request): Promise<Response> {
       hasDealTitle: !!dealTitle
     });
     
-    // More detailed logging of incoming data
-    console.log("Incoming email request:", {
-      email: email ? `${email.substring(0, 3)}***` : undefined,
-      name,
-      hasPhone: !!requestData.phone,
-      codeLength: code?.length,
-      dealTitleLength: dealTitle?.length,
-      hasBookingUrl: !!requestData.bookingUrl,
-      subscribedToNewsletter: !!requestData.subscribedToNewsletter
-    });
-
     if (!email || !name || !code || !dealTitle) {
       const missingFields = [];
       if (!email) missingFields.push("email");

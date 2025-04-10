@@ -26,31 +26,54 @@ serve(async (req) => {
       
       console.log(`Request details: method=${req.method}, content-type=${contentType}, content-length=${contentLength}, origin=${origin}`);
       
+      // Detailed debugging for the request body
+      try {
+        // Clone the request to make sure we don't consume the body before processing
+        const clonedReq = req.clone();
+        
+        // Get the request body as text for inspection
+        let bodyText;
+        try {
+          bodyText = await clonedReq.text();
+          console.log(`Raw request body length: ${bodyText.length}`);
+          
+          // Log the first part of the body (for privacy, limit what's shown)
+          if (bodyText.length > 0) {
+            console.log(`Body preview (first 100 chars): ${bodyText.substring(0, 100)}${bodyText.length > 100 ? '...' : ''}`);
+            
+            // Try to parse as JSON to verify it's valid
+            try {
+              const jsonBody = JSON.parse(bodyText);
+              console.log("Parsed JSON successfully, keys:", Object.keys(jsonBody).join(", "));
+            } catch (jsonError) {
+              console.error("Failed to parse body as JSON:", jsonError.message);
+            }
+          } else {
+            console.error("Request body is empty");
+          }
+        } catch (bodyError) {
+          console.error("Error reading request body:", bodyError);
+        }
+      } catch (debugError) {
+        console.error("Error in request debugging:", debugError);
+      }
+      
       // Check if content-length exists and is greater than zero
       if (contentLength === '0' || contentLength === 'unknown' || parseInt(contentLength || '0') <= 2) {
         console.error("Request has empty or invalid content-length:", contentLength);
         
-        // Let's try to verify the body directly
-        try {
-          const clonedReq = req.clone();
-          const bodyText = await clonedReq.text();
-          console.log(`Actual request body length: ${bodyText.length}, Content: "${bodyText.substring(0, 50)}${bodyText.length > 50 ? '...' : ''}"`);
-          
-          if (!bodyText || bodyText.trim().length === 0) {
-            return new Response(
-              JSON.stringify({ 
-                error: "Empty request body received",
-                message: "The client sent an empty request body. Make sure the request includes valid JSON data."
-              }),
-              { 
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-                status: 400 
-              }
-            );
+        return new Response(
+          JSON.stringify({ 
+            error: "Empty request body detected",
+            message: "The request body is empty. Check that the request is properly formatted with a valid body.",
+            contentLength,
+            contentType
+          }),
+          { 
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400 
           }
-        } catch (e) {
-          console.error("Error checking body directly:", e.message);
-        }
+        );
       }
     } catch (e) {
       console.log("Error logging request details:", e.message);
@@ -69,15 +92,15 @@ serve(async (req) => {
       );
     }
     
-    // Extra check for body before processing
-    let bodyText;
+    // Create a fresh request with properly verified body for the handler
     try {
+      // Clone the request first so we don't consume the body
       const clonedReq = req.clone();
-      bodyText = await clonedReq.text();
-      console.log(`Request body length: ${bodyText.length} characters`);
+      const bodyText = await clonedReq.text();
       
+      // Ensure we have a body
       if (!bodyText || bodyText.trim().length === 0) {
-        console.error("Empty request body detected");
+        console.error("Empty request body detected in final check");
         return new Response(
           JSON.stringify({ 
             error: "Request body cannot be empty",
@@ -86,9 +109,6 @@ serve(async (req) => {
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
         );
       }
-      
-      // Log first part of body for debugging (without sensitive info)
-      console.log(`Request body preview: ${bodyText.substring(0, 100)}${bodyText.length > 100 ? '...' : ''}`);
       
       // Validate JSON
       try {
@@ -100,7 +120,32 @@ serve(async (req) => {
             { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
           );
         }
-        console.log("Successfully parsed JSON body with keys:", Object.keys(parsedBody).join(", "));
+        
+        // Create a new request with the verified body
+        const newRequest = new Request(req.url, {
+          method: req.method,
+          headers: req.headers,
+          body: JSON.stringify(parsedBody)
+        });
+        
+        // Process the request and send the email
+        console.log("Forwarding valid request to handler");
+        const response = await requestHandler(newRequest);
+        
+        // Add CORS headers to the response
+        const responseHeaders = new Headers(response.headers);
+        Object.entries(corsHeaders).forEach(([key, value]) => {
+          responseHeaders.set(key, value);
+        });
+        
+        console.log("Handler processed request, returning response");
+        // Return the response with CORS headers
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: responseHeaders,
+        });
+        
       } catch (parseError) {
         console.error("Invalid JSON format:", parseError.message);
         return new Response(
@@ -120,50 +165,6 @@ serve(async (req) => {
           details: e instanceof Error ? e.message : String(e)
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-      );
-    }
-    
-    // Create a new request with validated body for the handler
-    const jsonBody = JSON.parse(bodyText);
-    const newRequest = new Request(req.url, {
-      method: req.method,
-      headers: req.headers,
-      body: JSON.stringify(jsonBody)
-    });
-    
-    try {
-      // Process the request and send the email
-      console.log("Processing email request");
-      const response = await requestHandler(newRequest);
-      console.log(`Request processed, status: ${response.status}`);
-      
-      // Add CORS headers to the response
-      const responseHeaders = new Headers(response.headers);
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        responseHeaders.set(key, value);
-      });
-      
-      // Return the response with CORS headers
-      return new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: responseHeaders,
-      });
-    } catch (error) {
-      console.error("Error in request processing:", error);
-      console.error("Error stack trace:", error.stack);
-      
-      return new Response(
-        JSON.stringify({
-          error: "Error processing request",
-          message: error instanceof Error ? error.message : "Unknown error",
-          stack: error instanceof Error ? error.stack : undefined,
-          timestamp: new Date().toISOString(),
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
       );
     }
   } catch (outerError) {
