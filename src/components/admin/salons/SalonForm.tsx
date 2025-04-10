@@ -18,6 +18,7 @@ const formSchema = z.object({
   street: z.string().optional(),
   postalCode: z.string().optional(),
   city: z.string().optional(),
+  address: z.string().optional(),
   password: z.string().optional(),
   skipSubscription: z.boolean().optional().default(false),
   subscriptionPlan: z.string().optional(),
@@ -47,6 +48,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
     street: "",
     postalCode: "",
     city: "",
+    address: "",
     password: "",
     skipSubscription: false,
     subscriptionPlan: "Baspaket",
@@ -83,7 +85,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
         <BasicInfoFields form={form} />
         <ContactFields 
           form={form} 
-          includeSubscriptionFields={!isEditing}
+          includeSubscriptionFields={isEditing} // Always show subscription fields when editing
         />
         
         {isEditing && <TermsFields form={form} />}
