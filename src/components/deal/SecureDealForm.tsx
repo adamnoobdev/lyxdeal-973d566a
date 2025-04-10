@@ -21,7 +21,9 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   requiresDiscountCode = true,
   bookingUrl
 }) => {
-  const { hasAlreadyClaimed } = useClaimCheck(dealId);
+  console.log(`[SecureDealForm] Initialized with dealId=${dealId}, requiresDiscountCode=${requiresDiscountCode}, bookingUrl=${bookingUrl}`);
+  
+  const { hasAlreadyClaimed, isCheckingClaim } = useClaimCheck(dealId);
   
   const {
     isSubmitting,
@@ -42,6 +44,18 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   const handleGoBack = () => {
     window.history.back();
   };
+
+  if (isCheckingClaim) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+        </div>
+      </div>
+    );
+  }
 
   if (isSuccess && emailSent) {
     return (

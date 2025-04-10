@@ -51,7 +51,7 @@ export const useSecureDealSubmit = ({
       const validation = await validateDealInput(dealId, values.email, values.phone);
       
       if (!validation.isValid) {
-        toast.error(validation.message);
+        toast.error(validation.message || "Valideringsfel");
         setIsSubmitting(false);
         return;
       }
@@ -66,12 +66,13 @@ export const useSecureDealSubmit = ({
       });
       
       if (!codeResult.success) {
-        toast.error(codeResult.message);
+        toast.error(codeResult.message || "Kunde inte säkra rabattkod");
         setIsSubmitting(false);
         return;
       }
       
       const code = codeResult.code as string;
+      console.log(`[SecureDealSubmit] Secured discount code: ${code}`);
       
       // 3. Om användaren vill prenumerera på nyhetsbrev
       if (values.subscribeToNewsletter) {

@@ -15,16 +15,19 @@ export const secureDiscountCode = async (
   }
 ): Promise<{ success: boolean; code?: string; message?: string }> => {
   try {
+    console.log(`[secureDiscountCode] Attempting to secure code for deal ${dealId}`);
+    
     // 1. Try to fetch an available discount code
     let code = await getAvailableDiscountCode(dealId);
     
     // 2. If no code is available, generate a new one
     if (!code) {
-      console.log("No discount code available, generating a new one");
+      console.log("[secureDiscountCode] No discount code available, generating a new one");
       const newCode = generateRandomCode();
       const codeCreated = await createNewDiscountCode(dealId, newCode);
       
       if (!codeCreated) {
+        console.error("[secureDiscountCode] Failed to create new discount code");
         return { 
           success: false, 
           message: "Ett fel uppstod när en ny rabattkod skulle skapas." 
@@ -32,6 +35,9 @@ export const secureDiscountCode = async (
       }
       
       code = newCode;
+      console.log(`[secureDiscountCode] New code generated: ${code}`);
+    } else {
+      console.log(`[secureDiscountCode] Found available code: ${code}`);
     }
     
     // 3. Mark the code as used and associate with customer
@@ -42,12 +48,14 @@ export const secureDiscountCode = async (
     });
     
     if (!codeUpdated) {
+      console.error("[secureDiscountCode] Failed to mark code as used");
       return { 
         success: false, 
         message: "Ett fel uppstod när rabattkoden skulle kopplas till din profil." 
       };
     }
     
+    console.log(`[secureDiscountCode] Successfully secured code ${code} for ${customerData.email}`);
     return {
       success: true,
       code
@@ -70,6 +78,8 @@ export const createPurchaseRecord = async (
   code: string
 ): Promise<boolean> => {
   try {
+    console.log(`[createPurchaseRecord] Creating record for ${email}, deal ${dealId}, code ${code}`);
+    
     const { error: purchaseError } = await supabase
       .from("purchases")
       .insert({
@@ -83,6 +93,7 @@ export const createPurchaseRecord = async (
       return false;
     }
     
+    console.log(`[createPurchaseRecord] Successfully created purchase record`);
     return true;
   } catch (error) {
     console.error("Exception creating purchase record:", error);

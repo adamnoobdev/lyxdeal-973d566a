@@ -97,33 +97,28 @@ export const generateDiscountCodes = async (dealId: number | string, quantity: n
 /**
  * Get an available discount code for a deal
  */
-export const getAvailableDiscountCode = async (dealId: number | string): Promise<string | null> => {
+export const getAvailableDiscountCode = async (dealId: number): Promise<string | null> => {
   try {
-    const numericDealId = normalizeId(dealId);
-    console.log(`[getAvailableDiscountCode] Looking for available code for deal ${numericDealId}`);
-    
-    // Use array-result instead of single() to avoid 406-errors
-    const { data, error } = await supabase
+    const { data: codes, error } = await supabase
       .from("discount_codes")
       .select("code")
-      .eq("deal_id", numericDealId)
+      .eq("deal_id", dealId)
       .eq("is_used", false)
       .limit(1);
       
     if (error) {
-      console.error("[getAvailableDiscountCode] Error fetching code:", error);
+      console.error("Error fetching available discount code:", error);
       return null;
     }
     
-    if (!data || data.length === 0) {
-      console.warn("[getAvailableDiscountCode] No available codes found");
+    if (!codes || codes.length === 0) {
+      console.log("No available discount codes found for deal:", dealId);
       return null;
     }
     
-    console.log(`[getAvailableDiscountCode] Found code: ${data[0].code}`);
-    return data[0].code;
+    return codes[0].code;
   } catch (error) {
-    console.error("[getAvailableDiscountCode] Exception:", error);
+    console.error("Exception fetching available discount code:", error);
     return null;
   }
 };
@@ -132,32 +127,29 @@ export const getAvailableDiscountCode = async (dealId: number | string): Promise
  * Mark a discount code as used
  */
 export const markDiscountCodeAsUsed = async (
-  code: string, 
-  customerInfo: { name: string; email: string; phone: string }
+  code: string,
+  customerData: { name: string; email: string; phone: string }
 ): Promise<boolean> => {
   try {
-    console.log(`[markDiscountCodeAsUsed] Marking code ${code} as used by ${customerInfo.email}`);
-    
     const { error } = await supabase
       .from("discount_codes")
-      .update({
+      .update({ 
         is_used: true,
-        used_at: new Date().toISOString(),
-        customer_name: customerInfo.name,
-        customer_email: customerInfo.email,
-        customer_phone: customerInfo.phone
+        used_by_name: customerData.name,
+        used_by_email: customerData.email,
+        used_by_phone: customerData.phone,
+        used_at: new Date().toISOString()
       })
       .eq("code", code);
       
     if (error) {
-      console.error("[markDiscountCodeAsUsed] Error updating code:", error);
+      console.error("Error marking discount code as used:", error);
       return false;
     }
     
-    console.log(`[markDiscountCodeAsUsed] Successfully marked code ${code} as used`);
     return true;
   } catch (error) {
-    console.error("[markDiscountCodeAsUsed] Exception:", error);
+    console.error("Exception marking discount code as used:", error);
     return false;
   }
 };
