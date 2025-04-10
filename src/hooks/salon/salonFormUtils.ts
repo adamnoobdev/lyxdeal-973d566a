@@ -18,7 +18,8 @@ export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
   
   console.log("Preparing salon for edit:", salon);
   
-  // Ensure subscription fields have default values if null
+  // CRITICAL FIX: Always provide subscription fields with proper defaults
+  // This ensures subscription data is always included regardless of how the salon was created
   const subscriptionPlan = salon.subscription_plan || "Baspaket";
   const subscriptionType = salon.subscription_type || "monthly";
   

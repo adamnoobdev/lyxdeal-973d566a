@@ -62,7 +62,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
         )}
       />
 
-      {/* Always show subscription fields in the admin salon form */}
+      {/* Always show subscription fields in admin edit form */}
       <div className="space-y-4">
         <FormField
           control={form.control}

@@ -21,8 +21,8 @@ const formSchema = z.object({
   address: z.string().optional(),
   password: z.string().optional(),
   skipSubscription: z.boolean().optional().default(false),
-  subscriptionPlan: z.string().optional(),
-  subscriptionType: z.string().optional(),
+  subscriptionPlan: z.string(),
+  subscriptionType: z.string(),
   termsAccepted: z.boolean().optional().default(true),
   privacyAccepted: z.boolean().optional().default(true),
 });
@@ -75,9 +75,16 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
     
     setInternalIsSubmitting(true);
     try {
+      // Make sure subscription fields are always included in the submitted values
+      const submissionValues = {
+        ...values,
+        subscriptionPlan: values.subscriptionPlan || "Baspaket",
+        subscriptionType: values.subscriptionType || "monthly",
+      };
+      
       // Debug to see values submitted to backend
-      console.log("Form submitting with values:", values);
-      await onSubmit(values);
+      console.log("Form submitting with values:", submissionValues);
+      await onSubmit(submissionValues);
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {

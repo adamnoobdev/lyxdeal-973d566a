@@ -54,13 +54,14 @@ export const updateSalonData = async (values: any, id: number) => {
       updateValues.privacy_accepted = values.privacyAccepted;
     }
     
-    // Explicitly handle subscription fields with proper logging
-    if (values.subscriptionPlan !== undefined) {
+    // CRITICAL FIX: Always process subscription fields when provided
+    // regardless of how the salon was created (with skipSubscription or not)
+    if (values.subscriptionPlan) {
       updateValues.subscription_plan = values.subscriptionPlan;
       console.log("Updating subscription plan to:", values.subscriptionPlan);
     }
     
-    if (values.subscriptionType !== undefined) {
+    if (values.subscriptionType) {
       updateValues.subscription_type = values.subscriptionType;
       console.log("Updating subscription type to:", values.subscriptionType);
     }
