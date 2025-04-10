@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { salonId, subscriptionPlan, subscriptionType } = await req.json();
+    const { salonId, subscriptionPlan, subscriptionType, skipSubscription } = await req.json();
 
     if (!salonId) {
       return new Response(
@@ -35,7 +35,7 @@ serve(async (req) => {
     // Log the current values for this salon
     const { data: currentData, error: fetchError } = await supabaseAdmin
       .from("salons")
-      .select("id, name, subscription_plan, subscription_type")
+      .select("id, name, subscription_plan, subscription_type, skip_subscription")
       .eq("id", salonId)
       .single();
 
@@ -63,6 +63,17 @@ serve(async (req) => {
       updateValues.subscription_type = subscriptionType;
     }
     
+    // Hantera skipSubscription om det finns
+    if (skipSubscription !== undefined) {
+      updateValues.skip_subscription = skipSubscription;
+      
+      // Om skipSubscription är true, sätt ett långt slutdatum för prenumerationen
+      if (skipSubscription) {
+        // Sätt slutdatum 10 år framåt för administrativa salonger
+        updateValues.current_period_end = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
+      }
+    }
+    
     console.log("Updating salon with values:", updateValues);
 
     // Update salon with subscription data
@@ -86,7 +97,7 @@ serve(async (req) => {
     // Verify that the update was successful by fetching again
     const { data: verifiedData, error: verifyError } = await supabaseAdmin
       .from("salons")
-      .select("id, name, subscription_plan, subscription_type")
+      .select("id, name, subscription_plan, subscription_type, skip_subscription")
       .eq("id", salonId)
       .single();
 

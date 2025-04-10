@@ -8,6 +8,7 @@ interface SubscriptionUpdateButtonProps {
   salonId: number;
   currentPlan: string;
   currentType: string;
+  skipSubscription?: boolean;
   onSuccess?: () => void;
 }
 
@@ -15,6 +16,7 @@ export const SubscriptionUpdateButton = ({
   salonId, 
   currentPlan, 
   currentType,
+  skipSubscription = false,
   onSuccess 
 }: SubscriptionUpdateButtonProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -24,7 +26,7 @@ export const SubscriptionUpdateButton = ({
     
     try {
       setIsUpdating(true);
-      await updateSalonSubscription(salonId, currentPlan, currentType);
+      await updateSalonSubscription(salonId, currentPlan, currentType, skipSubscription);
       toast.success("Prenumerationsplan uppdaterad via direkt API-anrop");
       if (onSuccess) {
         onSuccess();

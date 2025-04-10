@@ -144,6 +144,7 @@ serve(async (req) => {
         subscription_plan: finalSubscriptionPlan, // ALWAYS set this
         subscription_type: subscriptionType || "monthly",
         current_period_end: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000), // 10 years in the future
+        skip_subscription: true // Explicit field to mark as skipped subscription
       });
     } else if (subscriptionPlan) {
       // For direct subscription assignment, set the subscription details
@@ -152,6 +153,7 @@ serve(async (req) => {
         subscription_type: subscriptionType || "monthly",
         status: "active",
         current_period_end: new Date(Date.now() + (subscriptionType === "yearly" ? 365 : 30) * 24 * 60 * 60 * 1000),
+        skip_subscription: false // Explicit field to mark as not skipped
       });
     }
     

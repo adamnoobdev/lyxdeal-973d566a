@@ -1,78 +1,79 @@
 
-import { Salon, SalonFormValues } from "@/components/admin/types";
+import { supabase } from "@/integrations/supabase/client";
+import { Salon } from "@/components/admin/types";
 
 /**
- * Prepares salon data for editing in the form
+ * Prepares a salon object for the edit form
+ * 
+ * @param salon The salon object from database
+ * @returns Formatted object for the edit form
  */
-export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
-  if (!salon) return {
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    termsAccepted: true,
-    privacyAccepted: true,
-    subscriptionPlan: "Baspaket",
-    subscriptionType: "monthly"
-  };
-  
+export const getInitialValuesForEdit = async (salon: Salon) => {
   console.log("Preparing salon for edit:", salon);
-  console.log("Source subscription data:", {
-    plan: salon.subscription_plan || "Not set in DB (will default to Baspaket)",
-    type: salon.subscription_type || "Not set in DB (will default to monthly)"
-  });
   
-  // Check if the subscription fields exist in the salon object
-  // We use the below approach to ensure we get real values from the database,
-  // not undefined or null values that would be replaced by defaults
-  const hasPlan = 'subscription_plan' in salon && salon.subscription_plan !== null && salon.subscription_plan !== undefined;
-  const hasType = 'subscription_type' in salon && salon.subscription_type !== null && salon.subscription_type !== undefined;
-  
-  // Get the subscription plan and type from the salon or use defaults
-  const subscriptionPlan = hasPlan ? salon.subscription_plan : "Baspaket";
-  const subscriptionType = hasType ? salon.subscription_type : "monthly";
-  
-  console.log("Final subscription values to use in form:", {
-    plan: subscriptionPlan,
-    type: subscriptionType,
-    hasPlanField: hasPlan,
-    hasTypeField: hasType
-  });
-  
-  // Always use these default values if the salon doesn't have subscription data
-  return {
-    name: salon.name || "",
-    email: salon.email || "",
-    phone: salon.phone || "",
-    address: salon.address || "",
-    termsAccepted: salon.terms_accepted ?? true,
-    privacyAccepted: salon.privacy_accepted ?? true,
-    subscriptionPlan,
-    subscriptionType,
-  };
-};
-
-// Add a utility function to inspect a salon's raw database column values
-export const inspectSalonDatabaseValues = async (id: number) => {
   try {
-    const { supabase } = await import('@/integrations/supabase/client');
-    
-    // Execute a normal query instead of using a non-existent RPC function
+    // Get additional salon data from database to ensure we have the latest subscription information
     const { data, error } = await supabase
       .from("salons")
-      .select("*")
-      .eq("id", id)
+      .select("subscription_plan, subscription_type, skip_subscription")
+      .eq("id", salon.id)
       .single();
     
+    let subscriptionPlan = "Baspaket";
+    let subscriptionType = "monthly";
+    let skipSubscription = false;
+    
     if (error) {
-      console.error("Error inspecting salon:", error);
-      return null;
+      console.error("Error fetching additional salon data:", error);
+    } else {
+      console.log("Additional salon data:", data);
+      
+      subscriptionPlan = data.subscription_plan || "Baspaket";
+      subscriptionType = data.subscription_type || "monthly";
+      skipSubscription = !!data.skip_subscription;
     }
     
-    console.log("Raw salon database values:", data);
-    return data;
-  } catch (error) {
-    console.error("Error executing salon inspection:", error);
-    return null;
+    console.log("Source subscription data:", {
+      plan: data?.subscription_plan || "Not set in DB (will default to Baspaket)",
+      type: data?.subscription_type || "Not set in DB (will default to monthly)",
+      skip: data?.skip_subscription !== undefined ? data?.skip_subscription : "Not set in DB (will default to false)"
+    });
+    
+    const finalValues = {
+      name: salon.name,
+      email: salon.email,
+      phone: salon.phone || "",
+      address: salon.address || "",
+      termsAccepted: salon.terms_accepted !== undefined ? salon.terms_accepted : true,
+      privacyAccepted: salon.privacy_accepted !== undefined ? salon.privacy_accepted : true,
+      subscriptionPlan: subscriptionPlan,
+      subscriptionType: subscriptionType,
+      skipSubscription: skipSubscription
+    };
+    
+    console.log("Final subscription values to use in form:", {
+      plan: finalValues.subscriptionPlan,
+      type: finalValues.subscriptionType,
+      skipSubscription: finalValues.skipSubscription,
+      hasPlanField: !!data?.subscription_plan,
+      hasTypeField: !!data?.subscription_type
+    });
+    
+    return finalValues;
+  } catch (err) {
+    console.error("Error preparing salon data for edit:", err);
+    
+    // Return basic values if there was an error
+    return {
+      name: salon.name,
+      email: salon.email,
+      phone: salon.phone || "",
+      address: salon.address || "",
+      termsAccepted: salon.terms_accepted !== undefined ? salon.terms_accepted : true,
+      privacyAccepted: salon.privacy_accepted !== undefined ? salon.privacy_accepted : true,
+      subscriptionPlan: "Baspaket",
+      subscriptionType: "monthly",
+      skipSubscription: false
+    };
   }
 };

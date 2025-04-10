@@ -3,7 +3,7 @@ import { FormField, FormItem, FormControl, FormDescription } from "@/components/
 import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
 import { Label } from "@/components/ui/label";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,9 +18,16 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
   const skipSubscription = form.watch("skipSubscription");
   const subscriptionPlan = form.watch("subscriptionPlan");
   const subscriptionType = form.watch("subscriptionType");
+  const [initialLoad, setInitialLoad] = useState(true);
   
   // Ensure that when skipSubscription is toggled, we still maintain valid subscription values
   useEffect(() => {
+    // Första gången laddar vi bara värdena
+    if (initialLoad) {
+      setInitialLoad(false);
+      return;
+    }
+    
     // Always ensure valid subscription values regardless of skipSubscription
     // This is critical for admin-created salons to have proper plan restrictions
     if (!subscriptionPlan) {
@@ -39,7 +46,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
       plan: subscriptionPlan || "Not set (will default to Baspaket)",
       type: subscriptionType || "Not set (will default to monthly)"
     });
-  }, [skipSubscription, subscriptionPlan, subscriptionType, form]);
+  }, [skipSubscription, subscriptionPlan, subscriptionType, form, initialLoad]);
 
   return (
     <div className="space-y-6">
@@ -53,10 +60,16 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
                 checked={field.value}
                 onCheckedChange={(checked) => {
                   console.log("Skip subscription checkbox changed to:", checked);
-                  field.onChange(checked);
                   
                   // När vi aktiverar/inaktiverar skipSubscription, se till att formuläret markeras som ändrat
                   form.setValue("skipSubscription", !!checked, { shouldDirty: true });
+                  
+                  // Explicit sätt alla prenumerationsfält som dirty för att säkerställa att de sparas
+                  form.formState.dirtyFields.skipSubscription = true;
+                  form.formState.dirtyFields.subscriptionPlan = true;
+                  form.formState.dirtyFields.subscriptionType = true;
+                  
+                  console.log("Form field state after click:", form.formState.dirtyFields);
                 }}
               />
             </FormControl>
@@ -91,9 +104,9 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
             <Select 
               onValueChange={(value) => {
                 console.log("Subscription plan selected:", value);
-                field.onChange(value);
                 // Markera explicit som ändrat för att säkerställa att det sparas
                 form.setValue("subscriptionPlan", value, { shouldValidate: true, shouldDirty: true });
+                form.formState.dirtyFields.subscriptionPlan = true;
               }} 
               value={field.value || "Baspaket"}
               defaultValue="Baspaket"
@@ -129,9 +142,9 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
               <Select 
                 onValueChange={(value) => {
                   console.log("Subscription type selected:", value);
-                  field.onChange(value);
                   // Markera explicit som ändrat för att säkerställa att det sparas
                   form.setValue("subscriptionType", value, { shouldValidate: true, shouldDirty: true });
+                  form.formState.dirtyFields.subscriptionType = true;
                 }} 
                 value={field.value || "monthly"}
                 defaultValue="monthly"

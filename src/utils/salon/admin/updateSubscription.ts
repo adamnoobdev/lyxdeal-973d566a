@@ -4,9 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 /**
  * Updates a salon's subscription data using a dedicated edge function
  */
-export const updateSalonSubscription = async (salonId: number, subscriptionPlan: string, subscriptionType: string) => {
+export const updateSalonSubscription = async (salonId: number, subscriptionPlan: string, subscriptionType: string, skipSubscription?: boolean) => {
   try {
-    console.log(`Updating salon ${salonId} subscription to: ${subscriptionPlan} (${subscriptionType})`);
+    console.log(`Updating salon ${salonId} subscription to: ${subscriptionPlan} (${subscriptionType}), skipSubscription: ${skipSubscription}`);
     
     // Skapa ett standardsvar om edge-funktionen misslyckas
     let data;
@@ -17,7 +17,8 @@ export const updateSalonSubscription = async (salonId: number, subscriptionPlan:
         body: {
           salonId,
           subscriptionPlan,
-          subscriptionType
+          subscriptionType,
+          skipSubscription
         }
       });
       
@@ -32,12 +33,25 @@ export const updateSalonSubscription = async (salonId: number, subscriptionPlan:
       console.error("Edge function call failed, fallback to direct update:", edgeError);
       
       // Fallback: Uppdatera direkt mot databasen
+      const updateValues: Record<string, any> = {
+        subscription_plan: subscriptionPlan,
+        subscription_type: subscriptionType
+      };
+      
+      // Lägg till skipSubscription om det finns
+      if (skipSubscription !== undefined) {
+        updateValues.skip_subscription = skipSubscription;
+        
+        // Om skipSubscription är true, sätt ett långt slutdatum för prenumerationen
+        if (skipSubscription) {
+          // Sätt slutdatum 10 år framåt för administrativa salonger
+          updateValues.current_period_end = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
+        }
+      }
+      
       const { data: directData, error: directError } = await supabase
         .from("salons")
-        .update({
-          subscription_plan: subscriptionPlan,
-          subscription_type: subscriptionType
-        })
+        .update(updateValues)
         .eq("id", salonId)
         .select();
         
@@ -53,7 +67,7 @@ export const updateSalonSubscription = async (salonId: number, subscriptionPlan:
     // Verifiera uppdateringen genom att hämta den senaste datan
     const { data: verifyData, error: verifyError } = await supabase
       .from("salons")
-      .select("id, subscription_plan, subscription_type")
+      .select("id, subscription_plan, subscription_type, skip_subscription")
       .eq("id", salonId)
       .single();
       
@@ -61,6 +75,11 @@ export const updateSalonSubscription = async (salonId: number, subscriptionPlan:
       console.log("Subscription update verified:", verifyData);
       if (verifyData.subscription_plan !== subscriptionPlan) {
         console.warn(`Verification mismatch: Expected plan ${subscriptionPlan}, got ${verifyData.subscription_plan}`);
+      }
+      
+      // Verifiera skipSubscription
+      if (skipSubscription !== undefined && verifyData.skip_subscription !== skipSubscription) {
+        console.warn(`Verification mismatch: Expected skipSubscription ${skipSubscription}, got ${verifyData.skip_subscription}`);
       }
     }
     

@@ -65,6 +65,19 @@ export const updateSalonData = async (values: any, id: number) => {
     updateValues.subscription_plan = values.subscriptionPlan || "Baspaket";
     updateValues.subscription_type = values.subscriptionType || "monthly";
     
+    // NYTT: Spara skip_subscription-värdet i databasen
+    if (values.skipSubscription !== undefined) {
+      updateValues.skip_subscription = values.skipSubscription;
+      console.log("Setting skip_subscription to:", values.skipSubscription);
+      
+      // Om skipSubscription är true, sätt ett långt slutdatum för prenumerationen
+      if (values.skipSubscription) {
+        // Sätt slutdatum 10 år framåt för administrativa salonger
+        updateValues.current_period_end = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
+        console.log("Setting long future date for current_period_end due to skipSubscription=true");
+      }
+    }
+    
     console.log("Final update values to send to database:", JSON.stringify(updateValues, null, 2));
 
     // If a new password is provided, update it via auth admin API
@@ -104,7 +117,7 @@ export const updateSalonData = async (values: any, id: number) => {
     // Double-verify if the subscription plan was actually updated by fetching salon
     const { data: verifyData, error: verifyError } = await supabase
       .from("salons")
-      .select("id, name, subscription_plan, subscription_type")
+      .select("id, name, subscription_plan, subscription_type, skip_subscription")
       .eq("id", id)
       .single();
       
@@ -117,6 +130,13 @@ export const updateSalonData = async (values: any, id: number) => {
         console.error(`Expected: ${values.subscriptionPlan}, Actual: ${verifyData.subscription_plan}`);
       } else {
         console.log("Subscription plan verified correctly:", verifyData.subscription_plan);
+      }
+      
+      // Verifiera att skip_subscription sparades korrekt
+      console.log("Skip subscription value in database:", verifyData.skip_subscription);
+      if (values.skipSubscription !== undefined && verifyData.skip_subscription !== values.skipSubscription) {
+        console.error("MISMATCH: skip_subscription was not updated correctly!");
+        console.error(`Expected: ${values.skipSubscription}, Actual: ${verifyData.skip_subscription}`);
       }
     }
     

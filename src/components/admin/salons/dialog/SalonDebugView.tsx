@@ -37,7 +37,8 @@ export const SalonDebugView = ({
         {JSON.stringify({
           id: initialValues.id,
           subscriptionPlan: initialValues.subscriptionPlan,
-          subscriptionType: initialValues.subscriptionType
+          subscriptionType: initialValues.subscriptionType,
+          skipSubscription: initialValues.skipSubscription
         }, null, 2)}
       </pre>
       
@@ -47,6 +48,7 @@ export const SalonDebugView = ({
             salonId={initialValues.id} 
             currentPlan={initialValues.subscriptionPlan || "Baspaket"}
             currentType={initialValues.subscriptionType || "monthly"}
+            skipSubscription={initialValues.skipSubscription}
             onSuccess={onSubscriptionUpdated}
           />
           <p className="text-xs mt-2 text-gray-500">

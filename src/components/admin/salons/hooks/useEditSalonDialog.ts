@@ -36,6 +36,7 @@ export const useEditSalonDialog = ({
       console.log("useEditSalonDialog received initialValues:", initialValues);
       console.log("Subscription plan from initialValues:", initialValues.subscriptionPlan);
       console.log("Subscription type from initialValues:", initialValues.subscriptionType);
+      console.log("Skip subscription from initialValues:", initialValues.skipSubscription);
     }
   }, [initialValues]);
 
@@ -117,6 +118,11 @@ export const useEditSalonDialog = ({
         values.subscriptionType = "monthly";
       }
       
+      // Se till att skipSubscription alltid finns med
+      if (values.skipSubscription === undefined) {
+        values.skipSubscription = !!initialValues?.skipSubscription;
+      }
+      
       console.log("[useEditSalonDialog] Final subscription values:", {
         plan: values.subscriptionPlan,
         type: values.subscriptionType,
@@ -146,7 +152,7 @@ export const useEditSalonDialog = ({
       const { supabase } = await import('@/integrations/supabase/client');
       const { data, error } = await supabase
         .from("salons")
-        .select("subscription_plan, subscription_type")
+        .select("subscription_plan, subscription_type, skip_subscription")
         .eq("id", initialValues?.id)
         .single();
         
@@ -169,6 +175,14 @@ export const useEditSalonDialog = ({
             shouldValidate: true, 
             shouldDirty: true
           });
+          
+          // Uppdatera även skipSubscription om det finns i databasen
+          if (data.skip_subscription !== undefined) {
+            formRef.current.setValue("skipSubscription", !!data.skip_subscription, {
+              shouldValidate: true,
+              shouldDirty: true
+            });
+          }
           
           toast.success("Formuläret uppdaterat med nya värdena");
         }
