@@ -1,9 +1,18 @@
 
+import { Salon, SalonFormValues } from "@/components/admin/types";
+
 /**
  * Prepares salon data for editing in the form
  */
-export const getInitialValuesForEdit = (salon: any) => {
-  if (!salon) return {};
+export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
+  if (!salon) return {
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    termsAccepted: true,
+    privacyAccepted: true
+  };
   
   return {
     name: salon.name || "",

@@ -17,9 +17,11 @@ export interface Salon {
   privacy_accepted?: boolean;
   rating?: number | null;
   rating_comment?: string | null;
+  subscription_plan?: string;
+  subscription_type?: string;
 }
 
-// Add SalonFormValues interface that was missing
+// Update SalonFormValues interface to include subscription fields
 export interface SalonFormValues {
   name: string;
   email?: string;
@@ -27,6 +29,8 @@ export interface SalonFormValues {
   address?: string;
   termsAccepted?: boolean;
   privacyAccepted?: boolean;
+  subscriptionPlan?: string;
+  subscriptionType?: string;
 }
 
 // Resten av filen behålls som den är
