@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -10,6 +11,7 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { SubscriptionUpdateButton } from "./subscription/SubscriptionUpdateButton";
+import { useForm } from "react-hook-form";
 
 interface EditSalonDialogProps {
   isOpen: boolean;
@@ -30,6 +32,9 @@ export const EditSalonDialog = ({
   const [debugView, setDebugView] = useState(false);
   const initialRenderRef = useRef(true);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Create a form instance for direct manipulation
+  const formRef = useRef<any>(null);
 
   useEffect(() => {
     if (initialValues) {
@@ -153,16 +158,17 @@ export const EditSalonDialog = ({
         return;
       }
       
-      if (data) {
+      if (data && formRef.current) {
         console.log("Updated subscription data from direct API:", data);
         
-        if (form) {
-          form.setValue("subscriptionPlan", data.subscription_plan || "Baspaket", { 
+        // Access the SalonForm's internal form through the ref instead of directly
+        if (formRef.current.setValue) {
+          formRef.current.setValue("subscriptionPlan", data.subscription_plan || "Baspaket", { 
             shouldValidate: true,
             shouldDirty: true
           });
           
-          form.setValue("subscriptionType", data.subscription_type || "monthly", { 
+          formRef.current.setValue("subscriptionType", data.subscription_type || "monthly", { 
             shouldValidate: true, 
             shouldDirty: true
           });
@@ -250,6 +256,7 @@ export const EditSalonDialog = ({
           initialValues={initialValues} 
           isEditing={true}
           isSubmitting={isSubmitting}
+          ref={formRef}
         />
       </DialogContent>
     </Dialog>

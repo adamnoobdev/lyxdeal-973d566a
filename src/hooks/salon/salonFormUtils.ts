@@ -57,8 +57,12 @@ export const inspectSalonDatabaseValues = async (id: number) => {
   try {
     const { supabase } = await import('@/integrations/supabase/client');
     
-    // Execute a raw SQL query to get columns as JSON strings
-    const { data, error } = await supabase.rpc('debug_inspect_salon', { salon_id: id });
+    // Execute a normal query instead of using a non-existent RPC function
+    const { data, error } = await supabase
+      .from("salons")
+      .select("*")
+      .eq("id", id)
+      .single();
     
     if (error) {
       console.error("Error inspecting salon:", error);

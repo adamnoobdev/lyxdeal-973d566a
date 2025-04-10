@@ -9,7 +9,7 @@ import { ContactFields } from "./form/ContactFields";
 import { PasswordField } from "./form/PasswordField";
 import { SubscriptionField } from "./form/SubscriptionField";
 import { TermsFields } from "./form/TermsFields";
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Namn krävs" }),
@@ -35,7 +35,12 @@ interface SalonFormProps {
   isSubmitting?: boolean;
 }
 
-export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: externalIsSubmitting }: SalonFormProps) => {
+export const SalonForm = forwardRef(({ 
+  onSubmit, 
+  initialValues, 
+  isEditing, 
+  isSubmitting: externalIsSubmitting 
+}: SalonFormProps, ref) => {
   const [internalIsSubmitting, setInternalIsSubmitting] = useState(false);
   const [formState, setFormState] = useState({
     isDirty: false,
@@ -68,6 +73,13 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
     defaultValues,
   });
 
+  // Expose form methods to parent component via ref
+  useImperativeHandle(ref, () => ({
+    setValue: form.setValue,
+    getValues: form.getValues,
+    formState: form.formState
+  }));
+
   // Debug to see values in the form
   useEffect(() => {
     console.log("SalonForm initialized with values:", form.getValues());
@@ -83,12 +95,20 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
       
       console.log("Form changed:", { 
         isDirty: form.formState.isDirty,
-        dirtyFields: Object.keys(dirtyFields).filter(key => dirtyFields[key as keyof typeof dirtyFields])
+        dirtyFields: Object.keys(dirtyFields).filter(key => {
+          // Check if the key exists in dirtyFields and is truthy
+          return Object.prototype.hasOwnProperty.call(dirtyFields, key) && dirtyFields[key];
+        })
       });
       
       setFormState({
         isDirty: form.formState.isDirty,
-        dirtyFields: form.formState.dirtyFields as Record<string, boolean>
+        dirtyFields: Object.keys(dirtyFields).reduce((acc, key) => {
+          if (Object.prototype.hasOwnProperty.call(dirtyFields, key)) {
+            acc[key] = !!dirtyFields[key];
+          }
+          return acc;
+        }, {} as Record<string, boolean>)
       });
     });
     
@@ -179,4 +199,6 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
       </form>
     </Form>
   );
-};
+});
+
+SalonForm.displayName = "SalonForm";
