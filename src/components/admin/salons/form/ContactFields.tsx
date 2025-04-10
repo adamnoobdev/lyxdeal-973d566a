@@ -28,6 +28,7 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
   // Force watch subscription fields to make sure they're included in the form submission
   const subscriptionPlan = form.watch("subscriptionPlan");
   const subscriptionType = form.watch("subscriptionType");
+  const skipSubscription = form.watch("skipSubscription");
   
   // Ensure we always have valid subscription values
   useEffect(() => {
@@ -86,70 +87,6 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
           </FormItem>
         )}
       />
-
-      {/* Always show subscription fields */}
-      <div className="space-y-4">
-        <FormField
-          control={form.control}
-          name="subscriptionPlan"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-medium">Prenumerationsplan</FormLabel>
-              <Select 
-                onValueChange={(value) => {
-                  console.log("Subscription plan selected:", value);
-                  field.onChange(value);
-                }} 
-                value={field.value || "Baspaket"}
-                defaultValue="Baspaket"
-              >
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Välj plan" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {Object.keys(SUBSCRIPTION_PLANS).map((planKey) => (
-                    <SelectItem key={planKey} value={planKey}>
-                      {SUBSCRIPTION_PLANS[planKey].title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage className="text-xs" />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="subscriptionType"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-medium">Betalningsintervall</FormLabel>
-              <Select 
-                onValueChange={(value) => {
-                  console.log("Subscription type selected:", value);
-                  field.onChange(value);
-                }} 
-                value={field.value || "monthly"}
-                defaultValue="monthly"
-              >
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Välj intervall" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="monthly">Månadsvis</SelectItem>
-                  <SelectItem value="yearly">Årsvis</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage className="text-xs" />
-            </FormItem>
-          )}
-        />
-      </div>
     </div>
   );
 };

@@ -74,7 +74,10 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
   }, [form]);
 
   const handleSubmit = async (values: any) => {
-    if (isSubmitting) return;
+    if (isSubmitting || !form.formState.isDirty) {
+      console.log("Form is submitting or hasn't changed, skipping submission");
+      return;
+    }
     
     setInternalIsSubmitting(true);
     try {
@@ -85,7 +88,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
       }
       
       if (!values.subscriptionType) {
-        console.log("SalonForm submit: Missing subscriptionType, setting default");
+        console.log("SalonForm submit: Missing subscriptionType, using default");
         values.subscriptionType = "monthly";
       }
       
@@ -127,16 +130,15 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
           </div>
         )}
         
-        {!isEditing && (
-          <div className="space-y-4">
-            <SubscriptionField form={form} />
-          </div>
-        )}
+        {/* Always show SubscriptionField for both editing and creating */}
+        <div className="space-y-4">
+          <SubscriptionField form={form} />
+        </div>
 
         <div className="flex justify-end pt-2">
           <Button 
             type="submit" 
-            disabled={isSubmitting}
+            disabled={isSubmitting || !form.formState.isDirty}
             className="w-full sm:w-auto px-6"
           >
             {isSubmitting ? "Sparar..." : isEditing ? "Uppdatera" : "Skapa"}

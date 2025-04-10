@@ -4,6 +4,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
 
 interface SubscriptionFieldProps {
   form: UseFormReturn<any>;
@@ -72,6 +76,85 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
             <strong>OBS:</strong> Välj prenumerationsplan noggrant eftersom det avgör vilka funktioner salongen får tillgång till.
           </p>
         </div>
+      )}
+
+      {/* Add subscription plan field that's always visible */}
+      <FormField
+        control={form.control}
+        name="subscriptionPlan"
+        render={({ field }) => (
+          <FormItem>
+            <Label className="text-sm font-medium">Prenumerationsplan</Label>
+            <Select 
+              onValueChange={(value) => {
+                console.log("Subscription plan selected:", value);
+                field.onChange(value);
+              }} 
+              value={field.value || "Baspaket"}
+              defaultValue="Baspaket"
+            >
+              <FormControl>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Välj plan" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {Object.keys(SUBSCRIPTION_PLANS).map((planKey) => (
+                  <SelectItem key={planKey} value={planKey}>
+                    {SUBSCRIPTION_PLANS[planKey].title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormDescription className="text-xs">
+              Välj vilken prenumerationsplan salongen ska ha
+            </FormDescription>
+          </FormItem>
+        )}
+      />
+
+      {/* Only show the subscription type if skipSubscription is false */}
+      {!skipSubscription && (
+        <FormField
+          control={form.control}
+          name="subscriptionType"
+          render={({ field }) => (
+            <FormItem>
+              <Label className="text-sm font-medium">Betalningsintervall</Label>
+              <Select 
+                onValueChange={(value) => {
+                  console.log("Subscription type selected:", value);
+                  field.onChange(value);
+                }} 
+                value={field.value || "monthly"}
+                defaultValue="monthly"
+              >
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Välj intervall" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="monthly">Månadsvis</SelectItem>
+                  <SelectItem value="yearly">Årsvis</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormDescription className="text-xs">
+                Välj faktureringsintervall för prenumerationen
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+      )}
+
+      {skipSubscription && (
+        <Alert variant="info" className="bg-blue-50 border-blue-200">
+          <AlertCircle className="h-4 w-4 text-blue-500" />
+          <AlertDescription className="text-blue-700">
+            För administrativt skapade salonger är betalningsintervall inte relevant, 
+            eftersom inga betalningsuppgifter finns och prenumerationen inte har något slutdatum.
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );
