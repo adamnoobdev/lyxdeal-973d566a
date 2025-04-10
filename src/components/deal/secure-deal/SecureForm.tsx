@@ -17,10 +17,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect } from "react";
 import { LoadingButton } from "@/components/ui/loading-button";
 
+// Validera svenskt mobilnummer (börjar med 07)
+const phoneRegex = /^07[0-9]{8}$/;
+
 const formSchema = z.object({
   name: z.string().min(2, { message: "Vänligen ange ditt namn" }),
   email: z.string().email({ message: "Vänligen ange en giltig e-postadress" }),
-  phone: z.string().min(6, { message: "Vänligen ange ett giltigt telefonnummer" }),
+  phone: z.string()
+    .min(6, { message: "Vänligen ange ett giltigt telefonnummer" })
+    .regex(phoneRegex, { 
+      message: "Vänligen ange ett giltigt svenskt mobilnummer (07XXXXXXXX)" 
+    }),
   subscribeToNewsletter: z.boolean().default(false),
 });
 
@@ -40,6 +47,7 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
       phone: "",
       subscribeToNewsletter: false,
     },
+    mode: "onBlur", // Validera vid blur för bättre användarupplevelse
   });
 
   // Hjälpfunktion för att debugga formuläret
@@ -113,7 +121,10 @@ export const SecureForm = ({ onSubmit, isSubmitting }: SecureFormProps) => {
                   disabled={isSubmitting}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-500" />
+              <p className="text-xs text-muted-foreground">
+                Ange ett svenskt mobilnummer som börjar med 07, t.ex. 0712345678
+              </p>
             </FormItem>
           )}
         />

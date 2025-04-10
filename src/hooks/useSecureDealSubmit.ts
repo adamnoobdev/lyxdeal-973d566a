@@ -49,25 +49,22 @@ export const useSecureDealSubmit = ({
     try {
       console.log(`[useSecureDealSubmit] Securing deal ${dealId} for ${values.email}`);
       
-      // 1. Validera indata
-      const validation = await validateDealInput(dealId, values.email, values.phone);
-      console.log(`[useSecureDealSubmit] Validation result:`, validation);
-      
-      if (!validation.isValid) {
-        toast.error(validation.message || "Valideringsfel");
+      // 1. Validera indata - lita på att React Hook Form redan har validerat telefonnummerformatet
+      // men utför andra valideringar relaterade till affärslogiken
+      const phoneRegex = /^07[0-9]{8}$/;
+      if (!phoneRegex.test(values.phone)) {
+        console.error(`[useSecureDealSubmit] Phone validation failed: ${values.phone}`);
+        toast.error("Vänligen ange ett giltigt svenskt mobilnummer (07XXXXXXXX)");
         setIsSubmitting(false);
         return;
       }
-      
-      const formattedPhone = validation.formattedPhone as string;
-      console.log(`[useSecureDealSubmit] Using formatted phone: ${formattedPhone}`);
       
       // 2. Säkra rabattkod
       console.log(`[useSecureDealSubmit] Attempting to secure discount code...`);
       const codeResult = await secureDiscountCode(dealId, {
         name: values.name,
         email: values.email,
-        phone: formattedPhone
+        phone: values.phone
       });
       
       console.log(`[useSecureDealSubmit] Code securing result:`, codeResult);
@@ -97,7 +94,7 @@ export const useSecureDealSubmit = ({
       const emailResult = await sendDiscountCodeEmail(
         values.email,
         values.name,
-        formattedPhone,
+        values.phone,
         code,
         dealTitle,
         values.subscribeToNewsletter

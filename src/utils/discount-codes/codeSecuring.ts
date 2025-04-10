@@ -17,6 +17,47 @@ export const secureDiscountCode = async (
   try {
     console.log(`[secureDiscountCode] Attempting to secure code for deal ${dealId}`);
     
+    // Validera kunddata
+    if (!customerData.name || !customerData.email || !customerData.phone) {
+      console.error('[secureDiscountCode] Invalid customer data:', customerData);
+      return {
+        success: false,
+        message: 'Vänligen fyll i alla fält korrekt'
+      };
+    }
+
+    // Kontrollera att erbjudandet använder rabattkoder
+    const { data: deal, error: dealError } = await supabase
+      .from('deals')
+      .select('requires_discount_code, booking_url')
+      .eq('id', dealId)
+      .maybeSingle();
+
+    if (dealError) {
+      console.error('[secureDiscountCode] Error fetching deal:', dealError);
+      return {
+        success: false,
+        message: 'Kunde inte hämta erbjudandeinformation'
+      };
+    }
+
+    if (!deal) {
+      console.error('[secureDiscountCode] Deal not found:', dealId);
+      return {
+        success: false,
+        message: 'Erbjudandet hittades inte'
+      };
+    }
+
+    if (deal.requires_discount_code === false) {
+      console.log(`[secureDiscountCode] Deal ${dealId} does not require discount codes, using direct booking`);
+      return {
+        success: true,
+        code: 'DIRECT_BOOKING',
+        message: 'Detta erbjudande använder direkt bokning'
+      };
+    }
+    
     // 1. Try to fetch an available discount code
     let code = await getAvailableDiscountCode(dealId);
     

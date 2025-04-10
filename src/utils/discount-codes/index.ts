@@ -101,6 +101,29 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
   try {
     console.log(`[getAvailableDiscountCode] Looking for code for deal ID: ${dealId}`);
     
+    // Kontrollera att deal_id är ett giltigt nummer
+    if (isNaN(dealId) || dealId <= 0) {
+      console.error(`[getAvailableDiscountCode] Invalid dealId: ${dealId}`);
+      return null;
+    }
+
+    // Säkerställ att erbjudandet kräver rabattkoder
+    const { data: deal, error: dealError } = await supabase
+      .from('deals')
+      .select('requires_discount_code')
+      .eq('id', dealId)
+      .single();
+
+    if (dealError || !deal) {
+      console.error(`[getAvailableDiscountCode] Error fetching deal or deal not found:`, dealError);
+      return null;
+    }
+
+    if (deal.requires_discount_code === false) {
+      console.log(`[getAvailableDiscountCode] Deal ${dealId} does not require discount codes`);
+      return null;
+    }
+    
     const { data: codes, error } = await supabase
       .from("discount_codes")
       .select("code")
@@ -115,7 +138,12 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
     
     if (!codes || codes.length === 0) {
       console.log("[getAvailableDiscountCode] No available discount codes found for deal:", dealId);
-      return null;
+      
+      // Generera en ny kod om det inte finns några tillgängliga
+      console.log("[getAvailableDiscountCode] Generating a new code for deal:", dealId);
+      const newCode = generateRandomCode();
+      const codeCreated = await createNewDiscountCodeAndReturn(dealId, newCode);
+      return codeCreated ? newCode : null;
     }
     
     console.log(`[getAvailableDiscountCode] Found code: ${codes[0].code}`);
@@ -123,6 +151,33 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
   } catch (error) {
     console.error("[getAvailableDiscountCode] Exception fetching available discount code:", error);
     return null;
+  }
+};
+
+// Ny hjälpfunktion för att skapa en kod och omedelbart returnera den
+const createNewDiscountCodeAndReturn = async (dealId: number, code: string): Promise<boolean> => {
+  try {
+    console.log(`[createNewDiscountCodeAndReturn] Creating new code ${code} for deal ${dealId}`);
+    
+    const { error } = await supabase
+      .from("discount_codes")
+      .insert({
+        deal_id: dealId,
+        code: code,
+        is_used: false,
+        created_at: new Date().toISOString()
+      });
+      
+    if (error) {
+      console.error("[createNewDiscountCodeAndReturn] Error creating discount code:", error);
+      return false;
+    }
+    
+    console.log(`[createNewDiscountCodeAndReturn] Successfully created code ${code} for deal ${dealId}`);
+    return true;
+  } catch (error) {
+    console.error("[createNewDiscountCodeAndReturn] Exception:", error);
+    return false;
   }
 };
 

@@ -83,7 +83,6 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
-      <h2 className="text-xl font-bold mb-6">Säkra ditt erbjudande</h2>
       <SecureForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
     </div>
   );
