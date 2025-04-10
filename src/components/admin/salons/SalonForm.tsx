@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,10 +9,13 @@ import { PasswordField } from "./form/PasswordField";
 import { SubscriptionField } from "./form/SubscriptionField";
 import { TermsFields } from "./form/TermsFields";
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
-
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Namn krävs" }),
-  email: z.string().email({ message: "Ogiltig e-postadress" }),
+  name: z.string().min(1, {
+    message: "Namn krävs"
+  }),
+  email: z.string().email({
+    message: "Ogiltig e-postadress"
+  }),
   phone: z.string().optional(),
   street: z.string().optional(),
   postalCode: z.string().optional(),
@@ -22,31 +24,33 @@ const formSchema = z.object({
   password: z.string().optional(),
   skipSubscription: z.boolean().optional().default(false),
   // Always require subscription fields
-  subscriptionPlan: z.string().min(1, { message: "Prenumerationsplan krävs" }),
-  subscriptionType: z.string().min(1, { message: "Betalningsintervall krävs" }),
+  subscriptionPlan: z.string().min(1, {
+    message: "Prenumerationsplan krävs"
+  }),
+  subscriptionType: z.string().min(1, {
+    message: "Betalningsintervall krävs"
+  }),
   termsAccepted: z.boolean().optional().default(true),
-  privacyAccepted: z.boolean().optional().default(true),
+  privacyAccepted: z.boolean().optional().default(true)
 });
-
 interface SalonFormProps {
   onSubmit: (values: any) => Promise<void>;
   initialValues?: any;
   isEditing?: boolean;
   isSubmitting?: boolean;
 }
-
-export const SalonForm = forwardRef(({ 
-  onSubmit, 
-  initialValues, 
-  isEditing, 
-  isSubmitting: externalIsSubmitting 
+export const SalonForm = forwardRef(({
+  onSubmit,
+  initialValues,
+  isEditing,
+  isSubmitting: externalIsSubmitting
 }: SalonFormProps, ref) => {
   const [internalIsSubmitting, setInternalIsSubmitting] = useState(false);
   const [formState, setFormState] = useState({
     isDirty: false,
     dirtyFields: {} as Record<string, boolean>
   });
-  
+
   // Use external isSubmitting state if provided, otherwise use internal state
   const isSubmitting = externalIsSubmitting !== undefined ? externalIsSubmitting : internalIsSubmitting;
 
@@ -65,12 +69,11 @@ export const SalonForm = forwardRef(({
     subscriptionType: "monthly",
     termsAccepted: true,
     privacyAccepted: true,
-    ...initialValues,
+    ...initialValues
   };
-
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues,
+    defaultValues
   });
 
   // Expose form methods to parent component via ref
@@ -87,20 +90,18 @@ export const SalonForm = forwardRef(({
       plan: form.getValues("subscriptionPlan"),
       type: form.getValues("subscriptionType")
     });
-    
+
     // Monitor dirty state
     const subscription = form.watch(() => {
       const values = form.getValues();
       const dirtyFields = form.formState.dirtyFields;
-      
-      console.log("Form changed:", { 
+      console.log("Form changed:", {
         isDirty: form.formState.isDirty,
         dirtyFields: Object.keys(dirtyFields).filter(key => {
           // Check if the key exists in dirtyFields and is truthy
           return Object.prototype.hasOwnProperty.call(dirtyFields, key) && dirtyFields[key];
         })
       });
-      
       setFormState({
         isDirty: form.formState.isDirty,
         dirtyFields: Object.keys(dirtyFields).reduce((acc, key) => {
@@ -111,16 +112,13 @@ export const SalonForm = forwardRef(({
         }, {} as Record<string, boolean>)
       });
     });
-    
     return () => subscription.unsubscribe();
   }, [form]);
-
   const handleSubmit = async (values: any) => {
     if (isSubmitting || !form.formState.isDirty) {
       console.log("Form is submitting or hasn't changed, skipping submission");
       return;
     }
-    
     setInternalIsSubmitting(true);
     try {
       // Always ensure subscription data is included, no conditionals
@@ -128,19 +126,17 @@ export const SalonForm = forwardRef(({
         console.log("SalonForm submit: Missing subscriptionPlan, setting default");
         values.subscriptionPlan = "Baspaket";
       }
-      
       if (!values.subscriptionType) {
         console.log("SalonForm submit: Missing subscriptionType, using default");
         values.subscriptionType = "monthly";
       }
-      
+
       // Debug to see values submitted to backend
       console.log("SalonForm submitting with values:", values);
       console.log("Final subscription values in submission:", {
         plan: values.subscriptionPlan,
         type: values.subscriptionType
       });
-      
       await onSubmit(values);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -148,9 +144,7 @@ export const SalonForm = forwardRef(({
       setInternalIsSubmitting(false);
     }
   };
-
-  return (
-    <Form {...form}>
+  return <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="space-y-4">
           <BasicInfoFields form={form} />
@@ -160,17 +154,13 @@ export const SalonForm = forwardRef(({
           <ContactFields form={form} />
         </div>
         
-        {isEditing && (
-          <div className="space-y-4">
+        {isEditing && <div className="space-y-4">
             <TermsFields form={form} />
-          </div>
-        )}
+          </div>}
         
-        {!isEditing && (
-          <div className="space-y-4">
+        {!isEditing && <div className="space-y-4">
             <PasswordField form={form} />
-          </div>
-        )}
+          </div>}
         
         {/* Always show SubscriptionField for both editing and creating */}
         <div className="space-y-4">
@@ -178,27 +168,14 @@ export const SalonForm = forwardRef(({
         </div>
         
         {/* Debug information */}
-        <div className="bg-gray-50 p-3 rounded-md text-gray-500 my-2 text-xs">
-          <div><strong>Form Status:</strong> {formState.isDirty ? 'Ändrad' : 'Oförändrad'}</div>
-          {formState.isDirty && (
-            <div>
-              <strong>Ändrade fält:</strong> {Object.keys(formState.dirtyFields).filter(key => formState.dirtyFields[key]).join(', ') || 'Inga'}
-            </div>
-          )}
-        </div>
+        
 
         <div className="flex justify-end pt-2">
-          <Button 
-            type="submit" 
-            disabled={isSubmitting || !form.formState.isDirty}
-            className="w-full sm:w-auto px-6"
-          >
+          <Button type="submit" disabled={isSubmitting || !form.formState.isDirty} className="w-full sm:w-auto px-6">
             {isSubmitting ? "Sparar..." : isEditing ? "Uppdatera" : "Skapa"}
           </Button>
         </div>
       </form>
-    </Form>
-  );
+    </Form>;
 });
-
 SalonForm.displayName = "SalonForm";
