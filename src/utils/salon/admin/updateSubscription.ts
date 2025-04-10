@@ -100,15 +100,15 @@ export const updateSalonSubscription = async (salonId: number, subscriptionPlan:
         console.warn("Verification error:", verifyError);
       } else if (verifyData) {
         console.log("Subscription update verified:", verifyData);
-        // Safe property access with optional chaining
-        if (verifyData?.subscription_plan !== subscriptionPlan) {
-          console.warn(`Verification mismatch: Expected plan ${subscriptionPlan}, got ${verifyData?.subscription_plan}`);
+        
+        if (verifyData.subscription_plan !== subscriptionPlan) {
+          console.warn(`Verification mismatch: Expected plan ${subscriptionPlan}, got ${verifyData.subscription_plan}`);
         }
         
         // Verify skipSubscription if it exists in the database
-        if (skipSubscription !== undefined && verifyData?.skip_subscription !== undefined && 
-            verifyData?.skip_subscription !== skipSubscription) {
-          console.warn(`Verification mismatch: Expected skipSubscription ${skipSubscription}, got ${verifyData?.skip_subscription}`);
+        if ('skip_subscription' in verifyData && skipSubscription !== undefined && 
+            verifyData.skip_subscription !== skipSubscription) {
+          console.warn(`Verification mismatch: Expected skipSubscription ${skipSubscription}, got ${verifyData.skip_subscription}`);
         }
       }
     } catch (verifyErr) {

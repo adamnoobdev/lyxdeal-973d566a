@@ -65,9 +65,9 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
                   form.setValue("skipSubscription", !!checked, { shouldDirty: true });
                   
                   // Also mark these fields as dirty to ensure they get submitted
-                  const formState = form.getValues();
-                  form.setValue("subscriptionPlan", formState.subscriptionPlan || "Baspaket", { shouldDirty: true });
-                  form.setValue("subscriptionType", formState.subscriptionType || "monthly", { shouldDirty: true });
+                  const formValues = form.getValues();
+                  form.setValue("subscriptionPlan", formValues.subscriptionPlan || "Baspaket", { shouldDirty: true });
+                  form.setValue("subscriptionType", formValues.subscriptionType || "monthly", { shouldDirty: true });
                 }}
               />
             </FormControl>

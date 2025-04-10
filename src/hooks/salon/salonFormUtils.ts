@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Salon } from "@/components/admin/types";
+import { Salon, SalonFormValues } from "@/components/admin/types";
 
 /**
  * Prepares a salon object for the edit form
@@ -8,7 +8,7 @@ import { Salon } from "@/components/admin/types";
  * @param salon The salon object from database
  * @returns Formatted object for the edit form
  */
-export const getInitialValuesForEdit = async (salon: Salon) => {
+export const getInitialValuesForEdit = async (salon: Salon): Promise<SalonFormValues> => {
   console.log("Preparing salon for edit:", salon);
   
   try {
@@ -32,18 +32,19 @@ export const getInitialValuesForEdit = async (salon: Salon) => {
     } else if (data) {
       console.log("Additional salon data:", data);
       
+      // Safely access data properties with defaults
       subscriptionPlan = data.subscription_plan || "Baspaket";
       subscriptionType = data.subscription_type || "monthly";
-      skipSubscription = !!data.skip_subscription;
+      skipSubscription = data.skip_subscription === true;
     }
     
     console.log("Source subscription data:", {
-      plan: data?.subscription_plan || "Not set in DB (will default to Baspaket)",
-      type: data?.subscription_type || "Not set in DB (will default to monthly)",
-      skip: data?.skip_subscription !== undefined ? data?.skip_subscription : "Not set in DB (will default to false)"
+      plan: data ? data.subscription_plan || "Not set in DB (will default to Baspaket)" : "No data returned",
+      type: data ? data.subscription_type || "Not set in DB (will default to monthly)" : "No data returned",
+      skip: data ? data.skip_subscription !== undefined ? data.skip_subscription : "Not set in DB (will default to false)" : "No data returned"
     });
     
-    const finalValues = {
+    const finalValues: SalonFormValues = {
       name: salon.name,
       email: salon.email,
       phone: salon.phone || "",
@@ -59,8 +60,8 @@ export const getInitialValuesForEdit = async (salon: Salon) => {
       plan: finalValues.subscriptionPlan,
       type: finalValues.subscriptionType,
       skipSubscription: finalValues.skipSubscription,
-      hasPlanField: !!data?.subscription_plan,
-      hasTypeField: !!data?.subscription_type
+      hasPlanField: data ? !!data.subscription_plan : false,
+      hasTypeField: data ? !!data.subscription_type : false
     });
     
     return finalValues;
