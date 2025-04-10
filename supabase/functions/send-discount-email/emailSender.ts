@@ -22,12 +22,24 @@ export async function sendEmail(data: EmailRequest) {
     // Säkerställ att alla texter är trimmade och korrekt formaterade
     const email = data.email.trim().toLowerCase();
     const name = data.name.trim();
-    const code = data.code.trim().toUpperCase();  // Standardisera till versaler
+    const code = data.code ? data.code.trim().toUpperCase() : ""; // Hantera fall där kod kan vara undefined
     const dealTitle = data.dealTitle.trim();
     const phone = data.phone ? data.phone.trim() : "";
     const bookingUrl = data.bookingUrl || null;
     
     console.log(`Preparing to send email to ${email} with discount code ${code}`);
+    console.log(`Deal title: "${dealTitle}", booking URL: ${bookingUrl || 'none'}`);
+
+    // Validera obligatoriska fält
+    if (!email || !name || (!code && code !== "DIRECT_BOOKING") || !dealTitle) {
+      const missingFields = [];
+      if (!email) missingFields.push("email");
+      if (!name) missingFields.push("name");
+      if (!code && code !== "DIRECT_BOOKING") missingFields.push("code");
+      if (!dealTitle) missingFields.push("dealTitle");
+      
+      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+    }
 
     // 1. Generera e-postinnehåll
     const { html, subject } = generateEmailTemplate({ 
@@ -63,20 +75,34 @@ export async function sendEmail(data: EmailRequest) {
     console.log(`Subject: ${subject}`);
     console.log(`Production mode: ${productionMode}`);
     console.log(`Has booking URL: ${bookingUrl ? "Yes" : "No"}`);
+    console.log(`Email length: ${html.length} characters`);
     
     // Skicka e-post med Resend
-    const result = await resend.emails.send({
-      from: "Beauty Deals <noreply@beautydeals.se>",
-      to: [toEmail],
-      subject: subject,
-      html: html,
-    });
+    try {
+      const result = await resend.emails.send({
+        from: "Beauty Deals <noreply@beautydeals.se>",
+        to: [toEmail],
+        subject: subject,
+        html: html,
+      });
 
-    console.log("Email sent successfully:", result.id);
-    
-    return { id: result.id, productionMode };
+      console.log("Email sent successfully:", result.id);
+      
+      return { id: result.id, productionMode };
+    } catch (sendError) {
+      console.error("Resend API error:", sendError);
+      if (sendError instanceof Error) {
+        console.error("Error message:", sendError.message);
+        console.error("Error stack:", sendError.stack);
+      }
+      throw sendError;
+    }
   } catch (error) {
     console.error("Error in sendEmail function:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     throw error;
   }
 }

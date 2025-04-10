@@ -58,10 +58,13 @@ export const secureDiscountCode = async (
       };
     }
     
-    // 1. Try to fetch an available discount code
+    // 1. Först försök garantera att det finns rabattkoder för erbjudandet
+    await ensureDiscountCodesExist(dealId);
+    
+    // 2. Try to fetch an available discount code
     let code = await getAvailableDiscountCode(dealId);
     
-    // 2. If no code is available, generate a new one with retry logic
+    // 3. If no code is available, generate a new one with retry logic
     if (!code) {
       console.log("[secureDiscountCode] No discount code available, generating a new one");
       
@@ -104,6 +107,7 @@ export const secureDiscountCode = async (
       
       // Försök skapa en ny kod som en nödlösning
       const fallbackCode = generateRandomCode();
+      console.log(`[secureDiscountCode] Creating fallback code: ${fallbackCode}`);
       const fallbackCreated = await createNewDiscountCode(dealId, fallbackCode);
       
       if (!fallbackCreated) {
@@ -117,19 +121,50 @@ export const secureDiscountCode = async (
       console.log(`[secureDiscountCode] Created fallback code ${code} after verification failed`);
     }
     
-    // 3. Mark the code as used and associate with customer
-    const codeUpdated = await markDiscountCodeAsUsed(code, {
-      name: customerData.name,
-      email: customerData.email,
-      phone: customerData.phone
-    });
+    // 4. Markera koden som använd och associera med kunden
+    // Försök up till 2 gånger om det misslyckas första gången
+    let codeUpdated = false;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      codeUpdated = await markDiscountCodeAsUsed(code, {
+        name: customerData.name,
+        email: customerData.email,
+        phone: customerData.phone
+      });
+      
+      if (codeUpdated) {
+        break;
+      } else if (attempt < 2) {
+        console.log(`[secureDiscountCode] Retry ${attempt} to mark code as used`);
+        // Kort fördröjning innan återförsök
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
     
     if (!codeUpdated) {
-      console.error("[secureDiscountCode] Failed to mark code as used");
-      return { 
-        success: false, 
-        message: "Ett fel uppstod när rabattkoden skulle kopplas till din profil." 
-      };
+      console.error("[secureDiscountCode] Failed to mark code as used after retries");
+      
+      // Försök med en ny kod som en sista utväg
+      const emergencyCode = generateRandomCode();
+      console.log(`[secureDiscountCode] Creating and marking emergency code: ${emergencyCode}`);
+      
+      const emergencyCreated = await createNewDiscountCode(dealId, emergencyCode);
+      if (!emergencyCreated) {
+        return { 
+          success: false, 
+          message: "Ett fel uppstod när rabattkoden skulle kopplas till din profil." 
+        };
+      }
+      
+      // Försök markera den direkt
+      const emergencyMarked = await markDiscountCodeAsUsed(emergencyCode, customerData);
+      if (!emergencyMarked) {
+        return { 
+          success: false, 
+          message: "Ett fel uppstod när rabattkoden skulle kopplas till din profil." 
+        };
+      }
+      
+      code = emergencyCode;
     }
     
     console.log(`[secureDiscountCode] Successfully secured code ${code} for ${customerData.email}`);
@@ -143,6 +178,56 @@ export const secureDiscountCode = async (
       success: false,
       message: "Ett fel uppstod vid säkring av rabattkod."
     };
+  }
+};
+
+/**
+ * Ensure that there are discount codes for a deal
+ */
+const ensureDiscountCodesExist = async (dealId: number): Promise<void> => {
+  try {
+    console.log(`[ensureDiscountCodesExist] Checking codes for deal ${dealId}`);
+    
+    // Kontrollera om det finns några koder för erbjudandet
+    const { count, error } = await supabase
+      .from("discount_codes")
+      .select("*", { count: "exact", head: true })
+      .eq("deal_id", dealId);
+      
+    if (error) {
+      console.error("[ensureDiscountCodesExist] Error checking codes:", error);
+      return;
+    }
+    
+    // Om det inte finns några koder, skapa några
+    if (count === 0 || !count) {
+      console.log("[ensureDiscountCodesExist] No codes found, generating 5 new codes");
+      
+      const codes = [];
+      for (let i = 0; i < 5; i++) {
+        const newCode = generateRandomCode();
+        codes.push({
+          deal_id: dealId,
+          code: newCode,
+          is_used: false,
+          created_at: new Date().toISOString()
+        });
+      }
+      
+      const { error: insertError } = await supabase
+        .from("discount_codes")
+        .insert(codes);
+        
+      if (insertError) {
+        console.error("[ensureDiscountCodesExist] Error creating backup codes:", insertError);
+      } else {
+        console.log(`[ensureDiscountCodesExist] Successfully created 5 backup codes for deal ${dealId}`);
+      }
+    } else {
+      console.log(`[ensureDiscountCodesExist] Found ${count} existing codes for deal ${dealId}`);
+    }
+  } catch (error) {
+    console.error("[ensureDiscountCodesExist] Exception:", error);
   }
 };
 

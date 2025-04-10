@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { generateRandomCode } from "@/utils/discount-code-utils";
 import { normalizeId } from "./types";
@@ -198,12 +199,32 @@ export const markDiscountCodeAsUsed = async (
       return true; // Direkt bokning kräver ingen rabattkod att markera
     }
     
-    // Check if the code exists first with improved logging
-    const { data: existingCode, error: checkError } = await supabase
+    const normalizedCode = code.trim().toUpperCase();
+    console.log(`[markDiscountCodeAsUsed] Using normalized code: ${normalizedCode}`);
+    
+    // Försök först med exakt kodmatchning
+    let { data: existingCode, error: checkError } = await supabase
       .from("discount_codes")
       .select("code, is_used, deal_id")
-      .eq("code", code)
+      .eq("code", normalizedCode)
       .maybeSingle();
+    
+    // Om ingen kod hittas, försök med case-insensitive sökning
+    if (!existingCode && !checkError) {
+      console.log(`[markDiscountCodeAsUsed] Trying case-insensitive search for code: ${normalizedCode}`);
+      const { data: similarCodes, error: searchError } = await supabase
+        .from("discount_codes")
+        .select("code, is_used, deal_id")
+        .ilike("code", normalizedCode)
+        .limit(1);
+        
+      if (searchError) {
+        console.error("[markDiscountCodeAsUsed] Error in case-insensitive search:", searchError);
+      } else if (similarCodes && similarCodes.length > 0) {
+        console.log(`[markDiscountCodeAsUsed] Found similar code: ${similarCodes[0].code}`);
+        existingCode = similarCodes[0];
+      }
+    }
     
     if (checkError) {
       console.error("[markDiscountCodeAsUsed] Error checking discount code:", checkError);
@@ -211,28 +232,33 @@ export const markDiscountCodeAsUsed = async (
     }
     
     if (!existingCode) {
-      console.error("[markDiscountCodeAsUsed] Code not found:", code);
+      console.error("[markDiscountCodeAsUsed] Code not found:", normalizedCode);
       
       // För att debugga problem, kontrollera om koden finns med annan skiftlägeskänslighet
       const { data: similarCodes } = await supabase
         .from("discount_codes")
         .select("code")
-        .ilike("code", `%${code}%`)
+        .ilike("code", `%${normalizedCode.substring(0, 4)}%`)
         .limit(5);
         
       if (similarCodes && similarCodes.length > 0) {
         console.log("[markDiscountCodeAsUsed] Similar codes found:", similarCodes.map(c => c.code));
+      } else {
+        console.log("[markDiscountCodeAsUsed] No similar codes found in database");
       }
       
       return false;
     }
     
     if (existingCode.is_used) {
-      console.error("[markDiscountCodeAsUsed] Code already used:", code);
+      console.error("[markDiscountCodeAsUsed] Code already used:", existingCode.code);
       return false;
     }
     
-    // Mark the code as used
+    // Mark the code as used with the actual code from the database
+    const actualCode = existingCode.code;
+    console.log(`[markDiscountCodeAsUsed] Using actual code from DB: ${actualCode}`);
+    
     const { error } = await supabase
       .from("discount_codes")
       .update({ 
@@ -240,16 +266,19 @@ export const markDiscountCodeAsUsed = async (
         used_by_name: customerData.name,
         used_by_email: customerData.email,
         used_by_phone: customerData.phone,
-        used_at: new Date().toISOString()
+        used_at: new Date().toISOString(),
+        customer_name: customerData.name,
+        customer_email: customerData.email,
+        customer_phone: customerData.phone
       })
-      .eq("code", code);
+      .eq("code", actualCode);
       
     if (error) {
       console.error("[markDiscountCodeAsUsed] Error marking discount code as used:", error);
       return false;
     }
     
-    console.log(`[markDiscountCodeAsUsed] Successfully marked code ${code} as used`);
+    console.log(`[markDiscountCodeAsUsed] Successfully marked code ${actualCode} as used`);
     return true;
   } catch (error) {
     console.error("[markDiscountCodeAsUsed] Exception marking discount code as used:", error);
