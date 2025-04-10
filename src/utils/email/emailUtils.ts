@@ -47,9 +47,18 @@ export const sendDiscountCodeEmail = async (
     // Log the request body for debugging
     console.log(`[sendDiscountCodeEmail] Sending request with body:`, JSON.stringify(requestBody));
     
+    // First, explicitly stringify the request body to ensure it's not empty
+    const stringifiedBody = JSON.stringify(requestBody);
+    
+    // Additional check to ensure the body is not empty after stringification
+    if (!stringifiedBody || stringifiedBody === '{}' || stringifiedBody.length <= 2) {
+      console.error("[sendDiscountCodeEmail] Generated empty request body after stringification");
+      return { success: false, error: "Failed to generate request body" };
+    }
+    
     // Call the edge function with explicit Content-Type and properly structured body
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
-      body: JSON.stringify(requestBody),
+      body: stringifiedBody,
       headers: {
         "Content-Type": "application/json"
       }

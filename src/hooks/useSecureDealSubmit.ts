@@ -100,27 +100,15 @@ export const useSecureDealSubmit = ({
       console.log(`[useSecureDealSubmit] Skickar e-post med kod...`);
       
       // Create a properly structured request body with all required fields
-      const emailData = {
-        email: values.email.trim().toLowerCase(),
-        name: values.name.trim(),
-        phone: values.phone.trim(),
-        code: code.trim().toUpperCase(),
-        dealTitle: dealTitle.trim(),
-        subscribedToNewsletter: values.subscribeToNewsletter,
-        bookingUrl: bookingUrl || undefined
-      };
-      
-      console.log(`[useSecureDealSubmit] Email request data:`, JSON.stringify(emailData));
-      
       try {
         const emailResult = await sendDiscountCodeEmail(
-          emailData.email,
-          emailData.name,
-          emailData.phone,
-          emailData.code,
-          emailData.dealTitle,
-          emailData.subscribedToNewsletter,
-          emailData.bookingUrl
+          values.email.trim().toLowerCase(),
+          values.name.trim(),
+          values.phone.trim(),
+          code.trim().toUpperCase(),
+          dealTitle.trim(),
+          values.subscribeToNewsletter,
+          bookingUrl || undefined
         );
         
         console.log(`[useSecureDealSubmit] Resultat av e-postskickning:`, emailResult);
