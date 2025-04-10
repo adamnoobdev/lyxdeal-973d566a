@@ -48,7 +48,7 @@ export async function sendEmail(
     
     console.log("Email response from Resend:", emailResponse);
     
-    // Fix: Properly check the response structure for this version of Resend
+    // FIXED: Properly check the response format for this version of Resend
     if (emailResponse.error) {
       console.error("Resend API error:", emailResponse.error);
       return { 
@@ -58,7 +58,6 @@ export async function sendEmail(
       };
     }
     
-    // Ensure we have a valid ID in the response
     if (!emailResponse.id) {
       console.error("Resend API returned no error but also no ID:", emailResponse);
       return {

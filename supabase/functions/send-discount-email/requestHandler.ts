@@ -13,73 +13,38 @@ export async function requestHandler(req: Request): Promise<Response> {
       );
     }
 
-    // 2. Handle JSON body
-    let requestData: EmailRequest;
-    let rawBody = "";
+    // 2. Get the raw request body and validate it exists
+    const rawBody = await req.text();
+    console.log("Raw request body length:", rawBody?.length || 0);
+    console.log("Raw request body sample:", rawBody.substring(0, 200));
     
-    try {
-      rawBody = await req.text();
-      console.log("Raw request body length:", rawBody?.length || 0);
-      
-      // Enhanced error handling for empty body
-      if (!rawBody || rawBody.trim() === '') {
-        console.error("Empty request body received in requestHandler");
-        return new Response(
-          JSON.stringify({ 
-            error: "Empty request body received", 
-            message: "The function received an empty body. Check that the request is properly formatted."
-          }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-        );
-      }
-      
-      console.log("Raw request body preview:", rawBody.substring(0, 100) + (rawBody.length > 100 ? '...' : ''));
-      
-      try {
-        requestData = JSON.parse(rawBody);
-        console.log("Successfully parsed JSON body");
-        
-        // Check if the parsed object is empty
-        if (!requestData || (typeof requestData === 'object' && Object.keys(requestData).length === 0)) {
-          console.error("Empty JSON object received after parsing");
-          return new Response(
-            JSON.stringify({ error: "Empty JSON object in request body" }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-          );
-        }
-        
-        console.log("Parsed request data:", JSON.stringify(requestData, null, 2));
-      } catch (parseError) {
-        console.error("JSON parse error:", parseError.message);
-        return new Response(
-          JSON.stringify({ 
-            error: "Invalid JSON format", 
-            details: parseError.message, 
-            receivedBody: rawBody.substring(0, 200) + (rawBody.length > 200 ? '...' : '') 
-          }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-        );
-      }
-    } catch (error) {
-      console.error("Error processing request body:", error);
+    if (!rawBody || rawBody.trim() === '') {
+      console.error("Empty request body received");
       return new Response(
-        JSON.stringify({ error: "Invalid request body", rawErrorMessage: error.message }),
+        JSON.stringify({ error: "Empty request body" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
 
-    // 3. Validate required fields with detailed logging
-    console.log("Checking required fields in the request data");
-    console.log("Fields received:", Object.keys(requestData || {}).join(", "));
-    
+    // 3. Parse the JSON body
+    let requestData: EmailRequest;
+    try {
+      requestData = JSON.parse(rawBody);
+      console.log("Request data parsed successfully:", JSON.stringify(requestData, null, 2));
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError.message);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid JSON format", 
+          details: parseError.message, 
+          receivedBody: rawBody.substring(0, 200) 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+
+    // 4. Validate required fields
     const { email, name, code, dealTitle } = requestData;
-    console.log("Critical fields check:", {
-      hasEmail: !!email,
-      hasName: !!name,
-      hasCode: !!code,
-      hasDealTitle: !!dealTitle
-    });
-    
     if (!email || !name || !code || !dealTitle) {
       const missingFields = [];
       if (!email) missingFields.push("email");
@@ -89,26 +54,17 @@ export async function requestHandler(req: Request): Promise<Response> {
       
       console.error("Missing required fields:", missingFields.join(", "));
       return new Response(
-        JSON.stringify({ 
-          error: `Missing required fields: ${missingFields.join(", ")}`,
-          receivedFields: Object.keys(requestData || {}),
-          receivedData: {
-            email: email ? `${email.substring(0, 3)}***` : undefined,
-            name: name || undefined,
-            code: code ? `${code.substring(0, 2)}***` : undefined,
-            dealTitle: dealTitle ? `${dealTitle.substring(0, 20)}${dealTitle?.length > 20 ? '...' : ''}` : undefined
-          }
-        }),
+        JSON.stringify({ error: `Missing required fields: ${missingFields.join(", ")}` }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
 
-    // 4. Send email
+    // 5. Send email
     try {
-      console.log("All validations passed, sending email with code:", code);
+      console.log("Sending email...");
       const emailResult = await sendEmail(requestData);
       
-      console.log("Email sent result:", emailResult);
+      console.log("Email sent successfully:", emailResult);
       
       return new Response(
         JSON.stringify({ 
@@ -120,46 +76,13 @@ export async function requestHandler(req: Request): Promise<Response> {
       );
     } catch (error) {
       console.error("Error sending email:", error);
-      console.error("Error type:", typeof error);
-      
-      if (error instanceof Error) {
-        console.error("Error message:", error.message);
-        console.error("Error stack:", error.stack);
-      }
-      
-      if (error.response) {
-        console.error("API response status:", error.response.status);
-        console.error("API response data:", error.response.data);
-      }
-      
-      // 5. Return more detailed error message
-      let statusCode = 500;
-      let errorDetail = "Unknown error";
-      
-      if (error instanceof Error) {
-        errorDetail = error.message;
-        
-        // Specific error handling
-        if (error.message.includes("rate limit") || error.message.includes("Too many requests")) {
-          statusCode = 429; // Rate limiting
-        } else if (error.message.includes("invalid") || error.message.includes("not found")) {
-          statusCode = 400; // Bad request
-        } else if (error.message.includes("API key")) {
-          statusCode = 401; // Auth issue
-          errorDetail = "Email service configuration error (API key)";
-        }
-      }
       
       return new Response(
         JSON.stringify({ 
-          error: `Failed to send email: ${errorDetail}`,
-          timestamp: new Date().toISOString(),
-          details: error instanceof Error ? error.stack : undefined
+          error: error instanceof Error ? error.message : "Unknown error sending email",
+          timestamp: new Date().toISOString()
         }),
-        { 
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: statusCode
-        }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
   } catch (error) {

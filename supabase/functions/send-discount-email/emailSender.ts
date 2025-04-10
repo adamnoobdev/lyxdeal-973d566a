@@ -35,12 +35,6 @@ export async function sendEmail(data: EmailRequest) {
     
     console.log(`Preparing to send email to ${email} with discount code ${code}`);
     console.log(`Deal title: "${dealTitle}", booking URL: ${bookingUrl || 'none'}`);
-    console.log("Input validation check:", { 
-      hasEmail: !!email, 
-      hasName: !!name, 
-      hasCode: !!code, 
-      hasDealTitle: !!dealTitle
-    });
 
     // Deep validation of required fields
     if (!email || !email.includes('@')) {
@@ -87,11 +81,8 @@ export async function sendEmail(data: EmailRequest) {
       throw new Error("Resend client is not initialized - API key may be missing");
     }
     
-    // Logging before email dispatch
     console.log(`Sending email to: ${toEmail} (original recipient: ${email})`);
     console.log(`Subject: ${subject}`);
-    console.log(`Production mode: ${productionMode}`);
-    console.log(`Has booking URL: ${bookingUrl ? "Yes" : "No"}`);
     
     // Send email with Resend
     try {
@@ -109,42 +100,26 @@ export async function sendEmail(data: EmailRequest) {
 
       console.log("Raw Resend API response:", JSON.stringify(result));
       
-      // Fix: Properly check the response structure
-      // The response could be { data: { id: "some-id" }, error: null }
-      // or it could have an error property
+      // FIXED: Properly handle the Resend API response structure
       if (result && result.error) {
-        console.error("Resend API error object:", result.error);
+        console.error("Resend API error:", result.error);
         throw new Error(result.error.message || "Unknown error from Resend API");
       }
       
-      // Check if we have a data object with an ID
-      if (result && result.data && result.data.id) {
-        console.log("Email sent successfully, Resend message ID:", result.data.id);
-        return { id: result.data.id, productionMode };
+      if (!result || !result.data || !result.data.id) {
+        console.error("Unexpected or empty response from Resend:", result);
+        throw new Error("Invalid or empty response from Resend API");
       }
       
-      // If we don't have an error and don't have a valid data.id, log and throw
-      console.error("Unexpected response format from Resend:", result);
-      throw new Error("Received invalid response format from Resend API");
+      console.log("Email sent successfully, Resend message ID:", result.data.id);
+      return { id: result.data.id, productionMode };
       
     } catch (sendError: any) {
       console.error("Resend API error:", sendError);
-      console.error("Error name:", sendError.name);
-      console.error("Error message:", sendError.message);
-      
-      if (sendError.response) {
-        console.error("API response status:", sendError.response.status);
-        console.error("API response data:", sendError.response.data);
-      }
-      
       throw sendError;
     }
   } catch (error: any) {
     console.error("Error in sendEmail function:", error);
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-    }
     throw error;
   }
 }
