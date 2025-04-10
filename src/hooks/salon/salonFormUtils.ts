@@ -25,7 +25,11 @@ export const getInitialValuesForEdit = async (salon: Salon) => {
     
     if (error) {
       console.error("Error fetching additional salon data:", error);
-    } else {
+      // If error contains specific message about missing column, log it but continue
+      if (error.message && error.message.includes("skip_subscription")) {
+        console.warn("skip_subscription column might be missing from salons table. Using default values.");
+      }
+    } else if (data) {
       console.log("Additional salon data:", data);
       
       subscriptionPlan = data.subscription_plan || "Baspaket";

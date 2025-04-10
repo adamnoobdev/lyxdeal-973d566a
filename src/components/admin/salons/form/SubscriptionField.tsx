@@ -64,10 +64,11 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
                   // När vi aktiverar/inaktiverar skipSubscription, se till att formuläret markeras som ändrat
                   form.setValue("skipSubscription", !!checked, { shouldDirty: true });
                   
-                  // Explicit sätt alla prenumerationsfält som dirty för att säkerställa att de sparas
-                  form.formState.dirtyFields.skipSubscription = true;
-                  form.formState.dirtyFields.subscriptionPlan = true;
-                  form.formState.dirtyFields.subscriptionType = true;
+                  // Mark fields as dirty using the proper method
+                  const formState = form.getValues();
+                  form.setValue("skipSubscription", !!checked, { shouldDirty: true });
+                  form.setValue("subscriptionPlan", formState.subscriptionPlan || "Baspaket", { shouldDirty: true });
+                  form.setValue("subscriptionType", formState.subscriptionType || "monthly", { shouldDirty: true });
                   
                   console.log("Form field state after click:", form.formState.dirtyFields);
                 }}
@@ -104,9 +105,8 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
             <Select 
               onValueChange={(value) => {
                 console.log("Subscription plan selected:", value);
-                // Markera explicit som ändrat för att säkerställa att det sparas
+                // Mark as changed to ensure it's saved
                 form.setValue("subscriptionPlan", value, { shouldValidate: true, shouldDirty: true });
-                form.formState.dirtyFields.subscriptionPlan = true;
               }} 
               value={field.value || "Baspaket"}
               defaultValue="Baspaket"
@@ -142,9 +142,8 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
               <Select 
                 onValueChange={(value) => {
                   console.log("Subscription type selected:", value);
-                  // Markera explicit som ändrat för att säkerställa att det sparas
+                  // Mark as changed to ensure it's saved
                   form.setValue("subscriptionType", value, { shouldValidate: true, shouldDirty: true });
-                  form.formState.dirtyFields.subscriptionType = true;
                 }} 
                 value={field.value || "monthly"}
                 defaultValue="monthly"

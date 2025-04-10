@@ -65,14 +65,14 @@ export const updateSalonData = async (values: any, id: number) => {
     updateValues.subscription_plan = values.subscriptionPlan || "Baspaket";
     updateValues.subscription_type = values.subscriptionType || "monthly";
     
-    // NYTT: Spara skip_subscription-värdet i databasen
+    // Save skip_subscription value in database
     if (values.skipSubscription !== undefined) {
       updateValues.skip_subscription = values.skipSubscription;
       console.log("Setting skip_subscription to:", values.skipSubscription);
       
-      // Om skipSubscription är true, sätt ett långt slutdatum för prenumerationen
+      // If skipSubscription is true, set a long-term expiration date
       if (values.skipSubscription) {
-        // Sätt slutdatum 10 år framåt för administrativa salonger
+        // Set expiration date 10 years in the future for administrative salons
         updateValues.current_period_end = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
         console.log("Setting long future date for current_period_end due to skipSubscription=true");
       }
@@ -109,35 +109,65 @@ export const updateSalonData = async (values: any, id: number) => {
 
     if (error) {
       console.error("Supabase error updating salon:", error);
+      // Check if error is about missing skip_subscription column
+      if (error.message && error.message.includes("skip_subscription")) {
+        console.error("The skip_subscription column is missing from the salons table. Please add it using SQL.");
+        console.error("Run: ALTER TABLE salons ADD COLUMN skip_subscription BOOLEAN DEFAULT false;");
+        
+        // Try again without the skip_subscription field
+        delete updateValues.skip_subscription;
+        console.log("Retrying update without skip_subscription field");
+        
+        const { data: retryData, error: retryError } = await supabase
+          .from("salons")
+          .update(updateValues)
+          .eq("id", id)
+          .select();
+          
+        if (retryError) {
+          throw retryError;
+        }
+        
+        console.log("Successfully updated salon without skip_subscription field:", retryData);
+        return retryData;
+      }
       throw error;
     }
     
     console.log("Salon updated successfully, response:", data);
     
-    // Double-verify if the subscription plan was actually updated by fetching salon
-    const { data: verifyData, error: verifyError } = await supabase
-      .from("salons")
-      .select("id, name, subscription_plan, subscription_type, skip_subscription")
-      .eq("id", id)
-      .single();
-      
-    if (verifyError) {
-      console.warn("Could not verify update result:", verifyError);
-    } else {
-      console.log("Verification of salon after update:", verifyData);
-      if (verifyData.subscription_plan !== values.subscriptionPlan) {
-        console.error("MISMATCH: Subscription plan was not updated correctly!");
-        console.error(`Expected: ${values.subscriptionPlan}, Actual: ${verifyData.subscription_plan}`);
-      } else {
-        console.log("Subscription plan verified correctly:", verifyData.subscription_plan);
+    try {
+      // Double-verify if the subscription plan was actually updated by fetching salon
+      const { data: verifyData, error: verifyError } = await supabase
+        .from("salons")
+        .select("id, name, subscription_plan, subscription_type, skip_subscription")
+        .eq("id", id)
+        .single();
+        
+      if (verifyError) {
+        console.warn("Could not verify update result:", verifyError);
+      } else if (verifyData) {
+        console.log("Verification of salon after update:", verifyData);
+        if (verifyData.subscription_plan !== values.subscriptionPlan) {
+          console.error("MISMATCH: Subscription plan was not updated correctly!");
+          console.error(`Expected: ${values.subscriptionPlan}, Actual: ${verifyData.subscription_plan}`);
+        } else {
+          console.log("Subscription plan verified correctly:", verifyData.subscription_plan);
+        }
+        
+        // Verify skip_subscription was saved correctly if it exists
+        if (verifyData.skip_subscription !== undefined) {
+          console.log("Skip subscription value in database:", verifyData.skip_subscription);
+          if (values.skipSubscription !== undefined && verifyData.skip_subscription !== values.skipSubscription) {
+            console.error("MISMATCH: skip_subscription was not updated correctly!");
+            console.error(`Expected: ${values.skipSubscription}, Actual: ${verifyData.skip_subscription}`);
+          }
+        } else {
+          console.warn("skip_subscription column might not exist in the database");
+        }
       }
-      
-      // Verifiera att skip_subscription sparades korrekt
-      console.log("Skip subscription value in database:", verifyData.skip_subscription);
-      if (values.skipSubscription !== undefined && verifyData.skip_subscription !== values.skipSubscription) {
-        console.error("MISMATCH: skip_subscription was not updated correctly!");
-        console.error(`Expected: ${values.skipSubscription}, Actual: ${verifyData.skip_subscription}`);
-      }
+    } catch (verifyErr) {
+      console.warn("Error during verification:", verifyErr);
     }
     
     return data;
