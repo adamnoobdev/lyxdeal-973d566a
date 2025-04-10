@@ -13,17 +13,11 @@ interface ContactFieldsProps {
 }
 
 export const ContactFields = ({ form, includeSubscriptionFields = false }: ContactFieldsProps) => {
-  // Kontrollera om skipSubscription är markerad
-  const skipSubscription = form.watch("skipSubscription");
-  
-  // Visa prenumerationsfält om includeSubscriptionFields är true ELLER om skipSubscription är markerad
-  const showSubscriptionFields = includeSubscriptionFields || skipSubscription;
-
-  // Hantera adressändring från Mapbox-komponent
+  // Handle address change from Mapbox component
   const handleAddressChange = (value: string, parts?: AddressParts) => {
     form.setValue("address", value, { shouldValidate: true });
     
-    // Om vi får tillbaka adressdelar, spara dem i formuläret
+    // If we get back address parts, save them in the form
     if (parts) {
       form.setValue("street", parts.street || "", { shouldValidate: false });
       form.setValue("postalCode", parts.postalCode || "", { shouldValidate: false });
@@ -68,7 +62,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
         )}
       />
 
-      {/* Visa alltid prenumerationsfält i admin edit salon */}
+      {/* Always show subscription fields in the admin salon form */}
       <div className="space-y-4">
         <FormField
           control={form.control}
@@ -76,7 +70,10 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium">Prenumerationsplan</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value || "Baspaket"} value={field.value}>
+              <Select 
+                onValueChange={field.onChange} 
+                value={field.value || "Baspaket"}
+              >
                 <FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Välj plan" />
@@ -101,7 +98,10 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium">Betalningsintervall</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value || "monthly"} value={field.value}>
+              <Select 
+                onValueChange={field.onChange} 
+                value={field.value || "monthly"}
+              >
                 <FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Välj intervall" />

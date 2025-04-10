@@ -40,7 +40,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
   // Use external isSubmitting state if provided, otherwise use internal state
   const isSubmitting = externalIsSubmitting !== undefined ? externalIsSubmitting : internalIsSubmitting;
 
-  // Kombinera initialValues med standardvärden
+  // Combine initialValues with default values
   const defaultValues = {
     name: "",
     email: "",
@@ -63,7 +63,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
     defaultValues,
   });
 
-  // Debug för att se vad vi har för värden i formuläret
+  // Debug to see values in the form
   useEffect(() => {
     if (isEditing) {
       console.log("Form initialized with values:", form.getValues());
@@ -75,7 +75,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
     
     setInternalIsSubmitting(true);
     try {
-      // Debugging för att se vilka värden som skickas till backend
+      // Debug to see values submitted to backend
       console.log("Form submitting with values:", values);
       await onSubmit(values);
     } catch (error) {
@@ -85,9 +85,6 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
     }
   };
 
-  // Watch skipSubscription field to determine whether to show subscription fields
-  const skipSubscription = form.watch("skipSubscription");
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
@@ -96,10 +93,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
         </div>
         
         <div className="space-y-4">
-          <ContactFields 
-            form={form} 
-            includeSubscriptionFields={true} // Alltid visa prenumerationsfält
-          />
+          <ContactFields form={form} />
         </div>
         
         {isEditing && (

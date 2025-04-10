@@ -29,8 +29,8 @@ export interface SalonFormValues {
   address?: string;
   termsAccepted?: boolean;
   privacyAccepted?: boolean;
-  subscriptionPlan?: string;
-  subscriptionType?: string;
+  subscriptionPlan: string;
+  subscriptionType: string;
 }
 
 // Resten av filen behålls som den är

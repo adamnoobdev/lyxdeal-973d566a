@@ -18,6 +18,15 @@ export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
   
   console.log("Preparing salon for edit:", salon);
   
+  // Ensure subscription fields have default values if null
+  const subscriptionPlan = salon.subscription_plan || "Baspaket";
+  const subscriptionType = salon.subscription_type || "monthly";
+  
+  console.log("Using subscription values:", { 
+    subscriptionPlan, 
+    subscriptionType 
+  });
+  
   return {
     name: salon.name || "",
     email: salon.email || "",
@@ -25,9 +34,7 @@ export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
     address: salon.address || "",
     termsAccepted: salon.terms_accepted ?? true,
     privacyAccepted: salon.privacy_accepted ?? true,
-    
-    // Add subscription fields for admin editing - var uppmärksam på defaultvärden
-    subscriptionPlan: salon.subscription_plan || "Baspaket",
-    subscriptionType: salon.subscription_type || "monthly",
+    subscriptionPlan: subscriptionPlan,
+    subscriptionType: subscriptionType,
   };
 };

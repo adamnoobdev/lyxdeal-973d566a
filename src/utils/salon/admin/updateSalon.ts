@@ -54,7 +54,7 @@ export const updateSalonData = async (values: any, id: number) => {
       updateValues.privacy_accepted = values.privacyAccepted;
     }
     
-    // Explicit hantering av prenumerationsfält
+    // Explicitly handle subscription fields with proper logging
     if (values.subscriptionPlan !== undefined) {
       updateValues.subscription_plan = values.subscriptionPlan;
       console.log("Updating subscription plan to:", values.subscriptionPlan);
