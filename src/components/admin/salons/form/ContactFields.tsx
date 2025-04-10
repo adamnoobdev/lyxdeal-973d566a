@@ -32,17 +32,17 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
   };
 
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="phone"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Telefon</FormLabel>
+            <FormLabel className="text-sm font-medium">Telefon</FormLabel>
             <FormControl>
-              <Input placeholder="Ange telefonnummer..." {...field} value={field.value || ''} />
+              <Input placeholder="Ange telefonnummer..." {...field} value={field.value || ''} className="w-full" />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="text-xs" />
           </FormItem>
         )}
       />
@@ -52,7 +52,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
         name="address"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Gatuadress</FormLabel>
+            <FormLabel className="text-sm font-medium">Gatuadress</FormLabel>
             <FormControl>
               <MapboxAddressInput
                 defaultValue={field.value || ''}
@@ -60,24 +60,25 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
                 id="address"
                 placeholder="Sök efter adress..."
                 error={!!form.formState.errors.address}
+                className="w-full"
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="text-xs" />
           </FormItem>
         )}
       />
 
       {/* Visa alltid prenumerationsfält i admin edit salon, även om isEditing är true */}
-      <>
+      <div className="space-y-4">
         <FormField
           control={form.control}
           name="subscriptionPlan"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Prenumerationsplan</FormLabel>
+              <FormLabel className="text-sm font-medium">Prenumerationsplan</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value || "Baspaket"}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Välj plan" />
                   </SelectTrigger>
                 </FormControl>
@@ -89,7 +90,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -99,10 +100,10 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
           name="subscriptionType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Betalningsintervall</FormLabel>
+              <FormLabel className="text-sm font-medium">Betalningsintervall</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value || "monthly"}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Välj intervall" />
                   </SelectTrigger>
                 </FormControl>
@@ -111,11 +112,11 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
                   <SelectItem value="yearly">Årsvis</SelectItem>
                 </SelectContent>
               </Select>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
-      </>
-    </>
+      </div>
+    </div>
   );
 };

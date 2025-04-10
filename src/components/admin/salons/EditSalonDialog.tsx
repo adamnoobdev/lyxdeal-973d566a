@@ -137,10 +137,10 @@ export const EditSalonDialog = ({
         if (!open && !isSubmitting) handleClose();
       }}
     >
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle>Redigera salong</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Redigera salong</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
             Uppdatera information om salongen. Fyll i adressinformation för korrekt visning på kartan och hantera godkännanden av villkor.
           </DialogDescription>
         </DialogHeader>

@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
@@ -14,11 +15,11 @@ export const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Namn</FormLabel>
+            <FormLabel className="text-sm font-medium">Namn</FormLabel>
             <FormControl>
-              <Input placeholder="Ange namn..." {...field} />
+              <Input placeholder="Ange namn..." {...field} className="w-full" />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="text-xs" />
           </FormItem>
         )}
       />
@@ -28,11 +29,11 @@ export const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
         name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>E-post</FormLabel>
+            <FormLabel className="text-sm font-medium">E-post</FormLabel>
             <FormControl>
-              <Input placeholder="Ange e-post..." {...field} />
+              <Input placeholder="Ange e-post..." {...field} className="w-full" />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="text-xs" />
           </FormItem>
         )}
       />

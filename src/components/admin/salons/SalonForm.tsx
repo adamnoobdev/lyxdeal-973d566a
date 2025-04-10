@@ -81,21 +81,42 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-        <BasicInfoFields form={form} />
-        <ContactFields 
-          form={form} 
-          includeSubscriptionFields={isEditing} // Always show subscription fields when editing
-        />
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <div className="space-y-4">
+          <BasicInfoFields form={form} />
+        </div>
         
-        {isEditing && <TermsFields form={form} />}
+        <div className="space-y-4">
+          <ContactFields 
+            form={form} 
+            includeSubscriptionFields={isEditing} // Always show subscription fields when editing
+          />
+        </div>
         
-        {!isEditing && <PasswordField form={form} />}
+        {isEditing && (
+          <div className="space-y-4">
+            <TermsFields form={form} />
+          </div>
+        )}
         
-        {!isEditing && <SubscriptionField form={form} />}
+        {!isEditing && (
+          <div className="space-y-4">
+            <PasswordField form={form} />
+          </div>
+        )}
+        
+        {!isEditing && (
+          <div className="space-y-4">
+            <SubscriptionField form={form} />
+          </div>
+        )}
 
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
+        <div className="flex justify-end pt-2">
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full sm:w-auto px-6"
+          >
             {isSubmitting ? "Sparar..." : isEditing ? "Uppdatera" : "Skapa"}
           </Button>
         </div>
