@@ -67,36 +67,6 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
         )}
       />
 
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="postalCode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Postnummer</FormLabel>
-              <FormControl>
-                <Input placeholder="Ange postnummer..." {...field} value={field.value || ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="city"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Ort</FormLabel>
-              <FormControl>
-                <Input placeholder="Ange ort..." {...field} value={field.value || ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
       {/* Visa alltid prenumerationsfält i admin edit salon, även om isEditing är true */}
       <>
         <FormField
