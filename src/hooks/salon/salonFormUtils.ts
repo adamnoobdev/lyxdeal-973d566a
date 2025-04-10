@@ -11,8 +11,12 @@ export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
     phone: "",
     address: "",
     termsAccepted: true,
-    privacyAccepted: true
+    privacyAccepted: true,
+    subscriptionPlan: "Baspaket",
+    subscriptionType: "monthly"
   };
+  
+  console.log("Preparing salon for edit:", salon);
   
   return {
     name: salon.name || "",
@@ -22,7 +26,7 @@ export const getInitialValuesForEdit = (salon: Salon): SalonFormValues => {
     termsAccepted: salon.terms_accepted ?? true,
     privacyAccepted: salon.privacy_accepted ?? true,
     
-    // Add subscription fields for admin editing
+    // Add subscription fields for admin editing - var uppmärksam på defaultvärden
     subscriptionPlan: salon.subscription_plan || "Baspaket",
     subscriptionType: salon.subscription_type || "monthly",
   };

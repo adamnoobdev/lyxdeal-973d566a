@@ -54,13 +54,13 @@ export const updateSalonData = async (values: any, id: number) => {
       updateValues.privacy_accepted = values.privacyAccepted;
     }
     
-    // Add subscription plan fields if provided (crucial for admin-created salons)
-    if (values.subscriptionPlan) {
+    // Explicit hantering av prenumerationsfält
+    if (values.subscriptionPlan !== undefined) {
       updateValues.subscription_plan = values.subscriptionPlan;
       console.log("Updating subscription plan to:", values.subscriptionPlan);
     }
     
-    if (values.subscriptionType) {
+    if (values.subscriptionType !== undefined) {
       updateValues.subscription_type = values.subscriptionType;
       console.log("Updating subscription type to:", values.subscriptionType);
     }
@@ -88,12 +88,16 @@ export const updateSalonData = async (values: any, id: number) => {
     }
 
     // Update the salon record
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("salons")
       .update(updateValues)
-      .eq("id", id);
+      .eq("id", id)
+      .select();
 
     if (error) throw error;
+    
+    console.log("Salon updated successfully:", data);
+    return data;
   } catch (error) {
     console.error("Error updating salon:", error);
     throw error;

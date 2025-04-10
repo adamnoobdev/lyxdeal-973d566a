@@ -63,11 +63,20 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
     defaultValues,
   });
 
+  // Debug för att se vad vi har för värden i formuläret
+  useEffect(() => {
+    if (isEditing) {
+      console.log("Form initialized with values:", form.getValues());
+    }
+  }, [form, isEditing]);
+
   const handleSubmit = async (values: any) => {
     if (isSubmitting) return;
     
     setInternalIsSubmitting(true);
     try {
+      // Debugging för att se vilka värden som skickas till backend
+      console.log("Form submitting with values:", values);
       await onSubmit(values);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -89,7 +98,7 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
         <div className="space-y-4">
           <ContactFields 
             form={form} 
-            includeSubscriptionFields={isEditing} // Always show subscription fields when editing
+            includeSubscriptionFields={true} // Alltid visa prenumerationsfält
           />
         </div>
         

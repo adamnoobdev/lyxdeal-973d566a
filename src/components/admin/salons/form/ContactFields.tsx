@@ -68,7 +68,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
         )}
       />
 
-      {/* Visa alltid prenumerationsfält i admin edit salon, även om isEditing är true */}
+      {/* Visa alltid prenumerationsfält i admin edit salon */}
       <div className="space-y-4">
         <FormField
           control={form.control}
@@ -76,7 +76,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium">Prenumerationsplan</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value || "Baspaket"}>
+              <Select onValueChange={field.onChange} defaultValue={field.value || "Baspaket"} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Välj plan" />
@@ -101,7 +101,7 @@ export const ContactFields = ({ form, includeSubscriptionFields = false }: Conta
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium">Betalningsintervall</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value || "monthly"}>
+              <Select onValueChange={field.onChange} defaultValue={field.value || "monthly"} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Välj intervall" />

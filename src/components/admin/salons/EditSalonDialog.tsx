@@ -55,10 +55,11 @@ export const EditSalonDialog = ({
 
     if (isOpen && isMounted) {
       console.log("[EditSalonDialog] Dialog opening, resetting state");
+      console.log("[EditSalonDialog] Initial values:", initialValues);
       setIsClosing(false);
       setIsSubmitting(false);
     }
-  }, [isOpen, isMounted]);
+  }, [isOpen, isMounted, initialValues]);
 
   // Handle controlled closing with timeout to allow animations
   const handleClose = () => {
@@ -141,7 +142,7 @@ export const EditSalonDialog = ({
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">Redigera salong</DialogTitle>
           <DialogDescription className="text-xs sm:text-sm">
-            Uppdatera information om salongen. Fyll i adressinformation för korrekt visning på kartan och hantera godkännanden av villkor.
+            Uppdatera information om salongen. Fyll i adressinformation för korrekt visning på kartan och hantera prenumerationsplan och godkännanden av villkor.
           </DialogDescription>
         </DialogHeader>
         <SalonForm 
