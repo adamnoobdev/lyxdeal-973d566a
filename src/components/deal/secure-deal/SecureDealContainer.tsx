@@ -1,7 +1,7 @@
 
 import { useClaimCheck } from "@/hooks/useClaimCheck";
 import { useSecureDealSubmit } from "@/hooks/useSecureDealSubmit";
-import { SecureForm, SecureFormValues } from "./SecureForm";
+import { SecureForm } from "./SecureForm";
 import { SuccessMessage } from "./SuccessMessage";
 import { AlreadyClaimedMessage } from "./AlreadyClaimedMessage";
 
@@ -9,12 +9,16 @@ interface SecureDealContainerProps {
   dealId: number;
   dealTitle: string;
   onSuccess?: () => void;
+  bookingUrl?: string | null;
+  requiresDiscountCode?: boolean;
 }
 
 export const SecureDealContainer = ({ 
   dealId, 
   dealTitle,
-  onSuccess 
+  onSuccess,
+  bookingUrl,
+  requiresDiscountCode = true
 }: SecureDealContainerProps) => {
   // Check if user has already claimed this deal
   const { hasAlreadyClaimed, isCheckingClaim } = useClaimCheck(dealId);
@@ -25,13 +29,16 @@ export const SecureDealContainer = ({
     isSuccess,
     emailSent,
     discountCode,
+    emailError,
     handleSubmit,
     handleReset
   } = useSecureDealSubmit({
     dealId,
     dealTitle,
     onSuccess,
-    hasAlreadyClaimed
+    hasAlreadyClaimed,
+    requiresDiscountCode,
+    bookingUrl
   });
 
   // Handle going back to deal page
@@ -58,6 +65,7 @@ export const SecureDealContainer = ({
           onReset={handleReset} 
           email={emailSent || ''} 
           code={discountCode}
+          emailError={emailError}
         />
       ) : (
         <SecureForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />

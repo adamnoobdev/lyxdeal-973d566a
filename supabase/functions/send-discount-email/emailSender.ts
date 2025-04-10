@@ -1,11 +1,10 @@
 
-// Vi ersätter Resend-npm-paketet med en enkel fetch-implementation
-import { createEmailContent } from "./emailTemplates/template.ts";
+import { generateEmailHtml } from "./emailTemplate.ts";
 import { RequestPayload } from "./types.ts";
 import { corsHeaders } from "./corsConfig.ts";
 
 export async function sendDiscountEmail(payload: RequestPayload) {
-  const { email, name, code, dealTitle, bookingUrl } = payload;
+  const { email, name, code, dealTitle, bookingUrl, subscribedToNewsletter } = payload;
   
   // Kontrollera om RESEND_API_KEY är konfigurerad
   const apiKey = Deno.env.get("RESEND_API_KEY");
@@ -21,7 +20,12 @@ export async function sendDiscountEmail(payload: RequestPayload) {
   }
 
   // Skapa mejlinnehållet med vår mallfunktion
-  const emailContent = createEmailContent(name, code, dealTitle, bookingUrl);
+  const emailContent = generateEmailHtml({
+    name, 
+    code, 
+    dealTitle,
+    subscribedToNewsletter
+  });
   
   console.log(`Skickar rabattkodsmejl till ${email} för erbjudande "${dealTitle}"`);
   if (bookingUrl) {

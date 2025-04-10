@@ -6,7 +6,7 @@
 export function createHeaderSection(title: string) {
   return `
     <div class="header">
-      <img src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets//Lyxdeal-logo.svg" alt="Lyxdeal" />
+      <img src="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/Lyxdeal-logo.svg" alt="Lyxdeal" />
       <h1>${title}</h1>
     </div>
   `;

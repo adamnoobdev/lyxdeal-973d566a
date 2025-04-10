@@ -4,7 +4,7 @@ import { sendDiscountEmail } from "./emailSender.ts";
 
 export async function requestHandler(req: Request) {
   try {
-    // Logga hela den inkommande förfrågan för felsökning
+    // Konvertera Request body till en läsbar sträng en gång
     const requestText = await req.text();
     console.log("Mottaget förfrågansinnehåll:", requestText);
     
@@ -18,7 +18,8 @@ export async function requestHandler(req: Request) {
       return new Response(
         JSON.stringify({
           error: "Ogiltigt JSON-format i förfrågan",
-          details: parseError.message
+          details: parseError.message,
+          receivedText: requestText.substring(0, 100) + (requestText.length > 100 ? '...' : '')
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -53,7 +54,8 @@ export async function requestHandler(req: Request) {
       phone: phone || "",
       code,
       dealTitle,
-      bookingUrl
+      bookingUrl,
+      subscribedToNewsletter
     });
     
   } catch (error) {

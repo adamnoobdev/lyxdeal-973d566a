@@ -10,10 +10,12 @@ export const sendDiscountCodeEmail = async (
   phone: string,
   code: string,
   dealTitle: string,
-  subscribedToNewsletter: boolean
+  subscribedToNewsletter: boolean = false,
+  bookingUrl?: string
 ): Promise<{ success: boolean; data?: any; error?: string }> => {
   try {
     console.log(`[sendDiscountCodeEmail] Sending email to ${email} with code ${code} for deal "${dealTitle}"`);
+    console.log(`[sendDiscountCodeEmail] Additional parameters: subscribedToNewsletter=${subscribedToNewsletter}, bookingUrl=${bookingUrl || 'none'}`);
     
     const { data, error } = await supabase.functions.invoke("send-discount-email", {
       body: {
@@ -22,7 +24,8 @@ export const sendDiscountCodeEmail = async (
         phone,
         code,
         dealTitle,
-        subscribedToNewsletter
+        subscribedToNewsletter,
+        bookingUrl
       },
     });
     

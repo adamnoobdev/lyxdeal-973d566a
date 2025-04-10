@@ -28,6 +28,7 @@ export const useSecureDealSubmit = ({
   const [isSuccess, setIsSuccess] = useState(false);
   const [emailSent, setEmailSent] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const handleSubmit = async (values: SecureFormValues) => {
     console.log(`[useSecureDealSubmit] Submit initierad med värden:`, values);
@@ -44,6 +45,7 @@ export const useSecureDealSubmit = ({
     }
 
     setIsSubmitting(true);
+    setEmailError(null);
     
     try {
       console.log(`[useSecureDealSubmit] Säkrar erbjudande ${dealId} för ${values.email}`);
@@ -87,52 +89,61 @@ export const useSecureDealSubmit = ({
       const purchaseResult = await createPurchaseRecord(values.email, dealId, code);
       console.log(`[useSecureDealSubmit] Köpregister skapat:`, purchaseResult);
       
-      // 5. Skicka e-post med koden
-      console.log(`[useSecureDealSubmit] Skickar e-post med kod...`);
-      const emailResult = await sendDiscountCodeEmail(
-        values.email,
-        values.name,
-        values.phone,
-        code,
-        dealTitle,
-        values.subscribeToNewsletter
-      );
-      
-      console.log(`[useSecureDealSubmit] Resultat av e-postskickning:`, emailResult);
-      
-      // 6. Visa bekräftelse och hantera framgång
-      // Vi lagrar alltid koden och visar framgång, även om e-postskickning misslyckas
-      
       // Spara deal-ID i localStorage för att förhindra dubbletter
       saveClaimedDeal(dealId);
       
       // Lagra e-post och kod för bekräftelsemeddelande
       setEmailSent(values.email);
       setDiscountCode(code);
-      setIsSuccess(true);
       
-      if (emailResult.success) {
-        // Kontrollera om vi är i testläge och e-postar dirigeras om
-        if (emailResult.data && emailResult.data.productionMode === false) {
-          toast.success("Rabattkoden har genererats, men vi är i testläge så e-post skickades till en testadress.", {
-            duration: 5000
-          });
-        } else {
-          toast.success("Grattis! Din rabattkod har skickats till din e-post.");
-          
-          if (values.subscribeToNewsletter) {
-            toast.success("Du har också lagts till i vårt nyhetsbrev. Välkommen!", {
-              duration: 5000,
-              position: "bottom-center"
+      // 5. Skicka e-post med koden
+      console.log(`[useSecureDealSubmit] Skickar e-post med kod...`);
+      try {
+        const emailResult = await sendDiscountCodeEmail(
+          values.email,
+          values.name,
+          values.phone,
+          code,
+          dealTitle,
+          values.subscribeToNewsletter,
+          bookingUrl || undefined
+        );
+        
+        console.log(`[useSecureDealSubmit] Resultat av e-postskickning:`, emailResult);
+        
+        if (emailResult.success) {
+          // Kontrollera om vi är i testläge och e-postar dirigeras om
+          if (emailResult.data && emailResult.data.productionMode === false) {
+            toast.success("Rabattkoden har genererats, men vi är i testläge så e-post skickades till en testadress.", {
+              duration: 5000
             });
+          } else {
+            toast.success("Grattis! Din rabattkod har skickats till din e-post.");
+            
+            if (values.subscribeToNewsletter) {
+              toast.success("Du har också lagts till i vårt nyhetsbrev. Välkommen!", {
+                duration: 5000,
+                position: "bottom-center"
+              });
+            }
           }
+        } else {
+          setEmailError("E-postskickning misslyckades: " + (emailResult.error || "Okänt fel"));
+          console.error("[useSecureDealSubmit] E-postskickning misslyckades:", emailResult.error);
+          toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Du kan kopiera koden nedan.", {
+            duration: 6000
+          });
         }
-      } else {
-        console.error("[useSecureDealSubmit] E-postskickning misslyckades:", emailResult.error);
+      } catch (emailError) {
+        console.error("[useSecureDealSubmit] Fel vid e-postskickning:", emailError);
+        setEmailError("E-postskickning misslyckades: " + (emailError instanceof Error ? emailError.message : "Okänt fel"));
         toast.warning("Din rabattkod har reserverats men kunde inte skickas via e-post. Du kan kopiera koden nedan.", {
           duration: 6000
         });
       }
+      
+      // Markera processen som framgångsrik även om e-postskickning misslyckas
+      setIsSuccess(true);
       
       // Anropa framgångsåterkallning om det tillhandahålls
       if (onSuccess) {
@@ -144,6 +155,7 @@ export const useSecureDealSubmit = ({
     } catch (error) {
       console.error("[useSecureDealSubmit] Fel vid säkrandet av erbjudande:", error);
       toast.error("Något gick fel. Vänligen försök igen senare.");
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -152,6 +164,7 @@ export const useSecureDealSubmit = ({
     setIsSuccess(false);
     setEmailSent(null);
     setDiscountCode(null);
+    setEmailError(null);
   };
 
   return {
@@ -159,6 +172,7 @@ export const useSecureDealSubmit = ({
     isSuccess,
     emailSent,
     discountCode,
+    emailError,
     handleSubmit,
     handleReset
   };

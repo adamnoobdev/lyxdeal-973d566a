@@ -1,16 +1,18 @@
 
 import { Button } from "@/components/ui/button";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export interface SuccessMessageProps {
   email: string;
   code: string | null;
   onReset: () => void;
+  emailError?: string | null;
 }
 
-export const SuccessMessage = ({ email, code, onReset }: SuccessMessageProps) => {
+export const SuccessMessage = ({ email, code, onReset, emailError }: SuccessMessageProps) => {
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = () => {
@@ -34,15 +36,27 @@ export const SuccessMessage = ({ email, code, onReset }: SuccessMessageProps) =>
       </div>
       
       <h2 className="text-2xl font-semibold mb-2">Grattis!</h2>
-      <p className="text-gray-600 mb-6">
-        Vi har skickat din rabattkod till <span className="font-medium">{email}</span>
+      <p className="text-gray-600 mb-4">
+        {emailError 
+          ? "Vi har säkrat din rabattkod" 
+          : `Vi har skickat din rabattkod till ${email}`
+        }
       </p>
+      
+      {emailError && (
+        <Alert variant="destructive" className="mb-4 text-left">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <AlertDescription className="text-sm">
+            Det gick inte att skicka e-post. Spara koden nedan.
+          </AlertDescription>
+        </Alert>
+      )}
       
       {code && (
         <div className="mb-6">
           <p className="text-gray-600 mb-2">Din rabattkod:</p>
           <div className="flex items-center justify-center gap-2">
-            <div className="bg-gray-100 px-4 py-2 rounded-md font-mono text-lg">
+            <div className="bg-gray-100 px-4 py-2 rounded-md font-mono text-lg select-all">
               {code}
             </div>
             <Button 
@@ -50,6 +64,7 @@ export const SuccessMessage = ({ email, code, onReset }: SuccessMessageProps) =>
               variant="outline" 
               onClick={copyToClipboard}
               className="flex-shrink-0"
+              title="Kopiera rabattkod"
             >
               {copied ? (
                 <Check className="h-4 w-4 text-green-600" />
@@ -59,15 +74,20 @@ export const SuccessMessage = ({ email, code, onReset }: SuccessMessageProps) =>
             </Button>
           </div>
           <p className="mt-2 text-sm text-gray-500">
-            Spara eller kopiera denna kod om du inte får mejlet direkt
+            {emailError 
+              ? "Spara eller kopiera denna kod eftersom e-postskickningen misslyckades"
+              : "Spara eller kopiera denna kod om du inte får mejlet direkt"
+            }
           </p>
         </div>
       )}
       
       <div className="space-y-3">
-        <p className="text-sm text-gray-500">
-          Kontrollera din skräppost om du inte ser mejlet i din inkorg.
-        </p>
+        {!emailError && (
+          <p className="text-sm text-gray-500">
+            Kontrollera din skräppost om du inte ser mejlet i din inkorg.
+          </p>
+        )}
         
         <Button 
           variant="outline"

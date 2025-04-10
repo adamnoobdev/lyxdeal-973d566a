@@ -34,6 +34,7 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
     isSuccess,
     emailSent,
     discountCode,
+    emailError,
     handleSubmit,
     handleReset
   } = useSecureDealSubmit({
@@ -50,8 +51,8 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
   };
 
   useEffect(() => {
-    console.log(`[SecureDealForm] State updated: isSubmitting=${isSubmitting}, isSuccess=${isSuccess}, emailSent=${emailSent}, discountCode=${discountCode}`);
-  }, [isSubmitting, isSuccess, emailSent, discountCode]);
+    console.log(`[SecureDealForm] State updated: isSubmitting=${isSubmitting}, isSuccess=${isSuccess}, emailSent=${emailSent}, discountCode=${discountCode}, emailError=${emailError}`);
+  }, [isSubmitting, isSuccess, emailSent, discountCode, emailError]);
 
   if (isCheckingClaim) {
     return (
@@ -72,6 +73,7 @@ export const SecureDealForm: React.FC<SecureDealFormProps> = ({
         email={emailSent} 
         code={discountCode} 
         onReset={handleReset}
+        emailError={emailError}
       />
     );
   }
