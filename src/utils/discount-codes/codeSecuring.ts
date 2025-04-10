@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { getAvailableDiscountCode, markDiscountCodeAsUsed } from "@/utils/discount-codes";
 import { createNewDiscountCode, generateRandomCode } from "@/utils/discount-code-utils";
@@ -61,10 +60,31 @@ export const secureDiscountCode = async (
     // 1. Först försök garantera att det finns rabattkoder för erbjudandet
     await ensureDiscountCodesExist(dealId);
     
-    // 2. Try to fetch an available discount code
-    let code = await getAvailableDiscountCode(dealId);
+    // 2. Kontrollera om det redan finns rabattkoder direkt från databasen
+    let code: string | null = null;
+    const { data: existingCodes, error: codesError } = await supabase
+      .from("discount_codes")
+      .select("code")
+      .eq("deal_id", dealId)
+      .eq("is_used", false)
+      .limit(1);
+      
+    if (codesError) {
+      console.error("[secureDiscountCode] Error fetching discount codes directly:", codesError);
+    } else if (existingCodes && existingCodes.length > 0) {
+      code = existingCodes[0].code;
+      console.log(`[secureDiscountCode] Found existing code directly from DB: ${code}`);
+    } else {
+      console.log("[secureDiscountCode] No existing codes found directly, will create new");
+    }
     
-    // 3. If no code is available, generate a new one with retry logic
+    // 3. Om ingen kod hittades direkt, prova via getAvailableDiscountCode
+    if (!code) {
+      code = await getAvailableDiscountCode(dealId);
+      console.log(`[secureDiscountCode] Result from getAvailableDiscountCode: ${code || 'no code found'}`);
+    }
+    
+    // 4. Om fortfarande ingen kod, skapa en ny med retry-logik
     if (!code) {
       console.log("[secureDiscountCode] No discount code available, generating a new one");
       
@@ -73,32 +93,50 @@ export const secureDiscountCode = async (
         const newCode = generateRandomCode();
         console.log(`[secureDiscountCode] Attempt ${attempt}: Generating code ${newCode}`);
         
-        const codeCreated = await createNewDiscountCode(dealId, newCode);
-        
-        if (codeCreated) {
-          code = newCode;
-          console.log(`[secureDiscountCode] Successfully created new code: ${code}`);
-          break;
-        } else {
-          console.warn(`[secureDiscountCode] Failed to create code on attempt ${attempt}`);
+        const { data: insertResult, error: insertError } = await supabase
+          .from("discount_codes")
+          .insert({
+            deal_id: dealId,
+            code: newCode,
+            is_used: false,
+            created_at: new Date().toISOString()
+          })
+          .select();
+          
+        if (insertError) {
+          console.error(`[secureDiscountCode] Failed to create code on attempt ${attempt}:`, insertError);
+          
+          // Om vi är på sista försöket och fortfarande har fel, returnera fel
+          if (attempt === 3) {
+            return { 
+              success: false, 
+              message: "Ett fel uppstod när en ny rabattkod skulle skapas. Vänligen försök igen." 
+            };
+          }
+          
+          // Annars fortsätt till nästa försök
+          continue;
         }
+        
+        code = newCode;
+        console.log(`[secureDiscountCode] Successfully created and confirmed new code in DB: ${code}`);
+        break;
       }
-      
-      if (!code) {
-        console.error("[secureDiscountCode] Failed to create new discount code after multiple attempts");
-        return { 
-          success: false, 
-          message: "Ett fel uppstod när en ny rabattkod skulle skapas. Vänligen försök igen." 
-        };
-      }
-    } else {
-      console.log(`[secureDiscountCode] Found available code: ${code}`);
     }
     
-    // Verifiera att koden verkligen finns i databasen innan vi fortsätter
+    // Kontrollera att vi faktiskt har en kod nu
+    if (!code) {
+      console.error("[secureDiscountCode] Failed to secure a discount code after all attempts");
+      return { 
+        success: false, 
+        message: "Ett tekniskt fel uppstod. Vänligen försök igen senare." 
+      };
+    }
+    
+    // 5. Verifiera att koden verkligen finns i databasen innan vi fortsätter
     const { data: verifyCode, error: verifyError } = await supabase
       .from("discount_codes")
-      .select("code")
+      .select("code, is_used")
       .eq("code", code)
       .maybeSingle();
       
@@ -108,9 +146,18 @@ export const secureDiscountCode = async (
       // Försök skapa en ny kod som en nödlösning
       const fallbackCode = generateRandomCode();
       console.log(`[secureDiscountCode] Creating fallback code: ${fallbackCode}`);
-      const fallbackCreated = await createNewDiscountCode(dealId, fallbackCode);
       
-      if (!fallbackCreated) {
+      const { error: fallbackError } = await supabase
+        .from("discount_codes")
+        .insert({
+          deal_id: dealId,
+          code: fallbackCode,
+          is_used: false,
+          created_at: new Date().toISOString()
+        });
+      
+      if (fallbackError) {
+        console.error("[secureDiscountCode] Failed to create fallback code:", fallbackError);
         return { 
           success: false, 
           message: "Ett tekniskt fel uppstod. Vänligen försök igen senare."
@@ -119,24 +166,65 @@ export const secureDiscountCode = async (
       
       code = fallbackCode;
       console.log(`[secureDiscountCode] Created fallback code ${code} after verification failed`);
+    } else if (verifyCode.is_used) {
+      console.error(`[secureDiscountCode] Code ${code} already marked as used in database`);
+      
+      // Skapa en ny kod om den befintliga redan är använd
+      const newCode = generateRandomCode();
+      console.log(`[secureDiscountCode] Creating replacement code: ${newCode}`);
+      
+      const { error: newCodeError } = await supabase
+        .from("discount_codes")
+        .insert({
+          deal_id: dealId,
+          code: newCode,
+          is_used: false,
+          created_at: new Date().toISOString()
+        });
+      
+      if (newCodeError) {
+        console.error("[secureDiscountCode] Failed to create replacement code:", newCodeError);
+        return { 
+          success: false, 
+          message: "Ett tekniskt fel uppstod. Vänligen försök igen senare."
+        };
+      }
+      
+      code = newCode;
+      console.log(`[secureDiscountCode] Created replacement code ${code} for already used code`);
     }
     
-    // 4. Markera koden som använd och associera med kunden
+    // 6. Markera koden som använd och associera med kunden
     // Försök up till 2 gånger om det misslyckas första gången
     let codeUpdated = false;
     for (let attempt = 1; attempt <= 2; attempt++) {
-      codeUpdated = await markDiscountCodeAsUsed(code, {
-        name: customerData.name,
-        email: customerData.email,
-        phone: customerData.phone
-      });
-      
-      if (codeUpdated) {
+      const { data: updateResult, error: updateError } = await supabase
+        .from("discount_codes")
+        .update({ 
+          is_used: true,
+          used_by_name: customerData.name,
+          used_by_email: customerData.email,
+          used_by_phone: customerData.phone,
+          used_at: new Date().toISOString(),
+          customer_name: customerData.name,
+          customer_email: customerData.email,
+          customer_phone: customerData.phone
+        })
+        .eq("code", code)
+        .select();
+        
+      if (updateError) {
+        console.error(`[secureDiscountCode] Update attempt ${attempt} failed:`, updateError);
+        
+        if (attempt < 2) {
+          console.log(`[secureDiscountCode] Retry ${attempt} to mark code as used`);
+          // Kort fördröjning innan återförsök
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      } else {
+        codeUpdated = true;
+        console.log(`[secureDiscountCode] Successfully marked code ${code} as used on attempt ${attempt}`);
         break;
-      } else if (attempt < 2) {
-        console.log(`[secureDiscountCode] Retry ${attempt} to mark code as used`);
-        // Kort fördröjning innan återförsök
-        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
     
@@ -147,17 +235,24 @@ export const secureDiscountCode = async (
       const emergencyCode = generateRandomCode();
       console.log(`[secureDiscountCode] Creating and marking emergency code: ${emergencyCode}`);
       
-      const emergencyCreated = await createNewDiscountCode(dealId, emergencyCode);
-      if (!emergencyCreated) {
-        return { 
-          success: false, 
-          message: "Ett fel uppstod när rabattkoden skulle kopplas till din profil." 
-        };
-      }
+      const { error: emergencyInsertError } = await supabase
+        .from("discount_codes")
+        .insert({
+          deal_id: dealId,
+          code: emergencyCode,
+          is_used: true,
+          used_by_name: customerData.name,
+          used_by_email: customerData.email,
+          used_by_phone: customerData.phone,
+          used_at: new Date().toISOString(),
+          customer_name: customerData.name,
+          customer_email: customerData.email,
+          customer_phone: customerData.phone,
+          created_at: new Date().toISOString()
+        });
       
-      // Försök markera den direkt
-      const emergencyMarked = await markDiscountCodeAsUsed(emergencyCode, customerData);
-      if (!emergencyMarked) {
+      if (emergencyInsertError) {
+        console.error("[secureDiscountCode] Failed to create emergency code:", emergencyInsertError);
         return { 
           success: false, 
           message: "Ett fel uppstod när rabattkoden skulle kopplas till din profil." 
@@ -165,6 +260,7 @@ export const secureDiscountCode = async (
       }
       
       code = emergencyCode;
+      console.log(`[secureDiscountCode] Successfully created pre-used emergency code ${code}`);
     }
     
     console.log(`[secureDiscountCode] Successfully secured code ${code} for ${customerData.email}`);

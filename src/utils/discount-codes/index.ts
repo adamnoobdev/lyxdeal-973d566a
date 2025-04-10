@@ -127,6 +127,7 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
       return null;
     }
     
+    // Hämta alla oanvända koder för erbjudandet
     const { data: codes, error } = await supabase
       .from("discount_codes")
       .select("code")
@@ -145,8 +146,24 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
       // Generera en ny kod om det inte finns några tillgängliga
       console.log("[getAvailableDiscountCode] Generating a new code for deal:", dealId);
       const newCode = generateRandomCode();
-      const codeCreated = await createNewDiscountCodeAndReturn(dealId, newCode);
-      return codeCreated ? newCode : null;
+      
+      // Skapa den nya koden i databasen
+      const { error: createError } = await supabase
+        .from("discount_codes")
+        .insert({
+          deal_id: dealId,
+          code: newCode,
+          is_used: false,
+          created_at: new Date().toISOString()
+        });
+        
+      if (createError) {
+        console.error("[getAvailableDiscountCode] Error creating new discount code:", createError);
+        return null;
+      }
+      
+      console.log(`[getAvailableDiscountCode] Successfully created new code: ${newCode}`);
+      return newCode;
     }
     
     console.log(`[getAvailableDiscountCode] Found code: ${codes[0].code}`);
@@ -154,33 +171,6 @@ export const getAvailableDiscountCode = async (dealId: number): Promise<string |
   } catch (error) {
     console.error("[getAvailableDiscountCode] Exception fetching available discount code:", error);
     return null;
-  }
-};
-
-// Ny hjälpfunktion för att skapa en kod och omedelbart returnera den
-const createNewDiscountCodeAndReturn = async (dealId: number, code: string): Promise<boolean> => {
-  try {
-    console.log(`[createNewDiscountCodeAndReturn] Creating new code ${code} for deal ${dealId}`);
-    
-    const { error } = await supabase
-      .from("discount_codes")
-      .insert({
-        deal_id: dealId,
-        code: code,
-        is_used: false,
-        created_at: new Date().toISOString()
-      });
-      
-    if (error) {
-      console.error("[createNewDiscountCodeAndReturn] Error creating discount code:", error);
-      return false;
-    }
-    
-    console.log(`[createNewDiscountCodeAndReturn] Successfully created code ${code} for deal ${dealId}`);
-    return true;
-  } catch (error) {
-    console.error("[createNewDiscountCodeAndReturn] Exception:", error);
-    return false;
   }
 };
 
@@ -202,27 +192,29 @@ export const markDiscountCodeAsUsed = async (
     const normalizedCode = code.trim().toUpperCase();
     console.log(`[markDiscountCodeAsUsed] Using normalized code: ${normalizedCode}`);
     
-    // Försök först med exakt kodmatchning
+    // Hämta detaljer om koden för att säkerställa att den existerar och inte redan är använd
     let { data: existingCode, error: checkError } = await supabase
       .from("discount_codes")
       .select("code, is_used, deal_id")
       .eq("code", normalizedCode)
       .maybeSingle();
-    
-    // Om ingen kod hittas, försök med case-insensitive sökning
+      
+    // Om koden inte hittades med exakt matchning, prova en case-insensitive sökning
     if (!existingCode && !checkError) {
-      console.log(`[markDiscountCodeAsUsed] Trying case-insensitive search for code: ${normalizedCode}`);
+      console.log(`[markDiscountCodeAsUsed] Code not found with exact match, trying case-insensitive search`);
+      
+      // Utför en bredare sökning med ILIKE för att hitta koden oavsett skiftläge
       const { data: similarCodes, error: searchError } = await supabase
         .from("discount_codes")
         .select("code, is_used, deal_id")
         .ilike("code", normalizedCode)
         .limit(1);
         
-      if (searchError) {
-        console.error("[markDiscountCodeAsUsed] Error in case-insensitive search:", searchError);
-      } else if (similarCodes && similarCodes.length > 0) {
-        console.log(`[markDiscountCodeAsUsed] Found similar code: ${similarCodes[0].code}`);
+      if (!searchError && similarCodes && similarCodes.length > 0) {
         existingCode = similarCodes[0];
+        console.log(`[markDiscountCodeAsUsed] Found similar code: ${existingCode.code}`);
+      } else if (searchError) {
+        console.error("[markDiscountCodeAsUsed] Error in case-insensitive search:", searchError);
       }
     }
     
@@ -234,20 +226,43 @@ export const markDiscountCodeAsUsed = async (
     if (!existingCode) {
       console.error("[markDiscountCodeAsUsed] Code not found:", normalizedCode);
       
-      // För att debugga problem, kontrollera om koden finns med annan skiftlägeskänslighet
-      const { data: similarCodes } = await supabase
-        .from("discount_codes")
-        .select("code")
-        .ilike("code", `%${normalizedCode.substring(0, 4)}%`)
-        .limit(5);
-        
-      if (similarCodes && similarCodes.length > 0) {
-        console.log("[markDiscountCodeAsUsed] Similar codes found:", similarCodes.map(c => c.code));
-      } else {
-        console.log("[markDiscountCodeAsUsed] No similar codes found in database");
+      // Försök skapa en ny kod med samma kod som användaren angett
+      console.log(`[markDiscountCodeAsUsed] Attempting to create the missing code: ${normalizedCode}`);
+      
+      // Hämta först deal_id från URL:en eller någon annan källa
+      const currentUrl = window.location.href;
+      const dealIdMatch = currentUrl.match(/\/deal\/(\d+)/);
+      const dealId = dealIdMatch ? parseInt(dealIdMatch[1]) : null;
+      
+      if (!dealId) {
+        console.error("[markDiscountCodeAsUsed] Could not determine deal ID from URL");
+        return false;
       }
       
-      return false;
+      // Skapa koden och markera den som använd direkt
+      const { error: createError } = await supabase
+        .from("discount_codes")
+        .insert({
+          deal_id: dealId,
+          code: normalizedCode,
+          is_used: true,
+          used_by_name: customerData.name,
+          used_by_email: customerData.email,
+          used_by_phone: customerData.phone,
+          used_at: new Date().toISOString(),
+          customer_name: customerData.name,
+          customer_email: customerData.email,
+          customer_phone: customerData.phone,
+          created_at: new Date().toISOString()
+        });
+        
+      if (createError) {
+        console.error("[markDiscountCodeAsUsed] Error creating missing code:", createError);
+        return false;
+      }
+      
+      console.log(`[markDiscountCodeAsUsed] Successfully created and marked code ${normalizedCode} as used`);
+      return true;
     }
     
     if (existingCode.is_used) {
@@ -255,10 +270,11 @@ export const markDiscountCodeAsUsed = async (
       return false;
     }
     
-    // Mark the code as used with the actual code from the database
+    // Använd den faktiska koden från databasen (inte den normaliserade)
     const actualCode = existingCode.code;
     console.log(`[markDiscountCodeAsUsed] Using actual code from DB: ${actualCode}`);
     
+    // Markera koden som använd
     const { error } = await supabase
       .from("discount_codes")
       .update({ 
