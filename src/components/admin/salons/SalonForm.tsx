@@ -37,6 +37,10 @@ interface SalonFormProps {
 
 export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: externalIsSubmitting }: SalonFormProps) => {
   const [internalIsSubmitting, setInternalIsSubmitting] = useState(false);
+  const [formState, setFormState] = useState({
+    isDirty: false,
+    dirtyFields: {} as Record<string, boolean>
+  });
   
   // Use external isSubmitting state if provided, otherwise use internal state
   const isSubmitting = externalIsSubmitting !== undefined ? externalIsSubmitting : internalIsSubmitting;
@@ -71,6 +75,24 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
       plan: form.getValues("subscriptionPlan"),
       type: form.getValues("subscriptionType")
     });
+    
+    // Monitor dirty state
+    const subscription = form.watch(() => {
+      const values = form.getValues();
+      const dirtyFields = form.formState.dirtyFields;
+      
+      console.log("Form changed:", { 
+        isDirty: form.formState.isDirty,
+        dirtyFields: Object.keys(dirtyFields).filter(key => dirtyFields[key as keyof typeof dirtyFields])
+      });
+      
+      setFormState({
+        isDirty: form.formState.isDirty,
+        dirtyFields: form.formState.dirtyFields as Record<string, boolean>
+      });
+    });
+    
+    return () => subscription.unsubscribe();
   }, [form]);
 
   const handleSubmit = async (values: any) => {
@@ -133,6 +155,16 @@ export const SalonForm = ({ onSubmit, initialValues, isEditing, isSubmitting: ex
         {/* Always show SubscriptionField for both editing and creating */}
         <div className="space-y-4">
           <SubscriptionField form={form} />
+        </div>
+        
+        {/* Debug information */}
+        <div className="bg-gray-50 p-3 rounded-md text-gray-500 my-2 text-xs">
+          <div><strong>Form Status:</strong> {formState.isDirty ? 'Ändrad' : 'Oförändrad'}</div>
+          {formState.isDirty && (
+            <div>
+              <strong>Ändrade fält:</strong> {Object.keys(formState.dirtyFields).filter(key => formState.dirtyFields[key]).join(', ') || 'Inga'}
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end pt-2">

@@ -3,33 +3,34 @@ import { Deal } from "@/types/deal";
 
 export type { Deal }; // Export Deal så att andra filer kan importera den från denna fil
 
+// Add new field for explicit subscription data in Salon type
 export interface Salon {
   id: number;
   name: string;
-  email?: string;
+  email: string;
   phone: string | null;
   address: string | null;
-  created_at?: string;
-  user_id?: string | null;
-  role?: string;
-  terms_accepted?: boolean;
-  privacy_accepted?: boolean;
-  rating?: number | null;
-  rating_comment?: string | null;
-  subscription_plan?: string;
-  subscription_type?: string;
+  created_at: string;
+  user_id: string | null;
+  role: string;
+  terms_accepted: boolean;
+  privacy_accepted: boolean;
+  rating: number | null;
+  rating_comment: string | null;
+  subscription_plan?: string; // Add this field
+  subscription_type?: string; // Add this field
 }
 
-// Update SalonFormValues interface to include required subscription fields
+// Make subscription fields required in the form values
 export interface SalonFormValues {
   name: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  termsAccepted?: boolean;
-  privacyAccepted?: boolean;
-  subscriptionPlan: string;  // Always required
-  subscriptionType: string;  // Always required
+  email: string;
+  phone: string;
+  address: string;
+  termsAccepted: boolean;
+  privacyAccepted: boolean;
+  subscriptionPlan: string;
+  subscriptionType: string;
 }
 
 export interface CategorizedDeals {

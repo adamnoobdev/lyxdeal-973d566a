@@ -96,6 +96,26 @@ export const updateSalonData = async (values: any, id: number) => {
     }
     
     console.log("Salon updated successfully, response:", data);
+    
+    // Double-verify if the subscription plan was actually updated by fetching salon
+    const { data: verifyData, error: verifyError } = await supabase
+      .from("salons")
+      .select("id, name, subscription_plan, subscription_type")
+      .eq("id", id)
+      .single();
+      
+    if (verifyError) {
+      console.warn("Could not verify update result:", verifyError);
+    } else {
+      console.log("Verification of salon after update:", verifyData);
+      if (verifyData.subscription_plan !== values.subscriptionPlan) {
+        console.error("MISMATCH: Subscription plan was not updated correctly!");
+        console.error(`Expected: ${values.subscriptionPlan}, Actual: ${verifyData.subscription_plan}`);
+      } else {
+        console.log("Subscription plan verified correctly:", verifyData.subscription_plan);
+      }
+    }
+    
     return data;
   } catch (error) {
     console.error("Error updating salon:", error);

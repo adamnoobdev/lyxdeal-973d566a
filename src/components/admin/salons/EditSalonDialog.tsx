@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -9,6 +8,8 @@ import {
 import { SalonForm } from "./SalonForm";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { SubscriptionUpdateButton } from "./subscription/SubscriptionUpdateButton";
 
 interface EditSalonDialogProps {
   isOpen: boolean;
@@ -26,20 +27,18 @@ export const EditSalonDialog = ({
   const [isClosing, setIsClosing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [debugView, setDebugView] = useState(false);
   const initialRenderRef = useRef(true);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Log initial values when they change
   useEffect(() => {
     if (initialValues) {
       console.log("EditSalonDialog received initialValues:", initialValues);
-      // Log subscription data specifically to debug
       console.log("Subscription plan from initialValues:", initialValues.subscriptionPlan);
       console.log("Subscription type from initialValues:", initialValues.subscriptionType);
     }
   }, [initialValues]);
 
-  // Ensure component is mounted
   useEffect(() => {
     setIsMounted(true);
     console.log("[EditSalonDialog] Component mounted");
@@ -48,16 +47,13 @@ export const EditSalonDialog = ({
       console.log("[EditSalonDialog] Component unmounting");
       setIsMounted(false);
       
-      // Clear any pending timeouts on unmount
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current);
       }
     };
   }, []);
   
-  // Reset state when dialog opens with improved handling
   useEffect(() => {
-    // Skip the first render to avoid state flashing
     if (initialRenderRef.current) {
       initialRenderRef.current = false;
       return;
@@ -71,7 +67,6 @@ export const EditSalonDialog = ({
     }
   }, [isOpen, isMounted, initialValues]);
 
-  // Handle controlled closing with timeout to allow animations
   const handleClose = () => {
     if (isSubmitting || !isMounted) {
       console.log("[EditSalonDialog] Cannot close: isSubmitting=", isSubmitting, "isMounted=", isMounted);
@@ -81,18 +76,15 @@ export const EditSalonDialog = ({
     console.log("[EditSalonDialog] Starting controlled close sequence");
     setIsClosing(true);
     
-    // Clear any existing timeout
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
     }
     
-    // Set new timeout
     closeTimeoutRef.current = setTimeout(() => {
       if (isMounted) {
         console.log("[EditSalonDialog] Executing close callback");
         onClose();
         
-        // Reset closing state after a brief delay
         closeTimeoutRef.current = setTimeout(() => {
           if (isMounted) {
             console.log("[EditSalonDialog] Resetting closing state");
@@ -103,7 +95,6 @@ export const EditSalonDialog = ({
     }, 200);
   };
 
-  // Handle form submission with improved state management and subscription field handling
   const handleSubmit = async (values: any) => {
     if (isSubmitting || !isMounted) return;
     
@@ -111,12 +102,10 @@ export const EditSalonDialog = ({
       setIsSubmitting(true);
       console.log("[EditSalonDialog] Submitting form with values:", values);
       
-      // Make sure fullAddress is used if a full raw address was entered
       if (values.fullAddress && !values.address) {
         values.address = values.fullAddress;
       }
       
-      // Ensure subscription fields are always included with explicit logging
       if (!values.subscriptionPlan) {
         console.log("[EditSalonDialog] WARNING: Missing subscriptionPlan, using default");
         values.subscriptionPlan = "Baspaket";
@@ -150,7 +139,42 @@ export const EditSalonDialog = ({
     }
   };
 
-  // Don't render anything if not mounted to prevent state issues
+  const handleSubscriptionUpdated = async () => {
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase
+        .from("salons")
+        .select("subscription_plan, subscription_type")
+        .eq("id", initialValues?.id)
+        .single();
+        
+      if (error) {
+        console.error("Error fetching updated salon data:", error);
+        return;
+      }
+      
+      if (data) {
+        console.log("Updated subscription data from direct API:", data);
+        
+        if (form) {
+          form.setValue("subscriptionPlan", data.subscription_plan || "Baspaket", { 
+            shouldValidate: true,
+            shouldDirty: true
+          });
+          
+          form.setValue("subscriptionType", data.subscription_type || "monthly", { 
+            shouldValidate: true, 
+            shouldDirty: true
+          });
+          
+          toast.success("Formuläret uppdaterat med nya värdena");
+        }
+      }
+    } catch (error) {
+      console.error("Error handling subscription update:", error);
+    }
+  };
+
   if (!isMounted) {
     console.log("[EditSalonDialog] Not rendering because component is not mounted");
     return null;
@@ -171,6 +195,56 @@ export const EditSalonDialog = ({
             Uppdatera information om salongen. Fyll i adressinformation för korrekt visning på kartan och hantera prenumerationsplan och godkännanden av villkor.
           </DialogDescription>
         </DialogHeader>
+        
+        {debugView && initialValues && (
+          <div className="mb-4 p-3 bg-gray-100 rounded-md">
+            <h3 className="font-medium mb-2">Debugging Information</h3>
+            <pre className="text-xs overflow-auto max-h-40">
+              {JSON.stringify({
+                id: initialValues.id,
+                subscriptionPlan: initialValues.subscriptionPlan,
+                subscriptionType: initialValues.subscriptionType
+              }, null, 2)}
+            </pre>
+            
+            {initialValues.id && initialValues.subscriptionPlan && initialValues.subscriptionType && (
+              <div className="mt-3">
+                <SubscriptionUpdateButton 
+                  salonId={initialValues.id} 
+                  currentPlan={initialValues.subscriptionPlan}
+                  currentType={initialValues.subscriptionType}
+                  onSuccess={handleSubscriptionUpdated}
+                />
+                <p className="text-xs mt-2 text-gray-500">
+                  Detta anropar API:et direkt för att uppdatera prenumerationen om det inte sparas korrekt.
+                </p>
+              </div>
+            )}
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setDebugView(false)}
+              className="mt-2"
+            >
+              Dölj debugging
+            </Button>
+          </div>
+        )}
+        
+        {!debugView && (
+          <div className="mb-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setDebugView(true)}
+              className="text-xs"
+            >
+              Visa debugging
+            </Button>
+          </div>
+        )}
+        
         <SalonForm 
           onSubmit={handleSubmit} 
           initialValues={initialValues} 

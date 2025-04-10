@@ -89,6 +89,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
               onValueChange={(value) => {
                 console.log("Subscription plan selected:", value);
                 field.onChange(value);
+                form.setValue("subscriptionPlan", value, { shouldValidate: true, shouldDirty: true });
               }} 
               value={field.value || "Baspaket"}
               defaultValue="Baspaket"
@@ -125,6 +126,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
                 onValueChange={(value) => {
                   console.log("Subscription type selected:", value);
                   field.onChange(value);
+                  form.setValue("subscriptionType", value, { shouldValidate: true, shouldDirty: true });
                 }} 
                 value={field.value || "monthly"}
                 defaultValue="monthly"
