@@ -20,6 +20,7 @@ import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SecureDeal from "./pages/SecureDeal";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import CreateAdmin from "./pages/CreateAdmin";
+import DevelopmentAdmin from "./pages/DevelopmentAdmin";
 
 const router = createBrowserRouter([
   {
@@ -97,6 +98,11 @@ const router = createBrowserRouter([
   {
     path: "/subscription/success",
     element: <SubscriptionSuccess />,
+  },
+  // Lägg till utvecklingsadmin-route
+  {
+    path: "/dev-admin",
+    element: <DevelopmentAdmin />,
   }
 ]);
 
