@@ -1,8 +1,8 @@
 
 import { Outlet } from "react-router-dom";
-import Footer from "../Footer";
-import DesktopNav from "../navigation/DesktopNav";
-import MobileNav from "../navigation/MobileNav";
+import { Footer } from "../Footer";
+import { DesktopNav } from "../navigation/DesktopNav";
+import { MobileNav } from "../navigation/MobileNav";
 import { Toaster } from "../ui/sonner";
 import { DevelopmentNav } from "../development/DevelopmentNav";
 
