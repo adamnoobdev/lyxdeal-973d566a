@@ -1,0 +1,6 @@
+
+User-agent: *
+Allow: /
+
+# Allow search engines to access favicon
+Allow: /lovable-uploads/0e80675f-f706-4102-8802-f5e0ae81a95f.png
