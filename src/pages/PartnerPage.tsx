@@ -6,7 +6,6 @@ import { HowItWorksSection } from "@/components/partner/HowItWorksSection";
 import { ComparisonSection } from "@/components/partner/ComparisonSection";
 import { PricingSection } from "@/components/partner/PricingSection";
 import { FAQSection } from "@/components/partner/FAQSection";
-import { TestimonialSection } from "@/components/partner/TestimonialSection";
 import { ContactSection } from "@/components/partner/ContactSection";
 import { DiscountCodeSection } from "@/components/partner/DiscountCodeSection";
 
@@ -33,7 +32,6 @@ const PartnerPage = () => {
         
         {/* Why choose us */}
         <ComparisonSection />
-        <TestimonialSection />
         
         {/* Take action */}
         <PricingSection />
