@@ -1,62 +1,54 @@
 
-import { Outlet } from "react-router-dom";
-import { useState } from "react";
-import { Footer } from "../Footer";
-import { DesktopNav } from "../navigation/DesktopNav";
-import { MobileNav } from "../navigation/MobileNav";
-import { Toaster } from "../ui/sonner";
-import { DevelopmentNav } from "../development/DevelopmentNav";
-import { useSession } from "@/hooks/useSession";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import NavigationBar from '@/components/NavigationBar';
+import TopBar from '@/components/layout/TopBar';
+import { Footer } from '@/components/Footer';
+import { SalonAuthGuard } from '@/components/salon/SalonAuthGuard';
+import { useSession } from '@/hooks/useSession';
 
-export default function Layout() {
-  // State for navigation components
-  const [currentCity, setCurrentCity] = useState("Alla Städer");
-  const [isOpen, setIsOpen] = useState(false);
-  const { session, signOut } = useSession();
-  const navigate = useNavigate();
+const Layout: React.FC = () => {
+  const location = useLocation();
+  const path = location.pathname;
+  const { session } = useSession();
+  const isLoggedIn = !!session?.user;
   
-  // Event handlers for navigation components
-  const handleCitySelect = (city: string) => {
-    setCurrentCity(city);
-  };
+  // Kontrollera om vi är på en sida som kräver salon autentisering
+  const requiresSalonAuth = path.startsWith('/salon') && 
+                          path !== '/salon/login' && 
+                          !path.startsWith('/salon/deal/');
   
-  const handleCategorySelect = (category: string) => {
-    // Handle category selection - we could navigate or filter content
-    console.log("Category selected:", category);
-  };
+  // Kontrollera om vi är på admin sidan
+  const isAdmin = path.startsWith('/admin');
+
+  // Använd ingen top-padding på söksidan för att breadcrumbs ska ligga direkt under navbar
+  const isSearchPage = path.startsWith('/search');
   
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/");
-  };
-  
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <DesktopNav 
-          currentCity={currentCity}
-          onCitySelect={handleCitySelect}
-          onCategorySelect={handleCategorySelect}
-          session={session}
-          onLogout={handleLogout}
-        />
-        <MobileNav 
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          currentCity={currentCity}
-          onCitySelect={handleCitySelect}
-          onCategorySelect={handleCategorySelect}
-          session={session}
-          onLogout={handleLogout}
-        />
-      </header>
-      <main className="flex-1 bg-gray-50">
+  // Huvudinnehåll får padding-top för att kompensera för den sticky navbaren
+  // Minskat lite för söksidan så breadcrumbs får plats fint
+  const mainPaddingClass = isSearchPage ? 'pt-2' : 'pt-6';
+
+  // Adjust top margin based on whether the user is logged in or not
+  const topMargin = isLoggedIn ? 'mt-[56px]' : 'mt-[96px]';
+
+  const content = (
+    <div className="flex flex-col min-h-screen">
+      <TopBar />
+      <NavigationBar userRole={isAdmin ? 'admin' : undefined} />
+      <main className={`flex-1 ${mainPaddingClass} ${topMargin}`}>
         <Outlet />
       </main>
       <Footer />
-      <Toaster position="top-center" closeButton />
-      <DevelopmentNav />
     </div>
   );
-}
+
+  // Använd SalonAuthGuard för sidor som kräver autentisering
+  if (requiresSalonAuth) {
+    return <SalonAuthGuard>{content}</SalonAuthGuard>;
+  }
+  
+  // För admin sidor används AdminAuthCheck i Admin.tsx
+  return content;
+};
+
+export default Layout;

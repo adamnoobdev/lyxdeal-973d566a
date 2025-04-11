@@ -20,7 +20,6 @@ import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SecureDeal from "./pages/SecureDeal";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import CreateAdmin from "./pages/CreateAdmin";
-import DevelopmentAdmin from "./pages/DevelopmentAdmin";
 
 const router = createBrowserRouter([
   {
@@ -64,10 +63,6 @@ const router = createBrowserRouter([
     element: <SalonLogin />,
   },
   {
-    path: "/login",
-    element: <SalonLogin />, // Redirecting /login to salon login
-  },
-  {
     path: "/salon/dashboard",
     element: <SalonDashboard />,
   },
@@ -102,11 +97,6 @@ const router = createBrowserRouter([
   {
     path: "/subscription/success",
     element: <SubscriptionSuccess />,
-  },
-  // Lägg till utvecklingsadmin-route
-  {
-    path: "/dev-admin",
-    element: <DevelopmentAdmin />,
   }
 ]);
 
