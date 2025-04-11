@@ -107,13 +107,6 @@ export const DiscountCodeSection = () => {
               </div>
             </div>
             
-            <div className="border-l-4 border-primary pl-4 md:pl-6 py-2 md:py-3">
-              <p className="text-sm md:text-base italic text-gray-700">
-                "Med rabattkodssystemet från Lyxdeal har vi kunnat spåra och hantera våra erbjudanden mycket bättre än tidigare. Det har ökat antalet nya kunder markant." 
-                <span className="block mt-2 font-medium text-gray-900 not-italic">— Anna Johansson, Salong Elegance</span>
-              </p>
-            </div>
-            
             <div className="flex justify-center">
               <Button 
                 size="lg" 
