@@ -8,6 +8,7 @@ import { PricingSection } from "@/components/partner/PricingSection";
 import { FAQSection } from "@/components/partner/FAQSection";
 import { TestimonialSection } from "@/components/partner/TestimonialSection";
 import { ContactSection } from "@/components/partner/ContactSection";
+import { DiscountCodeSection } from "@/components/partner/DiscountCodeSection";
 
 const PartnerPage = () => {
   return (
@@ -26,6 +27,9 @@ const PartnerPage = () => {
         
         {/* How it works */}
         <HowItWorksSection />
+        
+        {/* Discount code section */}
+        <DiscountCodeSection />
         
         {/* Why choose us */}
         <ComparisonSection />
