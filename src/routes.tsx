@@ -64,6 +64,10 @@ const router = createBrowserRouter([
     element: <SalonLogin />,
   },
   {
+    path: "/login",
+    element: <SalonLogin />, // Redirecting /login to salon login
+  },
+  {
     path: "/salon/dashboard",
     element: <SalonDashboard />,
   },
