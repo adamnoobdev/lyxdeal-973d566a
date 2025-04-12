@@ -8,16 +8,14 @@ import { sendResetPasswordEmail } from "./emailSender.ts";
  */
 export async function handleResetPasswordRequest(req: Request): Promise<Response> {
   try {
-    console.log("Reset password function called");
-    
-    // Parse the request body
+    // Tolka förfrågans body
     const data: ResetPasswordRequest = await req.json();
     
     if (!data.email || !data.resetUrl) {
-      console.error("Missing required fields in request:", data);
+      console.error("Saknar obligatoriska fält i förfrågan:", data);
       return new Response(
         JSON.stringify({ 
-          error: "Missing required fields", 
+          error: "Saknar obligatoriska fält", 
           received: Object.keys(data)
         }),
         { 
@@ -27,43 +25,34 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    console.log(`Sending password reset to: ${data.email}`);
-    console.log(`Original reset URL: ${data.resetUrl}`);
+    console.log(`Skickar lösenordsåterställning till: ${data.email}`);
+    console.log(`Återställnings-URL: ${data.resetUrl}`);
     
-    // Ensure the resetUrl is correctly formatted and points to the update-password page
+    // Kontrollera att resetUrl är korrekt formaterad och pekar till rätt sida
     try {
       const resetUrlObj = new URL(data.resetUrl);
       
-      // Make sure URL points to the correct update-password page path
-      const pathname = resetUrlObj.pathname;
-      
-      // If path doesn't include /update-password, fix it
-      if (!pathname.includes("update-password")) {
-        resetUrlObj.pathname = "/update-password";
-        data.resetUrl = resetUrlObj.toString();
-        console.log("URL adjusted to point to /update-password:", data.resetUrl);
+      // Säkerställ att URL:en pekar till update-password sidan
+      if (!resetUrlObj.pathname.includes("update-password")) {
+        const baseUrl = resetUrlObj.origin;
+        data.resetUrl = `${baseUrl}/salon/update-password`;
+        console.log("Korrigerad återställnings-URL:", data.resetUrl);
       }
-      
-      // Make sure we're not adding duplicate tokens or parameters
-      // Let Supabase auth handle the token part in their own flow
     } catch (urlError) {
-      console.error("Invalid URL format:", urlError);
-      // Fallback if URL can't be parsed
+      console.error("Ogiltig URL format:", urlError);
+      // Fallback om vi inte kan parsa URL:en
       const domain = req.headers.get("origin") || "https://www.lyxdeal.se";
-      data.resetUrl = `${domain}/update-password`;
-      console.log("Using fallback URL:", data.resetUrl);
+      data.resetUrl = `${domain}/salon/update-password`;
     }
 
-    // Send email using Resend
-    console.log("Sending reset email with final URL:", data.resetUrl);
+    // Skicka e-post med Resend
     const emailResponse = await sendResetPasswordEmail(data.email, data.resetUrl);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Recovery instructions sent",
-        data: emailResponse,
-        resetUrl: data.resetUrl
+        message: "Återställningsinstruktioner skickade",
+        data: emailResponse
       }),
       { 
         status: 200, 
@@ -71,7 +60,7 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       }
     );
   } catch (error) {
-    console.error("Error in reset-password function:", error);
+    console.error("Fel i reset-password-funktionen:", error);
     return new Response(
       JSON.stringify({ 
         error: error instanceof Error ? error.message : String(error),

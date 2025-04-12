@@ -26,33 +26,29 @@ export const UpdatePasswordForm: React.FC<UpdatePasswordFormProps> = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Update error state if it changes externally
+    // Uppdatera error state om den ändras utifrån
     if (initialError) {
       setError(initialError);
     }
   }, [initialError]);
 
   useEffect(() => {
-    // Check if user arrived via a recovery link
+    // Kontrollera om användaren kommit via en återställningslänk
     const checkRecoverySession = async () => {
       try {
-        console.log("Checking for recovery session...");
-        
         const { data } = await supabase.auth.getSession();
-        console.log("Session check result:", data.session ? "Session found" : "No session");
+        console.log("Session check på update-password sidan:", data.session ? "Har session" : "Ingen session");
         
         if (!data.session || !data.session.user) {
-          console.log("No valid session found for password update");
           if (!error) {
-            setError("Ingen giltig återställningssession hittades. Vänligen begär en ny återställningslänk.");
+            setError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
           }
           return;
         }
         
-        console.log("Valid authentication found for password reset");
         setIsAuthenticated(true);
       } catch (err) {
-        console.error("Error checking session:", err);
+        console.error("Fel vid sessionskontroll:", err);
         setError("Ett fel uppstod vid verifiering av din session.");
       }
     };
@@ -77,29 +73,27 @@ export const UpdatePasswordForm: React.FC<UpdatePasswordFormProps> = ({
     setLoading(true);
 
     try {
-      console.log("Attempting to update password");
+      console.log("Försöker uppdatera lösenord");
       
       const { error: updateError } = await supabase.auth.updateUser({
         password: password
       });
 
       if (updateError) {
-        setError(updateError.message || "Ett fel uppstod vid uppdatering av lösenord");
-        console.error("Password update error:", updateError);
+        setError(updateError.message);
+        console.error("Fel vid lösenordsuppdatering:", updateError);
         return;
       }
 
-      console.log("Password updated successfully");
       setSuccess(true);
       toast.success("Ditt lösenord har uppdaterats");
 
-      // Auto redirect after 3 seconds
+      // Automatisk omdirigering efter 3 sekunder
       setTimeout(() => {
-        console.log("Redirecting to:", redirectTo);
         navigate(redirectTo);
       }, 3000);
     } catch (err) {
-      console.error("Password update exception:", err);
+      console.error("Fel vid lösenordsuppdatering:", err);
       setError("Ett problem uppstod. Försök igen senare.");
     } finally {
       setLoading(false);
