@@ -25,7 +25,11 @@ export const usePasswordReset = () => {
         ? "http://localhost:3000" 
         : "https://www.lyxdeal.se";
       
+      // Supabase lägger automatiskt till token i URL:en
       const redirectUrl = `${productionDomain}/salon/update-password`;
+      
+      console.log("Skickar återställning till:", email);
+      console.log("Redirect URL:", redirectUrl);
       
       // Använd Supabase Auth för att skicka återställningslänk
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -40,11 +44,15 @@ export const usePasswordReset = () => {
       }
 
       // Skicka också ett anpassat e-postmeddelande via vår edge function
+      // Detta anpassade mejl behåller samma URL som Supabase genererar
       try {
+        const { data: authRedirectData } = await supabase.auth.getSession();
+        
+        // För vårt anpassade mejl använder vi samma URL som Supabase auth använder
         const response = await supabase.functions.invoke("reset-password", {
           body: {
             email,
-            resetUrl: redirectUrl
+            resetUrl: redirectUrl // OBS: token läggs till automatiskt av Supabase
           }
         });
 

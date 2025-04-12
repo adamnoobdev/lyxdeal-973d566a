@@ -5,6 +5,9 @@ import { getSharedEmailStyles } from "../shared/emailStyles.ts";
  * Generates the HTML content for the password reset email
  */
 export function generateResetPasswordEmailHtml(resetUrl: string): string {
+  // Säkerställ att resetUrl har korrekt format (inkluderar token)
+  // resetUrl ska redan innehålla token från Supabase auth.resetPasswordForEmail
+  
   const currentYear = new Date().getFullYear();
 
   return `

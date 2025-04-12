@@ -14,42 +14,75 @@ export default function UpdatePassword() {
   useEffect(() => {
     // Kontrollera om vi har ett access_token i URL:en (hash fragment)
     const handleHashParameters = async () => {
-      // Get the hash fragment (everything after #)
-      const hashFragment = window.location.hash.substring(1);
-      
-      if (hashFragment && hashFragment.includes('access_token')) {
-        try {
-          // Extract the access token using URLSearchParams
-          const params = new URLSearchParams(hashFragment);
-          const accessToken = params.get('access_token');
-          const refreshToken = params.get('refresh_token');
-          const type = params.get('type');
-          
-          // Om vi har fått token och typ från hash, och det är för lösenordsåterställning
-          if (accessToken && refreshToken && type === 'recovery') {
-            console.log("Hittade återställningstoken, försöker att logga in användaren");
+      try {
+        // Get the hash fragment (everything after #)
+        const hashFragment = window.location.hash.substring(1);
+        console.log("Hash fragment:", hashFragment ? "Finns" : "Saknas");
+        
+        if (hashFragment && hashFragment.includes('access_token')) {
+          try {
+            // Extract the access token using URLSearchParams
+            const params = new URLSearchParams(hashFragment);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            const type = params.get('type');
             
-            // Sätt sessiondata manuellt
-            const { error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken
+            console.log("Hash fragment analyserad:", { 
+              type, 
+              hasAccessToken: !!accessToken, 
+              hasRefreshToken: !!refreshToken 
             });
             
-            if (error) {
-              console.error("Kunde inte sätta session:", error);
-              toast.error("Ett fel uppstod vid verifiering av återställningslänken");
-              return;
+            // Om vi har fått token och typ från hash, och det är för lösenordsåterställning
+            if (accessToken && refreshToken && type === 'recovery') {
+              console.log("Hittade återställningstoken, försöker att logga in användaren");
+              
+              // Sätt sessiondata manuellt
+              const { data, error } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+              });
+              
+              if (error) {
+                console.error("Kunde inte sätta session:", error);
+                toast.error("Ett fel uppstod vid verifiering av återställningslänken");
+                return;
+              }
+              
+              console.log("Återställningstoken behandlades framgångsrikt", data.session ? "Session satt" : "Ingen session");
+              
+              // Rensa hash från URL:en utan att ladda om sidan
+              window.history.replaceState(null, '', window.location.pathname);
+            } else if (type) {
+              console.warn("Hash fragment innehöll fel typ:", type);
+              toast.error("Ogiltig återställningslänk. Begär en ny återställningslänk.");
             }
+          } catch (err) {
+            console.error("Fel vid hantering av URL hash:", err);
+            toast.error("Ett fel uppstod vid behandling av återställningslänken");
+          }
+        } else if (location.search && location.search.includes('token=')) {
+          // Alternativ metod om vi får token som query parameter
+          console.log("Hittade token i query parameter");
+          const params = new URLSearchParams(location.search);
+          const token = params.get('token');
+          
+          if (token) {
+            // Om vi har en token i URL:en, spara den för att användas i formuläret
+            sessionStorage.setItem('password_reset_token', token);
+            console.log("Token sparad i sessionStorage");
             
-            console.log("Återställningstoken behandlades framgångsrikt");
-            
-            // Rensa hash från URL:en utan att ladda om sidan
+            // Rensa URL:en
             window.history.replaceState(null, '', window.location.pathname);
           }
-        } catch (err) {
-          console.error("Fel vid hantering av URL hash:", err);
-          toast.error("Ett fel uppstod vid behandling av återställningslänken");
+        } else {
+          console.log("Ingen token hittades i URL:en");
+          // Kontrollera om vi har en aktiv session
+          const { data } = await supabase.auth.getSession();
+          console.log("Session finns:", !!data.session);
         }
+      } catch (err) {
+        console.error("Fel vid hantering av URL-parametrar:", err);
       }
     };
     

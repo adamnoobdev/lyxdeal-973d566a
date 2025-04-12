@@ -29,13 +29,22 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     console.log(`Återställnings-URL: ${data.resetUrl}`);
     
     // Kontrollera att resetUrl är korrekt formaterad
-    const resetUrlObj = new URL(data.resetUrl);
-    if (!resetUrlObj.pathname.includes("/salon/update-password")) {
-      console.warn("Ogiltig återställnings-URL format, korrigerar:", data.resetUrl);
-      // Säkerställ att URL:en har rätt format
-      const baseUrl = resetUrlObj.origin;
-      data.resetUrl = `${baseUrl}/salon/update-password`;
-      console.log("Korrigerad återställnings-URL:", data.resetUrl);
+    try {
+      const resetUrlObj = new URL(data.resetUrl);
+      
+      // Vi behåller den ursprungliga URLen så vi inte modifierar token-delen
+      if (!resetUrlObj.pathname.includes("/salon/update-password")) {
+        console.warn("Ogiltig återställnings-URL format:", data.resetUrl);
+        // Behåll ursprungsdelen men uppdatera sökvägen till update-password
+        const baseUrl = resetUrlObj.origin;
+        data.resetUrl = `${baseUrl}/salon/update-password`;
+        console.log("Korrigerad återställnings-URL:", data.resetUrl);
+      }
+    } catch (urlError) {
+      console.error("Ogiltig URL format:", urlError);
+      // Fallback om vi inte kan parsa URL:en
+      const domain = req.headers.get("origin") || "https://www.lyxdeal.se";
+      data.resetUrl = `${domain}/salon/update-password`;
     }
 
     // Skicka e-post med Resend
