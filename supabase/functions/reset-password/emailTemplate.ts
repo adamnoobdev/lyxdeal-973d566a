@@ -9,6 +9,13 @@ export function generateResetPasswordEmailHtml(resetUrl: string): string {
   // resetUrl ska redan innehålla token från Supabase auth.resetPasswordForEmail
   
   const currentYear = new Date().getFullYear();
+  
+  // Se till att URL:en pekar mot /salon/update-password för konsekvent routing
+  if (resetUrl && !resetUrl.includes('/salon/update-password')) {
+    const urlObj = new URL(resetUrl);
+    resetUrl = urlObj.origin + '/salon/update-password' + urlObj.hash;
+    console.log("Korrigerad resetUrl i emailTemplate:", resetUrl);
+  }
 
   return `
     <!DOCTYPE html>

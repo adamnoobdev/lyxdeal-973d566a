@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -10,11 +10,16 @@ import { toast } from "sonner";
 export default function UpdatePassword() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Kontrollera om vi har ett access_token i URL:en (hash fragment)
-    const handleHashParameters = async () => {
+    // Kontrollera om vi har en token i URL:en och hantera den
+    const handleAuthParameters = async () => {
       try {
+        console.log("UpdatePassword sidan laddad:", location.pathname);
+        setIsLoading(true);
+        
         // Get the hash fragment (everything after #)
         const hashFragment = window.location.hash.substring(1);
         console.log("Hash fragment:", hashFragment ? "Finns" : "Saknas");
@@ -35,7 +40,7 @@ export default function UpdatePassword() {
             
             // Om vi har fått token och typ från hash, och det är för lösenordsåterställning
             if (accessToken && refreshToken && type === 'recovery') {
-              console.log("Hittade återställningstoken, försöker att logga in användaren");
+              console.log("Hittade återställningstoken i hash, försöker att logga in användaren");
               
               // Sätt sessiondata manuellt
               const { data, error } = await supabase.auth.setSession({
@@ -45,6 +50,7 @@ export default function UpdatePassword() {
               
               if (error) {
                 console.error("Kunde inte sätta session:", error);
+                setError("Ett fel uppstod vid verifiering av återställningslänken");
                 toast.error("Ett fel uppstod vid verifiering av återställningslänken");
                 return;
               }
@@ -55,11 +61,11 @@ export default function UpdatePassword() {
               window.history.replaceState(null, '', window.location.pathname);
             } else if (type) {
               console.warn("Hash fragment innehöll fel typ:", type);
-              toast.error("Ogiltig återställningslänk. Begär en ny återställningslänk.");
+              setError("Ogiltig återställningslänk. Begär en ny återställningslänk.");
             }
           } catch (err) {
             console.error("Fel vid hantering av URL hash:", err);
-            toast.error("Ett fel uppstod vid behandling av återställningslänken");
+            setError("Ett fel uppstod vid behandling av återställningslänken");
           }
         } else if (location.search && location.search.includes('token=')) {
           // Alternativ metod om vi får token som query parameter
@@ -69,6 +75,7 @@ export default function UpdatePassword() {
           
           if (token) {
             // Om vi har en token i URL:en, spara den för att användas i formuläret
+            console.log("Hittade token i query parameter:", token.substring(0, 10) + "...");
             sessionStorage.setItem('password_reset_token', token);
             console.log("Token sparad i sessionStorage");
             
@@ -79,14 +86,22 @@ export default function UpdatePassword() {
           console.log("Ingen token hittades i URL:en");
           // Kontrollera om vi har en aktiv session
           const { data } = await supabase.auth.getSession();
-          console.log("Session finns:", !!data.session);
+          if (!data.session) {
+            console.warn("Ingen session hittades och ingen token i URL");
+            setError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
+          } else {
+            console.log("Aktiv session finns, användaren kan uppdatera lösenord");
+          }
         }
       } catch (err) {
         console.error("Fel vid hantering av URL-parametrar:", err);
+        setError("Ett fel uppstod. Vänligen försök igen eller begär en ny återställningslänk.");
+      } finally {
+        setIsLoading(false);
       }
     };
     
-    handleHashParameters();
+    handleAuthParameters();
   }, [location]);
 
   return (
@@ -106,7 +121,13 @@ export default function UpdatePassword() {
             <p className="text-muted-foreground mt-2">Skapa ett nytt lösenord för att återfå åtkomst till ditt konto</p>
           </div>
           <div className="bg-white shadow-sm rounded-lg p-6">
-            <UpdatePasswordForm />
+            {isLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <UpdatePasswordForm initialError={error} />
+            )}
           </div>
         </div>
       </div>

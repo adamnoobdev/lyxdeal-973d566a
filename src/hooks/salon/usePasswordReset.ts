@@ -23,9 +23,10 @@ export const usePasswordReset = () => {
       // Beräkna den produktions-URL som ska användas för omdirigering
       const productionDomain = window.location.hostname === "localhost" 
         ? "http://localhost:3000" 
-        : "https://www.lyxdeal.se";
+        : window.location.origin; // Använd origin för att säkerställa korrekt protokoll och domän
       
-      // Supabase lägger automatiskt till token i URL:en
+      // Konstruera den fullständiga URL:en till återställningssidan
+      // Se till att alltid använda /salon/update-password för konsekvent routing
       const redirectUrl = `${productionDomain}/salon/update-password`;
       
       console.log("Skickar återställning till:", email);
@@ -44,10 +45,7 @@ export const usePasswordReset = () => {
       }
 
       // Skicka också ett anpassat e-postmeddelande via vår edge function
-      // Detta anpassade mejl behåller samma URL som Supabase genererar
       try {
-        const { data: authRedirectData } = await supabase.auth.getSession();
-        
         // För vårt anpassade mejl använder vi samma URL som Supabase auth använder
         const response = await supabase.functions.invoke("reset-password", {
           body: {

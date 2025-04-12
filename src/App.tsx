@@ -62,6 +62,10 @@ function App() {
       <Router>
         <ScrollToTop />
         <Routes>
+          {/* Lösenordsåterställningsrutter utanför Layout för att undvika navigationselement */}
+          <Route path="/update-password" element={<UpdatePassword />} />
+          <Route path="/salon/update-password" element={<UpdatePassword />} />
+          
           <Route path="/" element={<Layout />}>
             <Route index element={<Index />} />
             <Route path="auth" element={<Navigate to="/salon/login" replace />} />
@@ -82,7 +86,6 @@ function App() {
             <Route path="/create-admin" element={<CreateAdmin />} />
             
             <Route path="/salon/login" element={<SalonLogin />} />
-            <Route path="/salon/update-password" element={<UpdatePassword />} />
             <Route path="/salon/dashboard" element={<SalonDashboard />} />
             <Route path="/salon/deal" element={<SalonDealPage />} />
             <Route path="/salon/deals" element={<SalonDealPage />} />

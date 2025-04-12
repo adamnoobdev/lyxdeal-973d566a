@@ -8,21 +8,32 @@ import { Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-export const UpdatePasswordForm: React.FC = () => {
+interface UpdatePasswordFormProps {
+  initialError?: string | null;
+}
+
+export const UpdatePasswordForm: React.FC<UpdatePasswordFormProps> = ({ initialError }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError || null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Update error if initialError changes
+    if (initialError) {
+      setError(initialError);
+    }
+  }, [initialError]);
 
   useEffect(() => {
     // Kontrollera om användaren kommit via en återställningslänk
     const checkRecoveryToken = async () => {
       try {
         const { data } = await supabase.auth.getSession();
-        console.log("Session check på update-password sidan:", data.session ? "Har session" : "Ingen session");
+        console.log("Session check på UpdatePasswordForm:", data.session ? "Har session" : "Ingen session");
         
         if (!data.session || !data.session.user) {
           setError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
