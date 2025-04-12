@@ -40,7 +40,7 @@ export function generateEmailTemplate(data: EmailRequest) {
         }
       </ol>
       
-      ${isDirectBooking && bookingUrl ? getBookingSection(bookingUrl, styles) : ''}
+      ${bookingUrl ? getBookingSection(bookingUrl, styles) : ''}
       
       <div style="${styles.divider}"></div>
       
