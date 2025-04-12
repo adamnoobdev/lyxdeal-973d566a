@@ -5,8 +5,13 @@ import { getSharedEmailStyles } from "../shared/emailStyles.ts";
  * Generates the HTML content for the password reset email
  */
 export function generateResetPasswordEmailHtml(resetUrl: string): string {
-  // Säkerställ att resetUrl har korrekt format (inkluderar token)
-  // resetUrl ska redan innehålla token från Supabase auth.resetPasswordForEmail
+  // Säkerställ att resetUrl har korrekt format och pekar på update-password sidan
+  // Kontrollera om resetUrl redan innehåller token som query parameter
+  const hasToken = resetUrl.includes('?') || resetUrl.includes('#');
+  
+  // Om URL:en inte redan har en token, lägg till en generic placeholder
+  // (Supabase kommer att ersätta detta med den faktiska token i email sending processen)
+  const finalResetUrl = hasToken ? resetUrl : `${resetUrl}#access_token={{TOKEN}}`;
   
   const currentYear = new Date().getFullYear();
 
@@ -33,7 +38,7 @@ export function generateResetPasswordEmailHtml(resetUrl: string): string {
           <p>Vi har tagit emot en begäran om att återställa lösenordet för ditt Lyxdeal-konto. Klicka på knappen nedan för att skapa ett nytt lösenord:</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" class="button">Återställ lösenord</a>
+            <a href="${finalResetUrl}" class="button">Återställ lösenord</a>
           </div>
           
           <div class="card">
