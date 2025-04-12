@@ -8,7 +8,7 @@ export const usePasswordReset = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Funktion för att skicka lösenordsåterställning via Supabase
+  // Function to send password reset via Supabase
   const resetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -20,55 +20,55 @@ export const usePasswordReset = () => {
     setLoading(true);
 
     try {
-      // Beräkna den produktions-URL som ska användas för omdirigering
-      const productionDomain = window.location.hostname === "localhost" 
+      // Calculate the production URL to use for redirection
+      const baseUrl = window.location.hostname === "localhost" 
         ? "http://localhost:3000" 
         : "https://www.lyxdeal.se";
       
-      // Skapa en specifik URL för lösenordsåterställning, inklusive rätt sökväg
-      const redirectUrl = `${productionDomain}/salon/update-password`;
+      // Create a specific URL for password reset with the correct path
+      const redirectUrl = `${baseUrl}/update-password`;
       
-      console.log("Skickar återställning till:", email);
-      console.log("Redirect URL:", redirectUrl);
+      console.log("Sending reset to:", email);
+      console.log("Using redirect URL:", redirectUrl);
       
-      // Använd Supabase Auth för att skicka återställningslänk
-      // OBS: Detta lägger till token som en hash fragment i URL:en (#access_token=...)
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      // Use Supabase Auth to send reset link
+      const { error: supabaseError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
 
-      if (error) {
-        toast.error(error.message);
-        console.error("Fel vid lösenordsåterställning:", error);
+      if (supabaseError) {
+        console.error("Supabase auth error:", supabaseError);
+        toast.error(supabaseError.message || "Ett fel uppstod vid lösenordsåterställning");
         setLoading(false);
         return;
       }
 
-      // Skicka också ett anpassat e-postmeddelande via vår edge function
+      console.log("Supabase password reset email sent successfully");
+
+      // Also send a custom email via our edge function
       try {
-        // För vårt anpassade mejl använder vi samma URL som Supabase auth använder
-        const response = await supabase.functions.invoke("reset-password", {
+        const { data: customEmailData, error: customEmailError } = await supabase.functions.invoke("reset-password", {
           body: {
             email,
-            resetUrl: redirectUrl // URL:en kommer formateras korrekt i edge-funktionen
+            resetUrl: redirectUrl // URL will be formatted correctly in the edge function
           }
         });
 
-        if (!response.error) {
-          console.log("Anpassat återställningsmail skickat", response.data);
+        if (customEmailError) {
+          console.warn("Custom reset email warning:", customEmailError);
+          console.warn("Standard reset from Supabase was still sent.");
         } else {
-          console.warn("Varning: Kunde inte skicka anpassat återställningsmail:", response.error);
-          console.warn("Standardåterställning från Supabase skickades ändå.");
+          console.log("Custom reset email sent:", customEmailData);
         }
       } catch (customEmailError) {
-        console.warn("Varning: Kunde inte skicka anpassat återställningsmail:", customEmailError);
-        console.warn("Standardåterställning från Supabase skickades ändå.");
+        console.warn("Could not send custom reset email:", customEmailError);
+        console.warn("Standard reset from Supabase was still sent.");
       }
 
       setSuccess(true);
       toast.success("Återställningsinstruktioner har skickats till din e-post");
     } catch (err) {
-      console.error("Fel vid lösenordsåterställning:", err);
+      console.error("Password reset error:", err);
       toast.error("Ett problem uppstod. Försök igen senare.");
     } finally {
       setLoading(false);

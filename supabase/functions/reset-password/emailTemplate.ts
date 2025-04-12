@@ -5,13 +5,12 @@ import { getSharedEmailStyles } from "../shared/emailStyles.ts";
  * Generates the HTML content for the password reset email
  */
 export function generateResetPasswordEmailHtml(resetUrl: string): string {
-  // Säkerställ att resetUrl har korrekt format och pekar på update-password sidan
-  // Kontrollera om resetUrl redan innehåller token som query parameter
-  const hasToken = resetUrl.includes('?') || resetUrl.includes('#');
+  console.log("Generating email with resetUrl:", resetUrl);
   
-  // Om URL:en inte redan har en token, lägg till en generic placeholder
-  // (Supabase kommer att ersätta detta med den faktiska token i email sending processen)
-  const finalResetUrl = hasToken ? resetUrl : `${resetUrl}#access_token={{TOKEN}}`;
+  // Ensure the URL is correctly formatted with the token parameter
+  // We don't modify the URL here since it should come properly formatted from the requestHandler
+  // just pass it through as is, because token handling is complex
+  const finalResetUrl = resetUrl;
   
   const currentYear = new Date().getFullYear();
 
@@ -38,12 +37,13 @@ export function generateResetPasswordEmailHtml(resetUrl: string): string {
           <p>Vi har tagit emot en begäran om att återställa lösenordet för ditt Lyxdeal-konto. Klicka på knappen nedan för att skapa ett nytt lösenord:</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${finalResetUrl}" class="button">Återställ lösenord</a>
+            <a href="${finalResetUrl}" class="button" style="display: inline-block; padding: 12px 20px; background-color: #f472b6; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">Återställ lösenord</a>
           </div>
           
           <div class="card">
             <p>Om du inte begärt att återställa ditt lösenord kan du ignorera detta mejl.</p>
             <p>Återställningslänken är giltig i 1 timme.</p>
+            <p>Om knappen ovan inte fungerar, kopiera och klistra in följande URL i din webbläsare: <br><span style="word-break: break-all;">${finalResetUrl}</span></p>
           </div>
           
           <p>Med vänliga hälsningar,<br>Teamet på Lyxdeal</p>
