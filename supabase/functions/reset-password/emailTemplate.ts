@@ -10,11 +10,27 @@ export function generateResetPasswordEmailHtml(resetUrl: string): string {
   
   const currentYear = new Date().getFullYear();
   
+  // Kontrollera om vi har en lovableproject.com URL och ersätt med lyxdeal.se i produktion
+  if (resetUrl && resetUrl.includes('.lovableproject.com')) {
+    try {
+      const urlObj = new URL(resetUrl);
+      // Ersätt lovableproject.com med lyxdeal.se för produktionsmiljön
+      resetUrl = resetUrl.replace('.lovableproject.com', '.lyxdeal.se');
+      console.log("Korrigerad resetUrl för produktionsmiljö:", resetUrl);
+    } catch (e) {
+      console.error("Kunde inte korrigera URL:", e);
+    }
+  }
+  
   // Se till att URL:en pekar mot /salon/update-password för konsekvent routing
   if (resetUrl && !resetUrl.includes('/salon/update-password')) {
-    const urlObj = new URL(resetUrl);
-    resetUrl = urlObj.origin + '/salon/update-password' + urlObj.hash;
-    console.log("Korrigerad resetUrl i emailTemplate:", resetUrl);
+    try {
+      const urlObj = new URL(resetUrl);
+      resetUrl = urlObj.origin + '/salon/update-password' + urlObj.hash;
+      console.log("Korrigerad resetUrl i emailTemplate:", resetUrl);
+    } catch (e) {
+      console.error("Kunde inte korrigera URL:", e);
+    }
   }
 
   return `

@@ -28,6 +28,17 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     console.log(`Skickar lösenordsåterställning till: ${data.email}`);
     console.log(`Ursprunglig återställnings-URL: ${data.resetUrl}`);
     
+    // Kontrollera om vi har en lovableproject.com URL och ersätt med lyxdeal.se i produktion
+    if (data.resetUrl && data.resetUrl.includes('.lovableproject.com')) {
+      try {
+        // Ersätt lovableproject.com med lyxdeal.se för produktion
+        data.resetUrl = data.resetUrl.replace('.lovableproject.com', '.lyxdeal.se');
+        console.log("Korrigerad resetUrl för produktionsmiljö:", data.resetUrl);
+      } catch (e) {
+        console.error("Kunde inte korrigera URL för produktionsmiljö:", e);
+      }
+    }
+    
     // Kontrollera att resetUrl är korrekt formaterad och modifiera för att använda /salon/update-password
     try {
       const resetUrlObj = new URL(data.resetUrl);
@@ -41,7 +52,13 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     } catch (urlError) {
       console.error("Ogiltig URL format:", urlError);
       // Fallback om vi inte kan parsa URL:en
-      const domain = req.headers.get("origin") || "https://www.lyxdeal.se";
+      let domain = req.headers.get("origin") || "https://www.lyxdeal.se";
+      
+      // Om vi är i utvecklingsmiljö, använd origin, annars använd lyxdeal.se
+      if (domain.includes('lovableproject.com')) {
+        domain = "https://www.lyxdeal.se";
+      }
+      
       data.resetUrl = `${domain}/salon/update-password`;
       console.log("Fallback URL:", data.resetUrl);
     }

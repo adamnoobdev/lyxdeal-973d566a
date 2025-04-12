@@ -20,17 +20,21 @@ export const usePasswordReset = () => {
     setLoading(true);
 
     try {
-      // Beräkna den produktions-URL som ska användas för omdirigering
-      const productionDomain = window.location.hostname === "localhost" 
-        ? "http://localhost:3000" 
-        : window.location.origin; // Använd origin för att säkerställa korrekt protokoll och domän
+      // Beräkna produktions-URL baserad på miljö
+      const isProduction = window.location.hostname !== "localhost" && 
+                          !window.location.hostname.includes(".lovableproject.com");
+      
+      // Använd korrekt domän för omdirigering
+      const productionDomain = isProduction 
+        ? "https://lyxdeal.se" 
+        : window.location.origin;
       
       // Konstruera den fullständiga URL:en till återställningssidan
-      // Se till att alltid använda /salon/update-password för konsekvent routing
       const redirectUrl = `${productionDomain}/salon/update-password`;
       
       console.log("Skickar återställning till:", email);
-      console.log("Redirect URL:", redirectUrl);
+      console.log("Miljöberoende omdirigerings-URL:", redirectUrl);
+      console.log("Aktuell miljö är produktion:", isProduction);
       
       // Använd Supabase Auth för att skicka återställningslänk
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
