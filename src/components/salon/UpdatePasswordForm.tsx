@@ -8,41 +8,24 @@ import { Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-interface UpdatePasswordFormProps {
-  error?: string | null;
-  redirectTo?: string;
-}
-
-export const UpdatePasswordForm: React.FC<UpdatePasswordFormProps> = ({ 
-  error: initialError = null,
-  redirectTo = "/salon/login"
-}) => {
+export const UpdatePasswordForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(initialError);
+  const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Uppdatera error state om den ändras utifrån
-    if (initialError) {
-      setError(initialError);
-    }
-  }, [initialError]);
-
-  useEffect(() => {
     // Kontrollera om användaren kommit via en återställningslänk
-    const checkRecoverySession = async () => {
+    const checkRecoveryToken = async () => {
       try {
         const { data } = await supabase.auth.getSession();
         console.log("Session check på update-password sidan:", data.session ? "Har session" : "Ingen session");
         
         if (!data.session || !data.session.user) {
-          if (!error) {
-            setError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
-          }
+          setError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
           return;
         }
         
@@ -53,8 +36,8 @@ export const UpdatePasswordForm: React.FC<UpdatePasswordFormProps> = ({
       }
     };
 
-    checkRecoverySession();
-  }, [error]);
+    checkRecoveryToken();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,8 +56,6 @@ export const UpdatePasswordForm: React.FC<UpdatePasswordFormProps> = ({
     setLoading(true);
 
     try {
-      console.log("Försöker uppdatera lösenord");
-      
       const { error: updateError } = await supabase.auth.updateUser({
         password: password
       });
@@ -90,7 +71,7 @@ export const UpdatePasswordForm: React.FC<UpdatePasswordFormProps> = ({
 
       // Automatisk omdirigering efter 3 sekunder
       setTimeout(() => {
-        navigate(redirectTo);
+        navigate("/salon/login");
       }, 3000);
     } catch (err) {
       console.error("Fel vid lösenordsuppdatering:", err);
@@ -114,7 +95,7 @@ export const UpdatePasswordForm: React.FC<UpdatePasswordFormProps> = ({
           </p>
         </div>
         <Button 
-          onClick={() => navigate(redirectTo)} 
+          onClick={() => navigate("/salon/login")} 
           className="w-full"
         >
           Gå till inloggning
@@ -134,7 +115,7 @@ export const UpdatePasswordForm: React.FC<UpdatePasswordFormProps> = ({
           </p>
         </div>
         <Button 
-          onClick={() => navigate(redirectTo)} 
+          onClick={() => navigate("/salon/login")} 
           className="w-full"
         >
           Gå till inloggning

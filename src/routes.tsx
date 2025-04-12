@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Admin from "./pages/Admin";
 import Index from "./pages/Index";
@@ -92,11 +91,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/update-password",
-    element: <UpdatePassword redirectTo="/salon/login" />,
+    element: <UpdatePassword />,
   },
   {
     path: "/salon/update-password",
-    element: <UpdatePassword redirectTo="/salon/login" />,
+    element: <UpdatePassword />,
   },
   {
     path: "/subscription/success",

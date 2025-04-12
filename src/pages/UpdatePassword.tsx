@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -7,23 +7,15 @@ import { UpdatePasswordForm } from '@/components/salon/UpdatePasswordForm';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-interface UpdatePasswordProps {
-  redirectTo?: string;
-}
-
-export default function UpdatePassword({ redirectTo = "/salon/login" }: UpdatePasswordProps) {
+export default function UpdatePassword() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isProcessingToken, setIsProcessingToken] = useState(true);
-  const [tokenError, setTokenError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Kontrollera om vi har ett access_token i URL:en (hash fragment eller query param)
-    const handleTokenParameters = async () => {
+    // Kontrollera om vi har ett access_token i URL:en (hash fragment)
+    const handleHashParameters = async () => {
       try {
-        console.log("Söker efter återställningstoken på sidan:", window.location.href);
-        
-        // Check hash fragment first (Supabase auth default redirect format)
+        // Get the hash fragment (everything after #)
         const hashFragment = window.location.hash.substring(1);
         console.log("Hash fragment:", hashFragment ? "Finns" : "Saknas");
         
@@ -43,7 +35,7 @@ export default function UpdatePassword({ redirectTo = "/salon/login" }: UpdatePa
             
             // Om vi har fått token och typ från hash, och det är för lösenordsåterställning
             if (accessToken && refreshToken && type === 'recovery') {
-              console.log("Hittade återställningstoken i hash, försöker att använda den");
+              console.log("Hittade återställningstoken, försöker att logga in användaren");
               
               // Sätt sessiondata manuellt
               const { data, error } = await supabase.auth.setSession({
@@ -52,98 +44,57 @@ export default function UpdatePassword({ redirectTo = "/salon/login" }: UpdatePa
               });
               
               if (error) {
-                console.error("Kunde inte sätta session från hash:", error);
-                setTokenError("Ett fel uppstod vid verifiering av återställningslänken. Vänligen begär en ny.");
-                setIsProcessingToken(false);
+                console.error("Kunde inte sätta session:", error);
+                toast.error("Ett fel uppstod vid verifiering av återställningslänken");
                 return;
               }
               
-              console.log("Återställningstoken från hash behandlades framgångsrikt", data.session ? "Session satt" : "Ingen session");
+              console.log("Återställningstoken behandlades framgångsrikt", data.session ? "Session satt" : "Ingen session");
               
               // Rensa hash från URL:en utan att ladda om sidan
               window.history.replaceState(null, '', window.location.pathname);
-              setIsProcessingToken(false);
-              return;
+            } else if (type) {
+              console.warn("Hash fragment innehöll fel typ:", type);
+              toast.error("Ogiltig återställningslänk. Begär en ny återställningslänk.");
             }
           } catch (err) {
             console.error("Fel vid hantering av URL hash:", err);
-            setTokenError("Ett fel uppstod vid behandling av återställningslänken från hash");
+            toast.error("Ett fel uppstod vid behandling av återställningslänken");
           }
-        }
-        
-        // Check query parameters if no hash token found (our edge function format)
-        if (location.search && location.search.includes('token=')) {
+        } else if (location.search && location.search.includes('token=')) {
+          // Alternativ metod om vi får token som query parameter
           console.log("Hittade token i query parameter");
           const params = new URLSearchParams(location.search);
           const token = params.get('token');
           
           if (token) {
-            try {
-              console.log("Försöker använda token från query parameter");
-              
-              // Försök använda token för att verifiera
-              const { error } = await supabase.auth.verifyOtp({
-                token_hash: token,
-                type: 'recovery'
-              });
-              
-              if (error) {
-                console.error("Kunde inte verifiera token från query:", error);
-                setTokenError("Ogiltig eller utgången återställningslänk. Vänligen begär en ny.");
-                setIsProcessingToken(false);
-                return;
-              }
-              
-              console.log("Token från query verifierad framgångsrikt");
-              
-              // Rensa URL:en
-              window.history.replaceState(null, '', window.location.pathname);
-            } catch (err) {
-              console.error("Fel vid hantering av token från query:", err);
-              setTokenError("Ett fel uppstod vid behandling av återställningslänken från query");
-              setIsProcessingToken(false);
-              return;
-            }
+            // Om vi har en token i URL:en, spara den för att användas i formuläret
+            sessionStorage.setItem('password_reset_token', token);
+            console.log("Token sparad i sessionStorage");
+            
+            // Rensa URL:en
+            window.history.replaceState(null, '', window.location.pathname);
           }
-        }
-        
-        // If we've got here with no token found anywhere, check if we have a session already
-        console.log("Kontrollerar om det finns en aktiv session");
-        const { data } = await supabase.auth.getSession();
-        
-        if (data.session) {
-          console.log("Aktiv session hittad vid lösenordsåterställning");
         } else {
-          console.log("Ingen session eller token hittades, användaren bör skickas tillbaka");
-          setTokenError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
+          console.log("Ingen token hittades i URL:en");
+          // Kontrollera om vi har en aktiv session
+          const { data } = await supabase.auth.getSession();
+          console.log("Session finns:", !!data.session);
         }
-        
-        setIsProcessingToken(false);
       } catch (err) {
         console.error("Fel vid hantering av URL-parametrar:", err);
-        setTokenError("Ett fel uppstod vid hantering av återställningslänken");
-        setIsProcessingToken(false);
       }
     };
     
-    handleTokenParameters();
+    handleHashParameters();
   }, [location]);
-
-  if (isProcessingToken) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        <p className="mt-4 text-muted-foreground">Verifierar återställningslänk...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="container mx-auto px-4 py-8">
         <Button
           variant="ghost"
-          onClick={() => navigate(redirectTo)}
+          onClick={() => navigate("/salon/login")}
           className="mb-8"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Tillbaka till inloggningssidan
@@ -155,7 +106,7 @@ export default function UpdatePassword({ redirectTo = "/salon/login" }: UpdatePa
             <p className="text-muted-foreground mt-2">Skapa ett nytt lösenord för att återfå åtkomst till ditt konto</p>
           </div>
           <div className="bg-white shadow-sm rounded-lg p-6">
-            <UpdatePasswordForm error={tokenError} redirectTo={redirectTo} />
+            <UpdatePasswordForm />
           </div>
         </div>
       </div>

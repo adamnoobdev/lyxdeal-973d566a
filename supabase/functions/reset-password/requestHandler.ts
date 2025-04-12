@@ -28,12 +28,14 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     console.log(`Skickar lösenordsåterställning till: ${data.email}`);
     console.log(`Återställnings-URL: ${data.resetUrl}`);
     
-    // Kontrollera att resetUrl är korrekt formaterad och pekar till rätt sida
+    // Kontrollera att resetUrl är korrekt formaterad
     try {
       const resetUrlObj = new URL(data.resetUrl);
       
-      // Säkerställ att URL:en pekar till update-password sidan
-      if (!resetUrlObj.pathname.includes("update-password")) {
+      // Vi behåller den ursprungliga URLen så vi inte modifierar token-delen
+      if (!resetUrlObj.pathname.includes("/salon/update-password")) {
+        console.warn("Ogiltig återställnings-URL format:", data.resetUrl);
+        // Behåll ursprungsdelen men uppdatera sökvägen till update-password
         const baseUrl = resetUrlObj.origin;
         data.resetUrl = `${baseUrl}/salon/update-password`;
         console.log("Korrigerad återställnings-URL:", data.resetUrl);
