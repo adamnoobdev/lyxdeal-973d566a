@@ -1,17 +1,27 @@
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { LoginHeader } from '@/components/salon/login/LoginHeader';
 import { LoginCard } from '@/components/salon/login/LoginCard';
 import { supabase } from '@/integrations/supabase/client';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 export default function SalonLogin() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check for error parameter
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      setAuthError(decodeURIComponent(errorParam));
+    }
+    
     // Kontrollera om användaren redan är inloggad
     const checkAuth = async () => {
       try {
@@ -47,7 +57,7 @@ export default function SalonLogin() {
     };
     
     checkAuth();
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   if (isCheckingAuth) {
     return (
@@ -70,8 +80,14 @@ export default function SalonLogin() {
         </Button>
 
         <div className="max-w-md mx-auto">
+          {authError && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              <AlertDescription>{authError}</AlertDescription>
+            </Alert>
+          )}
           <LoginHeader />
-          <LoginCard />
+          <LoginCard showResetForm={authError?.includes('utgången')} />
         </div>
       </div>
     </div>

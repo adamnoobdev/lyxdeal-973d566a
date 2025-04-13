@@ -1,15 +1,17 @@
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { UpdatePasswordForm } from '@/components/salon/UpdatePasswordForm';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ErrorDisplay } from '@/components/subscription/ErrorDisplay';
 
 export default function UpdatePassword() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,12 +22,31 @@ export default function UpdatePassword() {
         console.log("UpdatePassword page loaded:", location.pathname);
         setIsLoading(true);
         
+        // Check for error in query params (redirected from App.tsx)
+        const errorParam = searchParams.get('error');
+        if (errorParam) {
+          setError(decodeURIComponent(errorParam));
+          setIsLoading(false);
+          return;
+        }
+        
         // Get the hash fragment (everything after #)
         const hashFragment = window.location.hash.substring(1);
-        console.log("Hash fragment:", hashFragment ? "Present" : "Missing");
+        console.log("Hash fragment:", hashFragment ? "Present (length: " + hashFragment.length + ")" : "Missing");
         
-        if (hashFragment && hashFragment.includes('access_token')) {
+        if (hashFragment) {
           try {
+            if (hashFragment.includes('error=')) {
+              // Extract error from hash
+              const params = new URLSearchParams(hashFragment);
+              const errorCode = params.get('error_code');
+              const errorDesc = params.get('error_description');
+              setError(errorDesc ? decodeURIComponent(errorDesc) : 'Ett okänt fel uppstod');
+              console.error(`Auth hash error: ${errorCode} - ${errorDesc}`);
+              setIsLoading(false);
+              return;
+            }
+            
             // Extract the access token using URLSearchParams
             const params = new URLSearchParams(hashFragment);
             const accessToken = params.get('access_token');
@@ -50,8 +71,9 @@ export default function UpdatePassword() {
               
               if (error) {
                 console.error("Could not set session:", error);
-                setError("Ett fel uppstod vid verifiering av återställningslänken");
+                setError(`Ett fel uppstod vid verifiering av återställningslänken: ${error.message}`);
                 toast.error("Ett fel uppstod vid verifiering av återställningslänken");
+                setIsLoading(false);
                 return;
               }
               
@@ -59,13 +81,24 @@ export default function UpdatePassword() {
               
               // Clear hash from URL without reloading page
               window.history.replaceState(null, '', window.location.pathname);
+              setIsLoading(false);
             } else if (type) {
               console.warn("Hash fragment contained wrong type:", type);
               setError("Ogiltig återställningslänk. Begär en ny återställningslänk.");
+              setIsLoading(false);
+            } else {
+              // Check if we have an active session
+              const { data } = await supabase.auth.getSession();
+              if (!data.session) {
+                console.warn("No session found and no valid token in URL");
+                setError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
+              }
+              setIsLoading(false);
             }
           } catch (err) {
             console.error("Error handling URL hash:", err);
             setError("Ett fel uppstod vid behandling av återställningslänken");
+            setIsLoading(false);
           }
         } else {
           // Check if we have an active session
@@ -73,20 +106,18 @@ export default function UpdatePassword() {
           if (!data.session) {
             console.warn("No session found and no token in URL");
             setError("Ingen giltig återställningslänk hittades. Vänligen begär en ny återställningslänk.");
-          } else {
-            console.log("Active session exists, user can update password");
           }
+          setIsLoading(false);
         }
       } catch (err) {
         console.error("Error handling URL parameters:", err);
         setError("Ett fel uppstod. Vänligen försök igen eller begär en ny återställningslänk.");
-      } finally {
         setIsLoading(false);
       }
     };
     
     handleAuthParameters();
-  }, [location]);
+  }, [location, searchParams]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

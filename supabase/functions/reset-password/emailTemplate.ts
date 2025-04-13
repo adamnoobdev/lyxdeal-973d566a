@@ -9,7 +9,7 @@ export function generateResetPasswordEmailHtml(resetUrl: string): string {
   
   const currentYear = new Date().getFullYear();
   
-  // We shouldn't modify the resetUrl - it contains the authentication token
+  // Log the reset URL for debugging
   console.log("Using reset URL in email template:", resetUrl);
 
   return `
@@ -48,7 +48,7 @@ export function generateResetPasswordEmailHtml(resetUrl: string): string {
           <p>Vi har tagit emot en begäran om att återställa lösenordet för ditt Lyxdeal-konto. Klicka på knappen nedan för att skapa ett nytt lösenord:</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" class="button">Återställ lösenord</a>
+            <a href="${resetUrl}" class="button" style="display: inline-block; background-color: #520053; color: white; text-decoration: none; padding: 12px 20px; border-radius: 4px; font-weight: bold;">Återställ lösenord</a>
           </div>
           
           <div class="card">

@@ -54,12 +54,34 @@ function App() {
     // Handle recovery hash in URL on initial page load
     const handleRecoveryHash = () => {
       const hash = window.location.hash;
-      if (hash && hash.includes('access_token') && hash.includes('type=recovery')) {
-        console.log("Recovery token detected in URL hash, redirecting to update password page");
-        // Redirect to update password page without losing the hash
-        const currentPath = window.location.pathname;
-        if (!currentPath.includes('/update-password') && !currentPath.includes('/salon/update-password')) {
-          window.location.href = '/salon/update-password' + hash;
+      if (hash) {
+        console.log("Hash detected in URL:", hash.substring(0, 20) + "...");
+        
+        // Check if it's a recovery token
+        if (hash.includes('type=recovery')) {
+          console.log("Recovery token detected in URL hash");
+          
+          // Redirect to update password page without losing the hash
+          const currentPath = window.location.pathname;
+          if (!currentPath.includes('/update-password') && !currentPath.includes('/salon/update-password')) {
+            console.log("Redirecting to update password page with hash");
+            window.location.href = '/salon/update-password' + hash;
+          }
+        } else if (hash.includes('error=')) {
+          // Handle error cases
+          console.error("Error in auth hash:", hash);
+          
+          // Extract error details
+          const errorParams = new URLSearchParams(hash.substring(1));
+          const errorCode = errorParams.get('error_code');
+          const errorDesc = errorParams.get('error_description');
+          
+          console.error(`Auth error: ${errorCode} - ${errorDesc}`);
+          
+          // Redirect to login page with error
+          if (!window.location.pathname.includes('/salon/login')) {
+            window.location.href = '/salon/login?error=' + encodeURIComponent(errorDesc || 'Unknown error');
+          }
         }
       }
     };

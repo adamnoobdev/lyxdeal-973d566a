@@ -39,13 +39,51 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
+    // Check if the user exists before attempting to reset password
+    const { data: userCheck, error: userCheckError } = await supabase
+      .from('auth.users')
+      .select('id')
+      .eq('email', data.email)
+      .maybeSingle();
+
+    if (userCheckError) {
+      console.error("Error checking if user exists:", userCheckError);
+      // Don't reveal if user exists or not for security reasons
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Reset instructions sent if email exists"
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    if (!userCheck) {
+      console.log("User not found, but returning success for security");
+      // Don't reveal if user exists or not for security reasons
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Reset instructions sent if email exists"
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    
     // Determine production vs development environment
-    const isProductionDomain = data.resetUrl.includes("lyxdeal.se");
+    const isProduction = data.resetUrl.includes("lyxdeal.se");
     
-    // Use correct reset URL based on environment - direct browser to update-password with token
-    const redirectBase = isProductionDomain ? "https://lyxdeal.se" : data.resetUrl;
+    // Use correct reset URL based on environment - make sure redirectTo is an absolute URL
+    const redirectBase = isProduction ? "https://lyxdeal.se" : data.resetUrl;
+    const redirectUrl = new URL("/salon/update-password", redirectBase).href;
     
-    console.log("Using redirect base:", redirectBase);
+    console.log("Using redirect URL:", redirectUrl);
     
     // Generate a token for the user's email without sending Supabase's email
     const { data: tokenData, error: tokenError } = await supabase
@@ -55,9 +93,7 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
         type: "recovery",
         email: data.email,
         options: {
-          // IMPORTANT: Redirect to domain root to let client-side handle the redirect
-          // This ensures the hash fragment with the token remains intact
-          redirectTo: redirectBase
+          redirectTo: redirectUrl
         }
       });
     

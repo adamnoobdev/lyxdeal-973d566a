@@ -4,8 +4,12 @@ import { SalonLoginForm } from '@/components/salon/LoginForm';
 import { PartnerRegistrationCTA } from './PartnerRegistrationCTA';
 import { PasswordResetForm } from './PasswordResetForm';
 
-export const LoginCard: React.FC = () => {
-  const [showPasswordReset, setShowPasswordReset] = useState(false);
+interface LoginCardProps {
+  showResetForm?: boolean;
+}
+
+export const LoginCard: React.FC<LoginCardProps> = ({ showResetForm = false }) => {
+  const [showPasswordReset, setShowPasswordReset] = useState(showResetForm);
 
   return (
     <div className="bg-white shadow-sm rounded-lg p-6">

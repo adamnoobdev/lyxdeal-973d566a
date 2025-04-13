@@ -21,7 +21,8 @@ export const usePasswordReset = () => {
 
     try {
       // Calculate base URL based on environment
-      const isProduction = window.location.hostname === "lyxdeal.se";
+      const hostname = window.location.hostname;
+      const isProduction = hostname === "lyxdeal.se";
       
       // Use current domain for redirection
       const domainBase = isProduction 
