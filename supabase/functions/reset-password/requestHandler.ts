@@ -9,14 +9,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
  */
 export async function handleResetPasswordRequest(req: Request): Promise<Response> {
   try {
-    // Tolka förfrågans body
+    // Parse request body
     const data: ResetPasswordRequest = await req.json();
     
     if (!data.email || !data.resetUrl) {
-      console.error("Saknar obligatoriska fält i förfrågan:", data);
+      console.error("Missing required fields in request:", data);
       return new Response(
         JSON.stringify({ 
-          error: "Saknar obligatoriska fält", 
+          error: "Missing required fields", 
           received: Object.keys(data)
         }),
         { 
@@ -26,78 +26,54 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    console.log(`Skickar lösenordsåterställning till: ${data.email}`);
-    console.log(`Ursprunglig återställnings-URL: ${data.resetUrl}`);
+    console.log(`Sending password reset to: ${data.email}`);
+    console.log(`Original reset URL: ${data.resetUrl}`);
     
-    // Förbered URL för återställningssidan och håll koll på om vi är i utveckling eller produktion
-    let resetUrl = data.resetUrl;
-    let isLocalhost = resetUrl.includes('localhost');
-    let isLovableProject = resetUrl.includes('.lovableproject.com');
-    let isProduction = !isLocalhost && !isLovableProject;
+    // Prepare URL for reset page based on environment
+    let baseResetUrl = data.resetUrl;
     
-    console.log("URL miljö:", isLocalhost ? "localhost" : isLovableProject ? "lovableproject" : "produktion");
-    
-    // När vi använder lovableproject.com men vill generera länkar för produktion
-    if (isLovableProject) {
-      try {
-        // Ersätt lovableproject.com med lyxdeal.se för produktion
-        resetUrl = resetUrl.replace('.lovableproject.com', '.lyxdeal.se');
-        console.log("Korrigerad resetUrl för produktionsmiljö:", resetUrl);
-      } catch (e) {
-        console.error("Kunde inte korrigera URL för produktionsmiljö:", e);
-      }
-    }
-    
-    // Säkerställ att URL alltid pekar mot /salon/update-password
+    // Standard path to reset page
     try {
-      const resetUrlObj = new URL(resetUrl);
+      const resetUrlObj = new URL(baseResetUrl);
       resetUrlObj.pathname = '/salon/update-password';
-      resetUrl = resetUrlObj.toString();
-      console.log("Standardiserad återställnings-URL:", resetUrl);
+      baseResetUrl = resetUrlObj.toString();
+      console.log("Standardized reset URL base:", baseResetUrl);
     } catch (urlError) {
-      console.error("Ogiltig URL format:", urlError);
-      // Fallback om vi inte kan parsa URL:en
-      let domain = req.headers.get("origin") || "https://www.lyxdeal.se";
-      
-      // Om vi är i utvecklingsmiljö, använd origin, annars använd lyxdeal.se
-      if (domain.includes('lovableproject.com')) {
-        domain = domain.replace('lovableproject.com', 'lyxdeal.se');
-      }
-      
-      resetUrl = `${domain}/salon/update-password`;
-      console.log("Fallback URL:", resetUrl);
+      console.error("Invalid URL format:", urlError);
+      // Fallback if we can't parse the URL
+      baseResetUrl = "https://lyxdeal.se/salon/update-password";
+      console.log("Using fallback URL:", baseResetUrl);
     }
 
-    // Skapa en Supabase-klient för att generera en återställningstoken
+    // Create Supabase client to generate a reset token
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      console.error("Supabase miljövariabler saknas");
-      throw new Error("Konfigurationsfel: Supabase-miljövariabler saknas");
+      console.error("Supabase environment variables are missing");
+      throw new Error("Configuration error: Supabase environment variables are missing");
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Generera en token för användarens email, men skicka INTE Supabase-mejlet
-    // Vi använder admin-API:et för att skapa en återställningstoken utan att skicka mejl
-    const { data: userData, error: userError } = await supabase
+    // Generate a token for the user's email without sending Supabase's email
+    const { data: tokenData, error: tokenError } = await supabase
       .auth
       .admin
       .generateLink({
         type: "recovery",
         email: data.email,
         options: {
-          redirectTo: resetUrl
+          redirectTo: baseResetUrl
         }
       });
     
-    if (userError) {
-      console.error("Fel vid generering av återställningslänk:", userError);
+    if (tokenError) {
+      console.error("Error generating reset token:", tokenError);
       return new Response(
         JSON.stringify({ 
-          error: "Kunde inte generera återställningslänk", 
-          details: userError 
+          error: "Could not generate reset token", 
+          details: tokenError 
         }),
         { 
           status: 500, 
@@ -106,12 +82,12 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
     
-    if (!userData || !userData.properties || !userData.properties.action_link) {
-      console.error("Ingen action_link genererades:", userData);
+    if (!tokenData || !tokenData.properties || !tokenData.properties.action_link) {
+      console.error("No action_link was generated:", tokenData);
       return new Response(
         JSON.stringify({ 
-          error: "Kunde inte generera återställningslänk", 
-          details: "Ingen action_link genererades" 
+          error: "Could not generate reset token", 
+          details: "No action_link was generated" 
         }),
         { 
           status: 500, 
@@ -120,17 +96,20 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    // Extrahera token från den genererade länken
-    const actionLink = userData.properties.action_link;
-    console.log("Återställningslänk genererad:", actionLink);
+    // Extract actionLink which contains the recovery token
+    const actionLink = tokenData.properties.action_link;
+    console.log("Reset token link generated:", actionLink);
     
-    // Skicka e-post med vår anpassade mall via Resend
+    // Make sure to preserve the full token in the link
+    // Don't modify the actionLink - it has proper token parameters
+    
+    // Send custom email with the reset link
     const emailResponse = await sendResetPasswordEmail(data.email, actionLink);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Återställningsinstruktioner skickade",
+        message: "Reset instructions sent",
         data: emailResponse
       }),
       { 
@@ -139,7 +118,7 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       }
     );
   } catch (error) {
-    console.error("Fel i reset-password-funktionen:", error);
+    console.error("Error in reset-password function:", error);
     return new Response(
       JSON.stringify({ 
         error: error instanceof Error ? error.message : String(error),

@@ -8,7 +8,7 @@ export const usePasswordReset = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Funktion för att skicka lösenordsåterställning via vår edge-funktion
+  // Function to send password reset via our edge function
   const resetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -20,23 +20,22 @@ export const usePasswordReset = () => {
     setLoading(true);
 
     try {
-      // Beräkna produktions-URL baserad på miljö
+      // Calculate production URL based on environment
       const isProduction = window.location.hostname !== "localhost" && 
-                          !window.location.hostname.includes(".lovableproject.com");
+                         !window.location.hostname.includes(".lovableproject.com");
       
-      // Använd korrekt domän för omdirigering
+      // Use correct domain for redirection
       const productionDomain = isProduction 
         ? "https://lyxdeal.se" 
         : window.location.origin;
       
-      // Konstruera den fullständiga URL:en till återställningssidan
+      // Construct the full URL to the reset page
       const redirectUrl = `${productionDomain}/salon/update-password`;
       
-      console.log("Skickar återställning till:", email);
-      console.log("Miljöberoende omdirigerings-URL:", redirectUrl);
-      console.log("Aktuell miljö är produktion:", isProduction);
+      console.log("Sending reset to:", email);
+      console.log("Environment-dependent redirect URL:", redirectUrl);
+      console.log("Current environment is production:", isProduction);
       
-      // Använd vår anpassade edge-funktion för att både generera token och skicka mejl
       try {
         const response = await supabase.functions.invoke("reset-password", {
           body: {
@@ -46,21 +45,20 @@ export const usePasswordReset = () => {
         });
 
         if (response.error) {
-          console.error("Fel vid anrop av reset-password funktionen:", response.error);
+          console.error("Error calling reset-password function:", response.error);
           toast.error("Ett problem uppstod. Försök igen senare.");
-          setLoading(false);
           return;
         }
 
-        console.log("Anpassat återställningsmail skickat", response.data);
+        console.log("Custom reset email sent", response.data);
         setSuccess(true);
         toast.success("Återställningsinstruktioner har skickats till din e-post");
       } catch (customEmailError) {
-        console.error("Kunde inte skicka anpassat återställningsmail:", customEmailError);
+        console.error("Could not send custom reset email:", customEmailError);
         toast.error("Ett problem uppstod. Försök igen senare.");
       }
     } catch (err) {
-      console.error("Fel vid lösenordsåterställning:", err);
+      console.error("Error during password reset:", err);
       toast.error("Ett problem uppstod. Försök igen senare.");
     } finally {
       setLoading(false);

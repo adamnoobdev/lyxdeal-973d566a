@@ -5,19 +5,12 @@ import { getSharedEmailStyles } from "../shared/emailStyles.ts";
  * Generates the HTML content for the password reset email
  */
 export function generateResetPasswordEmailHtml(resetUrl: string): string {
-  // resetUrl är nu den kompletta URL:en med token från Supabase auth.admin.generateLink
+  // resetUrl is now the complete URL with token from Supabase auth.admin.generateLink
   
   const currentYear = new Date().getFullYear();
   
-  // Se till att resetUrl går mot rätt domän
-  if (resetUrl && resetUrl.includes('.lovableproject.com')) {
-    try {
-      resetUrl = resetUrl.replace('.lovableproject.com', '.lyxdeal.se');
-      console.log("Korrigerad resetUrl för produktionsmiljö:", resetUrl);
-    } catch (e) {
-      console.error("Kunde inte korrigera URL:", e);
-    }
-  }
+  // We shouldn't modify the resetUrl - it contains the authentication token
+  console.log("Using reset URL in email template:", resetUrl);
 
   return `
     <!DOCTYPE html>
