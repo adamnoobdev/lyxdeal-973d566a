@@ -27,24 +27,7 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     }
 
     console.log(`Sending password reset to: ${data.email}`);
-    console.log(`Original reset URL: ${data.resetUrl}`);
     
-    // Prepare URL for reset page based on environment
-    let baseResetUrl = data.resetUrl;
-    
-    // Standard path to reset page
-    try {
-      const resetUrlObj = new URL(baseResetUrl);
-      resetUrlObj.pathname = '/salon/update-password';
-      baseResetUrl = resetUrlObj.toString();
-      console.log("Standardized reset URL base:", baseResetUrl);
-    } catch (urlError) {
-      console.error("Invalid URL format:", urlError);
-      // Fallback if we can't parse the URL
-      baseResetUrl = "https://lyxdeal.se/salon/update-password";
-      console.log("Using fallback URL:", baseResetUrl);
-    }
-
     // Create Supabase client to generate a reset token
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -56,6 +39,14 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
+    // Determine production vs development environment
+    const isProductionDomain = data.resetUrl.includes("lyxdeal.se");
+    
+    // Use correct reset URL based on environment - direct browser to update-password with token
+    const redirectBase = isProductionDomain ? "https://lyxdeal.se" : data.resetUrl;
+    
+    console.log("Using redirect base:", redirectBase);
+    
     // Generate a token for the user's email without sending Supabase's email
     const { data: tokenData, error: tokenError } = await supabase
       .auth
@@ -64,7 +55,9 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
         type: "recovery",
         email: data.email,
         options: {
-          redirectTo: baseResetUrl
+          // IMPORTANT: Redirect to domain root to let client-side handle the redirect
+          // This ensures the hash fragment with the token remains intact
+          redirectTo: redirectBase
         }
       });
     
@@ -99,9 +92,6 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     // Extract actionLink which contains the recovery token
     const actionLink = tokenData.properties.action_link;
     console.log("Reset token link generated:", actionLink);
-    
-    // Make sure to preserve the full token in the link
-    // Don't modify the actionLink - it has proper token parameters
     
     // Send custom email with the reset link
     const emailResponse = await sendResetPasswordEmail(data.email, actionLink);

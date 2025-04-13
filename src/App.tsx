@@ -51,6 +51,21 @@ function App() {
       }
     });
     
+    // Handle recovery hash in URL on initial page load
+    const handleRecoveryHash = () => {
+      const hash = window.location.hash;
+      if (hash && hash.includes('access_token') && hash.includes('type=recovery')) {
+        console.log("Recovery token detected in URL hash, redirecting to update password page");
+        // Redirect to update password page without losing the hash
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes('/update-password') && !currentPath.includes('/salon/update-password')) {
+          window.location.href = '/salon/update-password' + hash;
+        }
+      }
+    };
+    
+    handleRecoveryHash();
+    
     // Clean up subscription
     return () => {
       subscription.unsubscribe();

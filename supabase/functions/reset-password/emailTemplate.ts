@@ -21,6 +21,19 @@ export function generateResetPasswordEmailHtml(resetUrl: string): string {
       <title>Återställ ditt lösenord på Lyxdeal</title>
       <style>
         ${getSharedEmailStyles()}
+        
+        /* Extra responsiveness styles */
+        @media only screen and (max-width: 480px) {
+          .container {
+            width: 100% !important;
+            padding: 10px !important;
+          }
+          .button {
+            padding: 10px 15px !important;
+            font-size: 16px !important;
+            width: 80% !important;
+          }
+        }
       </style>
     </head>
     <body>

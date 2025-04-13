@@ -40,7 +40,7 @@ export default function UpdatePassword() {
             
             // If we got a token and type from hash, and it's for password recovery
             if (accessToken && refreshToken && type === 'recovery') {
-              console.log("Found recovery token in hash, attempting to log in user");
+              console.log("Found recovery token in hash, attempting to set session");
               
               // Set session data manually
               const { data, error } = await supabase.auth.setSession({

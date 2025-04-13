@@ -20,27 +20,24 @@ export const usePasswordReset = () => {
     setLoading(true);
 
     try {
-      // Calculate production URL based on environment
-      const isProduction = window.location.hostname !== "localhost" && 
-                         !window.location.hostname.includes(".lovableproject.com");
+      // Calculate base URL based on environment
+      const isProduction = window.location.hostname === "lyxdeal.se";
       
-      // Use correct domain for redirection
-      const productionDomain = isProduction 
+      // Use current domain for redirection
+      const domainBase = isProduction 
         ? "https://lyxdeal.se" 
         : window.location.origin;
       
-      // Construct the full URL to the reset page
-      const redirectUrl = `${productionDomain}/salon/update-password`;
-      
       console.log("Sending reset to:", email);
-      console.log("Environment-dependent redirect URL:", redirectUrl);
+      console.log("Using domain base:", domainBase);
       console.log("Current environment is production:", isProduction);
       
       try {
+        // Call our edge function that will handle token generation and email sending
         const response = await supabase.functions.invoke("reset-password", {
           body: {
             email,
-            resetUrl: redirectUrl
+            resetUrl: domainBase // Let the edge function handle path construction
           }
         });
 
