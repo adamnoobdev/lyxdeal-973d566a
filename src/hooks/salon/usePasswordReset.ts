@@ -36,8 +36,8 @@ export const usePasswordReset = () => {
       console.log("Miljöberoende omdirigerings-URL:", redirectUrl);
       console.log("Aktuell miljö är produktion:", isProduction);
       
-      // Vi skickar INTE längre via Supabase Auth för att undvika dubbla mejl
-      // Använd istället direkt vår edge function för anpassat mejl
+      // Vi använder ENDAST vår anpassade edge function för återställning
+      // Detta förhindrar dubbla mejl från att skickas
       try {
         const response = await supabase.functions.invoke("reset-password", {
           body: {

@@ -29,26 +29,31 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     console.log(`Skickar lösenordsåterställning till: ${data.email}`);
     console.log(`Ursprunglig återställnings-URL: ${data.resetUrl}`);
     
-    // Kontrollera om vi har en lovableproject.com URL och ersätt med lyxdeal.se i produktion
-    if (data.resetUrl && data.resetUrl.includes('.lovableproject.com')) {
+    // Förbered URL för återställningssidan och håll koll på om vi är i utveckling eller produktion
+    let resetUrl = data.resetUrl;
+    let isLocalhost = resetUrl.includes('localhost');
+    let isLovableProject = resetUrl.includes('.lovableproject.com');
+    let isProduction = !isLocalhost && !isLovableProject;
+    
+    console.log("URL miljö:", isLocalhost ? "localhost" : isLovableProject ? "lovableproject" : "produktion");
+    
+    // När vi använder lovableproject.com men vill generera länkar för produktion
+    if (isLovableProject) {
       try {
         // Ersätt lovableproject.com med lyxdeal.se för produktion
-        data.resetUrl = data.resetUrl.replace('.lovableproject.com', '.lyxdeal.se');
-        console.log("Korrigerad resetUrl för produktionsmiljö:", data.resetUrl);
+        resetUrl = resetUrl.replace('.lovableproject.com', '.lyxdeal.se');
+        console.log("Korrigerad resetUrl för produktionsmiljö:", resetUrl);
       } catch (e) {
         console.error("Kunde inte korrigera URL för produktionsmiljö:", e);
       }
     }
     
-    // Kontrollera att resetUrl är korrekt formaterad och modifiera för att använda /salon/update-password
+    // Säkerställ att URL alltid pekar mot /salon/update-password
     try {
-      const resetUrlObj = new URL(data.resetUrl);
-      
-      // Ändra sökvägen till /salon/update-password för konsekvent routing
-      const baseUrl = resetUrlObj.origin;
-      data.resetUrl = `${baseUrl}/salon/update-password`;
-      
-      console.log("Korrigerad återställnings-URL:", data.resetUrl);
+      const resetUrlObj = new URL(resetUrl);
+      resetUrlObj.pathname = '/salon/update-password';
+      resetUrl = resetUrlObj.toString();
+      console.log("Standardiserad återställnings-URL:", resetUrl);
     } catch (urlError) {
       console.error("Ogiltig URL format:", urlError);
       // Fallback om vi inte kan parsa URL:en
@@ -56,11 +61,11 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       
       // Om vi är i utvecklingsmiljö, använd origin, annars använd lyxdeal.se
       if (domain.includes('lovableproject.com')) {
-        domain = "https://www.lyxdeal.se";
+        domain = domain.replace('lovableproject.com', 'lyxdeal.se');
       }
       
-      data.resetUrl = `${domain}/salon/update-password`;
-      console.log("Fallback URL:", data.resetUrl);
+      resetUrl = `${domain}/salon/update-password`;
+      console.log("Fallback URL:", resetUrl);
     }
 
     // Skapa en Supabase-klient för att generera en återställningstoken
@@ -78,7 +83,7 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     const { data: resetData, error: resetError } = await supabase.auth.resetPasswordForEmail(
       data.email,
       {
-        redirectTo: data.resetUrl,
+        redirectTo: resetUrl,
       }
     );
     
@@ -96,7 +101,7 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     console.log("Återställningslänk genererad");
 
     // Skicka e-post med Resend
-    const emailResponse = await sendResetPasswordEmail(data.email, data.resetUrl);
+    const emailResponse = await sendResetPasswordEmail(data.email, resetUrl);
 
     return new Response(
       JSON.stringify({ 
