@@ -36,41 +36,30 @@ export const usePasswordReset = () => {
       console.log("Miljöberoende omdirigerings-URL:", redirectUrl);
       console.log("Aktuell miljö är produktion:", isProduction);
       
-      // Använd Supabase Auth för att skicka återställningslänk
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: redirectUrl,
-      });
-
-      if (error) {
-        toast.error(error.message);
-        console.error("Fel vid lösenordsåterställning:", error);
-        setLoading(false);
-        return;
-      }
-
-      // Skicka också ett anpassat e-postmeddelande via vår edge function
+      // Vi skickar INTE längre via Supabase Auth för att undvika dubbla mejl
+      // Använd istället direkt vår edge function för anpassat mejl
       try {
-        // För vårt anpassade mejl använder vi samma URL som Supabase auth använder
         const response = await supabase.functions.invoke("reset-password", {
           body: {
             email,
-            resetUrl: redirectUrl // OBS: token läggs till automatiskt av Supabase
+            resetUrl: redirectUrl
           }
         });
 
-        if (!response.error) {
-          console.log("Anpassat återställningsmail skickat", response.data);
-        } else {
-          console.warn("Varning: Kunde inte skicka anpassat återställningsmail:", response.error);
-          console.warn("Standardåterställning från Supabase skickades ändå.");
+        if (response.error) {
+          toast.error("Ett problem uppstod. Försök igen senare.");
+          console.error("Fel vid anrop av reset-password funktionen:", response.error);
+          setLoading(false);
+          return;
         }
-      } catch (customEmailError) {
-        console.warn("Varning: Kunde inte skicka anpassat återställningsmail:", customEmailError);
-        console.warn("Standardåterställning från Supabase skickades ändå.");
-      }
 
-      setSuccess(true);
-      toast.success("Återställningsinstruktioner har skickats till din e-post");
+        console.log("Anpassat återställningsmail skickat", response.data);
+        setSuccess(true);
+        toast.success("Återställningsinstruktioner har skickats till din e-post");
+      } catch (customEmailError) {
+        console.error("Kunde inte skicka anpassat återställningsmail:", customEmailError);
+        toast.error("Ett problem uppstod. Försök igen senare.");
+      }
     } catch (err) {
       console.error("Fel vid lösenordsåterställning:", err);
       toast.error("Ett problem uppstod. Försök igen senare.");
