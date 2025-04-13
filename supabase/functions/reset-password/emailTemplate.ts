@@ -5,32 +5,18 @@ import { getSharedEmailStyles } from "../shared/emailStyles.ts";
  * Generates the HTML content for the password reset email
  */
 export function generateResetPasswordEmailHtml(resetUrl: string): string {
-  // Säkerställ att resetUrl har korrekt format (inkluderar token)
-  // resetUrl ska redan innehålla token från Supabase auth.resetPasswordForEmail
+  // resetUrl är nu den kompletta URL:en med token från Supabase auth.admin.generateLink
   
   const currentYear = new Date().getFullYear();
   
-  // Kontrollera om vi har en lovableproject.com URL och ersätt med lyxdeal.se i produktion
+  // Se till att resetUrl går mot rätt domän
   if (resetUrl && resetUrl.includes('.lovableproject.com')) {
     try {
-      // Ersätt lovableproject.com med lyxdeal.se för produktionsmiljön
       resetUrl = resetUrl.replace('.lovableproject.com', '.lyxdeal.se');
       console.log("Korrigerad resetUrl för produktionsmiljö:", resetUrl);
     } catch (e) {
       console.error("Kunde inte korrigera URL:", e);
     }
-  }
-  
-  // Se till att URL:en pekar mot /salon/update-password för konsekvent routing
-  try {
-    const urlObj = new URL(resetUrl);
-    if (!urlObj.pathname.includes('/salon/update-password')) {
-      urlObj.pathname = '/salon/update-password';
-      resetUrl = urlObj.toString();
-      console.log("Korrigerad resetUrl i emailTemplate:", resetUrl);
-    }
-  } catch (e) {
-    console.error("Kunde inte korrigera URL:", e);
   }
 
   return `

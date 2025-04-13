@@ -79,18 +79,40 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Generera en återställningslänk med token
-    const { data: resetData, error: resetError } = await supabase.auth.resetPasswordForEmail(
-      data.email,
-      {
-        redirectTo: resetUrl,
-      }
-    );
+    // Generera en token för användarens email, men skicka INTE Supabase-mejlet
+    // Vi använder admin-API:et för att skapa en återställningstoken utan att skicka mejl
+    const { data: userData, error: userError } = await supabase
+      .auth
+      .admin
+      .generateLink({
+        type: "recovery",
+        email: data.email,
+        options: {
+          redirectTo: resetUrl
+        }
+      });
     
-    if (resetError) {
-      console.error("Fel vid generering av återställningslänk:", resetError);
+    if (userError) {
+      console.error("Fel vid generering av återställningslänk:", userError);
       return new Response(
-        JSON.stringify({ error: "Kunde inte generera återställningslänk" }),
+        JSON.stringify({ 
+          error: "Kunde inte generera återställningslänk", 
+          details: userError 
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    
+    if (!userData || !userData.properties || !userData.properties.action_link) {
+      console.error("Ingen action_link genererades:", userData);
+      return new Response(
+        JSON.stringify({ 
+          error: "Kunde inte generera återställningslänk", 
+          details: "Ingen action_link genererades" 
+        }),
         { 
           status: 500, 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -98,10 +120,12 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    console.log("Återställningslänk genererad");
-
-    // Skicka e-post med Resend
-    const emailResponse = await sendResetPasswordEmail(data.email, resetUrl);
+    // Extrahera token från den genererade länken
+    const actionLink = userData.properties.action_link;
+    console.log("Återställningslänk genererad:", actionLink);
+    
+    // Skicka e-post med vår anpassade mall via Resend
+    const emailResponse = await sendResetPasswordEmail(data.email, actionLink);
 
     return new Response(
       JSON.stringify({ 

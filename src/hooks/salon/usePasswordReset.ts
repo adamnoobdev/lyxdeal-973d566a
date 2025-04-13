@@ -8,7 +8,7 @@ export const usePasswordReset = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Funktion för att skicka lösenordsåterställning via Supabase
+  // Funktion för att skicka lösenordsåterställning via vår edge-funktion
   const resetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -36,8 +36,7 @@ export const usePasswordReset = () => {
       console.log("Miljöberoende omdirigerings-URL:", redirectUrl);
       console.log("Aktuell miljö är produktion:", isProduction);
       
-      // Vi använder ENDAST vår anpassade edge function för återställning
-      // Detta förhindrar dubbla mejl från att skickas
+      // Använd vår anpassade edge-funktion för att både generera token och skicka mejl
       try {
         const response = await supabase.functions.invoke("reset-password", {
           body: {
@@ -47,8 +46,8 @@ export const usePasswordReset = () => {
         });
 
         if (response.error) {
-          toast.error("Ett problem uppstod. Försök igen senare.");
           console.error("Fel vid anrop av reset-password funktionen:", response.error);
+          toast.error("Ett problem uppstod. Försök igen senare.");
           setLoading(false);
           return;
         }
