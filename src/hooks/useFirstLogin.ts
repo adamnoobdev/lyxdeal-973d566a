@@ -1,65 +1,71 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/hooks/useSession";
+import { useSession } from "./useSession";
 
 export const useFirstLogin = () => {
-  const { session, user } = useSession();
   const [isFirstLogin, setIsFirstLogin] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { session, user } = useSession();
 
   useEffect(() => {
-    const checkFirstLogin = async () => {
-      if (!user?.id) {
-        setIsFirstLogin(false);
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if we've already determined this in the current session
-      const localStatusKey = `salon_first_login_${user.id}`;
-      const localStatus = localStorage.getItem(localStatusKey);
-      
-      if (localStatus === 'false') {
-        console.log('First login already handled according to localStorage');
-        setIsFirstLogin(false);
+    const checkFirstLoginStatus = async () => {
+      if (!session || !user) {
+        setIsFirstLogin(null);
         setIsLoading(false);
         return;
       }
 
       try {
-        const { data, error } = await supabase
-          .from("salon_user_status")
-          .select("first_login")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (error) throw error;
+        const userId = user.id;
         
-        // If no row found or first_login is true, consider it first login
-        const isFirst = !data || data.first_login === true;
-        console.log('First login status from database:', isFirst);
-        setIsFirstLogin(isFirst);
+        // Kontrollera om vi redan har en cachad status i localStorage
+        const cachedStatus = localStorage.getItem(`salon_first_login_${userId}`);
         
-        // Store the result in localStorage to avoid checking again in this session
-        if (!isFirst) {
-          localStorage.setItem(localStatusKey, 'false');
+        if (cachedStatus === 'false') {
+          console.log('Using cached first login status: false');
+          setIsFirstLogin(false);
+          setIsLoading(false);
+          return;
         }
-      } catch (error) {
-        console.error("Fel vid kontroll av första inloggning:", error);
-        // If something goes wrong, assume it's not first login
+        
+        console.log('Checking first login status from database for user:', userId);
+        
+        // Om ingen cachad status finns eller den inte är 'false', kontrollera databasen
+        const { data, error } = await supabase
+          .from('salon_user_status')
+          .select('first_login')
+          .eq('user_id', userId)
+          .maybeSingle();
+          
+        if (error) {
+          console.error('Error fetching first login status:', error);
+          // Standardvärde är false om det uppstår ett fel
+          setIsFirstLogin(false);
+        } else if (data) {
+          console.log('First login status from database:', data.first_login);
+          setIsFirstLogin(data.first_login);
+          
+          // Uppdatera cache om det inte är första inloggningen
+          if (data.first_login === false) {
+            localStorage.setItem(`salon_first_login_${userId}`, 'false');
+          }
+        } else {
+          // Om ingen data hittades, anta att det är första inloggningen
+          console.log('No first login status found, assuming first login');
+          setIsFirstLogin(true);
+        }
+      } catch (err) {
+        console.error('Unexpected error checking first login status:', err);
+        // Standardvärde är false om det uppstår ett fel
         setIsFirstLogin(false);
-        localStorage.setItem(localStatusKey, 'false');
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkFirstLogin();
-  }, [user]);
+    checkFirstLoginStatus();
+  }, [session, user]);
 
-  return {
-    isFirstLogin,
-    isLoading
-  };
+  return { isFirstLogin, isLoading };
 };
