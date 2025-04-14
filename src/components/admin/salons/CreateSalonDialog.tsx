@@ -1,16 +1,16 @@
-
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { SalonForm } from "./SalonForm";
 import { useState, useEffect, useRef } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Mail } from "lucide-react";
+import { Copy, Check, Mail, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface CreateSalonResponse {
@@ -114,45 +114,42 @@ export const CreateSalonDialog = ({
     }
   };
 
-  // Controlled close function to prevent UI freeze
   const handleClose = () => {
+    console.log("[CreateSalonDialog] Attempting to close dialog");
+    
+    // Prevent closing during submission
     if (isSubmitting) {
       console.log("[CreateSalonDialog] Cannot close during submission");
       return;
     }
     
-    console.log("[CreateSalonDialog] Starting controlled close sequence");
-    safeSetState(setIsClosing, true);
-    
-    // Clear any existing timeout
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-    }
-    
-    // Set new timeout
-    closeTimeoutRef.current = setTimeout(() => {
-      console.log("[CreateSalonDialog] Executing close callback");
-      onClose();
-      safeSetState(setPassword, null);
-      
-      setTimeout(() => {
-        if (isMountedRef.current) {
-          console.log("[CreateSalonDialog] Resetting closing state");
-          safeSetState(setIsClosing, false);
-        }
-      }, 100);
-    }, 200);
+    // Reset state before closing
+    setPassword(null);
+    onClose();
   };
 
   return (
     <Dialog 
-      open={isOpen && !isClosing} 
+      open={isOpen} 
       onOpenChange={(open) => {
-        console.log("[CreateSalonDialog] Dialog open state changed to:", open, "submitting:", isSubmitting);
-        if (!open && !isSubmitting) handleClose();
+        if (!open) {
+          handleClose();
+        }
       }}
     >
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-3 sm:p-4 md:p-6">
+      <DialogContent 
+        className="max-w-2xl max-h-[90vh] overflow-y-auto p-3 sm:p-4 md:p-6"
+        // Add explicit close button with clear focus and hover states
+        closeButton={
+          <DialogClose 
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+            onClick={handleClose}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Stäng</span>
+          </DialogClose>
+        }
+      >
         <DialogHeader>
           <DialogTitle>Skapa ny salong</DialogTitle>
           <DialogDescription>
