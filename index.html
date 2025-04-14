@@ -1,13 +1,12 @@
-
 <!doctype html>
 <html lang="sv">
   <head>
     <meta charset="UTF-8" />
-    <!-- Uppdaterade favicon länkar med explicit shortcut icon för Google -->
-    <link rel="shortcut icon" href="/lovable-uploads/0e80675f-f706-4102-8802-f5e0ae81a95f.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/lovable-uploads/0e80675f-f706-4102-8802-f5e0ae81a95f.png" />
-    <link rel="icon" type="image/png" href="/lovable-uploads/0e80675f-f706-4102-8802-f5e0ae81a95f.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/lovable-uploads/0e80675f-f706-4102-8802-f5e0ae81a95f.png" />
+    <!-- Updated favicon links with the new icon URL -->
+    <link rel="shortcut icon" href="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" />
+    <link rel="icon" type="image/png" href="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="https://gmqeqhlhqhyrjquzhuzg.supabase.co/storage/v1/object/public/assets/24x-mini-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#9333ea" />
     <meta name="language" content="sv" />
@@ -21,25 +20,25 @@
     
     <!-- Geo-targeting script -->
     <script>
-      // Funktion för att kontrollera och omdirigera användare baserat på geografisk plats
+      // Function for checking and redirecting users based on geographic location
       function checkGeoLocation() {
         try {
-          // Försök hämta besökarens land från time zone
+          // Try to get the visitor's country from the time zone
           const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
           const isSwedishTimezone = timezone === 'Europe/Stockholm';
           
-          // Spara resultat i sessionStorage för att undvika upprepade kontroller
+          // Save the result in sessionStorage to avoid repeated checks
           sessionStorage.setItem('isSwedishVisitor', isSwedishTimezone);
           
-          // Om användaren inte är från Sverige och inte på redirected-sidan
+          // If the user is not from Sweden and not on the redirected page
           if (!isSwedishTimezone && !window.location.href.includes('redirect.html')) {
-            // Spara nuvarande URL för att kunna återkomma
+            // Save the current URL to return to later
             localStorage.setItem('originalUrl', window.location.href);
             
-            // Endast omdirigera om användaren inte explicit har valt att fortsätta
+            // Only redirect if the user has not explicitly allowed access
             if (!sessionStorage.getItem('userAllowedAccess')) {
               console.log('Redirecting non-Swedish visitor to info page');
-              // Kommentera bort faktisk omdirigering för testning
+              // Comment out the actual redirect for testing
               // window.location.href = '/redirect.html';
             }
           }
@@ -48,17 +47,17 @@
         }
       }
       
-      // Välj om du vill aktivera geo-kontroll
-      const enableGeoCheck = false; // Sätt till true för att aktivera
+      // Choose whether to enable geo-checking
+      const enableGeoCheck = false; // Set to true to enable
       if (enableGeoCheck) {
-        // Kör kontrollen när sidan laddar
+        // Run the check when the page loads
         if (!sessionStorage.getItem('geoChecked')) {
           checkGeoLocation();
           sessionStorage.setItem('geoChecked', 'true');
         }
       }
       
-      // Konfigurera dataLayer för GTM innan GTM-scriptet laddas
+      // Configure dataLayer for GTM before the GTM script loads
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         'analytics_storage': 'denied',
@@ -76,7 +75,7 @@
     })(window,document,'script','dataLayer','GTM-KT69WMZF');</script>
     <!-- End Google Tag Manager -->
     
-    <!-- Strukturerad data för sökmotoroptimering -->
+    <!-- Structured data for SEO optimization -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
