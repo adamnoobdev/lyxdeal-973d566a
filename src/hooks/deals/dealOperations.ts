@@ -1,9 +1,12 @@
+
 import { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { Deal } from "@/components/admin/types";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { FormValues } from "@/components/deal-form/schema";
 import { deleteDeal as deleteFromDb } from "@/utils/deal/queries/deleteDeal";
+import { updateDeal as updateFromDb } from "@/utils/deal/queries/updateDeal";
+import { toggleDealActive } from "@/utils/deal/queries/toggleActive";
 
 export const deleteDeal = async (
   deal: Deal | null,
@@ -107,7 +110,7 @@ export const updateDeal = async (
     };
     
     console.log("Updating deal with values:", updateValues);
-    await updateSalonDeal(deal.id, updateValues);
+    await updateFromDb(values, deal.id);
     
     if (isMountedRef.current) {
       toast.success("Erbjudandet har uppdaterats");
@@ -130,8 +133,8 @@ export const updateDeal = async (
         requires_discount_code: values.requires_discount_code
       };
       
-      setDeals(prevDeals => prevDeals.map(deal => 
-        deal.id === deal.id ? updatedDeal : deal
+      setDeals(prevDeals => prevDeals.map(d => 
+        d.id === deal.id ? updatedDeal : d
       ));
       setEditingDeal(null);
     }
@@ -156,7 +159,7 @@ export const toggleActive = async (
   
   try {
     console.log(`Toggling active state for deal ID: ${deal.id}, current: ${deal.is_active}`);
-    await toggleDealActiveStatus(deal.id, !deal.is_active);
+    await toggleDealActive(deal);
     
     if (isMountedRef.current) {
       toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktivt' : 'inaktivt'}`);
