@@ -43,8 +43,18 @@ export const createSalonData = async (values: any) => {
     valuesToSend.subscriptionType = values.subscriptionType || "monthly";
     console.log("Using subscription plan:", valuesToSend.subscriptionPlan, "type:", valuesToSend.subscriptionType);
     
+    // Hantera slutdatum för prenumeration
+    if (values.skipSubscription && values.subscriptionEndDate) {
+      console.log("Using custom end date for subscription:", values.subscriptionEndDate);
+      valuesToSend.current_period_end = new Date(values.subscriptionEndDate);
+    } else if (values.skipSubscription) {
+      // Standardslutdatum (10 år framåt) om inget annat anges
+      valuesToSend.current_period_end = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
+      console.log("Using default long-term end date:", valuesToSend.current_period_end);
+    }
+    
     // Clean up fields we don't want to send to the edge function
-    const { street, postalCode, city, fullAddress, ...cleanValues } = valuesToSend;
+    const { street, postalCode, city, fullAddress, subscriptionEndDate, ...cleanValues } = valuesToSend;
     
     console.log("Creating salon with processed values:", cleanValues);
     

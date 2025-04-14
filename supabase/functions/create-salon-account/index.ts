@@ -16,6 +16,7 @@ interface CreateSalonRequest {
   skipSubscription?: boolean; // Flag to indicate no subscription needed
   subscriptionPlan?: string;  // Added field for subscription plan
   subscriptionType?: string;  // Added field for subscription type (monthly/yearly)
+  current_period_end?: Date;  // Added field för prenumerationsslutet
 }
 
 serve(async (req) => {
@@ -74,9 +75,9 @@ serve(async (req) => {
     }
 
     // Get request body
-    const { name, email, phone, address, skipSubscription, subscriptionPlan, subscriptionType }: CreateSalonRequest = await req.json();
+    const { name, email, phone, address, skipSubscription, subscriptionPlan, subscriptionType, current_period_end }: CreateSalonRequest = await req.json();
     
-    console.log("Request body:", { name, email, phone, address, skipSubscription, subscriptionPlan, subscriptionType });
+    console.log("Request body:", { name, email, phone, address, skipSubscription, subscriptionPlan, subscriptionType, current_period_end });
 
     // Check if a user with this email already exists
     const { data: existingUsers, error: existingUserError } = await supabaseClient
@@ -137,13 +138,24 @@ serve(async (req) => {
     
     // If we're skipping subscription or adding a specific subscription plan directly
     if (skipSubscription) {
-      // For skipped subscriptions, set as active with a far future end date
-      // but CRUCIALLY, still maintain the subscription_plan field
+      // For skipped subscriptions, set as active with a specific end date eller en lång period om inget slutdatum anges
+      let periodEnd;
+      
+      if (current_period_end) {
+        // Använd det angivna slutdatumet
+        periodEnd = new Date(current_period_end);
+        console.log("Using provided end date:", periodEnd);
+      } else {
+        // Fallback till 10 år framåt om inget datum anges
+        periodEnd = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
+        console.log("Using default 10-year end date:", periodEnd);
+      }
+      
       Object.assign(salonData, {
         status: "active", 
         subscription_plan: finalSubscriptionPlan, // ALWAYS set this
         subscription_type: subscriptionType || "monthly",
-        current_period_end: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000), // 10 years in the future
+        current_period_end: periodEnd,
         skip_subscription: true // Explicit field to mark as skipped subscription
       });
     } else if (subscriptionPlan) {

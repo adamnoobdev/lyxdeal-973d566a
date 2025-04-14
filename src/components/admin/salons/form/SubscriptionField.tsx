@@ -1,12 +1,18 @@
+
 import { FormField, FormItem, FormControl, FormDescription } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Calendar as CalendarIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface SubscriptionFieldProps {
   form: UseFormReturn<any>;
@@ -16,6 +22,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
   const skipSubscription = form.watch("skipSubscription");
   const subscriptionPlan = form.watch("subscriptionPlan");
   const subscriptionType = form.watch("subscriptionType");
+  const subscriptionEndDate = form.watch("subscriptionEndDate");
   const [initialLoad, setInitialLoad] = useState(true);
   
   useEffect(() => {
@@ -34,12 +41,21 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
       form.setValue("subscriptionType", "monthly", { shouldValidate: true, shouldDirty: true });
     }
     
+    // Om skipSubscription är true och det inte finns något slutdatum, sätt ett standardslutdatum
+    if (skipSubscription && !subscriptionEndDate) {
+      // Sätt standardslutdatum till ett år från idag
+      const defaultEndDate = new Date();
+      defaultEndDate.setFullYear(defaultEndDate.getFullYear() + 1);
+      form.setValue("subscriptionEndDate", defaultEndDate, { shouldValidate: true, shouldDirty: true });
+    }
+    
     console.log("SubscriptionField effect running with values:", {
       skipSubscription,
       plan: subscriptionPlan || "Not set (will default to Baspaket)",
-      type: subscriptionType || "Not set (will default to monthly)"
+      type: subscriptionType || "Not set (will default to monthly)",
+      endDate: subscriptionEndDate || "Not set"
     });
-  }, [skipSubscription, subscriptionPlan, subscriptionType, form, initialLoad]);
+  }, [skipSubscription, subscriptionPlan, subscriptionType, subscriptionEndDate, form, initialLoad]);
 
   return (
     <div className="space-y-5 w-full">
@@ -59,6 +75,13 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
                   const formValues = form.getValues();
                   form.setValue("subscriptionPlan", formValues.subscriptionPlan || "Baspaket", { shouldDirty: true });
                   form.setValue("subscriptionType", formValues.subscriptionType || "monthly", { shouldDirty: true });
+                  
+                  // Om skipSubscription är aktiverad, sätt ett standardslutdatum
+                  if (checked) {
+                    const defaultEndDate = new Date();
+                    defaultEndDate.setFullYear(defaultEndDate.getFullYear() + 1);
+                    form.setValue("subscriptionEndDate", defaultEndDate, { shouldDirty: true });
+                  }
                 }}
               />
             </FormControl>
@@ -151,11 +174,60 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
       )}
 
       {skipSubscription && (
-        <Alert variant="default" className="bg-blue-50 border-blue-200 w-full">
-          <AlertCircle className="h-4 w-4 text-blue-500" />
-          <AlertDescription className="text-blue-700 text-sm">
-            För administrativt skapade salonger är betalningsintervall inte relevant, 
-            eftersom inga betalningsuppgifter finns och prenumerationen inte har något slutdatum.
+        <FormField
+          control={form.control}
+          name="subscriptionEndDate"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <Label className="text-sm font-medium">Slutdatum för prenumeration</Label>
+              <div className="flex flex-col">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full h-10 px-3 border border-input bg-background text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(new Date(field.value), "yyyy-MM-dd")
+                        ) : (
+                          "Välj ett datum"
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) => {
+                        console.log("Subscription end date selected:", date);
+                        form.setValue("subscriptionEndDate", date, { shouldDirty: true });
+                      }}
+                      disabled={(date) => date < new Date()} // Inaktivera datum i det förflutna
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormDescription className="text-xs mt-1">
+                  Välj när prenumerationen ska upphöra. Efter detta datum kommer salongen behöva förnya sin prenumeration.
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+      )}
+
+      {skipSubscription && !form.watch("subscriptionEndDate") && (
+        <Alert variant="destructive" className="mb-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-sm">
+            Du måste välja ett slutdatum för prenumerationen. 
+            Detta datum avgör när salongen behöver förnya sin prenumeration.
           </AlertDescription>
         </Alert>
       )}

@@ -1,86 +1,102 @@
 
-import { format } from "date-fns";
-import { SubscriptionInfo, SUBSCRIPTION_PLANS } from "./types";
+export const SUBSCRIPTION_PLANS = {
+  "Baspaket": {
+    title: "Baspaket",
+    description: "Grundläggande funktioner för din salong",
+    features: [
+      "Upp till 5 erbjudanden samtidigt",
+      "Grundläggande statistik",
+      "Kundhantering",
+      "E-poststöd"
+    ],
+    limitDeals: 5,
+    price: 299,
+    yearly_price: 2990
+  },
+  "Premium": {
+    title: "Premium",
+    description: "Utökad funktionalitet för växande verksamheter",
+    features: [
+      "Upp till 15 erbjudanden samtidigt",
+      "Utökad statistik och rapporter",
+      "Prioriterat e-poststöd",
+      "Reklamfri upplevelse"
+    ],
+    limitDeals: 15,
+    price: 599,
+    yearly_price: 5990
+  },
+  "Ultimate": {
+    title: "Ultimate",
+    description: "Allt för den seriösa salongsverksamheten",
+    features: [
+      "Obegränsat antal erbjudanden",
+      "Avancerad statistik och insikter",
+      "Prioriterat telefonsupport",
+      "Kundundersökningsverktyg",
+      "Reklamfri upplevelse"
+    ],
+    limitDeals: 999999, // Essentially unlimited
+    price: 999,
+    yearly_price: 9990
+  }
+};
 
-export const formatDate = (dateStr: string | null): string => {
-  if (!dateStr) return "N/A";
+/**
+ * Kontrollera om ett datum har passerats
+ * @param dateString Ett datumformat som kan tolkas av Date-konstruktorn
+ * @returns true om datumet har passerats, annars false
+ */
+export const isPastDate = (dateString?: string | null): boolean => {
+  if (!dateString) return false;
   
   try {
-    const date = new Date(dateStr);
-    return format(date, "yyyy-MM-dd");
+    const date = new Date(dateString);
+    const now = new Date();
+    return date < now;
   } catch (error) {
-    console.error("Error formatting date:", error);
-    return "Ogiltigt datum";
+    console.error("Error parsing date:", error);
+    return false;
   }
 };
 
-export const getSubscriptionTypeLabel = (type: string | null | undefined): string => {
-  if (!type) return "Månadsvis";
+/**
+ * Kontrollera om en prenumeration är aktiv baserat på status och utgångsdatum
+ * @param status Prenumerationsstatus
+ * @param expirationDate Utgångsdatum för prenumerationen
+ * @returns true om prenumerationen är aktiv, annars false
+ */
+export const isSubscriptionActive = (status?: string, expirationDate?: string | null): boolean => {
+  // Prenumerationen måste ha status "active"
+  if (status !== "active") return false;
   
-  switch (type.toLowerCase()) {
-    case "yearly":
-      return "Årsvis";
-    case "monthly":
-    default:
-      return "Månadsvis";
-  }
+  // Om det inte finns något utgångsdatum, anta att prenumerationen är aktiv
+  if (!expirationDate) return true;
+  
+  // Kontrollera om utgångsdatumet har passerats
+  return !isPastDate(expirationDate);
 };
 
-export const getCurrentPrice = (planTitle: string, subscriptionType: string | null | undefined): number => {
-  const plan = SUBSCRIPTION_PLANS[planTitle || "Baspaket"];
-  if (!plan) return 0;
+/**
+ * Beräknar antal dagar kvar till ett specifikt datum
+ * @param dateString Ett datumformat som kan tolkas av Date-konstruktorn
+ * @returns Antal dagar kvar eller null om datumet inte kan tolkas
+ */
+export const daysUntil = (dateString?: string | null): number | null => {
+  if (!dateString) return null;
   
-  return subscriptionType?.toLowerCase() === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
-};
-
-export const getPlanDetails = (planTitle: string): {
-  dealCount: number;
-  allowsDiscountCodes: boolean;
-  features: string[];
-} => {
-  const planKey = planTitle in SUBSCRIPTION_PLANS ? planTitle : "Baspaket";
-  const plan = SUBSCRIPTION_PLANS[planKey];
-  
-  return {
-    dealCount: plan.dealCount || 1,
-    allowsDiscountCodes: planKey !== "Baspaket", // Only Premium allows discount codes
-    features: plan.features
-  };
-};
-
-// Evaluate if a salon can create a new deal based on their subscription
-export const canCreateDeal = (
-  subscriptionInfo: SubscriptionInfo, 
-  activeDealsCount: number
-): { allowed: boolean; reason?: string } => {
-  // First check if subscription is active
-  if (subscriptionInfo.status !== 'active') {
-    return {
-      allowed: false,
-      reason: "Din prenumeration är inte aktiv. Vänligen aktivera din prenumeration för att skapa erbjudanden."
-    };
+  try {
+    const date = new Date(dateString);
+    const now = new Date();
+    
+    // Om datumet redan har passerats, returnera 0
+    if (date < now) return 0;
+    
+    const diffTime = date.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  } catch (error) {
+    console.error("Error calculating days until:", error);
+    return null;
   }
-  
-  // Check if subscription is being canceled
-  if (subscriptionInfo.cancel_at_period_end) {
-    const endDate = subscriptionInfo.current_period_end 
-      ? formatDate(subscriptionInfo.current_period_end) 
-      : "slutdatum";
-      
-    return {
-      allowed: true, // Still allowed until end date
-      reason: `OBS: Din prenumeration är uppsagd och avslutas ${endDate}. Du kan fortsätta använda funktionerna tills dess.`
-    };
-  }
-  
-  // Check deal limits based on plan
-  const planDetails = getPlanDetails(subscriptionInfo.plan_title);
-  if (activeDealsCount >= planDetails.dealCount) {
-    return {
-      allowed: false,
-      reason: `Du har redan nått maxgränsen på ${planDetails.dealCount} aktiva erbjudanden för din prenumerationsnivå.`
-    };
-  }
-  
-  return { allowed: true };
 };

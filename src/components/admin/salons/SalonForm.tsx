@@ -32,6 +32,8 @@ const formSchema = z.object({
   subscriptionType: z.string().min(1, {
     message: "Betalningsintervall krävs"
   }),
+  // Lägg till validering för subscriptionEndDate
+  subscriptionEndDate: z.date().optional(),
   termsAccepted: z.boolean().optional().default(true),
   privacyAccepted: z.boolean().optional().default(true)
 });
@@ -58,6 +60,12 @@ export const SalonForm = forwardRef(({
   // Use external isSubmitting state if provided, otherwise use internal state
   const isSubmitting = externalIsSubmitting !== undefined ? externalIsSubmitting : internalIsSubmitting;
 
+  // Parse subscriptionEndDate if it's a string
+  let parsedInitialValues = { ...initialValues };
+  if (initialValues?.subscriptionEndDate && typeof initialValues.subscriptionEndDate === 'string') {
+    parsedInitialValues.subscriptionEndDate = new Date(initialValues.subscriptionEndDate);
+  }
+
   // Combine initialValues with default values
   const defaultValues = {
     name: "",
@@ -71,9 +79,10 @@ export const SalonForm = forwardRef(({
     skipSubscription: false,
     subscriptionPlan: "Baspaket",
     subscriptionType: "monthly",
+    subscriptionEndDate: undefined,
     termsAccepted: true,
     privacyAccepted: true,
-    ...initialValues
+    ...parsedInitialValues
   };
 
   const form = useForm({
@@ -93,7 +102,8 @@ export const SalonForm = forwardRef(({
     console.log("SalonForm initialized with values:", form.getValues());
     console.log("Subscription values:", {
       plan: form.getValues("subscriptionPlan"),
-      type: form.getValues("subscriptionType")
+      type: form.getValues("subscriptionType"),
+      endDate: form.getValues("subscriptionEndDate")
     });
 
     // Monitor dirty state
@@ -136,12 +146,24 @@ export const SalonForm = forwardRef(({
         console.log("SalonForm submit: Missing subscriptionType, using default");
         values.subscriptionType = "monthly";
       }
+      
+      // Kontrollera och hantera slutdatumet
+      if (values.skipSubscription && values.subscriptionEndDate) {
+        console.log("SalonForm submit: Using custom end date for subscription:", values.subscriptionEndDate);
+      } else if (values.skipSubscription) {
+        // Sätt standardslutdatum om det saknas för prenumerationer utan betalningskrav
+        const defaultEndDate = new Date();
+        defaultEndDate.setFullYear(defaultEndDate.getFullYear() + 1);
+        values.subscriptionEndDate = defaultEndDate;
+        console.log("SalonForm submit: Setting default end date for skipSubscription:", values.subscriptionEndDate);
+      }
 
       // Debug to see values submitted to backend
       console.log("SalonForm submitting with values:", values);
       console.log("Final subscription values in submission:", {
         plan: values.subscriptionPlan,
-        type: values.subscriptionType
+        type: values.subscriptionType,
+        endDate: values.subscriptionEndDate
       });
       await onSubmit(values);
     } catch (error) {

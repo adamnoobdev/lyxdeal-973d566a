@@ -59,7 +59,8 @@ export const updateSalonData = async (values: any, id: number) => {
     console.log("Setting subscription values in updateValues:", {
       plan: values.subscriptionPlan,
       type: values.subscriptionType,
-      skipSubscription: values.skipSubscription
+      skipSubscription: values.skipSubscription,
+      endDate: values.subscriptionEndDate
     });
     
     updateValues.subscription_plan = values.subscriptionPlan || "Baspaket";
@@ -70,8 +71,13 @@ export const updateSalonData = async (values: any, id: number) => {
       updateValues.skip_subscription = values.skipSubscription;
       console.log("Setting skip_subscription to:", values.skipSubscription);
       
-      // If skipSubscription is true, set a long-term expiration date
-      if (values.skipSubscription) {
+      // Om vi har skipSubscription och ett anpassat slutdatum
+      if (values.skipSubscription && values.subscriptionEndDate) {
+        updateValues.current_period_end = new Date(values.subscriptionEndDate);
+        console.log("Setting custom end date for subscription:", updateValues.current_period_end);
+      }
+      // Om vi har skipSubscription utan anpassat slutdatum
+      else if (values.skipSubscription) {
         // Set expiration date 10 years in the future for administrative salons
         updateValues.current_period_end = new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000);
         console.log("Setting long future date for current_period_end due to skipSubscription=true");
@@ -140,7 +146,7 @@ export const updateSalonData = async (values: any, id: number) => {
       // Double-verify if the subscription plan was actually updated by fetching salon
       const { data: verifyData, error: verifyError } = await supabase
         .from("salons")
-        .select("id, name, subscription_plan, subscription_type, skip_subscription")
+        .select("id, name, subscription_plan, subscription_type, skip_subscription, current_period_end")
         .eq("id", id)
         .single();
         
@@ -165,6 +171,13 @@ export const updateSalonData = async (values: any, id: number) => {
           }
         } else {
           console.warn("skip_subscription column might not exist in the database");
+        }
+        
+        // Verifiera även slutdatumet
+        if (values.skipSubscription && values.subscriptionEndDate) {
+          const expectedDate = new Date(values.subscriptionEndDate).toISOString();
+          const actualDate = verifyData.current_period_end ? new Date(verifyData.current_period_end).toISOString() : null;
+          console.log("End date verification:", { expected: expectedDate, actual: actualDate });
         }
       }
     } catch (verifyErr) {
