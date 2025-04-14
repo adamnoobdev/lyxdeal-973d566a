@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { SalonDealsError } from '@/components/admin/salons/SalonDealsError';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DealsTable } from '@/components/admin/deals/DealsTable';
-import { Deal } from '@/components/admin/types';
+import { Deal } from '@/types/deal';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
@@ -68,7 +68,6 @@ export const SalonDealsContent: React.FC<SalonDealsContentProps> = ({
                   onEdit={onEdit}
                   onDelete={onDelete}
                   isSalonView={true}
-                  showActionButtons={true}
                   actionButtonsConfig={{
                     edit: true,
                     delete: true,

@@ -130,7 +130,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
         featured: values.featured,
         salon_id: values.salon_id,
         is_active: values.is_active,
-        quantity_left: parseInt(values.quantity) || 10,
+        quantity_left: parseInt(values.quantity || '10'),
         is_free: isFree, // Set is_free based on original discounted price
         status: dealStatus, // Använd dealStatus som kan ha ändrats
         booking_url: values.booking_url || null, // Lägg till bokningslänk

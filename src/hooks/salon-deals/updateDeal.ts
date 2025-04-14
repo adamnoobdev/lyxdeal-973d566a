@@ -102,8 +102,8 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
       return false;
     }
     
-    // Always set status to pending for review after updates
-    const newStatus = existingDeal.status === 'rejected' ? 'pending' : existingDeal.status;
+    // Always set status to pending for review after updates if it was previously rejected
+    const newStatus = values.status || (existingDeal.status === 'rejected' ? 'pending' : existingDeal.status);
     
     const { error } = await supabase
       .from('deals')
@@ -120,10 +120,11 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
         featured: values.featured,
         status: newStatus,
         is_free: isFree, // Set is_free flag for free deals
-        quantity_left: parseInt(values.quantity) || 10,
+        quantity_left: parseInt(values.quantity || '10'),
         booking_url: values.booking_url || null,
         requires_discount_code: requiresDiscountCode,
         is_active: values.is_active !== undefined ? values.is_active : true,
+        rejection_message: newStatus === 'pending' ? null : undefined // Clear rejection message if deal is resubmitted
       })
       .eq('id', dealId);
 
@@ -133,7 +134,7 @@ export const updateDeal = async (values: FormValues, dealId: number): Promise<bo
       return false;
     }
     
-    const statusMessage = newStatus === 'pending' ? 
+    const statusMessage = newStatus === 'pending' && existingDeal.status === 'rejected' ? 
       "Erbjudande uppdaterat! Det kommer att granskas igen av en administratör." :
       "Erbjudande uppdaterat!";
     

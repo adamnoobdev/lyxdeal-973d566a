@@ -188,7 +188,13 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       
       // Om vi är en salong som skickar in ett erbjudande efter avslag, sätt tillbaka status till pending
       if (editingDeal && editingDeal.status === 'rejected') {
-        values.status = 'pending';
+        // Add the status field to values object if it doesn't exist
+        if (!values.status) {
+          values.status = 'pending';
+        } else {
+          values.status = 'pending';
+        }
+        
         toast.info("Ditt korrigerade erbjudande kommer att granskas på nytt", {
           description: "Du får en notifikation när det har blivit godkänt eller nekat"
         });
@@ -278,6 +284,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
             
             // Återställ status till pending om erbjudandet var avslaget
             if (editingDeal && editingDeal.status === 'rejected') {
+              // Add the status field to values object if it doesn't exist
               values.status = 'pending';
             }
             

@@ -29,6 +29,13 @@ interface DealsTableProps {
   isGeneratingCodes?: boolean;
   onPreview?: (deal: Deal) => void;
   isSalonView?: boolean;
+  showActionButtons?: boolean;
+  actionButtonsConfig?: {
+    edit?: boolean;
+    delete?: boolean;
+    preview?: boolean;
+    viewCodes?: boolean;
+  };
   renderActions?: (deal: Deal) => {
     onPreview?: () => void;
     onEdit?: () => void;
@@ -47,7 +54,9 @@ export const DealsTable: React.FC<DealsTableProps> = ({
   isGeneratingCodes,
   renderActions,
   onPreview,
-  isSalonView
+  isSalonView,
+  showActionButtons,
+  actionButtonsConfig
 }) => {
   const [sortBy, setSortBy] = useState<keyof Deal | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -162,6 +171,7 @@ export const DealsTable: React.FC<DealsTableProps> = ({
                 onGenerateDiscountCodes={onGenerateDiscountCodes ? () => onGenerateDiscountCodes(deal) : undefined}
                 isGeneratingCodes={isGeneratingCodes}
                 showViewCodesForSalon={isSalonView}
+                actionButtonsConfig={actionButtonsConfig}
               />
             </TableCell>
           </TableRow>
