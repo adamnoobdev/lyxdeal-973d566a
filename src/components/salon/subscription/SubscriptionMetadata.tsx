@@ -37,7 +37,7 @@ export const SubscriptionMetadata = ({ subscriptionInfo }: SubscriptionMetadataP
           Nästa fakturadatum
         </p>
         <p className="font-semibold text-base">
-          {formatDate(subscriptionInfo.current_period_end)}
+          {formatDate(subscriptionInfo.current_period_end || '')}
         </p>
       </div>
       

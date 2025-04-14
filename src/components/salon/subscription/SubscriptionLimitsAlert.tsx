@@ -15,7 +15,8 @@ export const SubscriptionLimitsAlert = ({
 }: SubscriptionLimitsAlertProps) => {
   if (!subscriptionInfo) return null;
   
-  const { allowed, reason } = canCreateDeal(subscriptionInfo, activeDealsCount);
+  const result = canCreateDeal(subscriptionInfo, activeDealsCount);
+  const { allowed, reason } = result;
   
   // If allowed with no warnings, show the standard limits info
   if (allowed && !reason) {
