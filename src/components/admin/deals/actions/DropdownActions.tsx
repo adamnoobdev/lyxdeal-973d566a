@@ -1,120 +1,121 @@
 
-import { useState } from "react";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
-import { BaseActionProps, DiscountCodeActionProps, ToggleActiveActionProps } from "./types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Eye, MoreHorizontal, Pencil, Power, Ticket, TicketCheck, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { DiscountCodeActionProps, ToggleActiveActionProps } from "./types";
 
-type DropdownActionsProps = BaseActionProps & ToggleActiveActionProps & DiscountCodeActionProps & {
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onPreview?: () => void;
-  isActive?: boolean;
-};
-
-export const DropdownActions = ({
+export function DropdownActions({
   onEdit,
   onDelete,
-  onPreview,
   onToggleActive,
   isActive,
+  onPreview,
   onViewDiscountCodes,
   onGenerateDiscountCodes,
   isGeneratingCodes,
-}: DropdownActionsProps) => {
-  const [isTogglingActive, setIsTogglingActive] = useState(false);
-
-  const handleToggleActive = async () => {
-    if (!onToggleActive || isTogglingActive) return;
-    
-    setIsTogglingActive(true);
-    try {
-      await onToggleActive();
-    } finally {
-      setIsTogglingActive(false);
-    }
-  };
-
-  const handleGenerateDiscountCodes = async () => {
-    if (!onGenerateDiscountCodes || isGeneratingCodes) return;
-    await onGenerateDiscountCodes();
-  };
+  actionButtonsConfig = {
+    edit: true,
+    delete: true,
+    preview: true,
+    viewCodes: true
+  }
+}: ToggleActiveActionProps & DiscountCodeActionProps) {
+  const [open, setOpen] = useState(false);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="bg-white border-gray-300 hover:bg-gray-50 focus:ring-primary text-sm"
+        <Button
+          variant="ghost"
+          className="h-8 w-8 p-0 data-[state=open]:bg-muted"
         >
-          Åtgärder <ChevronDown className="ml-1 h-4 w-4" />
+          <span className="sr-only">Öppna meny</span>
+          <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-white shadow-md border-gray-200 min-w-[180px] z-[9999]">
-        <DropdownMenuLabel className="font-medium text-gray-700">Alternativ</DropdownMenuLabel>
-        
-        {onPreview && (
-          <DropdownMenuItem onClick={onPreview} className="text-sm hover:bg-gray-100">
-            Förhandsgranska
-          </DropdownMenuItem>
-        )}
-        
-        {onEdit && (
-          <DropdownMenuItem onClick={onEdit} className="text-sm hover:bg-gray-100">
-            Redigera
-          </DropdownMenuItem>
-        )}
-        
-        {onDelete && (
-          <DropdownMenuItem 
-            onClick={onDelete} 
-            className="text-sm text-destructive font-medium hover:bg-destructive-50"
+      <DropdownMenuContent align="end" className="w-[160px]">
+        {onPreview && actionButtonsConfig.preview && (
+          <DropdownMenuItem
+            onClick={() => {
+              onPreview();
+              setOpen(false);
+            }}
           >
-            Ta bort
+            <Eye className="mr-2 h-4 w-4" />
+            <span>Förhandsgranska</span>
           </DropdownMenuItem>
         )}
-        
-        {onToggleActive && (
-          <DropdownMenuItem 
-            onClick={handleToggleActive} 
-            disabled={isTogglingActive} 
-            className={isActive ? 
-              "text-sm text-destructive font-medium hover:bg-destructive-50" : 
-              "text-sm text-success-500 font-medium hover:bg-success-50"
-            }
+        {onEdit && actionButtonsConfig.edit && (
+          <DropdownMenuItem
+            onClick={() => {
+              onEdit();
+              setOpen(false);
+            }}
           >
-            {isActive ? "Inaktivera" : "Aktivera"}
+            <Pencil className="mr-2 h-4 w-4" />
+            <span>Redigera</span>
           </DropdownMenuItem>
         )}
-
-        {(onViewDiscountCodes || onGenerateDiscountCodes) && <DropdownMenuSeparator />}
-        
-        {onViewDiscountCodes && (
-          <DropdownMenuItem 
-            onClick={onViewDiscountCodes}
-            className="text-sm text-primary font-medium hover:bg-primary-50"
+        {onViewDiscountCodes && actionButtonsConfig.viewCodes && (
+          <DropdownMenuItem
+            onClick={() => {
+              onViewDiscountCodes();
+              setOpen(false);
+            }}
           >
-            Visa rabattkoder
+            <Ticket className="mr-2 h-4 w-4" />
+            <span>Visa rabattkoder</span>
           </DropdownMenuItem>
         )}
-        
         {onGenerateDiscountCodes && (
-          <DropdownMenuItem 
-            onClick={handleGenerateDiscountCodes}
+          <DropdownMenuItem
+            onClick={() => {
+              onGenerateDiscountCodes();
+              setOpen(false);
+            }}
             disabled={isGeneratingCodes}
-            className="text-sm text-primary font-medium hover:bg-primary-50"
           >
-            {isGeneratingCodes ? "Genererar..." : "Generera nya koder"}
+            <TicketCheck className="mr-2 h-4 w-4" />
+            <span>Skapa rabattkoder</span>
           </DropdownMenuItem>
+        )}
+        {onToggleActive && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                onToggleActive();
+                setOpen(false);
+              }}
+            >
+              <Power className="mr-2 h-4 w-4" />
+              <span>{isActive ? "Inaktivera" : "Aktivera"}</span>
+            </DropdownMenuItem>
+          </>
+        )}
+        {onDelete && actionButtonsConfig.delete && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                onDelete();
+                setOpen(false);
+              }}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              <span>Ta bort</span>
+            </DropdownMenuItem>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}

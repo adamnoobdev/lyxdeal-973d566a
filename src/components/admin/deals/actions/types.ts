@@ -5,6 +5,12 @@ export interface BaseActionProps {
   title?: string;
   onEdit?: () => void;
   onPreview?: () => void;
+  actionButtonsConfig?: {
+    edit?: boolean;
+    delete?: boolean;
+    preview?: boolean;
+    viewCodes?: boolean;
+  };
 }
 
 export interface ToggleActiveActionProps extends BaseActionProps {

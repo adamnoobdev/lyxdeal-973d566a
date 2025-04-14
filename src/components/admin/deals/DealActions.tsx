@@ -13,6 +13,12 @@ interface DealActionsProps {
   onGenerateDiscountCodes?: () => Promise<void>;
   isGeneratingCodes?: boolean;
   showViewCodesForSalon?: boolean;
+  actionButtonsConfig?: {
+    edit?: boolean;
+    delete?: boolean;
+    preview?: boolean;
+    viewCodes?: boolean;
+  };
 }
 
 export const DealActions = ({
@@ -26,7 +32,8 @@ export const DealActions = ({
   onViewDiscountCodes,
   onGenerateDiscountCodes,
   isGeneratingCodes,
-  showViewCodesForSalon = false
+  showViewCodesForSalon = false,
+  actionButtonsConfig
 }: DealActionsProps) => {
   
   // For approval/rejection actions
@@ -50,6 +57,7 @@ export const DealActions = ({
         onPreview={onPreview}
         onViewDiscountCodes={onViewDiscountCodes}
         onDelete={onDelete}
+        actionButtonsConfig={actionButtonsConfig}
       />
     );
   }
@@ -65,6 +73,7 @@ export const DealActions = ({
       onViewDiscountCodes={onViewDiscountCodes}
       onGenerateDiscountCodes={onGenerateDiscountCodes}
       isGeneratingCodes={isGeneratingCodes}
+      actionButtonsConfig={actionButtonsConfig}
     />
   );
 };

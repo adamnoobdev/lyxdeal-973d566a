@@ -1,63 +1,83 @@
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
-import { BaseActionProps } from "./types";
+import { Eye, FileEdit, Ticket, Trash2 } from "lucide-react";
+import { BaseActionProps } from './types';
 
-interface SalonViewActionProps extends BaseActionProps {
+interface SalonViewActionsProps extends BaseActionProps {
+  onEdit?: () => void;
+  onPreview?: () => void;
   onViewDiscountCodes?: () => void;
   onDelete?: () => void;
+  actionButtonsConfig?: {
+    edit?: boolean;
+    delete?: boolean;
+    preview?: boolean;
+    viewCodes?: boolean;
+  };
 }
 
-export const SalonViewActions = ({
-  onEdit,
-  onPreview,
-  onViewDiscountCodes,
-  onDelete
-}: SalonViewActionProps) => {
+export function SalonViewActions({ 
+  onEdit, 
+  onPreview, 
+  onViewDiscountCodes, 
+  onDelete,
+  actionButtonsConfig = {
+    edit: true,
+    delete: true,
+    preview: false,
+    viewCodes: true
+  }
+}: SalonViewActionsProps) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="bg-white border-gray-300 hover:bg-gray-50 focus:ring-primary text-sm"
+    <div className="flex flex-wrap gap-1 justify-end">
+      {actionButtonsConfig.edit && onEdit && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onEdit}
+          className="flex items-center gap-1 whitespace-nowrap text-[10px] xs:text-xs px-1.5 py-0.5 h-6 xs:h-7 min-h-0 min-w-0"
         >
-          Åtgärder <ChevronDown className="ml-1 h-4 w-4" />
+          <FileEdit className="h-3 w-3" />
+          <span className="hidden xs:inline">Redigera</span>
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-white shadow-md border-gray-200 min-w-[180px] z-[9999]">
-        <DropdownMenuLabel className="font-medium text-gray-700">Alternativ</DropdownMenuLabel>
-        
-        {onPreview && (
-          <DropdownMenuItem onClick={onPreview} className="text-sm hover:bg-gray-100">
-            Förhandsgranska
-          </DropdownMenuItem>
-        )}
-        
-        {onEdit && (
-          <DropdownMenuItem onClick={onEdit} className="text-sm hover:bg-gray-100">
-            Redigera
-          </DropdownMenuItem>
-        )}
-        
-        {onViewDiscountCodes && (
-          <DropdownMenuItem 
-            onClick={onViewDiscountCodes} 
-            className="text-sm text-primary font-medium hover:bg-primary-50"
-          >
-            Visa rabattkoder
-          </DropdownMenuItem>
-        )}
-
-        {onDelete && (
-          <DropdownMenuItem 
-            onClick={onDelete} 
-            className="text-sm text-destructive font-medium hover:bg-destructive-50"
-          >
-            Ta bort
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      )}
+      
+      {actionButtonsConfig.preview && onPreview && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPreview}
+          className="flex items-center gap-1 whitespace-nowrap text-[10px] xs:text-xs px-1.5 py-0.5 h-6 xs:h-7 min-h-0 min-w-0"
+        >
+          <Eye className="h-3 w-3" />
+          <span className="hidden xs:inline">Förhandsgranska</span>
+        </Button>
+      )}
+      
+      {actionButtonsConfig.viewCodes && onViewDiscountCodes && (
+        <Button
+          variant="outline" 
+          size="sm"
+          onClick={onViewDiscountCodes}
+          className="flex items-center gap-1 whitespace-nowrap text-[10px] xs:text-xs px-1.5 py-0.5 h-6 xs:h-7 min-h-0 min-w-0 border-primary/60 text-primary hover:bg-primary/5"
+        >
+          <Ticket className="h-3 w-3" />
+          <span className="hidden xs:inline">Rabattkoder</span>
+        </Button>
+      )}
+      
+      {actionButtonsConfig.delete && onDelete && (
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={onDelete}
+          className="flex items-center gap-1 whitespace-nowrap text-[10px] xs:text-xs px-1.5 py-0.5 h-6 xs:h-7 min-h-0 min-w-0"
+        >
+          <Trash2 className="h-3 w-3" />
+          <span className="hidden xs:inline">Ta bort</span>
+        </Button>
+      )}
+    </div>
   );
-};
+}

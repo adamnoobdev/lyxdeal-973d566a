@@ -1,4 +1,3 @@
-
 import {
   ChevronDown,
   ChevronUp,
@@ -29,7 +28,6 @@ interface DealsTableProps {
   isGeneratingCodes?: boolean;
   onPreview?: (deal: Deal) => void;
   isSalonView?: boolean;
-  showActionButtons?: boolean;
   actionButtonsConfig?: {
     edit?: boolean;
     delete?: boolean;
@@ -55,7 +53,6 @@ export const DealsTable: React.FC<DealsTableProps> = ({
   renderActions,
   onPreview,
   isSalonView,
-  showActionButtons,
   actionButtonsConfig
 }) => {
   const [sortBy, setSortBy] = useState<keyof Deal | null>(null);

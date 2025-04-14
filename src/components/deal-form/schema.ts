@@ -29,6 +29,7 @@ export const formSchema = z.object({
   quantity: z.string().optional(),
   booking_url: z.string().optional(),
   requires_discount_code: z.boolean().default(false).optional(),
+  status: z.enum(['pending', 'approved', 'rejected']).optional(),
 }).refine((data) => {
   // BookingUrl är obligatoriskt när requires_discount_code är false
   if (!data.requires_discount_code && (!data.booking_url || data.booking_url.trim() === "")) {

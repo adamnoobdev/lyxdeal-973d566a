@@ -92,6 +92,12 @@ export const SalonDealsContent: React.FC<SalonDealsContentProps> = ({
               onEdit={onEdit}
               onDelete={onDelete}
               isSalonView={true}
+              actionButtonsConfig={{
+                edit: true,
+                delete: true,
+                preview: false,
+                viewCodes: false
+              }}
             />
           </CardContent>
         </Card>
@@ -111,6 +117,12 @@ export const SalonDealsContent: React.FC<SalonDealsContentProps> = ({
               onGenerateDiscountCodes={onGenerateDiscountCodes}
               isGeneratingCodes={isGeneratingCodes}
               isSalonView={true}
+              actionButtonsConfig={{
+                edit: true,
+                delete: true,
+                preview: false,
+                viewCodes: true
+              }}
             />
           ) : (
             <p className="text-sm text-muted-foreground py-3">Du har inga godkända erbjudanden ännu.</p>
