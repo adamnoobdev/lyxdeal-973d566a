@@ -37,11 +37,11 @@ export const MapboxAddressInput = ({
   // If token is still loading, show loading indicator
   if (isTokenLoading) {
     return (
-      <div className="relative">
+      <div className="relative w-full">
         <Input 
           value="Laddar adresssökning..." 
           disabled 
-          className={className}
+          className={`w-full ${className}`}
         />
         <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
       </div>
@@ -49,8 +49,8 @@ export const MapboxAddressInput = ({
   }
 
   return (
-    <div className="relative">
-      <div className="relative">
+    <div className="relative w-full">
+      <div className="relative w-full">
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           id={id}
@@ -58,7 +58,7 @@ export const MapboxAddressInput = ({
           value={inputValue}
           onChange={handleInputChange}
           required={required}
-          className={`pl-9 pr-9 ${className} ${error ? 'border-destructive' : ''}`}
+          className={`pl-9 pr-9 w-full ${className} ${error ? 'border-destructive' : ''}`}
         />
         
         {/* Validity indicator */}

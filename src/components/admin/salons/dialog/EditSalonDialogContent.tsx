@@ -28,8 +28,8 @@ export const EditSalonDialogContent: React.FC<EditSalonDialogContentProps> = ({
   onSubmit
 }) => {
   return (
-    <>
-      <DialogHeader className="px-1">
+    <div className="max-w-full w-full overflow-hidden">
+      <DialogHeader className="px-0 sm:px-1">
         <DialogTitle className="text-lg sm:text-xl">Redigera salong</DialogTitle>
         <DialogDescription className="text-xs sm:text-sm">
           Uppdatera information om salongen. Fyll i adressinformation för korrekt visning på kartan och hantera prenumerationsplan och godkännanden av villkor.
@@ -43,7 +43,7 @@ export const EditSalonDialogContent: React.FC<EditSalonDialogContentProps> = ({
         onSubscriptionUpdated={onSubscriptionUpdated}
       />
       
-      <div className="w-full px-1">
+      <div className="w-full">
         <SalonForm 
           onSubmit={onSubmit} 
           initialValues={initialValues} 
@@ -52,6 +52,6 @@ export const EditSalonDialogContent: React.FC<EditSalonDialogContentProps> = ({
           ref={formRef}
         />
       </div>
-    </>
+    </div>
   );
 };

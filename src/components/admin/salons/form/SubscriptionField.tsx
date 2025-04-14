@@ -1,4 +1,3 @@
-
 import { FormField, FormItem, FormControl, FormDescription } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
@@ -14,22 +13,17 @@ interface SubscriptionFieldProps {
 }
 
 export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
-  // Watch skipSubscription to react to changes
   const skipSubscription = form.watch("skipSubscription");
   const subscriptionPlan = form.watch("subscriptionPlan");
   const subscriptionType = form.watch("subscriptionType");
   const [initialLoad, setInitialLoad] = useState(true);
   
-  // Ensure that when skipSubscription is toggled, we still maintain valid subscription values
   useEffect(() => {
-    // First time, just load the values
     if (initialLoad) {
       setInitialLoad(false);
       return;
     }
     
-    // Always ensure valid subscription values regardless of skipSubscription
-    // This is critical for admin-created salons to have proper plan restrictions
     if (!subscriptionPlan) {
       console.log("SubscriptionField: Setting default subscription plan to Baspaket");
       form.setValue("subscriptionPlan", "Baspaket", { shouldValidate: true, shouldDirty: true });
@@ -40,7 +34,6 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
       form.setValue("subscriptionType", "monthly", { shouldValidate: true, shouldDirty: true });
     }
     
-    // Additional debugging to track values
     console.log("SubscriptionField effect running with values:", {
       skipSubscription,
       plan: subscriptionPlan || "Not set (will default to Baspaket)",
@@ -49,7 +42,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
   }, [skipSubscription, subscriptionPlan, subscriptionType, form, initialLoad]);
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-5 w-full">
       <FormField
         control={form.control}
         name="skipSubscription"
@@ -61,19 +54,17 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
                 onCheckedChange={(checked) => {
                   console.log("Skip subscription checkbox changed to:", checked);
                   
-                  // Use form's setValue method with shouldDirty option to mark the form as changed
                   form.setValue("skipSubscription", !!checked, { shouldDirty: true });
                   
-                  // Also mark these fields as dirty to ensure they get submitted
                   const formValues = form.getValues();
                   form.setValue("subscriptionPlan", formValues.subscriptionPlan || "Baspaket", { shouldDirty: true });
                   form.setValue("subscriptionType", formValues.subscriptionType || "monthly", { shouldDirty: true });
                 }}
               />
             </FormControl>
-            <div className="space-y-1 leading-none">
-              <Label htmlFor="skipSubscription">Aktivera utan betalningskrav för prenumeration</Label>
-              <FormDescription>
+            <div className="space-y-1 leading-none max-w-full">
+              <Label htmlFor="skipSubscription" className="text-sm">Aktivera utan betalningskrav för prenumeration</Label>
+              <FormDescription className="text-xs">
                 Om detta är markerat, kommer salongen att aktiveras utan betalningskrav för prenumeration.
                 Använd endast för administrativa salonger eller specialfall.
               </FormDescription>
@@ -84,7 +75,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
 
       {skipSubscription && (
         <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm w-full">
-          <p className="text-amber-800">
+          <p className="text-amber-800 text-sm">
             Salongen kommer att aktiveras <strong>utan betalningskrav</strong> men med vald prenumerationsplan nedan.
             <br />
             <strong>OBS:</strong> Välj prenumerationsplan noggrant eftersom det avgör vilka funktioner salongen får tillgång till.
@@ -92,7 +83,6 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
         </div>
       )}
 
-      {/* Add subscription plan field that's always visible */}
       <FormField
         control={form.control}
         name="subscriptionPlan"
@@ -102,7 +92,6 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
             <Select 
               onValueChange={(value) => {
                 console.log("Subscription plan selected:", value);
-                // Mark as changed to ensure it's saved
                 form.setValue("subscriptionPlan", value, { shouldValidate: true, shouldDirty: true });
               }} 
               value={field.value || "Baspaket"}
@@ -128,7 +117,6 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
         )}
       />
 
-      {/* Only show the subscription type if skipSubscription is false */}
       {!skipSubscription && (
         <FormField
           control={form.control}
@@ -139,7 +127,6 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
               <Select 
                 onValueChange={(value) => {
                   console.log("Subscription type selected:", value);
-                  // Mark as changed to ensure it's saved
                   form.setValue("subscriptionType", value, { shouldValidate: true, shouldDirty: true });
                 }} 
                 value={field.value || "monthly"}
@@ -166,7 +153,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
       {skipSubscription && (
         <Alert variant="default" className="bg-blue-50 border-blue-200 w-full">
           <AlertCircle className="h-4 w-4 text-blue-500" />
-          <AlertDescription className="text-blue-700">
+          <AlertDescription className="text-blue-700 text-sm">
             För administrativt skapade salonger är betalningsintervall inte relevant, 
             eftersom inga betalningsuppgifter finns och prenumerationen inte har något slutdatum.
           </AlertDescription>

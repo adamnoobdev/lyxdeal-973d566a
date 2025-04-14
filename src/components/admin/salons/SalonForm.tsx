@@ -153,7 +153,7 @@ export const SalonForm = forwardRef(({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 max-w-full overflow-hidden">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5 w-full max-w-full overflow-hidden">
         <div className="space-y-4 w-full">
           <BasicInfoFields form={form} />
         </div>
@@ -179,7 +179,7 @@ export const SalonForm = forwardRef(({
           <SubscriptionField form={form} />
         </div>
         
-        <div className="flex justify-end pt-2 w-full">
+        <div className="flex justify-end w-full">
           <Button type="submit" disabled={isSubmitting || !form.formState.isDirty} className="w-full sm:w-auto px-6">
             {isSubmitting ? "Sparar..." : isEditing ? "Uppdatera" : "Skapa"}
           </Button>

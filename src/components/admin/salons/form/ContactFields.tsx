@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SUBSCRIPTION_PLANS } from "@/components/salon/subscription/types";
-import { MapboxAddressInput } from "@/components/common/MapboxAddressInput";
-import type { AddressParts } from "@/components/common/MapboxAddressInput";
+import { MapboxAddressInput } from "@/components/common/mapbox/MapboxAddressInput";
+import type { AddressParts } from "@/components/common/mapbox/types";
 import { useEffect } from "react";
 
 interface ContactFieldsProps {
@@ -57,10 +57,10 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
         control={form.control}
         name="phone"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-full">
             <FormLabel className="text-sm font-medium">Telefon</FormLabel>
             <FormControl>
-              <Input placeholder="Ange telefonnummer..." {...field} value={field.value || ''} className="w-full" />
+              <Input placeholder="Ange telefonnummer..." {...field} value={field.value || ''} className="w-full h-10" />
             </FormControl>
             <FormMessage className="text-xs" />
           </FormItem>
@@ -71,7 +71,7 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
         control={form.control}
         name="address"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-full">
             <FormLabel className="text-sm font-medium">Gatuadress</FormLabel>
             <FormControl>
               <MapboxAddressInput
@@ -80,7 +80,7 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
                 id="address"
                 placeholder="Sök efter adress..."
                 error={!!form.formState.errors.address}
-                className="w-full"
+                className="w-full h-10"
               />
             </FormControl>
             <FormMessage className="text-xs" />

@@ -14,20 +14,20 @@ export const PasswordField = ({ form }: PasswordFieldProps) => {
       name="password"
       render={({ field }) => (
         <FormItem className="w-full">
-          <FormLabel>Lösenord</FormLabel>
+          <FormLabel className="text-sm font-medium">Lösenord</FormLabel>
           <FormControl>
             <Input
               type="password"
               placeholder="Ange lösenord..."
               {...field}
               value={field.value || ""}
-              className="w-full"
+              className="w-full h-10"
             />
           </FormControl>
-          <FormDescription>
+          <FormDescription className="text-xs mt-1">
             Om du fyller i detta fält kommer ett nytt lösenord att sättas. Lämna tomt för att behålla nuvarande lösenord.
           </FormDescription>
-          <FormMessage />
+          <FormMessage className="text-xs" />
         </FormItem>
       )}
     />

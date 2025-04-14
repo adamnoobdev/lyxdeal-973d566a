@@ -17,7 +17,7 @@ export const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
           <FormItem className="w-full">
             <FormLabel className="text-sm font-medium">Namn</FormLabel>
             <FormControl>
-              <Input placeholder="Ange namn..." {...field} className="w-full" />
+              <Input placeholder="Ange namn..." {...field} className="w-full h-10" />
             </FormControl>
             <FormMessage className="text-xs" />
           </FormItem>
@@ -31,7 +31,7 @@ export const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
           <FormItem className="w-full">
             <FormLabel className="text-sm font-medium">E-post</FormLabel>
             <FormControl>
-              <Input placeholder="Ange e-post..." {...field} className="w-full" />
+              <Input placeholder="Ange e-post..." {...field} className="w-full h-10" />
             </FormControl>
             <FormMessage className="text-xs" />
           </FormItem>
