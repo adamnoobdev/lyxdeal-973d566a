@@ -112,14 +112,28 @@ export const deleteDeal = async (
   setDeletingDeal: React.Dispatch<React.SetStateAction<Deal | null>>,
   isDeletingDeal: React.MutableRefObject<boolean>,
   isMountedRef: React.MutableRefObject<boolean>
-) => {
+): Promise<boolean> => {
   if (!deletingDeal || isDeletingDeal.current) {
-    return;
+    return false;
   }
 
   try {
     isDeletingDeal.current = true;
-    console.log("[deleteDeal] Deleting deal ID:", deletingDeal.id);
+    console.log("[dealOperations-deleteDeal] Deleting deal ID:", deletingDeal.id);
+
+    // First delete any associated discount codes
+    const { error: codesError } = await supabase
+      .from('discount_codes')
+      .delete()
+      .eq('deal_id', deletingDeal.id);
+    
+    if (codesError) {
+      console.error("[dealOperations-deleteDeal] Error deleting discount codes:", codesError);
+      // Continue with deal deletion even if code deletion fails
+    }
+    
+    // Add a small delay to ensure discount codes deletion is complete
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Delete the deal
     const { error } = await supabase
@@ -128,9 +142,9 @@ export const deleteDeal = async (
       .eq('id', deletingDeal.id);
 
     if (error) {
-      console.error("[deleteDeal] Error deleting deal:", error);
+      console.error("[dealOperations-deleteDeal] Error deleting deal:", error);
       toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
-      return;
+      return false;
     }
 
     // Update the deals state by removing the deleted deal
@@ -140,9 +154,11 @@ export const deleteDeal = async (
     }
 
     toast.success("Erbjudandet har tagits bort");
+    return true;
   } catch (error) {
-    console.error("[deleteDeal] Error in delete flow:", error);
+    console.error("[dealOperations-deleteDeal] Error in delete flow:", error);
     toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
+    return false;
   } finally {
     isDeletingDeal.current = false;
   }

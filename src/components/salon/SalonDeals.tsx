@@ -138,8 +138,10 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       
       if (success) {
         addLog("Deal deleted successfully");
-        await dealManagement.refetch();
         toast.success("Erbjudandet har tagits bort");
+        
+        // Immediately update local state to reflect deletion before refetching
+        dealManagement.refetch();
       } else {
         addLog("Delete operation returned false");
         toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
@@ -161,7 +163,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
   const handleGenerateDiscountCodes = async (deal: any, quantity: number): Promise<void> => {
     try {
       setIsGeneratingCodes(true);
-      addLog(`Generating ${quantity} discount codes for deal ${deal.id}`);
+      addLog(`Generating ${quantity} discount codes for deal ID ${deal.id}`);
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
       await dealManagement.refetch(); // Refresh data
     } catch (error) {
@@ -255,7 +257,7 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
         }}
         onViewDiscountCodes={deal => {
           addLog(`View codes requested for deal: ${deal.id}`);
-          setViewingCodesForDeal(deal)
+          setViewingCodesForDeal(deal);
         }}
         onGenerateDiscountCodes={handleGenerateDiscountCodes}
         isGeneratingCodes={isGeneratingCodes}

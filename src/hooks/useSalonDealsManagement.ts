@@ -43,15 +43,24 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
   }, [fetchSalonDeals]);
 
   // Handler for deleting a deal
-  const handleDeleteDeal = useCallback(async () => {
-    await deleteDeal(
+  const handleDeleteDeal = useCallback(async (): Promise<boolean> => {
+    const result = await deleteDeal(
       deletingDeal,
       setDeals,
       setDeletingDeal,
       isDeletingDeal,
       isMountedRef
     );
-  }, [deletingDeal]);
+    
+    // Make sure to refetch data after deletion to ensure UI is updated
+    if (result) {
+      setTimeout(() => {
+        refetch();
+      }, 300);
+    }
+    
+    return result;
+  }, [deletingDeal, refetch]);
 
   // Handler for updating a deal - now returns Promise<boolean | void>
   const handleUpdate = useCallback(async (values: FormValues): Promise<boolean | void> => {
@@ -97,13 +106,13 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     
     // Only load deals if salonId has changed
     if (salonId && previousSalonId.current !== salonId) {
-      console.log(`SalonId changed from ${previousSalonId.current} to ${salonId}, reloading deals`);
+      console.log(`[useSalonDealsManagement] SalonId changed from ${previousSalonId.current} to ${salonId}, reloading deals`);
       previousSalonId.current = salonId;
       fetchSalonDeals();
     }
     
     return () => {
-      console.log("useSalonDealsManagement unmounting");
+      console.log("[useSalonDealsManagement] unmounting");
       isMountedRef.current = false;
     };
   }, [salonId, fetchSalonDeals]);

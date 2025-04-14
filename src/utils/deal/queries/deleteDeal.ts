@@ -41,7 +41,6 @@ export const deleteDeal = async (dealId: number): Promise<boolean> => {
     }
     
     console.log("[deleteDeal] Deal deleted successfully");
-    toast.success("Erbjudandet har tagits bort");
     return true;
   } catch (error) {
     console.error("[deleteDeal] Unexpected error:", error);
