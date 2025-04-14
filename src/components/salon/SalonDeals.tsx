@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SalonDealsContent } from '@/components/salon/deals/SalonDealsContent';
 import { SalonDealsDialogs } from '@/components/salon/deals/SalonDealsDialogs';
@@ -138,8 +139,10 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       if (success) {
         addLog("Deal deleted successfully");
         await dealManagement.refetch();
+        toast.success("Erbjudandet har tagits bort");
       } else {
         addLog("Delete operation returned false");
+        toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
       }
     } catch (error) {
       console.error("[SalonDeals] Error deleting deal:", error);
@@ -182,13 +185,33 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
       }
       
       values.salon_id = finalSalonId;
-      addLog(`Creating deal with salon ID: ${finalSalonId}`);
       
-      const success = await createDeal(values);
+      // Om vi är en salong som skickar in ett erbjudande efter avslag, sätt tillbaka status till pending
+      if (editingDeal && editingDeal.status === 'rejected') {
+        values.status = 'pending';
+        toast.info("Ditt korrigerade erbjudande kommer att granskas på nytt", {
+          description: "Du får en notifikation när det har blivit godkänt eller nekat"
+        });
+      }
+      
+      addLog(`Creating/updating deal with salon ID: ${finalSalonId}`);
+      
+      let success;
+      
+      if (editingDeal) {
+        // Uppdatera befintligt erbjudande
+        success = await dealManagement.handleUpdate(values);
+      } else {
+        // Skapa nytt erbjudande
+        success = await createDeal(values);
+      }
       
       if (success) {
-        addLog("Deal created successfully");
-        toast.success("Erbjudandet har skapats!");
+        addLog("Deal created/updated successfully");
+        toast.success(editingDeal 
+          ? "Erbjudandet har uppdaterats!" 
+          : "Erbjudandet har skapats!"
+        );
         await dealManagement.refetch();
         
         safeTimeout(() => {
@@ -196,14 +219,14 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
         }, 300);
         return true;
       } else {
-        console.error("[SalonDeals] Failed to create deal");
-        toast.error("Det gick inte att skapa erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
+        console.error("[SalonDeals] Failed to create/update deal");
+        toast.error("Det gick inte att spara erbjudandet. Kontrollera att alla fält är korrekt ifyllda.");
         setIsSubmitting(false);
         return false;
       }
     } catch (error) {
-      console.error("[SalonDeals] Error creating deal:", error);
-      toast.error("Ett fel uppstod när erbjudandet skulle skapas");
+      console.error("[SalonDeals] Error creating/updating deal:", error);
+      toast.error("Ett fel uppstod när erbjudandet skulle sparas");
       setIsSubmitting(false);
       return false;
     }
@@ -252,7 +275,13 @@ export const SalonDeals: React.FC<SalonDealsProps> = ({
           try {
             addLog("Update deal requested");
             setIsSubmitting(true);
-            const success = await dealManagement.handleUpdate(values);
+            
+            // Återställ status till pending om erbjudandet var avslaget
+            if (editingDeal && editingDeal.status === 'rejected') {
+              values.status = 'pending';
+            }
+            
+            const success = await handleCreateDeal(values);
             
             safeTimeout(() => {
               if (isMountedRef.current) {

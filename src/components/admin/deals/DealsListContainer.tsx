@@ -55,7 +55,7 @@ export const DealsListContainer = () => {
     isGeneratingCodes
   } = useDealsListActions(refetch);
 
-  const { handleStatusChange } = usePendingDealsFunctions(refetch);
+  const { handleStatusChange, RejectionDialog } = usePendingDealsFunctions(refetch);
 
   const {
     discountCodesDialog,
@@ -143,6 +143,7 @@ export const DealsListContainer = () => {
         onDelete={handleDeleteSubmit}
       />
 
+      <RejectionDialog />
       {discountCodesDialog}
     </div>
   );

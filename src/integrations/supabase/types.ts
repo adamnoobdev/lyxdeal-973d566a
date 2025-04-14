@@ -25,6 +25,7 @@ export type Database = {
           is_free: boolean | null
           original_price: number
           quantity_left: number
+          rejection_message: string | null
           requires_discount_code: boolean | null
           salon_id: number | null
           status: string
@@ -48,6 +49,7 @@ export type Database = {
           is_free?: boolean | null
           original_price: number
           quantity_left?: number
+          rejection_message?: string | null
           requires_discount_code?: boolean | null
           salon_id?: number | null
           status?: string
@@ -71,6 +73,7 @@ export type Database = {
           is_free?: boolean | null
           original_price?: number
           quantity_left?: number
+          rejection_message?: string | null
           requires_discount_code?: boolean | null
           salon_id?: number | null
           status?: string
@@ -183,6 +186,39 @@ export type Database = {
           id?: string
           interests?: string[] | null
           name?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          entity_id: number | null
+          id: number
+          message: string
+          read: boolean | null
+          related_entity: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id?: number | null
+          id?: number
+          message: string
+          read?: boolean | null
+          related_entity?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: number | null
+          id?: number
+          message?: string
+          read?: boolean | null
+          related_entity?: string | null
+          title?: string
+          user_id?: string
         }
         Relationships: []
       }

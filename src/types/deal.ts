@@ -26,6 +26,7 @@ export interface Deal {
   booking_url?: string;
   requires_discount_code?: boolean;
   salon_rating?: number;
+  rejection_message?: string;
 }
 
 export type DealFormData = {
@@ -44,4 +45,5 @@ export type DealFormData = {
   quantity?: string;
   booking_url?: string;
   requires_discount_code?: boolean;
+  status?: 'pending' | 'approved' | 'rejected';
 }

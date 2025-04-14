@@ -14,7 +14,7 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
     // Hämtar befintligt erbjudande för att kontrollera requires_discount_code
     const { data: existingDeal, error: fetchError } = await supabase
       .from('deals')
-      .select('requires_discount_code, salon_id')
+      .select('requires_discount_code, salon_id, status')
       .eq('id', id)
       .single();
       
@@ -110,6 +110,10 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
       return false;
     }
     
+    // Om erbjudandet tidigare var avslaget och nu uppdateras av salongägaren, ändra status till pending och rensa rejection_message
+    const dealStatus = values.status || (existingDeal.status === 'rejected' ? 'pending' : existingDeal.status);
+    const rejectionMessage = dealStatus === 'pending' ? null : undefined; // Sätt till null bara om vi ändrar status till pending
+    
     // Update the deal with all information
     const { error } = await supabase
       .from('deals')
@@ -128,9 +132,10 @@ export const updateDeal = async (values: FormValues, id: number): Promise<boolea
         is_active: values.is_active,
         quantity_left: parseInt(values.quantity) || 10,
         is_free: isFree, // Set is_free based on original discounted price
-        status: 'approved', // Always approve deals,
+        status: dealStatus, // Använd dealStatus som kan ha ändrats
         booking_url: values.booking_url || null, // Lägg till bokningslänk
         requires_discount_code: requiresDiscountCode,
+        rejection_message: rejectionMessage // Rensa rejection_message om vi ändrar status
       })
       .eq('id', id);
 
