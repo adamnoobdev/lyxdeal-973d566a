@@ -2,7 +2,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 import { SubscriptionInfo } from "./types";
-import { isPastDate, formatDate } from "./utils";
+import { formatDate, isPastDate } from "./utils";
 
 interface SubscriptionAlertProps {
   subscriptionInfo: SubscriptionInfo;
