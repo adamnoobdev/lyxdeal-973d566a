@@ -1,5 +1,7 @@
 
-export const SUBSCRIPTION_PLANS = {
+import { SUBSCRIPTION_PLANS } from "./types";
+
+export const SUBSCRIPTION_PLANS_ORIGINAL = {
   "Baspaket": {
     title: "Baspaket",
     description: "Grundläggande funktioner för din salong",
@@ -100,3 +102,116 @@ export const daysUntil = (dateString?: string | null): number | null => {
     return null;
   }
 };
+
+/**
+ * Formatterar ett datum till svenskt format
+ * @param date Datum att formatera
+ * @returns Formaterat datum som sträng
+ */
+export const formatDate = (date: Date | string | null) => {
+  if (!date) return "Okänt datum";
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return dateObj.toLocaleDateString('sv-SE');
+};
+
+/**
+ * Kontrollerar om en salong kan skapa ett nytt erbjudande
+ * @param subscriptionInfo Prenumerationsinformation
+ * @param activeDealsCount Antal aktiva erbjudanden
+ * @returns Objekt med allowed (boolean) och reason (string eller null)
+ */
+export const canCreateDeal = (subscriptionInfo: any, activeDealsCount: number) => {
+  if (!subscriptionInfo || subscriptionInfo.status !== "active") {
+    return { 
+      allowed: false, 
+      reason: "Du behöver en aktiv prenumeration för att skapa erbjudanden."
+    };
+  }
+
+  const planDetails = getPlanDetails(subscriptionInfo.plan_title);
+  
+  if (activeDealsCount >= planDetails.dealCount) {
+    return { 
+      allowed: false, 
+      reason: `Du har nått din gräns på ${planDetails.dealCount} erbjudanden med ditt ${subscriptionInfo.plan_title}. Uppgradera din prenumeration för att skapa fler erbjudanden.`
+    };
+  }
+
+  if (activeDealsCount >= planDetails.dealCount - 1) {
+    return { 
+      allowed: true, 
+      reason: `Varning: Detta är ditt sista tillgängliga erbjudande med ditt ${subscriptionInfo.plan_title}.`
+    };
+  }
+
+  return { allowed: true, reason: null };
+};
+
+/**
+ * Hämtar detaljerad information om en prenumerationsplan
+ * @param planTitle Planens titel
+ * @returns Plandetaljer
+ */
+export const getPlanDetails = (planTitle: string): PlanDetails => {
+  // Default values if plan not found
+  const defaultPlan = {
+    dealCount: 1,
+    allowsDiscountCodes: false,
+    features: []
+  };
+
+  if (!planTitle) return defaultPlan;
+
+  switch (planTitle) {
+    case "Baspaket":
+      return {
+        dealCount: 1,
+        allowsDiscountCodes: false,
+        features: SUBSCRIPTION_PLANS["Baspaket"].features
+      };
+    case "Premiumpaket":
+      return {
+        dealCount: 3,
+        allowsDiscountCodes: true,
+        features: SUBSCRIPTION_PLANS["Premiumpaket"].features
+      };
+    default:
+      return defaultPlan;
+  }
+};
+
+/**
+ * Hämtar aktuellt pris för en prenumerationsplan
+ * @param planTitle Planens titel
+ * @param subscriptionType Typ av prenumeration (monthly/yearly)
+ * @returns Pris som nummer
+ */
+export const getCurrentPrice = (planTitle: string, subscriptionType: string): number => {
+  const plan = SUBSCRIPTION_PLANS[planTitle];
+  if (!plan) return 0;
+  
+  return subscriptionType === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
+};
+
+/**
+ * Returnerar en formaterad etikett för prenumerationstypen
+ * @param subscriptionType Typ av prenumeration
+ * @returns Formaterad etikett
+ */
+export const getSubscriptionTypeLabel = (subscriptionType: string): string => {
+  switch (subscriptionType) {
+    case 'yearly':
+      return 'per år';
+    case 'monthly':
+      return 'per månad';
+    default:
+      return 'per månad';
+  }
+};
+
+// Interface declaration for PlanDetails to avoid TypeScript errors
+interface PlanDetails {
+  dealCount: number;
+  allowsDiscountCodes: boolean;
+  features: string[];
+}

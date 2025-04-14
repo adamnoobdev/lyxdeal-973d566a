@@ -10,6 +10,7 @@ export interface SubscriptionInfo {
   current_period_start: string | null;
   cancel_at_period_end: boolean;
   created_at?: string;
+  expirationDate?: string | null;
 }
 
 export interface PlanDetails {

@@ -43,7 +43,9 @@ export const useSubscriptionData = () => {
             current_period_end: salons.current_period_end,
             current_period_start: null, // Since this column doesn't exist in the database yet
             status: salons.status || 'inactive',
-            cancel_at_period_end: salons.cancel_at_period_end || false
+            cancel_at_period_end: salons.cancel_at_period_end || false,
+            // Map current_period_end to expirationDate for compatibility
+            expirationDate: salons.current_period_end
           });
         } else {
           setError("Ingen salongsdata hittades");

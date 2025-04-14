@@ -1,7 +1,7 @@
 
 import { useElapsedTime } from "./useElapsedTime";
 import { useSubscriptionPolling } from "./useSubscriptionPolling";
-import { formatDate } from "./formatUtils";
+import { formatDate } from "../subscription/formatUtils";
 import { SubscriptionDetailsHook } from "./types";
 
 export const useSubscriptionDetails = (sessionId: string | null): SubscriptionDetailsHook => {
