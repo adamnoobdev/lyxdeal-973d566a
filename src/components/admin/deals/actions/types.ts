@@ -5,6 +5,7 @@ export interface BaseActionProps {
   title?: string;
   onEdit?: () => void;
   onPreview?: () => void;
+  onDelete?: () => void;
   actionButtonsConfig?: {
     edit?: boolean;
     delete?: boolean;
@@ -30,4 +31,5 @@ export interface DiscountCodeActionProps extends BaseActionProps {
   onViewDiscountCodes?: () => void;
   onGenerateDiscountCodes?: () => Promise<void>;
   isGeneratingCodes?: boolean;
+  onDelete?: () => void;
 }

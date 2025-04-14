@@ -11,6 +11,10 @@ import { Eye, MoreHorizontal, Pencil, Power, Ticket, TicketCheck, Trash2 } from 
 import { useState } from "react";
 import { DiscountCodeActionProps, ToggleActiveActionProps } from "./types";
 
+interface DropdownActionsProps extends ToggleActiveActionProps, DiscountCodeActionProps {
+  onDelete?: () => void;
+}
+
 export function DropdownActions({
   onEdit,
   onDelete,
@@ -26,7 +30,7 @@ export function DropdownActions({
     preview: true,
     viewCodes: true
   }
-}: ToggleActiveActionProps & DiscountCodeActionProps) {
+}: DropdownActionsProps) {
   const [open, setOpen] = useState(false);
 
   return (
