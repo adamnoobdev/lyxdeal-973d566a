@@ -125,6 +125,7 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     
     // Create the redirect URL for the password reset link
     const redirectBase = isProduction ? "https://lyxdeal.se" : data.resetUrl;
+    // Use full path instead of just /salon/update-password
     const redirectUrl = new URL("/salon/update-password", redirectBase).href;
     
     console.log("Using redirect URL for password reset:", redirectUrl);

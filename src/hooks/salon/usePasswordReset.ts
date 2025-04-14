@@ -2,12 +2,14 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useEnvironmentDetection } from "@/hooks/auth/useEnvironmentDetection";
 
 export const usePasswordReset = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { isSandboxEnvironment } = useEnvironmentDetection();
 
   // Function to send password reset via our edge function
   const resetPassword = async (e: React.FormEvent) => {
@@ -26,18 +28,12 @@ export const usePasswordReset = () => {
     setLoading(true);
 
     try {
-      // Calculate base URL based on environment
-      const hostname = window.location.hostname;
-      const isProduction = hostname === "lyxdeal.se" || hostname === "www.lyxdeal.se";
-      
       // Use current domain for redirection
-      const domainBase = isProduction 
-        ? "https://lyxdeal.se" 
-        : window.location.origin;
+      const domainBase = window.location.origin;
       
       console.log("Sending password reset request for:", email);
       console.log("Using domain base:", domainBase);
-      console.log("Current environment is production:", isProduction);
+      console.log("Current environment is sandbox:", isSandboxEnvironment());
       
       // Call our edge function
       const { data, error } = await supabase.functions.invoke("reset-password", {
