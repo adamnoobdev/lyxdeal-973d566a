@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom';
 import { Deal } from '@/components/admin/types';
 import { useSalonDealsManagement } from '@/hooks/salon-deals-management';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 export const useSalonDealsState = () => {
   const { salonId: urlSalonId } = useParams<{ salonId?: string }>();
