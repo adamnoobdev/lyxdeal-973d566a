@@ -1,95 +1,84 @@
-
+import { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { Deal } from "@/components/admin/types";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { FormValues } from "@/components/deal-form/schema";
-import { 
-  deleteSalonDeal, 
-  updateSalonDeal, 
-  toggleDealActiveStatus 
-} from "@/utils/dealApiUtils";
-import { supabase } from "@/integrations/supabase/client";
+import { deleteDeal as deleteFromDb } from "@/utils/deal/queries/deleteDeal";
 
 export const deleteDeal = async (
-  deletingDeal: Deal | null, 
-  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
-  setDeletingDeal: (deal: Deal | null) => void,
-  isDeletingDeal: React.MutableRefObject<boolean>,
-  isMountedRef: React.MutableRefObject<boolean>
-): Promise<void> => {
-  if (!deletingDeal || !isMountedRef.current || isDeletingDeal.current) {
-    console.log("Skipping delete: no deal, unmounted, or already deleting");
-    return;
+  deal: Deal | null,
+  setDeals: Dispatch<SetStateAction<Deal[]>>,
+  setDeletingDeal: Dispatch<SetStateAction<Deal | null>>,
+  isDeletingDeal: MutableRefObject<boolean>,
+  isMountedRef: MutableRefObject<boolean>
+): Promise<boolean> => {
+  if (!deal) {
+    console.error("[deleteDeal] No deal provided");
+    return false;
+  }
+
+  if (isDeletingDeal.current) {
+    console.log("[deleteDeal] Already deleting deal, skipping");
+    return false;
   }
 
   try {
     isDeletingDeal.current = true;
-    console.log(`Deleting deal with ID: ${deletingDeal.id}`);
-    
-    // Först tar vi bort alla rabattkoder kopplade till erbjudandet
-    console.log(`Removing discount codes for deal ID: ${deletingDeal.id}`);
-    const { error: discountCodesError } = await supabase
-      .from('discount_codes')
-      .delete()
-      .eq('deal_id', deletingDeal.id);
-      
-    if (discountCodesError) {
-      console.error("Error deleting discount codes:", discountCodesError);
-      // Continue with deal deletion even if code deletion fails
-    } else {
-      console.log(`Successfully removed discount codes for deal ID: ${deletingDeal.id}`);
-    }
-    
-    // Sedan tar vi bort själva erbjudandet
-    const success = await deleteSalonDeal(deletingDeal.id);
+    console.log(`[deleteDeal] Deleting deal: ${deal.id}`);
+
+    const success = await deleteFromDb(deal.id);
     
     if (!success) {
-      throw new Error(`Failed to delete deal with ID: ${deletingDeal.id}`);
+      console.error("[deleteDeal] Failed to delete deal");
+      if (isMountedRef.current) {
+        toast.error("Kunde inte ta bort erbjudandet");
+      }
+      return false;
     }
-    
-    toast.success("Erbjudandet har tagits bort");
-    
+
     if (isMountedRef.current) {
-      // Uppdatera state lokalt för att undvika ytterligare API-anrop
-      setDeals(prevDeals => prevDeals.filter(deal => deal.id !== deletingDeal.id));
+      setDeals(prev => prev.filter(d => d.id !== deal.id));
       setDeletingDeal(null);
+      toast.success("Erbjudandet har tagits bort");
     }
-  } catch (err: any) {
-    console.error("Error deleting deal:", err);
-    toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
-  } finally {
+    
+    return true;
+  } catch (error) {
+    console.error("[deleteDeal] Error:", error);
     if (isMountedRef.current) {
-      isDeletingDeal.current = false;
+      toast.error("Ett fel uppstod när erbjudandet skulle tas bort");
     }
+    return false;
+  } finally {
+    isDeletingDeal.current = false;
   }
 };
 
 export const updateDeal = async (
-  editingDeal: Deal | null,
+  deal: Deal | null,
   values: FormValues,
-  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
-  setEditingDeal: (deal: Deal | null) => void,
-  isUpdatingDeal: React.MutableRefObject<boolean>,
-  isMountedRef: React.MutableRefObject<boolean>
-): Promise<boolean | void> => {
-  if (!editingDeal || !isMountedRef.current || isUpdatingDeal.current) {
+  setDeals: Dispatch<SetStateAction<Deal[]>>,
+  setEditingDeal: Dispatch<SetStateAction<Deal | null>>,
+  isUpdatingDeal: MutableRefObject<boolean>,
+  isMountedRef: MutableRefObject<boolean>
+): Promise<boolean> => {
+  if (!deal || !isMountedRef.current || isUpdatingDeal.current) {
     console.log("Skipping update: no deal, unmounted, or already updating");
-    return;
+    return false;
   }
 
   try {
     isUpdatingDeal.current = true;
-    console.log(`Updating deal with ID: ${editingDeal.id}`);
+    console.log(`Updating deal with ID: ${deal.id}`);
     
-    // Check if discounted price is 0 and explicitly set is_free flag
     const discountedPrice = parseInt(values.discountedPrice) || 0;
     const isFree = discountedPrice === 0;
     
-    // Kontrollera att vi inte försöker aktivera rabattkoder för basic-paket
     if (values.requires_discount_code) {
       const { data: salonData } = await supabase
         .from('salons')
         .select('subscription_plan')
-        .eq('id', editingDeal.salon_id)
+        .eq('id', deal.salon_id)
         .single();
       
       if (salonData?.subscription_plan === 'Baspaket') {
@@ -108,34 +97,33 @@ export const updateDeal = async (
       category: values.category,
       city: values.city,
       featured: values.featured,
-      is_free: isFree, // Explicitly set based on discounted price
-      is_active: values.is_active !== undefined ? values.is_active : editingDeal.is_active,
+      is_free: isFree,
+      is_active: values.is_active !== undefined ? values.is_active : deal.is_active,
       quantity: parseInt(values.quantity) || 10,
       expirationDate: values.expirationDate,
       booking_url: values.booking_url || null,
       requires_discount_code: values.requires_discount_code,
-      salon_id: editingDeal.salon_id
+      salon_id: deal.salon_id
     };
     
     console.log("Updating deal with values:", updateValues);
-    await updateSalonDeal(editingDeal.id, updateValues);
+    await updateSalonDeal(deal.id, updateValues);
     
     if (isMountedRef.current) {
       toast.success("Erbjudandet har uppdaterats");
       
-      // Uppdatera det redigerade erbjudandet lokalt
       const updatedDeal = { 
-        ...editingDeal, 
+        ...deal, 
         title: values.title,
         description: values.description,
         image_url: values.imageUrl,
         original_price: parseInt(values.originalPrice) || 0,
-        discounted_price: isFree ? 0 : discountedPrice, // Store 0 for free deals in local state
+        discounted_price: isFree ? 0 : discountedPrice,
         category: values.category,
         city: values.city,
         featured: values.featured,
         is_free: isFree,
-        is_active: values.is_active !== undefined ? values.is_active : editingDeal.is_active,
+        is_active: values.is_active !== undefined ? values.is_active : deal.is_active,
         quantity_left: parseInt(values.quantity) || 10,
         expiration_date: values.expirationDate.toISOString(),
         booking_url: values.booking_url || null,
@@ -143,7 +131,7 @@ export const updateDeal = async (
       };
       
       setDeals(prevDeals => prevDeals.map(deal => 
-        deal.id === editingDeal.id ? updatedDeal : deal
+        deal.id === deal.id ? updatedDeal : deal
       ));
       setEditingDeal(null);
     }
@@ -161,8 +149,8 @@ export const updateDeal = async (
 
 export const toggleActive = async (
   deal: Deal,
-  setDeals: React.Dispatch<React.SetStateAction<Deal[]>>,
-  isMountedRef: React.MutableRefObject<boolean>
+  setDeals: Dispatch<SetStateAction<Deal[]>>,
+  isMountedRef: MutableRefObject<boolean>
 ): Promise<void> => {
   if (!isMountedRef.current) return;
   
@@ -173,7 +161,6 @@ export const toggleActive = async (
     if (isMountedRef.current) {
       toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktivt' : 'inaktivt'}`);
       
-      // Uppdatera erbjudandet lokalt
       setDeals(prevDeals => prevDeals.map(d => 
         d.id === deal.id ? { ...d, is_active: !d.is_active } : d
       ));

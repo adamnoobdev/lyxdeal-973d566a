@@ -44,6 +44,11 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
 
   // Handler for deleting a deal
   const handleDeleteDeal = useCallback(async (): Promise<boolean> => {
+    if (!deletingDeal) {
+      console.log("[useSalonDealsManagement] No deal to delete");
+      return false;
+    }
+    
     const result = await deleteDeal(
       deletingDeal,
       setDeals,
@@ -95,9 +100,13 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     }
   }, [refetch]);
 
-  // Handler for toggling deal active status
-  const handleToggleActive = useCallback(async (deal: Deal) => {
-    await toggleActive(deal, setDeals, isMountedRef);
+  // Handler for toggling deal active status - now returning Promise<void>
+  const handleToggleActive = useCallback(async (deal: Deal): Promise<void> => {
+    try {
+      await toggleActive(deal, setDeals, isMountedRef);
+    } catch (error) {
+      console.error("[useSalonDealsManagement] Error toggling deal active status:", error);
+    }
   }, []);
 
   // Effect for component lifecycle and data loading
