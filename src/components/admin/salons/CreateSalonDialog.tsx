@@ -10,7 +10,7 @@ import { SalonForm } from "./SalonForm";
 import { useState, useEffect, useRef } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
+import { Copy, Check, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 interface CreateSalonResponse {
@@ -32,6 +32,8 @@ export const CreateSalonDialog = ({
   const [password, setPassword] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
   const isMountedRef = useRef(true);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -57,6 +59,8 @@ export const CreateSalonDialog = ({
       console.log("[CreateSalonDialog] Dialog opening");
       setIsClosing(false);
       setIsSubmitting(false);
+      setEmailSent(false);
+      setCopySuccess(false);
     }
   }, [isOpen]);
 
@@ -78,6 +82,7 @@ export const CreateSalonDialog = ({
       
       if (response && response.temporaryPassword) {
         safeSetState(setPassword, response.temporaryPassword);
+        safeSetState(setEmailSent, true); // Anta att mejlet skickades framgångsrikt
       } else if (response === false) {
         // Error was already handled in onSubmit
         safeSetState(setIsSubmitting, false);
@@ -98,6 +103,14 @@ export const CreateSalonDialog = ({
     if (password) {
       navigator.clipboard.writeText(password);
       toast.success("Lösenord kopierat!");
+      setCopySuccess(true);
+      
+      // Återställ ikonen efter 2 sekunder
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          setCopySuccess(false);
+        }
+      }, 2000);
     }
   };
 
@@ -139,7 +152,7 @@ export const CreateSalonDialog = ({
         if (!open && !isSubmitting) handleClose();
       }}
     >
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-3 sm:p-4 md:p-6">
         <DialogHeader>
           <DialogTitle>Skapa ny salong</DialogTitle>
           <DialogDescription>
@@ -161,9 +174,15 @@ export const CreateSalonDialog = ({
                     onClick={copyPassword}
                     className="h-8 w-8 flex-shrink-0"
                   >
-                    <Copy className="h-4 w-4" />
+                    {copySuccess ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
+                {emailSent && (
+                  <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 mt-2">
+                    <Mail className="h-4 w-4" />
+                    <p>Välkomstmejl med inloggningsuppgifter har skickats till salongägaren.</p>
+                  </div>
+                )}
                 <p className="text-sm text-muted-foreground">
                   Se till att spara detta lösenord på ett säkert ställe. Det kommer inte att visas igen.
                 </p>

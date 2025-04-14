@@ -1,4 +1,6 @@
+
 import { supabase } from "@/integrations/supabase/client";
+import { sendSalonWelcomeEmail } from "./sendWelcomeEmail";
 
 /**
  * Creates a new salon account
@@ -64,6 +66,33 @@ export const createSalonData = async (values: any) => {
     }
     
     console.log("Response from edge function:", data);
+    
+    // Skicka välkomstmejl till den nyligen skapade salongen
+    if (data.salon && data.temporaryPassword) {
+      console.log("Skickar välkomstmejl för ny salong:", data.salon.name);
+      
+      // Skapa prenumerationsinformation om tillgängligt
+      const subscriptionInfo = data.salon.subscription_plan ? {
+        plan: data.salon.subscription_plan,
+        type: data.salon.subscription_type || "monthly",
+        start_date: new Date().toISOString(),
+        next_billing_date: data.salon.current_period_end
+      } : undefined;
+      
+      const emailResult = await sendSalonWelcomeEmail({
+        business_name: data.salon.name,
+        email: data.salon.email,
+        temporary_password: data.temporaryPassword,
+        subscription_info: subscriptionInfo
+      });
+      
+      if (!emailResult.success) {
+        console.warn("Kunde inte skicka välkomstmejl:", emailResult.error);
+        // Fortsätt ändå, salongen har skapats
+      } else {
+        console.log("Välkomstmejl skickat framgångsrikt");
+      }
+    }
     
     return data;
   } catch (error) {
