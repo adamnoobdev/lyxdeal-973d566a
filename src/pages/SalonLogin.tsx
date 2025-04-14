@@ -19,7 +19,16 @@ export default function SalonLogin() {
     // Check for error parameter
     const errorParam = searchParams.get('error');
     if (errorParam) {
+      console.log("Error parameter detected:", errorParam);
       setAuthError(decodeURIComponent(errorParam));
+    }
+    
+    // Check if there's a hash with an error
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const hashError = hashParams.get('error_description');
+    if (hashError) {
+      console.log("Error in hash detected:", hashError);
+      setAuthError(decodeURIComponent(hashError));
     }
     
     // Kontrollera om användaren redan är inloggad
@@ -59,6 +68,11 @@ export default function SalonLogin() {
     checkAuth();
   }, [navigate, searchParams]);
 
+  // Determine if we should show the reset form based on the error message
+  const shouldShowResetForm = authError?.includes('utgången') || 
+                              authError?.includes('invalid') || 
+                              authError?.includes('expired');
+
   if (isCheckingAuth) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
@@ -83,11 +97,16 @@ export default function SalonLogin() {
           {authError && (
             <Alert variant="destructive" className="mb-6">
               <AlertTriangle className="h-4 w-4 mr-2" />
-              <AlertDescription>{authError}</AlertDescription>
+              <AlertDescription>
+                {authError.includes('utgången') || authError.includes('expired') ? 
+                  "Återställningslänken har gått ut. Vänligen begär en ny." : 
+                  authError
+                }
+              </AlertDescription>
             </Alert>
           )}
           <LoginHeader />
-          <LoginCard showResetForm={authError?.includes('utgången')} />
+          <LoginCard showResetForm={shouldShowResetForm} />
         </div>
       </div>
     </div>

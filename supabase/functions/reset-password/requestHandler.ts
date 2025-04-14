@@ -26,7 +26,8 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    console.log(`Sending password reset to: ${data.email}`);
+    console.log(`Processing password reset for: ${data.email}`);
+    console.log(`Reset base URL: ${data.resetUrl}`);
     
     // Create Supabase client to generate a reset token
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
@@ -34,6 +35,8 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
 
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error("Supabase environment variables are missing");
+      console.error(`SUPABASE_URL: ${supabaseUrl ? "set" : "missing"}`);
+      console.error(`SUPABASE_SERVICE_ROLE_KEY: ${supabaseServiceKey ? "set" : "missing"}`);
       throw new Error("Configuration error: Supabase environment variables are missing");
     }
 
@@ -41,8 +44,8 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     
     // Check if the user exists before attempting to reset password
     const { data: userCheck, error: userCheckError } = await supabase
-      .from('auth.users')
-      .select('id')
+      .from('profiles')
+      .select('id, email')
       .eq('email', data.email)
       .maybeSingle();
 
@@ -61,41 +64,23 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    if (!userCheck) {
-      console.log("User not found, but returning success for security");
-      // Don't reveal if user exists or not for security reasons
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: "Reset instructions sent if email exists"
-        }),
-        { 
-          status: 200, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        }
-      );
-    }
-    
     // Determine production vs development environment
     const isProduction = data.resetUrl.includes("lyxdeal.se");
     
-    // Use correct reset URL based on environment - make sure redirectTo is an absolute URL
+    // Use correct reset URL based on environment
     const redirectBase = isProduction ? "https://lyxdeal.se" : data.resetUrl;
     const redirectUrl = new URL("/salon/update-password", redirectBase).href;
     
     console.log("Using redirect URL:", redirectUrl);
     
     // Generate a token for the user's email without sending Supabase's email
-    const { data: tokenData, error: tokenError } = await supabase
-      .auth
-      .admin
-      .generateLink({
-        type: "recovery",
-        email: data.email,
-        options: {
-          redirectTo: redirectUrl
-        }
-      });
+    const { data: tokenData, error: tokenError } = await supabase.auth.admin.generateLink({
+      type: "recovery",
+      email: data.email,
+      options: {
+        redirectTo: redirectUrl
+      }
+    });
     
     if (tokenError) {
       console.error("Error generating reset token:", tokenError);
@@ -130,19 +115,49 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     console.log("Reset token link generated:", actionLink);
     
     // Send custom email with the reset link
-    const emailResponse = await sendResetPasswordEmail(data.email, actionLink);
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: "Reset instructions sent",
-        data: emailResponse
-      }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+    try {
+      const resendApiKey = Deno.env.get("RESEND_API_KEY");
+      if (!resendApiKey) {
+        console.error("RESEND_API_KEY is not configured");
+        return new Response(
+          JSON.stringify({ 
+            error: "Email service configuration error", 
+            hint: "RESEND_API_KEY is missing"
+          }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, "Content-Type": "application/json" } 
+          }
+        );
       }
-    );
+      
+      const emailResponse = await sendResetPasswordEmail(data.email, actionLink);
+      console.log("Email sending response:", emailResponse);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Reset instructions sent",
+          data: emailResponse
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    } catch (emailError) {
+      console.error("Failed to send reset email:", emailError);
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to send email", 
+          details: emailError instanceof Error ? emailError.message : String(emailError)
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
   } catch (error) {
     console.error("Error in reset-password function:", error);
     return new Response(

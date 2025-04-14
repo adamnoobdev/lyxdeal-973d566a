@@ -12,6 +12,9 @@ export async function sendResetPasswordEmail(email: string, resetUrl: string) {
     throw new Error("RESEND_API_KEY är inte konfigurerad");
   }
   
+  console.log("Initiating email send to:", email);
+  console.log("Using reset URL:", resetUrl);
+  
   const resend = new Resend(resendApiKey);
   const htmlContent = generateResetPasswordEmailHtml(resetUrl);
   
@@ -23,10 +26,16 @@ export async function sendResetPasswordEmail(email: string, resetUrl: string) {
       html: htmlContent,
     });
     
-    console.log("E-post svar:", emailResponse);
+    console.log("Email sending response:", emailResponse);
+    
+    if (emailResponse.error) {
+      throw new Error(`Email sending failed: ${JSON.stringify(emailResponse.error)}`);
+    }
+    
     return emailResponse;
   } catch (resendError) {
     console.error("Resend API-fel:", resendError);
+    console.error("Error details:", resendError instanceof Error ? resendError.message : String(resendError));
     throw resendError;
   }
 }
