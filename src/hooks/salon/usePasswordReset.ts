@@ -15,6 +15,7 @@ export const usePasswordReset = () => {
     
     // Reset states
     setError(null);
+    setSuccess(false);
     
     if (!email || !email.trim()) {
       toast.error("Vänligen ange din e-postadress");

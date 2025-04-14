@@ -80,16 +80,16 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     console.log("Initializing Supabase client");
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Check if user exists
-    console.log(`Checking if user with email ${data.email} exists`);
+    // Check if user exists in the salons table instead of profiles
+    console.log(`Checking if user with email ${data.email} exists in salons table`);
     const { data: userCheck, error: userCheckError } = await supabase
-      .from('profiles')
+      .from('salons')
       .select('id, email')
       .eq('email', data.email)
       .maybeSingle();
 
     if (userCheckError) {
-      console.error("Error checking if user exists:", userCheckError);
+      console.error("Error checking if salon exists:", userCheckError);
       // Don't reveal if user exists or not for security reasons
       return new Response(
         JSON.stringify({ 
@@ -104,7 +104,7 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     }
 
     if (!userCheck) {
-      console.log("User not found, returning success response for security");
+      console.log("Salon not found, returning success response for security");
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -117,7 +117,7 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    console.log("User found, proceeding with password reset");
+    console.log("Salon found, proceeding with password reset");
     
     // Determine production vs development environment from the reset URL
     const isProduction = data.resetUrl.includes("lyxdeal.se");
