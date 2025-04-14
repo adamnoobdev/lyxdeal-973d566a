@@ -13,7 +13,7 @@ export const PasswordField = ({ form }: PasswordFieldProps) => {
       control={form.control}
       name="password"
       render={({ field }) => (
-        <FormItem>
+        <FormItem className="w-full">
           <FormLabel>Lösenord</FormLabel>
           <FormControl>
             <Input
@@ -21,6 +21,7 @@ export const PasswordField = ({ form }: PasswordFieldProps) => {
               placeholder="Ange lösenord..."
               {...field}
               value={field.value || ""}
+              className="w-full"
             />
           </FormControl>
           <FormDescription>

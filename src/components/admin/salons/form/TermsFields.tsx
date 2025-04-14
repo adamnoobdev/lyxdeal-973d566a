@@ -9,14 +9,14 @@ interface TermsFieldsProps {
 
 export const TermsFields = ({ form }: TermsFieldsProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       <h3 className="text-base sm:text-lg font-medium">Godkännanden</h3>
 
       <FormField
         control={form.control}
         name="termsAccepted"
         render={({ field }) => (
-          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 bg-muted/20">
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 bg-muted/20 w-full">
             <FormControl>
               <Checkbox 
                 checked={field.value} 
@@ -39,7 +39,7 @@ export const TermsFields = ({ form }: TermsFieldsProps) => {
         control={form.control}
         name="privacyAccepted"
         render={({ field }) => (
-          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 bg-muted/20">
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 bg-muted/20 w-full">
             <FormControl>
               <Checkbox 
                 checked={field.value} 

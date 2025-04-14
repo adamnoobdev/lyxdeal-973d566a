@@ -14,7 +14,7 @@ export const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
         control={form.control}
         name="name"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-full">
             <FormLabel className="text-sm font-medium">Namn</FormLabel>
             <FormControl>
               <Input placeholder="Ange namn..." {...field} className="w-full" />
@@ -28,7 +28,7 @@ export const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
         control={form.control}
         name="email"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-full">
             <FormLabel className="text-sm font-medium">E-post</FormLabel>
             <FormControl>
               <Input placeholder="Ange e-post..." {...field} className="w-full" />

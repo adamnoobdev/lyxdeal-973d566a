@@ -52,7 +52,7 @@ export const ContactFields = ({ form }: ContactFieldsProps) => {
   }, [subscriptionPlan, subscriptionType]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       <FormField
         control={form.control}
         name="phone"

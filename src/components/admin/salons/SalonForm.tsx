@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +10,7 @@ import { PasswordField } from "./form/PasswordField";
 import { SubscriptionField } from "./form/SubscriptionField";
 import { TermsFields } from "./form/TermsFields";
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+
 const formSchema = z.object({
   name: z.string().min(1, {
     message: "Namn krävs"
@@ -33,12 +35,14 @@ const formSchema = z.object({
   termsAccepted: z.boolean().optional().default(true),
   privacyAccepted: z.boolean().optional().default(true)
 });
+
 interface SalonFormProps {
   onSubmit: (values: any) => Promise<void>;
   initialValues?: any;
   isEditing?: boolean;
   isSubmitting?: boolean;
 }
+
 export const SalonForm = forwardRef(({
   onSubmit,
   initialValues,
@@ -71,6 +75,7 @@ export const SalonForm = forwardRef(({
     privacyAccepted: true,
     ...initialValues
   };
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues
@@ -114,6 +119,7 @@ export const SalonForm = forwardRef(({
     });
     return () => subscription.unsubscribe();
   }, [form]);
+
   const handleSubmit = async (values: any) => {
     if (isSubmitting || !form.formState.isDirty) {
       console.log("Form is submitting or hasn't changed, skipping submission");
@@ -144,38 +150,43 @@ export const SalonForm = forwardRef(({
       setInternalIsSubmitting(false);
     }
   };
-  return <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="space-y-4">
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 max-w-full overflow-hidden">
+        <div className="space-y-4 w-full">
           <BasicInfoFields form={form} />
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
           <ContactFields form={form} />
         </div>
         
-        {isEditing && <div className="space-y-4">
+        {isEditing && (
+          <div className="space-y-4 w-full">
             <TermsFields form={form} />
-          </div>}
+          </div>
+        )}
         
-        {!isEditing && <div className="space-y-4">
+        {!isEditing && (
+          <div className="space-y-4 w-full">
             <PasswordField form={form} />
-          </div>}
+          </div>
+        )}
         
         {/* Always show SubscriptionField for both editing and creating */}
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
           <SubscriptionField form={form} />
         </div>
         
-        {/* Debug information */}
-        
-
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-end pt-2 w-full">
           <Button type="submit" disabled={isSubmitting || !form.formState.isDirty} className="w-full sm:w-auto px-6">
             {isSubmitting ? "Sparar..." : isEditing ? "Uppdatera" : "Skapa"}
           </Button>
         </div>
       </form>
-    </Form>;
+    </Form>
+  );
 });
+
 SalonForm.displayName = "SalonForm";

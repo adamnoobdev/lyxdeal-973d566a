@@ -49,12 +49,12 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
   }, [skipSubscription, subscriptionPlan, subscriptionType, form, initialLoad]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       <FormField
         control={form.control}
         name="skipSubscription"
         render={({ field }) => (
-          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 w-full">
             <FormControl>
               <Checkbox
                 checked={field.value}
@@ -83,7 +83,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
       />
 
       {skipSubscription && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm">
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm w-full">
           <p className="text-amber-800">
             Salongen kommer att aktiveras <strong>utan betalningskrav</strong> men med vald prenumerationsplan nedan.
             <br />
@@ -97,7 +97,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
         control={form.control}
         name="subscriptionPlan"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-full">
             <Label className="text-sm font-medium">Prenumerationsplan</Label>
             <Select 
               onValueChange={(value) => {
@@ -134,7 +134,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
           control={form.control}
           name="subscriptionType"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <Label className="text-sm font-medium">Betalningsintervall</Label>
               <Select 
                 onValueChange={(value) => {
@@ -164,7 +164,7 @@ export const SubscriptionField = ({ form }: SubscriptionFieldProps) => {
       )}
 
       {skipSubscription && (
-        <Alert variant="default" className="bg-blue-50 border-blue-200">
+        <Alert variant="default" className="bg-blue-50 border-blue-200 w-full">
           <AlertCircle className="h-4 w-4 text-blue-500" />
           <AlertDescription className="text-blue-700">
             För administrativt skapade salonger är betalningsintervall inte relevant, 
