@@ -4,14 +4,15 @@ import { usePasswordReset } from "@/hooks/salon/usePasswordReset";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface PasswordResetFormProps {
   onBack: () => void;
 }
 
 export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({ onBack }) => {
-  const { email, setEmail, loading, success, resetPassword } = usePasswordReset();
+  const { email, setEmail, loading, success, error, resetPassword } = usePasswordReset();
 
   if (success) {
     return (
@@ -43,6 +44,13 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({ onBack }) 
           Ange din e-postadress så skickar vi instruktioner för att återställa ditt lösenord.
         </p>
       </div>
+      
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
       
       <form className="space-y-4" onSubmit={resetPassword}>
         <div className="space-y-2">

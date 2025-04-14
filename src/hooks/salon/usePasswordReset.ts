@@ -7,13 +7,18 @@ export const usePasswordReset = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Function to send password reset via our edge function
   const resetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email) {
+    // Reset states
+    setError(null);
+    
+    if (!email || !email.trim()) {
       toast.error("Vänligen ange din e-postadress");
+      setError("E-postadress krävs");
       return;
     }
 
@@ -29,21 +34,22 @@ export const usePasswordReset = () => {
         ? "https://lyxdeal.se" 
         : window.location.origin;
       
-      console.log("Sending reset to:", email);
+      console.log("Sending password reset request for:", email);
       console.log("Using domain base:", domainBase);
       console.log("Current environment is production:", isProduction);
       
-      // Call our edge function that will handle token generation and email sending
+      // Call our edge function
       const { data, error } = await supabase.functions.invoke("reset-password", {
         body: {
-          email,
+          email: email.trim(),
           resetUrl: domainBase // Let the edge function handle path construction
         }
       });
 
       if (error) {
         console.error("Error calling reset-password function:", error);
-        toast.error("Ett problem uppstod. Försök igen senare.");
+        setError(`Kunde inte skicka återställningsmejl: ${error.message}`);
+        toast.error("Ett problem uppstod vid skickandet av återställningslänk.");
         return;
       }
 
@@ -54,10 +60,12 @@ export const usePasswordReset = () => {
         toast.success("Återställningsinstruktioner har skickats till din e-post");
       } else {
         console.error("Unexpected response from reset-password function:", data);
+        setError("Oväntad respons från servern");
         toast.error("Ett problem uppstod. Försök igen senare.");
       }
     } catch (err) {
       console.error("Error during password reset:", err);
+      setError(err instanceof Error ? err.message : "Okänt fel");
       toast.error("Ett problem uppstod. Försök igen senare.");
     } finally {
       setLoading(false);
@@ -69,6 +77,7 @@ export const usePasswordReset = () => {
     setEmail,
     loading,
     success,
+    error,
     resetPassword
   };
 };

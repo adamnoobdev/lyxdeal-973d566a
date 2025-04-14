@@ -8,16 +8,49 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
  * Handles the reset password request
  */
 export async function handleResetPasswordRequest(req: Request): Promise<Response> {
+  console.log("=== Starting handleResetPasswordRequest function ===");
+  
   try {
     // Parse request body
-    const data: ResetPasswordRequest = await req.json();
-    
-    if (!data.email || !data.resetUrl) {
-      console.error("Missing required fields in request:", data);
+    let data: ResetPasswordRequest;
+    try {
+      data = await req.json();
+      console.log("Request data received:", JSON.stringify(data));
+    } catch (parseError) {
+      console.error("Failed to parse request JSON:", parseError);
       return new Response(
         JSON.stringify({ 
-          error: "Missing required fields", 
-          received: Object.keys(data)
+          error: "Invalid JSON in request body",
+          details: parseError instanceof Error ? parseError.message : String(parseError)
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    
+    // Validate request data
+    if (!data.email) {
+      console.error("Missing email in request");
+      return new Response(
+        JSON.stringify({ 
+          error: "Missing required field: email",
+          received: JSON.stringify(data)
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    
+    if (!data.resetUrl) {
+      console.error("Missing resetUrl in request");
+      return new Response(
+        JSON.stringify({ 
+          error: "Missing required field: resetUrl",
+          received: JSON.stringify(data)
         }),
         { 
           status: 400, 
@@ -26,23 +59,29 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    console.log(`Processing password reset for: ${data.email}`);
+    console.log(`Processing password reset for email: ${data.email}`);
     console.log(`Reset base URL: ${data.resetUrl}`);
     
-    // Create Supabase client to generate a reset token
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    // Get Supabase environment variables
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+    // Log environment variable status (without revealing actual values)
+    console.log(`SUPABASE_URL status: ${supabaseUrl ? "Set" : "MISSING"}`);
+    console.log(`SUPABASE_SERVICE_ROLE_KEY status: ${supabaseServiceKey ? "Set" : "MISSING"}`);
+    console.log(`RESEND_API_KEY status: ${Deno.env.get("RESEND_API_KEY") ? "Set" : "MISSING"}`);
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      console.error("Supabase environment variables are missing");
-      console.error(`SUPABASE_URL: ${supabaseUrl ? "set" : "missing"}`);
-      console.error(`SUPABASE_SERVICE_ROLE_KEY: ${supabaseServiceKey ? "set" : "missing"}`);
+      console.error("CRITICAL ERROR: Supabase environment variables are missing");
       throw new Error("Configuration error: Supabase environment variables are missing");
     }
 
+    // Initialize Supabase client
+    console.log("Initializing Supabase client");
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Check if the user exists before attempting to reset password
+    // Check if user exists
+    console.log(`Checking if user with email ${data.email} exists`);
     const { data: userCheck, error: userCheckError } = await supabase
       .from('profiles')
       .select('id, email')
@@ -64,16 +103,34 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    // Determine production vs development environment
-    const isProduction = data.resetUrl.includes("lyxdeal.se");
+    if (!userCheck) {
+      console.log("User not found, returning success response for security");
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Reset instructions sent if email exists"
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
+    console.log("User found, proceeding with password reset");
     
-    // Use correct reset URL based on environment
+    // Determine production vs development environment from the reset URL
+    const isProduction = data.resetUrl.includes("lyxdeal.se");
+    console.log(`Environment detected as: ${isProduction ? "Production" : "Development"}`);
+    
+    // Create the redirect URL for the password reset link
     const redirectBase = isProduction ? "https://lyxdeal.se" : data.resetUrl;
     const redirectUrl = new URL("/salon/update-password", redirectBase).href;
     
-    console.log("Using redirect URL:", redirectUrl);
+    console.log("Using redirect URL for password reset:", redirectUrl);
     
-    // Generate a token for the user's email without sending Supabase's email
+    // Generate a token for the user's email
+    console.log("Generating password reset token");
     const { data: tokenData, error: tokenError } = await supabase.auth.admin.generateLink({
       type: "recovery",
       email: data.email,
@@ -97,11 +154,12 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
     }
     
     if (!tokenData || !tokenData.properties || !tokenData.properties.action_link) {
-      console.error("No action_link was generated:", tokenData);
+      console.error("No action_link was generated in token data:", JSON.stringify(tokenData));
       return new Response(
         JSON.stringify({ 
           error: "Could not generate reset token", 
-          details: "No action_link was generated" 
+          details: "No action_link was generated",
+          tokenData: tokenData
         }),
         { 
           status: 500, 
@@ -110,34 +168,20 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
 
-    // Extract actionLink which contains the recovery token
+    // Extract the action link with the token
     const actionLink = tokenData.properties.action_link;
     console.log("Reset token link generated:", actionLink);
     
-    // Send custom email with the reset link
+    // Send the custom email with the reset link
     try {
-      const resendApiKey = Deno.env.get("RESEND_API_KEY");
-      if (!resendApiKey) {
-        console.error("RESEND_API_KEY is not configured");
-        return new Response(
-          JSON.stringify({ 
-            error: "Email service configuration error", 
-            hint: "RESEND_API_KEY is missing"
-          }),
-          { 
-            status: 500, 
-            headers: { ...corsHeaders, "Content-Type": "application/json" } 
-          }
-        );
-      }
-      
+      console.log("Preparing to send email");
       const emailResponse = await sendResetPasswordEmail(data.email, actionLink);
-      console.log("Email sending response:", emailResponse);
+      console.log("Email sent successfully:", emailResponse);
       
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: "Reset instructions sent",
+          message: "Reset instructions sent to email",
           data: emailResponse
         }),
         { 
@@ -159,16 +203,22 @@ export async function handleResetPasswordRequest(req: Request): Promise<Response
       );
     }
   } catch (error) {
-    console.error("Error in reset-password function:", error);
+    console.error("Unhandled error in reset-password function:", error);
+    console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
+    
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString()
       }),
       { 
         status: 500, 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );
+  } finally {
+    console.log("=== Completed handleResetPasswordRequest function ===");
   }
 }
