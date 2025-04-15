@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
 
-type Profile = {
+export type UserRole = 'user' | 'creator' | 'admin' | 'salon_owner';
+
+export type Profile = {
   id?: string;
-  role?: 'user' | 'creator' | 'admin' | 'salon_owner';
+  role?: UserRole;
   instagram_handle?: string;
   display_name?: string;
 }

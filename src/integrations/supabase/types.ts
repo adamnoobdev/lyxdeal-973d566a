@@ -568,6 +568,15 @@ export type Database = {
         Args: { p_email: string; p_name: string; p_interests?: string[] }
         Returns: boolean
       }
+      create_creator_partnership: {
+        Args: {
+          p_creator_id: string
+          p_salon_id: number
+          p_deal_id: number
+          p_discount_code: string
+        }
+        Returns: undefined
+      }
       create_test_salon: {
         Args: { user_id: string }
         Returns: undefined
