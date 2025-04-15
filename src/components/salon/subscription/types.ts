@@ -58,6 +58,36 @@ export interface SalonAccount {
   name?: string;
 }
 
+// Interface för kreatörs-/influencersamarbete
+export interface CreatorPartnership {
+  id?: number;
+  creator_id: string;
+  salon_id: number;
+  deal_id: number;
+  discount_code: string;
+  deal_title: string;
+  status: 'pending' | 'approved' | 'completed' | 'rejected';
+  content_url?: string;
+  clicks?: number;
+  bookings?: number;
+  created_at?: string;
+}
+
+// Interface för kreatörsprofil
+export interface Creator {
+  id: string;
+  name: string;
+  email: string;
+  instagram_handle?: string;
+  tiktok_handle?: string;
+  youtube_channel?: string;
+  followers_count?: number;
+  engagement_rate?: number;
+  content_types: ('video' | 'photo' | 'review')[];
+  approved: boolean;
+  created_at?: string;
+}
+
 // Now let's define our subscription plans with the actual pricing and features
 export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
   "Baspaket": {

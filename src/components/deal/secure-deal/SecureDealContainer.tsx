@@ -4,6 +4,7 @@ import { useSecureDealSubmit } from "@/hooks/useSecureDealSubmit";
 import { SecureForm } from "./SecureForm";
 import { SuccessMessage } from "./SuccessMessage";
 import { AlreadyClaimedMessage } from "./AlreadyClaimedMessage";
+import { CreatorDealAction } from "@/components/creators/CreatorDealAction";
 
 interface SecureDealContainerProps {
   dealId: number;
@@ -11,6 +12,7 @@ interface SecureDealContainerProps {
   onSuccess?: () => void;
   bookingUrl?: string | null;
   requiresDiscountCode?: boolean;
+  salonId?: number;
 }
 
 export const SecureDealContainer = ({ 
@@ -18,7 +20,8 @@ export const SecureDealContainer = ({
   dealTitle,
   onSuccess,
   bookingUrl,
-  requiresDiscountCode = true
+  requiresDiscountCode = true,
+  salonId
 }: SecureDealContainerProps) => {
   // Check if user has already claimed this deal
   const { hasAlreadyClaimed, isCheckingClaim } = useClaimCheck(dealId);
@@ -58,6 +61,9 @@ export const SecureDealContainer = ({
 
   return (
     <div className="w-full max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+      {/* Visa kreatörskomponenten först om salonId finns */}
+      {salonId && <CreatorDealAction dealId={dealId} dealTitle={dealTitle} salonId={salonId} />}
+      
       {hasAlreadyClaimed ? (
         <AlreadyClaimedMessage onGoBack={handleGoBack} />
       ) : isSuccess ? (
