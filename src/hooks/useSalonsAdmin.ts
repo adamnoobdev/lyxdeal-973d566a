@@ -42,11 +42,13 @@ export const useSalonsAdmin = () => {
           console.log(`Salon ${salon.name} raw rating:`, salon.rating);
           
           // Ensure we have a valid number for rating before division
-          const ratingValue = (salon.rating != null && typeof salon.rating === 'number') 
-            ? Number(salon.rating) / 10 
-            : null;
+          let ratingValue: number | null = null;
           
-          console.log(`Salon ${salon.name} converted rating:`, ratingValue);
+          if (salon.rating != null && typeof salon.rating === 'number') {
+            // Convert from integer (stored as 47) to decimal (4.7)
+            ratingValue = Math.round(Number(salon.rating) / 10 * 10) / 10;
+            console.log(`Salon ${salon.name} converted rating:`, ratingValue);
+          }
           
           return {
             id: Number(salon.id) || 0,
@@ -59,9 +61,11 @@ export const useSalonsAdmin = () => {
             role: typeof salon.role === 'string' ? salon.role : 'salon_owner',
             terms_accepted: typeof salon.terms_accepted === 'boolean' ? salon.terms_accepted : true,
             privacy_accepted: typeof salon.privacy_accepted === 'boolean' ? salon.privacy_accepted : true,
-            // Convert rating from integer to decimal (divide by 10)
             rating: ratingValue,
-            rating_comment: salon.rating_comment !== null ? String(salon.rating_comment) : null
+            rating_comment: salon.rating_comment !== null ? String(salon.rating_comment) : null,
+            subscription_plan: salon.subscription_plan || null,
+            subscription_type: salon.subscription_type || null,
+            skip_subscription: Boolean(salon.skip_subscription)
           };
         });
         

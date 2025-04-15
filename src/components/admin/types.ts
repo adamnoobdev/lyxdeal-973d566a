@@ -1,10 +1,6 @@
 
-// Befintliga importeringar behålls
-import { Deal } from "@/types/deal";
+import { UserRole } from "@/hooks/useAuth";
 
-export type { Deal }; // Export Deal så att andra filer kan importera den från denna fil
-
-// Add new field for explicit subscription data in Salon type
 export interface Salon {
   id: number;
   name: string;
@@ -18,43 +14,56 @@ export interface Salon {
   privacy_accepted: boolean;
   rating: number | null;
   rating_comment: string | null;
-  subscription_plan?: string; 
-  subscription_type?: string;
-  skip_subscription?: boolean; // Add skip_subscription field
+  subscription_plan?: string | null;
+  subscription_type?: string | null;
+  skip_subscription?: boolean;
 }
 
-// Make subscription fields required in the form values
 export interface SalonFormValues {
   name: string;
   email: string;
   phone: string;
-  address: string;
-  termsAccepted: boolean;
-  privacyAccepted: boolean;
-  subscriptionPlan: string;
-  subscriptionType: string;
-  skipSubscription: boolean; // Make skipSubscription required
+  address?: string;
+  fullAddress?: string;
+  street?: string;
+  postalCode?: string;
+  city?: string;
+  role?: UserRole;
+  password?: string;
+  terms_accepted?: boolean;
+  privacy_accepted?: boolean;
+  termsAccepted?: boolean;
+  privacyAccepted?: boolean;
+  subscriptionPlan?: string;
+  subscriptionType?: string;
+  skipSubscription?: boolean;
+  subscriptionEndDate?: string;
 }
 
-export interface CategorizedDeals {
-  all: Deal[];
-  active: Deal[];
-  inactive: Deal[];
-  pending: Deal[];
-}
-
-export interface DealsTabProps {
-  deals: Deal[];
-  onEdit: (deal: Deal) => void;
-  onDelete: (deal: Deal) => void;
-  onToggleActive: (deal: Deal) => void;
-  handleViewDiscountCodes: (deal: Deal) => void;
-}
-
-export interface DealStats {
-  totalDeals: number;
-  activeDeals: number;
-  pendingDeals: number;
-  totalVisits?: number;
-  totalSignups?: number;
+export interface Deal {
+  id: number;
+  title: string;
+  description: string;
+  original_price: number;
+  discounted_price: number;
+  category: string;
+  city: string;
+  image_url: string;
+  time_remaining: string;
+  featured?: boolean;
+  status?: string;
+  is_active?: boolean;
+  salon_id?: number;
+  salon?: {
+    name?: string;
+  };
+  created_at?: string;
+  updated_at?: string;
+  requires_discount_code?: boolean;
+  booking_url?: string;
+  expiration_date?: string;
+  rejection_message?: string;
+  quantity_left?: number;
+  is_free?: boolean;
+  stripe_price_id?: string;
 }

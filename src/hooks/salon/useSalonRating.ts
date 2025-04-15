@@ -25,6 +25,12 @@ export const useSalonRating = (
         return false;
       }
       
+      if (!salonId) {
+        console.error("[useSalonRating] Missing salonId parameter");
+        toast.error("Kunde inte spara betyg: Salong-ID saknas");
+        return false;
+      }
+      
       actionInProgressRef.current = true;
       setIsRating(true);
       
@@ -43,7 +49,7 @@ export const useSalonRating = (
         .from('salons')
         .update({ 
           rating: dbRating,
-          rating_comment: null // Set comment to null as it's no longer used
+          rating_comment: comment && comment.trim() !== "" ? comment : null
         })
         .eq('id', salonId);
       
@@ -59,7 +65,7 @@ export const useSalonRating = (
         .insert({
           salon_id: salonId,
           rating: dbRating,
-          comment: null, // Set comment to null as it's no longer used
+          comment: comment && comment.trim() !== "" ? comment : null,
           created_by: 'admin'
         });
           
