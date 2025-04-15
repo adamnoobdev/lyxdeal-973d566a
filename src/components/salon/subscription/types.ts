@@ -77,9 +77,9 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
   },
   "Premiumpaket": {
     title: "Premiumpaket",
-    monthlyPrice: 699,
-    yearlyPrice: 6288,
-    yearSavings: 2100,
+    monthlyPrice: 990, // Uppdaterat från 699 till 990
+    yearlyPrice: 7990, // Uppdaterat från 6288 till 7990
+    yearSavings: 3890, // Uppdaterat besparingen (990*12 - 7990 = 3890)
     dealCount: 3,
     features: [
       "Direktbokning och rabattkoder",

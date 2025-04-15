@@ -1,4 +1,3 @@
-
 import Stripe from "https://esm.sh/stripe@12.11.0";
 import { corsHeaders } from "./corsConfig.ts";
 
@@ -48,11 +47,11 @@ export async function createCheckoutSession(
     const planPrices = {
       "Baspaket": {
         monthly: 399,
-        yearly: 2788
+        yearly: 3588
       },
       "Premiumpaket": {
-        monthly: 699,
-        yearly: 5388
+        monthly: 990, // Uppdaterat från 699 till 990
+        yearly: 7990  // Uppdaterat från 5388 till 7990
       }
     };
     

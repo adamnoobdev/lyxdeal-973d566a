@@ -37,7 +37,7 @@ const PLAN_CONFIGS = [
     name: "Premiumpaket - Månadsbetalning",
     id: "premiumpaket-monthly",
     interval: "month",
-    price: 699,
+    price: 990, // Uppdaterat från 699 till 990
     currency: "sek",
     metadata: {
       plan_title: "Premiumpaket",
@@ -49,7 +49,7 @@ const PLAN_CONFIGS = [
     name: "Premiumpaket - Årsbetalning",
     id: "premiumpaket-yearly",
     interval: "year",
-    price: 6288,
+    price: 7990, // Uppdaterat från 6288 till 7990
     currency: "sek",
     metadata: {
       plan_title: "Premiumpaket",
