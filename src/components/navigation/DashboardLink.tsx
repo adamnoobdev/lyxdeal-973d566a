@@ -15,6 +15,7 @@ const DashboardLink: React.FC<DashboardLinkProps> = ({
   userRole,
   className = ''
 }) => {
+  // Directly return null if hasDashboard is false
   if (!hasDashboard) return null;
   
   return (
@@ -28,3 +29,4 @@ const DashboardLink: React.FC<DashboardLinkProps> = ({
 };
 
 export default DashboardLink;
+
