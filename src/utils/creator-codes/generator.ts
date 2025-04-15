@@ -32,16 +32,13 @@ export const registerCreatorCode = async (
   try {
     console.log(`Registrerar kreatorskod ${discountCode} för deal ${dealId}`);
     
-    // Skapa en record i creator_partnerships tabellen
+    // Skapa en record i creator_partnerships tabellen med rå SQL-fråga
     const { error: partnershipError } = await supabase
-      .from('creator_partnerships')
-      .insert({
-        creator_id: creatorId,
-        salon_id: salonId,
-        deal_id: dealId,
-        discount_code: discountCode,
-        status: 'approved',
-        created_at: new Date().toISOString()
+      .rpc('create_creator_partnership', {
+        p_creator_id: creatorId,
+        p_salon_id: salonId,
+        p_deal_id: dealId,
+        p_discount_code: discountCode
       });
     
     if (partnershipError) {

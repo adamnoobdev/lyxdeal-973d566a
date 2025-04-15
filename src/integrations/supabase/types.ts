@@ -9,6 +9,61 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      creator_partnerships: {
+        Row: {
+          created_at: string
+          creator_id: string
+          deal_id: number
+          discount_code: string
+          id: number
+          salon_id: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          deal_id: number
+          discount_code: string
+          id?: number
+          salon_id: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          deal_id?: number
+          discount_code?: string
+          id?: number
+          salon_id?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_partnerships_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deal_statistics"
+            referencedColumns: ["deal_id"]
+          },
+          {
+            foreignKeyName: "creator_partnerships_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_partnerships_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           booking_url: string | null
