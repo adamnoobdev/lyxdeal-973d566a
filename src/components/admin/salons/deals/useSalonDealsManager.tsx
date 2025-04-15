@@ -3,7 +3,7 @@ import { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import { endOfMonth } from "date-fns";
 import { useSalonDealsManagement } from "@/hooks/salon-deals-management";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Use the correct Deal type
 import { toggleDealActive } from "@/utils/deal/queries/toggleActive";
 
 export const useSalonDealsManager = () => {

@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { EditDealDialog } from "../../deals/EditDealDialog";
 import { DeleteDealDialog } from "../../deals/DeleteDealDialog";
 import { DiscountCodesDialog } from "../../deals/DiscountCodesDialog";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Use the correct Deal type
 
 interface SalonDealsDialogsProps {
   editingDeal: Deal | null;

@@ -61,7 +61,7 @@ export interface Deal {
   updated_at?: string;
   requires_discount_code?: boolean;
   booking_url?: string;
-  expiration_date?: string;
+  expiration_date: string; // Changed from optional to required to match src/types/deal.ts
   rejection_message?: string;
   quantity_left?: number;
   is_free?: boolean;

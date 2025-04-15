@@ -63,9 +63,9 @@ export const useSalonsAdmin = () => {
             privacy_accepted: typeof salon.privacy_accepted === 'boolean' ? salon.privacy_accepted : true,
             rating: ratingValue,
             rating_comment: salon.rating_comment !== null ? String(salon.rating_comment) : null,
-            subscription_plan: salon.subscription_plan || null,
-            subscription_type: salon.subscription_type || null,
-            skip_subscription: Boolean(salon.skip_subscription)
+            subscription_plan: typeof salon.subscription_plan === 'string' ? salon.subscription_plan : null,
+            subscription_type: typeof salon.subscription_type === 'string' ? salon.subscription_type : null,
+            skip_subscription: typeof salon.skip_subscription === 'boolean' ? salon.skip_subscription : false
           };
         });
         

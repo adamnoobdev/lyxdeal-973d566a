@@ -6,7 +6,7 @@ import { DealsTable } from "../../deals/DealsTable";
 import { DealsLoadingSkeleton } from "../../deals/DealsLoadingSkeleton";
 import { SalonDealsError } from "../SalonDealsError";
 import { SalonDealsEmpty } from "../SalonDealsEmpty";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Use the correct Deal type
 
 interface SalonDealsContentProps {
   deals: Deal[];

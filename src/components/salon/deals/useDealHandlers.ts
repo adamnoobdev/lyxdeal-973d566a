@@ -1,6 +1,6 @@
 
 import { useCallback, useState } from 'react';
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Use the correct Deal type
 import { FormValues } from '@/components/deal-form/schema';
 import { toast } from "sonner";
 import { generateDiscountCodes } from '@/utils/discount-codes';

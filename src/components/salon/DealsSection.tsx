@@ -1,5 +1,5 @@
 
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Use the correct Deal type
 import { DealsTable } from "@/components/admin/deals/DealsTable";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, ExternalLink } from "lucide-react";

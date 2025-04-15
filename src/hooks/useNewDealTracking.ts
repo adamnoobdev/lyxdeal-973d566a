@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Deal } from "@/types/deal";
 
-type DealCreationState = {
+export type DealCreationState = {
   timestamp: number | null;
   attempts: number;
   justCreatedDeal: Deal | null;

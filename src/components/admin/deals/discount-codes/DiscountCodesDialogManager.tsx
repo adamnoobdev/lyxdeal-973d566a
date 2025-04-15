@@ -1,6 +1,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Deal } from "@/components/admin/types";
+import { Deal as AdminDeal } from "@/components/admin/types";
+import { Deal } from "@/types/deal";
 import { DiscountCodesDialog } from "../DiscountCodesDialog";
 import { logIdInfo } from "@/utils/discount-codes/types";
 
@@ -15,6 +16,7 @@ export const DiscountCodesDialogManager = ({
   justCreatedDeal,
   resetJustCreatedDeal
 }: DiscountCodesDialogManagerProps) => {
+  // Using the correct Deal type from src/types/deal.ts
   const [viewingCodesForDeal, setViewingCodesForDeal] = useState<Deal | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const operationInProgressRef = useRef(false);
@@ -35,6 +37,7 @@ export const DiscountCodesDialogManager = ({
   }, [justCreatedDeal, viewingCodesForDeal, isDialogOpen]);
   
   // Hantera öppning av dialogen för ett specifikt erbjudande
+  // Using Deal type from src/types/deal.ts for parameter
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
     console.log("[DiscountCodesDialogManager] Viewing discount codes for deal:", deal.id, deal.title);
     logIdInfo("DiscountCodesDialogManager viewDiscountCodes", deal.id);

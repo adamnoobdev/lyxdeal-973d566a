@@ -11,7 +11,7 @@ import { DealsDialogs } from "./DealsDialogs";
 import { usePendingDealsFunctions } from "./PendingDealsFunctions";
 import { DealsHeader } from "./DealsHeader";
 import { useDealsListActions } from "@/hooks/useDealsListActions";
-import { useNewDealTracking } from "@/hooks/useNewDealTracking";
+import { useNewDealTracking, DealCreationState } from "@/hooks/useNewDealTracking";
 import { DiscountCodesDialogManager } from "./discount-codes/DiscountCodesDialogManager";
 
 export const DealsListContainer = () => {
@@ -88,7 +88,10 @@ export const DealsListContainer = () => {
   };
   
   const handleUpdateSubmit = (values) => onUpdate(values, editingDeal);
-  const handleCreateSubmit = (values) => onCreate(values, setDealCreationState);
+  
+  const handleCreateSubmit = (values) => onCreate(values, (newState: DealCreationState) => {
+    setDealCreationState(newState);
+  });
 
   if (isLoading) {
     return <DealsLoadingSkeleton />;
