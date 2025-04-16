@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -120,8 +119,8 @@ export const CreateCollaborationDialog = ({ isOpen, onClose, onCreate }: CreateC
     
     try {
       await onCreate({
-        salon_id: formData.salon_id,
-        deal_id: formData.deal_id,
+        salon_id: parseInt(formData.salon_id as string, 10),
+        deal_id: parseInt(formData.deal_id as string, 10),
         title: formData.title,
         description: formData.description,
         compensation: formData.compensation,

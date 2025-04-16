@@ -36,7 +36,7 @@ export const CollaborationApplications = () => {
         collaboration_title: app.collaboration?.title,
         salon_name: app.collaboration?.salon_id?.name,
         deal_title: app.collaboration?.deal_id?.title
-      }));
+      })) as CollaborationApplication[];
 
       setApplications(formattedApplications);
     } catch (error) {

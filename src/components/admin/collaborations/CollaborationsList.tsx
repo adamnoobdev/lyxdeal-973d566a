@@ -38,7 +38,7 @@ export const CollaborationsList = () => {
         ...request,
         salon_name: request.salons?.name,
         deal_title: request.deals?.title
-      }));
+      })) as CollaborationRequest[];
 
       setCollaborationRequests(formattedRequests);
     } catch (error) {

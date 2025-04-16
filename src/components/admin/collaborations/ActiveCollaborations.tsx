@@ -32,7 +32,7 @@ export const ActiveCollaborations = () => {
         creator_email: collab.creator?.email,
         salon_name: collab.salon?.name,
         deal_title: collab.deal?.title
-      }));
+      })) as ActiveCollaboration[];
 
       setCollaborations(formattedCollaborations);
     } catch (error) {

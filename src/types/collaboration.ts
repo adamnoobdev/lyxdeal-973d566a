@@ -26,6 +26,9 @@ export interface CollaborationApplication {
   updated_at: string;
   creator_name?: string;
   creator_email?: string;
+  collaboration_title?: string;
+  salon_name?: string;
+  deal_title?: string;
 }
 
 export interface ActiveCollaboration {
@@ -40,5 +43,6 @@ export interface ActiveCollaboration {
   views: number;
   creator_name?: string;
   creator_email?: string;
+  salon_name?: string;
   deal_title?: string;
 }
