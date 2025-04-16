@@ -20,8 +20,8 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
   // Hämta pendingApplications från API
   const { data: pendingApplications = [], isLoading: isLoadingApplications } = useQuery({
     queryKey: ['salon-pending-applications', salonId],
-    queryFn: async (): Promise<PendingApplication[]> => {
-      if (!salonId) return [];
+    queryFn: async () => {
+      if (!salonId) return [] as PendingApplication[];
       
       const { data, error } = await supabase
         .from('collaboration_applications')
