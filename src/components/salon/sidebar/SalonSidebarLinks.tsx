@@ -1,6 +1,6 @@
 
 import { useLocation } from "react-router-dom";
-import { LayoutDashboard, Tags, Users, Settings } from "lucide-react";
+import { LayoutDashboard, Tags, Users, Settings, UserPlus } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, useSidebar } from "@/components/ui/sidebar";
 import { SidebarLink } from "../../admin/sidebar/SidebarLink";
 
@@ -14,6 +14,11 @@ const salonLinks = [
     href: "/salon/deal",
     icon: Tags,
     label: "Erbjudanden",
+  },
+  {
+    href: "/salon/collaborations",
+    icon: UserPlus,
+    label: "Samarbeten",
   },
   {
     href: "/salon/customers",
@@ -57,4 +62,4 @@ export const SalonSidebarLinks = ({ currentPath }: SalonSidebarLinksProps) => {
       </SidebarGroupContent>
     </SidebarGroup>
   );
-};
+}

@@ -12,6 +12,7 @@ import { useSalonDeals } from "@/hooks/salon-deals";
 import { Deal } from "@/types/deal";
 import { SubscriptionInactiveAlert } from "./SubscriptionInactiveAlert";
 import { ReactivateSubscriptionDialog } from "./ReactivateSubscriptionDialog";
+import { SalonCollaborationsContent } from "./collaborations/SalonCollaborationsContent";
 
 export function MainTabs() {
   const { session } = useSession();
@@ -86,8 +87,9 @@ export function MainTabs() {
       )}
       
       <Tabs defaultValue="deals" className="w-full">
-        <TabsList className="grid grid-cols-4 w-full max-w-2xl mb-8">
+        <TabsList className="grid grid-cols-5 w-full max-w-3xl mb-8">
           <TabsTrigger value="deals">Erbjudanden</TabsTrigger>
+          <TabsTrigger value="collaborations">Samarbeten</TabsTrigger>
           <TabsTrigger value="customers">Rabattkoder</TabsTrigger>
           <TabsTrigger value="subscription">Prenumeration</TabsTrigger>
           <TabsTrigger value="profile">Profil</TabsTrigger>
@@ -106,6 +108,25 @@ export function MainTabs() {
               <h3 className="text-lg font-medium mb-2">Inaktiv prenumeration</h3>
               <p className="text-muted-foreground mb-4">
                 Din prenumeration är inaktiv. Återaktivera för att kunna hantera erbjudanden.
+              </p>
+              <Button 
+                onClick={() => setShowReactivateDialog(true)}
+                variant="default"
+              >
+                Återaktivera prenumeration
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="collaborations" className="space-y-6">
+          {isSubscriptionActive ? (
+            <SalonCollaborationsContent salonId={salonId} />
+          ) : (
+            <div className="rounded-lg border p-6 text-center">
+              <h3 className="text-lg font-medium mb-2">Inaktiv prenumeration</h3>
+              <p className="text-muted-foreground mb-4">
+                Din prenumeration är inaktiv. Återaktivera för att kunna hantera samarbeten med kreatörer.
               </p>
               <Button 
                 onClick={() => setShowReactivateDialog(true)}
