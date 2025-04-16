@@ -40,10 +40,20 @@ export const CollaborationApplications = () => {
         // Check if collaboration exists and has properties
         const collaboration = app.collaboration || {};
         
-        // Extract values with fallbacks
-        const collaborationTitle = typeof collaboration === 'object' ? collaboration.title || 'Unknown' : 'Unknown';
-        const salonName = typeof collaboration === 'object' && collaboration.salon_id ? collaboration.salon_id.name || 'Unknown' : 'Unknown';
-        const dealTitle = typeof collaboration === 'object' && collaboration.deal_id ? collaboration.deal_id.title || 'Unknown' : 'Unknown';
+        // Extract values with fallbacks, using type assertions to handle potentially undefined properties
+        const collaborationTitle = typeof collaboration === 'object' && 'title' in collaboration 
+          ? (collaboration as any).title || 'Unknown' 
+          : 'Unknown';
+        
+        const salonId = typeof collaboration === 'object' && 'salon_id' in collaboration ? collaboration.salon_id : null;
+        const salonName = typeof salonId === 'object' && salonId !== null && 'name' in salonId 
+          ? (salonId as any).name || 'Unknown' 
+          : 'Unknown';
+        
+        const dealId = typeof collaboration === 'object' && 'deal_id' in collaboration ? collaboration.deal_id : null;
+        const dealTitle = typeof dealId === 'object' && dealId !== null && 'title' in dealId 
+          ? (dealId as any).title || 'Unknown' 
+          : 'Unknown';
 
         return {
           ...app,
