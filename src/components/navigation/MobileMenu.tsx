@@ -13,8 +13,6 @@ interface MobileMenuProps {
   setSelectedCity: (city: City) => void;
   selectedCategory: Category;
   setSelectedCategory: (category: Category) => void;
-  hasDashboard: boolean;
-  dashboardPath: string;
   userRole?: string | null;
   isLoggedIn: boolean;
 }
@@ -24,8 +22,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   setSelectedCity,
   selectedCategory,
   setSelectedCategory,
-  hasDashboard,
-  dashboardPath,
   userRole,
   isLoggedIn
 }) => {
@@ -41,6 +37,17 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
       navigate('/search');
     }
   };
+
+  // Determine dashboard path based on userRole
+  const getDashboardPath = () => {
+    if (userRole === 'admin') return '/admin';
+    if (userRole === 'creator') return '/creator/dashboard';
+    if (userRole === 'salon_owner') return '/salon/dashboard';
+    return '';
+  };
+
+  const hasDashboard = !!userRole && ['admin', 'creator', 'salon_owner'].includes(userRole);
+  const dashboardPath = getDashboardPath();
 
   return (
     <Sheet>

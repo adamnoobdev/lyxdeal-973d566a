@@ -5,7 +5,7 @@ import { ActiveCollaboration } from "@/types/collaboration";
 import { useMemo } from "react";
 
 // Define a type for the pending applications that matches the actual data structure
-type PendingApplication = {
+interface PendingApplication {
   id: string;
   collaboration_id: string;
   creator_id: string;
