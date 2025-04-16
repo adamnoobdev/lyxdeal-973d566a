@@ -55,6 +55,23 @@ export function UserMenu({ className, hasDashboard, dashboardPath, userRole }: U
     );
   }
 
+  // Konvertera profilrollen från API:et till visningstext för användargränssnittet
+  const getRoleDisplayText = () => {
+    // Använd först userRole från props om det finns
+    const roleToUse = userRole || profile?.role;
+    
+    switch(roleToUse) {
+      case 'creator':
+        return 'Kreatör';
+      case 'admin':
+        return 'Administratör';
+      case 'salon_owner':
+        return 'Salongsägare';
+      default:
+        return 'Användare';
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -74,13 +91,9 @@ export function UserMenu({ className, hasDashboard, dashboardPath, userRole }: U
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{user?.email}</p>
-            {profile?.role && (
-              <p className="text-xs leading-none text-muted-foreground">
-                {profile.role === 'creator' ? 'Kreatör' : 
-                 profile.role === 'admin' ? 'Administratör' : 
-                 profile.role === 'salon_owner' ? 'Salongsägare' : 'Användare'}
-              </p>
-            )}
+            <p className="text-xs leading-none text-muted-foreground">
+              {getRoleDisplayText()}
+            </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

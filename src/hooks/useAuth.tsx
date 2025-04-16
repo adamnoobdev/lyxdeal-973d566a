@@ -55,12 +55,28 @@ export const useAuth = () => {
   
   const fetchProfile = async (userId: string) => {
     try {
-      // For now we're just simulating a profile
-      // In production, you would fetch the profile from a 'profiles' table
+      // Försök hämta användarens roll från salons-tabellen först
+      const { data: salonData, error: salonError } = await supabase
+        .from('salons')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+      if (salonData && !salonError) {
+        setProfile({
+          id: userId,
+          role: salonData.role as UserRole,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Om användaren inte hittades i salons-tabellen, 
+      // kan vi kontrollera andra källor eller använda default-värden
+      // För nu, sätt en default-roll
       setProfile({
         id: userId,
-        role: 'creator', // Default to creator for testing
-        instagram_handle: 'creator_handle'
+        role: 'user', // Default-roll om inget annat hittas
       });
     } catch (error) {
       console.error('Error fetching profile:', error);

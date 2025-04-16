@@ -15,6 +15,7 @@ import DashboardLink from './navigation/DashboardLink';
 
 // Import types and constants
 import { City, Category } from '@/constants/app-constants';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NavigationBarProps {
   userRole?: string | null;
@@ -27,6 +28,7 @@ const NavigationBar = ({
   const [selectedCity, setSelectedCity] = useState<City>('Alla Städer');
   const [selectedCategory, setSelectedCategory] = useState<Category>('Alla Erbjudanden');
   const { session } = useSession();
+  const { profile } = useAuth(); // Hämta profilen från useAuth
   const navigate = useNavigate();
   const { isScrolled } = useScroll();
 
@@ -39,8 +41,11 @@ const NavigationBar = ({
     navigate(`/search?${searchParams.toString()}`);
   };
 
-  const hasDashboard = !!userRole;
-  const dashboardPath = userRole === 'admin' ? '/admin' : '/salon/dashboard';
+  // Använd userRole om det skickas som prop, annars använd rollen från auth-profilen
+  const effectiveUserRole = userRole || profile?.role;
+  const hasDashboard = !!effectiveUserRole;
+  const dashboardPath = effectiveUserRole === 'admin' ? '/admin' : 
+                         effectiveUserRole === 'creator' ? '/creator/dashboard' : '/salon/dashboard';
   const isLoggedIn = !!session?.user;
   const topPosition = isLoggedIn ? 'top-0' : 'top-[40px]';
 
@@ -61,7 +66,7 @@ const NavigationBar = ({
               setSelectedCategory={setSelectedCategory}
               hasDashboard={hasDashboard}
               dashboardPath={dashboardPath}
-              userRole={userRole}
+              userRole={effectiveUserRole}
               isLoggedIn={!!session?.user}
             />
           </div>
@@ -91,14 +96,14 @@ const NavigationBar = ({
             <DashboardLink 
               hasDashboard={hasDashboard}
               dashboardPath={dashboardPath}
-              userRole={userRole}
+              userRole={effectiveUserRole}
               className="hidden md:flex"
             />
 
             <UserMenu 
               hasDashboard={hasDashboard}
               dashboardPath={dashboardPath}
-              userRole={userRole}
+              userRole={effectiveUserRole}
               className="hidden md:flex"
             />
 
