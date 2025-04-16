@@ -30,13 +30,30 @@ export const CollaborationApplications = () => {
         throw error;
       }
 
-      const formattedApplications = data.map(app => ({
-        ...app,
-        creator_email: app.creator?.email || 'Unknown',
-        collaboration_title: app.collaboration?.title || 'Unknown',
-        salon_name: app.collaboration?.salon_id?.name || 'Unknown',
-        deal_title: app.collaboration?.deal_id?.title || 'Unknown'
-      })) as CollaborationApplication[];
+      // Safely map data with fallback values for potentially missing properties
+      const formattedApplications = data.map(app => {
+        // Check if creator is an object with email property
+        const creatorEmail = typeof app.creator === 'object' && app.creator !== null 
+          ? (app.creator as any).email || 'Unknown' 
+          : 'Unknown';
+        
+        // Check if collaboration exists and has properties
+        const collaboration = app.collaboration || {};
+        
+        // Extract values with fallbacks
+        const collaborationTitle = typeof collaboration === 'object' ? collaboration.title || 'Unknown' : 'Unknown';
+        const salonName = typeof collaboration === 'object' && collaboration.salon_id ? collaboration.salon_id.name || 'Unknown' : 'Unknown';
+        const dealTitle = typeof collaboration === 'object' && collaboration.deal_id ? collaboration.deal_id.title || 'Unknown' : 'Unknown';
+
+        return {
+          ...app,
+          creator_email: creatorEmail,
+          collaboration_title: collaborationTitle,
+          salon_name: salonName,
+          deal_title: dealTitle,
+          status: app.status as 'pending' | 'approved' | 'rejected'
+        };
+      }) as CollaborationApplication[];
 
       setApplications(formattedApplications);
     } catch (error) {
