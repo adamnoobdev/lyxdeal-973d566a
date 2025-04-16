@@ -1,7 +1,7 @@
 
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import { Instagram, TiktokIcon } from "lucide-react";
+import { Instagram, Share2 } from "lucide-react";
 
 export const CreatorHero = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ export const CreatorHero = () => {
                 onClick={handleSignupClick}
               >
                 <Instagram size={18} />
-                <TiktokIcon size={18} className="mr-2" />
+                <Share2 size={18} className="mr-2" />
                 Bli kreatör
               </Button>
             </div>
@@ -45,3 +45,4 @@ export const CreatorHero = () => {
     </div>
   );
 };
+
