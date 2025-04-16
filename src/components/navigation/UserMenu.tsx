@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,6 @@ export function UserMenu({ className, hasDashboard, dashboardPath, userRole }: U
 
   useEffect(() => {
     if (user?.email) {
-      // Generate initials from email
       setInitials(
         user.email
           .split("@")[0]
@@ -40,7 +38,6 @@ export function UserMenu({ className, hasDashboard, dashboardPath, userRole }: U
     }
   }, [user]);
 
-  // Show sign in button if not signed in
   if (!user && !loading) {
     return (
       <Button variant="outline" size="sm" asChild>
@@ -49,7 +46,6 @@ export function UserMenu({ className, hasDashboard, dashboardPath, userRole }: U
     );
   }
 
-  // Show loading state
   if (loading) {
     return (
       <Button variant="outline" size="sm" disabled>
