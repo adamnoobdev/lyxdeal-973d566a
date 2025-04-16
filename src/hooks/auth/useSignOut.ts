@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEnvironmentDetection } from "./useEnvironmentDetection";
 
-export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null>) => {
+export const useSignOut = () => {
   const { isSandboxEnvironment } = useEnvironmentDetection();
   
   // Hjälpfunktion för att tvinga utloggning utan API-anrop
@@ -11,13 +11,6 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
     try {
       console.log("Executing aggressive force sign-out procedure");
       
-      // Rensa eventuella uppdateringstimers
-      if (refreshTimerRef.current) {
-        clearTimeout(refreshTimerRef.current);
-        refreshTimerRef.current = null;
-      }
-      
-      // Aggressiv rensning av lagring - var grundlig
       try {
         // Explicit rensa auth-token för att säkerställa att autentiseringen inte återupptas
         localStorage.removeItem('sb-gmqeqhlhqhyrjquzhuzg-auth-token');
@@ -119,3 +112,4 @@ export const useSignOut = (refreshTimerRef: React.MutableRefObject<number | null
     forceSignOut
   };
 };
+
