@@ -1,98 +1,117 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Session } from '@supabase/supabase-js';
+
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { User } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
-import { useSession } from "@/hooks/useSession";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { User, LogOut, Settings, Award } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useSignOut } from "@/hooks/auth/useSignOut";
 
-interface UserMenuProps {
-  session: Session | null;
-  hasDashboard: boolean;
-  dashboardPath: string;
-  userRole?: string | null;
-  className?: string;
-}
+export function UserMenu() {
+  const { user, profile, loading } = useAuth();
+  const { signOut } = useSignOut();
+  const [initials, setInitials] = useState<string>("");
 
-const UserMenu: React.FC<UserMenuProps> = ({
-  session,
-  hasDashboard,
-  dashboardPath,
-  userRole,
-  className = ''
-}) => {
-  const navigate = useNavigate();
-  const { signOut } = useSession();
-  
-  const handleLogout = async () => {
-    try {
-      if (!session) {
-        toast.error("Ingen aktiv session att logga ut från");
-        navigate('/');
-        return;
-      }
-      
-      console.log("UserMenu: Initiating logout");
-      toast.loading("Loggar ut...");
-      
-      await signOut();
-      
-      toast.success("Du har loggats ut");
-      
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Utloggningsfel:', error);
-      toast.error("Det gick inte att logga ut. Försök igen.");
-      
-      window.location.href = '/';
+  useEffect(() => {
+    if (user?.email) {
+      // Generate initials from email
+      setInitials(
+        user.email
+          .split("@")[0]
+          .slice(0, 2)
+          .toUpperCase()
+      );
     }
-  };
-  
-  const goToProfile = () => {
-    if (hasDashboard) {
-      navigate(dashboardPath);
-    } else {
-      navigate('/salon/login');
-    }
-  };
+  }, [user]);
 
-  const handlePartnerClick = () => {
-    navigate('/salon/login');
-    window.scrollTo(0, 0);
-  };
-
-  if (session?.user) {
+  // Show sign in button if not signed in
+  if (!user && !loading) {
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className={`h-9 w-9 ${className}`}>
-            <User className="h-5 w-5" />
-            <span className="sr-only">User menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuItem onClick={goToProfile}>
-            Min profil
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleLogout}>
-            Logga ut
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button variant="outline" size="sm" asChild>
+        <Link to="/auth">Logga in</Link>
+      </Button>
+    );
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <Button variant="outline" size="sm" disabled>
+        <span className="animate-pulse">...</span>
+      </Button>
     );
   }
 
   return (
-    <Button 
-      variant="outline" 
-      size="sm" 
-      onClick={handlePartnerClick} 
-      className={`${className}`}
-    >
-      Logga in
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="relative h-9 w-9 rounded-full"
+        >
+          <Avatar className="h-9 w-9">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel>
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{user?.email}</p>
+            {profile?.role && (
+              <p className="text-xs leading-none text-muted-foreground">
+                {profile.role === 'creator' ? 'Kreatör' : 
+                 profile.role === 'admin' ? 'Administratör' : 
+                 profile.role === 'salon_owner' ? 'Salongsägare' : 'Användare'}
+              </p>
+            )}
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          {profile?.role === 'creator' && (
+            <DropdownMenuItem asChild>
+              <Link to="/creator/dashboard">
+                <Award className="mr-2 h-4 w-4" />
+                <span>Kreatörportal</span>
+              </Link>
+            </DropdownMenuItem>
+          )}
+          {profile?.role === 'admin' && (
+            <DropdownMenuItem asChild>
+              <Link to="/admin">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Admin</span>
+              </Link>
+            </DropdownMenuItem>
+          )}
+          {profile?.role === 'salon_owner' && (
+            <DropdownMenuItem asChild>
+              <Link to="/salon/dashboard">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={signOut}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Logga ut</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
-};
-
-export default UserMenu;
+}

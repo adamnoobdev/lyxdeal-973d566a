@@ -1,3 +1,4 @@
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Admin from "./pages/Admin";
 import Index from "./pages/Index";
@@ -7,6 +8,7 @@ import PartnerPage from "./pages/PartnerPage";
 import PartnerSignup from "./pages/PartnerSignup";
 import CreatorPage from "./pages/CreatorPage";
 import CreatorSignup from "./pages/CreatorSignup";
+import CreatorDashboard from "./pages/CreatorDashboard";
 import SalonLogin from "./pages/SalonLogin";
 import SalonDashboard from "./pages/SalonDashboard";
 import SalonDetails from "./pages/SalonDetails";
@@ -71,6 +73,10 @@ const router = createBrowserRouter([
   {
     path: "/creator/signup",
     element: <CreatorSignup />,
+  },
+  {
+    path: "/creator/dashboard",
+    element: <CreatorDashboard />,
   },
   {
     path: "/salon/login",
