@@ -4,6 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { ActiveCollaboration } from "@/types/collaboration";
 import { useMemo } from "react";
 
+// Define a type for the pending applications to avoid excessive type inference
+type PendingApplication = {
+  id: string;
+  salon_id: number;
+  status: string;
+  [key: string]: any; // For any other fields
+}
+
 export function useCollaborationStats(salonId: number | undefined, collaborations: ActiveCollaboration[]) {
   // Hämta pendingApplications från API
   const { data: pendingApplications = [], isLoading: isLoadingApplications } = useQuery({
@@ -18,7 +26,7 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
         .eq('salon_id', salonId);
         
       if (error) throw error;
-      return data || [];
+      return (data || []) as PendingApplication[];
     },
     enabled: !!salonId
   });
