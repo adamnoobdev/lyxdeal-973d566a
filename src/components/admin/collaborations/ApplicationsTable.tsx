@@ -61,7 +61,7 @@ export const ApplicationsTable = ({ applications, onApprove, onReject }: Applica
         <TableBody>
           {applications.map((application) => (
             <TableRow key={application.id} className={application.status !== 'pending' ? "opacity-75" : ""}>
-              <TableCell>{application.creator_email || '-'}</TableCell>
+              <TableCell>{application.creator_id}</TableCell>
               <TableCell>{application.collaboration_title || '-'}</TableCell>
               <TableCell>{application.salon_name || '-'}</TableCell>
               <TableCell>{application.deal_title || '-'}</TableCell>
@@ -110,7 +110,7 @@ export const ApplicationsTable = ({ applications, onApprove, onReject }: Applica
         >
           <div className="flex justify-between items-start mb-2">
             <div>
-              <p className="font-medium">{application.creator_email || '-'}</p>
+              <p className="font-medium">{application.creator_id}</p>
               <p className="text-sm text-muted-foreground">
                 {format(new Date(application.created_at), 'yyyy-MM-dd')}
               </p>

@@ -16,7 +16,14 @@ import { User, LogOut, Settings, Award } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSignOut } from "@/hooks/auth/useSignOut";
 
-export function UserMenu() {
+interface UserMenuProps {
+  className?: string;
+  hasDashboard?: boolean;
+  dashboardPath?: string;
+  userRole?: string | null;
+}
+
+export function UserMenu({ className, hasDashboard, dashboardPath, userRole }: UserMenuProps) {
   const { user, profile, loading } = useAuth();
   const { signOut } = useSignOut();
   const [initials, setInitials] = useState<string>("");

@@ -47,7 +47,7 @@ export const ActiveCollaborationsTable = ({ collaborations, onDelete }: ActiveCo
         <TableBody>
           {collaborations.map((collaboration) => (
             <TableRow key={collaboration.id}>
-              <TableCell>{collaboration.creator_email || '-'}</TableCell>
+              <TableCell>{collaboration.creator_id}</TableCell>
               <TableCell>{collaboration.salon_name || '-'}</TableCell>
               <TableCell>{collaboration.deal_title || '-'}</TableCell>
               <TableCell>
@@ -83,7 +83,7 @@ export const ActiveCollaborationsTable = ({ collaborations, onDelete }: ActiveCo
         >
           <div className="flex justify-between items-start">
             <div>
-              <p className="font-medium">{collaboration.creator_email || '-'}</p>
+              <p className="font-medium">{collaboration.creator_id}</p>
               <p className="text-sm text-muted-foreground">
                 {format(new Date(collaboration.created_at), 'yyyy-MM-dd')}
               </p>

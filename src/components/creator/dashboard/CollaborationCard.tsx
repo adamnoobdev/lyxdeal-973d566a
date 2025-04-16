@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 interface CollaborationCardProps {
   collaboration: ActiveCollaboration;
@@ -28,14 +27,8 @@ export const CollaborationCard = ({ collaboration }: CollaborationCardProps) => 
           url: collaboration.booking_url || window.location.origin,
         });
         
-        // Registrera delning
-        await supabase
-          .from('collaboration_shares')
-          .insert([{
-            collaboration_id: collaboration.id,
-            creator_id: collaboration.creator_id,
-            platform: 'share_api'
-          }]);
+        // Logga delning lokalt istället för i databas
+        console.log('Delning genomförd via Share API:', collaboration.id);
           
       } catch (err) {
         console.error('Error sharing:', err);

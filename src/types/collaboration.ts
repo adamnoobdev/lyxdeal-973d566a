@@ -27,6 +27,7 @@ export type CollaborationApplication = {
   collaboration_title?: string;
   salon_name?: string;
   deal_title?: string;
+  creator_email?: string;
 }
 
 export type ActiveCollaboration = {
@@ -47,4 +48,5 @@ export type ActiveCollaboration = {
   deal_title?: string;
   deal_description?: string;
   booking_url?: string;
+  creator_email?: string;
 }

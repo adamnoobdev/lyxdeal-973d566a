@@ -96,7 +96,6 @@ const NavigationBar = ({
             />
 
             <UserMenu 
-              session={session}
               hasDashboard={hasDashboard}
               dashboardPath={dashboardPath}
               userRole={userRole}
