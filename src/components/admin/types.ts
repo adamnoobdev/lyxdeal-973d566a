@@ -58,13 +58,13 @@ export interface Deal {
   salon?: {
     name?: string;
   };
-  created_at: string; // Changed to required property
-  updated_at: string; // Changed to required property
+  created_at: string; // Required property
+  updated_at: string; // Required property
   requires_discount_code?: boolean;
   booking_url?: string;
   expiration_date: string; // Required property
   rejection_message?: string;
-  quantity_left?: number;
+  quantity_left: number; // Now required to match src/types/deal.ts
   is_free?: boolean;
   stripe_price_id?: string;
 }

@@ -161,7 +161,7 @@ export const toggleActive = async (
   
   try {
     console.log(`Toggling active state for deal ID: ${deal.id}, current: ${deal.is_active}`);
-    await toggleDealActive(deal);
+    await toggleDealActive(deal); // Deal from src/types/deal.ts
     
     if (isMountedRef.current) {
       toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktivt' : 'inaktivt'}`);

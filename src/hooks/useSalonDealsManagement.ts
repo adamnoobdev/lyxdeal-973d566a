@@ -50,7 +50,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     }
     
     const result = await deleteDeal(
-      deletingDeal as Deal, // Use type assertion to ensure compatibility
+      deletingDeal, // Use the Deal from state directly
       setDeals,
       setDeletingDeal,
       isDeletingDeal,
@@ -71,7 +71,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
   const handleUpdate = useCallback(async (values: FormValues): Promise<boolean | void> => {
     try {
       return await updateDeal(
-        editingDeal as Deal, // Use type assertion to ensure compatibility
+        editingDeal, // Use the Deal from state directly
         values,
         setDeals,
         setEditingDeal,
@@ -103,7 +103,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
   // Handler for toggling deal active status - now returning Promise<void>
   const handleToggleActive = useCallback(async (deal: Deal): Promise<void> => {
     try {
-      await toggleActive(deal as Deal, setDeals, isMountedRef);
+      await toggleActive(deal, setDeals, isMountedRef);
     } catch (error) {
       console.error("[useSalonDealsManagement] Error toggling deal active status:", error);
     }

@@ -1,4 +1,3 @@
-
 import { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import { endOfMonth } from "date-fns";
@@ -27,7 +26,6 @@ export const useSalonDealsManager = () => {
   const [isClosingCodesDialog, setIsClosingCodesDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Track component mount status to prevent state updates after unmount
   const isMountedRef = useRef(true);
 
   useEffect(() => {
@@ -37,10 +35,8 @@ export const useSalonDealsManager = () => {
     };
   }, []);
 
-  // Safe state updater functions with timeouts to reduce UI freezing
   const safeSetState = useCallback(<T,>(setter: React.Dispatch<React.SetStateAction<T>>, value: T) => {
     if (isMountedRef.current) {
-      // Use setTimeout to defer state update to next event loop
       setTimeout(() => {
         if (isMountedRef.current) {
           setter(value);
@@ -73,7 +69,6 @@ export const useSalonDealsManager = () => {
     console.log("[useSalonDealsManager] Closing discount codes dialog");
     safeSetState(setIsClosingCodesDialog, true);
     
-    // Use setTimeout to delay state updates and prevent UI freeze
     setTimeout(() => {
       if (isMountedRef.current) {
         safeSetState(setViewingCodesForDeal, null);
@@ -90,7 +85,6 @@ export const useSalonDealsManager = () => {
       await handleUpdate(values);
     } finally {
       if (isMountedRef.current) {
-        // Use setTimeout to delay state update to next event loop
         setTimeout(() => {
           safeSetState(setIsSubmitting, false);
           handleClose();
@@ -99,7 +93,6 @@ export const useSalonDealsManager = () => {
     }
   }, [handleUpdate, handleClose, isSubmitting, safeSetState]);
   
-  // Modified to use the direct toggleDealActive function that returns boolean
   const handleToggleActive = useCallback(async (deal: Deal): Promise<boolean> => {
     try {
       return await toggleDealActive(deal);
@@ -108,8 +101,7 @@ export const useSalonDealsManager = () => {
       return false;
     }
   }, []);
-  
-  // Use useMemo for initialValues to prevent unnecessary calculations on re-renders
+
   const initialValues = useMemo(() => {
     if (!editingDeal) return undefined;
     
@@ -118,7 +110,6 @@ export const useSalonDealsManager = () => {
       description: editingDeal.description,
       imageUrl: editingDeal.image_url,
       originalPrice: editingDeal.original_price.toString(),
-      // Set discounted price to "0" for free deals regardless of actual stored value
       discountedPrice: editingDeal.is_free ? "0" : editingDeal.discounted_price.toString(),
       category: editingDeal.category,
       city: editingDeal.city,
@@ -133,7 +124,6 @@ export const useSalonDealsManager = () => {
     };
   }, [editingDeal]);
 
-  // Calculate whether the dialog should be open based on viewing deal and closing state
   const isDiscountCodesDialogOpen = !!viewingCodesForDeal && !isClosingCodesDialog;
 
   return {
