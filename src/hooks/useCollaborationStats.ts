@@ -25,7 +25,7 @@ interface CollaborationStats {
 }
 
 export function useCollaborationStats(salonId: number | undefined, collaborations: ActiveCollaboration[]) {
-  // Use a completely different strategy for fetching pendingApplications
+  // Fetch pending applications using a simpler approach
   const { data: pendingApplicationsData, isLoading: isLoadingApplications } = useQuery({
     queryKey: ['salon-pending-applications', salonId],
     queryFn: async () => {
@@ -33,26 +33,21 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
         return [] as PendingApplication[];
       }
       
-      // Define the return type explicitly to avoid deep type instantiation
-      let result: PendingApplication[] = [];
-      
       try {
-        // Use .from().select() pattern but avoid chaining too many operations
-        const response = await supabase
+        // Simplify the query to avoid type inference issues
+        const { data, error } = await supabase
           .from('collaboration_applications')
-          .select('*')
+          .select('id, collaboration_id, creator_id, message, status, created_at, updated_at, salon_id')
           .eq('status', 'pending')
           .eq('salon_id', salonId);
           
-        if (response.error) {
-          throw response.error;
+        if (error) {
+          console.error('Error fetching pending applications:', error);
+          return [] as PendingApplication[];
         }
         
-        // Use explicit type assertion to break type inference chain
-        const data: any[] = response.data || [];
-        
-        // Map data to our explicit standalone type
-        result = data.map(item => ({
+        // Manually convert to the standalone type to break the inference chain
+        return (data || []).map((item: any) => ({
           id: item.id || '',
           collaboration_id: item.collaboration_id || '',
           creator_id: item.creator_id || '',
@@ -61,12 +56,11 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
           created_at: item.created_at || '',
           updated_at: item.updated_at || '',
           salon_id: item.salon_id || 0
-        }));
+        })) as PendingApplication[];
       } catch (error) {
-        console.error('Error fetching pending applications:', error);
+        console.error('Error in pending applications query:', error);
+        return [] as PendingApplication[];
       }
-      
-      return result;
     },
     enabled: !!salonId
   });
