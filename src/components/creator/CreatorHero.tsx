@@ -1,7 +1,6 @@
-
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import { Instagram, Share2, MapPin } from "lucide-react";
+import { CirclePlay } from "lucide-react";
 
 export const CreatorHero = () => {
   const navigate = useNavigate();
@@ -40,8 +39,7 @@ export const CreatorHero = () => {
                 className="bg-white text-purple-600 hover:bg-white/90 w-full sm:w-auto font-semibold shadow-lg text-sm md:text-base flex items-center gap-2"
                 onClick={handleSignupClick}
               >
-                <Instagram size={18} />
-                <Share2 size={18} className="mr-2" />
+                <CirclePlay size={18} />
                 Bli kreatör
               </Button>
             </div>
