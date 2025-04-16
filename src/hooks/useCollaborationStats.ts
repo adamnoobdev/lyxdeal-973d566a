@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ActiveCollaboration } from "@/types/collaboration";
 import { useMemo } from "react";
 
-// Definiera en enklare typ för PendingApplication som bryter kopplingen till den djupa typinferensen
+// Definiera en helt fristående typ utan koppling till supabase-typerna
 type PendingApplication = {
   id: string;
   collaboration_id: string;
@@ -16,7 +16,7 @@ type PendingApplication = {
   salon_id: number;
 }
 
-// Interface för statistik för att göra koden tydligare
+// Interface för statistik
 interface CollaborationStats {
   totalViews: number;
   totalRedemptions: number;
@@ -25,31 +25,50 @@ interface CollaborationStats {
 }
 
 export function useCollaborationStats(salonId: number | undefined, collaborations: ActiveCollaboration[]) {
-  // Hämta pendingApplications från API, med förenklad typhantering
-  const { data, isLoading: isLoadingApplications } = useQuery({
+  // Använd en helt annan strategi för att hämta pendingApplications
+  const { data: pendingApplicationsData, isLoading: isLoadingApplications } = useQuery({
     queryKey: ['salon-pending-applications', salonId],
     queryFn: async () => {
-      if (!salonId) return [] as PendingApplication[];
+      if (!salonId) {
+        return [];
+      }
       
-      // Använd ett mer direkt angreppssätt för att hämta data och hantera typer
-      const response = await supabase
-        .from('collaboration_applications')
-        .select('*')
-        .eq('status', 'pending')
-        .eq('salon_id', salonId);
+      try {
+        const { data, error } = await supabase
+          .from('collaboration_applications')
+          .select('*')
+          .eq('status', 'pending')
+          .eq('salon_id', salonId);
+          
+        if (error) {
+          throw error;
+        }
         
-      if (response.error) throw response.error;
-      
-      // Explicit typkonvertering för att undvika djup typinferens
-      return (response.data || []) as PendingApplication[];
+        // Behandla data innan den returneras för att bryta typ-kedjan
+        const formattedData = Array.isArray(data) ? data.map((item): PendingApplication => ({
+          id: item.id || '',
+          collaboration_id: item.collaboration_id || '',
+          creator_id: item.creator_id || '',
+          message: item.message,
+          status: item.status || 'pending',
+          created_at: item.created_at || '',
+          updated_at: item.updated_at || '',
+          salon_id: item.salon_id || 0
+        })) : [];
+        
+        return formattedData;
+      } catch (error) {
+        console.error('Error fetching pending applications:', error);
+        return [];
+      }
     },
     enabled: !!salonId
   });
-
-  // Använd pendingApplications med säker fallback
-  const pendingApplications = data || [];
   
-  // Beräkna statistik från collaborations-arrayen
+  // Säkerställ att vi alltid har en array
+  const pendingApplications = pendingApplicationsData || [];
+  
+  // Beräkna statistik
   const stats: CollaborationStats = useMemo(() => {
     const totalViews = collaborations.reduce((sum, collab) => sum + (collab.views || 0), 0);
     const totalRedemptions = collaborations.reduce((sum, collab) => sum + (collab.redemptions || 0), 0);
