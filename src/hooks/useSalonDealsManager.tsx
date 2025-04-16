@@ -1,3 +1,4 @@
+
 import { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import { endOfMonth } from "date-fns";
@@ -46,11 +47,11 @@ export const useSalonDealsManager = () => {
   }, []);
 
   const handleEdit = useCallback((deal: Deal) => {
-    safeSetState(setEditingDeal, deal);
+    safeSetState(setEditingDeal, deal as any);
   }, [safeSetState, setEditingDeal]);
 
   const handleDeleteClick = useCallback((deal: Deal) => {
-    safeSetState(setDeletingDeal, deal);
+    safeSetState(setDeletingDeal, deal as any);
   }, [safeSetState, setDeletingDeal]);
 
   const handleClose = useCallback(() => {

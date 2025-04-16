@@ -1,6 +1,6 @@
 
 import { Dispatch, MutableRefObject, SetStateAction } from "react";
-import { Deal } from "@/types/deal"; // Changed to use the correct Deal type
+import { Deal } from "@/components/admin/types"; // Using the admin types Deal
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { FormValues } from "@/components/deal-form/schema";
@@ -115,6 +115,7 @@ export const updateDeal = async (
     if (isMountedRef.current) {
       toast.success("Erbjudandet har uppdaterats");
       
+      // Ensure the status is maintained in the updated deal object
       const updatedDeal: Deal = { 
         ...deal, 
         title: values.title,
@@ -132,7 +133,9 @@ export const updateDeal = async (
           ? values.expirationDate 
           : values.expirationDate.toISOString(),
         booking_url: values.booking_url || null,
-        requires_discount_code: values.requires_discount_code
+        requires_discount_code: values.requires_discount_code,
+        // Preserve the original status
+        status: deal.status
       };
       
       setDeals(prevDeals => prevDeals.map(d => 
@@ -161,7 +164,7 @@ export const toggleActive = async (
   
   try {
     console.log(`Toggling active state for deal ID: ${deal.id}, current: ${deal.is_active}`);
-    await toggleDealActive(deal); // Deal from src/types/deal.ts
+    await toggleDealActive(deal as any); // Type assertion needed for compatibility
     
     if (isMountedRef.current) {
       toast.success(`Erbjudandet är nu ${!deal.is_active ? 'aktivt' : 'inaktivt'}`);
