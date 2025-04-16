@@ -13,25 +13,25 @@ const AdminCollaborations = () => {
   return (
     <AdminAuthCheck>
       <AdminLayout>
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto p-4 max-w-7xl">
           <h1 className="text-2xl font-bold mb-6">Kreatörssamarbeten</h1>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-6">
-              <TabsTrigger value="requests">Förfrågningar</TabsTrigger>
-              <TabsTrigger value="applications">Ansökningar</TabsTrigger>
-              <TabsTrigger value="active">Aktiva Samarbeten</TabsTrigger>
+            <TabsList className="mb-6 w-full max-w-md mx-auto flex justify-between overflow-x-auto">
+              <TabsTrigger value="requests" className="flex-1">Förfrågningar</TabsTrigger>
+              <TabsTrigger value="applications" className="flex-1">Ansökningar</TabsTrigger>
+              <TabsTrigger value="active" className="flex-1">Aktiva</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="requests" className="space-y-4">
+            <TabsContent value="requests" className="space-y-4 animate-fade-in">
               <CollaborationsList />
             </TabsContent>
             
-            <TabsContent value="applications" className="space-y-4">
+            <TabsContent value="applications" className="space-y-4 animate-fade-in">
               <CollaborationApplications />
             </TabsContent>
             
-            <TabsContent value="active" className="space-y-4">
+            <TabsContent value="active" className="space-y-4 animate-fade-in">
               <ActiveCollaborations />
             </TabsContent>
           </Tabs>

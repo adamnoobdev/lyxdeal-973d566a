@@ -43,8 +43,9 @@ export const CollaborationsTable = ({ collaborationRequests, onEdit, onDelete }:
     }
   };
 
-  return (
-    <div className="border rounded-md">
+  // Desktop view
+  const renderDesktopTable = () => (
+    <div className="border rounded-md overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -92,5 +93,78 @@ export const CollaborationsTable = ({ collaborationRequests, onEdit, onDelete }:
         </TableBody>
       </Table>
     </div>
+  );
+
+  // Mobile view
+  const renderMobileCards = () => (
+    <div className="space-y-4">
+      {collaborationRequests.map((request) => (
+        <div 
+          key={request.id} 
+          className="border rounded-md p-4"
+        >
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <h3 className="font-medium">{request.title}</h3>
+              <p className="text-sm text-muted-foreground">
+                {format(new Date(request.created_at), 'yyyy-MM-dd')}
+              </p>
+            </div>
+            <div>{getStatusBadge(request.status)}</div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2 text-sm my-3">
+            <div>
+              <p className="text-muted-foreground">Salong</p>
+              <p>{request.salon_name || '-'}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Behandling</p>
+              <p>{request.deal_title || '-'}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Ersättning</p>
+              <p>{request.compensation}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Kreatörer</p>
+              <p>{`${request.current_creators} / ${request.max_creators}`}</p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onEdit(request)}
+            >
+              <Edit className="h-4 w-4 mr-1" /> Redigera
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onDelete(request)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4 mr-1" /> Ta bort
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop view (hidden on mobile) */}
+      <div className="hidden md:block">
+        {renderDesktopTable()}
+      </div>
+      
+      {/* Mobile view (hidden on desktop) */}
+      <div className="md:hidden">
+        {renderMobileCards()}
+      </div>
+    </>
   );
 };

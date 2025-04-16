@@ -43,8 +43,9 @@ export const ApplicationsTable = ({ applications, onApprove, onReject }: Applica
     }
   };
 
-  return (
-    <div className="border rounded-md">
+  // Desktop view
+  const renderDesktopTable = () => (
+    <div className="border rounded-md overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -97,5 +98,77 @@ export const ApplicationsTable = ({ applications, onApprove, onReject }: Applica
         </TableBody>
       </Table>
     </div>
+  );
+
+  // Mobile view
+  const renderMobileCards = () => (
+    <div className="space-y-4">
+      {applications.map((application) => (
+        <div 
+          key={application.id} 
+          className={`border rounded-md p-4 ${application.status !== 'pending' ? "opacity-75" : ""}`}
+        >
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <p className="font-medium">{application.creator_email || '-'}</p>
+              <p className="text-sm text-muted-foreground">
+                {format(new Date(application.created_at), 'yyyy-MM-dd')}
+              </p>
+            </div>
+            <div>{getStatusBadge(application.status)}</div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2 text-sm my-3">
+            <div>
+              <p className="text-muted-foreground">Samarbete</p>
+              <p>{application.collaboration_title || '-'}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Salong</p>
+              <p>{application.salon_name || '-'}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Behandling</p>
+              <p>{application.deal_title || '-'}</p>
+            </div>
+          </div>
+
+          {application.status === 'pending' && (
+            <div className="flex justify-end gap-2 mt-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={() => onApprove(application.id, application.collaboration_id, application.creator_id)}
+              >
+                <Check className="h-4 w-4 mr-1" /> Godkänn
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={() => onReject(application.id)}
+              >
+                <X className="h-4 w-4 mr-1" /> Avvisa
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop view (hidden on mobile) */}
+      <div className="hidden md:block">
+        {renderDesktopTable()}
+      </div>
+      
+      {/* Mobile view (hidden on desktop) */}
+      <div className="md:hidden">
+        {renderMobileCards()}
+      </div>
+    </>
   );
 };
