@@ -8,7 +8,7 @@ import { useScroll } from '@/hooks/useScroll';
 import Logo from './navigation/Logo';
 import SearchBar from './navigation/SearchBar';
 import CitySelector from './navigation/CitySelector';
-import UserMenu from './navigation/UserMenu';
+import { UserMenu } from './navigation/UserMenu';
 import MobileMenu from './navigation/MobileMenu';
 import MobileSearch from './navigation/MobileSearch';
 import DashboardLink from './navigation/DashboardLink';

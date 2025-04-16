@@ -2,10 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { CollaborationApplication } from "@/types/collaboration";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, HourglassIcon, CheckCircle2Icon, XCircleIcon } from "lucide-react";
-import { format } from "date-fns";
+import { ApplicationCard } from "@/components/creator/dashboard/ApplicationCard";
+import { Loader2 } from "lucide-react";
 
 export const CreatorApplications = () => {
   const [applications, setApplications] = useState<CollaborationApplication[]>([]);
@@ -15,13 +13,10 @@ export const CreatorApplications = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const { data: userData } = await supabase.auth.getUser();
-        
-        if (!userData.user) {
-          setLoading(false);
-          return;
-        }
+        const { data: authData } = await supabase.auth.getUser();
+        if (!authData.user) throw new Error('Ej inloggad');
 
+        // Hämta användarens ansökningar
         const { data, error } = await supabase
           .from('collaboration_applications')
           .select(`
@@ -33,24 +28,24 @@ export const CreatorApplications = () => {
             created_at,
             updated_at,
             collaboration_requests:collaboration_id (
-              title, 
+              title,
               salon_id,
               deal_id,
               salons:salon_id (name),
               deals:deal_id (title)
             )
           `)
-          .eq('creator_id', userData.user.id)
+          .eq('creator_id', authData.user.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        // Transform the data to match the CollaborationApplication type
+        // Transformera datan till rätt format
         const transformedData: CollaborationApplication[] = data.map(item => ({
           id: item.id,
           collaboration_id: item.collaboration_id,
           creator_id: item.creator_id,
-          status: item.status,
+          status: item.status as "pending" | "approved" | "rejected",
           message: item.message,
           created_at: item.created_at,
           updated_at: item.updated_at,
@@ -90,77 +85,18 @@ export const CreatorApplications = () => {
   if (applications.length === 0) {
     return (
       <div className="bg-white border border-gray-200 rounded-md p-8 text-center">
-        <h3 className="text-lg font-medium mb-2">Du har inga ansökningar ännu</h3>
+        <h3 className="text-lg font-medium mb-2">Du har inga ansökningar</h3>
         <p className="text-gray-500">
-          När du ansöker om samarbeten kommer de att visas här.
+          Hitta möjligheter i fliken "Möjligheter" och ansök om samarbeten.
         </p>
       </div>
     );
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return (
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 flex items-center gap-1">
-            <HourglassIcon className="h-3.5 w-3.5" />
-            <span>Väntar på svar</span>
-          </Badge>
-        );
-      case 'approved':
-        return (
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
-            <CheckCircle2Icon className="h-3.5 w-3.5" />
-            <span>Godkänd</span>
-          </Badge>
-        );
-      case 'rejected':
-        return (
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 flex items-center gap-1">
-            <XCircleIcon className="h-3.5 w-3.5" />
-            <span>Avvisad</span>
-          </Badge>
-        );
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
-
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {applications.map((application) => (
-        <Card key={application.id} className="overflow-hidden">
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-start flex-col sm:flex-row gap-2">
-              <CardTitle className="text-lg">{application.collaboration_title || 'Samarbete'}</CardTitle>
-              {getStatusBadge(application.status)}
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-muted-foreground mb-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-              <span className="font-medium">{application.salon_name || 'Salong'}</span>
-              {application.deal_title && (
-                <>
-                  <span className="hidden sm:inline">•</span>
-                  <span>{application.deal_title}</span>
-                </>
-              )}
-            </div>
-            
-            {application.message && (
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-1">Ditt meddelande:</h4>
-                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md border border-gray-100">
-                  {application.message}
-                </p>
-              </div>
-            )}
-            
-            <div className="text-xs text-gray-500">
-              Ansökan skickad: {format(new Date(application.created_at), 'yyyy-MM-dd')}
-            </div>
-          </CardContent>
-        </Card>
+        <ApplicationCard key={application.id} application={application} />
       ))}
     </div>
   );

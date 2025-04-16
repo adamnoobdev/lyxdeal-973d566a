@@ -33,7 +33,7 @@ export const CreatorOpportunities = () => {
             deals:deal_id(title)
           `)
           .eq('status', 'active')
-          .lt('current_creators', supabase.raw('max_creators'))
+          .lt('current_creators', 'max_creators')
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -46,7 +46,7 @@ export const CreatorOpportunities = () => {
           title: item.title,
           description: item.description,
           compensation: item.compensation,
-          status: item.status,
+          status: item.status as "active" | "completed" | "cancelled",
           created_at: item.created_at,
           updated_at: item.created_at, // Using created_at as updated_at since we don't have it
           expires_at: item.expires_at,
@@ -97,9 +97,9 @@ export const CreatorOpportunities = () => {
 
   const handleApply = async (collaboration: CollaborationRequest, message: string) => {
     try {
-      const { user } = await supabase.auth.getUser();
+      const { data: authData } = await supabase.auth.getUser();
       
-      if (!user || !user.id) {
+      if (!authData || !authData.user || !authData.user.id) {
         toast.error("Du måste vara inloggad för att ansöka");
         return;
       }
@@ -109,7 +109,7 @@ export const CreatorOpportunities = () => {
         .insert([
           {
             collaboration_id: collaboration.id,
-            creator_id: user.id,
+            creator_id: authData.user.id,
             message: message,
             status: 'pending'
           }

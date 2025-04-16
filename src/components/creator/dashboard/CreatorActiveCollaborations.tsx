@@ -2,11 +2,19 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { ActiveCollaboration } from "@/types/collaboration";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { CollaborationCard } from "@/components/creator/dashboard/CollaborationCard";
+import { Loader2, ExternalLink, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Eye, ShoppingBag, Copy, ExternalLink } from "lucide-react";
-import { format } from "date-fns";
 
 export const CreatorActiveCollaborations = () => {
   const [collaborations, setCollaborations] = useState<ActiveCollaboration[]>([]);
@@ -16,13 +24,10 @@ export const CreatorActiveCollaborations = () => {
   useEffect(() => {
     const fetchCollaborations = async () => {
       try {
-        const { data: userData } = await supabase.auth.getUser();
-        
-        if (!userData.user) {
-          setLoading(false);
-          return;
-        }
+        const { data: authData } = await supabase.auth.getUser();
+        if (!authData.user) throw new Error('Ej inloggad');
 
+        // Hämta användarens aktiva samarbeten
         const { data, error } = await supabase
           .from('active_collaborations')
           .select(`
@@ -32,18 +37,30 @@ export const CreatorActiveCollaborations = () => {
             salon_id,
             deal_id,
             discount_code,
-            created_at,
             views,
             redemptions,
-            salons:salon_id (name),
-            deals:deal_id (title, description, booking_url)
+            created_at,
+            collaboration_requests:collaboration_id (
+              title,
+              description,
+              compensation
+            ),
+            salons:salon_id (
+              name,
+              website
+            ),
+            deals:deal_id (
+              title,
+              description,
+              booking_url
+            )
           `)
-          .eq('creator_id', userData.user.id)
+          .eq('creator_id', authData.user.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        // Transform the data to match the ActiveCollaboration type
+        // Transformera datan till rätt format
         const transformedData: ActiveCollaboration[] = data.map(item => ({
           id: item.id,
           collaboration_id: item.collaboration_id,
@@ -51,11 +68,16 @@ export const CreatorActiveCollaborations = () => {
           salon_id: item.salon_id,
           deal_id: item.deal_id,
           discount_code: item.discount_code,
+          views: item.views,
+          redemptions: item.redemptions,
           created_at: item.created_at,
-          redemptions: item.redemptions || 0,
-          views: item.views || 0,
+          collaboration_title: item.collaboration_requests?.title,
+          collaboration_description: item.collaboration_requests?.description,
+          compensation: item.collaboration_requests?.compensation,
           salon_name: item.salons?.name,
+          salon_website: item.salons?.website,
           deal_title: item.deals?.title,
+          deal_description: item.deals?.description,
           booking_url: item.deals?.booking_url
         }));
 
@@ -71,9 +93,39 @@ export const CreatorActiveCollaborations = () => {
     fetchCollaborations();
   }, []);
 
-  const copyDiscountCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast.success('Rabattkod kopierad!');
+  const shareCollaboration = async (collaboration: ActiveCollaboration) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${collaboration.deal_title} - rabattkod`,
+          text: `Kolla in det här erbjudandet från ${collaboration.salon_name}! Använd min rabattkod: ${collaboration.discount_code}`,
+          url: collaboration.booking_url || window.location.origin,
+        });
+        
+        // Registrera delning
+        await supabase
+          .from('collaboration_shares')
+          .insert([{
+            collaboration_id: collaboration.id,
+            creator_id: collaboration.creator_id,
+            platform: 'share_api'
+          }]);
+          
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      // Fallback om navigator.share inte finns
+      try {
+        await navigator.clipboard.writeText(
+          `Kolla in det här erbjudandet från ${collaboration.salon_name}! Använd min rabattkod: ${collaboration.discount_code}${collaboration.booking_url ? '\n' + collaboration.booking_url : ''}`
+        );
+        toast.success('Rabattkod kopierad till urklipp!');
+      } catch (err) {
+        console.error('Kunde inte kopiera:', err);
+        toast.error('Kunde inte kopiera koden');
+      }
+    }
   };
 
   if (loading) {
@@ -97,77 +149,61 @@ export const CreatorActiveCollaborations = () => {
       <div className="bg-white border border-gray-200 rounded-md p-8 text-center">
         <h3 className="text-lg font-medium mb-2">Du har inga aktiva samarbeten</h3>
         <p className="text-gray-500">
-          När dina samarbetsansökningar blir godkända kommer de att visas här.
+          När dina ansökningar blir godkända kommer dina aktiva samarbeten att visas här.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {collaborations.map((collab) => (
-        <Card key={collab.id} className="overflow-hidden">
-          <CardHeader className="bg-gray-50 border-b pb-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {collaborations.map((collaboration) => (
+        <Card key={collaboration.id} className="overflow-hidden">
+          <CardHeader className="pb-2">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-medium">{collab.deal_title}</h3>
-                <p className="text-sm text-muted-foreground">{collab.salon_name}</p>
+                <CardTitle className="text-lg">{collaboration.salon_name}</CardTitle>
+                <CardDescription className="mt-1">{collaboration.deal_title}</CardDescription>
               </div>
-              <div className="text-right text-xs text-gray-500">
-                Aktivt sedan {format(new Date(collab.created_at), 'yyyy-MM-dd')}
-              </div>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                Aktivt
+              </Badge>
             </div>
           </CardHeader>
-          <CardContent className="pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div className="flex flex-col space-y-1">
-                <span className="text-xs text-muted-foreground">Din rabattkod</span>
-                <div className="flex items-center gap-2">
-                  <code className="bg-purple-50 text-purple-800 px-3 py-1.5 rounded-md font-mono text-sm flex-grow flex items-center justify-between">
-                    {collab.discount_code}
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => copyDiscountCode(collab.discount_code)}
-                      className="h-6 w-6 p-0 text-purple-700"
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                      <span className="sr-only">Kopiera kod</span>
-                    </Button>
-                  </code>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-3 rounded-md text-center">
-                  <div className="flex items-center justify-center mb-1 text-purple-600">
-                    <Eye className="h-4 w-4 mr-1" />
-                    <span className="font-medium">{collab.views}</span>
-                  </div>
-                  <div className="text-xs text-gray-600">Visningar</div>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-md text-center">
-                  <div className="flex items-center justify-center mb-1 text-teal-600">
-                    <ShoppingBag className="h-4 w-4 mr-1" />
-                    <span className="font-medium">{collab.redemptions}</span>
-                  </div>
-                  <div className="text-xs text-gray-600">Inlösningar</div>
-                </div>
+          <CardContent className="pb-2">
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold mb-1">Din rabattkod</h4>
+              <div className="bg-gray-50 p-2 rounded-md border border-gray-200 font-mono text-center">
+                {collaboration.discount_code}
               </div>
             </div>
-            
-            {collab.booking_url && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full mt-2"
-                onClick={() => window.open(collab.booking_url, '_blank')}
-              >
-                <ExternalLink className="h-4 w-4 mr-1" />
-                Gå till bokningssidan
+            <div className="flex justify-between text-sm text-gray-500 mb-4">
+              <div>
+                <p className="font-medium">Visningar</p>
+                <p className="text-lg font-semibold text-gray-700">{collaboration.views}</p>
+              </div>
+              <div>
+                <p className="font-medium">Inlösta</p>
+                <p className="text-lg font-semibold text-gray-700">{collaboration.redemptions}</p>
+              </div>
+              <div>
+                <p className="font-medium">Ersättning</p>
+                <p className="text-lg font-semibold text-gray-700">{collaboration.compensation}</p>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex gap-2">
+            {collaboration.booking_url && (
+              <Button variant="outline" size="sm" className="flex-1" asChild>
+                <a href={collaboration.booking_url} target="_blank" rel="noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-1" /> Besök länk
+                </a>
               </Button>
             )}
-          </CardContent>
+            <Button variant="default" size="sm" className="flex-1" onClick={() => shareCollaboration(collaboration)}>
+              <Share2 className="h-4 w-4 mr-1" /> Dela
+            </Button>
+          </CardFooter>
         </Card>
       ))}
     </div>
