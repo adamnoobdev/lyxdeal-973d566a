@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Changed from admin/types to types/deal
 import { toast } from "sonner";
 
 export const loadSalonDeals = async (

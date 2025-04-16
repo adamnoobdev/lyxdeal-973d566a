@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Changed from admin/types to types/deal
 import { UseSalonDealsReturn } from "./types";
 import { deleteDeal, updateDeal, toggleActive } from "./dealOperations";
 import { loadSalonDeals } from "./loadDeals";

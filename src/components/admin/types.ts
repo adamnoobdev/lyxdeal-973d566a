@@ -53,7 +53,7 @@ export interface Deal {
   time_remaining: string;
   featured: boolean; // Required property
   status: 'pending' | 'approved' | 'rejected'; // Updated to match src/types/deal.ts
-  is_active?: boolean;
+  is_active: boolean; // Changed from optional to required to match src/types/deal.ts
   salon_id?: number;
   salon?: {
     name?: string;
@@ -65,6 +65,6 @@ export interface Deal {
   expiration_date: string; // Required property
   rejection_message?: string;
   quantity_left: number; // Required property
-  is_free: boolean; // Changed from optional to required to match src/types/deal.ts
+  is_free: boolean; // Required property
   stripe_price_id?: string;
 }

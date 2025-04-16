@@ -1,6 +1,7 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { FormValues } from "@/components/deal-form/schema";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Changed from admin/types to types/deal
 import { differenceInDays } from "date-fns";
 import { toast } from "sonner";
 import { generateDiscountCodes } from "@/utils/discount-codes";
