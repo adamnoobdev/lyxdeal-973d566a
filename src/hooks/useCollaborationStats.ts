@@ -30,6 +30,8 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
         .eq('salon_id', salonId);
         
       if (error) throw error;
+      
+      // Explicitly cast the returned data to the correct type
       return (data || []) as PendingApplication[];
     },
     enabled: !!salonId
