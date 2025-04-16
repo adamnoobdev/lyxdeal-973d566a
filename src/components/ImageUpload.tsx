@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ResponsiveImage } from "./common/ResponsiveImage";
+import { X } from "lucide-react";
 
 interface ImageUploadProps {
   onImageSelected: (imageUrl: string) => void;
@@ -67,6 +68,12 @@ export const ImageUpload = ({ onImageSelected, currentImageUrl }: ImageUploadPro
     }
   };
 
+  const handleRemoveImage = () => {
+    setPreviewUrl(null);
+    onImageSelected(''); // Send empty string to indicate image removal
+    toast.success('Bilden har tagits bort');
+  };
+
   return (
     <div className="space-y-4">
       {previewUrl && (
@@ -76,6 +83,17 @@ export const ImageUpload = ({ onImageSelected, currentImageUrl }: ImageUploadPro
             alt="Förhandsgranskning" 
             className="h-full w-full object-cover"
           />
+          <Button 
+            type="button"
+            variant="destructive"
+            size="sm"
+            className="absolute top-2 right-2 h-8 w-8 rounded-full p-0"
+            onClick={handleRemoveImage}
+            title="Ta bort bild"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Ta bort bild</span>
+          </Button>
         </div>
       )}
       <div className="space-y-2">

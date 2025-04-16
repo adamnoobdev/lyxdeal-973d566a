@@ -55,13 +55,16 @@ export const FormFields = ({
       <FormField
         control={form.control}
         name="imageUrl"
-        render={() => (
+        render={({ field }) => (
           <FormItem>
             <FormLabel>Bild</FormLabel>
             <FormControl>
               <ImageUpload 
-                onImageSelected={handleImageSelected} 
-                currentImageUrl={initialImageUrl}
+                onImageSelected={(imageUrl) => {
+                  handleImageSelected(imageUrl);
+                  field.onChange(imageUrl);
+                }} 
+                currentImageUrl={initialImageUrl || field.value}
               />
             </FormControl>
             <FormMessage />
