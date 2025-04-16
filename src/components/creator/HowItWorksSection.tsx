@@ -1,5 +1,5 @@
 
-import { ArrowRight, User, Code, Calculator, CreditCard } from "lucide-react";
+import { ArrowRight, User, Code, Calculator, CreditCard, Share2 } from "lucide-react";
 
 export const HowItWorksSection = () => {
   const steps = [
@@ -9,18 +9,18 @@ export const HowItWorksSection = () => {
       icon: <User className="h-6 w-6" />
     },
     {
+      title: "Skapa innehåll",
+      description: "Producera autentiskt innehåll på Instagram eller TikTok om skönhetsbehandlingar.",
+      icon: <Share2 className="h-6 w-6" />
+    },
+    {
       title: "Få dina koder",
-      description: "När din ansökan godkänts får du tillgång till personliga rabattkoder.",
+      description: "Få personliga rabattkoder och en gratis behandling att skapa innehåll om.",
       icon: <Code className="h-6 w-6" />
     },
     {
-      title: "Rekommendera",
-      description: "Dela dina koder med dina följare och spåra din statistik.",
-      icon: <Calculator className="h-6 w-6" />
-    },
-    {
-      title: "Tjäna pengar",
-      description: "Vi betalar ut din provision varje månad direkt till ditt bankkonto.",
+      title: "Tjäna provision",
+      description: "Få en procentandel för varje bokad behandling genom dina rekommendationer.",
       icon: <CreditCard className="h-6 w-6" />
     }
   ];
@@ -31,7 +31,7 @@ export const HowItWorksSection = () => {
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Så här fungerar det</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Det är enkelt att komma igång som kreatör hos Lyxdeal.
+            Enkelt sätt att tjäna pengar genom att rekommendera skönhetsbehandlingar.
           </p>
         </div>
 

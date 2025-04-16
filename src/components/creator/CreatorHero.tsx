@@ -1,7 +1,7 @@
 
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import { Instagram } from "lucide-react";
+import { Instagram, TiktokIcon } from "lucide-react";
 
 export const CreatorHero = () => {
   const navigate = useNavigate();
@@ -19,11 +19,11 @@ export const CreatorHero = () => {
         <div className="py-10 md:py-16 lg:py-28 flex flex-col items-center text-center">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-4 md:mb-6 leading-tight">
-              Tjäna pengar på dina rekommendationer
+              Tjäna pengar genom att rekommendera skönhetsbehandlingar
             </h1>
             <p className="text-sm md:text-base lg:text-xl text-white/90 max-w-3xl mx-auto mb-6 md:mb-10">
-              Bli kreatör hos Lyxdeal och få betalt för att rekommendera de bästa skönhetserbjudandena till dina följare. 
-              Bygg ditt personliga varumärke och tjäna extra inkomst.
+              Skapa innehåll på Instagram och TikTok, få gratis behandlingar och en procentandel på varje såld behandling. 
+              Ingen försäljning sker på vår plattform - du marknadsför, vi hanterar bokningen.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center w-full sm:w-auto">
               <Button 
@@ -32,11 +32,12 @@ export const CreatorHero = () => {
                 onClick={handleSignupClick}
               >
                 <Instagram size={18} />
-                Ansök som kreatör
+                <TiktokIcon size={18} className="mr-2" />
+                Bli kreatör
               </Button>
             </div>
             <div className="mt-4 md:mt-6 text-white/80 text-xs md:text-sm">
-              <p>Redan över 100 kreatörer anslutna</p>
+              <p>Över 100 kreatörer tjänar redan pengar på sina rekommendationer</p>
             </div>
           </div>
         </div>
