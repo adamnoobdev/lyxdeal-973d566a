@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Admin from "./pages/Admin";
 import Index from "./pages/Index";
@@ -22,6 +21,7 @@ import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import SecureDeal from "./pages/SecureDeal";
 import AdminSubscriptions from "./pages/AdminSubscriptions";
 import CreateAdmin from "./pages/CreateAdmin";
+import AdminCollaborations from "./pages/AdminCollaborations";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +39,10 @@ const router = createBrowserRouter([
   {
     path: "/admin/create",
     element: <CreateAdmin />,
+  },
+  {
+    path: "/admin/collaborations",
+    element: <AdminCollaborations />,
   },
   {
     path: "/search",

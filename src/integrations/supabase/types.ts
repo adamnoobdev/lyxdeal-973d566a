@@ -9,6 +9,176 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      active_collaborations: {
+        Row: {
+          collaboration_id: string
+          created_at: string
+          creator_id: string
+          deal_id: number
+          discount_code: string
+          id: string
+          redemptions: number | null
+          salon_id: number
+          views: number | null
+        }
+        Insert: {
+          collaboration_id: string
+          created_at?: string
+          creator_id: string
+          deal_id: number
+          discount_code: string
+          id?: string
+          redemptions?: number | null
+          salon_id: number
+          views?: number | null
+        }
+        Update: {
+          collaboration_id?: string
+          created_at?: string
+          creator_id?: string
+          deal_id?: number
+          discount_code?: string
+          id?: string
+          redemptions?: number | null
+          salon_id?: number
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_collaborations_collaboration_id_fkey"
+            columns: ["collaboration_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "active_collaborations_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deal_statistics"
+            referencedColumns: ["deal_id"]
+          },
+          {
+            foreignKeyName: "active_collaborations_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "active_collaborations_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collaboration_applications: {
+        Row: {
+          collaboration_id: string
+          created_at: string
+          creator_id: string
+          id: string
+          message: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          collaboration_id: string
+          created_at?: string
+          creator_id: string
+          id?: string
+          message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          collaboration_id?: string
+          created_at?: string
+          creator_id?: string
+          id?: string
+          message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaboration_applications_collaboration_id_fkey"
+            columns: ["collaboration_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collaboration_requests: {
+        Row: {
+          compensation: string
+          created_at: string
+          current_creators: number | null
+          deal_id: number
+          description: string
+          expires_at: string | null
+          id: string
+          max_creators: number | null
+          salon_id: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          compensation: string
+          created_at?: string
+          current_creators?: number | null
+          deal_id: number
+          description: string
+          expires_at?: string | null
+          id?: string
+          max_creators?: number | null
+          salon_id: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          compensation?: string
+          created_at?: string
+          current_creators?: number | null
+          deal_id?: number
+          description?: string
+          expires_at?: string | null
+          id?: string
+          max_creators?: number | null
+          salon_id?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaboration_requests_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deal_statistics"
+            referencedColumns: ["deal_id"]
+          },
+          {
+            foreignKeyName: "collaboration_requests_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaboration_requests_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       creator_applications: {
         Row: {
           created_at: string
@@ -53,6 +223,7 @@ export type Database = {
       }
       creator_partnerships: {
         Row: {
+          collaboration_id: string | null
           created_at: string
           creator_id: string
           deal_id: number
@@ -63,6 +234,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          collaboration_id?: string | null
           created_at?: string
           creator_id: string
           deal_id: number
@@ -73,6 +245,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          collaboration_id?: string | null
           created_at?: string
           creator_id?: string
           deal_id?: number
@@ -83,6 +256,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "creator_partnerships_collaboration_id_fkey"
+            columns: ["collaboration_id"]
+            isOneToOne: false
+            referencedRelation: "active_collaborations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "creator_partnerships_deal_id_fkey"
             columns: ["deal_id"]
@@ -630,6 +810,10 @@ export type Database = {
       decrease_quantity: {
         Args: { price_id: string }
         Returns: undefined
+      }
+      generate_collaboration_discount_code: {
+        Args: { creator_handle: string }
+        Returns: string
       }
       get_tables: {
         Args: Record<PropertyKey, never>
