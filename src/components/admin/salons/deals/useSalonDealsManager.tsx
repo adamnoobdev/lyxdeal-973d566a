@@ -99,10 +99,10 @@ export const useSalonDealsManager = () => {
     }
   }, [handleUpdate, handleClose, isSubmitting, safeSetState]);
   
-  // Modified to use the direct toggleDealActive function that returns boolean
+  // No type assertion needed as we're using the correct type
   const handleToggleActive = useCallback(async (deal: Deal): Promise<boolean> => {
     try {
-      return await toggleDealActive(deal as any);
+      return await toggleDealActive(deal);
     } catch (error) {
       console.error("Error toggling deal active state:", error);
       return false;

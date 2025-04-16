@@ -64,7 +64,7 @@ export interface Deal {
   booking_url?: string;
   expiration_date: string; // Required property
   rejection_message?: string;
-  quantity_left: number; // Required to match src/types/deal.ts
-  is_free?: boolean;
+  quantity_left: number; // Required property
+  is_free: boolean; // Changed from optional to required to match src/types/deal.ts
   stripe_price_id?: string;
 }

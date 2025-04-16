@@ -47,11 +47,11 @@ export const useSalonDealsManager = () => {
   }, []);
 
   const handleEdit = useCallback((deal: Deal) => {
-    safeSetState(setEditingDeal, deal as any);
+    safeSetState(setEditingDeal, deal);
   }, [safeSetState, setEditingDeal]);
 
   const handleDeleteClick = useCallback((deal: Deal) => {
-    safeSetState(setDeletingDeal, deal as any);
+    safeSetState(setDeletingDeal, deal);
   }, [safeSetState, setDeletingDeal]);
 
   const handleClose = useCallback(() => {

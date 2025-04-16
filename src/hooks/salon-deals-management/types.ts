@@ -1,5 +1,5 @@
 
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal";
 import { FormValues } from "@/components/deal-form/schema";
 
 export interface UseSalonDealsReturn {
