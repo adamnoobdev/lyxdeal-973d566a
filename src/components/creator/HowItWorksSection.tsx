@@ -1,5 +1,5 @@
 
-import { ArrowRight, User, Code, Calculator, CreditCard, Share2, MapPin } from "lucide-react";
+import { ArrowRight, User, Code, Calculator, Share2, MapPin } from "lucide-react";
 
 export const HowItWorksSection = () => {
   const steps = [
@@ -19,9 +19,9 @@ export const HowItWorksSection = () => {
       icon: <Code className="h-6 w-6" />
     },
     {
-      title: "Tjäna provision",
-      description: "Få en procentandel för varje bokad behandling genom dina lokala rekommendationer.",
-      icon: <CreditCard className="h-6 w-6" />
+      title: "Få belöningar",
+      description: "Njut av gratis behandlingar när du skapar innehåll om lokala salonger på sociala medier.",
+      icon: <Share2 className="h-6 w-6" />
     }
   ];
 
@@ -31,7 +31,7 @@ export const HowItWorksSection = () => {
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Så här fungerar det</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Enkelt sätt att tjäna pengar genom att rekommendera lokala skönhetsbehandlingar.
+            Enkelt sätt att få gratis behandlingar genom att skapa innehåll om lokala skönhetsbehandlingar.
           </p>
         </div>
 

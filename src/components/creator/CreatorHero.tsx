@@ -19,11 +19,11 @@ export const CreatorHero = () => {
         <div className="py-10 md:py-16 lg:py-28 flex flex-col items-center text-center">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-4 md:mb-6 leading-tight">
-              Tjäna pengar genom att rekommendera skönhetsbehandlingar
+              Få gratis skönhetsbehandlingar genom att skapa innehåll
             </h1>
             <p className="text-sm md:text-base lg:text-xl text-white/90 max-w-3xl mx-auto mb-6">
-              Skapa innehåll på Instagram och TikTok, få gratis behandlingar och en procentandel på varje såld behandling. 
-              Ingen försäljning sker på vår plattform - du marknadsför, vi hanterar bokningen.
+              Skapa innehåll på Instagram och TikTok, och få gratis behandlingar hos våra partners. 
+              Ingen försäljning sker på vår plattform - du skapar innehåll, vi hanterar bokningen.
             </p>
             
             <div className="flex flex-wrap justify-center gap-3 mb-6 md:mb-8">
@@ -52,7 +52,7 @@ export const CreatorHero = () => {
               </Button>
             </div>
             <div className="mt-4 md:mt-6 text-white/80 text-xs md:text-sm">
-              <p>Över 100 kreatörer tjänar redan pengar på sina lokala rekommendationer</p>
+              <p>Över 100 kreatörer har redan fått gratis behandlingar genom lokala rekommendationer</p>
             </div>
           </div>
         </div>

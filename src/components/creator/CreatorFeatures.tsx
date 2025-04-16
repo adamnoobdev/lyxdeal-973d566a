@@ -4,9 +4,9 @@ import { Check } from "lucide-react";
 export const CreatorFeatures = () => {
   const features = [
     {
-      title: "Tjäna pengar",
-      description: "Få provision på varje köp som görs via dina rabattkoder.",
-      icon: "💰"
+      title: "Gratis behandlingar",
+      description: "Få gratis skönhetsbehandlingar för innehåll du skapar om lokala salonger.",
+      icon: "✨"
     },
     {
       title: "Exklusiva erbjudanden",
@@ -20,7 +20,7 @@ export const CreatorFeatures = () => {
     },
     {
       title: "Enkelt att komma igång",
-      description: "Vi hjälper dig hela vägen från registrering till första utbetalningen.",
+      description: "Vi hjälper dig hela vägen från registrering till din första gratis behandling.",
       icon: "🚀"
     }
   ];
@@ -31,7 +31,7 @@ export const CreatorFeatures = () => {
         <div className="text-center mb-10 md:mb-16">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Fördelar för dig som kreatör</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Som kreatör hos Lyxdeal får du tillgång till flera fördelar som hjälper dig att växa och tjäna pengar.
+            Som kreatör hos Lyxdeal får du tillgång till flera fördelar som hjälper dig att växa och få gratis behandlingar.
           </p>
         </div>
 
@@ -53,12 +53,12 @@ export const CreatorFeatures = () => {
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               "Personliga rabattkoder",
-              "Månatliga utbetalningar",
+              "Gratis skönhetsbehandlingar",
               "Tillgång till marknadsföringsmaterial",
               "Statistik och insikter",
               "Support från vårt team",
-              "Sämarbetsmöjligheter med salonger",
-              "Ingen fastlagd provisionstakt",
+              "Samarbetsmöjligheter med salonger",
+              "Exklusiva event och förhandsvisningar",
               "Flexibla villkor"
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-2">
