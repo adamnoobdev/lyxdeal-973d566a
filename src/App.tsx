@@ -13,6 +13,8 @@ import SalonDetails from './pages/SalonDetails';
 import SalonDealPage from './pages/SalonDealPage';
 import PartnerPage from './pages/PartnerPage';
 import PartnerSignup from './pages/PartnerSignup';
+import CreatorPage from './pages/CreatorPage';
+import CreatorSignup from './pages/CreatorSignup';
 import FAQ from './pages/FAQ';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
@@ -115,6 +117,8 @@ function App() {
             <Route path="privacy" element={<Privacy />} />
             <Route path="partner" element={<PartnerPage />} />
             <Route path="partner/signup" element={<PartnerSignup />} />
+            <Route path="creator" element={<CreatorPage />} />
+            <Route path="creator/signup" element={<CreatorSignup />} />
             <Route path="bli-partner" element={<PartnerPage />} />
             <Route path="salons/:id" element={<SalonDetails />} />
             <Route path="/subscription-success" element={<SubscriptionSuccess />} />

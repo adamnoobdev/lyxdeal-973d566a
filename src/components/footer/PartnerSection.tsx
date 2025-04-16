@@ -12,6 +12,10 @@ export const PartnerSection = ({ onNavigate }: PartnerSectionProps) => {
     navigate("/partner");
   };
   
+  const handleCreatorClick = () => {
+    navigate("/creator");
+  };
+  
   return (
     <div className="flex flex-col items-center">
       <h3 className="font-semibold text-lg mb-4">För företag</h3>
@@ -22,6 +26,14 @@ export const PartnerSection = ({ onNavigate }: PartnerSectionProps) => {
             className="text-gray-600 hover:text-primary transition-colors"
           >
             Bli salongspartner
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={handleCreatorClick}
+            className="text-gray-600 hover:text-primary transition-colors"
+          >
+            Bli kreatör
           </button>
         </li>
       </ul>

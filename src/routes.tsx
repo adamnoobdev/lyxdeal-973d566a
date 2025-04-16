@@ -6,6 +6,8 @@ import SearchResults from "./pages/SearchResults";
 import ProductDetails from "./pages/ProductDetails";
 import PartnerPage from "./pages/PartnerPage";
 import PartnerSignup from "./pages/PartnerSignup";
+import CreatorPage from "./pages/CreatorPage";
+import CreatorSignup from "./pages/CreatorSignup";
 import SalonLogin from "./pages/SalonLogin";
 import SalonDashboard from "./pages/SalonDashboard";
 import SalonDetails from "./pages/SalonDetails";
@@ -57,6 +59,14 @@ const router = createBrowserRouter([
   {
     path: "/partner/signup",
     element: <PartnerSignup />,
+  },
+  {
+    path: "/creator",
+    element: <CreatorPage />,
+  },
+  {
+    path: "/creator/signup",
+    element: <CreatorSignup />,
   },
   {
     path: "/salon/login",
