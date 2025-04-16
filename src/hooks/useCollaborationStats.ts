@@ -13,6 +13,7 @@ type PendingApplication = {
   status: string;
   created_at: string;
   updated_at: string;
+  salon_id: number;
 }
 
 export function useCollaborationStats(salonId: number | undefined, collaborations: ActiveCollaboration[]) {
