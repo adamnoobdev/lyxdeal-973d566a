@@ -4,7 +4,7 @@ import { CreatorHero } from "@/components/creator/CreatorHero";
 import { CreatorFeatures } from "@/components/creator/CreatorFeatures";
 import { HowItWorksSection } from "@/components/creator/HowItWorksSection";
 import { FAQSection } from "@/components/creator/FAQSection";
-import { ContactSection } from "@/components/creator/ContactSection";
+// Remove the ContactSection import
 
 const CreatorPage = () => {
   return (
@@ -26,10 +26,11 @@ const CreatorPage = () => {
         
         {/* FAQ & Contact */}
         <FAQSection />
-        <ContactSection />
+        {/* Remove ContactSection */}
       </div>
     </>
   );
 };
 
 export default CreatorPage;
+
