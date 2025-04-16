@@ -34,17 +34,19 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
       }
       
       try {
-        // Use a raw query approach to avoid TypeScript inference issues
+        // Use a standard query approach instead of an RPC call
         const { data, error } = await supabase
-          .rpc('get_pending_applications', { salon_id_param: salonId });
+          .from('collaboration_applications')
+          .select('id, collaboration_id, creator_id, message, status, created_at, updated_at')
+          .eq('status', 'pending');
           
         if (error) {
           console.error('Error fetching pending applications:', error);
           return [] as PendingApplication[];
         }
         
-        // Convert raw data to our type
-        return (Array.isArray(data) ? data : []).map((item: any) => ({
+        // Explicitly cast and map to our standalone type
+        const applications = (Array.isArray(data) ? data : []).map((item: any): PendingApplication => ({
           id: item.id || '',
           collaboration_id: item.collaboration_id || '',
           creator_id: item.creator_id || '',
@@ -52,8 +54,10 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
           status: item.status || 'pending',
           created_at: item.created_at || '',
           updated_at: item.updated_at || '',
-          salon_id: item.salon_id || 0
-        })) as PendingApplication[];
+          salon_id: salonId // Add salon_id from the parameter since it's not in the query result
+        }));
+        
+        return applications;
       } catch (error) {
         console.error('Error in pending applications query:', error);
         return [] as PendingApplication[];
