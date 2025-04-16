@@ -40,6 +40,7 @@ export interface SalonFormValues {
   subscriptionEndDate?: string;
 }
 
+// Updated Deal interface to match src/types/deal.ts requirements
 export interface Deal {
   id: number;
   title: string;
@@ -50,7 +51,7 @@ export interface Deal {
   city: string;
   image_url: string;
   time_remaining: string;
-  featured?: boolean;
+  featured: boolean; // Changed from optional to required
   status?: string;
   is_active?: boolean;
   salon_id?: number;
@@ -61,7 +62,7 @@ export interface Deal {
   updated_at?: string;
   requires_discount_code?: boolean;
   booking_url?: string;
-  expiration_date: string; // Changed from optional to required to match src/types/deal.ts
+  expiration_date: string; // Required to match src/types/deal.ts
   rejection_message?: string;
   quantity_left?: number;
   is_free?: boolean;

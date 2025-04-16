@@ -1,6 +1,6 @@
 
 import { Dispatch, MutableRefObject, SetStateAction } from "react";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Changed to use the correct Deal type
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { FormValues } from "@/components/deal-form/schema";

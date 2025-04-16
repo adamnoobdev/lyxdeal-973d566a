@@ -3,7 +3,7 @@ import { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import { endOfMonth } from "date-fns";
 import { useSalonDealsManagement } from "@/hooks/salon-deals-management";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Using the correct Deal type
 import { toggleDealActive } from "@/utils/deal/queries/toggleActive";
 
 export const useSalonDealsManager = () => {
@@ -31,39 +31,33 @@ export const useSalonDealsManager = () => {
   const isMountedRef = useRef(true);
 
   useEffect(() => {
-    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
     };
   }, []);
 
-  // Safe state updater functions with timeouts to reduce UI freezing
+  // Safe state updater functions
   const safeSetState = useCallback(<T,>(setter: React.Dispatch<React.SetStateAction<T>>, value: T) => {
     if (isMountedRef.current) {
-      // Use setTimeout to defer state update to next event loop
-      setTimeout(() => {
-        if (isMountedRef.current) {
-          setter(value);
-        }
-      }, 0);
+      setter(value);
     }
   }, []);
 
   const handleEdit = useCallback((deal: Deal) => {
-    safeSetState(setEditingDeal, deal);
-  }, [safeSetState, setEditingDeal]);
+    setEditingDeal(deal);
+  }, [setEditingDeal]);
 
   const handleDeleteClick = useCallback((deal: Deal) => {
-    safeSetState(setDeletingDeal, deal);
-  }, [safeSetState, setDeletingDeal]);
+    setDeletingDeal(deal);
+  }, [setDeletingDeal]);
 
   const handleClose = useCallback(() => {
-    safeSetState(setEditingDeal, null);
-  }, [safeSetState, setEditingDeal]);
+    setEditingDeal(null);
+  }, [setEditingDeal]);
 
   const handleCloseDelete = useCallback(() => {
-    safeSetState(setDeletingDeal, null);
-  }, [safeSetState, setDeletingDeal]);
+    setDeletingDeal(null);
+  }, [setDeletingDeal]);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
     safeSetState(setViewingCodesForDeal, deal);
@@ -101,12 +95,8 @@ export const useSalonDealsManager = () => {
   
   // Modified to use the direct toggleDealActive function that returns boolean
   const handleToggleActive = useCallback(async (deal: Deal): Promise<boolean> => {
-    try {
-      return await toggleDealActive(deal);
-    } catch (error) {
-      console.error("Error toggling deal active state:", error);
-      return false;
-    }
+    // Cast the deal to the correct type if needed
+    return await toggleDealActive(deal as any);
   }, []);
   
   // Use useMemo for initialValues to prevent unnecessary calculations on re-renders

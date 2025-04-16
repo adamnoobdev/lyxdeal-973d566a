@@ -6,6 +6,26 @@ import { useSession } from "@/hooks/useSession";
 import { fetchSalonsData } from "@/utils/salon/admin/fetchSalons";
 import { useSalonOperations } from "@/hooks/useSalonOperations";
 
+// Define a more comprehensive SalonData interface that includes all fields we need
+interface SalonData {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  created_at: string;
+  user_id: string | null;
+  role: string;
+  terms_accepted: boolean;
+  privacy_accepted: boolean;
+  rating: number | null;
+  rating_comment: string | null;
+  subscription_plan: string | null;
+  subscription_type: string | null;
+  skip_subscription: boolean;
+  [key: string]: any; // Allow other fields that might come from database
+}
+
 /**
  * Hook för att hantera salongsadministration
  * @returns Funktionalitet för att hantera salonger
@@ -37,7 +57,7 @@ export const useSalonsAdmin = () => {
       
       // Transform the data to match the Salon type
       if (data) {
-        const transformedData: Salon[] = data.map(salon => {
+        const transformedData: Salon[] = data.map((salon: SalonData) => {
           // Log the raw rating value from database
           console.log(`Salon ${salon.name} raw rating:`, salon.rating);
           
