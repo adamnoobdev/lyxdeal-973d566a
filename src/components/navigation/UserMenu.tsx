@@ -12,18 +12,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, LogOut, Settings, Award } from "lucide-react";
+import { UserRound, LogOut, Settings, Award } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSignOut } from "@/hooks/auth/useSignOut";
 
 interface UserMenuProps {
   className?: string;
-  hasDashboard?: boolean;
-  dashboardPath?: string;
   userRole?: string | null;
 }
 
-export function UserMenu({ className, hasDashboard, dashboardPath, userRole }: UserMenuProps) {
+export function UserMenu({ className, userRole }: UserMenuProps) {
   const { user, profile, loading } = useAuth();
   const { signOut } = useSignOut();
   const [initials, setInitials] = useState<string>("");
@@ -41,15 +39,17 @@ export function UserMenu({ className, hasDashboard, dashboardPath, userRole }: U
 
   if (!user && !loading) {
     return (
-      <Button variant="outline" size="sm" asChild>
-        <Link to="/auth">Logga in</Link>
+      <Button variant="ghost" size="icon" asChild>
+        <Link to="/auth">
+          <UserRound className="h-5 w-5" />
+        </Link>
       </Button>
     );
   }
 
   if (loading) {
     return (
-      <Button variant="outline" size="sm" disabled>
+      <Button variant="ghost" size="icon" disabled>
         <span className="animate-pulse">...</span>
       </Button>
     );
@@ -77,10 +77,10 @@ export function UserMenu({ className, hasDashboard, dashboardPath, userRole }: U
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size="sm"
-          className="relative h-9 w-9 rounded-full"
+          size="icon"
+          className="relative h-8 w-8 rounded-full"
         >
-          <Avatar className="h-9 w-9">
+          <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary/10 text-primary text-xs">
               {initials}
             </AvatarFallback>

@@ -11,7 +11,6 @@ import CitySelector from './navigation/CitySelector';
 import { UserMenu } from './navigation/UserMenu';
 import MobileMenu from './navigation/MobileMenu';
 import MobileSearch from './navigation/MobileSearch';
-import DashboardLink from './navigation/DashboardLink';
 
 // Import types and constants
 import { City, Category } from '@/constants/app-constants';
@@ -28,7 +27,7 @@ const NavigationBar = ({
   const [selectedCity, setSelectedCity] = useState<City>('Alla Städer');
   const [selectedCategory, setSelectedCategory] = useState<Category>('Alla Erbjudanden');
   const { session } = useSession();
-  const { profile } = useAuth(); // Hämta profilen från useAuth
+  const { profile } = useAuth(); 
   const navigate = useNavigate();
   const { isScrolled } = useScroll();
 
@@ -43,11 +42,7 @@ const NavigationBar = ({
 
   // Använd userRole om det skickas som prop, annars använd rollen från auth-profilen
   const effectiveUserRole = userRole || profile?.role;
-  const hasDashboard = !!effectiveUserRole;
-  const dashboardPath = effectiveUserRole === 'admin' ? '/admin' : 
-                         effectiveUserRole === 'creator' ? '/creator/dashboard' : '/salon/dashboard';
-  const isLoggedIn = !!session?.user;
-  const topPosition = isLoggedIn ? 'top-0' : 'top-[40px]';
+  const topPosition = session?.user ? 'top-0' : 'top-[40px]';
 
   return (
     <header 
@@ -64,8 +59,6 @@ const NavigationBar = ({
               setSelectedCity={setSelectedCity}
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
-              hasDashboard={hasDashboard}
-              dashboardPath={dashboardPath}
               userRole={effectiveUserRole}
               isLoggedIn={!!session?.user}
             />
@@ -93,16 +86,7 @@ const NavigationBar = ({
               className="hidden md:flex"
             />
 
-            <DashboardLink 
-              hasDashboard={hasDashboard}
-              dashboardPath={dashboardPath}
-              userRole={effectiveUserRole}
-              className="hidden md:flex"
-            />
-
             <UserMenu 
-              hasDashboard={hasDashboard}
-              dashboardPath={dashboardPath}
               userRole={effectiveUserRole}
               className="hidden md:flex"
             />
