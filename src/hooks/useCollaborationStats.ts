@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ActiveCollaboration } from "@/types/collaboration";
 import { useMemo } from "react";
 
-// Define a type for the pending applications that matches the actual data structure
-interface PendingApplication {
+// Definiera en enklare typ för PendingApplication som bryter kopplingen till den djupa typinferensen
+type PendingApplication = {
   id: string;
   collaboration_id: string;
   creator_id: string;
@@ -16,29 +16,41 @@ interface PendingApplication {
   salon_id: number;
 }
 
+// Interface för statistik för att göra koden tydligare
+interface CollaborationStats {
+  totalViews: number;
+  totalRedemptions: number;
+  activeCollaborators: number;
+  pendingApplications: number;
+}
+
 export function useCollaborationStats(salonId: number | undefined, collaborations: ActiveCollaboration[]) {
-  // Hämta pendingApplications från API
-  const { data: pendingApplications = [], isLoading: isLoadingApplications } = useQuery({
+  // Hämta pendingApplications från API, med förenklad typhantering
+  const { data, isLoading: isLoadingApplications } = useQuery({
     queryKey: ['salon-pending-applications', salonId],
     queryFn: async () => {
       if (!salonId) return [] as PendingApplication[];
       
-      const { data, error } = await supabase
+      // Använd ett mer direkt angreppssätt för att hämta data och hantera typer
+      const response = await supabase
         .from('collaboration_applications')
         .select('*')
         .eq('status', 'pending')
         .eq('salon_id', salonId);
         
-      if (error) throw error;
+      if (response.error) throw response.error;
       
-      // Explicitly cast the returned data to the correct type
-      return (data || []) as PendingApplication[];
+      // Explicit typkonvertering för att undvika djup typinferens
+      return (response.data || []) as PendingApplication[];
     },
     enabled: !!salonId
   });
 
+  // Använd pendingApplications med säker fallback
+  const pendingApplications = data || [];
+  
   // Beräkna statistik från collaborations-arrayen
-  const stats = useMemo(() => {
+  const stats: CollaborationStats = useMemo(() => {
     const totalViews = collaborations.reduce((sum, collab) => sum + (collab.views || 0), 0);
     const totalRedemptions = collaborations.reduce((sum, collab) => sum + (collab.redemptions || 0), 0);
     
