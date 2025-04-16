@@ -1,6 +1,7 @@
+
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import { CirclePlay } from "lucide-react";
+import { CirclePlay, MapPin } from "lucide-react";
 
 export const CreatorHero = () => {
   const navigate = useNavigate();
