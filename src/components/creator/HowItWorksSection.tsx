@@ -1,5 +1,4 @@
-
-import { ArrowRight, UserRound, MapPin, Code, Gift } from "lucide-react";
+import { ArrowRight, UserRound, Camera, Code, Gift } from "lucide-react";
 
 export const HowItWorksSection = () => {
   const steps = [
@@ -11,7 +10,7 @@ export const HowItWorksSection = () => {
     {
       title: "Skapa lokalt innehåll",
       description: "Producera autentiskt innehåll på Instagram eller TikTok om skönhetsbehandlingar nära dig.",
-      icon: <MapPin className="h-6 w-6" />
+      icon: <Camera className="h-6 w-6" />
     },
     {
       title: "Få dina koder",
