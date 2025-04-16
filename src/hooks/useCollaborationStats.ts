@@ -4,12 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { ActiveCollaboration } from "@/types/collaboration";
 import { useMemo } from "react";
 
-// Define a type for the pending applications to avoid excessive type inference
+// Define a type for the pending applications that matches the actual data structure
 type PendingApplication = {
   id: string;
-  salon_id: number;
+  collaboration_id: string;
+  creator_id: string;
+  message: string | null;
   status: string;
-  [key: string]: any; // For any other fields
+  created_at: string;
+  updated_at: string;
 }
 
 export function useCollaborationStats(salonId: number | undefined, collaborations: ActiveCollaboration[]) {
