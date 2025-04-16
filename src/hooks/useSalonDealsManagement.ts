@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Deal } from "@/components/admin/types";
+import { Deal } from "@/types/deal"; // Changed to use the correct Deal type
 import { UseSalonDealsReturn } from "./deals/dealTypes";
 import { deleteDeal, updateDeal, toggleActive } from "./deals/dealOperations";
 import { loadSalonDeals } from "./deals/loadSalonDeals";
@@ -50,7 +50,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
     }
     
     const result = await deleteDeal(
-      deletingDeal,
+      deletingDeal as Deal, // Use type assertion to ensure compatibility
       setDeals,
       setDeletingDeal,
       isDeletingDeal,
@@ -71,7 +71,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
   const handleUpdate = useCallback(async (values: FormValues): Promise<boolean | void> => {
     try {
       return await updateDeal(
-        editingDeal,
+        editingDeal as Deal, // Use type assertion to ensure compatibility
         values,
         setDeals,
         setEditingDeal,
@@ -103,7 +103,7 @@ export const useSalonDealsManagement = (salonId: string | undefined): UseSalonDe
   // Handler for toggling deal active status - now returning Promise<void>
   const handleToggleActive = useCallback(async (deal: Deal): Promise<void> => {
     try {
-      await toggleActive(deal, setDeals, isMountedRef);
+      await toggleActive(deal as Deal, setDeals, isMountedRef);
     } catch (error) {
       console.error("[useSalonDealsManagement] Error toggling deal active status:", error);
     }

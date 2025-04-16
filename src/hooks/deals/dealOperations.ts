@@ -115,7 +115,7 @@ export const updateDeal = async (
     if (isMountedRef.current) {
       toast.success("Erbjudandet har uppdaterats");
       
-      const updatedDeal = { 
+      const updatedDeal: Deal = { 
         ...deal, 
         title: values.title,
         description: values.description,
@@ -128,7 +128,9 @@ export const updateDeal = async (
         is_free: isFree,
         is_active: values.is_active !== undefined ? values.is_active : deal.is_active,
         quantity_left: parseInt(values.quantity) || 10,
-        expiration_date: values.expirationDate.toISOString(),
+        expiration_date: typeof values.expirationDate === 'string' 
+          ? values.expirationDate 
+          : values.expirationDate.toISOString(),
         booking_url: values.booking_url || null,
         requires_discount_code: values.requires_discount_code
       };

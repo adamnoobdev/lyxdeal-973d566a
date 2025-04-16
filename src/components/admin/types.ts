@@ -51,18 +51,18 @@ export interface Deal {
   city: string;
   image_url: string;
   time_remaining: string;
-  featured: boolean; // Changed from optional to required
+  featured: boolean; // Required property
   status?: string;
   is_active?: boolean;
   salon_id?: number;
   salon?: {
     name?: string;
   };
-  created_at?: string;
-  updated_at?: string;
+  created_at: string; // Changed to required property
+  updated_at: string; // Changed to required property
   requires_discount_code?: boolean;
   booking_url?: string;
-  expiration_date: string; // Required to match src/types/deal.ts
+  expiration_date: string; // Required property
   rejection_message?: string;
   quantity_left?: number;
   is_free?: boolean;

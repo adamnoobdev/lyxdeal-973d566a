@@ -31,33 +31,39 @@ export const useSalonDealsManager = () => {
   const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
     };
   }, []);
 
-  // Safe state updater functions
+  // Safe state updater functions with timeouts to reduce UI freezing
   const safeSetState = useCallback(<T,>(setter: React.Dispatch<React.SetStateAction<T>>, value: T) => {
     if (isMountedRef.current) {
-      setter(value);
+      // Use setTimeout to defer state update to next event loop
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          setter(value);
+        }
+      }, 0);
     }
   }, []);
 
   const handleEdit = useCallback((deal: Deal) => {
-    setEditingDeal(deal);
-  }, [setEditingDeal]);
+    safeSetState(setEditingDeal, deal);
+  }, [safeSetState, setEditingDeal]);
 
   const handleDeleteClick = useCallback((deal: Deal) => {
-    setDeletingDeal(deal);
-  }, [setDeletingDeal]);
+    safeSetState(setDeletingDeal, deal);
+  }, [safeSetState, setDeletingDeal]);
 
   const handleClose = useCallback(() => {
-    setEditingDeal(null);
-  }, [setEditingDeal]);
+    safeSetState(setEditingDeal, null);
+  }, [safeSetState, setEditingDeal]);
 
   const handleCloseDelete = useCallback(() => {
-    setDeletingDeal(null);
-  }, [setDeletingDeal]);
+    safeSetState(setDeletingDeal, null);
+  }, [safeSetState, setDeletingDeal]);
 
   const handleViewDiscountCodes = useCallback((deal: Deal) => {
     safeSetState(setViewingCodesForDeal, deal);
@@ -95,8 +101,12 @@ export const useSalonDealsManager = () => {
   
   // Modified to use the direct toggleDealActive function that returns boolean
   const handleToggleActive = useCallback(async (deal: Deal): Promise<boolean> => {
-    // Cast the deal to the correct type if needed
-    return await toggleDealActive(deal as any);
+    try {
+      return await toggleDealActive(deal);
+    } catch (error) {
+      console.error("Error toggling deal active state:", error);
+      return false;
+    }
   }, []);
   
   // Use useMemo for initialValues to prevent unnecessary calculations on re-renders

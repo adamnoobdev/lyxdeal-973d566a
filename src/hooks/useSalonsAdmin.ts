@@ -20,9 +20,9 @@ interface SalonData {
   privacy_accepted: boolean;
   rating: number | null;
   rating_comment: string | null;
-  subscription_plan: string | null;
-  subscription_type: string | null;
-  skip_subscription: boolean;
+  subscription_plan: string | null; // Added this field
+  subscription_type: string | null; // Added this field
+  skip_subscription: boolean;     // Added this field
   [key: string]: any; // Allow other fields that might come from database
 }
 
