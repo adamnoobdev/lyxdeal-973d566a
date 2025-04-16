@@ -34,20 +34,17 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
       }
       
       try {
-        // Simplify the query to avoid type inference issues
+        // Use a raw query approach to avoid TypeScript inference issues
         const { data, error } = await supabase
-          .from('collaboration_applications')
-          .select('id, collaboration_id, creator_id, message, status, created_at, updated_at, salon_id')
-          .eq('status', 'pending')
-          .eq('salon_id', salonId);
+          .rpc('get_pending_applications', { salon_id_param: salonId });
           
         if (error) {
           console.error('Error fetching pending applications:', error);
           return [] as PendingApplication[];
         }
         
-        // Manually convert to the standalone type to break the inference chain
-        return (data || []).map((item: any) => ({
+        // Convert raw data to our type
+        return (Array.isArray(data) ? data : []).map((item: any) => ({
           id: item.id || '',
           collaboration_id: item.collaboration_id || '',
           creator_id: item.creator_id || '',
