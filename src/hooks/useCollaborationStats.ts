@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ActiveCollaboration } from "@/types/collaboration";
 import { useMemo } from "react";
 
-// Definiera en helt fristående typ utan koppling till supabase-typerna
+// Define a completely standalone type without connection to Supabase types
 type PendingApplication = {
   id: string;
   collaboration_id: string;
@@ -16,7 +16,7 @@ type PendingApplication = {
   salon_id: number;
 }
 
-// Interface för statistik
+// Interface for statistics
 interface CollaborationStats {
   totalViews: number;
   totalRedemptions: number;
@@ -25,12 +25,12 @@ interface CollaborationStats {
 }
 
 export function useCollaborationStats(salonId: number | undefined, collaborations: ActiveCollaboration[]) {
-  // Använd en helt annan strategi för att hämta pendingApplications
+  // Use a completely different strategy for fetching pendingApplications
   const { data: pendingApplicationsData, isLoading: isLoadingApplications } = useQuery({
     queryKey: ['salon-pending-applications', salonId],
     queryFn: async () => {
       if (!salonId) {
-        return [];
+        return [] as PendingApplication[];
       }
       
       try {
@@ -44,8 +44,12 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
           throw error;
         }
         
-        // Behandla data innan den returneras för att bryta typ-kedjan
-        const formattedData = Array.isArray(data) ? data.map((item): PendingApplication => ({
+        // Process data before returning to break the type chain
+        // Use type assertion to explicitly cast to any array first
+        const rawData = data as Array<any> || [];
+        
+        // Then manually map to our standalone type
+        const formattedData: PendingApplication[] = rawData.map(item => ({
           id: item.id || '',
           collaboration_id: item.collaboration_id || '',
           creator_id: item.creator_id || '',
@@ -54,26 +58,26 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
           created_at: item.created_at || '',
           updated_at: item.updated_at || '',
           salon_id: item.salon_id || 0
-        })) : [];
+        }));
         
         return formattedData;
       } catch (error) {
         console.error('Error fetching pending applications:', error);
-        return [];
+        return [] as PendingApplication[];
       }
     },
     enabled: !!salonId
   });
   
-  // Säkerställ att vi alltid har en array
-  const pendingApplications = pendingApplicationsData || [];
+  // Ensure we always have an array with the correct type
+  const pendingApplications: PendingApplication[] = pendingApplicationsData || [];
   
-  // Beräkna statistik
+  // Calculate statistics
   const stats: CollaborationStats = useMemo(() => {
     const totalViews = collaborations.reduce((sum, collab) => sum + (collab.views || 0), 0);
     const totalRedemptions = collaborations.reduce((sum, collab) => sum + (collab.redemptions || 0), 0);
     
-    // Räkna unika kreatörer (baserat på creator_id)
+    // Count unique creators (based on creator_id)
     const uniqueCreatorIds = new Set(collaborations.map(collab => collab.creator_id));
     const activeCollaborators = uniqueCreatorIds.size;
     
