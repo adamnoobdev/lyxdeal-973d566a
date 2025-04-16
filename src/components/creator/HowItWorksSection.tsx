@@ -1,26 +1,26 @@
 
-import { ArrowRight, User, Code, Calculator, CreditCard, Share2 } from "lucide-react";
+import { ArrowRight, User, Code, Calculator, CreditCard, Share2, MapPin } from "lucide-react";
 
 export const HowItWorksSection = () => {
   const steps = [
     {
       title: "Ansök",
-      description: "Fyll i ansökningsformuläret och berätta om ditt konto och följare.",
+      description: "Fyll i ansökningsformuläret och berätta om ditt konto, följare och vilken stad du är baserad i.",
       icon: <User className="h-6 w-6" />
     },
     {
-      title: "Skapa innehåll",
-      description: "Producera autentiskt innehåll på Instagram eller TikTok om skönhetsbehandlingar.",
-      icon: <Share2 className="h-6 w-6" />
+      title: "Skapa lokalt innehåll",
+      description: "Producera autentiskt innehåll på Instagram eller TikTok om skönhetsbehandlingar nära dig.",
+      icon: <MapPin className="h-6 w-6" />
     },
     {
       title: "Få dina koder",
-      description: "Få personliga rabattkoder och en gratis behandling att skapa innehåll om.",
+      description: "Få personliga rabattkoder och en gratis behandling på en salong i din stad att skapa innehåll om.",
       icon: <Code className="h-6 w-6" />
     },
     {
       title: "Tjäna provision",
-      description: "Få en procentandel för varje bokad behandling genom dina rekommendationer.",
+      description: "Få en procentandel för varje bokad behandling genom dina lokala rekommendationer.",
       icon: <CreditCard className="h-6 w-6" />
     }
   ];
@@ -31,7 +31,7 @@ export const HowItWorksSection = () => {
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Så här fungerar det</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Enkelt sätt att tjäna pengar genom att rekommendera skönhetsbehandlingar.
+            Enkelt sätt att tjäna pengar genom att rekommendera lokala skönhetsbehandlingar.
           </p>
         </div>
 

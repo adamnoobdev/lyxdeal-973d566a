@@ -19,12 +19,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { CITIES } from "@/constants/app-constants";
 import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Namn måste vara minst 2 tecken." }),
   email: z.string().email({ message: "Ogiltig e-postadress." }),
   phone: z.string().min(6, { message: "Telefonnummer måste vara minst 6 tecken." }),
+  city: z.string().min(1, { message: "Vänligen välj din stad." }),
   instagram: z.string().min(2, { message: "Instagram-användarnamn måste vara minst 2 tecken." }),
   followerCount: z.string().min(1, { message: "Ange ungefärligt antal följare." }),
   message: z.string().optional(),
@@ -48,6 +57,7 @@ export const CreatorForm = () => {
       name: "",
       email: "",
       phone: "",
+      city: "",
       instagram: "",
       followerCount: "",
       message: "",
@@ -68,6 +78,7 @@ export const CreatorForm = () => {
             name: values.name,
             email: values.email,
             phone: values.phone,
+            city: values.city,
             instagram_handle: values.instagram,
             follower_count: values.followerCount,
             message: values.message || null,
@@ -136,6 +147,32 @@ export const CreatorForm = () => {
               <FormControl>
                 <Input placeholder="07X XXX XX XX" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Vilken stad är du baserad i?</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Välj din stad" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {CITIES.filter(city => city !== "Alla Städer").map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                Vi söker särskilt kreatörer i Stockholm, Göteborg och Malmö.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

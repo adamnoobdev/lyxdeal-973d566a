@@ -1,7 +1,7 @@
 
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import { Instagram, Share2 } from "lucide-react";
+import { Instagram, Share2, MapPin } from "lucide-react";
 
 export const CreatorHero = () => {
   const navigate = useNavigate();
@@ -21,10 +21,25 @@ export const CreatorHero = () => {
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-4 md:mb-6 leading-tight">
               Tjäna pengar genom att rekommendera skönhetsbehandlingar
             </h1>
-            <p className="text-sm md:text-base lg:text-xl text-white/90 max-w-3xl mx-auto mb-6 md:mb-10">
+            <p className="text-sm md:text-base lg:text-xl text-white/90 max-w-3xl mx-auto mb-6">
               Skapa innehåll på Instagram och TikTok, få gratis behandlingar och en procentandel på varje såld behandling. 
               Ingen försäljning sker på vår plattform - du marknadsför, vi hanterar bokningen.
             </p>
+            
+            <div className="flex flex-wrap justify-center gap-3 mb-6 md:mb-8">
+              {['Stockholm', 'Göteborg', 'Malmö'].map((city) => (
+                <div key={city} className="flex items-center bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  <span className="text-sm font-medium">{city}</span>
+                </div>
+              ))}
+            </div>
+            
+            <p className="text-sm md:text-base text-white/90 max-w-3xl mx-auto mb-6 md:mb-10">
+              Vi söker särskilt efter lokala kreatörer i Stockholm, Göteborg och Malmö, 
+              men välkomnar influencers från hela Sverige!
+            </p>
+            
             <div className="flex flex-col sm:flex-row gap-3 justify-center w-full sm:w-auto">
               <Button 
                 size="default" 
@@ -37,7 +52,7 @@ export const CreatorHero = () => {
               </Button>
             </div>
             <div className="mt-4 md:mt-6 text-white/80 text-xs md:text-sm">
-              <p>Över 100 kreatörer tjänar redan pengar på sina rekommendationer</p>
+              <p>Över 100 kreatörer tjänar redan pengar på sina lokala rekommendationer</p>
             </div>
           </div>
         </div>
@@ -45,4 +60,3 @@ export const CreatorHero = () => {
     </div>
   );
 };
-
