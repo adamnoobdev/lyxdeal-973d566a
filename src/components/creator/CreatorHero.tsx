@@ -18,12 +18,11 @@ export const CreatorHero = () => {
       <div className="container px-4 md:px-8 relative z-10">
         <div className="py-10 md:py-16 lg:py-28 flex flex-col items-center text-center">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-4 md:mb-6 leading-tight">
-              Få gratis skönhetsbehandlingar genom att skapa innehåll
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6 leading-tight">
+              Skapa innehåll, få gratis skönhetsbehandlingar
             </h1>
             <p className="text-sm md:text-base lg:text-xl text-white/90 max-w-3xl mx-auto mb-6">
-              Skapa innehåll på Instagram och TikTok, och få gratis behandlingar hos våra partners. 
-              Ingen försäljning sker på vår plattform - du skapar innehåll, vi hanterar bokningen.
+              Producera innehåll på Instagram och TikTok om lokala salonger och få gratis behandlingar.
             </p>
             
             <div className="flex flex-wrap justify-center gap-3 mb-6 md:mb-8">
@@ -34,11 +33,6 @@ export const CreatorHero = () => {
                 </div>
               ))}
             </div>
-            
-            <p className="text-sm md:text-base text-white/90 max-w-3xl mx-auto mb-6 md:mb-10">
-              Vi söker särskilt efter lokala kreatörer i Stockholm, Göteborg och Malmö, 
-              men välkomnar influencers från hela Sverige!
-            </p>
             
             <div className="flex flex-col sm:flex-row gap-3 justify-center w-full sm:w-auto">
               <Button 
@@ -52,7 +46,7 @@ export const CreatorHero = () => {
               </Button>
             </div>
             <div className="mt-4 md:mt-6 text-white/80 text-xs md:text-sm">
-              <p>Över 100 kreatörer har redan fått gratis behandlingar genom lokala rekommendationer</p>
+              <p>Över 100 kreatörer har fått gratis behandlingar</p>
             </div>
           </div>
         </div>
