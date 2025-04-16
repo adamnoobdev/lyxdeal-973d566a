@@ -1,12 +1,12 @@
 
-import { ArrowRight, User, Code, Calculator, Share2, MapPin } from "lucide-react";
+import { ArrowRight, UserRound, MapPin, Code, Gift } from "lucide-react";
 
 export const HowItWorksSection = () => {
   const steps = [
     {
       title: "Ansök",
       description: "Fyll i ansökningsformuläret och berätta om ditt konto, följare och vilken stad du är baserad i.",
-      icon: <User className="h-6 w-6" />
+      icon: <UserRound className="h-6 w-6" />
     },
     {
       title: "Skapa lokalt innehåll",
@@ -21,7 +21,7 @@ export const HowItWorksSection = () => {
     {
       title: "Få belöningar",
       description: "Njut av gratis behandlingar när du skapar innehåll om lokala salonger på sociala medier.",
-      icon: <Share2 className="h-6 w-6" />
+      icon: <Gift className="h-6 w-6" />
     }
   ];
 
