@@ -33,23 +33,26 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
         return [] as PendingApplication[];
       }
       
+      // Define the return type explicitly to avoid deep type instantiation
+      let result: PendingApplication[] = [];
+      
       try {
-        const { data, error } = await supabase
+        // Use .from().select() pattern but avoid chaining too many operations
+        const response = await supabase
           .from('collaboration_applications')
           .select('*')
           .eq('status', 'pending')
           .eq('salon_id', salonId);
           
-        if (error) {
-          throw error;
+        if (response.error) {
+          throw response.error;
         }
         
-        // Process data before returning to break the type chain
-        // Use type assertion to explicitly cast to any array first
-        const rawData = data as Array<any> || [];
+        // Use explicit type assertion to break type inference chain
+        const data: any[] = response.data || [];
         
-        // Then manually map to our standalone type
-        const formattedData: PendingApplication[] = rawData.map(item => ({
+        // Map data to our explicit standalone type
+        result = data.map(item => ({
           id: item.id || '',
           collaboration_id: item.collaboration_id || '',
           creator_id: item.creator_id || '',
@@ -59,12 +62,11 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
           updated_at: item.updated_at || '',
           salon_id: item.salon_id || 0
         }));
-        
-        return formattedData;
       } catch (error) {
         console.error('Error fetching pending applications:', error);
-        return [] as PendingApplication[];
       }
+      
+      return result;
     },
     enabled: !!salonId
   });
