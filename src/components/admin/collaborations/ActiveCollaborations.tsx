@@ -29,9 +29,9 @@ export const ActiveCollaborations = () => {
 
       const formattedCollaborations = data.map(collab => ({
         ...collab,
-        creator_email: collab.creator?.email,
-        salon_name: collab.salon?.name,
-        deal_title: collab.deal?.title
+        creator_email: collab.creator?.email || 'Unknown',
+        salon_name: collab.salon?.name || 'Unknown',
+        deal_title: collab.deal?.title || 'Unknown'
       })) as ActiveCollaboration[];
 
       setCollaborations(formattedCollaborations);

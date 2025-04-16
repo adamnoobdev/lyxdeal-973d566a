@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,7 @@ export const CreateCollaborationDialog = ({ isOpen, onClose, onCreate }: CreateC
       const { data, error } = await supabase
         .from('deals')
         .select('id, title')
-        .eq('salon_id', salonId)
+        .eq('salon_id', parseInt(salonId, 10))
         .eq('is_active', true)
         .order('title');
         
@@ -119,8 +120,8 @@ export const CreateCollaborationDialog = ({ isOpen, onClose, onCreate }: CreateC
     
     try {
       await onCreate({
-        salon_id: parseInt(formData.salon_id as string, 10),
-        deal_id: parseInt(formData.deal_id as string, 10),
+        salon_id: parseInt(formData.salon_id, 10),
+        deal_id: parseInt(formData.deal_id, 10),
         title: formData.title,
         description: formData.description,
         compensation: formData.compensation,

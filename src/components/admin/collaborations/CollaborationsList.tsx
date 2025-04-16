@@ -36,8 +36,9 @@ export const CollaborationsList = () => {
 
       const formattedRequests = data.map(request => ({
         ...request,
-        salon_name: request.salons?.name,
-        deal_title: request.deals?.title
+        salon_name: request.salons?.name || 'Unknown',
+        deal_title: request.deals?.title || 'Unknown',
+        status: request.status as 'active' | 'completed' | 'cancelled'
       })) as CollaborationRequest[];
 
       setCollaborationRequests(formattedRequests);
@@ -147,4 +148,54 @@ export const CollaborationsList = () => {
       )}
     </div>
   );
+  
+  // Handler functions
+  async function handleCreate(values: any) {
+    try {
+      const { data, error } = await supabase
+        .from('collaboration_requests')
+        .insert(values)
+        .select()
+        .single();
+
+      if (error) throw error;
+      toast.success('Samarbetsförfrågan har skapats');
+      fetchCollaborationRequests();
+      setIsCreating(false);
+    } catch (error: any) {
+      toast.error(`Ett fel uppstod: ${error.message}`);
+    }
+  }
+
+  async function handleUpdate(values: any, id: string) {
+    try {
+      const { error } = await supabase
+        .from('collaboration_requests')
+        .update(values)
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Samarbetsförfrågan har uppdaterats');
+      fetchCollaborationRequests();
+      setEditingRequest(null);
+    } catch (error: any) {
+      toast.error(`Ett fel uppstod: ${error.message}`);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      const { error } = await supabase
+        .from('collaboration_requests')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Samarbetsförfrågan har tagits bort');
+      fetchCollaborationRequests();
+      setDeletingRequest(null);
+    } catch (error: any) {
+      toast.error(`Ett fel uppstod: ${error.message}`);
+    }
+  }
 };

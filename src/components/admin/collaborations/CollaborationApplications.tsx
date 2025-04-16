@@ -32,10 +32,10 @@ export const CollaborationApplications = () => {
 
       const formattedApplications = data.map(app => ({
         ...app,
-        creator_email: app.creator?.email,
-        collaboration_title: app.collaboration?.title,
-        salon_name: app.collaboration?.salon_id?.name,
-        deal_title: app.collaboration?.deal_id?.title
+        creator_email: app.creator?.email || 'Unknown',
+        collaboration_title: app.collaboration?.title || 'Unknown',
+        salon_name: app.collaboration?.salon_id?.name || 'Unknown',
+        deal_title: app.collaboration?.deal_id?.title || 'Unknown'
       })) as CollaborationApplication[];
 
       setApplications(formattedApplications);
