@@ -1,5 +1,5 @@
 
-import { TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { sv } from "date-fns/locale";
@@ -18,8 +18,16 @@ interface CollaborationTableBodyProps {
 }
 
 export function CollaborationTableBody({ collaborations, searchTerm }: CollaborationTableBodyProps) {
+  // Log data for debugging
+  console.log('CollaborationTableBody received:', { 
+    collaborationCount: collaborations?.length || 0,
+    firstItem: collaborations?.[0] || 'none', 
+    searchTerm 
+  });
+
   // Filter collaborations based on search term
   const filteredCollaborations = collaborations.filter(collab => {
+    if (!collab) return false;
     const searchLower = searchTerm.toLowerCase();
     return (
       (collab.discount_code && collab.discount_code.toLowerCase().includes(searchLower)) ||
@@ -40,6 +48,8 @@ export function CollaborationTableBody({ collaborations, searchTerm }: Collabora
   return (
     <>
       {filteredCollaborations.map((collab) => {
+        if (!collab) return null;
+        
         const conversionRate = collab.views > 0 
           ? ((collab.redemptions / collab.views) * 100).toFixed(1) 
           : "0.0";
@@ -58,7 +68,7 @@ export function CollaborationTableBody({ collaborations, searchTerm }: Collabora
           <TableRow key={collab.id} className="group hover:bg-muted/40">
             <TableCell className="font-medium">
               <Badge variant="outline" className="font-mono">
-                {collab.discount_code}
+                {collab.discount_code || 'N/A'}
               </Badge>
             </TableCell>
             <TableCell className="hidden sm:table-cell text-muted-foreground">

@@ -43,6 +43,14 @@ export function ActiveCollaborationsList({ collaborations }) {
     );
   }).length;
 
+  // Lägg till loggning för att hjälpa till med debugging
+  console.log('ActiveCollaborationsList rendering with:', { 
+    collaborationsCount: collaborations.length,
+    searchTerm,
+    sortConfig,
+    filteredCount
+  });
+
   return (
     <Card>
       <CardHeader>

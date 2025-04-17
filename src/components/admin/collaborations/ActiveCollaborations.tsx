@@ -24,12 +24,19 @@ export function ActiveCollaborations() {
       try {
         console.log('Fetching active collaborations');
         
+        // Förbättra datahämtningen genom att lägga till mer fält och säkerställa korrekt typning
         const { data, error } = await supabase
           .from('active_collaborations')
           .select(`
             *,
             collaboration_id,
-            creator_id
+            creator_id,
+            salon_id,
+            deal_id,
+            discount_code,
+            views,
+            redemptions,
+            created_at
           `)
           .order('created_at', { ascending: false });
           
@@ -39,7 +46,13 @@ export function ActiveCollaborations() {
           throw error;
         }
         
-        console.log(`Found ${data?.length || 0} active collaborations`, data);
+        console.log(`Found ${data?.length || 0} active collaborations:`, data);
+        
+        // Om data är tom, skriv tydlig logg
+        if (!data || data.length === 0) {
+          console.log('No collaborations found in the database');
+        }
+        
         return data || [];
       } catch (err) {
         console.error('Error fetching active collaborations:', err);
@@ -97,7 +110,7 @@ export function ActiveCollaborations() {
     );
   }
   
-  // Debugging alert to help identify empty states
+  // Mer detaljerad debugging för att hjälpa identifiera tomma tillstånd
   if (collaborations.length === 0) {
     return (
       <Card className="mb-6">
@@ -112,20 +125,28 @@ export function ActiveCollaborations() {
             <InfoIcon className="h-4 w-4 text-blue-500" />
             <AlertTitle className="text-blue-700">Inga aktiva samarbeten</AlertTitle>
             <AlertDescription className="text-blue-600">
-              Det finns för närvarande inga aktiva samarbeten mellan kreatörer och salonger.
+              Det finns för närvarande inga aktiva samarbeten i databasen. Detta kan bero på att:
+              <ul className="list-disc pl-5 mt-2">
+                <li>Inga samarbeten har skapats än</li>
+                <li>Alla samarbeten är inaktiva eller avslutade</li>
+                <li>Det kan finnas ett problem med databaseanslutningen</li>
+              </ul>
             </AlertDescription>
           </Alert>
           
           <div className="border rounded-md p-4 bg-gray-50">
-            <h3 className="font-medium mb-2">Felsökningshjälp</h3>
+            <h3 className="font-medium mb-2">Databas-diagnostik</h3>
             <p className="text-sm text-muted-foreground mb-2">
-              För att samarbeten ska visas här behöver du först:
+              Försöker läsa från tabellen <code>active_collaborations</code> men hittade inga poster.
             </p>
-            <ol className="text-sm list-decimal pl-5 space-y-1 text-muted-foreground">
-              <li>Skapa en samarbetsförfrågan på "Förfrågningar"-fliken</li>
-              <li>Få en kreatör att ansöka via fliken "Ansökningar"</li>
-              <li>Godkänna ansökningen för att skapa ett aktivt samarbete</li>
-            </ol>
+            <p className="text-sm text-muted-foreground">
+              Kontrollera att:
+            </p>
+            <ul className="text-sm list-disc pl-5 space-y-1 text-muted-foreground mt-1">
+              <li>Tabellen <code>active_collaborations</code> är korrekt skapad och har data</li>
+              <li>Åtkomsträttigheter är korrekt konfigurerade</li>
+              <li>RLS-policyer (Row Level Security) inte filtrerar bort alla rader</li>
+            </ul>
             
             <Button 
               variant="outline" 
@@ -135,6 +156,30 @@ export function ActiveCollaborations() {
             >
               <RefreshCw className="h-4 w-4" />
               Uppdatera
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                console.log('Database connection test');
+                supabase
+                  .from('active_collaborations')
+                  .select('count')
+                  .then(({ data, error }) => {
+                    if (error) {
+                      console.error('Database test error:', error);
+                      toast.error('Databasfel: ' + error.message);
+                    } else {
+                      toast.success('Databasanslutning OK, antal rader: ' + (data?.[0]?.count || 0));
+                      console.log('Database connection OK, row count:', data);
+                    }
+                  });
+              }}
+              className="mt-2 ml-2 flex items-center gap-2 text-blue-600"
+            >
+              <DatabaseIcon className="h-4 w-4" />
+              Testa databas
             </Button>
           </div>
         </CardContent>
