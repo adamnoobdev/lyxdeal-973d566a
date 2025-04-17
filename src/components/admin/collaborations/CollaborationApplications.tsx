@@ -5,14 +5,23 @@ import { toast } from 'sonner';
 import { CollaborationApplication } from '@/types/collaboration';
 import { ApplicationsTable } from './ApplicationsTable';
 import { CollaborationsLoadingSkeleton } from './CollaborationsLoadingSkeleton';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, RefreshCw, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const CollaborationApplications = () => {
   const [applications, setApplications] = useState<CollaborationApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   const fetchApplications = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
+      console.log('Fetching collaboration applications');
+      
       const { data, error } = await supabase
         .from('collaboration_applications')
         .select(`
@@ -27,9 +36,13 @@ export const CollaborationApplications = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
+        console.error('Error fetching applications:', error);
+        setError(error);
         throw error;
       }
 
+      console.log(`Found ${data?.length || 0} collaboration applications`, data);
+      
       // Safely map data with fallback values for potentially missing properties
       const formattedApplications = data.map(app => {
         // Check if creator is an object with email property
@@ -68,6 +81,7 @@ export const CollaborationApplications = () => {
       setApplications(formattedApplications);
     } catch (error) {
       console.error('Error fetching applications:', error);
+      setError(error instanceof Error ? error : new Error('Ett fel uppstod vid hämtning av ansökningar'));
       toast.error('Ett fel uppstod vid hämtning av ansökningar');
     } finally {
       setIsLoading(false);
@@ -178,22 +192,80 @@ export const CollaborationApplications = () => {
       toast.error(`Ett fel uppstod: ${error.message}`);
     }
   };
+  
+  const handleRefresh = () => {
+    fetchApplications();
+    toast.success('Data uppdaterad');
+  };
+  
+  if (isLoading) {
+    return <CollaborationsLoadingSkeleton />;
+  }
+  
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-6">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Ett fel uppstod</AlertTitle>
+        <AlertDescription className="mb-2">
+          Det gick inte att hämta ansökningar. {error.message}
+        </AlertDescription>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh} 
+          className="mt-2 bg-background/80"
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Försök igen
+        </Button>
+      </Alert>
+    );
+  }
+
+  if (applications.length === 0) {
+    return (
+      <Card className="bg-gray-50">
+        <CardContent className="pt-6 text-center">
+          <Users className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+          <h3 className="font-medium text-lg mb-1">Inga ansökningar hittades</h3>
+          <p className="text-muted-foreground mb-4">
+            Det finns inga ansökningar från kreatörer för tillfället.
+          </p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh} 
+            className="mx-auto flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Uppdatera
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Kreatörsansökningar</h2>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh} 
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Uppdatera
+        </Button>
       </div>
 
-      {isLoading ? (
-        <CollaborationsLoadingSkeleton />
-      ) : (
-        <ApplicationsTable
-          applications={applications}
-          onApprove={handleApprove}
-          onReject={handleReject}
-        />
-      )}
+      <ApplicationsTable
+        applications={applications}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
     </div>
   );
 };

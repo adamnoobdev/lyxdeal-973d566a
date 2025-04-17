@@ -6,9 +6,16 @@ import { CollaborationsList } from '@/components/admin/collaborations/Collaborat
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CollaborationApplications } from '@/components/admin/collaborations/CollaborationApplications';
 import { ActiveCollaborations } from '@/components/admin/collaborations/ActiveCollaborations';
+import { useEffect } from 'react';
 
 const AdminCollaborations = () => {
   const [activeTab, setActiveTab] = useState("requests");
+
+  // Debugging information to help track component lifecycle and state
+  useEffect(() => {
+    console.log('AdminCollaborations component rendered');
+    console.log('Current active tab:', activeTab);
+  }, [activeTab]);
 
   return (
     <AdminAuthCheck>
@@ -22,6 +29,10 @@ const AdminCollaborations = () => {
               <TabsTrigger value="applications" className="flex-1">Ansökningar</TabsTrigger>
               <TabsTrigger value="active" className="flex-1">Aktiva</TabsTrigger>
             </TabsList>
+            
+            <div className="mb-4 text-sm text-muted-foreground">
+              <p>Aktuell flik: {activeTab === "requests" ? "Förfrågningar" : activeTab === "applications" ? "Ansökningar" : "Aktiva"}</p>
+            </div>
             
             <TabsContent value="requests" className="space-y-4 animate-fade-in">
               <CollaborationsList />
