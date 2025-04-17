@@ -33,19 +33,25 @@ export function CollaborationTable({
   const sortedCollaborations = [...collaborations].sort((a, b) => {
     try {
       // Hantera null/undefined värden
-      if (!a || !a[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (!b || !b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+      if (!a || !a[sortConfig.key as keyof ActiveCollaboration]) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (!b || !b[sortConfig.key as keyof ActiveCollaboration]) return sortConfig.direction === 'asc' ? 1 : -1;
       
       // Numerisk sortering för views och redemptions
       if (sortConfig.key === 'views' || sortConfig.key === 'redemptions') {
-        const aValue = typeof a[sortConfig.key] === 'number' ? a[sortConfig.key] : 0;
-        const bValue = typeof b[sortConfig.key] === 'number' ? b[sortConfig.key] : 0;
+        const aValue = typeof a[sortConfig.key as keyof ActiveCollaboration] === 'number' 
+          ? Number(a[sortConfig.key as keyof ActiveCollaboration]) 
+          : 0;
+        
+        const bValue = typeof b[sortConfig.key as keyof ActiveCollaboration] === 'number' 
+          ? Number(b[sortConfig.key as keyof ActiveCollaboration]) 
+          : 0;
+          
         return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
       }
       
       // Standardsortering (sträng eller datum)
-      const aValue = String(a[sortConfig.key] || '');
-      const bValue = String(b[sortConfig.key] || '');
+      const aValue = String(a[sortConfig.key as keyof ActiveCollaboration] || '');
+      const bValue = String(b[sortConfig.key as keyof ActiveCollaboration] || '');
       
       if (sortConfig.direction === 'asc') {
         return aValue.localeCompare(bValue);

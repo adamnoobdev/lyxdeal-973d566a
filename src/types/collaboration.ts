@@ -45,6 +45,8 @@ export type ActiveCollaboration = {
   views: number;
   redemptions: number;
   created_at: string;
+  
+  // Direct properties after transformation
   collaboration_title?: string;
   collaboration_description?: string;
   compensation?: string;
@@ -62,7 +64,6 @@ export type ActiveCollaboration = {
     compensation?: string;
   };
   
-  // Instead of having properties with the same name as above
   salon_details?: {
     name?: string;
     website?: string;

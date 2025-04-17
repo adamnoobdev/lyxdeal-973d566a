@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Plus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
-import { LoadingButton } from "@/components/ui/loading-button";
 import { CreateCollaborationDialog } from "./CreateCollaborationDialog";
 
 export const ActiveCollaborations = () => {
@@ -36,8 +35,8 @@ export const ActiveCollaborations = () => {
           redemptions,
           created_at,
           collaborations:collaboration_id (title, description, compensation),
-          salon_id (name),
-          deal_id (title, description, booking_url)
+          salon_details:salon_id (name, website),
+          deal_details:deal_id (title, description, booking_url)
         `)
         .order('created_at', { ascending: false });
 
@@ -54,15 +53,11 @@ export const ActiveCollaborations = () => {
         collaboration_title: collab.collaborations?.title || 'Okänd titel',
         collaboration_description: collab.collaborations?.description || '',
         compensation: collab.collaborations?.compensation || '',
-        salon_name: collab.salon_id?.name || 'Okänd salong',
-        salon_website: '', // We don't have website in the select query so use empty value
-        deal_title: collab.deal_id?.title || 'Okänd behandling',
-        deal_description: collab.deal_id?.description || '',
-        booking_url: collab.deal_id?.booking_url || '',
-        
-        // Store the nested structures in our new properties
-        salon_details: collab.salon_id,
-        deal_details: collab.deal_id
+        salon_name: collab.salon_details?.name || 'Okänd salong',
+        salon_website: collab.salon_details?.website || '',
+        deal_title: collab.deal_details?.title || 'Okänd behandling',
+        deal_description: collab.deal_details?.description || '',
+        booking_url: collab.deal_details?.booking_url || '',
       })) as ActiveCollaboration[];
       
       setCollaborations(formattedCollaborations);

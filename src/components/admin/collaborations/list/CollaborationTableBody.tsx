@@ -3,23 +3,15 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { sv } from "date-fns/locale";
-
-interface Collaboration {
-  id: string;
-  discount_code: string;
-  created_at: string;
-  views: number;
-  redemptions: number;
-}
+import { ActiveCollaboration } from "@/types/collaboration";
 
 interface CollaborationTableBodyProps {
-  collaborations: Collaboration[];
+  collaborations: ActiveCollaboration[];
   searchTerm: string;
 }
 
 export function CollaborationTableBody({ collaborations, searchTerm }: CollaborationTableBodyProps) {
-  // Förbättrad loggning för felsökning
-  console.log('CollaborationTableBody renderering:', { 
+  console.log('CollaborationTableBody rendering:', { 
     samarbetesAntal: collaborations?.length || 0,
     förstaObjekt: collaborations?.[0] ? JSON.stringify(collaborations[0]) : 'inget',
     sökterm: searchTerm
@@ -31,12 +23,9 @@ export function CollaborationTableBody({ collaborations, searchTerm }: Collabora
     collaborations = [];
   }
 
-  // Filter collaborations based on search term med förbättrad felhantering
+  // Filter collaborations based on search term
   const filteredCollaborations = collaborations.filter(collab => {
-    if (!collab) {
-      console.warn('Ignorerar ogiltig kollaboration i filtreringen:', collab);
-      return false;
-    }
+    if (!collab) return false;
     
     try {
       const searchLower = (searchTerm || '').toLowerCase();
