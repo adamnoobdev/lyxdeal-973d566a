@@ -5,12 +5,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { ActiveCollaborationsList } from './ActiveCollaborationsList';
 import { CollaborationsLoadingSkeleton } from './CollaborationsLoadingSkeleton';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon, AlertCircle } from "lucide-react";
+import { InfoIcon, AlertCircle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export function ActiveCollaborations() {
   const [isLoading, setIsLoading] = useState(true);
   
-  const { data: collaborations = [], error, isLoading: isQueryLoading } = useQuery({
+  const { 
+    data: collaborations = [], 
+    error, 
+    isLoading: isQueryLoading,
+    refetch 
+  } = useQuery({
     queryKey: ['active-collaborations'],
     queryFn: async () => {
       try {
@@ -26,6 +33,8 @@ export function ActiveCollaborations() {
           .order('created_at', { ascending: false });
           
         if (error) {
+          console.error('Supabase error:', error);
+          toast.error('Kunde inte hämta samarbetsdata från databasen');
           throw error;
         }
         
@@ -35,7 +44,8 @@ export function ActiveCollaborations() {
         console.error('Error fetching active collaborations:', err);
         throw err;
       }
-    }
+    },
+    staleTime: 30000 // Cache data for 30 seconds to reduce unnecessary requests
   });
   
   // Using useEffect for better control over loading state
@@ -49,6 +59,16 @@ export function ActiveCollaborations() {
       return () => clearTimeout(timer);
     }
   }, [isQueryLoading]);
+
+  const handleRefresh = () => {
+    setIsLoading(true);
+    refetch().then(() => {
+      toast.success('Data har uppdaterats');
+    }).catch((error) => {
+      toast.error('Kunde inte uppdatera data');
+      console.error('Refresh error:', error);
+    });
+  };
   
   if (isLoading) {
     return <CollaborationsLoadingSkeleton />;
@@ -58,10 +78,19 @@ export function ActiveCollaborations() {
     return (
       <Alert variant="destructive" className="mb-6">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Fel</AlertTitle>
-        <AlertDescription>
-          Det gick inte att hämta aktiva samarbeten. Försök igen senare.
+        <AlertTitle>Ett fel uppstod</AlertTitle>
+        <AlertDescription className="mb-2">
+          Det gick inte att hämta aktiva samarbeten. {error instanceof Error ? error.message : 'Försök igen senare.'}
         </AlertDescription>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh} 
+          className="mt-2 bg-background/80"
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Försök igen
+        </Button>
       </Alert>
     );
   }
@@ -78,5 +107,20 @@ export function ActiveCollaborations() {
     );
   }
   
-  return <ActiveCollaborationsList collaborations={collaborations} />;
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh} 
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Uppdatera
+        </Button>
+      </div>
+      <ActiveCollaborationsList collaborations={collaborations} />
+    </div>
+  );
 }

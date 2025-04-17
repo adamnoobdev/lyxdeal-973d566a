@@ -22,11 +22,17 @@ interface CollaborationStats {
   totalRedemptions: number;
   activeCollaborators: number;
   pendingApplications: number;
+  conversionRate?: string;
 }
 
 export function useCollaborationStats(salonId: number | undefined, collaborations: ActiveCollaboration[]) {
   // Fetch pending applications using a simpler approach
-  const { data: pendingApplicationsData, isLoading: isLoadingApplications, error: applicationsError } = useQuery({
+  const { 
+    data: pendingApplicationsData, 
+    isLoading: isLoadingApplications, 
+    error: applicationsError,
+    refetch
+  } = useQuery({
     queryKey: ['salon-pending-applications', salonId],
     queryFn: async () => {
       if (!salonId) {
@@ -65,11 +71,14 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
         return applications;
       } catch (error) {
         console.error('Error in pending applications query:', error);
-        return [] as PendingApplication[];
+        throw new Error('Kunde inte hämta väntande ansökningar');
       }
     },
     enabled: !!salonId,
-    staleTime: 60000 // Cache data for 1 minute to reduce unnecessary requests
+    staleTime: 60000, // Cache data for 1 minute to reduce unnecessary requests
+    retry: 2, // Retry failed requests up to 2 times
+    refetchInterval: false, // Don't auto-refetch
+    refetchOnWindowFocus: false // Don't refetch when window regains focus
   });
   
   // Ensure we always have an array with the correct type
@@ -83,7 +92,8 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
         totalViews: 0,
         totalRedemptions: 0,
         activeCollaborators: 0,
-        pendingApplications: 0
+        pendingApplications: 0,
+        conversionRate: '0.0%'
       };
       
       // Check for valid data
@@ -99,11 +109,17 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
       const uniqueCreatorIds = new Set(collaborations.map(collab => collab.creator_id));
       const activeCollaborators = uniqueCreatorIds.size;
       
+      // Calculate overall conversion rate
+      const conversionRate = totalViews > 0 
+        ? `${((totalRedemptions / totalViews) * 100).toFixed(1)}%` 
+        : '0.0%';
+      
       return {
         totalViews,
         totalRedemptions,
         activeCollaborators,
-        pendingApplications: pendingApplications.length
+        pendingApplications: pendingApplications.length,
+        conversionRate
       };
     } catch (error) {
       console.error('Error calculating collaboration statistics:', error);
@@ -111,7 +127,8 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
         totalViews: 0,
         totalRedemptions: 0,
         activeCollaborators: 0,
-        pendingApplications: 0
+        pendingApplications: 0,
+        conversionRate: '0.0%'
       };
     }
   }, [collaborations, pendingApplications]);
@@ -119,6 +136,7 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
   return {
     stats,
     isLoading: isLoadingApplications,
-    error: applicationsError
+    error: applicationsError,
+    refetch
   };
 }
