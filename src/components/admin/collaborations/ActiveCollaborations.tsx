@@ -51,10 +51,10 @@ export const ActiveCollaborations = () => {
       
       // Now fetch additional salon and deal details separately for better type safety
       const formattedCollaborations = await Promise.all(data.map(async (collab) => {
-        // Fetch salon details
+        // Fetch salon details - Note that we're only selecting 'name' since 'website' doesn't exist
         const { data: salonData, error: salonError } = await supabase
           .from('salons')
-          .select('name, website')
+          .select('name')
           .eq('id', collab.salon_id)
           .single();
           
@@ -88,7 +88,7 @@ export const ActiveCollaborations = () => {
         return {
           ...collab,
           salon_name: salonData?.name || 'Okänd salong',
-          salon_website: salonData?.website || '',
+          salon_website: '', // Website field doesn't exist, so we set it to empty string
           deal_title: dealData?.title || 'Okänd behandling',
           deal_description: dealData?.description || '',
           booking_url: dealData?.booking_url || '',
