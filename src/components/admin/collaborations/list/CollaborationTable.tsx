@@ -3,13 +3,16 @@ import { Table, TableHead, TableHeader, TableRow, TableBody } from "@/components
 import { SortableTableHead } from "./SortableTableHead";
 import { CollaborationTableBody } from "./CollaborationTableBody";
 
+// Define the SortConfig interface
+interface SortConfig {
+  key: string;
+  direction: 'asc' | 'desc';
+}
+
 interface CollaborationTableProps {
   collaborations: any[];
   searchTerm: string;
-  sortConfig: {
-    key: string;
-    direction: 'asc' | 'desc';
-  };
+  sortConfig: SortConfig;
   onSort: (key: string) => void;
 }
 

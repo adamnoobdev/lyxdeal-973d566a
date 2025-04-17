@@ -6,9 +6,15 @@ import { ExportButton } from "./list/ExportButton";
 import { CollaborationTable } from "./list/CollaborationTable";
 import { useCsvExport } from "./list/useCsvExport";
 
+// Define the type for the sort configuration
+interface SortConfig {
+  key: string;
+  direction: 'asc' | 'desc';
+}
+
 export function ActiveCollaborationsList({ collaborations }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: 'created_at',
     direction: 'desc'
   });
