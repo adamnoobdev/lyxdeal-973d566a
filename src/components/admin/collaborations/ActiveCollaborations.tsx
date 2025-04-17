@@ -36,8 +36,8 @@ export const ActiveCollaborations = () => {
           redemptions,
           created_at,
           collaborations:collaboration_id (title, description, compensation),
-          salons:salon_id (name, website),
-          deals:deal_id (title, description, booking_url)
+          salon_id (name),
+          deal_id (title, description, booking_url)
         `)
         .order('created_at', { ascending: false });
 
@@ -54,11 +54,11 @@ export const ActiveCollaborations = () => {
         collaboration_title: collab.collaborations?.title || 'Okänd titel',
         collaboration_description: collab.collaborations?.description || '',
         compensation: collab.collaborations?.compensation || '',
-        salon_name: collab.salons?.name || 'Okänd salong',
-        salon_website: collab.salons?.website || '',
-        deal_title: collab.deals?.title || 'Okänd behandling',
-        deal_description: collab.deals?.description || '',
-        booking_url: collab.deals?.booking_url || ''
+        salon_name: collab.salon_id?.name || 'Okänd salong',
+        salon_website: '', // Vi har inte website i select-frågan så använd tomt värde
+        deal_title: collab.deal_id?.title || 'Okänd behandling',
+        deal_description: collab.deal_id?.description || '',
+        booking_url: collab.deal_id?.booking_url || ''
       })) as ActiveCollaboration[];
       
       setCollaborations(formattedCollaborations);

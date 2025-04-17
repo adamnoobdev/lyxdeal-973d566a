@@ -28,6 +28,11 @@ export type CollaborationApplication = {
   salon_name?: string;
   deal_title?: string;
   creator_email?: string;
+  collaborations?: {
+    title: string;
+    salon_id: number;
+    deal_id: number;
+  };
 }
 
 export type ActiveCollaboration = {
@@ -49,4 +54,17 @@ export type ActiveCollaboration = {
   deal_description?: string;
   booking_url?: string;
   creator_email?: string;
+  collaborations?: {
+    title?: string;
+    description?: string;
+    compensation?: string;
+  };
+  salon_id?: {
+    name?: string;
+  };
+  deal_id?: {
+    title?: string;
+    description?: string;
+    booking_url?: string;
+  };
 }

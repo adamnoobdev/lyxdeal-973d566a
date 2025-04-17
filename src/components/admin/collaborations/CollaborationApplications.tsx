@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CollaborationApplication } from "@/types/collaboration";
@@ -26,10 +25,7 @@ export const CollaborationApplications = () => {
         .from('collaboration_applications')
         .select(`
           *,
-          creators:creator_id (email),
-          collaborations:collaboration_id (title, salon_id, deal_id),
-          salons:collaborations(salon_id (name)),
-          deals:collaborations(deal_id (title))
+          collaborations:collaboration_id (title, salon_id, deal_id)
         `)
         .order('created_at', { ascending: false });
         
@@ -40,16 +36,49 @@ export const CollaborationApplications = () => {
       
       console.log(`Found ${data?.length || 0} collaboration applications`, data);
       
-      // Transformera data för att matcha CollaborationApplication-typen
-      const formattedApplications = data.map(app => ({
-        ...app,
-        creator_email: app.creators?.email || 'Unknown',
-        collaboration_title: app.collaborations?.title || 'Unknown',
-        salon_name: app.collaborations?.salons?.name || 'Unknown',
-        deal_title: app.collaborations?.deals?.title || 'Unknown'
-      })) as CollaborationApplication[];
+      const enrichedApplications = await Promise.all(data.map(async (app) => {
+        const collaborationId = app.collaboration_id;
+        
+        const { data: collaborationData } = await supabase
+          .from('collaboration_requests')
+          .select('*')
+          .eq('id', collaborationId)
+          .single();
+        
+        if (!collaborationData) {
+          return {
+            ...app,
+            creator_email: 'Unknown',
+            collaboration_title: app.collaborations?.title || 'Unknown',
+            salon_name: 'Unknown',
+            deal_title: 'Unknown'
+          };
+        }
+        
+        const salonId = collaborationData.salon_id;
+        const { data: salonData } = await supabase
+          .from('salons')
+          .select('name')
+          .eq('id', salonId)
+          .single();
+        
+        const dealId = collaborationData.deal_id;
+        const { data: dealData } = await supabase
+          .from('deals')
+          .select('title')
+          .eq('id', dealId)
+          .single();
+          
+        return {
+          ...app,
+          creator_email: 'Unknown',
+          collaboration_title: app.collaborations?.title || 'Unknown',
+          salon_name: salonData?.name || 'Unknown',
+          deal_title: dealData?.title || 'Unknown'
+        };
+      }));
       
-      setApplications(formattedApplications);
+      setApplications(enrichedApplications as CollaborationApplication[]);
     } catch (error) {
       console.error('Error in fetchApplications:', error);
       setError(error instanceof Error ? error : new Error('Ett fel uppstod vid hämtning av ansökningar'));
@@ -79,7 +108,61 @@ export const CollaborationApplications = () => {
       if (error) throw error;
       toast.success('Samarbetsförfrågan har skapats');
       setIsCreating(false);
-      // Refresh applications after creating a new collaboration
+      fetchApplications();
+    } catch (error: any) {
+      toast.error(`Ett fel uppstod: ${error.message}`);
+    }
+  };
+
+  const handleApprove = async (id: string, collaborationId: string, creatorId: string) => {
+    try {
+      const { error: updateError } = await supabase
+        .from('collaboration_applications')
+        .update({ status: 'approved' })
+        .eq('id', id);
+
+      if (updateError) throw updateError;
+
+      const { data: collaborationData, error: collabError } = await supabase
+        .from('collaboration_requests')
+        .select('salon_id, deal_id')
+        .eq('id', collaborationId)
+        .single();
+
+      if (collabError || !collaborationData) throw collabError || new Error('Kunde inte hitta samarbetsinformation');
+
+      const discountCode = `${creatorId.slice(0, 5).toUpperCase()}-${Math.floor(Math.random() * 10000)}`;
+
+      const { error: activeError } = await supabase
+        .from('active_collaborations')
+        .insert({
+          collaboration_id: collaborationId,
+          creator_id: creatorId,
+          salon_id: collaborationData.salon_id,
+          deal_id: collaborationData.deal_id,
+          discount_code: discountCode,
+          views: 0,
+          redemptions: 0
+        });
+
+      if (activeError) throw activeError;
+
+      toast.success('Ansökan godkänd och samarbete aktiverat');
+      fetchApplications();
+    } catch (error: any) {
+      toast.error(`Ett fel uppstod: ${error.message}`);
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('collaboration_applications')
+        .update({ status: 'rejected' })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Ansökan avvisad');
       fetchApplications();
     } catch (error: any) {
       toast.error(`Ett fel uppstod: ${error.message}`);
@@ -215,7 +298,11 @@ export const CollaborationApplications = () => {
         </div>
       </div>
       
-      <ApplicationsTable applications={applications} onRefresh={fetchApplications} />
+      <ApplicationsTable 
+        applications={applications} 
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
       
       <CreateCollaborationDialog
         isOpen={isCreating}

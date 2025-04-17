@@ -13,7 +13,7 @@ import { CollaborationApplication } from "@/types/collaboration";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
-interface ApplicationsTableProps {
+export interface ApplicationsTableProps {
   applications: CollaborationApplication[];
   onApprove: (id: string, collaborationId: string, creatorId: string) => Promise<void>;
   onReject: (id: string) => Promise<void>;
