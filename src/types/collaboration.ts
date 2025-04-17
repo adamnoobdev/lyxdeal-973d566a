@@ -46,32 +46,14 @@ export type ActiveCollaboration = {
   redemptions: number;
   created_at: string;
   
-  // Direct properties after transformation
-  collaboration_title?: string;
-  collaboration_description?: string;
-  compensation?: string;
+  // Flattened properties for direct access
   salon_name?: string;
   salon_website?: string;
   deal_title?: string;
   deal_description?: string;
   booking_url?: string;
+  collaboration_title?: string;
+  collaboration_description?: string;
+  compensation?: string;
   creator_email?: string;
-  
-  // Nested join data from Supabase
-  collaborations?: {
-    title?: string;
-    description?: string;
-    compensation?: string;
-  };
-  
-  salon_details?: {
-    name?: string;
-    website?: string;
-  };
-  
-  deal_details?: {
-    title?: string;
-    description?: string;
-    booking_url?: string;
-  };
 }

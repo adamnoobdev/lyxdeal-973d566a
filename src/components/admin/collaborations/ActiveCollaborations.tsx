@@ -22,6 +22,7 @@ export const ActiveCollaborations = () => {
     try {
       console.log('Fetching active collaborations...');
       
+      // Use an INNER JOIN approach instead of nested objects to ensure we get proper type safety
       const { data, error } = await supabase
         .from('active_collaborations')
         .select(`
@@ -33,10 +34,7 @@ export const ActiveCollaborations = () => {
           discount_code,
           views,
           redemptions,
-          created_at,
-          collaborations:collaboration_id (title, description, compensation),
-          salon_details:salon_id (name, website),
-          deal_details:deal_id (title, description, booking_url)
+          created_at
         `)
         .order('created_at', { ascending: false });
 
@@ -46,19 +44,59 @@ export const ActiveCollaborations = () => {
       }
       
       console.log('Fetched active collaborations:', data);
+
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format returned from API');
+      }
       
-      // Transform data to match ActiveCollaboration type
-      const formattedCollaborations = data.map(collab => ({
-        ...collab,
-        collaboration_title: collab.collaborations?.title || 'Okänd titel',
-        collaboration_description: collab.collaborations?.description || '',
-        compensation: collab.collaborations?.compensation || '',
-        salon_name: collab.salon_details?.name || 'Okänd salong',
-        salon_website: collab.salon_details?.website || '',
-        deal_title: collab.deal_details?.title || 'Okänd behandling',
-        deal_description: collab.deal_details?.description || '',
-        booking_url: collab.deal_details?.booking_url || '',
-      })) as ActiveCollaboration[];
+      // Now fetch additional salon and deal details separately for better type safety
+      const formattedCollaborations = await Promise.all(data.map(async (collab) => {
+        // Fetch salon details
+        const { data: salonData, error: salonError } = await supabase
+          .from('salons')
+          .select('name, website')
+          .eq('id', collab.salon_id)
+          .single();
+          
+        if (salonError) {
+          console.warn(`Could not fetch salon details for id ${collab.salon_id}:`, salonError);
+        }
+        
+        // Fetch deal details
+        const { data: dealData, error: dealError } = await supabase
+          .from('deals')
+          .select('title, description, booking_url')
+          .eq('id', collab.deal_id)
+          .single();
+          
+        if (dealError) {
+          console.warn(`Could not fetch deal details for id ${collab.deal_id}:`, dealError);
+        }
+        
+        // Fetch collaboration details
+        const { data: collaborationData, error: collaborationError } = await supabase
+          .from('collaboration_requests')
+          .select('title, description, compensation')
+          .eq('id', collab.collaboration_id)
+          .single();
+          
+        if (collaborationError) {
+          console.warn(`Could not fetch collaboration details for id ${collab.collaboration_id}:`, collaborationError);
+        }
+        
+        // Return enriched collaboration object
+        return {
+          ...collab,
+          salon_name: salonData?.name || 'Okänd salong',
+          salon_website: salonData?.website || '',
+          deal_title: dealData?.title || 'Okänd behandling',
+          deal_description: dealData?.description || '',
+          booking_url: dealData?.booking_url || '',
+          collaboration_title: collaborationData?.title || 'Okänt samarbete',
+          collaboration_description: collaborationData?.description || '',
+          compensation: collaborationData?.compensation || '',
+        } as ActiveCollaboration;
+      }));
       
       setCollaborations(formattedCollaborations);
       console.log('Processed collaborations:', formattedCollaborations);
