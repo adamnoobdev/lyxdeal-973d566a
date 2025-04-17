@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CollaborationApplication } from "@/types/collaboration";
@@ -36,45 +37,57 @@ export const CollaborationApplications = () => {
       
       console.log(`Found ${data?.length || 0} collaboration applications`, data);
       
-      const enrichedApplications = await Promise.all(data.map(async (app) => {
+      // Process each application with additional data
+      const enrichedApplications = await Promise.all((data || []).map(async (app) => {
         const collaborationId = app.collaboration_id;
+        let salonName = 'Unknown';
+        let dealTitle = 'Unknown';
         
-        const { data: collaborationData } = await supabase
-          .from('collaboration_requests')
-          .select('*')
-          .eq('id', collaborationId)
-          .single();
-        
-        if (!collaborationData) {
-          return {
-            ...app,
-            creator_email: 'Unknown',
-            collaboration_title: app.collaborations?.title || 'Unknown',
-            salon_name: 'Unknown',
-            deal_title: 'Unknown'
-          };
+        // Only fetch collaboration details if we have an ID
+        if (collaborationId) {
+          // Get collaboration details
+          const { data: collaborationData } = await supabase
+            .from('collaboration_requests')
+            .select('salon_id, deal_id')
+            .eq('id', collaborationId)
+            .single();
+            
+          if (collaborationData) {
+            // Get salon name if we have salon_id
+            if (collaborationData.salon_id) {
+              const { data: salonData } = await supabase
+                .from('salons')
+                .select('name')
+                .eq('id', collaborationData.salon_id)
+                .single();
+                
+              if (salonData) {
+                salonName = salonData.name;
+              }
+            }
+            
+            // Get deal title if we have deal_id
+            if (collaborationData.deal_id) {
+              const { data: dealData } = await supabase
+                .from('deals')
+                .select('title')
+                .eq('id', collaborationData.deal_id)
+                .single();
+                
+              if (dealData) {
+                dealTitle = dealData.title;
+              }
+            }
+          }
         }
         
-        const salonId = collaborationData.salon_id;
-        const { data: salonData } = await supabase
-          .from('salons')
-          .select('name')
-          .eq('id', salonId)
-          .single();
-        
-        const dealId = collaborationData.deal_id;
-        const { data: dealData } = await supabase
-          .from('deals')
-          .select('title')
-          .eq('id', dealId)
-          .single();
-          
+        // Return enriched application
         return {
           ...app,
-          creator_email: 'Unknown',
+          creator_email: 'Unknown', // We don't have this data yet
           collaboration_title: app.collaborations?.title || 'Unknown',
-          salon_name: salonData?.name || 'Unknown',
-          deal_title: dealData?.title || 'Unknown'
+          salon_name: salonName,
+          deal_title: dealTitle
         };
       }));
       

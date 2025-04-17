@@ -54,15 +54,21 @@ export type ActiveCollaboration = {
   deal_description?: string;
   booking_url?: string;
   creator_email?: string;
+  
+  // Nested join data from Supabase
   collaborations?: {
     title?: string;
     description?: string;
     compensation?: string;
   };
-  salon_id?: {
+  
+  // Instead of having properties with the same name as above
+  salon_details?: {
     name?: string;
+    website?: string;
   };
-  deal_id?: {
+  
+  deal_details?: {
     title?: string;
     description?: string;
     booking_url?: string;

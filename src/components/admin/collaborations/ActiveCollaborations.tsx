@@ -48,17 +48,21 @@ export const ActiveCollaborations = () => {
       
       console.log('Fetched active collaborations:', data);
       
-      // Transformera data för att matcha ActiveCollaboration-typen
+      // Transform data to match ActiveCollaboration type
       const formattedCollaborations = data.map(collab => ({
         ...collab,
         collaboration_title: collab.collaborations?.title || 'Okänd titel',
         collaboration_description: collab.collaborations?.description || '',
         compensation: collab.collaborations?.compensation || '',
         salon_name: collab.salon_id?.name || 'Okänd salong',
-        salon_website: '', // Vi har inte website i select-frågan så använd tomt värde
+        salon_website: '', // We don't have website in the select query so use empty value
         deal_title: collab.deal_id?.title || 'Okänd behandling',
         deal_description: collab.deal_id?.description || '',
-        booking_url: collab.deal_id?.booking_url || ''
+        booking_url: collab.deal_id?.booking_url || '',
+        
+        // Store the nested structures in our new properties
+        salon_details: collab.salon_id,
+        deal_details: collab.deal_id
       })) as ActiveCollaboration[];
       
       setCollaborations(formattedCollaborations);
