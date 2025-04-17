@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHead, TableBody, TableRow, TableCell, TableHeader } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -205,9 +204,15 @@ export function ActiveCollaborationsList({ collaborations }) {
                       ? ((collab.redemptions / collab.views) * 100).toFixed(1) 
                       : "0.0";
                     
-                    let badgeVariant = "secondary";
-                    if (parseFloat(conversionRate) > 5) badgeVariant = "success";
-                    if (parseFloat(conversionRate) > 10) badgeVariant = "default";
+                    // Update badge variant logic to use strict type matching
+                    let badgeVariant: "secondary" | "success" | "default" = "secondary";
+                    const rate = parseFloat(conversionRate);
+                    
+                    if (rate > 10) {
+                      badgeVariant = "default";
+                    } else if (rate > 5) {
+                      badgeVariant = "success";
+                    }
                     
                     return (
                       <TableRow key={collab.id} className="group hover:bg-muted/40">
