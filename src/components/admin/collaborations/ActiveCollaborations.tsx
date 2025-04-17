@@ -1,99 +1,82 @@
 
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { ActiveCollaboration } from '@/types/collaboration';
-import { ActiveCollaborationsTable } from './ActiveCollaborationsTable';
+import { ActiveCollaborationsList } from './ActiveCollaborationsList';
 import { CollaborationsLoadingSkeleton } from './CollaborationsLoadingSkeleton';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoIcon, AlertCircle } from "lucide-react";
 
-export const ActiveCollaborations = () => {
-  const [collaborations, setCollaborations] = useState<ActiveCollaboration[]>([]);
+export function ActiveCollaborations() {
   const [isLoading, setIsLoading] = useState(true);
-
-  const fetchCollaborations = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('active_collaborations')
-        .select(`
-          *,
-          creator:creator_id(email),
-          salon:salon_id(name),
-          deal:deal_id(title)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
+  
+  const { data: collaborations = [], error, isLoading: isQueryLoading } = useQuery({
+    queryKey: ['active-collaborations'],
+    queryFn: async () => {
+      try {
+        console.log('Fetching active collaborations');
+        
+        const { data, error } = await supabase
+          .from('active_collaborations')
+          .select(`
+            *,
+            collaboration_id,
+            creator_id
+          `)
+          .order('created_at', { ascending: false });
+          
+        if (error) {
+          throw error;
+        }
+        
+        console.log(`Found ${data?.length || 0} active collaborations`);
+        return data || [];
+      } catch (err) {
+        console.error('Error fetching active collaborations:', err);
+        throw err;
       }
-
-      // Safely map data with fallback values for potentially missing properties
-      const formattedCollaborations = data.map(collab => {
-        // Check if creator is an object with email property
-        const creatorEmail = typeof collab.creator === 'object' && collab.creator !== null 
-          ? (collab.creator as any).email || 'Unknown' 
-          : 'Unknown';
-        
-        // Check if salon is an object with name property
-        const salonName = typeof collab.salon === 'object' && collab.salon !== null 
-          ? (collab.salon as any).name || 'Unknown' 
-          : 'Unknown';
-        
-        // Check if deal is an object with title property
-        const dealTitle = typeof collab.deal === 'object' && collab.deal !== null 
-          ? (collab.deal as any).title || 'Unknown' 
-          : 'Unknown';
-
-        return {
-          ...collab,
-          creator_email: creatorEmail,
-          salon_name: salonName,
-          deal_title: dealTitle
-        };
-      }) as ActiveCollaboration[];
-
-      setCollaborations(formattedCollaborations);
-    } catch (error) {
-      console.error('Error fetching active collaborations:', error);
-      toast.error('Ett fel uppstod vid hämtning av aktiva samarbeten');
-    } finally {
-      setIsLoading(false);
     }
-  };
-
+  });
+  
+  // Using useEffect for better control over loading state
   useEffect(() => {
-    fetchCollaborations();
-  }, []);
-
-  const handleDelete = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('active_collaborations')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      toast.success('Samarbete har tagits bort');
-      fetchCollaborations();
-    } catch (error: any) {
-      toast.error(`Ett fel uppstod: ${error.message}`);
+    if (!isQueryLoading) {
+      // Add slight delay to prevent flickering for fast loads
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+      
+      return () => clearTimeout(timer);
     }
-  };
-
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Aktiva samarbeten</h2>
-      </div>
-
-      {isLoading ? (
-        <CollaborationsLoadingSkeleton />
-      ) : (
-        <ActiveCollaborationsTable
-          collaborations={collaborations}
-          onDelete={handleDelete}
-        />
-      )}
-    </div>
-  );
-};
+  }, [isQueryLoading]);
+  
+  if (isLoading) {
+    return <CollaborationsLoadingSkeleton />;
+  }
+  
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-6">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Fel</AlertTitle>
+        <AlertDescription>
+          Det gick inte att hämta aktiva samarbeten. Försök igen senare.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+  
+  if (collaborations.length === 0) {
+    return (
+      <Alert className="mb-6 bg-blue-50 border-blue-200">
+        <InfoIcon className="h-4 w-4 text-blue-500" />
+        <AlertTitle className="text-blue-700">Inga aktiva samarbeten</AlertTitle>
+        <AlertDescription className="text-blue-600">
+          Det finns för närvarande inga aktiva samarbeten mellan kreatörer och salonger.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+  
+  return <ActiveCollaborationsList collaborations={collaborations} />;
+}

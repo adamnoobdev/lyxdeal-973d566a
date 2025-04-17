@@ -26,14 +26,17 @@ interface CollaborationStats {
 
 export function useCollaborationStats(salonId: number | undefined, collaborations: ActiveCollaboration[]) {
   // Fetch pending applications using a simpler approach
-  const { data: pendingApplicationsData, isLoading: isLoadingApplications } = useQuery({
+  const { data: pendingApplicationsData, isLoading: isLoadingApplications, error: applicationsError } = useQuery({
     queryKey: ['salon-pending-applications', salonId],
     queryFn: async () => {
       if (!salonId) {
+        console.log("Cannot fetch pending applications: No salon ID provided");
         return [] as PendingApplication[];
       }
       
       try {
+        console.log(`Fetching pending applications for salon ID: ${salonId}`);
+        
         // Use a standard query approach instead of an RPC call
         const { data, error } = await supabase
           .from('collaboration_applications')
@@ -44,6 +47,8 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
           console.error('Error fetching pending applications:', error);
           return [] as PendingApplication[];
         }
+        
+        console.log(`Found ${data?.length || 0} pending applications`);
         
         // Explicitly cast and map to our standalone type
         const applications = (Array.isArray(data) ? data : []).map((item: any): PendingApplication => ({
@@ -63,31 +68,57 @@ export function useCollaborationStats(salonId: number | undefined, collaboration
         return [] as PendingApplication[];
       }
     },
-    enabled: !!salonId
+    enabled: !!salonId,
+    staleTime: 60000 // Cache data for 1 minute to reduce unnecessary requests
   });
   
   // Ensure we always have an array with the correct type
   const pendingApplications: PendingApplication[] = pendingApplicationsData || [];
   
-  // Calculate statistics
+  // Calculate statistics with error handling
   const stats: CollaborationStats = useMemo(() => {
-    const totalViews = collaborations.reduce((sum, collab) => sum + (collab.views || 0), 0);
-    const totalRedemptions = collaborations.reduce((sum, collab) => sum + (collab.redemptions || 0), 0);
-    
-    // Count unique creators (based on creator_id)
-    const uniqueCreatorIds = new Set(collaborations.map(collab => collab.creator_id));
-    const activeCollaborators = uniqueCreatorIds.size;
-    
-    return {
-      totalViews,
-      totalRedemptions,
-      activeCollaborators,
-      pendingApplications: pendingApplications.length
-    };
+    try {
+      // Default values if there's an error
+      const defaultStats: CollaborationStats = {
+        totalViews: 0,
+        totalRedemptions: 0,
+        activeCollaborators: 0,
+        pendingApplications: 0
+      };
+      
+      // Check for valid data
+      if (!Array.isArray(collaborations)) {
+        console.error('Invalid collaborations data format:', collaborations);
+        return defaultStats;
+      }
+      
+      const totalViews = collaborations.reduce((sum, collab) => sum + (collab.views || 0), 0);
+      const totalRedemptions = collaborations.reduce((sum, collab) => sum + (collab.redemptions || 0), 0);
+      
+      // Count unique creators (based on creator_id)
+      const uniqueCreatorIds = new Set(collaborations.map(collab => collab.creator_id));
+      const activeCollaborators = uniqueCreatorIds.size;
+      
+      return {
+        totalViews,
+        totalRedemptions,
+        activeCollaborators,
+        pendingApplications: pendingApplications.length
+      };
+    } catch (error) {
+      console.error('Error calculating collaboration statistics:', error);
+      return {
+        totalViews: 0,
+        totalRedemptions: 0,
+        activeCollaborators: 0,
+        pendingApplications: 0
+      };
+    }
   }, [collaborations, pendingApplications]);
   
   return {
     stats,
-    isLoading: isLoadingApplications
+    isLoading: isLoadingApplications,
+    error: applicationsError
   };
 }
