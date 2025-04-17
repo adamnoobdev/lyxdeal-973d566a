@@ -2,6 +2,7 @@
 import { Table, TableHead, TableHeader, TableRow, TableBody } from "@/components/ui/table";
 import { SortableTableHead } from "./SortableTableHead";
 import { CollaborationTableBody } from "./CollaborationTableBody";
+import { ActiveCollaboration } from "@/types/collaboration";
 
 // Define the SortConfig interface
 interface SortConfig {
@@ -10,7 +11,7 @@ interface SortConfig {
 }
 
 interface CollaborationTableProps {
-  collaborations: any[];
+  collaborations: ActiveCollaboration[];
   searchTerm: string;
   sortConfig: SortConfig;
   onSort: (key: string) => void;
@@ -22,24 +23,48 @@ export function CollaborationTable({
   sortConfig,
   onSort
 }: CollaborationTableProps) {
+  // Kontrollera att collaborations är en array
+  if (!Array.isArray(collaborations)) {
+    console.error('Felaktigt dataformat: collaborations är inte en array:', collaborations);
+    collaborations = [];
+  }
+
+  // Förbättrad sortering med felhantering
   const sortedCollaborations = [...collaborations].sort((a, b) => {
-    // Handle null values
-    if (a[sortConfig.key] === null) return sortConfig.direction === 'asc' ? -1 : 1;
-    if (b[sortConfig.key] === null) return sortConfig.direction === 'asc' ? 1 : -1;
-    
-    // Numeric sort for views and redemptions
-    if (sortConfig.key === 'views' || sortConfig.key === 'redemptions') {
-      return sortConfig.direction === 'asc' 
-        ? (a[sortConfig.key] || 0) - (b[sortConfig.key] || 0) 
-        : (b[sortConfig.key] || 0) - (a[sortConfig.key] || 0);
+    try {
+      // Hantera null/undefined värden
+      if (!a || !a[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (!b || !b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+      
+      // Numerisk sortering för views och redemptions
+      if (sortConfig.key === 'views' || sortConfig.key === 'redemptions') {
+        const aValue = typeof a[sortConfig.key] === 'number' ? a[sortConfig.key] : 0;
+        const bValue = typeof b[sortConfig.key] === 'number' ? b[sortConfig.key] : 0;
+        return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+      
+      // Standardsortering (sträng eller datum)
+      const aValue = String(a[sortConfig.key] || '');
+      const bValue = String(b[sortConfig.key] || '');
+      
+      if (sortConfig.direction === 'asc') {
+        return aValue.localeCompare(bValue);
+      } else {
+        return bValue.localeCompare(aValue);
+      }
+    } catch (err) {
+      console.error('Sorteringsfel:', err, 'för objekten:', a, b);
+      return 0; // Returnera 0 vid fel för att behålla ursprunglig ordning
     }
-    
-    // Default sort (string or date)
-    if (sortConfig.direction === 'asc') {
-      return a[sortConfig.key] < b[sortConfig.key] ? -1 : 1;
-    } else {
-      return a[sortConfig.key] > b[sortConfig.key] ? -1 : 1;
-    }
+  });
+
+  // Utökad loggning för felsökning
+  console.log('CollaborationTable sorted data:', {
+    ursprungligLängd: collaborations.length,
+    sorteradLängd: sortedCollaborations.length,
+    förstaElementSorterat: sortedCollaborations[0] ? 
+      { id: sortedCollaborations[0].id, discount_code: sortedCollaborations[0].discount_code } : 
+      'inget'
   });
 
   return (

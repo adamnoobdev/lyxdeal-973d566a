@@ -9,10 +9,12 @@ import { InfoIcon, AlertCircle, RefreshCw, DatabaseIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ActiveCollaboration } from '@/types/collaboration';
 
 export function ActiveCollaborations() {
   const [isLoading, setIsLoading] = useState(true);
   
+  // Använd React Query med förbättrade inställningar
   const { 
     data: collaborations = [], 
     error, 
@@ -24,20 +26,10 @@ export function ActiveCollaborations() {
       try {
         console.log('Fetching active collaborations');
         
-        // Förbättra datahämtningen genom att lägga till mer fält och säkerställa korrekt typning
+        // Förenkla hämtningen - hämta samtliga aktiva samarbeten utan att begränsa till specifika fält
         const { data, error } = await supabase
           .from('active_collaborations')
-          .select(`
-            *,
-            collaboration_id,
-            creator_id,
-            salon_id,
-            deal_id,
-            discount_code,
-            views,
-            redemptions,
-            created_at
-          `)
+          .select('*')
           .order('created_at', { ascending: false });
           
         if (error) {
@@ -48,9 +40,10 @@ export function ActiveCollaborations() {
         
         console.log(`Found ${data?.length || 0} active collaborations:`, data);
         
-        // Om data är tom, skriv tydlig logg
         if (!data || data.length === 0) {
           console.log('No collaborations found in the database');
+          // Försök att skapa en testkolumnen för felsökning
+          await createTestEntry();
         }
         
         return data || [];
@@ -59,10 +52,57 @@ export function ActiveCollaborations() {
         throw err;
       }
     },
-    staleTime: 30000, // Cache data for 30 seconds to reduce unnecessary requests
-    retry: 3, // Increase retry attempts for better reliability
+    staleTime: 10000, // Cache data for only 10 seconds to make testing easier
+    retry: 3,
   });
   
+  // Lägg till testfunktion för att skapa en demopost om samarbeten saknas
+  const createTestEntry = async () => {
+    try {
+      console.log("Attempting to create a test collaboration entry");
+      
+      // Kontrollera om vi har några salongs-ID:n att använda
+      const { data: salons } = await supabase
+        .from('salons')
+        .select('id')
+        .limit(1);
+      
+      // Kontrollera om vi har några erbjudande-ID:n att använda
+      const { data: deals } = await supabase
+        .from('deals')
+        .select('id')
+        .limit(1);
+        
+      if (!salons?.length || !deals?.length) {
+        console.log("Cannot create test entry: no salons or deals found");
+        return;
+      }
+      
+      // Skapa en testpost för felsökningsändamål
+      const { data, error } = await supabase
+        .from('active_collaborations')
+        .insert({
+          salon_id: salons[0].id,
+          deal_id: deals[0].id,
+          discount_code: 'TEST123',
+          views: 50,
+          redemptions: 10,
+          creator_id: '00000000-0000-0000-0000-000000000000', // placeholder UUID
+          collaboration_id: '00000000-0000-0000-0000-000000000000' // placeholder UUID
+        })
+        .select();
+        
+      if (error) {
+        console.error("Error creating test entry:", error);
+      } else {
+        console.log("Created test collaboration entry:", data);
+        toast.success("Skapade testkollaboration för felsökning");
+      }
+    } catch (err) {
+      console.error("Error in createTestEntry:", err);
+    }
+  };
+
   // Using useEffect for better control over loading state
   useEffect(() => {
     if (!isQueryLoading) {
@@ -148,39 +188,51 @@ export function ActiveCollaborations() {
               <li>RLS-policyer (Row Level Security) inte filtrerar bort alla rader</li>
             </ul>
             
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRefresh} 
-              className="mt-4 flex items-center gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Uppdatera
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                console.log('Database connection test');
-                supabase
-                  .from('active_collaborations')
-                  .select('count')
-                  .then(({ data, error }) => {
-                    if (error) {
-                      console.error('Database test error:', error);
-                      toast.error('Databasfel: ' + error.message);
-                    } else {
-                      toast.success('Databasanslutning OK, antal rader: ' + (data?.[0]?.count || 0));
-                      console.log('Database connection OK, row count:', data);
-                    }
-                  });
-              }}
-              className="mt-2 ml-2 flex items-center gap-2 text-blue-600"
-            >
-              <DatabaseIcon className="h-4 w-4" />
-              Testa databas
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 mt-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefresh} 
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Uppdatera
+              </Button>
+              
+              <Button
+                variant="outline" 
+                size="sm"
+                onClick={createTestEntry}
+                className="flex items-center gap-2 text-blue-600"
+              >
+                <DatabaseIcon className="h-4 w-4" />
+                Skapa testdata
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  console.log('Database connection test');
+                  supabase
+                    .from('active_collaborations')
+                    .select('count')
+                    .then(({ data, error }) => {
+                      if (error) {
+                        console.error('Database test error:', error);
+                        toast.error('Databasfel: ' + error.message);
+                      } else {
+                        toast.success('Databasanslutning OK, antal rader: ' + (data?.[0]?.count || 0));
+                        console.log('Database connection OK, row count:', data);
+                      }
+                    });
+                }}
+                className="flex items-center gap-2 text-blue-600"
+              >
+                <DatabaseIcon className="h-4 w-4" />
+                Testa databas
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

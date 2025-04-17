@@ -18,21 +18,36 @@ interface CollaborationTableBodyProps {
 }
 
 export function CollaborationTableBody({ collaborations, searchTerm }: CollaborationTableBodyProps) {
-  // Log data for debugging
-  console.log('CollaborationTableBody received:', { 
-    collaborationCount: collaborations?.length || 0,
-    firstItem: collaborations?.[0] || 'none', 
-    searchTerm 
+  // Förbättrad loggning för felsökning
+  console.log('CollaborationTableBody renderering:', { 
+    samarbetesAntal: collaborations?.length || 0,
+    förstaObjekt: collaborations?.[0] ? JSON.stringify(collaborations[0]) : 'inget',
+    sökterm: searchTerm
   });
 
-  // Filter collaborations based on search term
+  // Säkerställ att collaborations är en array
+  if (!Array.isArray(collaborations)) {
+    console.error('Felaktigt dataformat: collaborations är inte en array:', collaborations);
+    collaborations = [];
+  }
+
+  // Filter collaborations based on search term med förbättrad felhantering
   const filteredCollaborations = collaborations.filter(collab => {
-    if (!collab) return false;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      (collab.discount_code && collab.discount_code.toLowerCase().includes(searchLower)) ||
-      (collab.id && collab.id.toString().toLowerCase().includes(searchLower))
-    );
+    if (!collab) {
+      console.warn('Ignorerar ogiltig kollaboration i filtreringen:', collab);
+      return false;
+    }
+    
+    try {
+      const searchLower = (searchTerm || '').toLowerCase();
+      return (
+        (collab.discount_code && collab.discount_code.toLowerCase().includes(searchLower)) ||
+        (collab.id && collab.id.toString().toLowerCase().includes(searchLower))
+      );
+    } catch (err) {
+      console.error('Fel vid filtrering av kollaboration:', err, collab);
+      return false;
+    }
   });
 
   if (filteredCollaborations.length === 0) {
@@ -47,14 +62,22 @@ export function CollaborationTableBody({ collaborations, searchTerm }: Collabora
 
   return (
     <>
-      {filteredCollaborations.map((collab) => {
-        if (!collab) return null;
+      {filteredCollaborations.map((collab, index) => {
+        if (!collab) {
+          console.warn('Hoppade över ogiltig kollaboration:', collab, 'på index:', index);
+          return null;
+        }
         
-        const conversionRate = collab.views > 0 
-          ? ((collab.redemptions / collab.views) * 100).toFixed(1) 
+        // Hantera numeriska värden säkert med fallback
+        const views = typeof collab.views === 'number' ? collab.views : 0;
+        const redemptions = typeof collab.redemptions === 'number' ? collab.redemptions : 0;
+        
+        // Beräkna konverteringsgrad med skydd mot division med noll
+        const conversionRate = views > 0 
+          ? ((redemptions / views) * 100).toFixed(1) 
           : "0.0";
         
-        // Update badge variant logic to use strict type matching
+        // Sätt badge-variant baserat på konverteringsgraden
         let badgeVariant: "secondary" | "success" | "default" = "secondary";
         const rate = parseFloat(conversionRate);
         
@@ -65,7 +88,7 @@ export function CollaborationTableBody({ collaborations, searchTerm }: Collabora
         }
         
         return (
-          <TableRow key={collab.id} className="group hover:bg-muted/40">
+          <TableRow key={collab.id || index} className="group hover:bg-muted/40">
             <TableCell className="font-medium">
               <Badge variant="outline" className="font-mono">
                 {collab.discount_code || 'N/A'}
@@ -75,14 +98,14 @@ export function CollaborationTableBody({ collaborations, searchTerm }: Collabora
               {collab.created_at ? (
                 formatDistanceToNow(new Date(collab.created_at), { 
                   addSuffix: true,
-                  locale: sv 
+                  locale: sv
                 })
               ) : (
                 "Okänt datum"
               )}
             </TableCell>
-            <TableCell className="text-center">{collab.views || 0}</TableCell>
-            <TableCell className="text-center">{collab.redemptions || 0}</TableCell>
+            <TableCell className="text-center">{views}</TableCell>
+            <TableCell className="text-center">{redemptions}</TableCell>
             <TableCell className="text-center">
               <Badge variant={badgeVariant}>
                 {conversionRate}%
