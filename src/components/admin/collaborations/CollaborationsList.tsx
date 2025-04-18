@@ -54,14 +54,20 @@ export const CollaborationsList = () => {
       <CreateCollaborationDialog 
         isOpen={isCreating} 
         onClose={() => setIsCreating(false)} 
-        onCreate={handleCreate} 
+        onCreate={async (values) => {
+          const result = await handleCreate(values);
+          if (result) setIsCreating(false);
+        }} 
       />
       
       {editingRequest && (
         <EditCollaborationDialog 
           isOpen={!!editingRequest} 
           onClose={() => setEditingRequest(null)} 
-          onUpdate={handleUpdate} 
+          onUpdate={async (values, id) => {
+            const result = await handleUpdate(values, id);
+            if (result) setEditingRequest(null);
+          }} 
           collaborationRequest={editingRequest} 
         />
       )}
@@ -70,7 +76,10 @@ export const CollaborationsList = () => {
         <DeleteCollaborationDialog 
           isOpen={!!deletingRequest} 
           onClose={() => setDeletingRequest(null)} 
-          onDelete={() => handleDelete(deletingRequest.id)} 
+          onDelete={async () => {
+            await handleDelete(deletingRequest.id);
+            setDeletingRequest(null);
+          }} 
           collaborationRequest={deletingRequest} 
         />
       )}

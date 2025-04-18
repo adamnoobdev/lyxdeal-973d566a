@@ -16,7 +16,7 @@ import { format } from "date-fns";
 interface EditCollaborationDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: (values: any, id: string) => Promise<void>;
+  onUpdate: (values: any, id: string) => Promise<boolean | void>;
   collaborationRequest: CollaborationRequest;
 }
 

@@ -54,7 +54,7 @@ export function useCollaborationsList() {
     fetchCollaborationRequests();
   }, []);
 
-  const handleCreate = async (values: any) => {
+  const handleCreate = async (values: any): Promise<boolean> => {
     try {
       const { data, error } = await supabase
         .from('collaboration_requests')
@@ -72,7 +72,7 @@ export function useCollaborationsList() {
     }
   };
 
-  const handleUpdate = async (values: any, id: string) => {
+  const handleUpdate = async (values: any, id: string): Promise<boolean> => {
     try {
       const { error } = await supabase
         .from('collaboration_requests')
@@ -89,7 +89,7 @@ export function useCollaborationsList() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string): Promise<boolean> => {
     try {
       const { error } = await supabase
         .from('collaboration_requests')

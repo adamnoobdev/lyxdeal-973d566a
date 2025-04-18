@@ -15,7 +15,7 @@ import { useState } from "react";
 interface DeleteCollaborationDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onDelete: () => Promise<void>;
+  onDelete: () => Promise<boolean | void>;
   collaborationRequest: CollaborationRequest;
 }
 
