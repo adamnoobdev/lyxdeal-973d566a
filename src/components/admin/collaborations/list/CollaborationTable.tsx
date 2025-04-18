@@ -29,6 +29,8 @@ export function CollaborationTable({
     collaborations = [];
   }
 
+  console.log('CollaborationTable rendered with', collaborations.length, 'collaborations');
+
   // Förbättrad sortering med felhantering
   const sortedCollaborations = [...collaborations].sort((a, b) => {
     try {
@@ -62,15 +64,6 @@ export function CollaborationTable({
       console.error('Sorteringsfel:', err, 'för objekten:', a, b);
       return 0; // Returnera 0 vid fel för att behålla ursprunglig ordning
     }
-  });
-
-  // Utökad loggning för felsökning
-  console.log('CollaborationTable sorted data:', {
-    ursprungligLängd: collaborations.length,
-    sorteradLängd: sortedCollaborations.length,
-    förstaElementSorterat: sortedCollaborations[0] ? 
-      { id: sortedCollaborations[0].id, discount_code: sortedCollaborations[0].discount_code } : 
-      'inget'
   });
 
   return (

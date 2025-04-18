@@ -11,11 +11,7 @@ interface CollaborationTableBodyProps {
 }
 
 export function CollaborationTableBody({ collaborations, searchTerm }: CollaborationTableBodyProps) {
-  console.log('CollaborationTableBody rendering:', { 
-    samarbetesAntal: collaborations?.length || 0,
-    förstaObjekt: collaborations?.[0] ? JSON.stringify(collaborations[0]) : 'inget',
-    sökterm: searchTerm
-  });
+  console.log('CollaborationTableBody rendering with', collaborations.length, 'collaborations');
 
   // Säkerställ att collaborations är en array
   if (!Array.isArray(collaborations)) {
@@ -38,6 +34,8 @@ export function CollaborationTableBody({ collaborations, searchTerm }: Collabora
       return false;
     }
   });
+
+  console.log('Filtered collaborations:', filteredCollaborations.length);
 
   if (filteredCollaborations.length === 0) {
     return (

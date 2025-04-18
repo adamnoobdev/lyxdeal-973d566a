@@ -48,7 +48,7 @@ export type ActiveCollaboration = {
   
   // Flattened properties for direct access
   salon_name?: string;
-  salon_website?: string;
+  salon_website?: string; // Obs! Denna finns inte i databasen men används i koden
   deal_title?: string;
   deal_description?: string;
   booking_url?: string;

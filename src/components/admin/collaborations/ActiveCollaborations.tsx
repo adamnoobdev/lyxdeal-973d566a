@@ -22,57 +22,65 @@ export const ActiveCollaborations = () => {
     try {
       console.log('Fetching active collaborations...');
       
-      const { data: activeCollaborations, error: fetchError } = await supabase
+      // Enkel initial sökning som inte kräver komplexa joins
+      const { data: activeCollaborationsData, error: fetchError } = await supabase
         .from('active_collaborations')
-        .select(`
-          id,
-          collaboration_id,
-          creator_id,
-          salon_id,
-          deal_id,
-          discount_code,
-          views,
-          redemptions,
-          created_at
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (fetchError) {
+        console.error('Fel vid hämtning av aktiva samarbeten:', fetchError);
         throw fetchError;
       }
       
-      if (!activeCollaborations || !Array.isArray(activeCollaborations)) {
-        throw new Error('Inga samarbeten hittades eller felaktigt dataformat');
+      if (!activeCollaborationsData || !Array.isArray(activeCollaborationsData)) {
+        console.warn('Inga samarbeten hittades eller felaktigt dataformat', activeCollaborationsData);
+        setCollaborations([]);
+        return;
       }
       
-      console.log(`Found ${activeCollaborations.length} active collaborations`);
+      console.log(`Hittade ${activeCollaborationsData.length} aktiva samarbeten:`, activeCollaborationsData);
       
       // Förbered en array för de berikade samarbetsobjekten
       const enrichedCollaborations: ActiveCollaboration[] = [];
       
       // Gå igenom varje aktivt samarbete och hämta ytterligare information
-      for (const collab of activeCollaborations) {
+      for (const collab of activeCollaborationsData) {
         try {
+          console.log(`Bearbetar samarbete med ID: ${collab.id}`);
+          
           // Hämta salonginformation
-          const { data: salonData } = await supabase
+          const { data: salonData, error: salonError } = await supabase
             .from('salons')
             .select('name')
             .eq('id', collab.salon_id)
             .single();
           
+          if (salonError) {
+            console.warn(`Kunde inte hämta salongdata för salon_id ${collab.salon_id}:`, salonError);
+          }
+          
           // Hämta dealinformation
-          const { data: dealData } = await supabase
+          const { data: dealData, error: dealError } = await supabase
             .from('deals')
             .select('title, description, booking_url')
             .eq('id', collab.deal_id)
             .single();
           
+          if (dealError) {
+            console.warn(`Kunde inte hämta deal-data för deal_id ${collab.deal_id}:`, dealError);
+          }
+          
           // Hämta samarbetsinformation
-          const { data: collaborationData } = await supabase
+          const { data: collaborationData, error: collaborationError } = await supabase
             .from('collaboration_requests')
             .select('title, description, compensation')
             .eq('id', collab.collaboration_id)
             .single();
+          
+          if (collaborationError) {
+            console.warn(`Kunde inte hämta samarbetsdata för collaboration_id ${collab.collaboration_id}:`, collaborationError);
+          }
           
           // Lägg till det berikade objektet i arrayen
           enrichedCollaborations.push({
@@ -86,14 +94,15 @@ export const ActiveCollaborations = () => {
             collaboration_description: collaborationData?.description || '',
             compensation: collaborationData?.compensation || '',
           });
+          
+          console.log('Lade till berikat samarbete:', enrichedCollaborations[enrichedCollaborations.length - 1]);
         } catch (itemError) {
           console.error('Error enriching collaboration item:', itemError);
           // Vi fortsätter med nästa objekt istället för att avbryta hela processen
-          // Detta ökar robustheten i vår app
         }
       }
       
-      console.log('Processed collaborations:', enrichedCollaborations);
+      console.log('Alla berikade samarbeten:', enrichedCollaborations);
       setCollaborations(enrichedCollaborations);
       
     } catch (error) {
@@ -106,6 +115,7 @@ export const ActiveCollaborations = () => {
   };
   
   useEffect(() => {
+    console.log('ActiveCollaborations component mounted, fetching data...');
     fetchActiveCollaborations();
   }, []);
   
@@ -130,6 +140,12 @@ export const ActiveCollaborations = () => {
       toast.error(`Ett fel uppstod: ${error.message}`);
     }
   };
+  
+  console.log('ActiveCollaborations render state:', { 
+    isLoading, 
+    error: error?.message, 
+    collaborationsCount: collaborations.length 
+  });
   
   // Visa laddningsstatus
   if (isLoading) {

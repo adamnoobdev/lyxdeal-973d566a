@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CollaborationSearchBar } from "./list/CollaborationSearchBar";
 import { ExportButton } from "./list/ExportButton";
@@ -23,6 +23,11 @@ export function ActiveCollaborationsList({ collaborations }: ActiveCollaboration
     key: 'created_at',
     direction: 'desc'
   });
+
+  // Debugging logging
+  useEffect(() => {
+    console.log('ActiveCollaborationsList mounted with collaborations:', collaborations);
+  }, [collaborations]);
 
   const { exportToCsv } = useCsvExport(collaborations);
   
@@ -66,7 +71,7 @@ export function ActiveCollaborationsList({ collaborations }: ActiveCollaboration
     <Card>
       <CardHeader>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <CardTitle>Aktiva samarbeten</CardTitle>
+          <CardTitle>Aktiva samarbeten ({safeCollaborations.length})</CardTitle>
           <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
             <CollaborationSearchBar 
               searchTerm={searchTerm} 

@@ -1,12 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { AdminAuthCheck } from '@/components/admin/auth/AdminAuthCheck';
 import { CollaborationsList } from '@/components/admin/collaborations/CollaborationsList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CollaborationApplications } from '@/components/admin/collaborations/CollaborationApplications';
 import { ActiveCollaborations } from '@/components/admin/collaborations/ActiveCollaborations';
-import { useEffect } from 'react';
 
 const AdminCollaborations = () => {
   const [activeTab, setActiveTab] = useState("requests");
@@ -23,7 +22,7 @@ const AdminCollaborations = () => {
         <div className="container mx-auto p-4 max-w-7xl">
           <h1 className="text-2xl font-bold mb-6">Kreatörssamarbeten</h1>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs defaultValue="requests" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="mb-6 w-full max-w-md mx-auto flex justify-between overflow-x-auto">
               <TabsTrigger value="requests" className="flex-1">Förfrågningar</TabsTrigger>
               <TabsTrigger value="applications" className="flex-1">Ansökningar</TabsTrigger>
