@@ -29,10 +29,6 @@ const AdminCollaborations = () => {
               <TabsTrigger value="active" className="flex-1">Aktiva</TabsTrigger>
             </TabsList>
             
-            <div className="mb-4 text-sm text-muted-foreground">
-              <p>Aktuell flik: {activeTab === "requests" ? "Förfrågningar" : activeTab === "applications" ? "Ansökningar" : "Aktiva"}</p>
-            </div>
-            
             <TabsContent value="requests" className="space-y-4 animate-fade-in">
               <CollaborationsList />
             </TabsContent>

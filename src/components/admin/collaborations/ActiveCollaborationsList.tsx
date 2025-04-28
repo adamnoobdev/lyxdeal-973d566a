@@ -1,97 +1,53 @@
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CollaborationSearchBar } from "./list/CollaborationSearchBar";
-import { ExportButton } from "./list/ExportButton";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { CollaborationTable } from "./list/CollaborationTable";
-import { useCsvExport } from "./list/useCsvExport";
 import { ActiveCollaboration } from "@/types/collaboration";
-
-// Define the type for the sort configuration
-interface SortConfig {
-  key: string;
-  direction: 'asc' | 'desc';
-}
 
 interface ActiveCollaborationsListProps {
   collaborations: ActiveCollaboration[];
+  isLoading: boolean;
 }
 
-export function ActiveCollaborationsList({ collaborations }: ActiveCollaborationsListProps) {
+export const ActiveCollaborationsList = ({ 
+  collaborations,
+  isLoading
+}: ActiveCollaborationsListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState<SortConfig>({
+  const [sortConfig, setSortConfig] = useState({
     key: 'created_at',
-    direction: 'desc'
+    direction: 'desc' as 'asc' | 'desc'
   });
 
-  // Debugging logging
-  useEffect(() => {
-    console.log('ActiveCollaborationsList mounted with collaborations:', collaborations);
-  }, [collaborations]);
-
-  const { exportToCsv } = useCsvExport(collaborations);
-  
-  // Handle sort
   const handleSort = (key: string) => {
-    setSortConfig(prevConfig => ({
+    setSortConfig(current => ({
       key,
-      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc'
     }));
   };
 
-  // Handler for search term changes
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-  };
-  
-  // Säkerställ att collaborations är en array
-  const safeCollaborations = Array.isArray(collaborations) ? collaborations : [];
-  
-  // Calculate how many collaborations match the current search
-  const filteredCount = safeCollaborations.filter(collab => {
-    if (!collab) return false;
-    
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      (collab.discount_code && collab.discount_code.toLowerCase().includes(searchLower)) ||
-      (collab.id && collab.id.toString().toLowerCase().includes(searchLower))
-    );
-  }).length;
-
-  // Utökad loggning för felsökning
-  console.log('ActiveCollaborationsList rendering with:', { 
-    collaborationsCount: safeCollaborations.length,
-    firstCollaboration: safeCollaborations[0] ? JSON.stringify(safeCollaborations[0]) : 'none',
-    searchTerm,
-    sortConfig,
-    filteredCount
-  });
-
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <CardTitle>Aktiva samarbeten ({safeCollaborations.length})</CardTitle>
-          <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-            <CollaborationSearchBar 
-              searchTerm={searchTerm} 
-              onSearchChange={handleSearchChange} 
-            />
-            <ExportButton onExport={exportToCsv} />
-          </div>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Sök rabattkod"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8 w-full"
+            disabled={isLoading}
+          />
         </div>
-      </CardHeader>
-      <CardContent>
-        <CollaborationTable 
-          collaborations={safeCollaborations}
-          searchTerm={searchTerm}
-          sortConfig={sortConfig}
-          onSort={handleSort}
-        />
-        <div className="text-xs text-muted-foreground mt-4 text-center">
-          Visar {filteredCount} av totalt {safeCollaborations.length} samarbeten
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+      
+      <CollaborationTable
+        collaborations={collaborations}
+        searchTerm={searchTerm}
+        sortConfig={sortConfig}
+        onSort={handleSort}
+      />
+    </div>
   );
-}
+};

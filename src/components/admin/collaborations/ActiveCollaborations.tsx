@@ -1,168 +1,81 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ActiveCollaborationsList } from "./ActiveCollaborationsList";
 import { ActiveCollaboration } from "@/types/collaboration";
+import { CollaborationTable } from "./CollaborationTable";
 import { Button } from "@/components/ui/button";
-import { Plus, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
-import { CreateCollaborationDialog } from "./CreateCollaborationDialog";
+import { RefreshCw, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const ActiveCollaborations = () => {
   const [collaborations, setCollaborations] = useState<ActiveCollaboration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-  
-  const fetchActiveCollaborations = async () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState({
+    key: 'created_at',
+    direction: 'desc' as 'asc' | 'desc'
+  });
+
+  const fetchCollaborations = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      console.log('Fetching active collaborations...');
+      console.log('Fetching active collaborations');
       
-      // Enkel initial sökning som inte kräver komplexa joins
-      const { data: activeCollaborationsData, error: fetchError } = await supabase
+      const { data, error } = await supabase
         .from('active_collaborations')
-        .select('*')
+        .select(`
+          *,
+          salons(name),
+          deals(title)
+        `)
         .order('created_at', { ascending: false });
 
-      if (fetchError) {
-        console.error('Fel vid hämtning av aktiva samarbeten:', fetchError);
-        throw fetchError;
+      if (error) {
+        console.error('Error fetching active collaborations:', error);
+        throw error;
       }
+
+      console.log(`Found ${data?.length || 0} active collaborations`, data);
       
-      if (!activeCollaborationsData || !Array.isArray(activeCollaborationsData)) {
-        console.warn('Inga samarbeten hittades eller felaktigt dataformat', activeCollaborationsData);
-        setCollaborations([]);
-        return;
-      }
-      
-      console.log(`Hittade ${activeCollaborationsData.length} aktiva samarbeten:`, activeCollaborationsData);
-      
-      // Förbered en array för de berikade samarbetsobjekten
-      const enrichedCollaborations: ActiveCollaboration[] = [];
-      
-      // Gå igenom varje aktivt samarbete och hämta ytterligare information
-      for (const collab of activeCollaborationsData) {
-        try {
-          console.log(`Bearbetar samarbete med ID: ${collab.id}`);
-          
-          // Hämta salonginformation
-          const { data: salonData, error: salonError } = await supabase
-            .from('salons')
-            .select('name')
-            .eq('id', collab.salon_id)
-            .single();
-          
-          if (salonError) {
-            console.warn(`Kunde inte hämta salongdata för salon_id ${collab.salon_id}:`, salonError);
-          }
-          
-          // Hämta dealinformation
-          const { data: dealData, error: dealError } = await supabase
-            .from('deals')
-            .select('title, description, booking_url')
-            .eq('id', collab.deal_id)
-            .single();
-          
-          if (dealError) {
-            console.warn(`Kunde inte hämta deal-data för deal_id ${collab.deal_id}:`, dealError);
-          }
-          
-          // Hämta samarbetsinformation
-          const { data: collaborationData, error: collaborationError } = await supabase
-            .from('collaboration_requests')
-            .select('title, description, compensation')
-            .eq('id', collab.collaboration_id)
-            .single();
-          
-          if (collaborationError) {
-            console.warn(`Kunde inte hämta samarbetsdata för collaboration_id ${collab.collaboration_id}:`, collaborationError);
-          }
-          
-          // Lägg till det berikade objektet i arrayen
-          enrichedCollaborations.push({
-            ...collab,
-            salon_name: salonData?.name || 'Okänd salong',
-            salon_website: '', // Denna kolumn existerar inte i databasen
-            deal_title: dealData?.title || 'Okänd behandling',
-            deal_description: dealData?.description || '',
-            booking_url: dealData?.booking_url || '',
-            collaboration_title: collaborationData?.title || 'Okänt samarbete',
-            collaboration_description: collaborationData?.description || '',
-            compensation: collaborationData?.compensation || '',
-          });
-          
-          console.log('Lade till berikat samarbete:', enrichedCollaborations[enrichedCollaborations.length - 1]);
-        } catch (itemError) {
-          console.error('Error enriching collaboration item:', itemError);
-          // Vi fortsätter med nästa objekt istället för att avbryta hela processen
-        }
-      }
-      
-      console.log('Alla berikade samarbeten:', enrichedCollaborations);
-      setCollaborations(enrichedCollaborations);
-      
+      const formattedCollaborations = data.map(collab => ({
+        ...collab,
+        salon_name: collab.salons?.name || 'Unknown',
+        deal_title: collab.deals?.title || 'Unknown',
+      })) as ActiveCollaboration[];
+
+      setCollaborations(formattedCollaborations);
     } catch (error) {
-      console.error('Error in fetchActiveCollaborations:', error);
+      console.error('Error fetching active collaborations:', error);
       setError(error instanceof Error ? error : new Error('Ett fel uppstod vid hämtning av aktiva samarbeten'));
-      toast.error('Kunde inte hämta aktiva samarbeten');
     } finally {
       setIsLoading(false);
     }
   };
-  
-  useEffect(() => {
-    console.log('ActiveCollaborations component mounted, fetching data...');
-    fetchActiveCollaborations();
-  }, []);
-  
-  const handleRefresh = () => {
-    fetchActiveCollaborations();
-    toast.success('Data uppdaterad');
-  };
-  
-  const handleCreate = async (values: any) => {
-    try {
-      const { data, error } = await supabase
-        .from('collaboration_requests')
-        .insert(values)
-        .select()
-        .single();
 
-      if (error) throw error;
-      toast.success('Samarbetsförfrågan har skapats');
-      setIsCreating(false);
-      fetchActiveCollaborations();
-    } catch (error: any) {
-      toast.error(`Ett fel uppstod: ${error.message}`);
-    }
+  useEffect(() => {
+    fetchCollaborations();
+  }, []);
+
+  const handleSort = (key: string) => {
+    setSortConfig(current => ({
+      key,
+      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc'
+    }));
   };
-  
-  console.log('ActiveCollaborations render state:', { 
-    isLoading, 
-    error: error?.message, 
-    collaborationsCount: collaborations.length 
-  });
-  
-  // Visa laddningsstatus
+
   if (isLoading) {
     return (
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Aktiva samarbeten</h2>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              Uppdaterar...
-            </Button>
-            <Button disabled>
-              <Plus className="h-4 w-4 mr-2" />
-              Skapa samarbete
-            </Button>
-          </div>
+          <Button variant="outline" size="sm" disabled>
+            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            Uppdaterar...
+          </Button>
         </div>
         
         <Card>
@@ -173,27 +86,20 @@ export const ActiveCollaborations = () => {
       </div>
     );
   }
-  
-  // Visa felstatus
+
   if (error) {
     return (
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Aktiva samarbeten</h2>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRefresh}
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Försök igen
-            </Button>
-            <Button onClick={() => setIsCreating(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Skapa samarbete
-            </Button>
-          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={fetchCollaborations}
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Försök igen
+          </Button>
         </div>
         
         <Card className="bg-destructive/10">
@@ -202,58 +108,52 @@ export const ActiveCollaborations = () => {
             <p className="text-muted-foreground">{error.message}</p>
           </CardContent>
         </Card>
-        
-        <CreateCollaborationDialog
-          isOpen={isCreating}
-          onClose={() => setIsCreating(false)}
-          onCreate={handleCreate}
-        />
       </div>
     );
   }
-  
-  // Visa huvudkomponenten
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-xl font-semibold">Aktiva samarbeten</h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex w-full md:w-auto gap-2">
+          <div className="relative w-full md:w-auto">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Sök rabattkod"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8 w-full md:w-[200px]"
+            />
+          </div>
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={handleRefresh} 
-            className="flex items-center gap-2"
+            onClick={fetchCollaborations}
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className="h-4 w-4 mr-2" />
             Uppdatera
-          </Button>
-          <Button onClick={() => setIsCreating(true)} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Skapa samarbete
           </Button>
         </div>
       </div>
-      
-      {/* Visa varning om inga samarbeten finns */}
-      {collaborations.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground mb-4">Inga aktiva samarbeten hittades</p>
-            <Button onClick={() => setIsCreating(true)} variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Skapa ditt första samarbete
-            </Button>
+
+      <CollaborationTable 
+        collaborations={collaborations}
+        searchTerm={searchTerm}
+        sortConfig={sortConfig}
+        onSort={handleSort}
+      />
+
+      {collaborations.length === 0 && !searchTerm && (
+        <Card className="bg-muted/40">
+          <CardHeader>
+            <CardTitle className="text-center text-muted-foreground">Inga aktiva samarbeten</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center text-sm text-muted-foreground pb-6">
+            Det finns inga aktiva samarbeten just nu.
           </CardContent>
         </Card>
-      ) : (
-        <ActiveCollaborationsList collaborations={collaborations} />
       )}
-      
-      <CreateCollaborationDialog
-        isOpen={isCreating}
-        onClose={() => setIsCreating(false)}
-        onCreate={handleCreate}
-      />
     </div>
   );
 };
