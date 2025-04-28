@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ActiveCollaboration } from "@/types/collaboration";
-import { CollaborationTable } from "./CollaborationTable";
+import { CollaborationTable } from "./list/CollaborationTable";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
