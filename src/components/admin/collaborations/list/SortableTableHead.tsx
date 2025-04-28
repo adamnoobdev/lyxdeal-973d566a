@@ -6,7 +6,7 @@ interface SortableTableHeadProps {
   label: string;
   sortKey: string;
   currentSortKey: string;
-  sortDirection: 'asc' | 'desc';  // Updated to be more specific
+  sortDirection: 'asc' | 'desc';
   onSort: (key: string) => void;
   className?: string;
   centerContent?: boolean;
