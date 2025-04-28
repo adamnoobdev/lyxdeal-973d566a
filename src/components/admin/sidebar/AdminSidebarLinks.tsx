@@ -1,5 +1,6 @@
+
 import { Users, ShoppingBag, LayoutDashboard, Settings, MessageSquare, Plus, Tag, Percent } from "lucide-react";
-import { SidebarLink } from "@/components/ui/sidebar";
+import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 
 interface AdminSidebarLinksProps {
   currentPath: string;
@@ -8,45 +9,70 @@ interface AdminSidebarLinksProps {
 export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
   return (
     <div className="space-y-1">
-      <SidebarLink
-        href="/admin"
-        icon={<LayoutDashboard className="h-4 w-4" />}
-        isActive={currentPath === '/admin'}
-      >
-        Dashboard
-      </SidebarLink>
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={currentPath === '/admin'}
+          tooltip="Dashboard"
+        >
+          <a href="/admin">
+            <LayoutDashboard className="h-4 w-4" />
+            <span>Dashboard</span>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
 
-      <SidebarLink
-        href="/admin/deals"
-        icon={<ShoppingBag className="h-4 w-4" />}
-        isActive={currentPath.startsWith('/admin/deals')}
-      >
-        Deals
-      </SidebarLink>
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={currentPath.startsWith('/admin/deals')}
+          tooltip="Deals"
+        >
+          <a href="/admin/deals">
+            <ShoppingBag className="h-4 w-4" />
+            <span>Deals</span>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
 
-      <SidebarLink
-        href="/admin/salons"
-        icon={<Users className="h-4 w-4" />}
-        isActive={currentPath.startsWith('/admin/salons')}
-      >
-        Salonger
-      </SidebarLink>
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={currentPath.startsWith('/admin/salons')}
+          tooltip="Salonger"
+        >
+          <a href="/admin/salons">
+            <Users className="h-4 w-4" />
+            <span>Salonger</span>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
       
-      <SidebarLink 
-        href="/admin/collaborations" 
-        icon={<Percent className="h-4 w-4" />}
-        isActive={currentPath === '/admin/collaborations'}
-      >
-        Kreatörssamarbeten
-      </SidebarLink>
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={currentPath === '/admin/collaborations'}
+          tooltip="Kreatörssamarbeten"
+        >
+          <a href="/admin/collaborations">
+            <Percent className="h-4 w-4" />
+            <span>Kreatörssamarbeten</span>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
       
-      <SidebarLink 
-        href="/admin/creators" 
-        icon={<Users className="h-4 w-4" />}
-        isActive={currentPath === '/admin/creators'}
-      >
-        Kreatörer
-      </SidebarLink>
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          asChild 
+          isActive={currentPath === '/admin/creators'}
+          tooltip="Kreatörer"
+        >
+          <a href="/admin/creators">
+            <Users className="h-4 w-4" />
+            <span>Kreatörer</span>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
     </div>
   );
 };
