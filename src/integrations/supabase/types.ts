@@ -286,6 +286,45 @@ export type Database = {
           },
         ]
       }
+      creators: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          instagram_handle: string | null
+          name: string
+          phone: string | null
+          rating: number | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          instagram_handle?: string | null
+          name: string
+          phone?: string | null
+          rating?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          instagram_handle?: string | null
+          name?: string
+          phone?: string | null
+          rating?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           booking_url: string | null

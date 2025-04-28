@@ -1,72 +1,52 @@
-
-import { useLocation } from "react-router-dom";
-import { LayoutDashboard, Tag, Store, UserPlus, Users } from "lucide-react";
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, useSidebar } from "@/components/ui/sidebar";
-import { SidebarLink } from "./SidebarLink";
-
-const adminLinks = [
-  {
-    href: "/admin",
-    icon: LayoutDashboard,
-    label: "Översikt",
-    description: "Översikt och statistik",
-  },
-  {
-    href: "/admin/deals",
-    icon: Tag,
-    label: "Erbjudanden",
-    description: "Hantera erbjudanden",
-  },
-  {
-    href: "/admin/salons",
-    icon: Store,
-    label: "Salonger",
-    description: "Hantera salonger",
-  },
-  {
-    href: "/admin/collaborations",
-    icon: Users,
-    label: "Samarbeten",
-    description: "Hantera kreatörssamarbeten",
-  },
-  {
-    href: "/create-admin",
-    icon: UserPlus,
-    label: "Skapa Admin",
-    description: "Lägg till administratörer",
-  },
-] as const;
+import { Users, ShoppingBag, LayoutDashboard, Settings, MessageSquare, Plus, Tag, Percent } from "lucide-react";
+import { SidebarLink } from "@/components/ui/sidebar";
 
 interface AdminSidebarLinksProps {
-  currentPath?: string;
+  currentPath: string;
 }
 
 export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
-  const location = useLocation();
-  const currentLocation = currentPath || location.pathname;
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
-
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel className={`text-primary font-medium ${isCollapsed ? "sr-only" : ""}`}>
-        Admin
-      </SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {adminLinks.map((link) => (
-            <SidebarLink
-              key={link.href}
-              href={link.href}
-              icon={link.icon}
-              label={link.label}
-              isCurrentPath={currentLocation === link.href || currentLocation.startsWith(link.href)}
-            >
-              {link.label}
-            </SidebarLink>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+    <div className="space-y-1">
+      <SidebarLink
+        href="/admin"
+        icon={<LayoutDashboard className="h-4 w-4" />}
+        isActive={currentPath === '/admin'}
+      >
+        Dashboard
+      </SidebarLink>
+
+      <SidebarLink
+        href="/admin/deals"
+        icon={<ShoppingBag className="h-4 w-4" />}
+        isActive={currentPath.startsWith('/admin/deals')}
+      >
+        Deals
+      </SidebarLink>
+
+      <SidebarLink
+        href="/admin/salons"
+        icon={<Users className="h-4 w-4" />}
+        isActive={currentPath.startsWith('/admin/salons')}
+      >
+        Salonger
+      </SidebarLink>
+      
+      <SidebarLink 
+        href="/admin/collaborations" 
+        icon={<Percent className="h-4 w-4" />}
+        isActive={currentPath === '/admin/collaborations'}
+      >
+        Kreatörssamarbeten
+      </SidebarLink>
+      
+      <SidebarLink 
+        href="/admin/creators" 
+        icon={<Users className="h-4 w-4" />}
+        isActive={currentPath === '/admin/creators'}
+      >
+        Kreatörer
+      </SidebarLink>
+    </div>
   );
 };

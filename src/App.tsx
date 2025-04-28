@@ -21,6 +21,7 @@ import SecureDeal from './pages/SecureDeal';
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import CreateAdmin from './pages/CreateAdmin';
 import AdminCollaborations from './pages/AdminCollaborations';
+import AdminCreators from './pages/AdminCreators';
 import { CustomersTable } from './components/salon/CustomersTable';
 import { SalonSettings } from './components/salon/SalonSettings';
 import { supabase } from '@/integrations/supabase/client';
@@ -114,6 +115,7 @@ function App() {
             
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/admin/collaborations" element={<AdminCollaborations />} />
+            <Route path="/admin/creators" element={<AdminCreators />} />
             <Route path="/create-admin" element={<CreateAdmin />} />
           </Route>
         </Routes>
