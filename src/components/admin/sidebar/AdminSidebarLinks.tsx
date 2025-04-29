@@ -8,8 +8,8 @@ interface AdminSidebarLinksProps {
 
 export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
   return (
-    <div className="flex flex-col gap-1">
-      <SidebarMenuItem>
+    <div className="flex flex-col gap-1 list-none">
+      <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
           isActive={currentPath === '/admin'}
@@ -23,7 +23,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
         </SidebarMenuButton>
       </SidebarMenuItem>
 
-      <SidebarMenuItem>
+      <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
           isActive={currentPath.startsWith('/admin/deals')}
@@ -37,7 +37,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
         </SidebarMenuButton>
       </SidebarMenuItem>
 
-      <SidebarMenuItem>
+      <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
           isActive={currentPath.startsWith('/admin/salons')}
@@ -51,7 +51,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
         </SidebarMenuButton>
       </SidebarMenuItem>
       
-      <SidebarMenuItem>
+      <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
           isActive={currentPath === '/admin/collaborations'}
@@ -65,7 +65,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
         </SidebarMenuButton>
       </SidebarMenuItem>
       
-      <SidebarMenuItem>
+      <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
           isActive={currentPath === '/admin/creators'}
