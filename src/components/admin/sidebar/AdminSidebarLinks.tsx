@@ -14,6 +14,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
           asChild 
           isActive={currentPath === '/admin'}
           tooltip="Dashboard"
+          className="list-none"
         >
           <a href="/admin">
             <LayoutDashboard className="h-4 w-4" />
@@ -27,6 +28,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
           asChild 
           isActive={currentPath.startsWith('/admin/deals')}
           tooltip="Deals"
+          className="list-none"
         >
           <a href="/admin/deals">
             <ShoppingBag className="h-4 w-4" />
@@ -40,6 +42,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
           asChild 
           isActive={currentPath.startsWith('/admin/salons')}
           tooltip="Salonger"
+          className="list-none"
         >
           <a href="/admin/salons">
             <Users className="h-4 w-4" />
@@ -53,6 +56,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
           asChild 
           isActive={currentPath === '/admin/collaborations'}
           tooltip="Kreatörssamarbeten"
+          className="list-none"
         >
           <a href="/admin/collaborations">
             <Percent className="h-4 w-4" />
@@ -66,6 +70,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
           asChild 
           isActive={currentPath === '/admin/creators'}
           tooltip="Kreatörer"
+          className="list-none"
         >
           <a href="/admin/creators">
             <Users className="h-4 w-4" />
