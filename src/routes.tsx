@@ -4,7 +4,7 @@ import { Suspense, lazy } from "react";
 import Layout from "@/components/layout/Layout";
 import { SitemapRenderer } from "@/components/sitemap/SitemapRenderer";
 import { RobotsRenderer } from "@/components/seo/RobotsRenderer";
-import { PageLoader } from "@/components/PageLoader";
+import PageLoader from "@/components/PageLoader";
 
 // Lazy load components to improve initial load time
 const Index = lazy(() => import('./pages/Index'));
