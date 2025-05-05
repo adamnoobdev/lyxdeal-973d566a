@@ -1,6 +1,15 @@
 
+# Allow all web crawlers
 User-agent: *
 Allow: /
 
-# Allow search engines to access favicon
-Allow: /lovable-uploads/0e80675f-f706-4102-8802-f5e0ae81a95f.png
+# Disallow admin section
+Disallow: /admin/
+Disallow: /salon/dashboard/
+Disallow: /salon/login/
+Disallow: /update-password/
+Disallow: /salon/update-password/
+
+# Sitemap location
+Sitemap: https://lyxdeal.se/sitemap.xml
+

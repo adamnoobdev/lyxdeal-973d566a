@@ -1,32 +1,46 @@
-import React, { useEffect } from 'react';
+
+import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import Index from './pages/Index';
-import ProductDetails from './pages/ProductDetails';
-import SearchResults from './pages/SearchResults';
-import Admin from './pages/Admin';
-import SalonDashboard from './pages/SalonDashboard';
-import SalonLogin from './pages/SalonLogin';
-import UpdatePassword from './pages/UpdatePassword';
-import SalonDetails from './pages/SalonDetails';
-import SalonDealPage from './pages/SalonDealPage';
-import PartnerPage from './pages/PartnerPage';
-import PartnerSignup from './pages/PartnerSignup';
-import CreatorPage from './pages/CreatorPage';
-import CreatorSignup from './pages/CreatorSignup';
-import FAQ from './pages/FAQ';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
-import SecureDeal from './pages/SecureDeal';
-import SubscriptionSuccess from "./pages/SubscriptionSuccess";
-import CreateAdmin from './pages/CreateAdmin';
-import AdminCollaborations from './pages/AdminCollaborations';
-import AdminCreators from './pages/AdminCreators';
-import { CustomersTable } from './components/salon/CustomersTable';
-import { SalonSettings } from './components/salon/SalonSettings';
 import { supabase } from '@/integrations/supabase/client';
 import { CookieConsent } from './components/cookie/CookieConsent';
 import { ScrollToTop } from './components/navigation/ScrollToTop';
+import { SitemapRenderer } from './components/sitemap/SitemapRenderer';
+import { RobotsRenderer } from './components/seo/RobotsRenderer';
+
+// Lazy load components to improve initial load time
+const Index = lazy(() => import('./pages/Index'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const SearchResults = lazy(() => import('./pages/SearchResults'));
+const SalonDetails = lazy(() => import('./pages/SalonDetails'));
+const SalonDealPage = lazy(() => import('./pages/SalonDealPage'));
+const SalonLogin = lazy(() => import('./pages/SalonLogin'));
+const UpdatePassword = lazy(() => import('./pages/UpdatePassword'));
+const SecureDeal = lazy(() => import('./pages/SecureDeal'));
+
+// These pages are less frequently accessed, so lazy loading makes more sense
+const Admin = lazy(() => import('./pages/Admin'));
+const SalonDashboard = lazy(() => import('./pages/SalonDashboard'));
+const PartnerPage = lazy(() => import('./pages/PartnerPage'));
+const PartnerSignup = lazy(() => import('./pages/PartnerSignup'));
+const CreatorPage = lazy(() => import('./pages/CreatorPage'));
+const CreatorSignup = lazy(() => import('./pages/CreatorSignup'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const SubscriptionSuccess = lazy(() => import("./pages/SubscriptionSuccess"));
+const CreateAdmin = lazy(() => import('./pages/CreateAdmin'));
+const AdminCollaborations = lazy(() => import('./pages/AdminCollaborations'));
+const AdminCreators = lazy(() => import('./pages/AdminCreators'));
+const CustomersTable = lazy(() => import('./components/salon/CustomersTable').then(module => ({ default: module.CustomersTable })));
+const SalonSettings = lazy(() => import('./components/salon/SalonSettings').then(module => ({ default: module.SalonSettings })));
+
+// Loading component for Suspense fallbacks
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+  </div>
+);
 
 function App() {
   useEffect(() => {
@@ -91,34 +105,40 @@ function App() {
     <>
       <Router>
         <ScrollToTop />
-        <Routes>
-          <Route path="/update-password" element={<UpdatePassword />} />
-          <Route path="/salon/update-password" element={<UpdatePassword />} />
-          
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Index />} />
-            <Route path="auth" element={<Navigate to="/salon/login" replace />} />
-            <Route path="search" element={<SearchResults />} />
-            <Route path="deals/:id" element={<ProductDetails />} />
-            <Route path="deal/:id" element={<ProductDetails />} />
-            <Route path="secure-deal/:id" element={<SecureDeal />} />
-            <Route path="faq" element={<FAQ />} />
-            <Route path="terms" element={<Terms />} />
-            <Route path="privacy" element={<Privacy />} />
-            <Route path="partner" element={<PartnerPage />} />
-            <Route path="partner/signup" element={<PartnerSignup />} />
-            <Route path="creator" element={<CreatorPage />} />
-            <Route path="creator/signup" element={<CreatorSignup />} />
-            <Route path="bli-partner" element={<PartnerPage />} />
-            <Route path="salons/:id" element={<SalonDetails />} />
-            <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* SEO related routes */}
+            <Route path="/sitemap.xml" element={<SitemapRenderer />} />
+            <Route path="/robots.txt" element={<RobotsRenderer />} />
             
-            <Route path="/admin/*" element={<Admin />} />
-            <Route path="/admin/collaborations" element={<AdminCollaborations />} />
-            <Route path="/admin/creators" element={<AdminCreators />} />
-            <Route path="/create-admin" element={<CreateAdmin />} />
-          </Route>
-        </Routes>
+            <Route path="/update-password" element={<UpdatePassword />} />
+            <Route path="/salon/update-password" element={<UpdatePassword />} />
+            
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Index />} />
+              <Route path="auth" element={<Navigate to="/salon/login" replace />} />
+              <Route path="search" element={<SearchResults />} />
+              <Route path="deals/:id" element={<ProductDetails />} />
+              <Route path="deal/:id" element={<ProductDetails />} />
+              <Route path="secure-deal/:id" element={<SecureDeal />} />
+              <Route path="faq" element={<FAQ />} />
+              <Route path="terms" element={<Terms />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="partner" element={<PartnerPage />} />
+              <Route path="partner/signup" element={<PartnerSignup />} />
+              <Route path="creator" element={<CreatorPage />} />
+              <Route path="creator/signup" element={<CreatorSignup />} />
+              <Route path="bli-partner" element={<PartnerPage />} />
+              <Route path="salons/:id" element={<SalonDetails />} />
+              <Route path="/subscription-success" element={<SubscriptionSuccess />} />
+              
+              <Route path="/admin/*" element={<Admin />} />
+              <Route path="/admin/collaborations" element={<AdminCollaborations />} />
+              <Route path="/admin/creators" element={<AdminCreators />} />
+              <Route path="/create-admin" element={<CreateAdmin />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </Router>
       <CookieConsent />
     </>

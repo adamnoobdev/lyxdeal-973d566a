@@ -15,6 +15,7 @@ import { ProductErrorState } from "@/components/deal/ProductErrorState";
 import { ProductLoadingState } from "@/components/deal/ProductLoadingState";
 import { ProductHeader } from "@/components/deal/ProductHeader";
 import { SalonLocationMap } from "@/components/deal/map/SalonLocationMap";
+import { PageMetadata } from "@/components/seo/PageMetadata";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -36,11 +37,27 @@ const ProductDetails = () => {
   }, [id]);
 
   if (isError) {
-    return <ProductErrorState />;
+    return (
+      <>
+        <PageMetadata
+          title="Erbjudandet kunde inte hittas | Lyxdeal"
+          description="Tyvärr kunde vi inte hitta det erbjudande du sökte. Prova att söka efter andra erbjudanden på Lyxdeal."
+        />
+        <ProductErrorState />
+      </>
+    );
   }
 
   if (isLoading || !deal) {
-    return <ProductLoadingState />;
+    return (
+      <>
+        <PageMetadata
+          title="Laddar erbjudande... | Lyxdeal"
+          description="Laddar erbjudandeinformation från Lyxdeal."
+        />
+        <ProductLoadingState />
+      </>
+    );
   }
 
   // Convert FormattedDealData to the expected format for components
@@ -68,9 +85,101 @@ const ProductDetails = () => {
     salon_rating: deal.salon?.rating
   };
 
+  // Create structured data for product
+  const productStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": deal.title,
+    "description": deal.description,
+    "image": deal.imageUrl,
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "SEK",
+      "price": deal.discountedPrice,
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "@type": "BeautySalon",
+        "name": deal.salon?.name || `Salong i ${deal.city}`
+      },
+      "url": window.location.href,
+    }
+  };
+
+  // Create structured data for service
+  const serviceStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": deal.title,
+    "description": deal.description,
+    "provider": {
+      "@type": "BeautySalon",
+      "name": deal.salon?.name || `Salong i ${deal.city}`,
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": deal.city,
+        "addressCountry": "SE"
+      }
+    },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "SEK",
+      "price": deal.discountedPrice,
+      "eligibleRegion": {
+        "@type": "Country",
+        "name": "SE"
+      }
+    }
+  };
+
+  const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Hem",
+        "item": "https://lyxdeal.se/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": deal.category,
+        "item": `https://lyxdeal.se/search?category=${encodeURIComponent(deal.category)}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": deal.city,
+        "item": `https://lyxdeal.se/search?city=${encodeURIComponent(deal.city)}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": deal.title,
+        "item": window.location.href
+      }
+    ]
+  };
+
+  // Combine all structured data
+  const structuredData = [
+    productStructuredData,
+    serviceStructuredData,
+    breadcrumbStructuredData
+  ];
+
+  const canonicalPath = `/deal/${deal.id}`;
+
   return (
     <>
-      <ProductSchema deal={deal} />
+      <PageMetadata
+        title={`${deal.title} | ${deal.city} | Lyxdeal`}
+        description={`${deal.title} - ${deal.description.substring(0, 120)}...`}
+        imageUrl={deal.imageUrl}
+        canonicalPath={canonicalPath}
+        structuredData={structuredData}
+      />
 
       <SearchBreadcrumbs 
         query="" 
@@ -133,7 +242,7 @@ const ProductDetails = () => {
                     <SalonLocationMap 
                       salonId={dealData.salon.id} 
                       city={dealData.city}
-                      hidePhone={true} // Lägg till hidePhone här för att undvika dubbel visning
+                      hidePhone={true}
                     />
                   </div>
                 )}
