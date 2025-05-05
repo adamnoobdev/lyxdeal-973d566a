@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -49,7 +49,18 @@ type FormValues = z.infer<typeof formSchema>;
 
 export const CreatorForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+  
+  // Check if user is authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getUser();
+      setIsAuthenticated(!!data.user);
+    };
+    
+    checkAuth();
+  }, []);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -70,6 +81,14 @@ export const CreatorForm = () => {
     setIsSubmitting(true);
     
     try {
+      // Get current user
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError && !isAuthenticated) {
+        // If no authenticated user, create an anonymous session for them
+        toast.info("Du kommer att fortsätta som gäst. Logga in för att spåra din ansökan.");
+      }
+      
       // Store creator request in Supabase
       const { error } = await supabase
         .from('creator_applications')
@@ -83,7 +102,8 @@ export const CreatorForm = () => {
             follower_count: values.followerCount,
             message: values.message || null,
             terms_accepted: values.termsAccepted,
-            privacy_accepted: values.privacyAccepted
+            privacy_accepted: values.privacyAccepted,
+            user_id: userData?.user?.id || null // Include user_id if authenticated
           }
         ]);
 
@@ -272,6 +292,12 @@ export const CreatorForm = () => {
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Skickar..." : "Skicka ansökan"}
         </Button>
+        
+        {!isAuthenticated && (
+          <p className="text-sm text-muted-foreground text-center mt-4">
+            För att spåra din ansökan, vänligen <a href="/login" className="text-primary hover:underline">logga in</a> innan du skickar.
+          </p>
+        )}
       </form>
     </Form>
   );
