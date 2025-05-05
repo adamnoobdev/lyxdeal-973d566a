@@ -23,7 +23,7 @@ export const generateDynamicUrls = async () => {
       .filter(city => city !== "Alla Städer")
       .map(city => `/search?city=${encodeURIComponent(city)}`);
     
-    // Generate category URLs
+    // Category URLs
     const categoryUrls = CATEGORIES
       .filter(category => category !== "Alla Erbjudanden")
       .map(category => `/search?category=${encodeURIComponent(category)}`);

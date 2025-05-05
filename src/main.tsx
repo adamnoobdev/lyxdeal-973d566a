@@ -31,11 +31,11 @@ const startApp = () => {
   );
 };
 
-// Add preloading for critical resources if needed
+// Add preloading for critical resources
 const preloadCriticalResources = () => {
   const resources = [
-    // Add critical stylesheets or resources here
     { href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap", as: "style" },
+    // Add other critical resources as needed
   ];
   
   resources.forEach(resource => {
@@ -43,15 +43,30 @@ const preloadCriticalResources = () => {
     link.rel = 'preload';
     link.href = resource.href;
     link.as = resource.as;
+    link.crossOrigin = "anonymous";
+    
     if (resource.as === 'style') {
       link.onload = () => { link.rel = 'stylesheet'; };
     }
     document.head.appendChild(link);
   });
+  
+  // Set viewport and other important meta tags
+  const metaTags = [
+    { name: "viewport", content: "width=device-width, initial-scale=1.0" },
+    { name: "theme-color", content: "#ffffff" }
+  ];
+  
+  metaTags.forEach(meta => {
+    const metaTag = document.createElement('meta');
+    metaTag.name = meta.name;
+    metaTag.content = meta.content;
+    document.head.appendChild(metaTag);
+  });
 };
 
-// Preload resources first
+// First, preload critical resources
 preloadCriticalResources();
 
-// Start the app
+// Then start the application
 startApp();

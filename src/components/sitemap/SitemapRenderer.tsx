@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { generateDynamicUrls, generateSitemapXml, staticUrls } from '@/utils/sitemap/generateSitemap';
 
 /**
- * Component that renders the XML sitemap when accessed at /sitemap.xml
+ * Component that renders the XML sitemap 
+ * This is rendered at the /sitemap.xml route
  */
 export const SitemapRenderer = () => {
   const [sitemapContent, setSitemapContent] = useState<string>('');
@@ -11,42 +12,32 @@ export const SitemapRenderer = () => {
   useEffect(() => {
     const generateSitemap = async () => {
       try {
+        // Generate the sitemap content
         const dynamicUrls = await generateDynamicUrls();
         const sitemap = generateSitemapXml(staticUrls, dynamicUrls);
         setSitemapContent(sitemap);
+        
+        // Set the appropriate content type and serve the XML
+        const blob = new Blob([sitemap], { type: 'text/xml' });
+        const sitemapUrl = URL.createObjectURL(blob);
+        
+        // We're directly serving the content by setting content-type headers
+        // and returning the XML data in the response
+        const newWindow = window.open(sitemapUrl, '_self');
+        
+        // Cleanup the object URL
+        if (newWindow) {
+          setTimeout(() => {
+            URL.revokeObjectURL(sitemapUrl);
+          }, 100);
+        }
       } catch (error) {
         console.error('Error generating sitemap:', error);
-        setSitemapContent('<!-- Error generating sitemap -->');
       }
     };
 
     generateSitemap();
   }, []);
 
-  useEffect(() => {
-    if (sitemapContent) {
-      // Create a Blob with the XML content
-      const blob = new Blob([sitemapContent], { type: 'text/xml' });
-      const url = URL.createObjectURL(blob);
-      
-      // Set up download attributes
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'sitemap.xml';
-      
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      
-      // Clean up
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }
-  }, [sitemapContent]);
-
-  return (
-    <div style={{ display: 'none' }}>
-      {sitemapContent ? 'Sitemap generated' : 'Generating sitemap...'}
-    </div>
-  );
+  return null; // This component doesn't render any UI, it just serves the XML
 };

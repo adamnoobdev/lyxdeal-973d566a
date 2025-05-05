@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 
 /**
  * Component that renders a dynamic robots.txt file
+ * This is rendered at the /robots.txt route
  */
 export const RobotsRenderer = () => {
   useEffect(() => {
@@ -21,22 +22,20 @@ Disallow: /salon/update-password/
 Sitemap: https://lyxdeal.se/sitemap.xml
 `;
 
-    // Create a blob and download
+    // Create a blob with the robots.txt content
     const blob = new Blob([robotsContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
+    const robotsUrl = URL.createObjectURL(blob);
     
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'robots.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // Open the robots.txt content directly in the current window
+    const newWindow = window.open(robotsUrl, '_self');
+    
+    // Cleanup
+    if (newWindow) {
+      setTimeout(() => {
+        URL.revokeObjectURL(robotsUrl);
+      }, 100);
+    }
   }, []);
 
-  return (
-    <div style={{ display: 'none' }}>
-      Generating robots.txt
-    </div>
-  );
+  return null; // This component doesn't render any UI, it just serves the robots.txt content
 };
