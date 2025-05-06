@@ -4,12 +4,18 @@ import { Store, Tag, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { memo } from "react";
 
-export const Dashboard = () => {
+export const Dashboard = memo(() => {
   const isMobile = useIsMobile();
+  
+  // Optimera React Query med stale time och cache time
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
+      console.log('Fetching admin stats data');
+      
+      // Parallella förfrågningar till Supabase för bättre prestanda
       const [salonsCount, dealsCount] = await Promise.all([
         supabase.from('salons').select('id', { count: 'exact', head: true }),
         supabase.from('deals').select('id', { count: 'exact', head: true })
@@ -19,7 +25,10 @@ export const Dashboard = () => {
         salons: salonsCount.count || 0,
         deals: dealsCount.count || 0
       };
-    }
+    },
+    staleTime: 30000, // 30 sekunder innan data anses inaktuell
+    cacheTime: 300000, // Cache data i 5 minuter
+    refetchOnWindowFocus: false, // Förhindra omfrågor vid fönsterfokus
   });
 
   if (isLoading) {
@@ -89,4 +98,6 @@ export const Dashboard = () => {
       </div>
     </div>
   );
-};
+});
+
+Dashboard.displayName = "Dashboard";

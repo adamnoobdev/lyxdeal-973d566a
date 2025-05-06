@@ -1,18 +1,26 @@
 
 import { Users, ShoppingBag, LayoutDashboard, Settings, MessageSquare, Plus, Tag, Percent } from "lucide-react";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
+import { memo } from "react";
 
 interface AdminSidebarLinksProps {
   currentPath: string;
 }
 
-export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
+// Använder React.memo för att förhindra onödiga renderingar av sidofältet
+export const AdminSidebarLinks = memo(({ currentPath }: AdminSidebarLinksProps) => {
+  // Hjälpfunktion för att kontrollera om en länk är aktiv
+  const isActive = (path: string, exact: boolean = false) => {
+    if (exact) return currentPath === path;
+    return currentPath.startsWith(path);
+  };
+
   return (
     <div className="flex flex-col gap-1 list-none">
       <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
-          isActive={currentPath === '/admin'}
+          isActive={isActive('/admin', true)}
           tooltip="Dashboard"
           className="list-none"
         >
@@ -26,7 +34,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
       <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
-          isActive={currentPath.startsWith('/admin/deals')}
+          isActive={isActive('/admin/deals')}
           tooltip="Deals"
           className="list-none"
         >
@@ -40,7 +48,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
       <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
-          isActive={currentPath.startsWith('/admin/salons')}
+          isActive={isActive('/admin/salons')}
           tooltip="Salonger"
           className="list-none"
         >
@@ -54,7 +62,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
       <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
-          isActive={currentPath === '/admin/collaborations'}
+          isActive={isActive('/admin/collaborations')}
           tooltip="Kreatörssamarbeten"
           className="list-none"
         >
@@ -68,7 +76,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
       <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
-          isActive={currentPath === '/admin/creators'}
+          isActive={isActive('/admin/creators')}
           tooltip="Kreatörer"
           className="list-none"
         >
@@ -82,7 +90,7 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
       <SidebarMenuItem className="list-none">
         <SidebarMenuButton 
           asChild 
-          isActive={currentPath === '/admin/subscriptions'}
+          isActive={isActive('/admin/subscriptions')}
           tooltip="Prenumerationer"
           className="list-none"
         >
@@ -94,4 +102,6 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
       </SidebarMenuItem>
     </div>
   );
-};
+});
+
+AdminSidebarLinks.displayName = "AdminSidebarLinks";

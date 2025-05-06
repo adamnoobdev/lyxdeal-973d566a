@@ -1,33 +1,47 @@
 
-import React, { useEffect, useState } from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback, lazy, Suspense } from 'react';
+import { Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { Dashboard } from '@/components/admin/Dashboard';
-import { DealsListContainer } from '@/components/admin/deals/DealsListContainer';
-import { SalonsList } from '@/components/admin/salons/SalonsList';
 import { AdminAuthCheck } from '@/components/admin/auth/AdminAuthCheck';
 import { DebugPanel } from '@/components/admin/debug/DebugPanel';
 import { useSession } from '@/hooks/useSession';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
+// Lazy-loaded components för att minska initial laddningstid
+const DealsListContainer = lazy(() => import('@/components/admin/deals/DealsListContainer').then(module => ({
+  default: module.DealsListContainer
+})));
+
+const SalonsList = lazy(() => import('@/components/admin/salons/SalonsList').then(module => ({
+  default: module.SalonsList
+})));
+
+// Loader component
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[40vh]">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  </div>
+);
+
 const Admin = () => {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const { session, isLoading } = useSession();
   const navigate = useNavigate();
   const [forceRedirect, setForceRedirect] = useState(false);
+  const location = useLocation();
   
-  // Lyssna på auth-ändringar för att hantera utloggning bättre
+  // Optimerad auth state change lyssning
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
-      console.log(`Admin component auth event: ${event}`, 
-        currentSession ? "Session exists" : "No session");
+      console.log(`Admin component auth event: ${event}`);
       
       if (event === 'SIGNED_OUT') {
         console.log("Admin detected SIGNED_OUT event, redirecting");
         setForceRedirect(true);
         
-        // Säkerställ omdirigering även på auth-event
+        // Säkerställ omdirigering
         setTimeout(() => {
           window.location.href = '/salon/login';
         }, 100);
@@ -38,28 +52,28 @@ const Admin = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
   
-  // Kontrollera autentiseringsstatus med förbättrad loggning
-  useEffect(() => {
-    console.log("Admin component auth check - Session status:", 
-      session ? "Active session detected" : "No session detected", 
-      "Loading:", isLoading
-    );
-    
+  // Memoized check för authentication status
+  const checkAuth = useCallback(() => {
     if (!isLoading && !session) {
-      console.log("No active session detected in Admin component, redirecting to login");
+      console.log("No active session detected in Admin component");
       toast.info("Du måste logga in för att accessa admin-panelen");
       navigate('/salon/login', { replace: true });
     }
   }, [session, isLoading, navigate]);
   
-  // Kontrollera om vi ska visa debug-panelen baserat på query-parametrar
+  // Använd den optimerade auth-checken
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+  
+  // Optimerad debug panel check
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const debug = urlParams.get('debug');
     setShowDebugPanel(debug === 'true');
-  }, []);
+  }, [location.search]);
   
   // Om omdirigering är nödvändig, visa inget
   if (forceRedirect) {
@@ -83,17 +97,19 @@ const Admin = () => {
   return (
     <AdminAuthCheck>
       <AdminLayout>
-        <Routes>
-          <Route index element={
-            <>
-              <Dashboard />
-              {showDebugPanel && <div className="mt-6"><DebugPanel /></div>}
-            </>
-          } />
-          <Route path="deals/*" element={<DealsListContainer />} />
-          <Route path="salons/*" element={<SalonsList />} />
-          <Route path="debug" element={<DebugPanel />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route index element={
+              <>
+                <Dashboard />
+                {showDebugPanel && <div className="mt-6"><DebugPanel /></div>}
+              </>
+            } />
+            <Route path="deals/*" element={<DealsListContainer />} />
+            <Route path="salons/*" element={<SalonsList />} />
+            <Route path="debug" element={<DebugPanel />} />
+          </Routes>
+        </Suspense>
       </AdminLayout>
     </AdminAuthCheck>
   );
