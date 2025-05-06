@@ -9,7 +9,7 @@ import { memo } from "react";
 export const Dashboard = memo(() => {
   const isMobile = useIsMobile();
   
-  // Optimera React Query med stale time och cache time
+  // Optimera React Query med stale time och gcTime (tidigare cacheTime)
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
@@ -27,7 +27,7 @@ export const Dashboard = memo(() => {
       };
     },
     staleTime: 30000, // 30 sekunder innan data anses inaktuell
-    cacheTime: 300000, // Cache data i 5 minuter
+    gcTime: 300000, // Cache data i 5 minuter (ersätter cacheTime)
     refetchOnWindowFocus: false, // Förhindra omfrågor vid fönsterfokus
   });
 

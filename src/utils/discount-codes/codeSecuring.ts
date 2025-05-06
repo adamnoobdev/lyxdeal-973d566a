@@ -1,7 +1,10 @@
+
 import { supabase } from "@/integrations/supabase/client";
+// Uppdatera import från utils/discount-codes med korrekta exportnamn
 import { getAvailableDiscountCode, markDiscountCodeAsUsed } from "@/utils/discount-codes";
 import { createNewDiscountCode, generateRandomCode } from "@/utils/discount-code-utils";
 
+// Resten av filen behålls som den är
 /**
  * Secures a discount code for a user
  */

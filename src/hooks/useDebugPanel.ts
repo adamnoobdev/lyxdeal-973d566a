@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+// Importera funktionerna från debug.ts via index
 import { 
   listAllDiscountCodes, 
   countDiscountCodes,
