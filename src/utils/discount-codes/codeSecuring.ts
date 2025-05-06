@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-// Uppdatera import från utils/discount-codes med korrekta exportnamn
+// Fix imports to use correctly exported functions
 import { getAvailableDiscountCode, markDiscountCodeAsUsed } from "@/utils/discount-codes";
 import { createNewDiscountCode, generateRandomCode } from "@/utils/discount-code-utils";
 

@@ -1,26 +1,23 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { generateRandomCode } from "@/utils/discount-code-utils";
 import { normalizeId } from "./types";
 import { toast } from "sonner";
 
-// Import specific functions from debug.ts to avoid name conflicts
+// Import specific functions from debug.ts
 import { 
-  listAllDiscountCodes,
-  testDiscountCodeGeneration,
-  countDiscountCodes
+  listAllDiscountCodes as listCodesFromDebug,
+  countDiscountCodes as countCodesFromDebug,
+  testDiscountCodeGeneration
 } from './debug';
 
-// Re-export functions from debug.ts with explicit imports
-export { 
-  listAllDiscountCodes,
-  testDiscountCodeGeneration,
-  countDiscountCodes
-};
+// Import from removeAllCodes.ts
+import { removeAllDiscountCodes } from './removeAllCodes';
 
-// Export from removeAllCodes.ts - we don't export removeAllDiscountCodes from here
-// to avoid the conflict with the same-named function in debug.ts
-export * from './removeAllCodes';
+// Re-export functions with aliased imports to avoid name conflicts
+export const listAllDiscountCodes = listCodesFromDebug;
+export const countDiscountCodes = countCodesFromDebug;
+export { testDiscountCodeGeneration };
+export { removeAllDiscountCodes };
 
 /**
  * Generate a batch of discount codes for a deal

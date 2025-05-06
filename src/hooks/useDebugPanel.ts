@@ -1,13 +1,12 @@
 
 import { useState } from "react";
-// Importera funktionerna från debug.ts via index
+// Update imports to use the properly exported functions
 import { 
   listAllDiscountCodes, 
   countDiscountCodes,
-  generateDiscountCodes
+  generateDiscountCodes,
+  removeAllDiscountCodes
 } from "@/utils/discount-codes";
-// Import removeAllDiscountCodes directly from its source file
-import { removeAllDiscountCodes } from "@/utils/discount-codes/removeAllCodes";
 import { toast } from "sonner";
 import { normalizeId } from "@/utils/discount-codes/types";
 
