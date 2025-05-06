@@ -5,6 +5,7 @@ import Layout from "@/components/layout/Layout";
 import { SitemapRenderer } from "@/components/sitemap/SitemapRenderer";
 import { RobotsRenderer } from "@/components/seo/RobotsRenderer";
 import PageLoader from "@/components/PageLoader";
+import NotFoundPage from "./pages/NotFound"; // Import directly för ErrorBoundary
 
 // Lazy load components to improve initial load time
 const Index = lazy(() => import('./pages/Index'));
@@ -32,19 +33,18 @@ const AdminCollaborations = lazy(() => import('./pages/AdminCollaborations'));
 const AdminCreators = lazy(() => import('./pages/AdminCreators'));
 const AdminSubscriptions = lazy(() => import('./pages/AdminSubscriptions'));
 
-// Error page for 404 and other errors
-const NotFoundPage = lazy(() => import('./pages/NotFound'));
-
 // Create the router with all routes
 const router = createBrowserRouter([
   // SEO routes that don't use the layout
   {
     path: "/sitemap.xml",
     element: <SitemapRenderer />,
+    errorElement: <NotFoundPage /> // Added error handling för special routes
   },
   {
     path: "/robots.txt",
     element: <RobotsRenderer />,
+    errorElement: <NotFoundPage /> // Added error handling för special routes
   },
   
   // Authentication routes that don't need layout
@@ -55,6 +55,7 @@ const router = createBrowserRouter([
         <UpdatePassword />
       </Suspense>
     ),
+    errorElement: <NotFoundPage />
   },
   {
     path: "/salon/update-password",
@@ -63,6 +64,7 @@ const router = createBrowserRouter([
         <UpdatePassword />
       </Suspense>
     ),
+    errorElement: <NotFoundPage />
   },
   
   // Main application with layout
@@ -233,6 +235,22 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "admin/deals", // Explicit route för admin/deals
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Admin />
+          </Suspense>
+        ),
+      },
+      {
+        path: "admin/salons", // Explicit route för admin/salons
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Admin />
+          </Suspense>
+        ),
+      },
+      {
         path: "create-admin",
         element: (
           <Suspense fallback={<PageLoader />}>
@@ -257,16 +275,49 @@ const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      {
+        path: "salon/collaborations", // Added missing salon route
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <SalonDashboard />
+          </Suspense>
+        ),
+      },
+      {
+        path: "salon/deal", // Added missing salon route
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <SalonDashboard />
+          </Suspense>
+        ),
+      },
+      {
+        path: "salon/customers", // Added missing salon route
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <SalonDashboard />
+          </Suspense>
+        ),
+      },
+      {
+        path: "salon/settings", // Added missing salon route
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <SalonDashboard />
+          </Suspense>
+        ),
+      },
+      // 404 fallback within layout
+      {
+        path: "*",
+        element: <NotFoundPage />
+      }
     ],
   },
-  // Catch all route for 404
+  // Global catch-all route for 404 outside of layout
   {
     path: "*",
-    element: (
-      <Suspense fallback={<PageLoader />}>
-        <NotFoundPage />
-      </Suspense>
-    ),
+    element: <NotFoundPage />,
   },
 ]);
 

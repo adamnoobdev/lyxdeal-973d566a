@@ -78,6 +78,20 @@ export const AdminSidebarLinks = ({ currentPath }: AdminSidebarLinksProps) => {
           </a>
         </SidebarMenuButton>
       </SidebarMenuItem>
+
+      <SidebarMenuItem className="list-none">
+        <SidebarMenuButton 
+          asChild 
+          isActive={currentPath === '/admin/subscriptions'}
+          tooltip="Prenumerationer"
+          className="list-none"
+        >
+          <a href="/admin/subscriptions">
+            <Tag className="h-4 w-4" />
+            <span>Prenumerationer</span>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
     </div>
   );
 };

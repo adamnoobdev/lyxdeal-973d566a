@@ -22,18 +22,23 @@ Disallow: /salon/update-password/
 Sitemap: https://lyxdeal.se/sitemap.xml
 `;
 
-    // Create a blob with the robots.txt content
-    const blob = new Blob([robotsContent], { type: 'text/plain' });
-    const robotsUrl = URL.createObjectURL(blob);
-    
-    // Open the robots.txt content directly in the current window
-    const newWindow = window.open(robotsUrl, '_self');
-    
-    // Cleanup
-    if (newWindow) {
-      setTimeout(() => {
-        URL.revokeObjectURL(robotsUrl);
-      }, 100);
+    try {
+      // Create a blob with the robots.txt content
+      const blob = new Blob([robotsContent], { type: 'text/plain' });
+      const robotsUrl = URL.createObjectURL(blob);
+      
+      // Open the robots.txt content directly in the current window
+      const newWindow = window.open(robotsUrl, '_self');
+      
+      // Cleanup
+      if (newWindow) {
+        setTimeout(() => {
+          URL.revokeObjectURL(robotsUrl);
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Error rendering robots.txt:", error);
+      document.body.innerHTML = `<pre>${robotsContent}</pre>`;
     }
   }, []);
 
