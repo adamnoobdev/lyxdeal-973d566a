@@ -14,10 +14,10 @@ import {
 // Import from removeAllCodes.ts
 import { removeAllDiscountCodes as removeCodesFromFile } from './removeAllCodes';
 
-// Re-export functions with aliased imports to avoid name conflicts
-export const listAllDiscountCodes = listCodesFromDebug;
-export const countDiscountCodes = countCodesFromDebug;
-export const removeAllDiscountCodes = removeCodesFromFile;
+// Re-export functions with clear names
+export { listCodesFromDebug as listAllDiscountCodes };
+export { countCodesFromDebug as countDiscountCodes };
+export { removeCodesFromFile as removeAllDiscountCodes };
 export { testDiscountCodeGeneration };
 
 /**

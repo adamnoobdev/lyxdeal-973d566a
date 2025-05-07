@@ -1,6 +1,4 @@
-
 import { useState } from "react";
-// Update imports to use the properly exported functions
 import { 
   listAllDiscountCodes, 
   countDiscountCodes,
