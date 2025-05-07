@@ -2,67 +2,68 @@
 import { directSearch } from "./search/directSearch";
 import { numericSearch } from "./search/numericSearch";
 import { stringSearch } from "./search/stringSearch";
-import { multiSearch } from "./search/multiSearch";
-import { normalizeId } from "./types";
+import { prepareSearchIds } from "./idNormalizer";
+import { logIdInfo } from "./types";
 
 /**
- * Comprehensive search for discount codes using multiple methods
+ * Söker efter rabattkoder med flera olika metoder
  */
-export async function searchDiscountCodesWithMultipleMethods(dealId: string | number | undefined) {
-  if (!dealId) {
-    console.log("[searchDiscountCodesWithMultipleMethods] No dealId provided");
-    return [];
-  }
-  
+export async function searchDiscountCodesWithMultipleMethods(dealId: string | number) {
   try {
-    console.log(`[searchDiscountCodesWithMultipleMethods] Searching for codes with dealId: ${dealId} (type: ${typeof dealId})`);
+    logIdInfo("searchDiscountCodesWithMultipleMethods", dealId);
     
-    // Try direct search first (should handle most cases)
+    // Steg 1: Förbered alla ID-värden
+    const { numericDealId, stringDealId } = prepareSearchIds(dealId);
+    
+    // Steg 2: Försök med direkt sökning (utan konvertering)
+    console.log("[searchDiscountCodesWithMultipleMethods] Trying direct search");
     const directResult = await directSearch(dealId);
+    
     if (directResult.success && directResult.codes.length > 0) {
       console.log(`[searchDiscountCodesWithMultipleMethods] Found ${directResult.codes.length} codes with direct search`);
       return directResult.codes;
     }
     
-    // Try with normalized numeric ID next
-    const numericDealId = normalizeId(dealId);
+    // Steg 3: Försök med numerisk sökning
+    console.log("[searchDiscountCodesWithMultipleMethods] Trying numeric search");
     const numericResult = await numericSearch(numericDealId);
+    
     if (numericResult.success && numericResult.codes.length > 0) {
       console.log(`[searchDiscountCodesWithMultipleMethods] Found ${numericResult.codes.length} codes with numeric search`);
       return numericResult.codes;
     }
     
-    // Try with string conversion
-    const stringResult = await stringSearch(String(dealId));
+    // Steg 4: Försök med string-baserad sökning
+    console.log("[searchDiscountCodesWithMultipleMethods] Trying string search");
+    const stringResult = await stringSearch(stringDealId);
+    
     if (stringResult.success && stringResult.codes.length > 0) {
       console.log(`[searchDiscountCodesWithMultipleMethods] Found ${stringResult.codes.length} codes with string search`);
       return stringResult.codes;
     }
     
-    // As a last resort, try multi-search with different variations
-    const multiResult = await multiSearch(dealId);
-    if (multiResult.success && multiResult.codes.length > 0) {
-      console.log(`[searchDiscountCodesWithMultipleMethods] Found ${multiResult.codes.length} codes with multi search`);
-      return multiResult.codes;
+    // Steg 5: Om inget funkat, prova mer avancerade metoder eller returnera tom lista
+    console.log("[searchDiscountCodesWithMultipleMethods] No codes found with any method");
+    
+    // Försök med en sista fallback-metod - inspektera koder
+    try {
+      console.log("[searchDiscountCodesWithMultipleMethods] Trying inspection as last resort");
+      const inspectionResult = await import("./inspectionFlow").then(module => 
+        module.runInspectionProcess(dealId)
+      );
+      
+      if (inspectionResult.success && inspectionResult.codes?.length > 0) {
+        console.log(`[searchDiscountCodesWithMultipleMethods] Found ${inspectionResult.codes.length} codes with inspection`);
+        return inspectionResult.codes;
+      }
+    } catch (error) {
+      console.error("[searchDiscountCodesWithMultipleMethods] Error during inspection:", error);
     }
     
-    console.log("[searchDiscountCodesWithMultipleMethods] No codes found after trying all search methods");
+    // Ingenting funkade, returnera tom lista
     return [];
   } catch (error) {
-    console.error("[searchDiscountCodesWithMultipleMethods] Error:", error);
+    console.error("[searchDiscountCodesWithMultipleMethods] Exception:", error);
     return [];
   }
-}
-
-/**
- * Search with logging for discount codes
- */
-export async function searchWithLogging(dealId: any, methodName: string): Promise<any[]> {
-  console.log(`[${methodName}] Searching for codes with dealId: ${dealId} (${typeof dealId})`);
-  
-  // Normalize the ID for consistent database queries
-  const numericDealId = normalizeId(dealId);
-  
-  const result = await directSearch(numericDealId);
-  return result.success ? result.codes : [];
 }

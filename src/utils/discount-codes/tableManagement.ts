@@ -2,127 +2,49 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Kontrollerar att rabattkoder-tabellen är korrekt strukturerad
+ * Hämtar information om tabellstrukturen för rabattkoder
  */
-export const ensureDiscountCodesTable = async (): Promise<boolean> => {
+export async function getTableInfo() {
   try {
-    console.log("[ensureDiscountCodesTable] Checking discount_codes table");
-    
-    // Kontrollera att tabellen finns och har rätt struktur
+    // Försök hämta tabellinfo
     const { data, error } = await supabase
-      .from("discount_codes")
-      .select("*")
+      .from('discount_codes')
+      .select('id')
       .limit(1);
       
-    if (error) {
-      console.error("[ensureDiscountCodesTable] Error checking table:", error);
-      // Här skulle vi kunna lägga till kod för att skapa tabellen om den inte finns
-      // Men det kräver sannolikt admin-rättigheter
-      return false;
-    }
-    
-    console.log("[ensureDiscountCodesTable] Table exists and is accessible");
-    
-    // Hämta tabellinfo via get_tables funktionen som finns tillgänglig
-    const { data: tablesInfo, error: tablesError } = await supabase.rpc(
-      'get_tables'
-    );
-    
-    if (tablesError) {
-      console.error("[ensureDiscountCodesTable] Could not get table info:", tablesError);
-    } else {
-      // Filtrera för att hitta discount_codes tabellen
-      const discountCodesTable = tablesInfo?.find(table => 
-        table.table_name === 'discount_codes' && table.schema_name === 'public'
-      );
-      console.log("[ensureDiscountCodesTable] Table info:", discountCodesTable);
-    }
-    
-    return true;
-  } catch (error) {
-    console.error("[ensureDiscountCodesTable] Exception checking table:", error);
-    return false;
-  }
-};
-
-/**
- * Kör diagnostik på rabattkoder-tabellen
- */
-export const runDiscountCodesDiagnostics = async (): Promise<void> => {
-  try {
-    console.log("[runDiscountCodesDiagnostics] Running diagnostics on discount_codes table");
-    
-    // Kontrollera antalet koder
-    const { count, error: countError } = await supabase
-      .from("discount_codes")
-      .select("*", { count: "exact", head: true });
+    // Om det gick att hämta data, logga information om tabellen
+    if (!error && data !== null) {
+      const metadataPromise = supabase.rpc('get_table_def', { table_name: 'discount_codes' })
+        .catch(e => {
+          console.error("[getTableInfo] Error getting table metadata:", e);
+          return { data: null };
+        });
+        
+      const metadata = await metadataPromise;
       
-    if (countError) {
-      console.error("[runDiscountCodesDiagnostics] Error counting codes:", countError);
-    } else {
-      console.log(`[runDiscountCodesDiagnostics] Total code count: ${count || 0}`);
+      // Sammanställ information om tabellen
+      return {
+        table: 'discount_codes',
+        exists: true,
+        hasData: data.length > 0,
+        metadata: metadata?.data || null
+      };
     }
     
-    // Kontrollera om det finns några felkonfigurerade koder
-    const { data: nullDealData, error: nullDealError } = await supabase
-      .from("discount_codes")
-      .select("*")
-      .is("deal_id", null)
-      .limit(10);
-      
-    if (nullDealError) {
-      console.error("[runDiscountCodesDiagnostics] Error checking for null deal_id:", nullDealError);
-    } else if (nullDealData && nullDealData.length > 0) {
-      console.warn("[runDiscountCodesDiagnostics] Found codes with null deal_id:", nullDealData);
-    } else {
-      console.log("[runDiscountCodesDiagnostics] No codes with null deal_id");
-    }
-    
-    // Kontrollera typen på deal_id för alla koder
-    const { data: sampleData, error: sampleError } = await supabase
-      .from("discount_codes")
-      .select("*")
-      .limit(1);
-      
-    if (sampleError) {
-      console.error("[runDiscountCodesDiagnostics] Error fetching sample code:", sampleError);
-    } else if (sampleData && sampleData.length > 0) {
-      console.log("[runDiscountCodesDiagnostics] Sample code:", sampleData[0]);
-      console.log(`[runDiscountCodesDiagnostics] deal_id type: ${typeof sampleData[0].deal_id}`);
-    }
-    
-    // Hämta information om tabeller från den befintliga funktionen get_tables
-    const { data: tablesInfo, error: tablesError } = await supabase.rpc(
-      'get_tables'
-    );
-    
-    if (tablesError) {
-      console.log("[runDiscountCodesDiagnostics] Could not get table info:", tablesError);
-    } else {
-      console.log("[runDiscountCodesDiagnostics] Table structure:", tablesInfo);
-    }
+    // Om det inte gick, kolla om tabellen finns
+    return {
+      table: 'discount_codes',
+      exists: error?.code !== 'PGRST116',  // PostgreSQL-fel för icke-existerande tabell
+      error: error,
+      hasData: false
+    };
   } catch (error) {
-    console.error("[runDiscountCodesDiagnostics] Exception during diagnostics:", error);
+    console.error("[getTableInfo] Error:", error);
+    return {
+      table: 'discount_codes',
+      exists: null, // Kunde inte avgöra
+      error: error,
+      hasData: null
+    };
   }
-};
-
-/**
- * Hämtar information om tabeller i databasen
- */
-export const getTableInfo = async (): Promise<any[]> => {
-  try {
-    const { data, error } = await supabase.rpc(
-      'get_tables'
-    );
-    
-    if (error) {
-      console.error(`[getTableInfo] Error fetching table info:`, error);
-      return [];
-    }
-    
-    return data || [];
-  } catch (error) {
-    console.error(`[getTableInfo] Exception fetching table info:`, error);
-    return [];
-  }
-};
+}
