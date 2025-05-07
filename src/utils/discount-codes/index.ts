@@ -6,18 +6,18 @@ import { toast } from "sonner";
 
 // Import specific functions from debug.ts
 import { 
-  listAllDiscountCodes as listCodesFromDebug,
-  countDiscountCodes as countCodesFromDebug,
+  listAllDiscountCodes,
+  countDiscountCodes,
   testDiscountCodeGeneration
 } from './debug';
 
 // Import from removeAllCodes.ts
-import { removeAllDiscountCodes as removeCodesFromFile } from './removeAllCodes';
+import { removeAllDiscountCodes } from './removeAllCodes';
 
 // Re-export functions with clear names
-export { listCodesFromDebug as listAllDiscountCodes };
-export { countCodesFromDebug as countDiscountCodes };
-export { removeCodesFromFile as removeAllDiscountCodes };
+export { listAllDiscountCodes };
+export { countDiscountCodes };
+export { removeAllDiscountCodes };
 export { testDiscountCodeGeneration };
 
 /**
