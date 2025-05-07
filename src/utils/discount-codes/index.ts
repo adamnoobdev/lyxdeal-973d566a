@@ -12,13 +12,13 @@ import {
 } from './debug';
 
 // Import from removeAllCodes.ts
-import { removeAllDiscountCodes } from './removeAllCodes';
+import { removeAllDiscountCodes as removeCodesFromFile } from './removeAllCodes';
 
 // Re-export functions with aliased imports to avoid name conflicts
 export const listAllDiscountCodes = listCodesFromDebug;
 export const countDiscountCodes = countCodesFromDebug;
+export const removeAllDiscountCodes = removeCodesFromFile;
 export { testDiscountCodeGeneration };
-export { removeAllDiscountCodes };
 
 /**
  * Generate a batch of discount codes for a deal
