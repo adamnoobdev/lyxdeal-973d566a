@@ -14,7 +14,12 @@ export async function getTableInfo() {
       
     // Om det gick att hämta data, logga information om tabellen
     if (!error && data !== null) {
-      const metadataPromise = supabase.rpc('get_table_def', { table_name: 'discount_codes' })
+      // Using get_tables instead of get_table_def since it's not available
+      const metadataPromise = supabase
+        .rpc('get_tables')
+        .then(result => {
+          return result;
+        })
         .catch(e => {
           console.error("[getTableInfo] Error getting table metadata:", e);
           return { data: null };

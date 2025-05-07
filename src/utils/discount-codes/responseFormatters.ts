@@ -54,6 +54,7 @@ export function prepareErrorResponse(
 ) {
   return {
     success: false,
+    codes: [], // Adding codes property to ensure consistency
     codesCount: 0,
     message: `Kunde inte hitta rabattkoder för erbjudande ID: ${originalDealId}`,
     debug: {

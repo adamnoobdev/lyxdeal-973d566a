@@ -52,9 +52,18 @@ export async function searchDiscountCodesWithMultipleMethods(dealId: string | nu
         module.runInspectionProcess(dealId)
       );
       
-      if (inspectionResult.success && inspectionResult.codes?.length > 0) {
-        console.log(`[searchDiscountCodesWithMultipleMethods] Found ${inspectionResult.codes.length} codes with inspection`);
-        return inspectionResult.codes;
+      if (inspectionResult.success) {
+        // Check if the inspection result has 'codes' property
+        if ('codes' in inspectionResult && Array.isArray(inspectionResult.codes) && inspectionResult.codes.length > 0) {
+          console.log(`[searchDiscountCodesWithMultipleMethods] Found ${inspectionResult.codes.length} codes with inspection`);
+          return inspectionResult.codes;
+        }
+        
+        // If there's no 'codes' property but we have successful result with manualMatches
+        if ('manualMatches' in inspectionResult && Array.isArray(inspectionResult.manualMatches) && inspectionResult.manualMatches.length > 0) {
+          console.log(`[searchDiscountCodesWithMultipleMethods] Found ${inspectionResult.manualMatches.length} codes with manual matches`);
+          return inspectionResult.manualMatches;
+        }
       }
     } catch (error) {
       console.error("[searchDiscountCodesWithMultipleMethods] Error during inspection:", error);

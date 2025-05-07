@@ -80,7 +80,8 @@ export async function runInspectionProcess(dealId: number | string) {
         success: false,
         message: "Problem med åtkomst till rabattkodstabellen",
         error: tableAccessResult.error,
-        tables
+        tables,
+        codes: [] // Add empty codes array for consistency
       };
     }
     
@@ -91,7 +92,8 @@ export async function runInspectionProcess(dealId: number | string) {
         success: false,
         message: "Problem med att räkna rabattkoder",
         error: countResult.error,
-        tables
+        tables,
+        codes: [] // Add empty codes array for consistency
       };
     }
     
@@ -118,7 +120,8 @@ export async function runInspectionProcess(dealId: number | string) {
         success: false, 
         message: "Ett fel uppstod vid hämtning av alla rabattkoder",
         error: allCodesResult.error,
-        tables
+        tables,
+        codes: [] // Add empty codes array for consistency
       };
     }
     
@@ -168,6 +171,7 @@ export async function runInspectionProcess(dealId: number | string) {
     return {
       success: false,
       message: "Ett oväntat fel uppstod vid inspektion",
+      codes: [], // Add empty codes array for consistency
       error
     };
   }
