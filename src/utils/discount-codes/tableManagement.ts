@@ -15,24 +15,20 @@ export async function getTableInfo() {
     // Om det gick att hämta data, logga information om tabellen
     if (!error && data !== null) {
       // Using get_tables instead of get_table_def since it's not available
-      const metadataPromise = supabase
-        .rpc('get_tables')
-        .then(result => {
-          return result;
-        })
-        .catch(e => {
-          console.error("[getTableInfo] Error getting table metadata:", e);
-          return { data: null };
-        });
+      let metadata = null;
+      try {
+        const result = await supabase.rpc('get_tables');
+        metadata = result.data;
+      } catch (e) {
+        console.error("[getTableInfo] Error getting table metadata:", e);
+      }
         
-      const metadata = await metadataPromise;
-      
       // Sammanställ information om tabellen
       return {
         table: 'discount_codes',
         exists: true,
         hasData: data.length > 0,
-        metadata: metadata?.data || null
+        metadata: metadata || null
       };
     }
     
